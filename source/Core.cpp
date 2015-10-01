@@ -70,6 +70,7 @@ Core::Pointer Core::Inst() noexcept
     {
         return Pointer(new Core(), &Core::_Finalizer);
     }
+
     return Pointer(nullptr, &Core::_Finalizer);
 }
 
@@ -362,7 +363,11 @@ bool Core::CreateVM() noexcept
 
 void Core::DestroyVM() noexcept
 {
-    if (m_VM) sq_close(m_VM);
+    if (m_VM != nullptr)
+    {
+        sq_close(m_VM);
+        m_VM = nullptr;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1427,7 +1432,7 @@ void Core::OnSphereExited(SQInt32 sphere, SQInt32 player) noexcept
 // ------------------------------------------------------------------------------------------------
 void Core::OnServerFrame(SQFloat delta) noexcept
 {
-
+    ServerFrame.Emit(std::forward< SQFloat >(delta));
 }
 
 // ------------------------------------------------------------------------------------------------

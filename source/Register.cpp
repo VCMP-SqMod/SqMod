@@ -69,7 +69,12 @@ bool RegisterAPI(HSQUIRRELVM vm) noexcept
         _Log->cFtl(!Register_CWastedSettings(vm), "Unable to register: CWastedSettings") || \
         _Log->cFtl(!Register_CWeapon(vm), "Unable to register: CWeapon") || \
         _Log->cFtl(!Register_CWorldBounds(vm), "Unable to register: CWorldBounds") || \
-        _Log->cFtl(!Register_Misc(vm), "Unable to register: Misc")
+        _Log->cFtl(!Register_Misc(vm), "Unable to register: Misc") || \
+
+        _Log->cFtl(!Register_BasicEvent(vm), "Unable to register: BasicEvent") || \
+        _Log->cFtl(!Register_GlobalEvent(vm), "Unable to register: GlobalEvent") || \
+        _Log->cFtl(!Register_LocalEvent(vm), "Unable to register: LocalEvent") || \
+        _Log->cFtl(!Register_Event(vm), "Unable to register: Event")
     ) return false;
 
     return true;

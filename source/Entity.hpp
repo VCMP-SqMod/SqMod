@@ -1317,7 +1317,8 @@ public:
 
     /* --------------------------------------------------------------------------------------------
      * Counts the number of persistent references for this entity
-    */    SQUint32 CountPersistentRefs() const noexcept
+    */
+    SQUint32 CountPersistentRefs() const noexcept
     {
         SQUint32 refs = 0;
         // Make sure the reference is valid
@@ -1379,9 +1380,8 @@ private:
         if (RefType::Verify(id))
         {
             RefType * ref = 0, bkp = 0;
-
+            // Get the pointer to the first backward reference
             ref = RefType::s_Instances[id].Root->m_Prev;
-
             // Deactivate backward references
             while (ref)
             {
@@ -1402,9 +1402,8 @@ private:
                     bkp->RemoveFromChain();
                 }
             }
-
+            // Get the pointer to the first forward reference
             ref = RefType::s_Instances[id].Root->m_Next;
-
             // Deactivate forward references
             while (ref)
             {
@@ -1459,10 +1458,12 @@ private:
             // See if there's any persistent references to activate
             if (RefType::s_Instances[id].Root)
             {
+                // @TODO Remove the reference from the chain, if somehow
+                //  is present there without being persistent
+
                 // Resurect backward references
                 for (RefType * ref = RefType::s_Instances[id].Root->m_Prev; ref; ref = ref->m_Prev)
                 {
-                    // Unnecessary check, but just to be sure
                     if (ref->m_Persistent)
                     {
                         ref->m_ID = id;
@@ -1471,7 +1472,6 @@ private:
                 // Resurect forward references
                 for (RefType * ref = RefType::s_Instances[id].Root->m_Next; ref; ref = ref->m_Next)
                 {
-                    // Unnecessary check, but just to be sure
                     if (ref->m_Persistent)
                     {
                         ref->m_ID = id;

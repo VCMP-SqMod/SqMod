@@ -99,6 +99,12 @@ bool Register_STextdraw(HSQUIRRELVM vm);
 bool Register_Selector(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
+bool Register_BasicEvent(HSQUIRRELVM vm);
+bool Register_GlobalEvent(HSQUIRRELVM vm);
+bool Register_LocalEvent(HSQUIRRELVM vm);
+bool Register_Event(HSQUIRRELVM vm);
+
+// ------------------------------------------------------------------------------------------------
 bool Register_Utility(HSQUIRRELVM vm);
 
 } // Namespace:: SqMod

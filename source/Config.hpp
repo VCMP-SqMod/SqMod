@@ -201,7 +201,6 @@ template < class T > class Ent;
 template < class T > class EntMan;
 template < class T > class Reference;
 
-
 // ------------------------------------------------------------------------------------------------
 class CBlip;
 class CCheckpoint;
@@ -217,9 +216,16 @@ class CVehicle;
 // ------------------------------------------------------------------------------------------------
 struct CAutomobile;
 struct CModel;
+struct CPlayerImmunity;
+struct CRadio;
+struct CSkin;
+struct CSound;
+struct CVehicleImmunity;
+struct CWastedSettings;
+struct CWeapon;
+struct CWorldBounds;
 
 // ------------------------------------------------------------------------------------------------
-
 
 } // Namespace:: SqMod
 
@@ -298,8 +304,10 @@ struct CModel;
 #define _SCU32(v) static_cast<Uint32>(v)
 #define _SCI64(v) static_cast<Int64>(v)
 #define _SCU64(v) static_cast<Uint64>(v)
+#define _SCSQI(v) static_cast<SQInteger>(v)
 #define _SCF32(v) static_cast<Float32>(v)
 #define _SCF64(v) static_cast<Float64>(v)
+#define _SCSQF(v) static_cast<SQFloat>(v)
 
 // Short notation for getting the minimum and maxmimum value of primitives
 #define _NLMIN(t) std::numeric_limits<t>::min()
