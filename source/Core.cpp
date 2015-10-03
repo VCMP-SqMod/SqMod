@@ -372,7 +372,7 @@ void Core::DestroyVM() noexcept
         m_Scripts.clear();
         // Close the Virtual Machine
         sq_close(m_VM);
-        // Set the virtual machine to null
+        // Explicitly set the virtual machine to null
         m_VM = nullptr;
     }
 }
