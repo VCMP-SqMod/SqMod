@@ -33,7 +33,7 @@ BasicEvent::BasicEvent(SQInt32 type, bool suspended) noexcept
     , m_Data()
     , m_Suspended(suspended)
 {
-    Attach(m_Type);
+    Attach();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ BasicEvent::BasicEvent(const BasicEvent & o) noexcept
     , m_Data(o.m_Data)
     , m_Suspended(o.m_Suspended)
 {
-    Attach(m_Type);
+    Attach();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -65,13 +65,13 @@ BasicEvent::BasicEvent(BasicEvent && o) noexcept
     , m_Data(o.m_Data)
     , m_Suspended(o.m_Suspended)
 {
-    Attach(m_Type);
+    Attach();
 }
 
 // ------------------------------------------------------------------------------------------------
 BasicEvent::~BasicEvent()
 {
-    Detach(m_Type);
+    Detach();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ BasicEvent & BasicEvent::operator = (const BasicEvent & o) noexcept
 {
     if (this != &o)
     {
-        Detach(m_Type);
+        Detach();
 
         m_Type = o.m_Type;
         m_Stride = o.m_Stride;
@@ -92,7 +92,7 @@ BasicEvent & BasicEvent::operator = (const BasicEvent & o) noexcept
         m_Data = o.m_Data;
         m_Suspended = o.m_Suspended;
 
-        Attach(m_Type);
+        Attach();
     }
 
     return *this;
@@ -103,7 +103,7 @@ BasicEvent & BasicEvent::operator = (BasicEvent && o) noexcept
 {
     if (this != &o)
     {
-        Detach(m_Type);
+        Detach();
 
         m_Type = o.m_Type;
         m_Stride = o.m_Stride;
@@ -116,7 +116,7 @@ BasicEvent & BasicEvent::operator = (BasicEvent && o) noexcept
         m_Data = o.m_Data;
         m_Suspended = o.m_Suspended;
 
-        Attach(m_Type);
+        Attach();
     }
 
     return *this;
@@ -279,6 +279,7 @@ void BasicEvent::SetOnTrigger(const Function & func) noexcept
 {
     m_OnTrigger = func;
 }
+
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::BlipCreated(SQInt32 blip, SQInt32 header, Object & payload) noexcept
 {
@@ -1241,9 +1242,9 @@ bool BasicEvent::Trigger() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::Attach(EventType evt) noexcept
+void BasicEvent::Attach() noexcept
 {
-    switch (evt)
+    switch (m_Type)
     {
         case EVT_BLIPCREATED:
             _Core->BlipCreated.Connect< BasicEvent, &BasicEvent::BlipCreated >(this);
@@ -1563,9 +1564,9 @@ void BasicEvent::Attach(EventType evt) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::Detach(EventType evt) noexcept
+void BasicEvent::Detach() noexcept
 {
-    switch (evt)
+    switch (m_Type)
     {
         case EVT_BLIPCREATED:
             _Core->BlipCreated.Disconnect< BasicEvent, &BasicEvent::BlipCreated >(this);
