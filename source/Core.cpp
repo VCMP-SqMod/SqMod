@@ -363,9 +363,16 @@ bool Core::CreateVM() noexcept
 
 void Core::DestroyVM() noexcept
 {
+    // See if the Virtual Machine wasn't already destroyed
     if (m_VM != nullptr)
     {
+        // Release the reference to the root table
+        m_RootTable.reset();
+        // Release the references to the script objects
+        m_Scripts.clear();
+        // Close the Virtual Machine
         sq_close(m_VM);
+        // Set the virtual machine to null
         m_VM = nullptr;
     }
 }
