@@ -19,7 +19,7 @@ class BasicEvent
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
+    typedef std::chrono::time_point< std::chrono::steady_clock > TimePoint;
 
 public:
 
@@ -749,12 +749,12 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Attach(EventType evt) noexcept;
+    void Attach() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Detach(EventType evt) noexcept;
+    void Detach() noexcept;
 
 private:
 
