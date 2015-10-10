@@ -53,22 +53,6 @@ BasicEvent::BasicEvent(const BasicEvent & o) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-BasicEvent::BasicEvent(BasicEvent && o) noexcept
-    : m_Type(o.m_Type)
-    , m_Stride(o.m_Stride)
-    , m_Ignore(o.m_Ignore)
-    , m_Primary(o.m_Primary)
-    , m_Secondary(o.m_Secondary)
-    , m_Idle(o.m_Idle)
-    , m_OnTrigger(o.m_OnTrigger)
-    , m_Tag(o.m_Tag)
-    , m_Data(o.m_Data)
-    , m_Suspended(o.m_Suspended)
-{
-    Attach();
-}
-
-// ------------------------------------------------------------------------------------------------
 BasicEvent::~BasicEvent()
 {
     Detach();
@@ -76,30 +60,6 @@ BasicEvent::~BasicEvent()
 
 // ------------------------------------------------------------------------------------------------
 BasicEvent & BasicEvent::operator = (const BasicEvent & o) noexcept
-{
-    if (this != &o)
-    {
-        Detach();
-
-        m_Type = o.m_Type;
-        m_Stride = o.m_Stride;
-        m_Ignore = o.m_Ignore;
-        m_Primary = o.m_Primary;
-        m_Secondary = o.m_Secondary;
-        m_Idle = o.m_Idle;
-        m_OnTrigger = o.m_OnTrigger;
-        m_Tag = o.m_Tag;
-        m_Data = o.m_Data;
-        m_Suspended = o.m_Suspended;
-
-        Attach();
-    }
-
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-BasicEvent & BasicEvent::operator = (BasicEvent && o) noexcept
 {
     if (this != &o)
     {
@@ -171,12 +131,6 @@ const SQChar * BasicEvent::GetName() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 BasicEvent::GetType() const noexcept
-{
-    return m_Type;
-}
-
-// ------------------------------------------------------------------------------------------------
 const SQChar * BasicEvent::GetTag() const noexcept
 {
     return m_Tag.c_str();
@@ -196,6 +150,30 @@ SqObj & BasicEvent::GetData() noexcept
 void BasicEvent::SetData(SqObj & data) noexcept
 {
     m_Data = data;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInt32 BasicEvent::GetType() const noexcept
+{
+    return m_Type;
+}
+
+void BasicEvent::SetType(SQInt32 type) noexcept
+{
+    // Make sure the newly specified event is valid
+    if (type == EVT_UNKNOWN || type >= EVT_COUNT)
+    {
+        LogErr("Cannot change the event to an incompatible type: %s", GetEventName(type));
+    }
+    else
+    {
+        // Detach from the current event type
+        Detach();
+        // Set the new event type
+        m_Type = type;
+        // Attach to the new event type
+        Attach();
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -283,7 +261,8 @@ void BasicEvent::SetOnTrigger(const Function & func) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::BlipCreated(SQInt32 blip, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(blip, header, payload);
     }
@@ -292,7 +271,8 @@ void BasicEvent::BlipCreated(SQInt32 blip, SQInt32 header, Object & payload) noe
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::CheckpointCreated(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(checkpoint, header, payload);
     }
@@ -301,7 +281,8 @@ void BasicEvent::CheckpointCreated(SQInt32 checkpoint, SQInt32 header, Object & 
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::KeybindCreated(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(keybind, header, payload);
     }
@@ -310,7 +291,8 @@ void BasicEvent::KeybindCreated(SQInt32 keybind, SQInt32 header, Object & payloa
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ObjectCreated(SQInt32 object, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(object, header, payload);
     }
@@ -319,7 +301,8 @@ void BasicEvent::ObjectCreated(SQInt32 object, SQInt32 header, Object & payload)
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PickupCreated(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(pickup, header, payload);
     }
@@ -328,7 +311,8 @@ void BasicEvent::PickupCreated(SQInt32 pickup, SQInt32 header, Object & payload)
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerCreated(SQInt32 player, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(player, header, payload);
     }
@@ -337,7 +321,8 @@ void BasicEvent::PlayerCreated(SQInt32 player, SQInt32 header, Object & payload)
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::SphereCreated(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(sphere, header, payload);
     }
@@ -346,7 +331,8 @@ void BasicEvent::SphereCreated(SQInt32 sphere, SQInt32 header, Object & payload)
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::SpriteCreated(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(sprite, header, payload);
     }
@@ -355,7 +341,8 @@ void BasicEvent::SpriteCreated(SQInt32 sprite, SQInt32 header, Object & payload)
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::TextdrawCreated(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(textdraw, header, payload);
     }
@@ -364,7 +351,8 @@ void BasicEvent::TextdrawCreated(SQInt32 textdraw, SQInt32 header, Object & payl
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::VehicleCreated(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(vehicle, header, payload);
     }
@@ -373,7 +361,8 @@ void BasicEvent::VehicleCreated(SQInt32 vehicle, SQInt32 header, Object & payloa
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(blip, header, payload);
     }
@@ -382,7 +371,8 @@ void BasicEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) n
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(checkpoint, header, payload);
     }
@@ -391,7 +381,8 @@ void BasicEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object 
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(keybind, header, payload);
     }
@@ -400,7 +391,8 @@ void BasicEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payl
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(object, header, payload);
     }
@@ -409,7 +401,8 @@ void BasicEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payloa
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(pickup, header, payload);
     }
@@ -418,7 +411,8 @@ void BasicEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payloa
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(player, header, payload);
     }
@@ -427,7 +421,8 @@ void BasicEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payloa
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(sphere, header, payload);
     }
@@ -436,7 +431,8 @@ void BasicEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payloa
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(sprite, header, payload);
     }
@@ -445,7 +441,8 @@ void BasicEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payloa
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(textdraw, header, payload);
     }
@@ -454,7 +451,8 @@ void BasicEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & pa
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(vehicle, header, payload);
     }
@@ -463,7 +461,8 @@ void BasicEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payl
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(blip, header, payload);
     }
@@ -472,7 +471,8 @@ void BasicEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload) noex
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(checkpoint, header, payload);
     }
@@ -481,7 +481,8 @@ void BasicEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & p
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(keybind, header, payload);
     }
@@ -490,7 +491,8 @@ void BasicEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(object, header, payload);
     }
@@ -499,7 +501,8 @@ void BasicEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload) 
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(pickup, header, payload);
     }
@@ -508,7 +511,8 @@ void BasicEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload) 
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(player, header, payload);
     }
@@ -517,7 +521,8 @@ void BasicEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload) 
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(sphere, header, payload);
     }
@@ -526,7 +531,8 @@ void BasicEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload) 
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(sprite, header, payload);
     }
@@ -535,7 +541,8 @@ void BasicEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload) 
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(textdraw, header, payload);
     }
@@ -544,7 +551,8 @@ void BasicEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & paylo
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(vehicle, header, payload);
     }
@@ -553,7 +561,8 @@ void BasicEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerAway(SQInt32 player, bool status) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || status == m_Primary) && (m_Secondary < 0 || status == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || status == m_Primary) && (m_Secondary < 0 || status == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, bool >(player, status);
     }
@@ -562,7 +571,8 @@ void BasicEvent::PlayerAway(SQInt32 player, bool status) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32 >(player, previous, current);
     }
@@ -580,7 +590,8 @@ void BasicEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQC
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || offset == m_Primary) && (m_Secondary < 0 || offset == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || offset == m_Primary) && (m_Secondary < 0 || offset == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, offset);
     }
@@ -670,7 +681,8 @@ void BasicEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current)
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32 >(player, previous, current);
     }
@@ -688,7 +700,8 @@ void BasicEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vect
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerWasted(SQInt32 player, SQInt32 reason) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || reason == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || reason == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, reason);
     }
@@ -697,18 +710,20 @@ void BasicEvent::PlayerWasted(SQInt32 player, SQInt32 reason) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || body_part == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || body_part == m_Secondary))
     {
-        m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32 >(player, reason, body_part);
+        m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32, SQInt32 >(player, killer, reason, body_part);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || body_part == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || body_part == m_Secondary))
     {
-        m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32 >(player, reason, body_part);
+        m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32, SQInt32 >(player, killer, reason, body_part);
     }
 }
 
@@ -733,7 +748,8 @@ void BasicEvent::PlayerCrashreport(SQInt32 player, const SQChar * report) noexce
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerBurning(SQInt32 player, bool state) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, bool >(player, state);
     }
@@ -742,7 +758,8 @@ void BasicEvent::PlayerBurning(SQInt32 player, bool state) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerCrouching(SQInt32 player, bool state) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, bool >(player, state);
     }
@@ -751,7 +768,8 @@ void BasicEvent::PlayerCrouching(SQInt32 player, bool state) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32 >(player, previous, current);
     }
@@ -760,7 +778,8 @@ void BasicEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current) 
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32 >(player, previous, current);
     }
@@ -769,7 +788,8 @@ void BasicEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current)
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::StateNone(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -778,7 +798,8 @@ void BasicEvent::StateNone(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::StateNormal(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -787,7 +808,8 @@ void BasicEvent::StateNormal(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::StateShooting(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -796,7 +818,8 @@ void BasicEvent::StateShooting(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::StateDriver(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -805,7 +828,8 @@ void BasicEvent::StateDriver(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::StatePassenger(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -814,7 +838,8 @@ void BasicEvent::StatePassenger(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::StateEnterDriver(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -823,7 +848,8 @@ void BasicEvent::StateEnterDriver(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -832,7 +858,8 @@ void BasicEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::StateExitVehicle(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -841,7 +868,8 @@ void BasicEvent::StateExitVehicle(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::StateUnspawned(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -850,7 +878,8 @@ void BasicEvent::StateUnspawned(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionNone(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -859,7 +888,8 @@ void BasicEvent::ActionNone(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionNormal(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -868,7 +898,8 @@ void BasicEvent::ActionNormal(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionAiming(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -877,7 +908,8 @@ void BasicEvent::ActionAiming(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionShooting(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -886,7 +918,8 @@ void BasicEvent::ActionShooting(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionJumping(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -895,7 +928,8 @@ void BasicEvent::ActionJumping(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionLieDown(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -904,7 +938,8 @@ void BasicEvent::ActionLieDown(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionGettingUp(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -913,7 +948,8 @@ void BasicEvent::ActionGettingUp(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -922,7 +958,8 @@ void BasicEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionDriving(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -931,7 +968,8 @@ void BasicEvent::ActionDriving(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionDying(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -940,7 +978,8 @@ void BasicEvent::ActionDying(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionWasted(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -949,7 +988,8 @@ void BasicEvent::ActionWasted(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionEmbarking(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -958,7 +998,8 @@ void BasicEvent::ActionEmbarking(SQInt32 player, SQInt32 previous) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ActionDisembarking(SQInt32 player, SQInt32 previous) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32 >(player, previous);
     }
@@ -1030,7 +1071,8 @@ void BasicEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || slot == m_Primary) && (m_Secondary < 0 || slot == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || slot == m_Primary) && (m_Secondary < 0 || slot == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32 >(player, vehicle, slot);
     }
@@ -1039,7 +1081,8 @@ void BasicEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || slot == m_Primary) && (m_Secondary < 0 || slot == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || slot == m_Primary) && (m_Secondary < 0 || slot == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32 >(player, vehicle, slot);
     }
@@ -1075,7 +1118,8 @@ void BasicEvent::PickupCollected(SQInt32 player, SQInt32 pickup) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || weapon == m_Primary) && (m_Secondary < 0 || weapon == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || weapon == m_Primary) && (m_Secondary < 0 || weapon == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, SQInt32 >(player, object, weapon);
     }
@@ -1156,7 +1200,8 @@ void BasicEvent::ServerShutdown() noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::InternalCommand(SQInt32 type, const SQChar * text) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || type == m_Primary) && (m_Secondary < 0 || type == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || type == m_Primary) && (m_Secondary < 0 || type == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, const SQChar * >(type, text);
     }
@@ -1174,7 +1219,8 @@ void BasicEvent::LoginAttempt(const SQChar * name, const SQChar * pass, const SQ
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::CustomEvent(SQInt32 group, SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || group == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || group == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, SQInt32, Object & >(group, header, payload);
     }
@@ -1183,7 +1229,8 @@ void BasicEvent::CustomEvent(SQInt32 group, SQInt32 header, Object & payload) no
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::WorldOption(SQInt32 option, Object & value) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || option == m_Primary) && (m_Secondary < 0 || option == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || option == m_Primary) && (m_Secondary < 0 || option == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, Object & >(option, value);
     }
@@ -1192,7 +1239,8 @@ void BasicEvent::WorldOption(SQInt32 option, Object & value) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::WorldToggle(SQInt32 option, bool value) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || option == m_Primary) && (m_Secondary < 0 || value == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || option == m_Primary) && (m_Secondary < 0 || value == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, bool >(option, value);
     }
@@ -1201,7 +1249,8 @@ void BasicEvent::WorldToggle(SQInt32 option, bool value) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::ScriptReload(SQInt32 header, Object & payload) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, Object & >(header, payload);
     }
@@ -1210,7 +1259,8 @@ void BasicEvent::ScriptReload(SQInt32 header, Object & payload) noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::LogMessage(SQInt32 type, const SQChar * message) noexcept
 {
-    if (Trigger() && (m_Primary < 0 || type == m_Primary) && (m_Secondary < 0 || type == m_Secondary))
+    if (Trigger() && \
+        (m_Primary < 0 || type == m_Primary) && (m_Secondary < 0 || type == m_Secondary))
     {
         m_OnTrigger.Execute< SQInt32, const SQChar * >(type, message);
     }
@@ -1559,7 +1609,7 @@ void BasicEvent::Attach() noexcept
             _Core->LogMessage.Connect< BasicEvent, &BasicEvent::LogMessage >(this);
         break;
         default:
-            LogErr("Attempting to <attach> to an unknown event type: %d", _SCI32(evt));
+            LogErr("Attempting to <attach> to an unknown event type: %d", _SCI32(m_Type));
     }
 }
 
@@ -1881,7 +1931,7 @@ void BasicEvent::Detach() noexcept
             _Core->LogMessage.Disconnect< BasicEvent, &BasicEvent::LogMessage >(this);
         break;
         default:
-            LogErr("Attempting to <dettach> to an unknown event type: %d", _SCI32(evt));
+            LogErr("Attempting to <dettach> to an unknown event type: %d", _SCI32(m_Type));
     }
 }
 
@@ -1899,9 +1949,9 @@ bool Register_BasicEvent(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &BasicEvent::Cmp)
         .Func(_SC("_tostring"), &BasicEvent::GetName)
 
-        .Prop(_SC("type"), &BasicEvent::GetType)
         .Prop(_SC("ltag"), &BasicEvent::GetTag, &BasicEvent::SetTag)
         .Prop(_SC("ldata"), &BasicEvent::GetData, &BasicEvent::SetData)
+        .Prop(_SC("type"), &BasicEvent::GetType , &BasicEvent::SetType)
         .Prop(_SC("idle"), &BasicEvent::GetIdle, &BasicEvent::SetIdle)
         .Prop(_SC("is_idle"), &BasicEvent::IsIdle)
         .Prop(_SC("stride"), &BasicEvent::GetStride, &BasicEvent::SetStride)
@@ -1909,11 +1959,12 @@ bool Register_BasicEvent(HSQUIRRELVM vm)
         .Prop(_SC("primary"), &BasicEvent::GetPrimary, &BasicEvent::SetPrimary)
         .Prop(_SC("secondary"), &BasicEvent::GetSecondary, &BasicEvent::SetSecondary)
         .Prop(_SC("suspended"), &BasicEvent::GetSuspended, &BasicEvent::SetSuspended)
+        .Func(_SC("name"), &BasicEvent::GetName)
 
         .Prop(_SC("on_trigger"), &BasicEvent::GetOnTrigger, &BasicEvent::SetOnTrigger)
     );
     // Output debugging information
-    LogDbg("Registration of <CAutomobile> type was successful");
+    LogDbg("Registration of <BasicEvent> type was successful");
     // Registration succeeded
     return true;
 }
