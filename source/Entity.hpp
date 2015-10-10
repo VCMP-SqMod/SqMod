@@ -60,7 +60,7 @@ private:
     typedef struct Blip
     {
         // ----------------------------------------------------------------------------------------
-        Blip() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Blip() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -92,6 +92,11 @@ private:
         EBlipDestroyed          BlipDestroyed;
         EBlipCustom             BlipCustom;
 
+        // ----------------------------------------------------------------------------------------
+        EBlipCreated & Created() noexcept { return BlipCreated; }
+        EBlipDestroyed & Destroyed() noexcept { return BlipDestroyed; }
+        EBlipCustom & Custom() noexcept { return BlipCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -116,18 +121,37 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_BLIP;
-    static constexpr SQInt32 Limit  = SQMOD_BLIP_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Blip";
     static constexpr const SQChar* CName    = "CBlip";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_BLIP;
+    static constexpr SQInt32 Limit          = SQMOD_BLIP_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_BLIPCREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_BLIPDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_BLIPCUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_BLIPCREATED:
+            case EVT_BLIPDESTROYED:
+            case EVT_BLIPCUSTOM:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -150,7 +174,7 @@ private:
     typedef struct Checkpoint
     {
         // ----------------------------------------------------------------------------------------
-        Checkpoint() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Checkpoint() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -172,6 +196,12 @@ private:
         ECheckpointCustom       CheckpointCustom;
         ECheckpointEntered      CheckpointEntered;
         ECheckpointExited       CheckpointExited;
+
+        // ----------------------------------------------------------------------------------------
+        ECheckpointCreated & Created() noexcept { return CheckpointCreated; }
+        ECheckpointDestroyed & Destroyed() noexcept { return CheckpointDestroyed; }
+        ECheckpointCustom & Custom() noexcept { return CheckpointCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -193,18 +223,39 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_CHECKPOINT;
-    static constexpr SQInt32 Limit  = SQMOD_CHECKPOINT_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Checkpoint";
     static constexpr const SQChar* CName    = "CCheckpoint";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_CHECKPOINT;
+    static constexpr SQInt32 Limit          = SQMOD_CHECKPOINT_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_CHECKPOINTCREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_CHECKPOINTDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_CHECKPOINTCUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_CHECKPOINTCREATED:
+            case EVT_CHECKPOINTDESTROYED:
+            case EVT_CHECKPOINTCUSTOM:
+            case EVT_CHECKPOINTENTERED:
+            case EVT_CHECKPOINTEXITED:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -227,7 +278,7 @@ private:
     typedef struct Keybind
     {
         // ----------------------------------------------------------------------------------------
-        Keybind() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Keybind() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -257,6 +308,12 @@ private:
         EKeybindCustom          KeybindCustom;
         EKeybindKeyPress        KeybindKeyPress;
         EKeybindKeyRelease      KeybindKeyRelease;
+
+        // ----------------------------------------------------------------------------------------
+        EKeybindCreated & Created() noexcept { return KeybindCreated; }
+        EKeybindDestroyed & Destroyed() noexcept { return KeybindDestroyed; }
+        EKeybindCustom & Custom() noexcept { return KeybindCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -282,18 +339,39 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_KEYBIND;
-    static constexpr SQInt32 Limit  = SQMOD_KEYBIND_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Keybind";
     static constexpr const SQChar* CName    = "CKeybind";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_KEYBIND;
+    static constexpr SQInt32 Limit          = SQMOD_KEYBIND_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_KEYBINDCREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_KEYBINDDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_KEYBINDCUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_KEYBINDCREATED:
+            case EVT_KEYBINDDESTROYED:
+            case EVT_KEYBINDCUSTOM:
+            case EVT_KEYBINDKEYPRESS:
+            case EVT_KEYBINDKEYRELEASE:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -316,7 +394,7 @@ private:
     typedef struct Object
     {
         // ----------------------------------------------------------------------------------------
-        Object() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Object() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -338,6 +416,12 @@ private:
         EObjectCustom           ObjectCustom;
         EObjectShot             ObjectShot;
         EObjectBump             ObjectBump;
+
+        // ----------------------------------------------------------------------------------------
+        EObjectCreated & Created() noexcept { return ObjectCreated; }
+        EObjectDestroyed & Destroyed() noexcept { return ObjectDestroyed; }
+        EObjectCustom & Custom() noexcept { return ObjectCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -359,18 +443,39 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_OBJECT;
-    static constexpr SQInt32 Limit  = SQMOD_OBJECT_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Object";
     static constexpr const SQChar* CName    = "CObject";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_OBJECT;
+    static constexpr SQInt32 Limit          = SQMOD_OBJECT_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_OBJECTCREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_OBJECTDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_OBJECTCUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_OBJECTCREATED:
+            case EVT_OBJECTDESTROYED:
+            case EVT_OBJECTCUSTOM:
+            case EVT_OBJECTSHOT:
+            case EVT_OBJECTBUMP:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -393,7 +498,7 @@ private:
     typedef struct Pickup
     {
         // ----------------------------------------------------------------------------------------
-        Pickup() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Pickup() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -416,6 +521,12 @@ private:
         EPickupRespawn          PickupRespawn;
         EPickupClaimed          PickupClaimed;
         EPickupCollected        PickupCollected;
+
+        // ----------------------------------------------------------------------------------------
+        EPickupCreated & Created() noexcept { return PickupCreated; }
+        EPickupDestroyed & Destroyed() noexcept { return PickupDestroyed; }
+        EPickupCustom & Custom() noexcept { return PickupCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -438,18 +549,40 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_PICKUP;
-    static constexpr SQInt32 Limit  = SQMOD_PICKUP_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Pickup";
     static constexpr const SQChar* CName    = "CPickup";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_PICKUP;
+    static constexpr SQInt32 Limit          = SQMOD_PICKUP_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_PICKUPCREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_PICKUPDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_PICKUPCUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_PICKUPCREATED:
+            case EVT_PICKUPDESTROYED:
+            case EVT_PICKUPCUSTOM:
+            case EVT_PICKUPRESPAWN:
+            case EVT_PICKUPCLAIMED:
+            case EVT_PICKUPCOLLECTED:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -472,7 +605,7 @@ private:
     typedef struct Player
     {
         // ----------------------------------------------------------------------------------------
-        Player() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Player() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -538,6 +671,12 @@ private:
         EActionWasted           ActionWasted;
         EActionEmbarking        ActionEmbarking;
         EActionDisembarking     ActionDisembarking;
+
+        // ----------------------------------------------------------------------------------------
+        EPlayerCreated & Created() noexcept { return PlayerCreated; }
+        EPlayerDestroyed & Destroyed() noexcept { return PlayerDestroyed; }
+        EPlayerCustom & Custom() noexcept { return PlayerCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -603,18 +742,96 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_PLAYER;
-    static constexpr SQInt32 Limit  = SQMOD_PLAYER_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Player";
     static constexpr const SQChar* CName    = "CPlayer";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_PLAYER;
+    static constexpr SQInt32 Limit          = SQMOD_PLAYER_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_PLAYERCREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_PLAYERDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_PLAYERCUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_PLAYERCREATED:
+            case EVT_PLAYERDESTROYED:
+            case EVT_PLAYERCUSTOM:
+            case EVT_PLAYERAWAY:
+            case EVT_PLAYERGAMEKEYS:
+            case EVT_PLAYERRENAME:
+            case EVT_PLAYERREQUESTCLASS:
+            case EVT_PLAYERREQUESTSPAWN:
+            case EVT_PLAYERSPAWN:
+            case EVT_PLAYERSTARTTYPING:
+            case EVT_PLAYERSTOPTYPING:
+            case EVT_PLAYERCHAT:
+            case EVT_PLAYERCOMMAND:
+            case EVT_PLAYERMESSAGE:
+            case EVT_PLAYERHEALTH:
+            case EVT_PLAYERARMOUR:
+            case EVT_PLAYERWEAPON:
+            case EVT_PLAYERMOVE:
+            case EVT_PLAYERWASTED:
+            case EVT_PLAYERKILLED:
+            case EVT_PLAYERTEAMKILL:
+            case EVT_PLAYERSPECTATE:
+            case EVT_PLAYERCRASHREPORT:
+            case EVT_PLAYERBURNING:
+            case EVT_PLAYERCROUCHING:
+            case EVT_PLAYERSTATE:
+            case EVT_PLAYERACTION:
+            case EVT_STATENONE:
+            case EVT_STATENORMAL:
+            case EVT_STATESHOOTING:
+            case EVT_STATEDRIVER:
+            case EVT_STATEPASSENGER:
+            case EVT_STATEENTERDRIVER:
+            case EVT_STATEENTERPASSENGER:
+            case EVT_STATEEXITVEHICLE:
+            case EVT_STATEUNSPAWNED:
+            case EVT_ACTIONNONE:
+            case EVT_ACTIONNORMAL:
+            case EVT_ACTIONAIMING:
+            case EVT_ACTIONSHOOTING:
+            case EVT_ACTIONJUMPING:
+            case EVT_ACTIONLIEDOWN:
+            case EVT_ACTIONGETTINGUP:
+            case EVT_ACTIONJUMPVEHICLE:
+            case EVT_ACTIONDRIVING:
+            case EVT_ACTIONDYING:
+            case EVT_ACTIONWASTED:
+            case EVT_ACTIONEMBARKING:
+            case EVT_ACTIONDISEMBARKING:
+            case EVT_KEYBINDKEYPRESS:
+            case EVT_KEYBINDKEYRELEASE:
+            case EVT_VEHICLEEMBARKING:
+            case EVT_VEHICLEEMBARKED:
+            case EVT_VEHICLEDISEMBARK:
+            case EVT_PICKUPCLAIMED:
+            case EVT_PICKUPCOLLECTED:
+            case EVT_OBJECTSHOT:
+            case EVT_OBJECTBUMP:
+            case EVT_CHECKPOINTENTERED:
+            case EVT_CHECKPOINTEXITED:
+            case EVT_SPHEREENTERED:
+            case EVT_SPHEREEXITED:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -637,7 +854,7 @@ private:
     typedef struct Sphere
     {
         // ----------------------------------------------------------------------------------------
-        Sphere() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Sphere() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -659,6 +876,12 @@ private:
         ESphereCustom           SphereCustom;
         ESphereEntered          SphereEntered;
         ESphereExited           SphereExited;
+
+        // ----------------------------------------------------------------------------------------
+        ESphereCreated & Created() noexcept { return SphereCreated; }
+        ESphereDestroyed & Destroyed() noexcept { return SphereDestroyed; }
+        ESphereCustom & Custom() noexcept { return SphereCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -680,18 +903,39 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_SPHERE;
-    static constexpr SQInt32 Limit  = SQMOD_SPHERE_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Sphere";
     static constexpr const SQChar* CName    = "CSphere";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_SPHERE;
+    static constexpr SQInt32 Limit          = SQMOD_SPHERE_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_SPHERECREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_SPHEREDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_SPHERECUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_SPHERECREATED:
+            case EVT_SPHEREDESTROYED:
+            case EVT_SPHERECUSTOM:
+            case EVT_SPHEREENTERED:
+            case EVT_SPHEREEXITED:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -714,7 +958,7 @@ private:
     typedef struct Sprite
     {
         // ----------------------------------------------------------------------------------------
-        Sprite() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Sprite() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -737,6 +981,12 @@ private:
         ESpriteCreated          SpriteCreated;
         ESpriteDestroyed        SpriteDestroyed;
         ESpriteCustom           SpriteCustom;
+
+        // ----------------------------------------------------------------------------------------
+        ESpriteCreated & Created() noexcept { return SpriteCreated; }
+        ESpriteDestroyed & Destroyed() noexcept { return SpriteDestroyed; }
+        ESpriteCustom & Custom() noexcept { return SpriteCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -756,18 +1006,37 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_SPRITE;
-    static constexpr SQInt32 Limit  = SQMOD_SPRITE_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Sprite";
     static constexpr const SQChar* CName    = "CSprite";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_SPRITE;
+    static constexpr SQInt32 Limit          = SQMOD_SPRITE_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_SPRITECREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_SPRITEDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_SPRITECUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_SPRITECREATED:
+            case EVT_SPRITEDESTROYED:
+            case EVT_SPRITECUSTOM:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -790,7 +1059,7 @@ private:
     typedef struct Textdraw
     {
         // ----------------------------------------------------------------------------------------
-        Textdraw() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Textdraw() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -813,6 +1082,12 @@ private:
         ETextdrawCreated        TextdrawCreated;
         ETextdrawDestroyed      TextdrawDestroyed;
         ETextdrawCustom         TextdrawCustom;
+
+        // ----------------------------------------------------------------------------------------
+        ETextdrawCreated & Created() noexcept { return TextdrawCreated; }
+        ETextdrawDestroyed & Destroyed() noexcept { return TextdrawDestroyed; }
+        ETextdrawCustom & Custom() noexcept { return TextdrawCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -832,18 +1107,37 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_TEXTDRAW;
-    static constexpr SQInt32 Limit  = SQMOD_TEXTDRAW_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Textdraw";
     static constexpr const SQChar* CName    = "CTextdraw";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_TEXTDRAW;
+    static constexpr SQInt32 Limit          = SQMOD_TEXTDRAW_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_TEXTDRAWCREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_TEXTDRAWDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_TEXTDRAWCUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_TEXTDRAWCREATED:
+            case EVT_TEXTDRAWDESTROYED:
+            case EVT_TEXTDRAWCUSTOM:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -866,7 +1160,7 @@ private:
     typedef struct Vehicle
     {
         // ----------------------------------------------------------------------------------------
-        Vehicle() : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Vehicle() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -893,6 +1187,12 @@ private:
         EVehicleEmbarking       VehicleEmbarking;
         EVehicleEmbarked        VehicleEmbarked;
         EVehicleDisembark       VehicleDisembark;
+
+        // ----------------------------------------------------------------------------------------
+        EVehicleCreated & Created() noexcept { return VehicleCreated; }
+        EVehicleDestroyed & Destroyed() noexcept { return VehicleDestroyed; }
+        EVehicleCustom & Custom() noexcept { return VehicleCustom; }
+
     } Instance;
 
     // --------------------------------------------------------------------------------------------
@@ -919,18 +1219,44 @@ private:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static constexpr SQInt32 TypeID = ENT_VEHICLE;
-    static constexpr SQInt32 Limit  = SQMOD_VEHICLE_POOL;
-
-    // --------------------------------------------------------------------------------------------
     static constexpr const SQChar* Name     = "Vehicle";
     static constexpr const SQChar* CName    = "CVehicle";
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 TypeID         = ENT_VEHICLE;
+    static constexpr SQInt32 Limit          = SQMOD_VEHICLE_POOL;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32 CreateEvID     = EVT_VEHICLECREATED;
+    static constexpr SQInt32 DestroyEvID    = EVT_VEHICLEDESTROYED;
+    static constexpr SQInt32 CustomEvID     = EVT_VEHICLECUSTOM;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
 
     // --------------------------------------------------------------------------------------------
     typedef std::bitset< Limit >            Set;
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_VEHICLECREATED:
+            case EVT_VEHICLEDESTROYED:
+            case EVT_VEHICLECUSTOM:
+            case EVT_VEHICLERESPAWN:
+            case EVT_VEHICLEEXPLODE:
+            case EVT_VEHICLEHEALTH:
+            case EVT_VEHICLEMOVE:
+            case EVT_VEHICLEEMBARKING:
+            case EVT_VEHICLEEMBARKED:
+            case EVT_VEHICLEDISEMBARK:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -951,6 +1277,9 @@ public:
 
     // --------------------------------------------------------------------------------------------
     static constexpr SQInt32    Max = Ent< T >::Limit;
+
+    // --------------------------------------------------------------------------------------------
+    static constexpr SQInt32    TypeID = Ent< T >::TypeID;
 
 protected:
 
@@ -1023,11 +1352,19 @@ protected:
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Verify that the specified entity instacne is active
+     * Verify that the specified entity instance is active
     */
     static bool Verify(SQInt32 id) noexcept
     {
         return (VALID_ENTITYEX(id, Max) && VALID_ENTITY(s_Instances[id].ID));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns a reference to the specified entity instance
+    */
+    static typename Ent< T >::Instance & Get(SQInt32 id) noexcept
+    {
+        return s_Instances[id]; /* Expects the callee to deal with range checks! */
     }
 
 public:
