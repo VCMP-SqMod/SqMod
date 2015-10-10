@@ -6,9 +6,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * GetEventName(EventType evt)
+const SQChar * GetEventName(SQInt32 type) noexcept
 {
-    switch (evt)
+    switch (type)
     {
         case EVT_BLIPCREATED:           return _SC("Blip Created");
         case EVT_CHECKPOINTCREATED:     return _SC("Checkpoint Created");
@@ -117,6 +117,174 @@ const SQChar * GetEventName(EventType evt)
         default:                        return _SC("Unknown");
     }
 
+}
+
+// ------------------------------------------------------------------------------------------------
+bool IsEntityEvent(SQInt32 type) noexcept
+{
+    switch (type)
+    {
+        case EVT_BLIPCREATED:
+        case EVT_CHECKPOINTCREATED:
+        case EVT_KEYBINDCREATED:
+        case EVT_OBJECTCREATED:
+        case EVT_PICKUPCREATED:
+        case EVT_PLAYERCREATED:
+        case EVT_SPHERECREATED:
+        case EVT_SPRITECREATED:
+        case EVT_TEXTDRAWCREATED:
+        case EVT_VEHICLECREATED:
+        case EVT_BLIPDESTROYED:
+        case EVT_CHECKPOINTDESTROYED:
+        case EVT_KEYBINDDESTROYED:
+        case EVT_OBJECTDESTROYED:
+        case EVT_PICKUPDESTROYED:
+        case EVT_PLAYERDESTROYED:
+        case EVT_SPHEREDESTROYED:
+        case EVT_SPRITEDESTROYED:
+        case EVT_TEXTDRAWDESTROYED:
+        case EVT_VEHICLEDESTROYED:
+        case EVT_BLIPCUSTOM:
+        case EVT_CHECKPOINTCUSTOM:
+        case EVT_KEYBINDCUSTOM:
+        case EVT_OBJECTCUSTOM:
+        case EVT_PICKUPCUSTOM:
+        case EVT_PLAYERCUSTOM:
+        case EVT_SPHERECUSTOM:
+        case EVT_SPRITECUSTOM:
+        case EVT_TEXTDRAWCUSTOM:
+        case EVT_VEHICLECUSTOM:
+        case EVT_PLAYERAWAY:
+        case EVT_PLAYERGAMEKEYS:
+        case EVT_PLAYERRENAME:
+        case EVT_PLAYERREQUESTCLASS:
+        case EVT_PLAYERREQUESTSPAWN:
+        case EVT_PLAYERSPAWN:
+        case EVT_PLAYERSTARTTYPING:
+        case EVT_PLAYERSTOPTYPING:
+        case EVT_PLAYERCHAT:
+        case EVT_PLAYERCOMMAND:
+        case EVT_PLAYERMESSAGE:
+        case EVT_PLAYERHEALTH:
+        case EVT_PLAYERARMOUR:
+        case EVT_PLAYERWEAPON:
+        case EVT_PLAYERMOVE:
+        case EVT_PLAYERWASTED:
+        case EVT_PLAYERKILLED:
+        case EVT_PLAYERTEAMKILL:
+        case EVT_PLAYERSPECTATE:
+        case EVT_PLAYERCRASHREPORT:
+        case EVT_PLAYERBURNING:
+        case EVT_PLAYERCROUCHING:
+        case EVT_PLAYERSTATE:
+        case EVT_PLAYERACTION:
+        case EVT_STATENONE:
+        case EVT_STATENORMAL:
+        case EVT_STATESHOOTING:
+        case EVT_STATEDRIVER:
+        case EVT_STATEPASSENGER:
+        case EVT_STATEENTERDRIVER:
+        case EVT_STATEENTERPASSENGER:
+        case EVT_STATEEXITVEHICLE:
+        case EVT_STATEUNSPAWNED:
+        case EVT_ACTIONNONE:
+        case EVT_ACTIONNORMAL:
+        case EVT_ACTIONAIMING:
+        case EVT_ACTIONSHOOTING:
+        case EVT_ACTIONJUMPING:
+        case EVT_ACTIONLIEDOWN:
+        case EVT_ACTIONGETTINGUP:
+        case EVT_ACTIONJUMPVEHICLE:
+        case EVT_ACTIONDRIVING:
+        case EVT_ACTIONDYING:
+        case EVT_ACTIONWASTED:
+        case EVT_ACTIONEMBARKING:
+        case EVT_ACTIONDISEMBARKING:
+        case EVT_VEHICLERESPAWN:
+        case EVT_VEHICLEEXPLODE:
+        case EVT_VEHICLEHEALTH:
+        case EVT_VEHICLEMOVE:
+        case EVT_PICKUPRESPAWN:
+        case EVT_KEYBINDKEYPRESS:
+        case EVT_KEYBINDKEYRELEASE:
+        case EVT_VEHICLEEMBARKING:
+        case EVT_VEHICLEEMBARKED:
+        case EVT_VEHICLEDISEMBARK:
+        case EVT_PICKUPCLAIMED:
+        case EVT_PICKUPCOLLECTED:
+        case EVT_OBJECTSHOT:
+        case EVT_OBJECTBUMP:
+        case EVT_CHECKPOINTENTERED:
+        case EVT_CHECKPOINTEXITED:
+        case EVT_SPHEREENTERED:
+        case EVT_SPHEREEXITED:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool IsCreateEvent(SQInt32 type) noexcept
+{
+    switch (type)
+    {
+        case EVT_BLIPCREATED:
+        case EVT_CHECKPOINTCREATED:
+        case EVT_KEYBINDCREATED:
+        case EVT_OBJECTCREATED:
+        case EVT_PICKUPCREATED:
+        case EVT_PLAYERCREATED:
+        case EVT_SPHERECREATED:
+        case EVT_SPRITECREATED:
+        case EVT_TEXTDRAWCREATED:
+        case EVT_VEHICLECREATED:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool IsDestroyEvent(SQInt32 type) noexcept
+{
+    switch (type)
+    {
+        case EVT_BLIPDESTROYED:
+        case EVT_CHECKPOINTDESTROYED:
+        case EVT_KEYBINDDESTROYED:
+        case EVT_OBJECTDESTROYED:
+        case EVT_PICKUPDESTROYED:
+        case EVT_PLAYERDESTROYED:
+        case EVT_SPHEREDESTROYED:
+        case EVT_SPRITEDESTROYED:
+        case EVT_TEXTDRAWDESTROYED:
+        case EVT_VEHICLEDESTROYED:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool IsCustomEvent(SQInt32 type) noexcept
+{
+    switch (type)
+    {
+        case EVT_BLIPCUSTOM:
+        case EVT_CHECKPOINTCUSTOM:
+        case EVT_KEYBINDCUSTOM:
+        case EVT_OBJECTCUSTOM:
+        case EVT_PICKUPCUSTOM:
+        case EVT_PLAYERCUSTOM:
+        case EVT_SPHERECUSTOM:
+        case EVT_SPRITECUSTOM:
+        case EVT_TEXTDRAWCUSTOM:
+        case EVT_VEHICLECUSTOM:
+            return true;
+        default:
+            return false;
+    }
 }
 
 // ================================================================================================

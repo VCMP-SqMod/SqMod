@@ -64,7 +64,7 @@ bool Register_LocalEvent(HSQUIRRELVM vm)
         .Ctor()
     );
     // Output debugging information
-    LogDbg("Registration of <CAutomobile> type was successful");
+    LogDbg("Registration of <LocalEvent> type was successful");
     // Registration succeeded
     return true;
 }
