@@ -226,6 +226,12 @@ struct CWeapon;
 struct CWorldBounds;
 
 // ------------------------------------------------------------------------------------------------
+template < class T >  class GlobalFilter;
+template < class T >  class LocalFilter;
+
+class BasicEvent;
+class GlobalEvent;
+class LocalEvent;
 
 } // Namespace:: SqMod
 
