@@ -137,31 +137,34 @@
 namespace SqMod {
 
 /**< 8 bits integer types */
-typedef signed          char        Int8;
-typedef unsigned        char        Uint8;
+typedef signed          char        Int8, I8, int8, i8;
+typedef unsigned        char        Uint8, U8, uint8, u8;
 
 /**< 16 bits integer types */
-typedef signed          short       Int16;
-typedef unsigned        short       Uint16;
+typedef signed          short       Int16, I16, int16, i16;
+typedef unsigned        short       Uint16, U16, uint16, u16;
 
 /**< 32 bits integer types */
-typedef signed          int         Int32;
-typedef unsigned        int         Uint32;
+typedef signed          int         Int32, I32, int32, i32;
+typedef unsigned        int         Uint32, U32, uint32, u32;
 
 /**< 64 bits integer types */
 #if defined(_MSC_VER)
-    typedef signed      __int64     Int64;
-    typedef unsigned    __int64     Uint64;
+    typedef signed      __int64     Int64, I64, int64, i64;
+    typedef unsigned    __int64     Uint64, U64, uint64, u64;
 #else
-    typedef signed      long long   Int64;
-    typedef unsigned    long long   Uint64;
+    typedef signed      long long   Int64, I64, int64, i64;
+    typedef unsigned    long long   Uint64, U64, uint64, u64;
 #endif
 
 /**< 32 bits float types */
-typedef float                       Float32;
+typedef float                       Float32, Real32, F32, float32, real32, f32;
 
 /**< 64 bits float types */
-typedef double                      Float64;
+typedef double                      Float64, Real64, F64, float64, real64, f64;
+
+/**< >64 bits float types */
+typedef long double                 Float128, Real128, F128, float128, real128, f128;
 
 /* ------------------------------------------------------------------------------------------------
  * SHORT SQUIRREL TYPENAMES
