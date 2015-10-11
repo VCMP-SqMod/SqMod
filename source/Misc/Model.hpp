@@ -69,14 +69,14 @@ public:
     bool IsActuallyWeapon() const noexcept;
     // --------------------------------------------------------------------------------------------
     Reference< CObject > Object(SQInt32 world, const Vector3 & pos, SQInt32 alpha, SQInt32 header, \
-                                const SqObj & payload) const noexcept;
+                                SqObj & payload) const noexcept;
     Reference< CObject > Object(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQInt32 alpha, \
-                                SQInt32 header, const SqObj & payload) const noexcept;
+                                SQInt32 header, SqObj & payload) const noexcept;
     // --------------------------------------------------------------------------------------------
     Reference< CPickup > Pickup(SQInt32 world, SQInt32 quantity, const Vector3 & pos, SQInt32 alpha, \
-                                bool automatic, SQInt32 header, const SqObj & payload) const noexcept;
+                                bool automatic, SQInt32 header, SqObj & payload) const noexcept;
     Reference< CPickup > Pickup(SQInt32 world, SQInt32 quantity, SQFloat x, SQFloat y, SQFloat z, \
-                                SQInt32 alpha, bool automatic, SQInt32 header, const SqObj & payload) const noexcept;
+                                SQInt32 alpha, bool automatic, SQInt32 header, SqObj & payload) const noexcept;
 private:
     // --------------------------------------------------------------------------------------------
     SQInt32     m_ID;

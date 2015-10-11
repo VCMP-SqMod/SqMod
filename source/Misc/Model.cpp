@@ -224,26 +224,26 @@ bool CModel::IsActuallyWeapon() const noexcept
 
 // ------------------------------------------------------------------------------------------------
 Reference< CObject > CModel::Object(SQInt32 world, const Vector3 & pos, SQInt32 alpha, SQInt32 header, \
-                                    const SqObj & payload) const noexcept
+                                    SqObj & payload) const noexcept
 {
     return _Core->CreateObject(*this, world, pos, alpha, header, payload);
 }
 
 Reference< CObject > CModel::Object(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQInt32 alpha, \
-                                    SQInt32 header, const SqObj & payload) const noexcept
+                                    SQInt32 header, SqObj & payload) const noexcept
 {
     return _Core->CreateObject(*this, world, Vector3(x, y, z), alpha, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
 Reference< CPickup > CModel::Pickup(SQInt32 world, SQInt32 quantity, const Vector3 & pos, SQInt32 alpha, \
-                                    bool automatic, SQInt32 header, const SqObj & payload) const noexcept
+                                    bool automatic, SQInt32 header, SqObj & payload) const noexcept
 {
     return _Core->CreatePickup(*this, world, quantity, pos, alpha, automatic, header, payload);
 }
 
 Reference< CPickup > CModel::Pickup(SQInt32 world, SQInt32 quantity, SQFloat x, SQFloat y, SQFloat z, \
-                                    SQInt32 alpha, bool automatic, SQInt32 header, const SqObj & payload) const noexcept
+                                    SQInt32 alpha, bool automatic, SQInt32 header, SqObj & payload) const noexcept
 {
     return _Core->CreatePickup(*this, world, quantity, Vector3(x, y, z), alpha, automatic, header, payload);
 }
@@ -274,10 +274,10 @@ bool Register_CModel(HSQUIRRELVM vm)
 
         .Func(_SC("setng"), &CModel::SetnGet)
 
-        .Overload< Reference< CObject > (CModel::*)(SQInt32, const Vector3 &, SQInt32, SQInt32, const SqObj &) const >(_SC("object"), &CModel::Object)
-        .Overload< Reference< CObject > (CModel::*)(SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, const SqObj &) const >(_SC("object"), &CModel::Object)
-        .Overload< Reference< CPickup > (CModel::*)(SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, const SqObj &) const >(_SC("pickup"), &CModel::Pickup)
-        .Overload< Reference< CPickup > (CModel::*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, const SqObj &) const >(_SC("pickup"), &CModel::Pickup)
+        .Overload< Reference< CObject > (CModel::*)(SQInt32, const Vector3 &, SQInt32, SQInt32, SqObj &) const >(_SC("object"), &CModel::Object)
+        .Overload< Reference< CObject > (CModel::*)(SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SqObj &) const >(_SC("object"), &CModel::Object)
+        .Overload< Reference< CPickup > (CModel::*)(SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) const >(_SC("pickup"), &CModel::Pickup)
+        .Overload< Reference< CPickup > (CModel::*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, SqObj &) const >(_SC("pickup"), &CModel::Pickup)
     );
     // Output debugging information
     LogDbg("Registration of <CModel> type was successful");
