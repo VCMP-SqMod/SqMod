@@ -68,15 +68,15 @@ public:
     const SQChar * GetName() const noexcept;
     // --------------------------------------------------------------------------------------------
     Reference < CVehicle > Create(SQInt32 world, const Vector3 & pos, SQFloat angle, \
-                                    SQInt32 header, const SqObj & payload) const noexcept;
+                                    SQInt32 header, SqObj & payload) const noexcept;
     Reference < CVehicle > Create(SQInt32 world, const Vector3 & pos, SQFloat angle, \
                                     SQInt32 primary, SQInt32 secondary, SQInt32 header, \
-                                    const SqObj & payload) const noexcept;
+                                    SqObj & payload) const noexcept;
     Reference < CVehicle > Create(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQFloat angle, \
-                                    SQInt32 header, const SqObj & payload) const noexcept;
+                                    SQInt32 header, SqObj & payload) const noexcept;
     Reference < CVehicle > Create(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQFloat angle, \
                                     SQInt32 primary, SQInt32 secondary, SQInt32 header, \
-                                    const SqObj & payload) const noexcept;
+                                    SqObj & payload) const noexcept;
 private:
     // --------------------------------------------------------------------------------------------
     SQInt32     m_ID;

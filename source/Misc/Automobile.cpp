@@ -215,27 +215,27 @@ const SQChar * CAutomobile::GetName() const noexcept
 
 // ------------------------------------------------------------------------------------------------
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, const Vector3 & pos, SQFloat angle, \
-                                            SQInt32 header, const SqObj & payload) const noexcept
+                                            SQInt32 header, SqObj & payload) const noexcept
 {
     return _Core->CreateVehicle(*this, world, pos, angle, SQMOD_UNKNOWN, SQMOD_UNKNOWN, header, payload);
 }
 
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, const Vector3 & pos, SQFloat angle, \
                                             SQInt32 primary, SQInt32 secondary, SQInt32 header, \
-                                            const SqObj & payload) const noexcept
+                                            SqObj & payload) const noexcept
 {
     return _Core->CreateVehicle(*this, world, pos, angle, primary, secondary, header, payload);
 }
 
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQFloat angle, \
-                                            SQInt32 header, const SqObj & payload) const noexcept
+                                            SQInt32 header, SqObj & payload) const noexcept
 {
     return _Core->CreateVehicle(*this, world, Vector3(x, y, z), angle, SQMOD_UNKNOWN, SQMOD_UNKNOWN, header, payload);
 }
 
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQFloat angle, \
                                             SQInt32 primary, SQInt32 secondary, SQInt32 header, \
-                                            const SqObj & payload) const noexcept
+                                            SqObj & payload) const noexcept
 {
     return _Core->CreateVehicle(*this, world, Vector3(x, y, z), angle, primary, secondary, header, payload);
 }
@@ -264,13 +264,13 @@ bool Register_CAutomobile(HSQUIRRELVM vm)
 
         .Func(_SC("setng"), &CAutomobile::SetnGet)
 
-        .Overload< Reference< CVehicle > (CAutomobile::*)(SQInt32, const Vector3 &, SQFloat, SQInt32, const SqObj &) const > \
+        .Overload< Reference< CVehicle > (CAutomobile::*)(SQInt32, const Vector3 &, SQFloat, SQInt32, SqObj &) const > \
                               (_SC("vehicle"), &CAutomobile::Create)
-        .Overload< Reference< CVehicle > (CAutomobile::*)(SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32, SQInt32, const SqObj &) const > \
+        .Overload< Reference< CVehicle > (CAutomobile::*)(SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) const > \
                               (_SC("vehicle"), &CAutomobile::Create)
-        .Overload< Reference< CVehicle > (CAutomobile::*)(SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, const SqObj &) const > \
+        .Overload< Reference< CVehicle > (CAutomobile::*)(SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SqObj &) const > \
                               (_SC("vehicle"), &CAutomobile::Create)
-        .Overload< Reference< CVehicle > (CAutomobile::*)(SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SQInt32, const SqObj &) const > \
+        .Overload< Reference< CVehicle > (CAutomobile::*)(SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) const > \
                               (_SC("vehicle"), &CAutomobile::Create)
     );
     // Output debugging information
