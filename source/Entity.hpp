@@ -152,6 +152,19 @@ public:
                 return false;
         }
     }
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool /* inversed */) noexcept
+    {
+        switch (type)
+        {
+            case EVT_BLIPCREATED:
+            case EVT_BLIPDESTROYED:
+            case EVT_BLIPCUSTOM:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -252,6 +265,23 @@ public:
             case EVT_CHECKPOINTENTERED:
             case EVT_CHECKPOINTEXITED:
                 return true;
+            default:
+                return false;
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    {
+        switch (type)
+        {
+            case EVT_CHECKPOINTCREATED:
+            case EVT_CHECKPOINTDESTROYED:
+            case EVT_CHECKPOINTCUSTOM:
+                return true;
+            case EVT_CHECKPOINTENTERED:
+            case EVT_CHECKPOINTEXITED:
+                return !inversed;
             default:
                 return false;
         }
@@ -372,6 +402,23 @@ public:
                 return false;
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    {
+        switch (type)
+        {
+            case EVT_KEYBINDCREATED:
+            case EVT_KEYBINDDESTROYED:
+            case EVT_KEYBINDCUSTOM:
+                return true;
+            case EVT_KEYBINDKEYPRESS:
+            case EVT_KEYBINDKEYRELEASE:
+                return !inversed;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -472,6 +519,23 @@ public:
             case EVT_OBJECTSHOT:
             case EVT_OBJECTBUMP:
                 return true;
+            default:
+                return false;
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    {
+        switch (type)
+        {
+            case EVT_OBJECTCREATED:
+            case EVT_OBJECTDESTROYED:
+            case EVT_OBJECTCUSTOM:
+                return true;
+            case EVT_OBJECTSHOT:
+            case EVT_OBJECTBUMP:
+                return !inversed;
             default:
                 return false;
         }
@@ -583,6 +647,24 @@ public:
                 return false;
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    {
+        switch (type)
+        {
+            case EVT_PICKUPCREATED:
+            case EVT_PICKUPDESTROYED:
+            case EVT_PICKUPCUSTOM:
+            case EVT_PICKUPRESPAWN:
+                return true;
+            case EVT_PICKUPCLAIMED:
+            case EVT_PICKUPCOLLECTED:
+                return !inversed;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -671,6 +753,19 @@ private:
         EActionWasted           ActionWasted;
         EActionEmbarking        ActionEmbarking;
         EActionDisembarking     ActionDisembarking;
+        EKeybindKeyPress        KeybindKeyPress;
+        EKeybindKeyRelease      KeybindKeyRelease;
+        EVehicleEmbarking       VehicleEmbarking;
+        EVehicleEmbarked        VehicleEmbarked;
+        EVehicleDisembark       VehicleDisembark;
+        EPickupClaimed          PickupClaimed;
+        EPickupCollected        PickupCollected;
+        EObjectShot             ObjectShot;
+        EObjectBump             ObjectBump;
+        ECheckpointEntered      CheckpointEntered;
+        ECheckpointExited       CheckpointExited;
+        ESphereEntered          SphereEntered;
+        ESphereExited           SphereExited;
 
         // ----------------------------------------------------------------------------------------
         EPlayerCreated & Created() noexcept { return PlayerCreated; }
@@ -737,6 +832,19 @@ private:
         inst.ActionWasted.Clear();
         inst.ActionEmbarking.Clear();
         inst.ActionDisembarking.Clear();
+        inst.KeybindKeyPress.Clear();
+        inst.KeybindKeyRelease.Clear();
+        inst.VehicleEmbarking.Clear();
+        inst.VehicleEmbarked.Clear();
+        inst.VehicleDisembark.Clear();
+        inst.PickupClaimed.Clear();
+        inst.PickupCollected.Clear();
+        inst.ObjectShot.Clear();
+        inst.ObjectBump.Clear();
+        inst.CheckpointEntered.Clear();
+        inst.CheckpointExited.Clear();
+        inst.SphereEntered.Clear();
+        inst.SphereExited.Clear();
     }
 
 public:
@@ -828,6 +936,80 @@ public:
             case EVT_SPHEREENTERED:
             case EVT_SPHEREEXITED:
                 return true;
+            default:
+                return false;
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    {
+        switch (type)
+        {
+            case EVT_PLAYERCREATED:
+            case EVT_PLAYERDESTROYED:
+            case EVT_PLAYERCUSTOM:
+            case EVT_PLAYERAWAY:
+            case EVT_PLAYERGAMEKEYS:
+            case EVT_PLAYERRENAME:
+            case EVT_PLAYERREQUESTCLASS:
+            case EVT_PLAYERREQUESTSPAWN:
+            case EVT_PLAYERSPAWN:
+            case EVT_PLAYERSTARTTYPING:
+            case EVT_PLAYERSTOPTYPING:
+            case EVT_PLAYERCHAT:
+            case EVT_PLAYERCOMMAND:
+            case EVT_PLAYERMESSAGE:
+            case EVT_PLAYERHEALTH:
+            case EVT_PLAYERARMOUR:
+            case EVT_PLAYERWEAPON:
+            case EVT_PLAYERMOVE:
+            case EVT_PLAYERWASTED:
+            case EVT_PLAYERKILLED:
+            case EVT_PLAYERTEAMKILL:
+            case EVT_PLAYERSPECTATE:
+            case EVT_PLAYERCRASHREPORT:
+            case EVT_PLAYERBURNING:
+            case EVT_PLAYERCROUCHING:
+            case EVT_PLAYERSTATE:
+            case EVT_PLAYERACTION:
+            case EVT_STATENONE:
+            case EVT_STATENORMAL:
+            case EVT_STATESHOOTING:
+            case EVT_STATEDRIVER:
+            case EVT_STATEPASSENGER:
+            case EVT_STATEENTERDRIVER:
+            case EVT_STATEENTERPASSENGER:
+            case EVT_STATEEXITVEHICLE:
+            case EVT_STATEUNSPAWNED:
+            case EVT_ACTIONNONE:
+            case EVT_ACTIONNORMAL:
+            case EVT_ACTIONAIMING:
+            case EVT_ACTIONSHOOTING:
+            case EVT_ACTIONJUMPING:
+            case EVT_ACTIONLIEDOWN:
+            case EVT_ACTIONGETTINGUP:
+            case EVT_ACTIONJUMPVEHICLE:
+            case EVT_ACTIONDRIVING:
+            case EVT_ACTIONDYING:
+            case EVT_ACTIONWASTED:
+            case EVT_ACTIONEMBARKING:
+            case EVT_ACTIONDISEMBARKING:
+                return true;
+            case EVT_KEYBINDKEYPRESS:
+            case EVT_KEYBINDKEYRELEASE:
+            case EVT_VEHICLEEMBARKING:
+            case EVT_VEHICLEEMBARKED:
+            case EVT_VEHICLEDISEMBARK:
+            case EVT_PICKUPCLAIMED:
+            case EVT_PICKUPCOLLECTED:
+            case EVT_OBJECTSHOT:
+            case EVT_OBJECTBUMP:
+            case EVT_CHECKPOINTENTERED:
+            case EVT_CHECKPOINTEXITED:
+            case EVT_SPHEREENTERED:
+            case EVT_SPHEREEXITED:
+                return inversed;
             default:
                 return false;
         }
@@ -936,6 +1118,23 @@ public:
                 return false;
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    {
+        switch (type)
+        {
+            case EVT_SPHERECREATED:
+            case EVT_SPHEREDESTROYED:
+            case EVT_SPHERECUSTOM:
+                return true;
+            case EVT_SPHEREENTERED:
+            case EVT_SPHEREEXITED:
+                return !inversed;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -1037,6 +1236,20 @@ public:
                 return false;
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool /* inversed */) noexcept
+    {
+        switch (type)
+        {
+            case EVT_SPRITECREATED:
+            case EVT_SPRITEDESTROYED:
+            case EVT_SPRITECUSTOM:
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -1127,6 +1340,20 @@ public:
 
     // --------------------------------------------------------------------------------------------
     static bool InEvent(SQInt32 type) noexcept
+    {
+        switch (type)
+        {
+            case EVT_TEXTDRAWCREATED:
+            case EVT_TEXTDRAWDESTROYED:
+            case EVT_TEXTDRAWCUSTOM:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool /* inversed */) noexcept
     {
         switch (type)
         {
@@ -1253,6 +1480,28 @@ public:
             case EVT_VEHICLEEMBARKED:
             case EVT_VEHICLEDISEMBARK:
                 return true;
+            default:
+                return false;
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    {
+        switch (type)
+        {
+            case EVT_VEHICLECREATED:
+            case EVT_VEHICLEDESTROYED:
+            case EVT_VEHICLECUSTOM:
+            case EVT_VEHICLERESPAWN:
+            case EVT_VEHICLEEXPLODE:
+            case EVT_VEHICLEHEALTH:
+            case EVT_VEHICLEMOVE:
+                return true;
+            case EVT_VEHICLEEMBARKING:
+            case EVT_VEHICLEEMBARKED:
+            case EVT_VEHICLEDISEMBARK:
+                return !inversed;
             default:
                 return false;
         }
