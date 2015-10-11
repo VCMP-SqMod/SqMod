@@ -240,7 +240,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    void Emit(Args &&... args)
+    void Emit(Args &... args)
     {
         for (Node * node = m_Nodes.m_Head; node; node = node->m_Next)
         {
@@ -249,7 +249,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    template <typename T> void Query(T && collecter, Args &&... args)
+    template <typename T> void Query(T && collecter, Args &... args)
     {
         for (Node * node = m_Nodes.m_Head; node; node = node->m_Next)
         {
@@ -258,7 +258,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    void operator () (Args &&... args)
+    void operator () (Args &... args)
     {
         for (Node * node = m_Nodes.m_Head; node; node = node->m_Next)
         {
