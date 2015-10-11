@@ -23,8 +23,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-/* ------------------------------------------------------------------------------------------------
- * ...
+// ------------------------------------------------------------------------------------------------
+/** Internal class used to reduce code duplication when filtering entities in a global event.
+ *
 */
 template < class T > class GlobalFilter
 {
@@ -45,14 +46,7 @@ public:
     typedef Reference< T >  RefType; /* Short name for the entity reference type */
     typedef Ent< T >        EntType; /* Short name for the entity specification structure */
 
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor
-    */
-    GlobalFilter() noexcept
-        : m_Filter(), m_Event(nullptr)
-    {
-        /* This kind of filter should now be nothing more than dead weight! */
-    }
+private:
 
     /* --------------------------------------------------------------------------------------------
      * Construct the filter for the specified event.
@@ -64,23 +58,16 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor
+     * Copy constructor (disabled)
     */
-    GlobalFilter(const GlobalFilter< T > & o) noexcept
-        : m_Filter(o.m_Filter), m_Event(o.m_Event)
-    {
-        // Make sure we have a parent to be considered suitable for hooking
-        if (m_Event != nullptr)
-        {
-            Hook();
-        }
-        /* Parent is ignored intentionally as filters should not copy parents! */
-    }
+    GlobalFilter(const GlobalFilter< T > &) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor (disabled)
     */
     GlobalFilter(GlobalFilter< T > &&) = delete;
+
+public:
 
     /* --------------------------------------------------------------------------------------------
      * Destructor
@@ -140,27 +127,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Include the specified entity in the filter.
     */
-    void Include(const RefType & ent, SQInt32 header) noexcept;
+    bool Include(const RefType & ent, SQInt32 header) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Include the specified entity in the filter.
     */
-    void Include(const RefType & ent) noexcept
+    bool Include(const RefType & ent) noexcept
     {
-        Include(ent, 0);
+        return Include(ent, 0);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Exclude the specified entity from the filter.
     */
-    void Exclude(const RefType & ent, SQInt32 header) noexcept;
+    bool Exclude(const RefType & ent, SQInt32 header) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Exclude the specified entity from the filter.
     */
-    void Exclude(const RefType & ent) noexcept
+    bool Exclude(const RefType & ent) noexcept
     {
-        Exclude(ent, 0);
+        return Exclude(ent, 0);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -247,6 +234,7 @@ protected:
      * Unhook from the entity destroy signal that the parent didn't.
     */
     void Unhook() noexcept;
+
 private:
 
     // --------------------------------------------------------------------------------------------
@@ -301,7 +289,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    GlobalEvent(const GlobalEvent & o) noexcept;
+    GlobalEvent(const GlobalEvent &) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -316,7 +304,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    GlobalEvent & operator = (const GlobalEvent & o) noexcept;
+    GlobalEvent & operator = (const GlobalEvent &) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -541,6 +529,11 @@ public:
      * ...
     */
     void SetOnRelease(const Function & func) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    bool Compatible(SQInt32 type) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -1044,11 +1037,6 @@ protected:
     */
     void Adaptable(SQInt32 type) noexcept;
 
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    bool Compatible(SQInt32 type) noexcept;
-
 private:
 
     // --------------------------------------------------------------------------------------------
@@ -1097,7 +1085,7 @@ private:
 template < class T > GlobalFilter< T > & GlobalFilter< T >::operator = (const GlobalFilter< T > & o) noexcept
 {
     // Make sure we're not doing self assignment, work with orphan filters or incompatible events
-    if (this != &o && m_Event != nullptr && EntType::InEvent(m_Event->m_Type))
+    if (this != &o && EntType::InEvent(m_Event->m_Type))
     {
         // Unhook from the currently filtered entities
         Unhook();
@@ -1112,16 +1100,10 @@ template < class T > GlobalFilter< T > & GlobalFilter< T >::operator = (const Gl
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > void GlobalFilter< T >::Include(const RefType & ent, SQInt32 header) noexcept
+template < class T > bool GlobalFilter< T >::Include(const RefType & ent, SQInt32 header) noexcept
 {
-    // Make sure the filter is parented before proceeeding
-    if (m_Event == nullptr)
-    {
-        LogErr("Attempting to <filter %s events> using an orphan entity filter", \
-                EntType::Name);
-    }
     // Make sure the entity is valid before we proceed
-    else if (!ent)
+    if (!ent)
     {
         LogErr("Attempting to <filter %s events> using an invalid entity instance: %d", \
                 EntType::Name, _SCI32(ent));
@@ -1156,20 +1138,18 @@ template < class T > void GlobalFilter< T >::Include(const RefType & ent, SQInt3
             // Enable the specified entity instance in our filter
             m_Filter.set(_SCU32(ent), true);
         }
+        // Return whether this was included or not
+        return allow;
     }
+    // Reaching here means failure
+    return false;
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > void GlobalFilter< T >::Exclude(const RefType & ent, SQInt32 header) noexcept
+template < class T > bool GlobalFilter< T >::Exclude(const RefType & ent, SQInt32 header) noexcept
 {
-    // Make sure the filter is parented before proceeeding
-    if (m_Event == nullptr)
-    {
-        LogErr("Attempting to <unfilter %s events> using an orphan entity filter", \
-                EntType::Name);
-    }
     // Make sure the entity is valid before we proceed
-    else if (!ent)
+    if (!ent)
     {
         LogErr("Attempting to <unfilter %s events> using an invalid entity instance: %d", \
                 EntType::Name, _SCI32(ent));
@@ -1201,23 +1181,21 @@ template < class T > void GlobalFilter< T >::Exclude(const RefType & ent, SQInt3
             {
                 RefType::Get(_SCI32(ent)).Destroyed().template Disconnect< GlobalFilter< T >, &GlobalFilter< T >::Destroyed >(this);
             }
-            // Enable the specified entity instance in our filter
+            // Disable the specified entity instance in our filter
             m_Filter.set(_SCU32(ent), false);
         }
+        // Return whether this was excluded or not
+        return allow;
     }
+    // Reaching here means failure
+    return false;
 }
 
 // ------------------------------------------------------------------------------------------------
 template < class T > void GlobalFilter< T >::Clear(SQInt32 header) noexcept
 {
-    // Make sure the filter is parented before proceeeding
-    if (m_Event == nullptr)
-    {
-        LogWrn("Attempting to <clear %s filter> using an orphan entity filter", \
-                EntType::Name);
-    }
-    // Make sure the filter is compatible with the parent event type
-    else if (!EntType::InEvent(m_Event->m_Type))
+    // Make sure the filter is compatible with the specified event type
+    if (!EntType::InEvent(m_Event->m_Type))
     {
         LogWrn("Attempting to <clear %s filter> using an incompatible event type: %s", \
                 EntType::Name, GetEventName(m_Event->m_Type));
@@ -1240,14 +1218,8 @@ template < class T > void GlobalFilter< T >::Clear(SQInt32 header) noexcept
 // ------------------------------------------------------------------------------------------------
 template < class T > void GlobalFilter< T >::Flip(SQInt32 header) noexcept
 {
-    // Make sure the filter is parented before proceeeding
-    if (m_Event == nullptr)
-    {
-        LogWrn("Attempting to <flip %s filter> using an orphan entity filter", \
-                EntType::Name);
-    }
     // Make sure the filter is compatible with the parent event type
-    else if (!EntType::InEvent(m_Event->m_Type))
+    if (!EntType::InEvent(m_Event->m_Type))
     {
         LogWrn("Attempting to <flip %s filter> using an incompatible event type: %s", \
                 EntType::Name, GetEventName(m_Event->m_Type));
@@ -1267,39 +1239,37 @@ template < class T > void GlobalFilter< T >::Flip(SQInt32 header) noexcept
 // ------------------------------------------------------------------------------------------------
 template < class T > void GlobalFilter< T >::Release(SQInt32 id) noexcept
 {
-    // Make sure the filter is parented before proceeeding
-    if (m_Event == nullptr)
+    // Do we have to notify someone that this entity is about to be released?
+    if (!m_Event->m_OnRelease.IsNull())
     {
-        LogErr("Attempting to <release %s entity> using an orphan entity filter", \
-                EntType::Name);
+        m_Event->m_OnRelease.Execute< SQInt32 >(id);
     }
-    // Now it's safe to release
-    else
-    {
-        // Do we have to notify someone that this entity is about to be released?
-        if (!m_Event->m_OnRelease.IsNull())
-        {
-            m_Event->m_OnRelease.Execute< SQInt32 >(id);
-        }
-        // Now disable the entity in the filter
-        m_Filter.set(id, false);
-    }
+    // Now disable the entity in the filter
+    m_Filter.set(id, false);
 }
 
 // ------------------------------------------------------------------------------------------------
 template < class T > void GlobalFilter< T >::Hook() noexcept
 {
-    // Make sure the entities inform us when being destroyed as long as we're parented
-    if (m_Event != nullptr && EntType::DestroyEvID != m_Event->m_Type)
+    // Make sure the filter is unaware of the destroy event before proceeeding
+    if (EntType::DestroyEvID == m_Event->m_Type)
     {
-        // No iterators here because we're dealing with a bitset!
-        for (unsigned i = 0; i < m_Filter.size(); ++i)
+        return;
+    }
+    // No iterators here because we're dealing with a bitset!
+    unsigned i = 0;
+    bool enabled = RefType::Verify(i);
+    for (; i < m_Filter.size(); enabled = RefType::Verify(++i))
+    {
+        // If this bit is enabled then this entity is included so we must hook to it
+        if (m_Filter[i] && enabled)
         {
-            // If this bit is enabled then this entity is included so we must hook to it
-            if (m_Filter[i])
-            {
-                RefType::Get(i).Destroyed().template Connect< GlobalFilter< T >, &GlobalFilter< T >::Destroyed >(this);
-            }
+            RefType::Get(i).Destroyed().template Connect< GlobalFilter< T >, &GlobalFilter< T >::Destroyed >(this);
+        }
+        // If this entity is not active then disable it from the filter as well
+        else if (!enabled)
+        {
+            m_Filter.set(i, false);
         }
     }
 }
@@ -1307,17 +1277,25 @@ template < class T > void GlobalFilter< T >::Hook() noexcept
 // ------------------------------------------------------------------------------------------------
 template < class T > void GlobalFilter< T >::Unhook() noexcept
 {
-    // Make sure the entities will not inform us when being destroyed as long as we're parented
-    if (m_Event != nullptr && EntType::DestroyEvID != m_Event->m_Type)
+    // Make sure the filter is unaware of the destroy event before proceeeding
+    if (EntType::DestroyEvID == m_Event->m_Type)
     {
-        // No iterators here because we're dealing with a bitset!
-        for (unsigned i = 0; i < m_Filter.size(); ++i)
+        return;
+    }
+    // No iterators here because we're dealing with a bitset!
+    unsigned i = 0;
+    bool enabled = RefType::Verify(i);
+    for (; i < m_Filter.size(); enabled = RefType::Verify(++i))
+    {
+        // If this bit is enabled then this entity is included so we must unhook from it
+        if (m_Filter[i] && enabled)
         {
-            // If this bit is enabled then this entity is included so we must unhook from it
-            if (m_Filter[i])
-            {
-                RefType::Get(i).Destroyed().template Disconnect< GlobalFilter< T >, &GlobalFilter< T >::Destroyed >(this);
-            }
+            RefType::Get(i).Destroyed().template Disconnect< GlobalFilter< T >, &GlobalFilter< T >::Destroyed >(this);
+        }
+        // If this entity is not active then disable it from the filter as well
+        else if (!enabled)
+        {
+            m_Filter.set(i, false);
         }
     }
 }

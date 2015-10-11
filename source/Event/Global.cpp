@@ -54,83 +54,11 @@ GlobalEvent::GlobalEvent(SQInt32 type, bool suspended) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::GlobalEvent(const GlobalEvent & o) noexcept
-    : m_Type(o.m_Type)
-    , m_Stride(o.m_Stride)
-    , m_Ignore(o.m_Ignore)
-    , m_Primary(o.m_Primary)
-    , m_Secondary(o.m_Secondary)
-    , m_Idle(o.m_Idle)
-    , m_OnTrigger(o.m_OnTrigger)
-    , m_OnInclude(o.m_OnInclude)
-    , m_OnExclude(o.m_OnExclude)
-    , m_OnCleared(o.m_OnCleared)
-    , m_OnRelease(o.m_OnRelease)
-    , m_Tag(o.m_Tag)
-    , m_Data(o.m_Data)
-    , m_Confined(o.m_Confined)
-    , m_Suspended(o.m_Suspended)
-    , m_Blips(o.m_Blips)
-    , m_Checkpoints(o.m_Checkpoints)
-    , m_Keybinds(o.m_Keybinds)
-    , m_Objects(o.m_Objects)
-    , m_Pickups(o.m_Pickups)
-    , m_Players(o.m_Players)
-    , m_Spheres(o.m_Spheres)
-    , m_Sprites(o.m_Sprites)
-    , m_Textdraws(o.m_Textdraws)
-    , m_Vehicles(o.m_Vehicles)
-{
-    /* The filter copy constructor should already take care of hooking to the copied entities! */
-
-}
-
-// ------------------------------------------------------------------------------------------------
 GlobalEvent::~GlobalEvent()
 {
     // Detach from the specified event signal
     Detach();
     /* We're expecting the entity filters to unhook themselves from the destroy signal! */
-}
-
-// ------------------------------------------------------------------------------------------------
-GlobalEvent & GlobalEvent::operator = (const GlobalEvent & o) noexcept
-{
-    // Make sure we're not doing self assignment
-    if (this != &o)
-    {
-        // Clear anything that cannot adapt to the new event type
-        Adaptable(o.m_Type);
-        // Now it's safe to copy the values from the other event instance
-        m_Type = o.m_Type;
-        m_Stride = o.m_Stride;
-        m_Ignore = o.m_Ignore;
-        m_Primary = o.m_Primary;
-        m_Secondary = o.m_Secondary;
-        m_Idle = o.m_Idle;
-        m_OnTrigger = o.m_OnTrigger;
-        m_OnInclude = o.m_OnInclude;
-        m_OnExclude = o.m_OnExclude;
-        m_OnCleared = o.m_OnCleared;
-        m_OnRelease = o.m_OnRelease;
-        m_Tag = o.m_Tag;
-        m_Data = o.m_Data;
-        m_Confined = o.m_Confined;
-        m_Suspended = o.m_Suspended;
-        m_Blips = o.m_Blips;
-        m_Checkpoints = o.m_Checkpoints;
-        m_Keybinds = o.m_Keybinds;
-        m_Objects = o.m_Objects;
-        m_Pickups = o.m_Pickups;
-        m_Players = o.m_Players;
-        m_Spheres = o.m_Spheres;
-        m_Sprites = o.m_Sprites;
-        m_Textdraws = o.m_Textdraws;
-        m_Vehicles = o.m_Vehicles;
-        /* The filter copy assignment should already take care of hooking to the copied entities! */
-    }
-
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -380,6 +308,101 @@ void GlobalEvent::SetOnRelease(const Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
+bool GlobalEvent::Compatible(SQInt32 type) const noexcept
+{
+    switch (type)
+    {
+        case EVT_BLIPDESTROYED:
+        case EVT_CHECKPOINTDESTROYED:
+        case EVT_KEYBINDDESTROYED:
+        case EVT_OBJECTDESTROYED:
+        case EVT_PICKUPDESTROYED:
+        case EVT_PLAYERDESTROYED:
+        case EVT_SPHEREDESTROYED:
+        case EVT_SPRITEDESTROYED:
+        case EVT_TEXTDRAWDESTROYED:
+        case EVT_VEHICLEDESTROYED:
+        case EVT_BLIPCUSTOM:
+        case EVT_CHECKPOINTCUSTOM:
+        case EVT_KEYBINDCUSTOM:
+        case EVT_OBJECTCUSTOM:
+        case EVT_PICKUPCUSTOM:
+        case EVT_PLAYERCUSTOM:
+        case EVT_SPHERECUSTOM:
+        case EVT_SPRITECUSTOM:
+        case EVT_TEXTDRAWCUSTOM:
+        case EVT_VEHICLECUSTOM:
+        case EVT_PLAYERAWAY:
+        case EVT_PLAYERGAMEKEYS:
+        case EVT_PLAYERRENAME:
+        case EVT_PLAYERREQUESTCLASS:
+        case EVT_PLAYERREQUESTSPAWN:
+        case EVT_PLAYERSPAWN:
+        case EVT_PLAYERSTARTTYPING:
+        case EVT_PLAYERSTOPTYPING:
+        case EVT_PLAYERCHAT:
+        case EVT_PLAYERCOMMAND:
+        case EVT_PLAYERMESSAGE:
+        case EVT_PLAYERHEALTH:
+        case EVT_PLAYERARMOUR:
+        case EVT_PLAYERWEAPON:
+        case EVT_PLAYERMOVE:
+        case EVT_PLAYERWASTED:
+        case EVT_PLAYERKILLED:
+        case EVT_PLAYERTEAMKILL:
+        case EVT_PLAYERSPECTATE:
+        case EVT_PLAYERCRASHREPORT:
+        case EVT_PLAYERBURNING:
+        case EVT_PLAYERCROUCHING:
+        case EVT_PLAYERSTATE:
+        case EVT_PLAYERACTION:
+        case EVT_STATENONE:
+        case EVT_STATENORMAL:
+        case EVT_STATESHOOTING:
+        case EVT_STATEDRIVER:
+        case EVT_STATEPASSENGER:
+        case EVT_STATEENTERDRIVER:
+        case EVT_STATEENTERPASSENGER:
+        case EVT_STATEEXITVEHICLE:
+        case EVT_STATEUNSPAWNED:
+        case EVT_ACTIONNONE:
+        case EVT_ACTIONNORMAL:
+        case EVT_ACTIONAIMING:
+        case EVT_ACTIONSHOOTING:
+        case EVT_ACTIONJUMPING:
+        case EVT_ACTIONLIEDOWN:
+        case EVT_ACTIONGETTINGUP:
+        case EVT_ACTIONJUMPVEHICLE:
+        case EVT_ACTIONDRIVING:
+        case EVT_ACTIONDYING:
+        case EVT_ACTIONWASTED:
+        case EVT_ACTIONEMBARKING:
+        case EVT_ACTIONDISEMBARKING:
+        case EVT_VEHICLERESPAWN:
+        case EVT_VEHICLEEXPLODE:
+        case EVT_VEHICLEHEALTH:
+        case EVT_VEHICLEMOVE:
+        case EVT_PICKUPRESPAWN:
+        case EVT_KEYBINDKEYPRESS:
+        case EVT_KEYBINDKEYRELEASE:
+        case EVT_VEHICLEEMBARKING:
+        case EVT_VEHICLEEMBARKED:
+        case EVT_VEHICLEDISEMBARK:
+        case EVT_PICKUPCLAIMED:
+        case EVT_PICKUPCOLLECTED:
+        case EVT_OBJECTSHOT:
+        case EVT_OBJECTBUMP:
+        case EVT_CHECKPOINTENTERED:
+        case EVT_CHECKPOINTEXITED:
+        case EVT_SPHEREENTERED:
+        case EVT_SPHEREEXITED:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 GlobalEvent::BlipFilter & GlobalEvent::GetBlipFilter() noexcept
 {
     return m_Blips; /* This reference should not be stored anywhere! */
@@ -442,7 +465,6 @@ GlobalEvent::VehicleFilter & GlobalEvent::GetVehicleFilter() noexcept
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Blips.m_Filter[blip])
     {
         m_Blips.Release(blip);
@@ -457,7 +479,6 @@ void GlobalEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) 
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Checkpoints.m_Filter[checkpoint])
     {
         m_Checkpoints.Release(checkpoint);
@@ -472,7 +493,6 @@ void GlobalEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Keybinds.m_Filter[keybind])
     {
         m_Keybinds.Release(keybind);
@@ -487,7 +507,6 @@ void GlobalEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & pay
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Objects.m_Filter[object])
     {
         m_Objects.Release(object);
@@ -502,7 +521,6 @@ void GlobalEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & paylo
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Pickups.m_Filter[pickup])
     {
         m_Pickups.Release(pickup);
@@ -517,7 +535,6 @@ void GlobalEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & paylo
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Players.m_Filter[player])
     {
         m_Players.Release(player);
@@ -532,7 +549,6 @@ void GlobalEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & paylo
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Spheres.m_Filter[sphere])
     {
         m_Spheres.Release(sphere);
@@ -547,7 +563,6 @@ void GlobalEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & paylo
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Sprites.m_Filter[sprite])
     {
         m_Sprites.Release(sprite);
@@ -562,7 +577,6 @@ void GlobalEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & paylo
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Textdraws.m_Filter[textdraw])
     {
         m_Textdraws.Release(textdraw);
@@ -577,7 +591,6 @@ void GlobalEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & p
 // ------------------------------------------------------------------------------------------------
 void GlobalEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
 {
-    // If the entity was included then block the signal an exclude it from filters
     if (m_Vehicles.m_Filter[vehicle])
     {
         m_Vehicles.Release(vehicle);
@@ -1366,256 +1379,256 @@ void GlobalEvent::Attach() noexcept
     switch (m_Type)
     {
         case EVT_BLIPDESTROYED:
-            _Core->BlipDestroyed.Connect<GlobalEvent, &GlobalEvent::BlipDestroyed>(this);
+            _Core->BlipDestroyed.Connect< GlobalEvent, &GlobalEvent::BlipDestroyed >(this);
         break;
         case EVT_CHECKPOINTDESTROYED:
-            _Core->CheckpointDestroyed.Connect<GlobalEvent, &GlobalEvent::CheckpointDestroyed>(this);
+            _Core->CheckpointDestroyed.Connect< GlobalEvent, &GlobalEvent::CheckpointDestroyed >(this);
         break;
         case EVT_KEYBINDDESTROYED:
-            _Core->KeybindDestroyed.Connect<GlobalEvent, &GlobalEvent::KeybindDestroyed>(this);
+            _Core->KeybindDestroyed.Connect< GlobalEvent, &GlobalEvent::KeybindDestroyed >(this);
         break;
         case EVT_OBJECTDESTROYED:
-            _Core->ObjectDestroyed.Connect<GlobalEvent, &GlobalEvent::ObjectDestroyed>(this);
+            _Core->ObjectDestroyed.Connect< GlobalEvent, &GlobalEvent::ObjectDestroyed >(this);
         break;
         case EVT_PICKUPDESTROYED:
-            _Core->PickupDestroyed.Connect<GlobalEvent, &GlobalEvent::PickupDestroyed>(this);
+            _Core->PickupDestroyed.Connect< GlobalEvent, &GlobalEvent::PickupDestroyed >(this);
         break;
         case EVT_PLAYERDESTROYED:
-            _Core->PlayerDestroyed.Connect<GlobalEvent, &GlobalEvent::PlayerDestroyed>(this);
+            _Core->PlayerDestroyed.Connect< GlobalEvent, &GlobalEvent::PlayerDestroyed >(this);
         break;
         case EVT_SPHEREDESTROYED:
-            _Core->SphereDestroyed.Connect<GlobalEvent, &GlobalEvent::SphereDestroyed>(this);
+            _Core->SphereDestroyed.Connect< GlobalEvent, &GlobalEvent::SphereDestroyed >(this);
         break;
         case EVT_SPRITEDESTROYED:
-            _Core->SpriteDestroyed.Connect<GlobalEvent, &GlobalEvent::SpriteDestroyed>(this);
+            _Core->SpriteDestroyed.Connect< GlobalEvent, &GlobalEvent::SpriteDestroyed >(this);
         break;
         case EVT_TEXTDRAWDESTROYED:
-            _Core->TextdrawDestroyed.Connect<GlobalEvent, &GlobalEvent::TextdrawDestroyed>(this);
+            _Core->TextdrawDestroyed.Connect< GlobalEvent, &GlobalEvent::TextdrawDestroyed >(this);
         break;
         case EVT_VEHICLEDESTROYED:
-            _Core->VehicleDestroyed.Connect<GlobalEvent, &GlobalEvent::VehicleDestroyed>(this);
+            _Core->VehicleDestroyed.Connect< GlobalEvent, &GlobalEvent::VehicleDestroyed >(this);
         break;
         case EVT_BLIPCUSTOM:
-            _Core->BlipCustom.Connect<GlobalEvent, &GlobalEvent::BlipCustom>(this);
+            _Core->BlipCustom.Connect< GlobalEvent, &GlobalEvent::BlipCustom >(this);
         break;
         case EVT_CHECKPOINTCUSTOM:
-            _Core->CheckpointCustom.Connect<GlobalEvent, &GlobalEvent::CheckpointCustom>(this);
+            _Core->CheckpointCustom.Connect< GlobalEvent, &GlobalEvent::CheckpointCustom >(this);
         break;
         case EVT_KEYBINDCUSTOM:
-            _Core->KeybindCustom.Connect<GlobalEvent, &GlobalEvent::KeybindCustom>(this);
+            _Core->KeybindCustom.Connect< GlobalEvent, &GlobalEvent::KeybindCustom >(this);
         break;
         case EVT_OBJECTCUSTOM:
-            _Core->ObjectCustom.Connect<GlobalEvent, &GlobalEvent::ObjectCustom>(this);
+            _Core->ObjectCustom.Connect< GlobalEvent, &GlobalEvent::ObjectCustom >(this);
         break;
         case EVT_PICKUPCUSTOM:
-            _Core->PickupCustom.Connect<GlobalEvent, &GlobalEvent::PickupCustom>(this);
+            _Core->PickupCustom.Connect< GlobalEvent, &GlobalEvent::PickupCustom >(this);
         break;
         case EVT_PLAYERCUSTOM:
-            _Core->PlayerCustom.Connect<GlobalEvent, &GlobalEvent::PlayerCustom>(this);
+            _Core->PlayerCustom.Connect< GlobalEvent, &GlobalEvent::PlayerCustom >(this);
         break;
         case EVT_SPHERECUSTOM:
-            _Core->SphereCustom.Connect<GlobalEvent, &GlobalEvent::SphereCustom>(this);
+            _Core->SphereCustom.Connect< GlobalEvent, &GlobalEvent::SphereCustom >(this);
         break;
         case EVT_SPRITECUSTOM:
-            _Core->SpriteCustom.Connect<GlobalEvent, &GlobalEvent::SpriteCustom>(this);
+            _Core->SpriteCustom.Connect< GlobalEvent, &GlobalEvent::SpriteCustom >(this);
         break;
         case EVT_TEXTDRAWCUSTOM:
-            _Core->TextdrawCustom.Connect<GlobalEvent, &GlobalEvent::TextdrawCustom>(this);
+            _Core->TextdrawCustom.Connect< GlobalEvent, &GlobalEvent::TextdrawCustom >(this);
         break;
         case EVT_VEHICLECUSTOM:
-            _Core->VehicleCustom.Connect<GlobalEvent, &GlobalEvent::VehicleCustom>(this);
+            _Core->VehicleCustom.Connect< GlobalEvent, &GlobalEvent::VehicleCustom >(this);
         break;
         case EVT_PLAYERAWAY:
-            _Core->PlayerAway.Connect<GlobalEvent, &GlobalEvent::PlayerAway>(this);
+            _Core->PlayerAway.Connect< GlobalEvent, &GlobalEvent::PlayerAway >(this);
         break;
         case EVT_PLAYERGAMEKEYS:
-            _Core->PlayerGameKeys.Connect<GlobalEvent, &GlobalEvent::PlayerGameKeys>(this);
+            _Core->PlayerGameKeys.Connect< GlobalEvent, &GlobalEvent::PlayerGameKeys >(this);
         break;
         case EVT_PLAYERRENAME:
-            _Core->PlayerRename.Connect<GlobalEvent, &GlobalEvent::PlayerRename>(this);
+            _Core->PlayerRename.Connect< GlobalEvent, &GlobalEvent::PlayerRename >(this);
         break;
         case EVT_PLAYERREQUESTCLASS:
-            _Core->PlayerRequestClass.Connect<GlobalEvent, &GlobalEvent::PlayerRequestClass>(this);
+            _Core->PlayerRequestClass.Connect< GlobalEvent, &GlobalEvent::PlayerRequestClass >(this);
         break;
         case EVT_PLAYERREQUESTSPAWN:
-            _Core->PlayerRequestSpawn.Connect<GlobalEvent, &GlobalEvent::PlayerRequestSpawn>(this);
+            _Core->PlayerRequestSpawn.Connect< GlobalEvent, &GlobalEvent::PlayerRequestSpawn >(this);
         break;
         case EVT_PLAYERSPAWN:
-            _Core->PlayerSpawn.Connect<GlobalEvent, &GlobalEvent::PlayerSpawn>(this);
+            _Core->PlayerSpawn.Connect< GlobalEvent, &GlobalEvent::PlayerSpawn >(this);
         break;
         case EVT_PLAYERSTARTTYPING:
-            _Core->PlayerStartTyping.Connect<GlobalEvent, &GlobalEvent::PlayerStartTyping>(this);
+            _Core->PlayerStartTyping.Connect< GlobalEvent, &GlobalEvent::PlayerStartTyping >(this);
         break;
         case EVT_PLAYERSTOPTYPING:
-            _Core->PlayerStopTyping.Connect<GlobalEvent, &GlobalEvent::PlayerStopTyping>(this);
+            _Core->PlayerStopTyping.Connect< GlobalEvent, &GlobalEvent::PlayerStopTyping >(this);
         break;
         case EVT_PLAYERCHAT:
-            _Core->PlayerChat.Connect<GlobalEvent, &GlobalEvent::PlayerChat>(this);
+            _Core->PlayerChat.Connect< GlobalEvent, &GlobalEvent::PlayerChat >(this);
         break;
         case EVT_PLAYERCOMMAND:
-            _Core->PlayerCommand.Connect<GlobalEvent, &GlobalEvent::PlayerCommand>(this);
+            _Core->PlayerCommand.Connect< GlobalEvent, &GlobalEvent::PlayerCommand >(this);
         break;
         case EVT_PLAYERMESSAGE:
-            _Core->PlayerMessage.Connect<GlobalEvent, &GlobalEvent::PlayerMessage>(this);
+            _Core->PlayerMessage.Connect< GlobalEvent, &GlobalEvent::PlayerMessage >(this);
         break;
         case EVT_PLAYERHEALTH:
-            _Core->PlayerHealth.Connect<GlobalEvent, &GlobalEvent::PlayerHealth>(this);
+            _Core->PlayerHealth.Connect< GlobalEvent, &GlobalEvent::PlayerHealth >(this);
         break;
         case EVT_PLAYERARMOUR:
-            _Core->PlayerArmour.Connect<GlobalEvent, &GlobalEvent::PlayerArmour>(this);
+            _Core->PlayerArmour.Connect< GlobalEvent, &GlobalEvent::PlayerArmour >(this);
         break;
         case EVT_PLAYERWEAPON:
-            _Core->PlayerWeapon.Connect<GlobalEvent, &GlobalEvent::PlayerWeapon>(this);
+            _Core->PlayerWeapon.Connect< GlobalEvent, &GlobalEvent::PlayerWeapon >(this);
         break;
         case EVT_PLAYERMOVE:
-            _Core->PlayerMove.Connect<GlobalEvent, &GlobalEvent::PlayerMove>(this);
+            _Core->PlayerMove.Connect< GlobalEvent, &GlobalEvent::PlayerMove >(this);
         break;
         case EVT_PLAYERWASTED:
-            _Core->PlayerWasted.Connect<GlobalEvent, &GlobalEvent::PlayerWasted>(this);
+            _Core->PlayerWasted.Connect< GlobalEvent, &GlobalEvent::PlayerWasted >(this);
         break;
         case EVT_PLAYERKILLED:
-            _Core->PlayerKilled.Connect<GlobalEvent, &GlobalEvent::PlayerKilled>(this);
+            _Core->PlayerKilled.Connect< GlobalEvent, &GlobalEvent::PlayerKilled >(this);
         break;
         case EVT_PLAYERTEAMKILL:
-            _Core->PlayerTeamKill.Connect<GlobalEvent, &GlobalEvent::PlayerTeamKill>(this);
+            _Core->PlayerTeamKill.Connect< GlobalEvent, &GlobalEvent::PlayerTeamKill >(this);
         break;
         case EVT_PLAYERSPECTATE:
-            _Core->PlayerSpectate.Connect<GlobalEvent, &GlobalEvent::PlayerSpectate>(this);
+            _Core->PlayerSpectate.Connect< GlobalEvent, &GlobalEvent::PlayerSpectate >(this);
         break;
         case EVT_PLAYERCRASHREPORT:
-            _Core->PlayerCrashreport.Connect<GlobalEvent, &GlobalEvent::PlayerCrashreport>(this);
+            _Core->PlayerCrashreport.Connect< GlobalEvent, &GlobalEvent::PlayerCrashreport >(this);
         break;
         case EVT_PLAYERBURNING:
-            _Core->PlayerBurning.Connect<GlobalEvent, &GlobalEvent::PlayerBurning>(this);
+            _Core->PlayerBurning.Connect< GlobalEvent, &GlobalEvent::PlayerBurning >(this);
         break;
         case EVT_PLAYERCROUCHING:
-            _Core->PlayerCrouching.Connect<GlobalEvent, &GlobalEvent::PlayerCrouching>(this);
+            _Core->PlayerCrouching.Connect< GlobalEvent, &GlobalEvent::PlayerCrouching >(this);
         break;
         case EVT_PLAYERSTATE:
-            _Core->PlayerState.Connect<GlobalEvent, &GlobalEvent::PlayerState>(this);
+            _Core->PlayerState.Connect< GlobalEvent, &GlobalEvent::PlayerState >(this);
         break;
         case EVT_PLAYERACTION:
-            _Core->PlayerAction.Connect<GlobalEvent, &GlobalEvent::PlayerAction>(this);
+            _Core->PlayerAction.Connect< GlobalEvent, &GlobalEvent::PlayerAction >(this);
         break;
         case EVT_STATENONE:
-            _Core->StateNone.Connect<GlobalEvent, &GlobalEvent::StateNone>(this);
+            _Core->StateNone.Connect< GlobalEvent, &GlobalEvent::StateNone >(this);
         break;
         case EVT_STATENORMAL:
-            _Core->StateNormal.Connect<GlobalEvent, &GlobalEvent::StateNormal>(this);
+            _Core->StateNormal.Connect< GlobalEvent, &GlobalEvent::StateNormal >(this);
         break;
         case EVT_STATESHOOTING:
-            _Core->StateShooting.Connect<GlobalEvent, &GlobalEvent::StateShooting>(this);
+            _Core->StateShooting.Connect< GlobalEvent, &GlobalEvent::StateShooting >(this);
         break;
         case EVT_STATEDRIVER:
-            _Core->StateDriver.Connect<GlobalEvent, &GlobalEvent::StateDriver>(this);
+            _Core->StateDriver.Connect< GlobalEvent, &GlobalEvent::StateDriver >(this);
         break;
         case EVT_STATEPASSENGER:
-            _Core->StatePassenger.Connect<GlobalEvent, &GlobalEvent::StatePassenger>(this);
+            _Core->StatePassenger.Connect< GlobalEvent, &GlobalEvent::StatePassenger >(this);
         break;
         case EVT_STATEENTERDRIVER:
-            _Core->StateEnterDriver.Connect<GlobalEvent, &GlobalEvent::StateEnterDriver>(this);
+            _Core->StateEnterDriver.Connect< GlobalEvent, &GlobalEvent::StateEnterDriver >(this);
         break;
         case EVT_STATEENTERPASSENGER:
-            _Core->StateEnterPassenger.Connect<GlobalEvent, &GlobalEvent::StateEnterPassenger>(this);
+            _Core->StateEnterPassenger.Connect< GlobalEvent, &GlobalEvent::StateEnterPassenger >(this);
         break;
         case EVT_STATEEXITVEHICLE:
-            _Core->StateExitVehicle.Connect<GlobalEvent, &GlobalEvent::StateExitVehicle>(this);
+            _Core->StateExitVehicle.Connect< GlobalEvent, &GlobalEvent::StateExitVehicle >(this);
         break;
         case EVT_STATEUNSPAWNED:
-            _Core->StateUnspawned.Connect<GlobalEvent, &GlobalEvent::StateUnspawned>(this);
+            _Core->StateUnspawned.Connect< GlobalEvent, &GlobalEvent::StateUnspawned >(this);
         break;
         case EVT_ACTIONNONE:
-            _Core->ActionNone.Connect<GlobalEvent, &GlobalEvent::ActionNone>(this);
+            _Core->ActionNone.Connect< GlobalEvent, &GlobalEvent::ActionNone >(this);
         break;
         case EVT_ACTIONNORMAL:
-            _Core->ActionNormal.Connect<GlobalEvent, &GlobalEvent::ActionNormal>(this);
+            _Core->ActionNormal.Connect< GlobalEvent, &GlobalEvent::ActionNormal >(this);
         break;
         case EVT_ACTIONAIMING:
-            _Core->ActionAiming.Connect<GlobalEvent, &GlobalEvent::ActionAiming>(this);
+            _Core->ActionAiming.Connect< GlobalEvent, &GlobalEvent::ActionAiming >(this);
         break;
         case EVT_ACTIONSHOOTING:
-            _Core->ActionShooting.Connect<GlobalEvent, &GlobalEvent::ActionShooting>(this);
+            _Core->ActionShooting.Connect< GlobalEvent, &GlobalEvent::ActionShooting >(this);
         break;
         case EVT_ACTIONJUMPING:
-            _Core->ActionJumping.Connect<GlobalEvent, &GlobalEvent::ActionJumping>(this);
+            _Core->ActionJumping.Connect< GlobalEvent, &GlobalEvent::ActionJumping >(this);
         break;
         case EVT_ACTIONLIEDOWN:
-            _Core->ActionLieDown.Connect<GlobalEvent, &GlobalEvent::ActionLieDown>(this);
+            _Core->ActionLieDown.Connect< GlobalEvent, &GlobalEvent::ActionLieDown >(this);
         break;
         case EVT_ACTIONGETTINGUP:
-            _Core->ActionGettingUp.Connect<GlobalEvent, &GlobalEvent::ActionGettingUp>(this);
+            _Core->ActionGettingUp.Connect< GlobalEvent, &GlobalEvent::ActionGettingUp >(this);
         break;
         case EVT_ACTIONJUMPVEHICLE:
-            _Core->ActionJumpVehicle.Connect<GlobalEvent, &GlobalEvent::ActionJumpVehicle>(this);
+            _Core->ActionJumpVehicle.Connect< GlobalEvent, &GlobalEvent::ActionJumpVehicle >(this);
         break;
         case EVT_ACTIONDRIVING:
-            _Core->ActionDriving.Connect<GlobalEvent, &GlobalEvent::ActionDriving>(this);
+            _Core->ActionDriving.Connect< GlobalEvent, &GlobalEvent::ActionDriving >(this);
         break;
         case EVT_ACTIONDYING:
-            _Core->ActionDying.Connect<GlobalEvent, &GlobalEvent::ActionDying>(this);
+            _Core->ActionDying.Connect< GlobalEvent, &GlobalEvent::ActionDying >(this);
         break;
         case EVT_ACTIONWASTED:
-            _Core->ActionWasted.Connect<GlobalEvent, &GlobalEvent::ActionWasted>(this);
+            _Core->ActionWasted.Connect< GlobalEvent, &GlobalEvent::ActionWasted >(this);
         break;
         case EVT_ACTIONEMBARKING:
-            _Core->ActionEmbarking.Connect<GlobalEvent, &GlobalEvent::ActionEmbarking>(this);
+            _Core->ActionEmbarking.Connect< GlobalEvent, &GlobalEvent::ActionEmbarking >(this);
         break;
         case EVT_ACTIONDISEMBARKING:
-            _Core->ActionDisembarking.Connect<GlobalEvent, &GlobalEvent::ActionDisembarking>(this);
+            _Core->ActionDisembarking.Connect< GlobalEvent, &GlobalEvent::ActionDisembarking >(this);
         break;
         case EVT_VEHICLERESPAWN:
-            _Core->VehicleRespawn.Connect<GlobalEvent, &GlobalEvent::VehicleRespawn>(this);
+            _Core->VehicleRespawn.Connect< GlobalEvent, &GlobalEvent::VehicleRespawn >(this);
         break;
         case EVT_VEHICLEEXPLODE:
-            _Core->VehicleExplode.Connect<GlobalEvent, &GlobalEvent::VehicleExplode>(this);
+            _Core->VehicleExplode.Connect< GlobalEvent, &GlobalEvent::VehicleExplode >(this);
         break;
         case EVT_VEHICLEHEALTH:
-            _Core->VehicleHealth.Connect<GlobalEvent, &GlobalEvent::VehicleHealth>(this);
+            _Core->VehicleHealth.Connect< GlobalEvent, &GlobalEvent::VehicleHealth >(this);
         break;
         case EVT_VEHICLEMOVE:
-            _Core->VehicleMove.Connect<GlobalEvent, &GlobalEvent::VehicleMove>(this);
+            _Core->VehicleMove.Connect< GlobalEvent, &GlobalEvent::VehicleMove >(this);
         break;
         case EVT_PICKUPRESPAWN:
-            _Core->PickupRespawn.Connect<GlobalEvent, &GlobalEvent::PickupRespawn>(this);
+            _Core->PickupRespawn.Connect< GlobalEvent, &GlobalEvent::PickupRespawn >(this);
         break;
         case EVT_KEYBINDKEYPRESS:
-            _Core->KeybindKeyPress.Connect<GlobalEvent, &GlobalEvent::KeybindKeyPress>(this);
+            _Core->KeybindKeyPress.Connect< GlobalEvent, &GlobalEvent::KeybindKeyPress >(this);
         break;
         case EVT_KEYBINDKEYRELEASE:
-            _Core->KeybindKeyRelease.Connect<GlobalEvent, &GlobalEvent::KeybindKeyRelease>(this);
+            _Core->KeybindKeyRelease.Connect< GlobalEvent, &GlobalEvent::KeybindKeyRelease >(this);
         break;
         case EVT_VEHICLEEMBARKING:
-            _Core->VehicleEmbarking.Connect<GlobalEvent, &GlobalEvent::VehicleEmbarking>(this);
+            _Core->VehicleEmbarking.Connect< GlobalEvent, &GlobalEvent::VehicleEmbarking >(this);
         break;
         case EVT_VEHICLEEMBARKED:
-            _Core->VehicleEmbarked.Connect<GlobalEvent, &GlobalEvent::VehicleEmbarked>(this);
+            _Core->VehicleEmbarked.Connect< GlobalEvent, &GlobalEvent::VehicleEmbarked >(this);
         break;
         case EVT_VEHICLEDISEMBARK:
-            _Core->VehicleDisembark.Connect<GlobalEvent, &GlobalEvent::VehicleDisembark>(this);
+            _Core->VehicleDisembark.Connect< GlobalEvent, &GlobalEvent::VehicleDisembark >(this);
         break;
         case EVT_PICKUPCLAIMED:
-            _Core->PickupClaimed.Connect<GlobalEvent, &GlobalEvent::PickupClaimed>(this);
+            _Core->PickupClaimed.Connect< GlobalEvent, &GlobalEvent::PickupClaimed >(this);
         break;
         case EVT_PICKUPCOLLECTED:
-            _Core->PickupCollected.Connect<GlobalEvent, &GlobalEvent::PickupCollected>(this);
+            _Core->PickupCollected.Connect< GlobalEvent, &GlobalEvent::PickupCollected >(this);
         break;
         case EVT_OBJECTSHOT:
-            _Core->ObjectShot.Connect<GlobalEvent, &GlobalEvent::ObjectShot>(this);
+            _Core->ObjectShot.Connect< GlobalEvent, &GlobalEvent::ObjectShot >(this);
         break;
         case EVT_OBJECTBUMP:
-            _Core->ObjectBump.Connect<GlobalEvent, &GlobalEvent::ObjectBump>(this);
+            _Core->ObjectBump.Connect< GlobalEvent, &GlobalEvent::ObjectBump >(this);
         break;
         case EVT_CHECKPOINTENTERED:
-            _Core->CheckpointEntered.Connect<GlobalEvent, &GlobalEvent::CheckpointEntered>(this);
+            _Core->CheckpointEntered.Connect< GlobalEvent, &GlobalEvent::CheckpointEntered >(this);
         break;
         case EVT_CHECKPOINTEXITED:
-            _Core->CheckpointExited.Connect<GlobalEvent, &GlobalEvent::CheckpointExited>(this);
+            _Core->CheckpointExited.Connect< GlobalEvent, &GlobalEvent::CheckpointExited >(this);
         break;
         case EVT_SPHEREENTERED:
-            _Core->SphereEntered.Connect<GlobalEvent, &GlobalEvent::SphereEntered>(this);
+            _Core->SphereEntered.Connect< GlobalEvent, &GlobalEvent::SphereEntered >(this);
         break;
         case EVT_SPHEREEXITED:
-            _Core->SphereExited.Connect<GlobalEvent, &GlobalEvent::SphereExited>(this);
+            _Core->SphereExited.Connect< GlobalEvent, &GlobalEvent::SphereExited >(this);
         break;
         default:
             LogErr("Attempting to <attach> to an unknown event type: %d", _SCI32(m_Type));
@@ -1628,256 +1641,256 @@ void GlobalEvent::Detach() noexcept
     switch (m_Type)
     {
         case EVT_BLIPDESTROYED:
-            _Core->BlipDestroyed.Disconnect<GlobalEvent, &GlobalEvent::BlipDestroyed>(this);
+            _Core->BlipDestroyed.Disconnect< GlobalEvent, &GlobalEvent::BlipDestroyed >(this);
         break;
         case EVT_CHECKPOINTDESTROYED:
-            _Core->CheckpointDestroyed.Disconnect<GlobalEvent, &GlobalEvent::CheckpointDestroyed>(this);
+            _Core->CheckpointDestroyed.Disconnect< GlobalEvent, &GlobalEvent::CheckpointDestroyed >(this);
         break;
         case EVT_KEYBINDDESTROYED:
-            _Core->KeybindDestroyed.Disconnect<GlobalEvent, &GlobalEvent::KeybindDestroyed>(this);
+            _Core->KeybindDestroyed.Disconnect< GlobalEvent, &GlobalEvent::KeybindDestroyed >(this);
         break;
         case EVT_OBJECTDESTROYED:
-            _Core->ObjectDestroyed.Disconnect<GlobalEvent, &GlobalEvent::ObjectDestroyed>(this);
+            _Core->ObjectDestroyed.Disconnect< GlobalEvent, &GlobalEvent::ObjectDestroyed >(this);
         break;
         case EVT_PICKUPDESTROYED:
-            _Core->PickupDestroyed.Disconnect<GlobalEvent, &GlobalEvent::PickupDestroyed>(this);
+            _Core->PickupDestroyed.Disconnect< GlobalEvent, &GlobalEvent::PickupDestroyed >(this);
         break;
         case EVT_PLAYERDESTROYED:
-            _Core->PlayerDestroyed.Disconnect<GlobalEvent, &GlobalEvent::PlayerDestroyed>(this);
+            _Core->PlayerDestroyed.Disconnect< GlobalEvent, &GlobalEvent::PlayerDestroyed >(this);
         break;
         case EVT_SPHEREDESTROYED:
-            _Core->SphereDestroyed.Disconnect<GlobalEvent, &GlobalEvent::SphereDestroyed>(this);
+            _Core->SphereDestroyed.Disconnect< GlobalEvent, &GlobalEvent::SphereDestroyed >(this);
         break;
         case EVT_SPRITEDESTROYED:
-            _Core->SpriteDestroyed.Disconnect<GlobalEvent, &GlobalEvent::SpriteDestroyed>(this);
+            _Core->SpriteDestroyed.Disconnect< GlobalEvent, &GlobalEvent::SpriteDestroyed >(this);
         break;
         case EVT_TEXTDRAWDESTROYED:
-            _Core->TextdrawDestroyed.Disconnect<GlobalEvent, &GlobalEvent::TextdrawDestroyed>(this);
+            _Core->TextdrawDestroyed.Disconnect< GlobalEvent, &GlobalEvent::TextdrawDestroyed >(this);
         break;
         case EVT_VEHICLEDESTROYED:
-            _Core->VehicleDestroyed.Disconnect<GlobalEvent, &GlobalEvent::VehicleDestroyed>(this);
+            _Core->VehicleDestroyed.Disconnect< GlobalEvent, &GlobalEvent::VehicleDestroyed >(this);
         break;
         case EVT_BLIPCUSTOM:
-            _Core->BlipCustom.Disconnect<GlobalEvent, &GlobalEvent::BlipCustom>(this);
+            _Core->BlipCustom.Disconnect< GlobalEvent, &GlobalEvent::BlipCustom >(this);
         break;
         case EVT_CHECKPOINTCUSTOM:
-            _Core->CheckpointCustom.Disconnect<GlobalEvent, &GlobalEvent::CheckpointCustom>(this);
+            _Core->CheckpointCustom.Disconnect< GlobalEvent, &GlobalEvent::CheckpointCustom >(this);
         break;
         case EVT_KEYBINDCUSTOM:
-            _Core->KeybindCustom.Disconnect<GlobalEvent, &GlobalEvent::KeybindCustom>(this);
+            _Core->KeybindCustom.Disconnect< GlobalEvent, &GlobalEvent::KeybindCustom >(this);
         break;
         case EVT_OBJECTCUSTOM:
-            _Core->ObjectCustom.Disconnect<GlobalEvent, &GlobalEvent::ObjectCustom>(this);
+            _Core->ObjectCustom.Disconnect< GlobalEvent, &GlobalEvent::ObjectCustom >(this);
         break;
         case EVT_PICKUPCUSTOM:
-            _Core->PickupCustom.Disconnect<GlobalEvent, &GlobalEvent::PickupCustom>(this);
+            _Core->PickupCustom.Disconnect< GlobalEvent, &GlobalEvent::PickupCustom >(this);
         break;
         case EVT_PLAYERCUSTOM:
-            _Core->PlayerCustom.Disconnect<GlobalEvent, &GlobalEvent::PlayerCustom>(this);
+            _Core->PlayerCustom.Disconnect< GlobalEvent, &GlobalEvent::PlayerCustom >(this);
         break;
         case EVT_SPHERECUSTOM:
-            _Core->SphereCustom.Disconnect<GlobalEvent, &GlobalEvent::SphereCustom>(this);
+            _Core->SphereCustom.Disconnect< GlobalEvent, &GlobalEvent::SphereCustom >(this);
         break;
         case EVT_SPRITECUSTOM:
-            _Core->SpriteCustom.Disconnect<GlobalEvent, &GlobalEvent::SpriteCustom>(this);
+            _Core->SpriteCustom.Disconnect< GlobalEvent, &GlobalEvent::SpriteCustom >(this);
         break;
         case EVT_TEXTDRAWCUSTOM:
-            _Core->TextdrawCustom.Disconnect<GlobalEvent, &GlobalEvent::TextdrawCustom>(this);
+            _Core->TextdrawCustom.Disconnect< GlobalEvent, &GlobalEvent::TextdrawCustom >(this);
         break;
         case EVT_VEHICLECUSTOM:
-            _Core->VehicleCustom.Disconnect<GlobalEvent, &GlobalEvent::VehicleCustom>(this);
+            _Core->VehicleCustom.Disconnect< GlobalEvent, &GlobalEvent::VehicleCustom >(this);
         break;
         case EVT_PLAYERAWAY:
-            _Core->PlayerAway.Disconnect<GlobalEvent, &GlobalEvent::PlayerAway>(this);
+            _Core->PlayerAway.Disconnect< GlobalEvent, &GlobalEvent::PlayerAway >(this);
         break;
         case EVT_PLAYERGAMEKEYS:
-            _Core->PlayerGameKeys.Disconnect<GlobalEvent, &GlobalEvent::PlayerGameKeys>(this);
+            _Core->PlayerGameKeys.Disconnect< GlobalEvent, &GlobalEvent::PlayerGameKeys >(this);
         break;
         case EVT_PLAYERRENAME:
-            _Core->PlayerRename.Disconnect<GlobalEvent, &GlobalEvent::PlayerRename>(this);
+            _Core->PlayerRename.Disconnect< GlobalEvent, &GlobalEvent::PlayerRename >(this);
         break;
         case EVT_PLAYERREQUESTCLASS:
-            _Core->PlayerRequestClass.Disconnect<GlobalEvent, &GlobalEvent::PlayerRequestClass>(this);
+            _Core->PlayerRequestClass.Disconnect< GlobalEvent, &GlobalEvent::PlayerRequestClass >(this);
         break;
         case EVT_PLAYERREQUESTSPAWN:
-            _Core->PlayerRequestSpawn.Disconnect<GlobalEvent, &GlobalEvent::PlayerRequestSpawn>(this);
+            _Core->PlayerRequestSpawn.Disconnect< GlobalEvent, &GlobalEvent::PlayerRequestSpawn >(this);
         break;
         case EVT_PLAYERSPAWN:
-            _Core->PlayerSpawn.Disconnect<GlobalEvent, &GlobalEvent::PlayerSpawn>(this);
+            _Core->PlayerSpawn.Disconnect< GlobalEvent, &GlobalEvent::PlayerSpawn >(this);
         break;
         case EVT_PLAYERSTARTTYPING:
-            _Core->PlayerStartTyping.Disconnect<GlobalEvent, &GlobalEvent::PlayerStartTyping>(this);
+            _Core->PlayerStartTyping.Disconnect< GlobalEvent, &GlobalEvent::PlayerStartTyping >(this);
         break;
         case EVT_PLAYERSTOPTYPING:
-            _Core->PlayerStopTyping.Disconnect<GlobalEvent, &GlobalEvent::PlayerStopTyping>(this);
+            _Core->PlayerStopTyping.Disconnect< GlobalEvent, &GlobalEvent::PlayerStopTyping >(this);
         break;
         case EVT_PLAYERCHAT:
-            _Core->PlayerChat.Disconnect<GlobalEvent, &GlobalEvent::PlayerChat>(this);
+            _Core->PlayerChat.Disconnect< GlobalEvent, &GlobalEvent::PlayerChat >(this);
         break;
         case EVT_PLAYERCOMMAND:
-            _Core->PlayerCommand.Disconnect<GlobalEvent, &GlobalEvent::PlayerCommand>(this);
+            _Core->PlayerCommand.Disconnect< GlobalEvent, &GlobalEvent::PlayerCommand >(this);
         break;
         case EVT_PLAYERMESSAGE:
-            _Core->PlayerMessage.Disconnect<GlobalEvent, &GlobalEvent::PlayerMessage>(this);
+            _Core->PlayerMessage.Disconnect< GlobalEvent, &GlobalEvent::PlayerMessage >(this);
         break;
         case EVT_PLAYERHEALTH:
-            _Core->PlayerHealth.Disconnect<GlobalEvent, &GlobalEvent::PlayerHealth>(this);
+            _Core->PlayerHealth.Disconnect< GlobalEvent, &GlobalEvent::PlayerHealth >(this);
         break;
         case EVT_PLAYERARMOUR:
-            _Core->PlayerArmour.Disconnect<GlobalEvent, &GlobalEvent::PlayerArmour>(this);
+            _Core->PlayerArmour.Disconnect< GlobalEvent, &GlobalEvent::PlayerArmour >(this);
         break;
         case EVT_PLAYERWEAPON:
-            _Core->PlayerWeapon.Disconnect<GlobalEvent, &GlobalEvent::PlayerWeapon>(this);
+            _Core->PlayerWeapon.Disconnect< GlobalEvent, &GlobalEvent::PlayerWeapon >(this);
         break;
         case EVT_PLAYERMOVE:
-            _Core->PlayerMove.Disconnect<GlobalEvent, &GlobalEvent::PlayerMove>(this);
+            _Core->PlayerMove.Disconnect< GlobalEvent, &GlobalEvent::PlayerMove >(this);
         break;
         case EVT_PLAYERWASTED:
-            _Core->PlayerWasted.Disconnect<GlobalEvent, &GlobalEvent::PlayerWasted>(this);
+            _Core->PlayerWasted.Disconnect< GlobalEvent, &GlobalEvent::PlayerWasted >(this);
         break;
         case EVT_PLAYERKILLED:
-            _Core->PlayerKilled.Disconnect<GlobalEvent, &GlobalEvent::PlayerKilled>(this);
+            _Core->PlayerKilled.Disconnect< GlobalEvent, &GlobalEvent::PlayerKilled >(this);
         break;
         case EVT_PLAYERTEAMKILL:
-            _Core->PlayerTeamKill.Disconnect<GlobalEvent, &GlobalEvent::PlayerTeamKill>(this);
+            _Core->PlayerTeamKill.Disconnect< GlobalEvent, &GlobalEvent::PlayerTeamKill >(this);
         break;
         case EVT_PLAYERSPECTATE:
-            _Core->PlayerSpectate.Disconnect<GlobalEvent, &GlobalEvent::PlayerSpectate>(this);
+            _Core->PlayerSpectate.Disconnect< GlobalEvent, &GlobalEvent::PlayerSpectate >(this);
         break;
         case EVT_PLAYERCRASHREPORT:
-            _Core->PlayerCrashreport.Disconnect<GlobalEvent, &GlobalEvent::PlayerCrashreport>(this);
+            _Core->PlayerCrashreport.Disconnect< GlobalEvent, &GlobalEvent::PlayerCrashreport >(this);
         break;
         case EVT_PLAYERBURNING:
-            _Core->PlayerBurning.Disconnect<GlobalEvent, &GlobalEvent::PlayerBurning>(this);
+            _Core->PlayerBurning.Disconnect< GlobalEvent, &GlobalEvent::PlayerBurning >(this);
         break;
         case EVT_PLAYERCROUCHING:
-            _Core->PlayerCrouching.Disconnect<GlobalEvent, &GlobalEvent::PlayerCrouching>(this);
+            _Core->PlayerCrouching.Disconnect< GlobalEvent, &GlobalEvent::PlayerCrouching >(this);
         break;
         case EVT_PLAYERSTATE:
-            _Core->PlayerState.Disconnect<GlobalEvent, &GlobalEvent::PlayerState>(this);
+            _Core->PlayerState.Disconnect< GlobalEvent, &GlobalEvent::PlayerState >(this);
         break;
         case EVT_PLAYERACTION:
-            _Core->PlayerAction.Disconnect<GlobalEvent, &GlobalEvent::PlayerAction>(this);
+            _Core->PlayerAction.Disconnect< GlobalEvent, &GlobalEvent::PlayerAction >(this);
         break;
         case EVT_STATENONE:
-            _Core->StateNone.Disconnect<GlobalEvent, &GlobalEvent::StateNone>(this);
+            _Core->StateNone.Disconnect< GlobalEvent, &GlobalEvent::StateNone >(this);
         break;
         case EVT_STATENORMAL:
-            _Core->StateNormal.Disconnect<GlobalEvent, &GlobalEvent::StateNormal>(this);
+            _Core->StateNormal.Disconnect< GlobalEvent, &GlobalEvent::StateNormal >(this);
         break;
         case EVT_STATESHOOTING:
-            _Core->StateShooting.Disconnect<GlobalEvent, &GlobalEvent::StateShooting>(this);
+            _Core->StateShooting.Disconnect< GlobalEvent, &GlobalEvent::StateShooting >(this);
         break;
         case EVT_STATEDRIVER:
-            _Core->StateDriver.Disconnect<GlobalEvent, &GlobalEvent::StateDriver>(this);
+            _Core->StateDriver.Disconnect< GlobalEvent, &GlobalEvent::StateDriver >(this);
         break;
         case EVT_STATEPASSENGER:
-            _Core->StatePassenger.Disconnect<GlobalEvent, &GlobalEvent::StatePassenger>(this);
+            _Core->StatePassenger.Disconnect< GlobalEvent, &GlobalEvent::StatePassenger >(this);
         break;
         case EVT_STATEENTERDRIVER:
-            _Core->StateEnterDriver.Disconnect<GlobalEvent, &GlobalEvent::StateEnterDriver>(this);
+            _Core->StateEnterDriver.Disconnect< GlobalEvent, &GlobalEvent::StateEnterDriver >(this);
         break;
         case EVT_STATEENTERPASSENGER:
-            _Core->StateEnterPassenger.Disconnect<GlobalEvent, &GlobalEvent::StateEnterPassenger>(this);
+            _Core->StateEnterPassenger.Disconnect< GlobalEvent, &GlobalEvent::StateEnterPassenger >(this);
         break;
         case EVT_STATEEXITVEHICLE:
-            _Core->StateExitVehicle.Disconnect<GlobalEvent, &GlobalEvent::StateExitVehicle>(this);
+            _Core->StateExitVehicle.Disconnect< GlobalEvent, &GlobalEvent::StateExitVehicle >(this);
         break;
         case EVT_STATEUNSPAWNED:
-            _Core->StateUnspawned.Disconnect<GlobalEvent, &GlobalEvent::StateUnspawned>(this);
+            _Core->StateUnspawned.Disconnect< GlobalEvent, &GlobalEvent::StateUnspawned >(this);
         break;
         case EVT_ACTIONNONE:
-            _Core->ActionNone.Disconnect<GlobalEvent, &GlobalEvent::ActionNone>(this);
+            _Core->ActionNone.Disconnect< GlobalEvent, &GlobalEvent::ActionNone >(this);
         break;
         case EVT_ACTIONNORMAL:
-            _Core->ActionNormal.Disconnect<GlobalEvent, &GlobalEvent::ActionNormal>(this);
+            _Core->ActionNormal.Disconnect< GlobalEvent, &GlobalEvent::ActionNormal >(this);
         break;
         case EVT_ACTIONAIMING:
-            _Core->ActionAiming.Disconnect<GlobalEvent, &GlobalEvent::ActionAiming>(this);
+            _Core->ActionAiming.Disconnect< GlobalEvent, &GlobalEvent::ActionAiming >(this);
         break;
         case EVT_ACTIONSHOOTING:
-            _Core->ActionShooting.Disconnect<GlobalEvent, &GlobalEvent::ActionShooting>(this);
+            _Core->ActionShooting.Disconnect< GlobalEvent, &GlobalEvent::ActionShooting >(this);
         break;
         case EVT_ACTIONJUMPING:
-            _Core->ActionJumping.Disconnect<GlobalEvent, &GlobalEvent::ActionJumping>(this);
+            _Core->ActionJumping.Disconnect< GlobalEvent, &GlobalEvent::ActionJumping >(this);
         break;
         case EVT_ACTIONLIEDOWN:
-            _Core->ActionLieDown.Disconnect<GlobalEvent, &GlobalEvent::ActionLieDown>(this);
+            _Core->ActionLieDown.Disconnect< GlobalEvent, &GlobalEvent::ActionLieDown >(this);
         break;
         case EVT_ACTIONGETTINGUP:
-            _Core->ActionGettingUp.Disconnect<GlobalEvent, &GlobalEvent::ActionGettingUp>(this);
+            _Core->ActionGettingUp.Disconnect< GlobalEvent, &GlobalEvent::ActionGettingUp >(this);
         break;
         case EVT_ACTIONJUMPVEHICLE:
-            _Core->ActionJumpVehicle.Disconnect<GlobalEvent, &GlobalEvent::ActionJumpVehicle>(this);
+            _Core->ActionJumpVehicle.Disconnect< GlobalEvent, &GlobalEvent::ActionJumpVehicle >(this);
         break;
         case EVT_ACTIONDRIVING:
-            _Core->ActionDriving.Disconnect<GlobalEvent, &GlobalEvent::ActionDriving>(this);
+            _Core->ActionDriving.Disconnect< GlobalEvent, &GlobalEvent::ActionDriving >(this);
         break;
         case EVT_ACTIONDYING:
-            _Core->ActionDying.Disconnect<GlobalEvent, &GlobalEvent::ActionDying>(this);
+            _Core->ActionDying.Disconnect< GlobalEvent, &GlobalEvent::ActionDying >(this);
         break;
         case EVT_ACTIONWASTED:
-            _Core->ActionWasted.Disconnect<GlobalEvent, &GlobalEvent::ActionWasted>(this);
+            _Core->ActionWasted.Disconnect< GlobalEvent, &GlobalEvent::ActionWasted >(this);
         break;
         case EVT_ACTIONEMBARKING:
-            _Core->ActionEmbarking.Disconnect<GlobalEvent, &GlobalEvent::ActionEmbarking>(this);
+            _Core->ActionEmbarking.Disconnect< GlobalEvent, &GlobalEvent::ActionEmbarking >(this);
         break;
         case EVT_ACTIONDISEMBARKING:
-            _Core->ActionDisembarking.Disconnect<GlobalEvent, &GlobalEvent::ActionDisembarking>(this);
+            _Core->ActionDisembarking.Disconnect< GlobalEvent, &GlobalEvent::ActionDisembarking >(this);
         break;
         case EVT_VEHICLERESPAWN:
-            _Core->VehicleRespawn.Disconnect<GlobalEvent, &GlobalEvent::VehicleRespawn>(this);
+            _Core->VehicleRespawn.Disconnect< GlobalEvent, &GlobalEvent::VehicleRespawn >(this);
         break;
         case EVT_VEHICLEEXPLODE:
-            _Core->VehicleExplode.Disconnect<GlobalEvent, &GlobalEvent::VehicleExplode>(this);
+            _Core->VehicleExplode.Disconnect< GlobalEvent, &GlobalEvent::VehicleExplode >(this);
         break;
         case EVT_VEHICLEHEALTH:
-            _Core->VehicleHealth.Disconnect<GlobalEvent, &GlobalEvent::VehicleHealth>(this);
+            _Core->VehicleHealth.Disconnect< GlobalEvent, &GlobalEvent::VehicleHealth >(this);
         break;
         case EVT_VEHICLEMOVE:
-            _Core->VehicleMove.Disconnect<GlobalEvent, &GlobalEvent::VehicleMove>(this);
+            _Core->VehicleMove.Disconnect< GlobalEvent, &GlobalEvent::VehicleMove >(this);
         break;
         case EVT_PICKUPRESPAWN:
-            _Core->PickupRespawn.Disconnect<GlobalEvent, &GlobalEvent::PickupRespawn>(this);
+            _Core->PickupRespawn.Disconnect< GlobalEvent, &GlobalEvent::PickupRespawn >(this);
         break;
         case EVT_KEYBINDKEYPRESS:
-            _Core->KeybindKeyPress.Disconnect<GlobalEvent, &GlobalEvent::KeybindKeyPress>(this);
+            _Core->KeybindKeyPress.Disconnect< GlobalEvent, &GlobalEvent::KeybindKeyPress >(this);
         break;
         case EVT_KEYBINDKEYRELEASE:
-            _Core->KeybindKeyRelease.Disconnect<GlobalEvent, &GlobalEvent::KeybindKeyRelease>(this);
+            _Core->KeybindKeyRelease.Disconnect< GlobalEvent, &GlobalEvent::KeybindKeyRelease >(this);
         break;
         case EVT_VEHICLEEMBARKING:
-            _Core->VehicleEmbarking.Disconnect<GlobalEvent, &GlobalEvent::VehicleEmbarking>(this);
+            _Core->VehicleEmbarking.Disconnect< GlobalEvent, &GlobalEvent::VehicleEmbarking >(this);
         break;
         case EVT_VEHICLEEMBARKED:
-            _Core->VehicleEmbarked.Disconnect<GlobalEvent, &GlobalEvent::VehicleEmbarked>(this);
+            _Core->VehicleEmbarked.Disconnect< GlobalEvent, &GlobalEvent::VehicleEmbarked >(this);
         break;
         case EVT_VEHICLEDISEMBARK:
-            _Core->VehicleDisembark.Disconnect<GlobalEvent, &GlobalEvent::VehicleDisembark>(this);
+            _Core->VehicleDisembark.Disconnect< GlobalEvent, &GlobalEvent::VehicleDisembark >(this);
         break;
         case EVT_PICKUPCLAIMED:
-            _Core->PickupClaimed.Disconnect<GlobalEvent, &GlobalEvent::PickupClaimed>(this);
+            _Core->PickupClaimed.Disconnect< GlobalEvent, &GlobalEvent::PickupClaimed >(this);
         break;
         case EVT_PICKUPCOLLECTED:
-            _Core->PickupCollected.Disconnect<GlobalEvent, &GlobalEvent::PickupCollected>(this);
+            _Core->PickupCollected.Disconnect< GlobalEvent, &GlobalEvent::PickupCollected >(this);
         break;
         case EVT_OBJECTSHOT:
-            _Core->ObjectShot.Disconnect<GlobalEvent, &GlobalEvent::ObjectShot>(this);
+            _Core->ObjectShot.Disconnect< GlobalEvent, &GlobalEvent::ObjectShot >(this);
         break;
         case EVT_OBJECTBUMP:
-            _Core->ObjectBump.Disconnect<GlobalEvent, &GlobalEvent::ObjectBump>(this);
+            _Core->ObjectBump.Disconnect< GlobalEvent, &GlobalEvent::ObjectBump >(this);
         break;
         case EVT_CHECKPOINTENTERED:
-            _Core->CheckpointEntered.Disconnect<GlobalEvent, &GlobalEvent::CheckpointEntered>(this);
+            _Core->CheckpointEntered.Disconnect< GlobalEvent, &GlobalEvent::CheckpointEntered >(this);
         break;
         case EVT_CHECKPOINTEXITED:
-            _Core->CheckpointExited.Disconnect<GlobalEvent, &GlobalEvent::CheckpointExited>(this);
+            _Core->CheckpointExited.Disconnect< GlobalEvent, &GlobalEvent::CheckpointExited >(this);
         break;
         case EVT_SPHEREENTERED:
-            _Core->SphereEntered.Disconnect<GlobalEvent, &GlobalEvent::SphereEntered>(this);
+            _Core->SphereEntered.Disconnect< GlobalEvent, &GlobalEvent::SphereEntered >(this);
         break;
         case EVT_SPHEREEXITED:
-            _Core->SphereExited.Disconnect<GlobalEvent, &GlobalEvent::SphereExited>(this);
+            _Core->SphereExited.Disconnect< GlobalEvent, &GlobalEvent::SphereExited >(this);
         break;
         default:
             LogErr("Attempting to <detach> from an unknown event type: %d", _SCI32(m_Type));
@@ -2046,101 +2059,6 @@ void GlobalEvent::Adaptable(SQInt32 type) noexcept
     }
 }
 
-// ------------------------------------------------------------------------------------------------
-bool GlobalEvent::Compatible(SQInt32 type) noexcept
-{
-    switch (type)
-    {
-        case EVT_BLIPDESTROYED:
-        case EVT_CHECKPOINTDESTROYED:
-        case EVT_KEYBINDDESTROYED:
-        case EVT_OBJECTDESTROYED:
-        case EVT_PICKUPDESTROYED:
-        case EVT_PLAYERDESTROYED:
-        case EVT_SPHEREDESTROYED:
-        case EVT_SPRITEDESTROYED:
-        case EVT_TEXTDRAWDESTROYED:
-        case EVT_VEHICLEDESTROYED:
-        case EVT_BLIPCUSTOM:
-        case EVT_CHECKPOINTCUSTOM:
-        case EVT_KEYBINDCUSTOM:
-        case EVT_OBJECTCUSTOM:
-        case EVT_PICKUPCUSTOM:
-        case EVT_PLAYERCUSTOM:
-        case EVT_SPHERECUSTOM:
-        case EVT_SPRITECUSTOM:
-        case EVT_TEXTDRAWCUSTOM:
-        case EVT_VEHICLECUSTOM:
-        case EVT_PLAYERAWAY:
-        case EVT_PLAYERGAMEKEYS:
-        case EVT_PLAYERRENAME:
-        case EVT_PLAYERREQUESTCLASS:
-        case EVT_PLAYERREQUESTSPAWN:
-        case EVT_PLAYERSPAWN:
-        case EVT_PLAYERSTARTTYPING:
-        case EVT_PLAYERSTOPTYPING:
-        case EVT_PLAYERCHAT:
-        case EVT_PLAYERCOMMAND:
-        case EVT_PLAYERMESSAGE:
-        case EVT_PLAYERHEALTH:
-        case EVT_PLAYERARMOUR:
-        case EVT_PLAYERWEAPON:
-        case EVT_PLAYERMOVE:
-        case EVT_PLAYERWASTED:
-        case EVT_PLAYERKILLED:
-        case EVT_PLAYERTEAMKILL:
-        case EVT_PLAYERSPECTATE:
-        case EVT_PLAYERCRASHREPORT:
-        case EVT_PLAYERBURNING:
-        case EVT_PLAYERCROUCHING:
-        case EVT_PLAYERSTATE:
-        case EVT_PLAYERACTION:
-        case EVT_STATENONE:
-        case EVT_STATENORMAL:
-        case EVT_STATESHOOTING:
-        case EVT_STATEDRIVER:
-        case EVT_STATEPASSENGER:
-        case EVT_STATEENTERDRIVER:
-        case EVT_STATEENTERPASSENGER:
-        case EVT_STATEEXITVEHICLE:
-        case EVT_STATEUNSPAWNED:
-        case EVT_ACTIONNONE:
-        case EVT_ACTIONNORMAL:
-        case EVT_ACTIONAIMING:
-        case EVT_ACTIONSHOOTING:
-        case EVT_ACTIONJUMPING:
-        case EVT_ACTIONLIEDOWN:
-        case EVT_ACTIONGETTINGUP:
-        case EVT_ACTIONJUMPVEHICLE:
-        case EVT_ACTIONDRIVING:
-        case EVT_ACTIONDYING:
-        case EVT_ACTIONWASTED:
-        case EVT_ACTIONEMBARKING:
-        case EVT_ACTIONDISEMBARKING:
-        case EVT_VEHICLERESPAWN:
-        case EVT_VEHICLEEXPLODE:
-        case EVT_VEHICLEHEALTH:
-        case EVT_VEHICLEMOVE:
-        case EVT_PICKUPRESPAWN:
-        case EVT_KEYBINDKEYPRESS:
-        case EVT_KEYBINDKEYRELEASE:
-        case EVT_VEHICLEEMBARKING:
-        case EVT_VEHICLEEMBARKED:
-        case EVT_VEHICLEDISEMBARK:
-        case EVT_PICKUPCLAIMED:
-        case EVT_PICKUPCOLLECTED:
-        case EVT_OBJECTSHOT:
-        case EVT_OBJECTBUMP:
-        case EVT_CHECKPOINTENTERED:
-        case EVT_CHECKPOINTEXITED:
-        case EVT_SPHEREENTERED:
-        case EVT_SPHEREEXITED:
-            return true;
-        default:
-            return false;
-    }
-}
-
 // ================================================================================================
 template < class T > static bool Register_GlobalFilter(HSQUIRRELVM vm, const SQChar * cname)
 {
@@ -2148,9 +2066,9 @@ template < class T > static bool Register_GlobalFilter(HSQUIRRELVM vm, const SQC
     LogDbg("Beginning registration of <%s> type", cname);
     // Avoid using the long name of the type we're about to register
     typedef GlobalFilter< T > Filter;
-    // Filters should not be constructed
+    // Filters should not be constructed to avoid further complications
     typedef NoConstructor< Filter > Allocator;
-    // Attempt to register the specified type
+    // Attempt to register the specified filtertype
     Sqrat::RootTable(vm).Bind(cname, Sqrat::Class< Filter, Allocator >(vm, cname)
         .Func(_SC("_cmp"), &Filter::Cmp)
         .Func(_SC("_tostring"), &Filter::ToString)
@@ -2160,10 +2078,10 @@ template < class T > static bool Register_GlobalFilter(HSQUIRRELVM vm, const SQC
         .Prop(_SC("none"), &Filter::None)
         .Prop(_SC("all"), &Filter::All)
 
-        .template Overload< void (Filter::*)(const typename Filter::RefType &) >(_SC("include"), &Filter::Include)
-        .template Overload< void (Filter::*)(const typename Filter::RefType &, SQInt32) >(_SC("include"), &Filter::Include)
-        .template Overload< void (Filter::*)(const typename Filter::RefType &) >(_SC("exclude"), &Filter::Exclude)
-        .template Overload< void (Filter::*)(const typename Filter::RefType &, SQInt32) >(_SC("exclude"), &Filter::Exclude)
+        .template Overload< bool (Filter::*)(const typename Filter::RefType &) >(_SC("include"), &Filter::Include)
+        .template Overload< bool (Filter::*)(const typename Filter::RefType &, SQInt32) >(_SC("include"), &Filter::Include)
+        .template Overload< bool (Filter::*)(const typename Filter::RefType &) >(_SC("exclude"), &Filter::Exclude)
+        .template Overload< bool (Filter::*)(const typename Filter::RefType &, SQInt32) >(_SC("exclude"), &Filter::Exclude)
         //.Func(_SC("exclude"), &Filter::Exclude)
         .Func(_SC("enabled"), &Filter::Enabled)
         .Func(_SC("clear"), &Filter::Clear)
@@ -2193,8 +2111,10 @@ bool Register_GlobalEvent(HSQUIRRELVM vm)
     }
     // Output debugging information
     LogDbg("Beginning registration of <GlobalEvent> type");
+    // Events should not be copied for the sake of simplicity
+    typedef NoCopy< GlobalEvent > Allocator;
     // Attempt to register the specified type
-    Sqrat::RootTable(vm).Bind(_SC("GlobalEvent"), Sqrat::Class< GlobalEvent >(vm, _SC("GlobalEvent"))
+    Sqrat::RootTable(vm).Bind(_SC("GlobalEvent"), Sqrat::Class< GlobalEvent, Allocator >(vm, _SC("GlobalEvent"))
         .Ctor()
         .Ctor<SQInt32>()
         .Ctor<SQInt32, bool>()
@@ -2213,6 +2133,7 @@ bool Register_GlobalEvent(HSQUIRRELVM vm)
         .Prop(_SC("secondary"), &GlobalEvent::GetSecondary, &GlobalEvent::SetSecondary)
         .Prop(_SC("confined"), &GlobalEvent::GetConfined, &GlobalEvent::SetConfined)
         .Prop(_SC("suspended"), &GlobalEvent::GetSuspended, &GlobalEvent::SetSuspended)
+        .Prop(_SC("compatible"), &GlobalEvent::Compatible)
         .Prop(_SC("name"), &GlobalEvent::GetName)
 
         .Prop(_SC("on_trigger"), &GlobalEvent::GetOnTrigger, &GlobalEvent::SetOnTrigger)
@@ -2237,6 +2158,5 @@ bool Register_GlobalEvent(HSQUIRRELVM vm)
     // Registration succeeded
     return true;
 }
-
 
 } // Namespace:: SqMod
