@@ -37,49 +37,9 @@ BasicEvent::BasicEvent(SQInt32 type, bool suspended) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-BasicEvent::BasicEvent(const BasicEvent & o) noexcept
-    : m_Type(o.m_Type)
-    , m_Stride(o.m_Stride)
-    , m_Ignore(o.m_Ignore)
-    , m_Primary(o.m_Primary)
-    , m_Secondary(o.m_Secondary)
-    , m_Idle(o.m_Idle)
-    , m_OnTrigger(o.m_OnTrigger)
-    , m_Tag(o.m_Tag)
-    , m_Data(o.m_Data)
-    , m_Suspended(o.m_Suspended)
-{
-    Attach();
-}
-
-// ------------------------------------------------------------------------------------------------
 BasicEvent::~BasicEvent()
 {
     Detach();
-}
-
-// ------------------------------------------------------------------------------------------------
-BasicEvent & BasicEvent::operator = (const BasicEvent & o) noexcept
-{
-    if (this != &o)
-    {
-        Detach();
-
-        m_Type = o.m_Type;
-        m_Stride = o.m_Stride;
-        m_Ignore = o.m_Ignore;
-        m_Primary = o.m_Primary;
-        m_Secondary = o.m_Secondary;
-        m_Idle = o.m_Idle;
-        m_OnTrigger = o.m_OnTrigger;
-        m_Tag = o.m_Tag;
-        m_Data = o.m_Data;
-        m_Suspended = o.m_Suspended;
-
-        Attach();
-    }
-
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -256,6 +216,12 @@ Function BasicEvent::GetOnTrigger() const noexcept
 void BasicEvent::SetOnTrigger(const Function & func) noexcept
 {
     m_OnTrigger = func;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool BasicEvent::Compatible(SQInt32 type) const noexcept
+{
+    return (type != EVT_UNKNOWN && type < EVT_COUNT);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1940,8 +1906,10 @@ bool Register_BasicEvent(HSQUIRRELVM vm)
 {
     // Output debugging information
     LogDbg("Beginning registration of <BasicEvent> type");
+    // Events should not be copied for the sake of simplicity
+    typedef NoCopy< BasicEvent > Allocator;
     // Attempt to register the specified type
-    Sqrat::RootTable(vm).Bind(_SC("BasicEvent"), Sqrat::Class< BasicEvent >(vm, _SC("BasicEvent"))
+    Sqrat::RootTable(vm).Bind(_SC("BasicEvent"), Sqrat::Class< BasicEvent, Allocator >(vm, _SC("BasicEvent"))
         .Ctor()
         .Ctor<SQInt32>()
         .Ctor<SQInt32, bool>()
@@ -1959,6 +1927,7 @@ bool Register_BasicEvent(HSQUIRRELVM vm)
         .Prop(_SC("primary"), &BasicEvent::GetPrimary, &BasicEvent::SetPrimary)
         .Prop(_SC("secondary"), &BasicEvent::GetSecondary, &BasicEvent::SetSecondary)
         .Prop(_SC("suspended"), &BasicEvent::GetSuspended, &BasicEvent::SetSuspended)
+        .Func(_SC("compatible"), &BasicEvent::Compatible)
         .Func(_SC("name"), &BasicEvent::GetName)
 
         .Prop(_SC("on_trigger"), &BasicEvent::GetOnTrigger, &BasicEvent::SetOnTrigger)
