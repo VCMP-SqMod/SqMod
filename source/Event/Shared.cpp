@@ -287,6 +287,30 @@ bool IsCustomEvent(SQInt32 type) noexcept
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+bool CanBeInversed(SQInt32 type) noexcept
+{
+    switch (type)
+    {
+        case EVT_KEYBINDKEYPRESS:
+        case EVT_KEYBINDKEYRELEASE:
+        case EVT_VEHICLEEMBARKING:
+        case EVT_VEHICLEEMBARKED:
+        case EVT_VEHICLEDISEMBARK:
+        case EVT_PICKUPCLAIMED:
+        case EVT_PICKUPCOLLECTED:
+        case EVT_OBJECTSHOT:
+        case EVT_OBJECTBUMP:
+        case EVT_CHECKPOINTENTERED:
+        case EVT_CHECKPOINTEXITED:
+        case EVT_SPHEREENTERED:
+        case EVT_SPHEREEXITED:
+            return true;
+        default:
+            return false;
+    }
+}
+
 // ================================================================================================
 bool Register_Event(HSQUIRRELVM vm)
 {

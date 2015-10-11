@@ -32,6 +32,11 @@ bool IsDestroyEvent(SQInt32 type) noexcept;
 */
 bool IsCustomEvent(SQInt32 type) noexcept;
 
+/* ------------------------------------------------------------------------------------------------
+ * ...
+*/
+bool CanBeInversed(SQInt32 type) noexcept;
+
 } // Namespace:: SqMod
 
 #endif // _SQMOD_EVENT_SHARED_HPP_
