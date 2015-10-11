@@ -6,6 +6,9 @@
 #include "Signal.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include "Base/Vector3.hpp"
+
+// ------------------------------------------------------------------------------------------------
 #include <queue>
 #include <vector>
 #include <utility>
@@ -28,7 +31,7 @@ protected:
         SQInt32     Weapon;
         SQFloat     Health;
         SQFloat     Armour;
-        //Vector3     Position;
+        Vector3     Position;
         bool        Fresh;
     };
 
@@ -36,7 +39,7 @@ protected:
     struct TVehicle
     {
         SQFloat     Health;
-        //Vector3     Position;
+        Vector3     Position;
         bool        Fresh;
     };
 
@@ -134,8 +137,8 @@ public:
     void MakeBuffer(unsigned num, unsigned sz = 4096) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void ConnectPlayer(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void DisconnectPlayer(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    void ConnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
+    void DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
 protected:
 
@@ -171,7 +174,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Destroys a Player created by the server
     */
-    bool DestroyPlayer(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroyPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
 public:
 
@@ -179,140 +182,140 @@ public:
     * Creates a new Blip on the server
     */
     Reference< CBlip > CreateBlip(SQInt32 index, SQInt32 world, const Vector3 & pos, SQInt32 scale, \
-                    const Color4 & color, SQInt32 sprite, SQInt32 header, const SqObj & payload) noexcept;
+                    const Color4 & color, SQInt32 sprite, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Checkpoint on the server
     */
     Reference< CCheckpoint > CreateCheckpoint(const  Reference< CPlayer > & player, SQInt32 world, const Vector3 & pos, \
-                                const Color4 & color, SQFloat radius, SQInt32 header, const SqObj & payload) noexcept;
+                                const Color4 & color, SQFloat radius, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Keybind on the server
     */
     Reference< CKeybind > CreateKeybind(SQInt32 slot, bool release, SQInt32 primary, SQInt32 secondary, \
-                        SQInt32 alternative, SQInt32 header, const SqObj & payload) noexcept;
+                        SQInt32 alternative, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Object on the server
     */
     Reference< CObject > CreateObject(const CModel & model, SQInt32 world, const Vector3 & pos, SQInt32 alpha, \
-                        SQInt32 header, const SqObj & payload) noexcept;
+                        SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Pickup on the server
     */
     Reference< CPickup > CreatePickup(const CModel & model, SQInt32 world, SQInt32 quantity, const Vector3 & pos, \
-                        SQInt32 alpha, bool automatic, SQInt32 header, const SqObj & payload) noexcept;
+                        SQInt32 alpha, bool automatic, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Sphere on the server
     */
     Reference< CSphere > CreateSphere(const  Reference< CPlayer > & player, SQInt32 world, const Vector3 & pos, \
-                        const Color3 & color, SQFloat radius, SQInt32 header, const SqObj & payload) noexcept;
+                        const Color3 & color, SQFloat radius, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Sprite on the server
     */
     Reference< CSprite > CreateSprite(SQInt32 index, const String & file, const Vector2i & pos, const Vector2i & rot, \
-                        SQFloat angle, SQInt32 alpha, bool rel, SQInt32 header, const SqObj & payload) noexcept;
+                        SQFloat angle, SQInt32 alpha, bool rel, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Textdraw on the server
     */
     Reference< CTextdraw > CreateTextdraw(SQInt32 index, const String & text, const Vector2i & pos, \
-                            const Color4 & color, bool rel, SQInt32 header, const SqObj & payload) noexcept;
+                            const Color4 & color, bool rel, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Vehicle on the server
     */
     Reference< CVehicle > CreateVehicle(const CAutomobile & model, SQInt32 world, const Vector3 & pos, SQFloat angle, \
-                        SQInt32 primary, SQInt32 secondary, SQInt32 header, const SqObj & payload) noexcept;
+                        SQInt32 primary, SQInt32 secondary, SQInt32 header, SqObj & payload) noexcept;
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Destroys a Blip created by the server
     */
-    bool DestroyBlip(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroyBlip(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Destroys a Checkpoint created by the server
     */
-    bool DestroyCheckpoint(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroyCheckpoint(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Destroys a Keybind created by the server
     */
-    bool DestroyKeybind(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroyKeybind(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Destroys a Object created by the server
     */
-    bool DestroyObject(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroyObject(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Destroys a Pickup created by the server
     */
-    bool DestroyPickup(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroyPickup(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Destroys a Sphere created by the server
     */
-    bool DestroySphere(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroySphere(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Destroys a Sprite created by the server
     */
-    bool DestroySprite(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroySprite(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Destroys a Textdraw created by the server
     */
-    bool DestroyTextdraw(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroyTextdraw(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Destroys a Vehicle created by the server
     */
-    bool DestroyVehicle(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    bool DestroyVehicle(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
 
 public:
 
     // --------------------------------------------------------------------------------------------
-    void OnBlipCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnCheckpointCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnKeybindCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnObjectCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnPickupCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnPlayerCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnSphereCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnSpriteCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnTextdrawCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnVehicleCreated(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    void OnBlipCreated(SQInt32 blip, SQInt32 header, SqObj & payload) noexcept;
+    void OnCheckpointCreated(SQInt32 checkpoint, SQInt32 header, SqObj & payload) noexcept;
+    void OnKeybindCreated(SQInt32 keybind, SQInt32 header, SqObj & payload) noexcept;
+    void OnObjectCreated(SQInt32 object, SQInt32 header, SqObj & payload) noexcept;
+    void OnPickupCreated(SQInt32 pickup, SQInt32 header, SqObj & payload) noexcept;
+    void OnPlayerCreated(SQInt32 player, SQInt32 header, SqObj & payload) noexcept;
+    void OnSphereCreated(SQInt32 sphere, SQInt32 header, SqObj & payload) noexcept;
+    void OnSpriteCreated(SQInt32 sprite, SQInt32 header, SqObj & payload) noexcept;
+    void OnTextdrawCreated(SQInt32 textdraw, SQInt32 header, SqObj & payload) noexcept;
+    void OnVehicleCreated(SQInt32 vehicle, SQInt32 header, SqObj & payload) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void OnBlipDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnCheckpointDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnKeybindDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnObjectDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnPickupDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnPlayerDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnSphereDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnSpriteDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnTextdrawDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnVehicleDestroyed(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    void OnBlipDestroyed(SQInt32 blip, SQInt32 header, SqObj & payload) noexcept;
+    void OnCheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, SqObj & payload) noexcept;
+    void OnKeybindDestroyed(SQInt32 keybind, SQInt32 header, SqObj & payload) noexcept;
+    void OnObjectDestroyed(SQInt32 object, SQInt32 header, SqObj & payload) noexcept;
+    void OnPickupDestroyed(SQInt32 pickup, SQInt32 header, SqObj & payload) noexcept;
+    void OnPlayerDestroyed(SQInt32 player, SQInt32 header, SqObj & payload) noexcept;
+    void OnSphereDestroyed(SQInt32 sphere, SQInt32 header, SqObj & payload) noexcept;
+    void OnSpriteDestroyed(SQInt32 sprite, SQInt32 header, SqObj & payload) noexcept;
+    void OnTextdrawDestroyed(SQInt32 textdraw, SQInt32 header, SqObj & payload) noexcept;
+    void OnVehicleDestroyed(SQInt32 vehicle, SQInt32 header, SqObj & payload) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void OnBlipCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnCheckpointCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnKeybindCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnObjectCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnPickupCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnPlayerCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnSphereCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnSpriteCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnTextdrawCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
-    void OnVehicleCustom(SQInt32 id, SQInt32 header, const SqObj & payload) noexcept;
+    void OnBlipCustom(SQInt32 blip, SQInt32 header, SqObj & payload) noexcept;
+    void OnCheckpointCustom(SQInt32 checkpoint, SQInt32 header, SqObj & payload) noexcept;
+    void OnKeybindCustom(SQInt32 keybind, SQInt32 header, SqObj & payload) noexcept;
+    void OnObjectCustom(SQInt32 object, SQInt32 header, SqObj & payload) noexcept;
+    void OnPickupCustom(SQInt32 pickup, SQInt32 header, SqObj & payload) noexcept;
+    void OnPlayerCustom(SQInt32 player, SQInt32 header, SqObj & payload) noexcept;
+    void OnSphereCustom(SQInt32 sphere, SQInt32 header, SqObj & payload) noexcept;
+    void OnSpriteCustom(SQInt32 sprite, SQInt32 header, SqObj & payload) noexcept;
+    void OnTextdrawCustom(SQInt32 textdraw, SQInt32 header, SqObj & payload) noexcept;
+    void OnVehicleCustom(SQInt32 vehicle, SQInt32 header, SqObj & payload) noexcept;
 
     // --------------------------------------------------------------------------------------------
     void OnPlayerAway(SQInt32 player, bool status) noexcept;
@@ -406,20 +409,20 @@ public:
     void OnPlayerDisembark(SQInt32 player, SQInt32 vehicle) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void OnPickupClaimed(SQInt32 pickup, SQInt32 player) noexcept;
-    void OnPickupCollected(SQInt32 pickup, SQInt32 player) noexcept;
+    void OnPickupClaimed(SQInt32 player, SQInt32 pickup) noexcept;
+    void OnPickupCollected(SQInt32 player, SQInt32 pickup) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void OnObjectShot(SQInt32 object, SQInt32 player, SQInt32 weapon) noexcept;
-    void OnObjectBump(SQInt32 object, SQInt32 player) noexcept;
+    void OnObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noexcept;
+    void OnObjectBump(SQInt32 player, SQInt32 object) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void OnCheckpointEntered(SQInt32 checkpoint, SQInt32 player) noexcept;
-    void OnCheckpointExited(SQInt32 checkpoint, SQInt32 player) noexcept;
+    void OnCheckpointEntered(SQInt32 player, SQInt32 checkpoint) noexcept;
+    void OnCheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void OnSphereEntered(SQInt32 sphere, SQInt32 player) noexcept;
-    void OnSphereExited(SQInt32 sphere, SQInt32 player) noexcept;
+    void OnSphereEntered(SQInt32 player, SQInt32 sphere) noexcept;
+    void OnSphereExited(SQInt32 player, SQInt32 sphere) noexcept;
 
     // --------------------------------------------------------------------------------------------
     void OnServerFrame(SQFloat delta) noexcept;
@@ -433,14 +436,14 @@ public:
     void OnLoginAttempt(const SQChar * name, const SQChar * passwd, const SQChar * ip) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void OnCustomEvent(SQInt32 group, SQInt32 header, const SqObj & payload) noexcept;
+    void OnCustomEvent(SQInt32 group, SQInt32 header, SqObj & payload) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void OnWorldOption(SQInt32 option, const SqObj & value) noexcept;
+    void OnWorldOption(SQInt32 option, SqObj & value) noexcept;
     void OnWorldToggle(SQInt32 option, bool value) noexcept;
 
     // --------------------------------------------------------------------------------------------
-    void OnScriptReload(SQInt32 header, const SqObj & payload) noexcept;
+    void OnScriptReload(SQInt32 header, SqObj & payload) noexcept;
 
     // --------------------------------------------------------------------------------------------
     void OnLogMessage(SQInt32 type, const SQChar * message) noexcept;

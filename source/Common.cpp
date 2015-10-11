@@ -95,12 +95,16 @@ static void VC_Frame(float delta) noexcept
 
 static void VC_PlayerConnect(int player) noexcept
 {
-    _Core->ConnectPlayer(player, SQMOD_CREATE_AUTOMATIC, SqObj());
+    static SqObj playload;
+    playload.Release();
+    _Core->ConnectPlayer(player, SQMOD_CREATE_AUTOMATIC, playload);
 }
 
 static void VC_PlayerDisconnect(int player, int reason) noexcept
 {
-    _Core->DisconnectPlayer(player, reason, SqObj());
+    static SqObj playload;
+    playload.Release();
+    _Core->DisconnectPlayer(player, reason, playload);
 }
 
 static void VC_PlayerBeginTyping(int player) noexcept
@@ -169,13 +173,13 @@ static void VC_PlayerExitVehicle(int player, int vehicle) noexcept
 static int VC_PickupClaimPicked(int pickup, int player) noexcept
 {
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->OnPickupClaimed(pickup, player);
+    _Core->OnPickupClaimed(player, pickup);
     return _Core->GetState();
 }
 
 static void VC_PickupPickedUp(int pickup, int player) noexcept
 {
-    _Core->OnPickupCollected(pickup, player);
+    _Core->OnPickupCollected(player, pickup);
 }
 
 static void VC_PickupRespawn(int pickup) noexcept
@@ -200,12 +204,12 @@ static void VC_VehicleRespawn(int vehicle) noexcept
 
 static void VC_ObjectShot(int object, int player, int weapon) noexcept
 {
-    _Core->OnObjectShot(object, player, weapon);
+    _Core->OnObjectShot(player, object, weapon);
 }
 
 static void VC_ObjectBump(int object, int player) noexcept
 {
-    _Core->OnObjectBump(object, player);
+    _Core->OnObjectBump(player, object);
 }
 
 static int VC_PublicMessage(int player, const char * text) noexcept
@@ -384,22 +388,22 @@ static void VC_PlayerGameKeys(int player, int previous, int current) noexcept
 
 static void VC_OnCheckpointEntered(int checkpoint, int player) noexcept
 {
-    _Core->OnCheckpointEntered(checkpoint, player);
+    _Core->OnCheckpointEntered(player, checkpoint);
 }
 
 static void VC_OnCheckpointExited(int checkpoint, int player) noexcept
 {
-    _Core->OnCheckpointExited(checkpoint, player);
+    _Core->OnCheckpointExited(player, checkpoint);
 }
 
 static void VC_OnSphereEntered(int sphere, int player) noexcept
 {
-    _Core->OnSphereEntered(sphere, player);
+    _Core->OnSphereEntered(player, sphere);
 }
 
 static void VC_OnSphereExited(int sphere, int player) noexcept
 {
-    _Core->OnSphereExited(sphere, player);
+    _Core->OnSphereExited(player, sphere);
 }
 
 // ------------------------------------------------------------------------------------------------
