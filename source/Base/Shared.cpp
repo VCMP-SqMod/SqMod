@@ -283,7 +283,7 @@ const SQChar * ToStringF(const char * fmt, ...) noexcept
         // Return an empty string
         buf[0] = '\0';
     }
-    // Move the buffer back to the buffer pool
+    // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
     // The buffer data wasn't destroyed and Squirrel should have time to copy it
     return buf;
@@ -359,7 +359,7 @@ const SQChar * InsertStr(const SQChar * f, const std::vector< const SQChar * > &
     }
     // Insert the null character
     buf[n] = '\0';
-    // Move the buffer back to the buffer pool
+    // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
     // The buffer data wasn't destroyed and Squirrel should have time to copy it
     return buf;
@@ -406,7 +406,7 @@ const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
     }
     // Add the terminating character
     buf[w] = '\0';
-    // Move the buffer back to the buffer pool
+    // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
     // The buffer data wasn't destroyed and Squirrel should have time to copy it
     return buf;
@@ -446,7 +446,7 @@ const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o) noexc
     }
     // Add the terminating character
     buf[w] = '\0';
-    // Move the buffer back to the buffer pool
+    // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
     // The buffer data wasn't destroyed and Squirrel should have time to copy it
     return buf;
@@ -487,7 +487,7 @@ const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
     }
     // Add the terminating character
     buf[w] = '\0';
-    // Move the buffer back to the buffer pool
+    // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
     // The buffer data wasn't destroyed and Squirrel should have time to copy it
     return buf;
@@ -527,7 +527,7 @@ const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o) noex
     }
     // Add the terminating character
     buf[w] = '\0';
-    // Move the buffer back to the buffer pool
+    // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
     // The buffer data wasn't destroyed and Squirrel should have time to copy it
     return buf;
@@ -568,7 +568,7 @@ const SQChar * CenterStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
     }
     // Add the terminating character
     buf[w] = '\0';
-    // Move the buffer back to the buffer pool
+    // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
     // The buffer data wasn't destroyed and Squirrel should have time to copy it
     return buf;

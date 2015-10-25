@@ -50,6 +50,8 @@ GlobalEvent::GlobalEvent(SQInt32 type, bool suspended) noexcept
 {
     // Attach to the specified event signal
     Attach();
+    // Receive notification when the VM is about to be closed to release object references
+    _Core->VMClose.Connect< GlobalEvent, &GlobalEvent::VMClose >(this);
     /* Entity filters are empty so there's nothing to hook to! */
 }
 
@@ -58,6 +60,8 @@ GlobalEvent::~GlobalEvent()
 {
     // Detach from the specified event signal
     Detach();
+    // Stop receiving notification when the VM is about to be closed
+    _Core->VMClose.Disconnect< GlobalEvent, &GlobalEvent::VMClose >(this);
     /* We're expecting the entity filters to unhook themselves from the destroy signal! */
 }
 
@@ -2059,6 +2063,23 @@ void GlobalEvent::Adaptable(SQInt32 type) noexcept
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+void GlobalEvent::VMClose() noexcept
+{
+    LogInf("[GlobalEvent::VMClose() %d %d",
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
+    );
+
+    // Release the reference to the specified callback
+    m_OnTrigger.Release();
+
+    LogInf("]GlobalEvent::VMClose() %d %d",
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
+    );
+}
+
 // ================================================================================================
 template < class T > static bool Register_GlobalFilter(HSQUIRRELVM vm, const SQChar * cname)
 {
@@ -2093,6 +2114,7 @@ template < class T > static bool Register_GlobalFilter(HSQUIRRELVM vm, const SQC
     return true;
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Register_GlobalEvent(HSQUIRRELVM vm)
 {
     // Register dependencies

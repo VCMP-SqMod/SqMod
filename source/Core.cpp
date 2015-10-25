@@ -77,28 +77,28 @@ Core::Pointer Core::Inst() noexcept
 // ------------------------------------------------------------------------------------------------
 bool Core::Init() noexcept
 {
-    _Log->Msg("%s", CenterStr("INITIALIZING", '*'));
+    LogMsg("%s", CenterStr("INITIALIZING", '*'));
 
     if (!this->Configure() || !this->CreateVM() || !this->LoadScripts())
     {
         return false;
     }
 
-    _Log->Msg("%s", CenterStr("SUCCESS", '*'));
+    LogMsg("%s", CenterStr("SUCCESS", '*'));
 
     return true;
 }
 
 bool Core::Load() noexcept
 {
-    _Log->Msg("%s", CenterStr("LOADING", '*'));
+    LogMsg("%s", CenterStr("LOADING", '*'));
 
     if (!this->Execute())
     {
         return false;
     }
 
-    _Log->Msg("%s", CenterStr("SUCCESS", '*'));
+    LogMsg("%s", CenterStr("SUCCESS", '*'));
 
     return true;
 }
@@ -203,7 +203,7 @@ void Core::DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcep
 // ------------------------------------------------------------------------------------------------
 bool Core::Configure() noexcept
 {
-    _Log->Dbg("Attempting to instantiate the configuration file");
+    LogDbg("Attempting to instantiate the configuration file");
 
     if (g_Config)
     {
@@ -216,12 +216,12 @@ bool Core::Configure() noexcept
 
     if (!g_Config)
     {
-        _Log->Ftl("Unable to instantiate the configuration class");
+        LogFtl("Unable to instantiate the configuration class");
 
         return false;
     }
 
-    _Log->Dbg("Attempting to load the configuration file.");
+    LogDbg("Attempting to load the configuration file.");
 
     SI_Error ini_ret = g_Config->LoadFile(_SC("./sqmod.ini"));
 
@@ -229,15 +229,15 @@ bool Core::Configure() noexcept
     {
         switch (ini_ret)
         {
-            case SI_FAIL:   _Log->Err("Failed to load the configuration file. Probably invalid"); break;
-            case SI_NOMEM:  _Log->Err("Run out of memory while loading the configuration file"); break;
-            case SI_FILE:   _Log->Err("Failed to load the configuration file. %s", strerror(errno)); break;
-            default:        _Log->Err("Failed to load the configuration file for some unforeseen reason");
+            case SI_FAIL:   LogErr("Failed to load the configuration file. Probably invalid"); break;
+            case SI_NOMEM:  LogErr("Run out of memory while loading the configuration file"); break;
+            case SI_FILE:   LogErr("Failed to load the configuration file. %s", strerror(errno)); break;
+            default:        LogErr("Failed to load the configuration file for some unforeseen reason");
         }
         return false;
     }
 
-    _Log->Dbg("Applying the specified logging filters");
+    LogDbg("Applying the specified logging filters");
 
     if (!SToB(g_Config->GetValue("ConsoleLog", "Debug", "true")))   _Log->DisableConsoleLevel(Logger::LEVEL_DBG);
     if (!SToB(g_Config->GetValue("ConsoleLog", "Message", "true"))) _Log->DisableConsoleLevel(Logger::LEVEL_MSG);
@@ -255,13 +255,13 @@ bool Core::Configure() noexcept
     if (!SToB(g_Config->GetValue("FileLog", "Error", "true")))      _Log->DisableFileLevel(Logger::LEVEL_ERR);
     if (!SToB(g_Config->GetValue("FileLog", "Fatal", "true")))      _Log->DisableFileLevel(Logger::LEVEL_FTL);
 
-    _Log->Dbg("Reading the options from the general section");
+    LogDbg("Reading the options from the general section");
 
     CSimpleIniA::TNamesDepend general_options;
 
     if (g_Config->GetAllKeys("Options", general_options) || general_options.size() > 0)
     {
-        for (auto const & cfg_option : general_options)
+        for (const auto & cfg_option : general_options)
         {
             CSimpleIniA::TNamesDepend option_list;
 
@@ -272,7 +272,7 @@ bool Core::Configure() noexcept
 
             option_list.sort(CSimpleIniA::Entry::LoadOrder());
 
-            for (auto const & cfg_value : option_list)
+            for (const auto & cfg_value : option_list)
             {
                 m_Options[cfg_option.pItem] = cfg_value.pItem;
             }
@@ -280,7 +280,7 @@ bool Core::Configure() noexcept
     }
     else
     {
-        _Log->Inf("No options specified in the configuration file");
+        LogInf("No options specified in the configuration file");
     }
 
     return true;
@@ -289,7 +289,7 @@ bool Core::Configure() noexcept
 // ------------------------------------------------------------------------------------------------
 bool Core::CreateVM() noexcept
 {
-    _Log->Dbg("Acquiring the virtual machine stack size");
+    LogDbg("Acquiring the virtual machine stack size");
 
     // Start with an unknown stack size
     SQInteger stack_size = SQMOD_UNKNOWN;
@@ -297,28 +297,28 @@ bool Core::CreateVM() noexcept
     // Attempt to get it from the configuration file
     try
     {
-        stack_size = SToI<SQInteger>::Fn(GetOption(_SC("VMStackSize")), 0, 10);
+        stack_size = SToI< SQInteger >::Fn(GetOption(_SC("VMStackSize")), 0, 10);
     }
     catch (const std::invalid_argument & e)
     {
-        _Log->Wrn("Unable to extract option value: %s", e.what());
+        LogWrn("Unable to extract option value: %s", e.what());
     }
 
     // Validate the stack size
     if (stack_size <= 0)
     {
-        _Log->Wrn("Invalid stack size. Reverting to default size");
+        LogWrn("Invalid stack size. Reverting to default size: %d", SQMOD_STACK_SIZE);
         SetOption(_SC("VMStackSize"), std::to_string(SQMOD_STACK_SIZE));
         stack_size = SQMOD_STACK_SIZE;
     }
 
-    _Log->Inf("Creating a virtual machine with a stack size of: %d", stack_size);
+    LogInf("Creating a virtual machine with a stack size of: %d", stack_size);
 
     m_VM = sq_open(stack_size);
 
     if (!m_VM)
     {
-        _Log->Ftl("Unable to create the virtual machine");
+        LogFtl("Unable to open a virtual machine with a stack size: %d", stack_size);
 
         return false;
     }
@@ -330,8 +330,8 @@ bool Core::CreateVM() noexcept
         m_Scripts.clear();
     }
 
-    _Log->Dbg("Registering the standard libraries");
-
+    LogDbg("Registering the standard libraries");
+    // Register the standard libraries
     sq_pushroottable(m_VM);
     sqstd_register_iolib(m_VM);
     sqstd_register_bloblib(m_VM);
@@ -340,24 +340,24 @@ bool Core::CreateVM() noexcept
     sqstd_register_stringlib(m_VM);
     sq_pop(m_VM, 1);
 
-    _Log->Dbg("Setting the base output function");
-
+    LogDbg("Setting the base output function");
+    // Set the function that handles the text output
     sq_setprintfunc(m_VM, PrintFunc, ErrorFunc);
 
-    _Log->Dbg("Setting the base error handlers");
-
+    LogDbg("Setting the base error handlers");
+    // Se the error handlers
     sq_setcompilererrorhandler(m_VM, CompilerErrorHandler);
     sq_newclosure(m_VM, RuntimeErrorHandler, 0);
     sq_seterrorhandler(m_VM);
 
-    _Log->Dbg("Registering the plugin API");
-
+    LogDbg("Registering the plugin API");
+    // Register the plugin API
     if (!RegisterAPI(m_VM))
     {
-        _Log->Ftl("Unable to register the script API");
+        LogFtl("Unable to register the plugin API");
         return false;
     }
-
+    // At this point the VM is ready
     return true;
 }
 
@@ -366,25 +366,29 @@ void Core::DestroyVM() noexcept
     // See if the Virtual Machine wasn't already destroyed
     if (m_VM != nullptr)
     {
-        // Release the reference to the root table
-        m_RootTable.reset();
+        // Let instances know that they should release links to this VM
+        VMClose.Emit();
         // Release the references to the script objects
         m_Scripts.clear();
-        // Close the Virtual Machine
-        sq_close(m_VM);
+        // Release the reference to the root table
+        m_RootTable.reset();
+        // Assertions during close may cause double delete
+        HSQUIRRELVM sq_vm = m_VM;
         // Explicitly set the virtual machine to null
         m_VM = nullptr;
+        // Close the Virtual Machine
+        sq_close(sq_vm);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Core::LoadScripts() noexcept
 {
-    _Log->Dbg("Attempting to compile the specified scripts");
+    LogDbg("Attempting to compile the specified scripts");
 
     if (!g_Config)
     {
-        _Log->Wrn("Cannot compile any scripts without the configurations");
+        LogWrn("Cannot compile any scripts without the configurations");
 
         return false;
     }
@@ -394,7 +398,7 @@ bool Core::LoadScripts() noexcept
 
     if (script_list.size() <= 0)
     {
-        _Log->Wrn("No scripts specified in the configuration file");
+        LogWrn("No scripts specified in the configuration file");
 
         return false;
     }
@@ -407,7 +411,7 @@ bool Core::LoadScripts() noexcept
 
         if (m_Scripts.find(path) != m_Scripts.cend())
         {
-            _Log->Wrn("Script was already loaded: %s", path.c_str());
+            LogWrn("Script was already loaded: %s", path.c_str());
 
             continue;
         }
@@ -417,13 +421,13 @@ bool Core::LoadScripts() noexcept
         }
         else
         {
-            _Log->Scs("Successfully compiled script: %s", path.c_str());
+            LogScs("Successfully compiled script: %s", path.c_str());
         }
     }
 
     if (m_Scripts.empty())
     {
-        _Log->Err("No scripts compiled. No reason to load the plugin");
+        LogErr("No scripts compiled. No reason to load the plugin");
 
         return false;
     }
@@ -436,7 +440,7 @@ bool Core::Compile(const string & name) noexcept
 {
     if (name.empty())
     {
-        _Log->Err("Cannot compile script without a valid name");
+        LogErr("Cannot compile script without a valid name");
 
         return false;
     }
@@ -449,8 +453,8 @@ bool Core::Compile(const string & name) noexcept
 
         if (Error::Occurred(m_VM))
         {
-            _Log->Err("Unable to compile script: %s", name.c_str());
-            _Log->Inf("=> %s", Error::Message(m_VM).c_str());
+            LogErr("Unable to compile script: %s", name.c_str());
+            LogInf("=> %s", Error::Message(m_VM).c_str());
             m_Scripts.erase(res.first);
 
             return false;
@@ -458,7 +462,7 @@ bool Core::Compile(const string & name) noexcept
     }
     else
     {
-        _Log->Err("Unable to queue script: %s", name.c_str());
+        LogErr("Unable to queue script: %s", name.c_str());
 
         return false;
     }
@@ -468,7 +472,7 @@ bool Core::Compile(const string & name) noexcept
 
 bool Core::Execute() noexcept
 {
-    _Log->Dbg("Attempting to execute the specified scripts");
+    LogDbg("Attempting to execute the specified scripts");
 
     for (auto & elem : m_Scripts)
     {
@@ -476,14 +480,14 @@ bool Core::Execute() noexcept
 
         if (Error::Occurred(m_VM))
         {
-            _Log->Err("Unable to execute script: %s", elem.first.c_str());
-            _Log->Inf("=> %s", Error::Message(m_VM).c_str());
+            LogErr("Unable to execute script: %s", elem.first.c_str());
+            LogInf("=> %s", Error::Message(m_VM).c_str());
 
             return false;
         }
         else
         {
-            _Log->Scs("Successfully executed script: %s", elem.first.c_str());
+            LogScs("Successfully executed script: %s", elem.first.c_str());
         }
     }
 
@@ -496,12 +500,12 @@ void Core::PrintCallstack() noexcept
     SQStackInfos si;
 
 
-    _Log->Msg("%s", CenterStr("CALLSTACK", '*'));
+    LogMsg("%s", CenterStr("CALLSTACK", '*'));
 
     for (SQInteger level = 1; SQ_SUCCEEDED(sq_stackinfos(m_VM, level, &si)); ++level)
     {
-        _Log->Inf("FUNCTION %s()", si.funcname ? si.funcname : _SC("unknown"));
-        _Log->SInf("=> [%d] : {%s}", si.line, si.source ? si.source : _SC("unknown"));
+        LogInf("FUNCTION %s()", si.funcname ? si.funcname : _SC("unknown"));
+        LogInf("=> [%d] : {%s}", si.line, si.source ? si.source : _SC("unknown"));
     }
 
     const SQChar * s_ = 0, * name = 0;
@@ -509,7 +513,7 @@ void Core::PrintCallstack() noexcept
     SQFloat f_;
     SQUserPointer p_;
 
-    _Log->Msg("%s", CenterStr("LOCALS", '*'));
+    LogMsg("%s", CenterStr("LOCALS", '*'));
 
     for (SQInteger level = 0; level < 10; level++) {
         seq = 0;
@@ -518,60 +522,60 @@ void Core::PrintCallstack() noexcept
             switch(sq_gettype(m_VM, -1))
             {
                 case OT_NULL:
-                    _Log->Inf("NULL [%s] : ...", name);
+                    LogInf("NULL [%s] : ...", name);
                     break;
                 case OT_INTEGER:
                     sq_getinteger(m_VM, -1, &i_);
-                    _Log->Inf("INTEGER [%s] : {%d}", name, i_);
+                    LogInf("INTEGER [%s] : {%d}", name, i_);
                     break;
                 case OT_FLOAT:
                     sq_getfloat(m_VM, -1, &f_);
-                    _Log->Inf("FLOAT [%s] : {%f}", name, f_);
+                    LogInf("FLOAT [%s] : {%f}", name, f_);
                     break;
                 case OT_USERPOINTER:
                     sq_getuserpointer(m_VM, -1, &p_);
-                    _Log->Inf("USERPOINTER [%s] : {%p}\n", name, p_);
+                    LogInf("USERPOINTER [%s] : {%p}\n", name, p_);
                     break;
                 case OT_STRING:
                     sq_getstring(m_VM, -1, &s_);
-                    _Log->Inf("STRING [%s] : {%s}", name, s_);
+                    LogInf("STRING [%s] : {%s}", name, s_);
                     break;
                 case OT_TABLE:
-                    _Log->Inf("TABLE [%s] : ...", name);
+                    LogInf("TABLE [%s] : ...", name);
                     break;
                 case OT_ARRAY:
-                    _Log->Inf("ARRAY [%s] : ...", name);
+                    LogInf("ARRAY [%s] : ...", name);
                     break;
                 case OT_CLOSURE:
-                    _Log->Inf("CLOSURE [%s] : ...", name);
+                    LogInf("CLOSURE [%s] : ...", name);
                     break;
                 case OT_NATIVECLOSURE:
-                    _Log->Inf("NATIVECLOSURE [%s] : ...", name);
+                    LogInf("NATIVECLOSURE [%s] : ...", name);
                     break;
                 case OT_GENERATOR:
-                    _Log->Inf("GENERATOR [%s] : ...", name);
+                    LogInf("GENERATOR [%s] : ...", name);
                     break;
                 case OT_USERDATA:
-                    _Log->Inf("USERDATA [%s] : ...", name);
+                    LogInf("USERDATA [%s] : ...", name);
                     break;
                 case OT_THREAD:
-                    _Log->Inf("THREAD [%s] : ...", name);
+                    LogInf("THREAD [%s] : ...", name);
                     break;
                 case OT_CLASS:
-                    _Log->Inf("CLASS [%s] : ...", name);
+                    LogInf("CLASS [%s] : ...", name);
                     break;
                 case OT_INSTANCE:
-                    _Log->Inf("INSTANCE [%s] : ...", name);
+                    LogInf("INSTANCE [%s] : ...", name);
                     break;
                 case OT_WEAKREF:
-                    _Log->Inf("WEAKREF [%s] : ...", name);
+                    LogInf("WEAKREF [%s] : ...", name);
                     break;
                 case OT_BOOL:
                     sq_getinteger(m_VM, -1, &i_);
-                    _Log->Inf("BOOL [%s] : {%s}", name, i_ ? _SC("true") : _SC("false"));
+                    LogInf("BOOL [%s] : {%s}", name, i_ ? _SC("true") : _SC("false"));
                     break;
                 default:
-                    _Log->Err("UNKNOWN [%s] : ...", name);
+                    LogErr("UNKNOWN [%s] : ...", name);
                 break;
             }
             sq_pop(m_VM, 1);
@@ -582,44 +586,84 @@ void Core::PrintCallstack() noexcept
 // ------------------------------------------------------------------------------------------------
 void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
 {
+    // Prepare the arguments list
     va_list args;
     va_start(args, str);
-
-    std::vector<char> buffer(256);
-    SQInt32 fmt_ret = std::vsnprintf(&buffer[0], buffer.size(), str, args);
-
+    // Acquire a buffer from the buffer pool
+    Core::Buffer vbuf = _Core->PullBuffer();
+    // Attempt to process the specified format string
+    SQInt32 fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
+    // See if the formatting was successful
     if (fmt_ret < 0)
     {
+        // Return the buffer back to the buffer pool
+        _Core->PushBuffer(std::move(vbuf));
+        LogErr("Format error");
         return;
     }
-    else if (static_cast<std::size_t>(fmt_ret) > buffer.size())
+    // See if the buffer was big enough
+    else if (_SCSZT(fmt_ret) > vbuf.size())
     {
-        buffer.resize(++fmt_ret);
-        vsnprintf(&buffer[0], buffer.size(), str, args);
+        // Resize the buffer to accomodate the required size
+        vbuf.resize(++fmt_ret);
+        // Attempt to process the specified format string again
+        fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
+        // See if the formatting was successful
+        if (fmt_ret < 0)
+        {
+            // Return the buffer back to the buffer pool
+            _Core->PushBuffer(std::move(vbuf));
+            LogErr("Format error");
+            return;
+        }
     }
-
+    // Release the arguments list
     va_end(args);
-
-    _Log->Msg("%s", buffer.data());
+    // Output the buffer content
+    LogMsg("%s", vbuf.data());
+    // Return the buffer back to the buffer pool
+    _Core->PushBuffer(std::move(vbuf));
 }
 
 void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
 {
+    // Prepare the arguments list
     va_list args;
     va_start(args, str);
-
-    std::vector<char> buffer(256);
-    std::size_t buff_sz = static_cast<std::size_t>(vsnprintf(&buffer[0], buffer.size(), str, args));
-
-    if (buff_sz > buffer.size())
+    // Acquire a buffer from the buffer pool
+    Core::Buffer vbuf = _Core->PullBuffer();
+    // Attempt to process the specified format string
+    SQInt32 fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
+    // See if the formatting was successful
+    if (fmt_ret < 0)
     {
-        buffer.resize(++buff_sz);
-        vsnprintf(&buffer[0], buffer.size(), str, args);
+        // Return the buffer back to the buffer pool
+        _Core->PushBuffer(std::move(vbuf));
+        LogErr("Format error");
+        return;
     }
-
+    // See if the buffer was big enough
+    else if (_SCSZT(fmt_ret) > vbuf.size())
+    {
+        // Resize the buffer to accomodate the required size
+        vbuf.resize(++fmt_ret);
+        // Attempt to process the specified format string again
+        fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
+        // See if the formatting was successful
+        if (fmt_ret < 0)
+        {
+            // Return the buffer back to the buffer pool
+            _Core->PushBuffer(std::move(vbuf));
+            LogErr("Format error");
+            return;
+        }
+    }
+    // Release the arguments list
     va_end(args);
-
-    _Log->Err("%s", buffer.data());
+    // Output the buffer content
+    LogErr("%s", vbuf.data());
+    // Return the buffer back to the buffer pool
+    _Core->PushBuffer(std::move(vbuf));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -641,16 +685,16 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm) noexcept
         _Core->m_ErrorMsg.assign(_SC("An unknown runtime error has occurred"));
     }
 
-    _Log->Msg("%s", CenterStr("ERROR", '*'));
+    LogMsg("%s", CenterStr("ERROR", '*'));
 
-    _Log->Inf("[MESSAGE] : %s", _Core->m_ErrorMsg.c_str());
+    LogInf("[MESSAGE] : %s", _Core->m_ErrorMsg.c_str());
 
     if (_Log->GetVerbosity() > 0)
     {
         _Core->PrintCallstack();
     }
 
-    _Log->Msg("%s", CenterStr("CONCLUDED", '*'));
+    LogMsg("%s", CenterStr("CONCLUDED", '*'));
 
     return SQ_OK;
 }
@@ -663,11 +707,11 @@ void Core::CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQCha
     }
     catch (const std::exception & e)
     {
-        _Log->Err("Compiler error: %s", e.what());
+        LogErr("Compiler error: %s", e.what());
         _Core->m_ErrorMsg.assign(_SC("An unknown compiler error has occurred"));
     }
 
-    _Log->Err("%s", _Core->m_ErrorMsg.c_str());
+    LogErr("%s", _Core->m_ErrorMsg.c_str());
 }
 
 // ------------------------------------------------------------------------------------------------

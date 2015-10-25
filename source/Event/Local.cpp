@@ -48,6 +48,8 @@ LocalEvent::LocalEvent(SQInt32 type, bool suspended) noexcept
     , m_Textdraws(this)
     , m_Vehicles(this)
 {
+    // Receive notification when the VM is about to be closed to release object references
+    _Core->VMClose.Connect< LocalEvent, &LocalEvent::VMClose >(this);
     /* Entity filters are empty so there's nothing to hook right now! */
 }
 
@@ -56,6 +58,8 @@ LocalEvent::~LocalEvent()
 {
     // Detach from all attached signals
     Detach();
+    // Stop receiving notification when the VM is about to be closed
+    _Core->VMClose.Disconnect< LocalEvent, &LocalEvent::VMClose >(this);
     /* The entity filters should to unhook themselves from the destroy signal! */
 }
 
@@ -254,7 +258,7 @@ void LocalEvent::SetInversed(bool toggle) noexcept
         // Toggle the inversed option
         m_Inversed = toggle;
         // Attach back to the new event type
-        Attach(); 
+        Attach();
     }
     // Just set the option to what was requested
     else
@@ -2202,6 +2206,23 @@ void LocalEvent::Adaptable(SQInt32 type, bool inversed) noexcept
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+void LocalEvent::VMClose() noexcept
+{
+    LogInf("[LocalEvent::VMClose() %d %d",
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
+    );
+
+    // Release the reference to the specified callback
+    m_OnTrigger.Release();
+
+    LogInf("]LocalEvent::VMClose() %d %d",
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
+    );
+}
+
 // ================================================================================================
 template < class T > static bool Register_LocalFilter(HSQUIRRELVM vm, const SQChar * cname)
 {
@@ -2236,6 +2257,7 @@ template < class T > static bool Register_LocalFilter(HSQUIRRELVM vm, const SQCh
     return true;
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Register_LocalEvent(HSQUIRRELVM vm)
 {
     // Register dependencies

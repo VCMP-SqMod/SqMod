@@ -317,6 +317,7 @@ class LocalEvent;
 #define _SCF32(v) static_cast<Float32>(v)
 #define _SCF64(v) static_cast<Float64>(v)
 #define _SCSQF(v) static_cast<SQFloat>(v)
+#define _SCSZT(v) static_cast<size_t>(v)
 
 // Short notation for getting the minimum and maxmimum value of primitives
 #define _NLMIN(t) std::numeric_limits<t>::min()

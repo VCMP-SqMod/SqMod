@@ -34,12 +34,16 @@ BasicEvent::BasicEvent(SQInt32 type, bool suspended) noexcept
     , m_Suspended(suspended)
 {
     Attach();
+    // Receive notification when the VM is about to be closed to release object references
+    _Core->VMClose.Connect< BasicEvent, &BasicEvent::VMClose >(this);
 }
 
 // ------------------------------------------------------------------------------------------------
 BasicEvent::~BasicEvent()
 {
     Detach();
+    // Stop receiving notification when the VM is about to be closed
+    _Core->VMClose.Disconnect< BasicEvent, &BasicEvent::VMClose >(this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1901,6 +1905,23 @@ void BasicEvent::Detach() noexcept
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+void BasicEvent::VMClose() noexcept
+{
+    LogInf("[BasicEvent::VMClose() %d %d",
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
+    );
+
+    // Release the reference to the specified callback
+    m_OnTrigger.Release();
+
+    LogInf("]BasicEvent::VMClose() %d %d",
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
+        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
+    );
+}
+
 // ================================================================================================
 bool Register_BasicEvent(HSQUIRRELVM vm)
 {
@@ -1911,8 +1932,8 @@ bool Register_BasicEvent(HSQUIRRELVM vm)
     // Attempt to register the specified type
     Sqrat::RootTable(vm).Bind(_SC("BasicEvent"), Sqrat::Class< BasicEvent, Allocator >(vm, _SC("BasicEvent"))
         .Ctor()
-        .Ctor<SQInt32>()
-        .Ctor<SQInt32, bool>()
+        .Ctor< SQInt32 >()
+        .Ctor< SQInt32, bool >()
 
         .Func(_SC("_cmp"), &BasicEvent::Cmp)
         .Func(_SC("_tostring"), &BasicEvent::GetName)

@@ -386,6 +386,7 @@ enum EventType
     EVT_WORLDTOGGLE,
     EVT_SCRIPTRELOAD,
     EVT_LOGMESSAGE,
+    EVT_VMCLOSE,
     EVT_COUNT
 };
 
@@ -556,6 +557,9 @@ using EScriptReload           = Signal< void (SQInt32 /* header */, Object & /* 
 
 // ------------------------------------------------------------------------------------------------
 using ELogMessage           = Signal< void (SQInt32 /* type */, const SQChar * /* message */), EVT_LOGMESSAGE >;
+
+// ------------------------------------------------------------------------------------------------
+using EVMClose              = Signal< void (void), EVT_VMCLOSE >;
 
 } // Namespace:: SqMod
 
