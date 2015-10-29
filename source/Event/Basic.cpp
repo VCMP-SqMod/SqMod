@@ -1908,18 +1908,10 @@ void BasicEvent::Detach() noexcept
 // ------------------------------------------------------------------------------------------------
 void BasicEvent::VMClose() noexcept
 {
-    LogInf("[BasicEvent::VMClose() %d %d",
-        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
-        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
-    );
-
     // Release the reference to the specified callback
     m_OnTrigger.Release();
-
-    LogInf("]BasicEvent::VMClose() %d %d",
-        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
-        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
-    );
+    // Release the reference to the specified user data
+    m_Data.Release();
 }
 
 // ================================================================================================
