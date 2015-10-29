@@ -299,6 +299,9 @@ class LocalEvent;
 #define VALID_ENTITYGET(e) ((e >= 0) ? e : -1)
 #define VALID_ENTITYGETEX(e, m) ((e >= 0) && (e < m) ? e : -1)
 
+#define VALID_VEHCOL(e) ((e >= 0) && (e <= 94))
+#define INVALID_VEHCOL(e) ((e < 0) && (e > 94))
+
 // Character Buffer Elements Count (n = buffer bytes / char size)
 #define SQMOD_CHBUFEC(n) (n / sizeof(SQChar))
 // Character Buffer Bytes Count (n = buffer chars * char size)
