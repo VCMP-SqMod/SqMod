@@ -10,27 +10,29 @@ const CSkin CSkin::NIL = CSkin();
 
 // ------------------------------------------------------------------------------------------------
 CSkin::CSkin() noexcept
-    : m_ID(SQMOD_UNKNOWN), m_Name()
+    : m_ID(SQMOD_UNKNOWN)
 {
 
 }
 
 CSkin::CSkin(SQInt32 id) noexcept
-    : m_ID(VALID_ENTITYGETEX(id, Max)), m_Name(GetSkinName(id))
+    : m_ID(VALID_ENTITYGETEX(id, Max))
 {
 
 }
 
 CSkin::CSkin(const SQChar * name, SQInt32 id) noexcept
-    : CSkin(IsSkinValid(GetSkinID(name)) ? GetSkinID(name) : id)
+    : m_ID(GetSkinID(name))
 {
-
+    if (VALID_ENTITYEX(m_ID, Max))
+    {
+        m_ID = id;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 CSkin::CSkin(const CSkin & s) noexcept
     : m_ID(s.m_ID)
-    , m_Name(s.m_Name)
     , m_Tag(s.m_Tag)
     , m_Data(s.m_Data)
 {
@@ -39,7 +41,6 @@ CSkin::CSkin(const CSkin & s) noexcept
 
 CSkin::CSkin(CSkin && s) noexcept
     : m_ID(s.m_ID)
-    , m_Name(s.m_Name)
     , m_Tag(s.m_Tag)
     , m_Data(s.m_Data)
 {
@@ -56,7 +57,6 @@ CSkin::~CSkin()
 CSkin & CSkin::operator = (const CSkin & s) noexcept
 {
     m_ID = s.m_ID;
-    m_Name = s.m_Name;
     m_Tag = s.m_Tag;
     m_Data = s.m_Data;
 
@@ -66,7 +66,6 @@ CSkin & CSkin::operator = (const CSkin & s) noexcept
 CSkin & CSkin::operator = (CSkin && s) noexcept
 {
     m_ID = s.m_ID;
-    m_Name = s.m_Name;
     m_Tag = s.m_Tag;
     m_Data = s.m_Data;
 
@@ -76,11 +75,7 @@ CSkin & CSkin::operator = (CSkin && s) noexcept
 // ------------------------------------------------------------------------------------------------
 CSkin & CSkin::operator = (SQInt32 id) noexcept
 {
-    if (m_ID != id)
-    {
-        m_Name = GetSkinName(id);
-        m_ID = id;
-    }
+    m_ID = VALID_ENTITYGETEX(id, Max);
 
     return *this;
 }
@@ -119,7 +114,24 @@ bool CSkin::operator >= (const CSkin & s) const noexcept
 // ------------------------------------------------------------------------------------------------
 SQInteger CSkin::Cmp(const CSkin & s) const noexcept
 {
-    return m_ID == s.m_ID ? 0 : (m_ID > s.m_ID ? 1 : -1);
+    if (m_ID == s.m_ID)
+    {
+        return 0;
+    }
+    else if (m_ID > s.m_ID)
+    {
+        return 1;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * CSkin::ToString() const noexcept
+{
+    return GetSkinName(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -130,21 +142,13 @@ SQInteger CSkin::GetID() const noexcept
 
 void CSkin::SetID(SQInt32 id) noexcept
 {
-    if (m_ID != id)
-    {
-        m_Name = GetSkinName(id);
-        m_ID = id;
-    }
+    m_ID = VALID_ENTITYGETEX(id, Max);
 }
 
 // ------------------------------------------------------------------------------------------------
 CSkin & CSkin::SetnGet(SQInt32 id) noexcept
 {
-    if (m_ID != id)
-    {
-        m_Name = GetSkinName(id);
-        m_ID = id;
-    }
+    m_ID = VALID_ENTITYGETEX(id, Max);
 
     return *this;
 }
@@ -202,14 +206,14 @@ bool CSkin::IsValid() const noexcept
 // ------------------------------------------------------------------------------------------------
 const SQChar * CSkin::GetName() const noexcept
 {
-    return m_Name.c_str();
+    return GetSkinName(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
 void CSkin::SetName(const SQChar * name) noexcept
 {
     m_ID = GetSkinID(name);
-    m_Name = GetSkinName(m_ID);
+    m_ID = VALID_ENTITYGETEX(m_ID, Max);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -236,12 +240,14 @@ bool Register_CSkin(HSQUIRRELVM vm)
     LogDbg("Beginning registration of <CSkin> type");
     // Attempt to register the specified type
     Sqrat::RootTable(vm).Bind(_SC("CSkin"), Sqrat::Class< CSkin >(vm, _SC("CSkin"))
+        /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
         .Ctor< const SQChar *, SQInt32 >()
-
+        /* Metamethods */
         .Func(_SC("_cmp"), &CSkin::Cmp)
-
+        .Func(_SC("_tostring"), &CSkin::ToString)
+        /* Properties */
         .Prop(_SC("id"), &CSkin::GetID, &CSkin::SetID)
         .Prop(_SC("gtag"), &CSkin::GetGlobalTag, &CSkin::SetGlobalTag)
         .Prop(_SC("gdata"), &CSkin::GetGlobalData, &CSkin::SetGlobalData)
@@ -249,9 +255,8 @@ bool Register_CSkin(HSQUIRRELVM vm)
         .Prop(_SC("ldata"), &CSkin::GetLocalData, &CSkin::SetLocalData)
         .Prop(_SC("valid"), &CSkin::IsValid)
         .Prop(_SC("name"), &CSkin::GetName, &CSkin::SetName)
-
+        /* Functions */
         .Func(_SC("setng"), &CSkin::SetnGet)
-
         .Func(_SC("apply"), &CSkin::Apply)
     );
     // Output debugging information
