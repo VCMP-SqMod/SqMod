@@ -583,8 +583,8 @@ bool IsModelWeapon(SQInt32 id)
         case 291:
         case 292:
         case 293:
-        case 294: return SQTrue;
-        default: return SQFalse;
+        case 294: return true;
+        default: return false;
     }
 }
 
@@ -623,14 +623,14 @@ bool IsModelActuallyWeapon(SQInt32 id)
         case 288:
         case 289:
         case 290:
-        case 291: return SQTrue;
-        default: return SQFalse;
+        case 291: return true;
+        default: return false;
     }
 }
 
 bool IsModelValid(SQInt32 id)
 {
-    return (strcmp(GetModelName(id), _SC("")) != 0) ? SQTrue : SQFalse;
+    return (strcmp(GetModelName(id), _SC("")) != 0) ? true : false;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1431,7 +1431,7 @@ SQInt32 GetSkinID(const SQChar * name)
 // ------------------------------------------------------------------------------------------------
 bool IsSkinValid(SQInt32 id)
 {
-    return (strcmp(GetSkinName(id), _SC("")) != 0) ? SQTrue : SQFalse;
+    return (strcmp(GetSkinName(id), _SC("")) != 0) ? true : false;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2120,7 +2120,7 @@ SQInt32 GetAutomobileID(const SQChar * name)
 
 bool IsAutomobileValid(SQInt32 id)
 {
-    return (strcmp(GetAutomobileName(id), _SC("")) != 0) ? SQTrue : SQFalse;
+    return (strcmp(GetAutomobileName(id), _SC("")) != 0) ? true : false;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2376,7 +2376,7 @@ SQInt32 GetWeaponID(const SQChar * name)
 // ------------------------------------------------------------------------------------------------
 bool IsWeaponValid(SQInt32 id)
 {
-    return (strcmp(GetWeaponName(id), _SC("")) != 0) ? SQTrue : SQFalse;
+    return (strcmp(GetWeaponName(id), _SC("")) != 0) ? true : false;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2389,8 +2389,8 @@ bool IsWeaponNatural(SQInt32 id)
         case SQMOD_WEAPON_DROWNED:
         case SQMOD_WEAPON_FALL:
         case SQMOD_WEAPON_EXPLOSION2:
-        case SQMOD_WEAPON_SUICIDE: return SQTrue;
-        default: return SQFalse;
+        case SQMOD_WEAPON_SUICIDE: return true;
+        default: return false;
     }
 }
 
