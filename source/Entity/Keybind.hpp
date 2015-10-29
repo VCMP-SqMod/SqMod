@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Class responsible for managing the referenced keybind instance.
 */
 class CKeybind : public Reference< CKeybind >
 {
@@ -17,22 +17,22 @@ public:
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Retrieve the primary key code of the referenced keybind instance.
     */
     SQInt32 GetPrimary() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Retrieve the secondary key code of the referenced keybind instance.
     */
     SQInt32 GetSecondary() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Retrieve the alternative key code of the referenced keybind instance.
     */
     SQInt32 GetAlternative() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * See whether the referenced keybind instance reacts to key press events.
     */
     bool IsRelease() const noexcept;
 };
