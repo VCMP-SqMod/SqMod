@@ -54,13 +54,14 @@ Core::Core() noexcept
 // ------------------------------------------------------------------------------------------------
 Core::~Core()
 {
+    // Tell the plugin to terminate
     this->Terminate();
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::_Finalizer(Core * ptr) noexcept
 {
-    if (ptr) delete ptr;
+    delete ptr; /* Assuming 'delete' checks for NULL */
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -78,7 +79,7 @@ Core::Pointer Core::Inst() noexcept
 bool Core::Init() noexcept
 {
     LogMsg("%s", CenterStr("INITIALIZING", '*'));
-
+    // Attempt to initialize the plugin resources
     if (!this->Configure() || !this->CreateVM() || !this->LoadScripts())
     {
         return false;
@@ -92,7 +93,7 @@ bool Core::Init() noexcept
 bool Core::Load() noexcept
 {
     LogMsg("%s", CenterStr("LOADING", '*'));
-
+    // Attemot to execute the loaded scripts
     if (!this->Execute())
     {
         return false;
@@ -106,6 +107,7 @@ bool Core::Load() noexcept
 // ------------------------------------------------------------------------------------------------
 void Core::Deinit() noexcept
 {
+    // Release the VM created during the initialization process
     this->DestroyVM();
 }
 
@@ -133,13 +135,15 @@ SQInteger Core::GetState() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-string Core::GetOption(const string & name) const noexcept
+string Core::GetOption(const String & name) const noexcept
 {
+    // Attempt to find the specified option
     OptionPool::const_iterator elem = m_Options.find(name);
-    return (elem == m_Options.cend()) ? string() : elem->second;
+    // Return the value associated with the found option
+    return (elem == m_Options.cend()) ? String() : elem->second;
 }
 
-void Core::SetOption(const string & name, const string & value) noexcept
+void Core::SetOption(const String & name, const String & value) noexcept
 {
     m_Options[name] = value;
 }
@@ -147,28 +151,41 @@ void Core::SetOption(const string & name, const string & value) noexcept
 // ------------------------------------------------------------------------------------------------
 Core::Buffer Core::PullBuffer(unsigned sz) noexcept
 {
+    // The container that will manage the buffer
     Buffer buf;
+    // See if there's any buffers available in the pool
     if (m_BufferPool.empty())
     {
+        //  Create a new buffer if one wasn't available
         buf.resize(sz);
     }
+    // Just fetch one from the pool
     else
     {
+        // Fetch the buffer
         buf = std::move(m_BufferPool.back());
+        // Remove it from the pool
         m_BufferPool.pop();
     }
+    // Give the obtained buffer
     return std::move(buf);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::PushBuffer(Buffer && buf) noexcept
 {
-    m_BufferPool.push(std::move(buf));
+    // Make sure we don't store empty buffers
+    if (!buf.empty())
+    {
+        // Return the specified buffer back to the pool
+        m_BufferPool.push(std::move(buf));
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::MakeBuffer(unsigned num, unsigned sz) noexcept
 {
+    // Create the specified number of buffers
     while (num--)
     {
         m_BufferPool.emplace(sz);
@@ -204,16 +221,18 @@ void Core::DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcep
 bool Core::Configure() noexcept
 {
     LogDbg("Attempting to instantiate the configuration file");
-
+    // See if the configurations instance was previously created
     if (g_Config)
     {
+        // Release the loaded configurations
         g_Config->Reset();
     }
+    // Create the configuration instance
     else
     {
         g_Config.reset(new CSimpleIniA(true, true, true));
     }
-
+    // See if a configuration instance couuld be created
     if (!g_Config)
     {
         LogFtl("Unable to instantiate the configuration class");
@@ -222,9 +241,9 @@ bool Core::Configure() noexcept
     }
 
     LogDbg("Attempting to load the configuration file.");
-
+    // Attempt to load the configurations from disk
     SI_Error ini_ret = g_Config->LoadFile(_SC("./sqmod.ini"));
-
+    // See if the configurations could be loaded
     if (ini_ret < 0)
     {
         switch (ini_ret)
@@ -238,7 +257,7 @@ bool Core::Configure() noexcept
     }
 
     LogDbg("Applying the specified logging filters");
-
+    // Apply the specified logging filters before anything else
     if (!SToB(g_Config->GetValue("ConsoleLog", "Debug", "true")))   _Log->DisableConsoleLevel(Logger::LEVEL_DBG);
     if (!SToB(g_Config->GetValue("ConsoleLog", "Message", "true"))) _Log->DisableConsoleLevel(Logger::LEVEL_MSG);
     if (!SToB(g_Config->GetValue("ConsoleLog", "Success", "true"))) _Log->DisableConsoleLevel(Logger::LEVEL_SCS);
@@ -1647,45 +1666,58 @@ void Core::OnLogMessage(SQInt32 type, const SQChar * message) noexcept
 void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type) noexcept
 {
     Vector3 pos;
-    _Func->GetPlayerPos(player, &pos.x, &pos.y, &pos.z);
-
+    // Is this player instance tracked for the first time
     if (m_PlayerTrack[player].Fresh)
     {
+        // Obtain the current position of this instance
+        _Func->GetPlayerPos(player, &pos.x, &pos.y, &pos.z);
+        // Initialize the tracked values for the first time
         m_PlayerTrack[player].Position =  pos;
         m_PlayerTrack[player].Health = _Func->GetPlayerHealth(player);
         m_PlayerTrack[player].Armour = _Func->GetPlayerArmour(player);
         m_PlayerTrack[player].Weapon = _Func->GetPlayerWeapon(player);
         m_PlayerTrack[player].Fresh = false;
+        // No need to check a freshly tracked instance
         return;
     }
-
+    // Obtain the current position of this instance
+    _Func->GetPlayerPos(player, &pos.x, &pos.y, &pos.z);
+    // Did the position change since the last tracked value?
     if (pos != m_PlayerTrack[player].Position)
     {
+        // Triger the speciffic event
         PlayerMove.Emit(player, m_PlayerTrack[player].Position, pos);
+        // Update the tracked value
         m_PlayerTrack[player].Position = pos;
     }
-
+    // Obtain the current health of this instance
     SQFloat health = _Func->GetPlayerHealth(player);
-
+    // Did the health change since the last tracked value?
     if (!EpsEq(health, m_PlayerTrack[player].Health))
     {
+        // Triger the speciffic event
         PlayerHealth.Emit(player, m_PlayerTrack[player].Health, health);
+        // Update the tracked value
         m_PlayerTrack[player].Health = health;
     }
-
+    // Obtain the current armour of this instance
     SQFloat armour = _Func->GetPlayerArmour(player);
-
+    // Did the armour change since the last tracked value?
     if (!EpsEq(armour, m_PlayerTrack[player].Armour))
     {
+        // Triger the speciffic event
         PlayerArmour.Emit(player, m_PlayerTrack[player].Armour, armour);
+        // Update the tracked value
         m_PlayerTrack[player].Armour = armour;
     }
-
+    // Obtain the current weapon of this instance
     SQInteger wep = _Func->GetPlayerWeapon(player);
-
+    // Did the weapon change since the last tracked value?
     if (wep != m_PlayerTrack[player].Weapon)
     {
+        // Triger the speciffic event
         PlayerWeapon.Emit(player, m_PlayerTrack[player].Weapon, wep);
+        // Update the tracked value
         m_PlayerTrack[player].Weapon = wep;
     }
 }
@@ -1693,35 +1725,47 @@ void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type) noexcept
 void Core::OnVehicleUpdate(SQInt32 vehicle, SQInt32 type) noexcept
 {
     Vector3 pos;
-    _Func->GetVehiclePos(vehicle, &pos.x, &pos.y, &pos.z);
-
+    // Is this vehicle instance tracked for the first time
     if (m_VehicleTrack[vehicle].Fresh)
     {
+        // Obtain the current position of this instance
+        _Func->GetVehiclePos(vehicle, &pos.x, &pos.y, &pos.z);
+        // Initialize the tracked values for the first time
         m_VehicleTrack[vehicle].Position =  pos;
         m_VehicleTrack[vehicle].Health = _Func->GetVehicleHealth(vehicle);
         m_VehicleTrack[vehicle].Fresh = false;
+        // No need to check a freshly tracked instance
         return;
     }
-
+    // Obtain the current position of this instance
+    _Func->GetVehiclePos(vehicle, &pos.x, &pos.y, &pos.z);
+    // Did the position change since the last tracked value?
     if (pos != m_VehicleTrack[vehicle].Position)
     {
+        // Triger the speciffic event
         VehicleMove.Emit(vehicle, m_VehicleTrack[vehicle].Position, pos);
+        // Update the tracked value
         m_VehicleTrack[vehicle].Position = pos;
     }
-
+    // Obtain the current health of this instance
     SQFloat health = _Func->GetVehicleHealth(vehicle);
-
+    // Did the health change since the last tracked value?
     if (!EpsEq(health, m_VehicleTrack[vehicle].Health))
     {
+        // Triger the speciffic event
         VehicleHealth.Emit(vehicle, m_VehicleTrack[vehicle].Health, health);
+        // Update the tracked value
         m_VehicleTrack[vehicle].Health = health;
     }
 }
 
 void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted) noexcept
 {
+    // Script object to play the role of a dummy payload
     static SqObj payload;
+    // Make sure that the payload is null
     payload.Release();
+    // See what type of change happened in the entity pool
     switch (type)
     {
         case SQMOD_ENTITY_POOL_VEHICLE:
