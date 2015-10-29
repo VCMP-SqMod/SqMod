@@ -5,24 +5,91 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-bool Register_CKeybind(HSQUIRRELVM vm)
+SQInt32 CKeybind::GetPrimary() const noexcept
 {
-    if (!Register_Reference< CKeybind >(vm, _SC("BaseKeybind")))
+    if (VALID_ENTITY(m_ID))
     {
-        LogDbg("Unable to register the base class <BaseKeybind> for <CKeybind> type");
-
-        return false;
+        RefType::Get(m_ID).Primary;
+    }
+    else
+    {
+        LogWrn(_SC("[SOURCE: CKeybind::GetPrimary()] [INFO: Invalid reference] [DATA: (this::m_ID {0:d})]"), m_ID);
     }
 
-    LogDbg("Beginning registration of <CKeybind> type");
+    return SQMOD_UNKNOWN;
+}
 
+// ------------------------------------------------------------------------------------------------
+SQInt32 CKeybind::GetSecondary() const noexcept
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        RefType::Get(m_ID).Secondary;
+    }
+    else
+    {
+        LogWrn(_SC("[SOURCE: CKeybind::GetSecondary()] [INFO: Invalid reference] [DATA: (this::m_ID {0:d})]"), m_ID);
+    }
+
+    return SQMOD_UNKNOWN;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInt32 CKeybind::GetAlternative() const noexcept
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        RefType::Get(m_ID).Alternative;
+    }
+    else
+    {
+        LogWrn(_SC("[SOURCE: CKeybind::GetAlternative()] [INFO: Invalid reference] [DATA: (this::m_ID {0:d})]"), m_ID);
+    }
+
+    return SQMOD_UNKNOWN;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CKeybind::IsRelease() const noexcept
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        RefType::Get(m_ID).Release;
+    }
+    else
+    {
+        LogWrn(_SC("[SOURCE: CKeybind::IsRelease()] [INFO: Invalid reference] [DATA: (this::m_ID {0:d})]"), m_ID);
+    }
+
+    return false;
+}
+
+// ================================================================================================
+bool Register_CKeybind(HSQUIRRELVM vm)
+{
+    // Attempt to register the base reference type before the actual implementation
+    if (!Register_Reference< CKeybind >(vm, _SC("BaseKeybind")))
+    {
+        LogFtl("Unable to register the base class <BaseKeybind> for <CKeybind> type");
+        // Registration failed
+        return false;
+    }
+    // Output debugging information
+    LogDbg("Beginning registration of <CKeybind> type");
+    // Attempt to register the actual reference that implements all of the entity functionality
     Sqrat::RootTable(vm).Bind(_SC("CKeybind"), Sqrat::DerivedClass< CKeybind, Reference< CKeybind > >(vm, _SC("CKeybind"))
+        /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
+        /* Properties */
+        .Prop(_SC("primary"), &CKeybind::GetPrimary)
+        .Prop(_SC("secondary"), &CKeybind::GetSecondary)
+        .Prop(_SC("alternative"), &CKeybind::GetAlternative)
+        .Prop(_SC("is_release"), &CKeybind::IsRelease)
     );
-
+    // Output debugging information
     LogDbg("Registration of <CKeybind> type was successful");
-
+    // Registration succeeded
     return true;
 }
 
