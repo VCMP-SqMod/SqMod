@@ -25,37 +25,37 @@ public:
     SQInteger GetWorld() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the scale of the referenced checkpoint instance.
+     * Retrieve the scale of the referenced blip instance.
     */
     SQInteger GetScale() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the position of the referenced checkpoint instance.
+     * Retrieve the position of the referenced blip instance.
     */
     const Vector3 & GetPosition() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the x axis position of the referenced checkpoint instance.
+     * Retrieve the x axis position of the referenced blip instance.
     */
     SQFloat GetPositionX() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the y axis position of the referenced checkpoint instance.
+     * Retrieve the y axis position of the referenced blip instance.
     */
     SQFloat GetPositionY() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the z axis position of the referenced checkpoint instance.
+     * Retrieve the z axis position of the referenced blip instance.
     */
     SQFloat GetPositionZ() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the color of the referenced checkpoint instance.
+     * Retrieve the color of the referenced blip instance.
     */
     const Color4 & GetColor() const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the sprite identifier of the referenced checkpoint instance.
+     * Retrieve the sprite identifier of the referenced blip instance.
     */
     SQInt32 GetSprID() const noexcept;
 };
