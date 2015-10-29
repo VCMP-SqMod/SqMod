@@ -13,7 +13,10 @@ namespace SqMod {
 class CKeybind : public Reference< CKeybind >
 {
 public:
-    // --------------------------------------------------------------------------------------------
+
+    /* --------------------------------------------------------------------------------------------
+     * Import the constructors, destructors and assignment operators from the base class.
+    */
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
