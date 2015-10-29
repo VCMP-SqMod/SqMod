@@ -2209,18 +2209,15 @@ void LocalEvent::Adaptable(SQInt32 type, bool inversed) noexcept
 // ------------------------------------------------------------------------------------------------
 void LocalEvent::VMClose() noexcept
 {
-    LogInf("[LocalEvent::VMClose() %d %d",
-        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
-        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
-    );
-
-    // Release the reference to the specified callback
+    // Release the reference to the specified callbacks
     m_OnTrigger.Release();
+    m_OnInclude.Release();
+    m_OnExclude.Release();
+    m_OnCleared.Release();
+    m_OnRelease.Release();
+    // Release the reference to the specified user data
+    m_Data.Release();
 
-    LogInf("]LocalEvent::VMClose() %d %d",
-        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetEnv()),
-        sq_getrefcount(m_OnTrigger.GetVM(), &m_OnTrigger.GetFunc())
-    );
 }
 
 // ================================================================================================
