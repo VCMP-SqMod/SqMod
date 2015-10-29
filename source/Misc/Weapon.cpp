@@ -11,7 +11,7 @@ const CWeapon CWeapon::NIL = CWeapon();
 
 // ------------------------------------------------------------------------------------------------
 CWeapon::CWeapon() noexcept
-    : m_ID(SQMOD_UNKNOWN), m_Ammo(0), m_Name()
+    : m_ID(SQMOD_UNKNOWN), m_Ammo(0)
 {
 
 }
@@ -23,22 +23,24 @@ CWeapon::CWeapon(SQInt32 id) noexcept
 }
 
 CWeapon::CWeapon(SQInt32 id, SQInt32 ammo) noexcept
-    : m_ID(VALID_ENTITYGETEX(id, Max)), m_Ammo(ammo), m_Name(GetWeaponName(id))
+    : m_ID(VALID_ENTITYGETEX(id, Max)), m_Ammo(ammo)
 {
 
 }
 
 CWeapon::CWeapon(const SQChar * name, SQInt32 id, SQInt32 ammo) noexcept
-    : CWeapon((IsWeaponValid(GetWeaponID(name)) ? GetWeaponID(name) : id), ammo)
+    : m_ID(GetWeaponID(name)), m_Ammo(ammo)
 {
-
+    if (VALID_ENTITYEX(m_ID, Max))
+    {
+        m_ID = id;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 CWeapon::CWeapon(const CWeapon & w) noexcept
     : m_ID(w.m_ID)
     , m_Ammo(w.m_Ammo)
-    , m_Name(w.m_Name)
     , m_Tag(w.m_Tag)
     , m_Data(w.m_Data)
 {
@@ -48,7 +50,6 @@ CWeapon::CWeapon(const CWeapon & w) noexcept
 CWeapon::CWeapon(CWeapon && w) noexcept
     : m_ID(w.m_ID)
     , m_Ammo(w.m_Ammo)
-    , m_Name(w.m_Name)
     , m_Tag(w.m_Tag)
     , m_Data(w.m_Data)
 {
@@ -66,7 +67,6 @@ CWeapon & CWeapon::operator = (const CWeapon & w) noexcept
 {
     m_ID = w.m_ID;
     m_Ammo = w.m_Ammo;
-    m_Name = w.m_Name;
     m_Tag = w.m_Tag;
     m_Data = w.m_Data;
 
@@ -77,7 +77,6 @@ CWeapon & CWeapon::operator = (CWeapon && w) noexcept
 {
     m_ID = w.m_ID;
     m_Ammo = w.m_Ammo;
-    m_Name = w.m_Name;
     m_Tag = w.m_Tag;
     m_Data = w.m_Data;
 
@@ -87,11 +86,7 @@ CWeapon & CWeapon::operator = (CWeapon && w) noexcept
 // ------------------------------------------------------------------------------------------------
 CWeapon & CWeapon::operator = (SQInt32 id) noexcept
 {
-    if (m_ID != id)
-    {
-        m_Name = GetWeaponName(id);
-        m_ID = id;
-    }
+    m_ID = VALID_ENTITYGETEX(id, Max);
 
     return *this;
 }
@@ -130,13 +125,24 @@ bool CWeapon::operator >= (const CWeapon & w) const noexcept
 // ------------------------------------------------------------------------------------------------
 SQInteger CWeapon::Cmp(const CWeapon & w) const noexcept
 {
-    return m_ID == w.m_ID ? 0 : (m_ID > w.m_ID ? 1 : -1);
+    if (m_ID == w.m_ID)
+    {
+        return 0;
+    }
+    else if (m_ID > w.m_ID)
+    {
+        return 1;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 const SQChar * CWeapon::ToString() const noexcept
 {
-    return m_Name.c_str();
+    return GetWeaponName(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -147,21 +153,13 @@ SQInteger CWeapon::GetID() const noexcept
 
 void CWeapon::SetID(SQInt32 id) noexcept
 {
-    if (m_ID != id)
-    {
-        m_Name = GetWeaponName(id);
-        m_ID = id;
-    }
+    m_ID = VALID_ENTITYGETEX(id, Max);
 }
 
 // ------------------------------------------------------------------------------------------------
 CWeapon & CWeapon::SetnGet(SQInt32 id) noexcept
 {
-    if (m_ID != id)
-    {
-        m_Name = GetWeaponName(id);
-        m_ID = id;
-    }
+    m_ID = VALID_ENTITYGETEX(id, Max);
 
     return *this;
 }
@@ -213,13 +211,20 @@ void CWeapon::SetLocalData(SqObj & data) noexcept
 // ------------------------------------------------------------------------------------------------
 bool CWeapon::IsValid() const noexcept
 {
-    return (m_ID > 0);
+    return (VALID_ENTITYEX(m_ID, Max));
 }
 
 // ------------------------------------------------------------------------------------------------
 const SQChar * CWeapon::GetName() const noexcept
 {
-    return m_Name.c_str();
+    return GetWeaponName(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CWeapon::SetName(const SQChar * name) noexcept
+{
+    m_ID = GetWeaponID(name);
+    m_ID = VALID_ENTITYGETEX(m_ID, Max);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -339,28 +344,29 @@ bool Register_CWeapon(HSQUIRRELVM vm)
     LogDbg("Beginning registration of <CWeapon> type");
     // Attempt to register the specified type
     Sqrat::RootTable(vm).Bind(_SC("CWeapon"), Sqrat::Class< CWeapon >(vm, _SC("CWeapon"))
+        /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
         .Ctor< SQInt32, SQInt32 >()
         .Ctor< const SQChar *, SQInt32, SQInt32 >()
-
+        /* Metamethods */
         .Func(_SC("_cmp"), &CWeapon::Cmp)
-
+        /* Properties */
         .Prop(_SC("id"), &CWeapon::GetID, &CWeapon::SetID)
         .Prop(_SC("gtag"), &CWeapon::GetGlobalTag, &CWeapon::SetGlobalTag)
         .Prop(_SC("gdata"), &CWeapon::GetGlobalData, &CWeapon::SetGlobalData)
         .Prop(_SC("ltag"), &CWeapon::GetLocalTag, &CWeapon::SetLocalTag)
         .Prop(_SC("ldata"), &CWeapon::GetLocalData, &CWeapon::SetLocalData)
+        .Prop(_SC("name"), &CWeapon::GetName, &CWeapon::SetName)
         .Prop(_SC("valid"), &CWeapon::IsValid)
-        .Prop(_SC("name"), &CWeapon::GetName)
         .Prop(_SC("ammo"), &CWeapon::GetAmmo, &CWeapon::SetAmmo)
         .Prop(_SC("natural"), &CWeapon::IsNatural)
-
+        /* Functions */
         .Func(_SC("setng"), &CWeapon::SetnGet)
         .Func(_SC("get_value"), &CWeapon::GetDataValue)
         .Func(_SC("set_value"), &CWeapon::SetDataValue)
         .Func(_SC("is_modified"), &CWeapon::IsDataModified)
-
+        /* Overloads */
         .Overload< void (CWeapon::*)(void) const >(_SC("reset_data"), &CWeapon::ResetData)
         .Overload< void (CWeapon::*)(SQInt32) const >(_SC("reset_data"), &CWeapon::ResetData)
         .Overload< void (CWeapon::*)(const Reference< CPlayer > &) const >(_SC("set_on"), &CWeapon::SetOn)
