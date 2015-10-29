@@ -54,7 +54,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    void SetPositionAllEx(SQUnsignedInteger32 x, SQUnsignedInteger32 y) const noexcept;
+    void SetPositionAllEx(SQUint32 x, SQUint32 y) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -64,7 +64,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    void SetPositionForEx(const Reference< CPlayer > & player, SQUnsignedInteger32 x, SQUnsignedInteger32 y) const noexcept;
+    void SetPositionForEx(const Reference< CPlayer > & player, SQUint32 x, SQUint32 y) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -79,7 +79,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    void SetCenterAllEx(SQUnsignedInteger32 x, SQUnsignedInteger32 y) const noexcept;
+    void SetCenterAllEx(SQUint32 x, SQUint32 y) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -89,7 +89,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    void SetCenterForEx(const Reference< CPlayer > & player, SQUnsignedInteger32 x, SQUnsignedInteger32 y) const noexcept;
+    void SetCenterForEx(const Reference< CPlayer > & player, SQUint32 x, SQUint32 y) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      *

@@ -125,7 +125,7 @@ void CSprite::SetPositionAll(const Vector2u & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetPositionAllEx(SQUnsignedInteger32 x, SQUnsignedInteger32 y) const noexcept
+void CSprite::SetPositionAllEx(SQUint32 x, SQUint32 y) const noexcept
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -156,7 +156,7 @@ void CSprite::SetPositionFor(const Reference< CPlayer > & player, const Vector2u
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetPositionForEx(const Reference< CPlayer > & player, SQUnsignedInteger32 x, SQUnsignedInteger32 y) const noexcept
+void CSprite::SetPositionForEx(const Reference< CPlayer > & player, SQUint32 x, SQUint32 y) const noexcept
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -209,7 +209,7 @@ void CSprite::SetCenterAll(const Vector2u & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetCenterAllEx(SQUnsignedInteger32 x, SQUnsignedInteger32 y) const noexcept
+void CSprite::SetCenterAllEx(SQUint32 x, SQUint32 y) const noexcept
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -239,7 +239,7 @@ void CSprite::SetCenterFor(const Reference< CPlayer > & player, const Vector2u &
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetCenterForEx(const Reference< CPlayer > & player, SQUnsignedInteger32 x, SQUnsignedInteger32 y) const noexcept
+void CSprite::SetCenterForEx(const Reference< CPlayer > & player, SQUint32 x, SQUint32 y) const noexcept
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -428,21 +428,21 @@ bool Register_CSprite(HSQUIRRELVM vm)
         /* Overloads */
         .Overload< void (CSprite::*)(const Vector2u &) const >
             (_SC("set_position_all"), &CSprite::SetPositionAll)
-        .Overload< void (CSprite::*)(SQUnsignedInteger32, SQUnsignedInteger32) const >
+        .Overload< void (CSprite::*)(SQUint32, SQUint32) const >
             (_SC("set_position_all"), &CSprite::SetPositionAllEx)
         .Overload< void (CSprite::*)(const Reference< CPlayer > &, const Vector2u &) const >
             (_SC("set_position_for"), &CSprite::SetPositionFor)
-        .Overload< void (CSprite::*)(const Reference< CPlayer > &, SQUnsignedInteger32, SQUnsignedInteger32) const >
+        .Overload< void (CSprite::*)(const Reference< CPlayer > &, SQUint32, SQUint32) const >
             (_SC("set_position_for"), &CSprite::SetPositionForEx)
         .Overload< void (CSprite::*)(SQInt32, SQInt32, const Vector2u &) const >
             (_SC("set_position_range"), &CSprite::SetPositionRange)
         .Overload< void (CSprite::*)(const Vector2u &) const >
             (_SC("set_center_all"), &CSprite::SetCenterAll)
-        .Overload< void (CSprite::*)(SQUnsignedInteger32, SQUnsignedInteger32) const >
+        .Overload< void (CSprite::*)(SQUint32, SQUint32) const >
             (_SC("set_center_all"), &CSprite::SetCenterAllEx)
         .Overload< void (CSprite::*)(const Reference< CPlayer > &, const Vector2u &) const >
             (_SC("set_center_for"), &CSprite::SetCenterFor)
-        .Overload< void (CSprite::*)(const Reference< CPlayer > &, SQUnsignedInteger32, SQUnsignedInteger32) const >
+        .Overload< void (CSprite::*)(const Reference< CPlayer > &, SQUint32, SQUint32) const >
             (_SC("set_center_for"), &CSprite::SetCenterForEx)
         .Overload< void (CSprite::*)(SQInt32, SQInt32, const Vector2u &) const >
             (_SC("set_center_range"), &CSprite::SetCenterRange)
