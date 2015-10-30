@@ -1909,7 +1909,7 @@ void BasicEvent::Detach() noexcept
 void BasicEvent::VMClose() noexcept
 {
     // Release the reference to the specified callback
-    m_OnTrigger.Release();
+    m_OnTrigger.Release2();
     // Release the reference to the specified user data
     m_Data.Release();
 }

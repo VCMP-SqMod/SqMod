@@ -2067,11 +2067,11 @@ void GlobalEvent::Adaptable(SQInt32 type) noexcept
 void GlobalEvent::VMClose() noexcept
 {
     // Release the reference to the specified callbacks
-    m_OnTrigger.Release();
-    m_OnInclude.Release();
-    m_OnExclude.Release();
-    m_OnCleared.Release();
-    m_OnRelease.Release();
+    m_OnTrigger.Release2();
+    m_OnInclude.Release2();
+    m_OnExclude.Release2();
+    m_OnCleared.Release2();
+    m_OnRelease.Release2();
     // Release the reference to the specified user data
     m_Data.Release();
 }
