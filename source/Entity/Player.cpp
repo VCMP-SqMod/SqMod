@@ -88,8 +88,8 @@ const SQChar * CPlayer::GetIP() const noexcept
     // Attempt to retrieve the ip address
     if (VALID_ENTITY(m_ID))
     {
-        std::memset(s_Buffer, '\0', std::extent< decltype(s_Buffer) >::value * sizeof(SQChar));
-        _Func->GetPlayerIP(m_ID, s_Buffer, std::extent< decltype(s_Buffer) >::value * sizeof(SQChar));
+        std::memset(s_Buffer, '\0', sizeof(s_Buffer));
+        _Func->GetPlayerIP(m_ID, s_Buffer, sizeof(s_Buffer));
     }
     else
     {
@@ -279,8 +279,8 @@ const SQChar * CPlayer::GetName() const noexcept
     // Attempt to retrieve the ip address
     if (VALID_ENTITY(m_ID))
     {
-        std::memset(s_Buffer, '\0', std::extent< decltype(s_Buffer) >::value * sizeof(SQChar));
-        _Func->GetPlayerName(m_ID, s_Buffer, std::extent< decltype(s_Buffer) >::value * sizeof(SQChar));
+        std::memset(s_Buffer, '\0', sizeof(s_Buffer));
+        _Func->GetPlayerName(m_ID, s_Buffer, sizeof(s_Buffer));
     }
     else
     {
@@ -586,8 +586,8 @@ const SQChar * CPlayer::GetUID() const noexcept
     // Attempt to retrieve the uid
     if (VALID_ENTITY(m_ID))
     {
-        std::memset(s_Buffer, '\0', std::extent< decltype(s_Buffer) >::value * sizeof(SQChar));
-        _Func->GetPlayerUID(m_ID, s_Buffer, std::extent< decltype(s_Buffer) >::value * sizeof(SQChar));
+        std::memset(s_Buffer, '\0', sizeof(s_Buffer));
+        _Func->GetPlayerUID(m_ID, s_Buffer, sizeof(s_Buffer));
     }
     else
     {
@@ -605,8 +605,8 @@ const SQChar * CPlayer::GetUID2() const noexcept
     // Attempt to retrieve the uid2
     if (VALID_ENTITY(m_ID))
     {
-        std::memset(s_Buffer, '\0', std::extent< decltype(s_Buffer) >::value * sizeof(SQChar));
-        _Func->GetPlayerUID2(m_ID, s_Buffer, std::extent< decltype(s_Buffer) >::value * sizeof(SQChar));
+        std::memset(s_Buffer, '\0', sizeof(s_Buffer));
+        _Func->GetPlayerUID2(m_ID, s_Buffer, sizeof(s_Buffer));
     }
     else
     {
