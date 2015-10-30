@@ -1,4 +1,5 @@
 #include "Library/IRC/Session.hpp"
+#include "Core.hpp"
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -25,8 +26,13 @@ Session::Session() noexcept
     }
     else
     {
+        // Associate this wrapper instance with the session structure
         irc_set_ctx(m_Session, this);
+        // Connect to the on frame event so we can process callbacks
+        _Core->ServerFrame.Connect< Session, &Session::Process >(this);
     }
+    // Receive notification when the VM is about to be closed to release object references
+    _Core->VMClose.Connect< Session, &Session::VMClose >(this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -34,8 +40,79 @@ Session::~Session()
 {
     if (m_Session != nullptr)
     {
+        irc_set_ctx(m_Session, NULL);
         irc_destroy_session(m_Session);
+        m_Session = nullptr;
     }
+    // Disconenct from the on frame event
+    _Core->ServerFrame.Disconnect< Session, &Session::Process >(this);
+    // Stop receiving notification when the VM is about to be closed
+    _Core->VMClose.Disconnect< Session, &Session::VMClose >(this);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::Process(SQFloat delta) noexcept
+{
+    // Make sure that the IRC session is connected
+    if (!irc_is_connected(m_Session))
+    {
+        // @TODO: reconnect it, or abort
+        LogWrn("Session is not connected");
+        return;
+    }
+    // Create the structures for select()
+    struct timeval tv;
+    fd_set in_set, out_set;
+    int maxfd = 0;
+    // Wait 1 millisecond for events
+    tv.tv_usec = 1000;
+    tv.tv_sec = 0;
+    // Initialize the sets
+    memset(&in_set, 0, sizeof(fd_set));
+    memset(&out_set, 0, sizeof(fd_set));
+    // Add the IRC session descriptors
+    irc_add_select_descriptors(m_Session, &in_set, &out_set, &maxfd);
+    // Call select()
+    if (select(maxfd + 1, &in_set, &out_set, 0, &tv) < 0)
+    {
+        // @TODO: Error
+        LogWrn("Unable to select() on session");
+    }
+    // Call irc_process_select_descriptors() for the session
+    if (irc_process_select_descriptors (m_Session, &in_set, &out_set))
+    {
+        // @TODO: The connection failed, or the server disconnected. Handle it
+        LogWrn("The connection failed, or the server disconnected.");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::VMClose() noexcept
+{
+    // Release the reference to the specified callback
+    m_OnConnect.Release2();
+    m_OnNick.Release2();
+    m_OnQuit.Release2();
+    m_OnJoin.Release2();
+    m_OnPart.Release2();
+    m_OnMode.Release2();
+    m_OnUmode.Release2();
+    m_OnTopic.Release2();
+    m_OnKick.Release2();
+    m_OnChannel.Release2();
+    m_OnPrivMSG.Release2();
+    m_OnNotice.Release2();
+    m_OnChannel_Notice.Release2();
+    m_OnInvite.Release2();
+    m_OnCTCP_Req.Release2();
+    m_OnCTCP_Rep.Release2();
+    m_OnCTCP_Action.Release2();
+    m_OnUnknown.Release2();
+    m_OnNumeric.Release2();
+    m_OnDcc_Chat_Req.Release2();
+    m_OnDcc_Send_Req.Release2();
+    // Release the reference to the specified user data
+    m_Data.Release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -175,7 +252,7 @@ void Session::SetData(SqObj & data) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnConnect() noexcept
+Function Session::GetOnConnect() noexcept
 {
     return m_OnConnect;
 }
@@ -187,7 +264,13 @@ void Session::SetOnConnect(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnNick() noexcept
+void Session::SetOnConnect_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnConnect = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnNick() noexcept
 {
     return m_OnNick;
 }
@@ -199,7 +282,13 @@ void Session::SetOnNick(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnQuit() noexcept
+void Session::SetOnNick_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnNick = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnQuit() noexcept
 {
     return m_OnQuit;
 }
@@ -211,7 +300,13 @@ void Session::SetOnQuit(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnJoin() noexcept
+void Session::SetOnQuit_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnQuit = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnJoin() noexcept
 {
     return m_OnJoin;
 }
@@ -223,7 +318,13 @@ void Session::SetOnJoin(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnPart() noexcept
+void Session::SetOnJoin_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnJoin = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnPart() noexcept
 {
     return m_OnPart;
 }
@@ -235,7 +336,13 @@ void Session::SetOnPart(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnMode() noexcept
+void Session::SetOnPart_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnPart = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnMode() noexcept
 {
     return m_OnMode;
 }
@@ -247,7 +354,13 @@ void Session::SetOnMode(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnUmode() noexcept
+void Session::SetOnMode_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnMode = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnUmode() noexcept
 {
     return m_OnUmode;
 }
@@ -259,7 +372,13 @@ void Session::SetOnUmode(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnTopic() noexcept
+void Session::SetOnUmode_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnUmode = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnTopic() noexcept
 {
     return m_OnTopic;
 }
@@ -271,7 +390,13 @@ void Session::SetOnTopic(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnKick() noexcept
+void Session::SetOnTopic_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnTopic = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnKick() noexcept
 {
     return m_OnKick;
 }
@@ -283,7 +408,13 @@ void Session::SetOnKick(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnChannel() noexcept
+void Session::SetOnKick_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnKick = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnChannel() noexcept
 {
     return m_OnChannel;
 }
@@ -295,7 +426,13 @@ void Session::SetOnChannel(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnPrivMSG() noexcept
+void Session::SetOnChannel_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnChannel = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnPrivMSG() noexcept
 {
     return m_OnPrivMSG;
 }
@@ -307,7 +444,13 @@ void Session::SetOnPrivMSG(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnNotice() noexcept
+void Session::SetOnPrivMSG_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnPrivMSG = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnNotice() noexcept
 {
     return m_OnNotice;
 }
@@ -319,7 +462,13 @@ void Session::SetOnNotice(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnChannel_Notice() noexcept
+void Session::SetOnNotice_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnNotice = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnChannel_Notice() noexcept
 {
     return m_OnChannel_Notice;
 }
@@ -331,7 +480,13 @@ void Session::SetOnChannel_Notice(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnInvite() noexcept
+void Session::SetOnChannel_Notice_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnChannel_Notice = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnInvite() noexcept
 {
     return m_OnInvite;
 }
@@ -343,7 +498,13 @@ void Session::SetOnInvite(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnCTCP_Req() noexcept
+void Session::SetOnInvite_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnInvite = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnCTCP_Req() noexcept
 {
     return m_OnCTCP_Req;
 }
@@ -355,7 +516,13 @@ void Session::SetOnCTCP_Req(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnCTCP_Rep() noexcept
+void Session::SetOnCTCP_Req_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnCTCP_Req = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnCTCP_Rep() noexcept
 {
     return m_OnCTCP_Rep;
 }
@@ -367,7 +534,13 @@ void Session::SetOnCTCP_Rep(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnCTCP_Action() noexcept
+void Session::SetOnCTCP_Rep_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnCTCP_Rep = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnCTCP_Action() noexcept
 {
     return m_OnCTCP_Action;
 }
@@ -379,7 +552,13 @@ void Session::SetOnCTCP_Action(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnUnknown() noexcept
+void Session::SetOnCTCP_Action_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnCTCP_Action = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnUnknown() noexcept
 {
     return m_OnUnknown;
 }
@@ -391,7 +570,13 @@ void Session::SetOnUnknown(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnNumeric() noexcept
+void Session::SetOnUnknown_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnUnknown = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnNumeric() noexcept
 {
     return m_OnNumeric;
 }
@@ -403,7 +588,13 @@ void Session::SetOnNumeric(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnDcc_Chat_Req() noexcept
+void Session::SetOnNumeric_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnNumeric = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnDcc_Chat_Req() noexcept
 {
     return m_OnDcc_Chat_Req;
 }
@@ -415,7 +606,13 @@ void Session::SetOnDcc_Chat_Req(Function & func) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Session::GetOnDcc_Send_Req() noexcept
+void Session::SetOnDcc_Chat_Req_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnDcc_Chat_Req = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
+Function Session::GetOnDcc_Send_Req() noexcept
 {
     return m_OnDcc_Send_Req;
 }
@@ -424,6 +621,12 @@ Function & Session::GetOnDcc_Send_Req() noexcept
 void Session::SetOnDcc_Send_Req(Function & func) noexcept
 {
     m_OnDcc_Send_Req = func;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetOnDcc_Send_Req_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnDcc_Send_Req = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -960,6 +1163,88 @@ SQInt32 Session::SendRaw(const SQChar * str) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInt32 Session::DestroyDcc(SQUint32 dccid) noexcept
+{
+    if (m_Session != nullptr)
+    {
+        return irc_dcc_destroy(m_Session, dccid);
+    }
+    else
+    {
+        LogWrn("Attempting to <destroy dcc> using an invalid session: null");
+    }
+
+    return SQMOD_UNKNOWN;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetCtcpVersion(const SQChar * version) noexcept
+{
+    if (m_Session != nullptr)
+    {
+        irc_set_ctcp_version(m_Session, version);
+    }
+    else
+    {
+        LogWrn("Attempting to <set ctcp version> using an invalid session: null");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInt32 Session::GetErrNo() noexcept
+{
+    if (m_Session != nullptr)
+    {
+        return irc_errno(m_Session);
+    }
+    else
+    {
+        LogWrn("Attempting to <get session error number> using an invalid session: null");
+    }
+    return SQMOD_UNKNOWN;
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * Session::GetErrStr() noexcept
+{
+    if (m_Session != nullptr)
+    {
+        return irc_strerror(irc_errno(m_Session));
+    }
+    else
+    {
+        LogWrn("Attempting to <get session error string> using an invalid session: null");
+    }
+    return _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetOption(SQUint32 option) noexcept
+{
+    if (m_Session != nullptr)
+    {
+        return irc_option_set(m_Session, option);
+    }
+    else
+    {
+        LogWrn("Attempting to <set session option> using an invalid session: null");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::ResetOption(SQUint32 option) noexcept
+{
+    if (m_Session != nullptr)
+    {
+        return irc_option_set(m_Session, option);
+    }
+    else
+    {
+        LogWrn("Attempting to <reset session option> using an invalid session: null");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void Session::OnConnect(irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count)
 {
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
@@ -1299,13 +1584,13 @@ bool Register_IRC(HSQUIRRELVM vm)
 {
     using namespace IRC;
     // Output debugging information
-    LogDbg("Beginning registration of <IRCSession> type");
+    LogDbg("Beginning registration of <IRC Session> type");
     // IRC sessions should not be copied for the sake of simplicity
-    typedef NoCopy< Session > Allocator;
+    //typedef Default< Session > Allocator;
     // Attempt to register the specified type
-    Sqrat::RootTable(vm).Bind(_SC("IRCSession"), Sqrat::Class< Session, Allocator >(vm, _SC("IRCSession"))
+    Sqrat::Class< Session/*, Allocator*/ >  session(vm, _SC("CSession"));
         /* Constructors */
-        .Ctor()
+        session.Ctor()
         /* Metamethods */
         .Func(_SC("_cmp"), &Session::Cmp)
         .Func(_SC("_tostring"), &Session::ToString)
@@ -1334,7 +1619,52 @@ bool Register_IRC(HSQUIRRELVM vm)
         .Prop(_SC("on_dcc_chat_req"), &Session::GetOnDcc_Chat_Req, &Session::SetOnDcc_Chat_Req)
         .Prop(_SC("on_dcc_send_req"), &Session::GetOnDcc_Send_Req, &Session::SetOnDcc_Send_Req)
         .Prop(_SC("connected"), &Session::IsConnected)
+        .Prop(_SC("err_no"), &Session::GetErrNo)
+        .Prop(_SC("err_str"), &Session::GetErrStr)
+        .Prop(_SC("ctcp_version"), &Session::SetCtcpVersion)
         /* Functions */
+        .Func(_SC("get_on_connect"), &Session::GetOnConnect)
+        .Func(_SC("get_on_nick"), &Session::GetOnNick)
+        .Func(_SC("get_on_quit"), &Session::GetOnQuit)
+        .Func(_SC("get_on_join"), &Session::GetOnJoin)
+        .Func(_SC("get_on_part"), &Session::GetOnPart)
+        .Func(_SC("get_on_mode"), &Session::GetOnMode)
+        .Func(_SC("get_on_umode"), &Session::GetOnUmode)
+        .Func(_SC("get_on_topic"), &Session::GetOnTopic)
+        .Func(_SC("get_on_kick"), &Session::GetOnKick)
+        .Func(_SC("get_on_channel"), &Session::GetOnChannel)
+        .Func(_SC("get_on_priv_msg"), &Session::GetOnPrivMSG)
+        .Func(_SC("get_on_notice"), &Session::GetOnNotice)
+        .Func(_SC("get_on_channel_notice"), &Session::GetOnChannel_Notice)
+        .Func(_SC("get_on_invite"), &Session::GetOnInvite)
+        .Func(_SC("get_on_ctcp_req"), &Session::GetOnCTCP_Req)
+        .Func(_SC("get_on_ctcp_rep"), &Session::GetOnCTCP_Rep)
+        .Func(_SC("get_on_ctcp_action"), &Session::GetOnCTCP_Action)
+        .Func(_SC("get_on_unknown"), &Session::GetOnUnknown)
+        .Func(_SC("get_on_numeric"), &Session::GetOnNumeric)
+        .Func(_SC("get_on_dcc_chat_req"), &Session::GetOnDcc_Chat_Req)
+        .Func(_SC("get_on_dcc_send_req"), &Session::GetOnDcc_Send_Req)
+        .Func(_SC("set_on_connect"), &Session::SetOnConnect_Env)
+        .Func(_SC("set_on_nick"), &Session::SetOnNick_Env)
+        .Func(_SC("set_on_quit"), &Session::SetOnQuit_Env)
+        .Func(_SC("set_on_join"), &Session::SetOnJoin_Env)
+        .Func(_SC("set_on_part"), &Session::SetOnPart_Env)
+        .Func(_SC("set_on_mode"), &Session::SetOnMode_Env)
+        .Func(_SC("set_on_umode"), &Session::SetOnUmode_Env)
+        .Func(_SC("set_on_topic"), &Session::SetOnTopic_Env)
+        .Func(_SC("set_on_kick"), &Session::SetOnKick_Env)
+        .Func(_SC("set_on_channel"), &Session::SetOnChannel_Env)
+        .Func(_SC("set_on_priv_msg"), &Session::SetOnPrivMSG_Env)
+        .Func(_SC("set_on_notice"), &Session::SetOnNotice_Env)
+        .Func(_SC("set_on_channel_notice"), &Session::SetOnChannel_Notice_Env)
+        .Func(_SC("set_on_invite"), &Session::SetOnInvite_Env)
+        .Func(_SC("set_on_ctcp_req"), &Session::SetOnCTCP_Req_Env)
+        .Func(_SC("set_on_ctcp_rep"), &Session::SetOnCTCP_Rep_Env)
+        .Func(_SC("set_on_ctcp_action"), &Session::SetOnCTCP_Action_Env)
+        .Func(_SC("set_on_unknown"), &Session::SetOnUnknown_Env)
+        .Func(_SC("set_on_numeric"), &Session::SetOnNumeric_Env)
+        .Func(_SC("set_on_dcc_chat_req"), &Session::SetOnDcc_Chat_Req_Env)
+        .Func(_SC("set_on_dcc_send_req"), &Session::SetOnDcc_Send_Req_Env)
         .Func(_SC("disconnect"), &Session::Disconnect)
         .Func(_SC("cmd_part"), &Session::CmdPart)
         .Func(_SC("cmd_invite"), &Session::CmdInvite)
@@ -1347,6 +1677,10 @@ bool Register_IRC(HSQUIRRELVM vm)
         .Func(_SC("cmd_nick"), &Session::CmdNick)
         .Func(_SC("cmd_whois"), &Session::CmdWhois)
         .Func(_SC("cmd_send_raw"), &Session::SendRaw)
+        .Func(_SC("destroy_dcc"), &Session::DestroyDcc)
+        .Func(_SC("set_ctcp_version"), &Session::SetCtcpVersion)
+        .Func(_SC("set_option"), &Session::SetOption)
+        .Func(_SC("reset_option"), &Session::ResetOption)
         /* Overloads */
         .Overload< SQInt32 (Session::*)(const SQChar *, SQUint32, const SQChar *) >
             (_SC("connect"), &Session::Connect)
@@ -1391,10 +1725,21 @@ bool Register_IRC(HSQUIRRELVM vm)
         .Overload< SQInt32 (Session::*)(void) >
             (_SC("cmd_quit"), &Session::CmdQuit)
         .Overload< SQInt32 (Session::*)(const SQChar *) >
-            (_SC("cmd_quit"), &Session::CmdQuit)
-    );
+            (_SC("cmd_quit"), &Session::CmdQuit);
     // Output debugging information
     LogDbg("Registration of <IRCSession> type was successful");
+    // Output debugging information
+    LogDbg("Beginning registration of <IRC functions> type");
+    // Attempt to register the free functions
+    Sqrat::Table ircns(vm);
+    ircns.Bind(_SC("CSession"), session);
+    ircns.Func(_SC("GetNick"), &GetNick);
+    ircns.Func(_SC("GetHost"), &GetHost);
+    ircns.Func(_SC("GetErrStr"), &irc_strerror);
+    // Output debugging information
+    LogDbg("Registration of <IRC functions> type was successful");
+    // Attempt to bind verything to the root table
+    Sqrat::RootTable(vm).Bind(_SC("IRC"), ircns);
     // Output debugging information
     LogDbg("Beginning registration of <IRC Constants> type");
     // Attempt to register the error codes enumeration
