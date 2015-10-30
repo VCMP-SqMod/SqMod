@@ -44,6 +44,7 @@ bool Register_Entity(HSQUIRRELVM vm);
 bool Register_Datetime(HSQUIRRELVM vm);
 bool Register_FileIO(HSQUIRRELVM vm);
 bool Register_Format(HSQUIRRELVM vm);
+bool Register_Hash(HSQUIRRELVM vm);
 bool Register_IRC(HSQUIRRELVM vm);
 bool Register_INI(HSQUIRRELVM vm);
 bool Register_JSON(HSQUIRRELVM vm);

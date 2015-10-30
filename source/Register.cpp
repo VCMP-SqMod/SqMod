@@ -43,6 +43,7 @@ bool RegisterAPI(HSQUIRRELVM vm) noexcept
         _Log->cFtl(!Register_Datetime(vm), "Unable to register: Datetime") || \
         _Log->cFtl(!Register_FileIO(vm), "Unable to register: FileIO") || \
         _Log->cFtl(!Register_Format(vm), "Unable to register: Format") || \
+        _Log->cFtl(!Register_Hash(vm), "Unable to register: Hash") || \
         _Log->cFtl(!Register_IRC(vm), "Unable to register: IRC") || \
         _Log->cFtl(!Register_INI(vm), "Unable to register: INI") || \
         _Log->cFtl(!Register_JSON(vm), "Unable to register: JSON") || \
