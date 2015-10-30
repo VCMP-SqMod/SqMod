@@ -5,6 +5,10 @@
 // ------------------------------------------------------------------------------------------------
 #include <cstdio>
 
+#if defined(_WIN32)
+#include <winsock2.h>
+#endif // _WIN32
+
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
@@ -19,6 +23,10 @@ void BindCallbacks() noexcept;
 // ------------------------------------------------------------------------------------------------
 SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
 {
+#if defined(_WIN32)
+    WSADATA wsaData;
+#endif // _WIN32
+    // Verify that core components are working
     if (!_Log)
     {
         puts("[SQMOD] Unable to start because the logging class could not be instantiated");
@@ -29,6 +37,14 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
         puts("[SQMOD] Unable to start because the central core class could not be instantiated");
         return SQMOD_FAILURE;
     }
+#if defined(_WIN32)
+    // Initialize the sockets on windows
+    else if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
+        puts("[SQMOD] Unable to start because the windows sockets could not be initialized");
+        return SQMOD_FAILURE;
+    }
+#endif // _WIN32
     else
     {
         _Func = funcs;

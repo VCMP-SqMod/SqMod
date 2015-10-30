@@ -40,10 +40,10 @@ bool RegisterAPI(HSQUIRRELVM vm) noexcept
         _Log->cFtl(!Register_CVehicle(vm), "Unable to register: Vehicle") || \
         _Log->cFtl(!Register_Entity(vm), "Unable to register: Entity") || \
 
-        _Log->cFtl(!Register_CFG(vm), "Unable to register: CFG") || \
         _Log->cFtl(!Register_Datetime(vm), "Unable to register: Datetime") || \
         _Log->cFtl(!Register_FileIO(vm), "Unable to register: FileIO") || \
         _Log->cFtl(!Register_Format(vm), "Unable to register: Format") || \
+        _Log->cFtl(!Register_IRC(vm), "Unable to register: IRC") || \
         _Log->cFtl(!Register_INI(vm), "Unable to register: INI") || \
         _Log->cFtl(!Register_JSON(vm), "Unable to register: JSON") || \
         _Log->cFtl(!Register_LongInt(vm), "Unable to register: LongInt") || \
