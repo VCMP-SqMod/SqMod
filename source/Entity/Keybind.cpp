@@ -13,7 +13,7 @@ SQInt32 CKeybind::GetPrimary() const noexcept
     }
     else
     {
-        LogWrn(_SC("[SOURCE: CKeybind::GetPrimary()] [INFO: Invalid reference] [DATA: (this::m_ID {0:d})]"), m_ID);
+        LogWrn(_SC("Attempting to <get keybind primary keycode> using an invalid reference: %d"), m_ID);
     }
 
     return SQMOD_UNKNOWN;
@@ -28,7 +28,7 @@ SQInt32 CKeybind::GetSecondary() const noexcept
     }
     else
     {
-        LogWrn(_SC("[SOURCE: CKeybind::GetSecondary()] [INFO: Invalid reference] [DATA: (this::m_ID {0:d})]"), m_ID);
+        LogWrn(_SC("Attempting to <get keybind secondary keycode> using an invalid reference: %d"), m_ID);
     }
 
     return SQMOD_UNKNOWN;
@@ -43,7 +43,7 @@ SQInt32 CKeybind::GetAlternative() const noexcept
     }
     else
     {
-        LogWrn(_SC("[SOURCE: CKeybind::GetAlternative()] [INFO: Invalid reference] [DATA: (this::m_ID {0:d})]"), m_ID);
+        LogWrn(_SC("Attempting to <get keybind alternative keycode> using an invalid reference: %d"), m_ID);
     }
 
     return SQMOD_UNKNOWN;
@@ -58,7 +58,7 @@ bool CKeybind::IsRelease() const noexcept
     }
     else
     {
-        LogWrn(_SC("[SOURCE: CKeybind::IsRelease()] [INFO: Invalid reference] [DATA: (this::m_ID {0:d})]"), m_ID);
+        LogWrn(_SC("Attempting to <see if keybind reacts on release> using an invalid reference: %d"), m_ID);
     }
 
     return false;
