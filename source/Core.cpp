@@ -734,279 +734,163 @@ void Core::CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQCha
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CBlip > Core::CreateBlip(SQInt32 index, SQInt32 world, const Vector3 & pos, SQInt32 scale, \
-                        const Color4 & color, SQInt32 sprite, SQInt32 header, SqObj & payload) noexcept
+Reference< CBlip > Core::NewBlip(SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                    SQInt32 scale, SQUint32 color, SQInt32 sprid,
+                                    SQInt32 header, SqObj & payload) noexcept
 {
-    // Attempt to create an instance on the server and obtain it's identifier
-    SQInt32 id = _Func->CreateCoordBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprite);
-    // Attempt to activate the instance in the plugin at the received identifier
-    if (EntMan< CBlip >::Activate(id, true, world, scale, sprite, pos, color))
-    {
-        // Trigger the specific event
-        OnBlipCreated(id, header, payload);
-    }
-    else
-    {
-        LogErr("Unable to create a new <CBlip> instance");
-    }
-    // Return the obtained reference as is
-    return Reference< CBlip >(id);
+    // Attempt to create the entity and return a reference to it
+    return Reference< CBlip >(EntMan< CBlip >::Create(header, payload, true,
+                                    index, world, x, y, z, scale, color, sprid));
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CCheckpoint > Core::CreateCheckpoint(const Reference< CPlayer > & player, SQInt32 world, const Vector3 & pos, \
-                        const Color4 & color, SQFloat radius, SQInt32 header, SqObj & payload) noexcept
+Reference< CCheckpoint > Core::NewCheckpoint(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                                SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius,
+                                                SQInt32 header, SqObj & payload) noexcept
 {
     // See if the specified player reference is valid
-    if (!player)
+    if (!Reference< CPlayer >::Verify(player))
     {
-        LogWrn("Attempting to create a <Checkpoint> instance on an invalid player: %d", _SCI32(player));
+        LogWrn("Attempting to <create a checkpoint instance> on an invalid player: %d", player);
     }
-    // Attempt to create an instance on the server and obtain it's identifier
-    SQInt32 id = _Func->CreateCheckpoint(_SCI32(player), world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius);
-    // Attempt to activate the instance in the plugin at the received identifier
-    if (EntMan< CCheckpoint >::Activate(id, true))
-    {
-        // Trigger the specific event
-        OnCheckpointCreated(id, header, payload);
-    }
+    // Attempt to create the entity and return a reference to it
     else
     {
-        LogErr("Unable to create a new <CCheckpoint> instance");
+        return Reference< CCheckpoint >(EntMan< CCheckpoint >::Create(header, payload, true,
+                                        player, world, x, y, z, r, g, b, a, radius));
     }
-    // Return the obtained reference as is
-    return Reference< CCheckpoint >(id);
+    // Return an invalid reference
+    return Reference< CCheckpoint >();
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CKeybind > Core::CreateKeybind(SQInt32 slot, bool release, SQInt32 primary, SQInt32 secondary, \
-                        SQInt32 alternative, SQInt32 header, SqObj & payload) noexcept
+Reference< CKeybind > Core::NewKeybind(SQInt32 slot, bool release,
+                                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
+                                        SQInt32 header, SqObj & payload) noexcept
 {
-    // Attempt to create an instance on the server and obtain it's identifier
-    SQInt32 id = _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
-    // Attempt to activate the instance in the plugin at the received identifier
-    if (EntMan< CKeybind >::Activate(id, true, primary, secondary, alternative, release))
-    {
-        // Trigger the specific event
-        OnKeybindCreated(id, header, payload);
-    }
-    else
-    {
-        LogErr("Unable to create a new <CKeybind> instance");
-    }
-    // Return the obtained reference as is
-    return Reference< CKeybind >(id);
+    // Attempt to create the entity and return a reference to it
+    return Reference< CKeybind >(EntMan< CKeybind >::Create(header, payload, true,
+                                    slot, release, primary, secondary, alternative));
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CObject > Core::CreateObject(const CModel & model, SQInt32 world, const Vector3 & pos, SQInt32 alpha, \
-                        SQInt32 header, SqObj & payload) noexcept
+Reference< CObject > Core::NewObject(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                        SQInt32 alpha,
+                                        SQInt32 header, SqObj & payload) noexcept
 {
     // See if the specified model is valid
-    if (!model)
+    if (!CModel::Valid(model))
     {
-        LogWrn("Attempting to create an <Object> instance with an invalid model: %d", _SCI32(model));
+        LogWrn("Attempting to <create an object instance> using an invalid model: %d", model);
     }
-    // Attempt to create an instance on the server and obtain it's identifier
-    SQInt32 id = _Func->CreateObject(_SCI32(model), world, pos.x, pos.y, pos.z, alpha);
-    // Attempt to activate the instance in the plugin at the received identifier
-    if (EntMan< CObject >::Activate(id, true))
-    {
-        // Trigger the specific event
-        OnObjectCreated(id, header, payload);
-    }
+    // Attempt to create the entity and return a reference to it
     else
     {
-        LogErr("Unable to create a new <CObject> instance");
+        return Reference< CObject >(EntMan< CObject >::Create(header, payload, true,
+                                    model, world, x, y, z, alpha));
     }
-    // Return the obtained reference as is
-    return Reference< CObject >(id);
+    // Return an invalid reference
+    return Reference< CObject >();
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CPickup > Core::CreatePickup(const CModel & model, SQInt32 world, SQInt32 quantity, const Vector3 & pos, \
-                        SQInt32 alpha, bool automatic, SQInt32 header, SqObj & payload) noexcept
+Reference< CPickup > Core::NewPickup(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                                        SQFloat x, SQFloat y, SQFloat z, SQInt32 alpha, bool automatic,
+                                        SQInt32 header, SqObj & payload) noexcept
 {
     // See if the specified model is valid
-    if (!model)
+    if (!CModel::Valid(model))
     {
-        LogWrn("Attempting to create a <Pickup> instance with an invalid model: %d", _SCI32(model));
+        LogWrn("Attempting to <create a pickup instance> using an invalid model: %d", model);
     }
-    // Attempt to create an instance on the server and obtain it's identifier
-    SQInt32 id = _Func->CreatePickup(_SCI32(model), world, quantity, pos.x, pos.y, pos.z, alpha, automatic);
-    // Attempt to activate the instance in the plugin at the received identifier
-    if (EntMan< CPickup >::Activate(id, true))
-    {
-        // Trigger the specific event
-        OnPickupCreated(id, header, payload);
-    }
+    // Attempt to create the entity and return a reference to it
     else
     {
-        LogErr("Unable to create a new <CPickup> instance");
+        return Reference< CPickup >(EntMan< CPickup >::Create(header, payload, true,
+                                    model, world, quantity, x, y, z, alpha, automatic));
     }
-    // Return the obtained reference as is
-    return Reference< CPickup >(id);
+    // Return an invalid reference
+    return Reference< CPickup >();
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CSphere > Core::CreateSphere(const Reference< CPlayer > & player, SQInt32 world, const Vector3 & pos, \
-                        const Color3 & color, SQFloat radius, SQInt32 header, SqObj & payload) noexcept
+Reference< CSphere > Core::NewSphere(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                        SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius,
+                                        SQInt32 header, SqObj & payload) noexcept
 {
     // See if the specified player reference is valid
-    if (!player)
+    if (!Reference< CPlayer >::Verify(player))
     {
-        LogWrn("Attempting to create a <Sphere> instance on an invalid player: %d", _SCI32(player));
+        LogWrn("Attempting to <create a Sphere instance> on an invalid player: %d", player);
     }
-    // Attempt to create an instance on the server and obtain it's identifier
-    SQInt32 id = _Func->CreateSphere(_SCI32(player), world, pos.x, pos.y, pos.z, color.r, color.g, color.b, radius);
-    // Attempt to activate the instance in the plugin at the received identifier
-    if (EntMan< CSphere >::Activate(id, true))
-    {
-        // Trigger the specific event
-        OnSphereCreated(id, header, payload);
-    }
+    // Attempt to create the entity and return a reference to it
     else
     {
-        LogErr("Unable to create a new <CSphere> instance");
+        return Reference< CSphere >(EntMan< CSphere >::Create(header, payload, true,
+                                    player, world, x, y, z, r, g, b, radius));
     }
-    // Return the obtained reference as is
-    return Reference< CSphere >(id);
+    // Return an invalid reference
+    return Reference< CSphere >();
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CSprite > Core::CreateSprite(SQInt32 index, const String & file, const Vector2i & pos, const Vector2i & rot, \
-                        SQFloat angle, SQInt32 alpha, bool rel, SQInt32 header, SqObj & payload) noexcept
+Reference< CSprite > Core::NewSprite(SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
+                                        SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel,
+                                        SQInt32 header, SqObj & payload) noexcept
 {
     // See if the specified file path is valid
-    if (file.empty())
+    if (!file)
     {
-        LogWrn("Attempting to create a <Sprite> instance with an empty path: %d", file.size());
+        LogWrn("Attempting to <create a sprite instance> with an empty path: null");
     }
-    // Attempt to create an instance on the server and obtain it's identifier
-    SQInt32 id = _Func->CreateSprite(index, file.c_str(), pos.x, pos.y, rot.x, rot.y, angle, alpha, rel);
-    // Attempt to activate the instance in the plugin at the received identifier
-    if (EntMan< CSprite >::Activate(id, true, file))
-    {
-        // Trigger the specific event
-        OnSpriteCreated(id, header, payload);
-    }
+    // Attempt to create the entity and return a reference to it
     else
     {
-        LogErr("Unable to create a new <CSprite> instance");
+        return Reference< CSprite >(EntMan< CSprite >::Create(header, payload, true,
+                                        index, file, xp, yp, xr, yr, angle, alpha, rel));
     }
-    // Return the obtained reference as is
-    return Reference< CSprite >(id);
+    // Return an invalid reference
+    return Reference< CSprite >();
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CTextdraw > Core::CreateTextdraw(SQInt32 index, const String & text, const Vector2i & pos, \
-                        const Color4 & color, bool rel, SQInt32 header, SqObj & payload) noexcept
+Reference< CTextdraw > Core::NewTextdraw(SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
+                                            SQUint32 color, bool rel,
+                                            SQInt32 header, SqObj & payload) noexcept
 {
     // See if the specified text is valid
-    if (text.empty())
+    if (!text)
     {
-        LogWrn("Attempting to create a <Textdraw> instance with an empty text: %d", text.size());
+        LogWrn("Attempting to <create a textdraw instance> using an empty text: null");
     }
-    // Attempt to create an instance on the server and obtain it's identifier
-    SQInt32 id = _Func->CreateTextdraw(index, text.c_str(), pos.x, pos.y, color.GetRGBA(), rel);
-    // Attempt to activate the instance in the plugin at the received identifier
-    if (EntMan< CTextdraw >::Activate(id, true, text))
-    {
-        // Trigger the specific event
-        OnTextdrawCreated(id, header, payload);
-    }
+    // Attempt to create the entity and return a reference to it
     else
     {
-        LogErr("Unable to create a new <CTextdraw> instance");
+        return Reference< CTextdraw >(EntMan< CTextdraw >::Create(header, payload, true,
+                                        index, text, xp, yp, color, rel));
     }
-    // Return the obtained reference as is
-    return Reference< CTextdraw >(id);
+    // Return an invalid reference
+    return Reference< CTextdraw >();
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CVehicle > Core::CreateVehicle(const CAutomobile & model, SQInt32 world, const Vector3 & pos, \
-                        SQFloat angle, SQInt32 primary, SQInt32 secondary, SQInt32 header, SqObj & payload) noexcept
+Reference< CVehicle > Core::NewVehicle(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                                        SQInt32 header, SqObj & payload) noexcept
 {
     // See if the specified model is valid
-    if (!model)
+    if (!CAutomobile::Valid(model))
     {
-        LogWrn("Attempting to create an <Vehicle> instance with an invalid model: %d", _SCI32(model));
+        LogWrn("Attempting to <create a vehicle instance> using an invalid model: %d", model);
     }
-    // Attempt to create an instance on the server and obtain it's identifier
-    SQInt32 id = _Func->CreateVehicle(_SCI32(model), world, pos.x, pos.y, pos.z, angle, primary, secondary);
-    // Attempt to activate the instance in the plugin at the received identifier
-    if (EntMan< CVehicle >::Activate(id, true))
-    {
-        // Trigger the specific event
-        OnVehicleCreated(id, header, payload);
-    }
+    // Attempt to create the entity and return a reference to it
     else
     {
-        LogErr("Unable to create a new <CVehicle> instance");
+        return Reference< CVehicle >(EntMan< CVehicle >::Create(header, payload, true,
+                                        model, world, x, y, z, angle, primary, secondary));
     }
-    // Return the obtained reference as is
-    return Reference< CVehicle >(id);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroyBlip(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroyCheckpoint(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroyKeybind(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroyObject(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroyPickup(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroyPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroySphere(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroySprite(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroyTextdraw(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::DestroyVehicle(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
-{
-    return true;
+    // Return an invalid reference
+    return Reference< CVehicle >();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1771,7 +1655,7 @@ void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted) noexcept
         case SQMOD_ENTITY_POOL_VEHICLE:
             if (deleted)
             {
-                DestroyVehicle(id, SQMOD_DESTROY_POOL, payload);
+                EntMan< CVehicle >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
             }
             else if (EntMan< CVehicle >::Activate(id, false))
             {
@@ -1781,7 +1665,7 @@ void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted) noexcept
         case SQMOD_ENTITY_POOL_OBJECT:
             if (deleted)
             {
-                DestroyObject(id, SQMOD_DESTROY_POOL, payload);
+                EntMan< CObject >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
             }
             else if (EntMan< CObject >::Activate(id, false))
             {
@@ -1791,7 +1675,7 @@ void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted) noexcept
         case SQMOD_ENTITY_POOL_PICKUP:
             if (deleted)
             {
-                DestroyPickup(id, SQMOD_DESTROY_POOL, payload);
+                EntMan< CPickup >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
             }
             else if (EntMan< CPickup >::Activate(id, false))
             {
@@ -1804,9 +1688,9 @@ void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted) noexcept
         case SQMOD_ENTITY_POOL_SPRITE:
             if (deleted)
             {
-                DestroySprite(id, SQMOD_DESTROY_POOL, payload);
+                EntMan< CSprite >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
             }
-            else if (EntMan< CSprite >::Activate(id, false, ""))
+            else if (EntMan< CSprite >::Activate(id, false))
             {
                 OnSpriteCreated(id, SQMOD_CREATE_POOL, payload);
             }
@@ -1814,9 +1698,9 @@ void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted) noexcept
         case SQMOD_ENTITY_POOL_TEXTDRAW:
             if (deleted)
             {
-                DestroyTextdraw(id, SQMOD_DESTROY_POOL, payload);
+                EntMan< CTextdraw >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
             }
-            else if (EntMan< CTextdraw >::Activate(id, false, ""))
+            else if (EntMan< CTextdraw >::Activate(id, false))
             {
                 OnTextdrawCreated(id, SQMOD_CREATE_POOL, payload);
             }
@@ -1824,20 +1708,17 @@ void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted) noexcept
         case SQMOD_ENTITY_POOL_BLIP:
             if (deleted)
             {
-                DestroyBlip(id, SQMOD_DESTROY_POOL, payload);
+                EntMan< CBlip >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
             }
             else
             {
-                SQInt32 world, scale, sprite;
-                SQUint32 pcolor;
-                Vector3 pos;
-                Color4 color;
+                SQInt32 world, scale, sprid;
+                SQUint32 color;
+                SQFloat x, y, z;
                 // Get the blip information from the server
-                _Func->GetCoordBlipInfo(id, &world, &pos.x, &pos.y, &pos.z, &scale, &pcolor, &sprite);
-                // Unpack the retrieved color
-                color.SetRGBA(pcolor);
-
-                if (EntMan< CBlip >::Activate(id, false, world, scale, sprite, pos, color))
+                _Func->GetCoordBlipInfo(id, &world, &x, &y, &z, &scale, &color, &sprid);
+                // Attempt to activate this instance
+                if (EntMan< CBlip >::Activate(id, false, SQMOD_UNKNOWN, world, x, y, z, scale, color, sprid))
                 {
                     OnBlipCreated(id, SQMOD_CREATE_POOL, payload);
                 }

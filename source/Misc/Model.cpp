@@ -232,26 +232,26 @@ bool CModel::IsActuallyWeapon() const noexcept
 Reference< CObject > CModel::Object(SQInt32 world, const Vector3 & pos, SQInt32 alpha, SQInt32 header, \
                                     SqObj & payload) const noexcept
 {
-    return _Core->CreateObject(*this, world, pos, alpha, header, payload);
+    return _Core->NewObject(m_ID, world, pos.x, pos.y, pos.z, alpha, header, payload);
 }
 
 Reference< CObject > CModel::Object(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQInt32 alpha, \
                                     SQInt32 header, SqObj & payload) const noexcept
 {
-    return _Core->CreateObject(*this, world, Vector3(x, y, z), alpha, header, payload);
+    return _Core->NewObject(m_ID, world, x, y, z, alpha, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
 Reference< CPickup > CModel::Pickup(SQInt32 world, SQInt32 quantity, const Vector3 & pos, SQInt32 alpha, \
                                     bool automatic, SQInt32 header, SqObj & payload) const noexcept
 {
-    return _Core->CreatePickup(*this, world, quantity, pos, alpha, automatic, header, payload);
+    return _Core->NewPickup(m_ID, world, quantity, pos.x, pos.y, pos.z, alpha, automatic, header, payload);
 }
 
 Reference< CPickup > CModel::Pickup(SQInt32 world, SQInt32 quantity, SQFloat x, SQFloat y, SQFloat z, \
                                     SQInt32 alpha, bool automatic, SQInt32 header, SqObj & payload) const noexcept
 {
-    return _Core->CreatePickup(*this, world, quantity, Vector3(x, y, z), alpha, automatic, header, payload);
+    return _Core->NewPickup(m_ID, world, quantity, x, y, z, alpha, automatic, header, payload);
 }
 
 // ================================================================================================

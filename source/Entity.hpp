@@ -17,7 +17,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Helper enum to have a numeric way of identifying entity types.
 */
 enum EntityType
 {
@@ -36,12 +36,54 @@ enum EntityType
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Helper functions used by the entity interfaces to obtain global signals from the core instance.
+*/
+EBlipCreated & GBlipCreated() noexcept;
+ECheckpointCreated & GCheckpointCreated() noexcept;
+EKeybindCreated & GKeybindCreated() noexcept;
+EObjectCreated & GObjectCreated() noexcept;
+EPickupCreated & GPickupCreated() noexcept;
+EPlayerCreated & GPlayerCreated() noexcept;
+ESphereCreated & GSphereCreated() noexcept;
+ESpriteCreated & GSpriteCreated() noexcept;
+ETextdrawCreated & GTextdrawCreated() noexcept;
+EVehicleCreated & GVehicleCreated() noexcept;
+
+/* ------------------------------------------------------------------------------------------------
+ * Helper functions used by the entity interfaces to obtain global signals from the core instance.
+*/
+EBlipDestroyed & GBlipDestroyed() noexcept;
+ECheckpointDestroyed & GCheckpointDestroyed() noexcept;
+EKeybindDestroyed & GKeybindDestroyed() noexcept;
+EObjectDestroyed & GObjectDestroyed() noexcept;
+EPickupDestroyed & GPickupDestroyed() noexcept;
+EPlayerDestroyed & GPlayerDestroyed() noexcept;
+ESphereDestroyed & GSphereDestroyed() noexcept;
+ESpriteDestroyed & GSpriteDestroyed() noexcept;
+ETextdrawDestroyed & GTextdrawDestroyed() noexcept;
+EVehicleDestroyed & GVehicleDestroyed() noexcept;
+
+/* ------------------------------------------------------------------------------------------------
+ * Helper functions used by the entity interfaces to obtain global signals from the core instance.
+*/
+EBlipCustom & GBlipCustom() noexcept;
+ECheckpointCustom & GCheckpointCustom() noexcept;
+EKeybindCustom & GKeybindCustom() noexcept;
+EObjectCustom & GObjectCustom() noexcept;
+EPickupCustom & GPickupCustom() noexcept;
+EPlayerCustom & GPlayerCustom() noexcept;
+ESphereCustom & GSphereCustom() noexcept;
+ESpriteCustom & GSpriteCustom() noexcept;
+ETextdrawCustom & GTextdrawCustom() noexcept;
+EVehicleCustom & GVehicleCustom() noexcept;
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward declaration of an entity interface.
 */
 template < class T > class Ent;
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the blip entity type.
 */
 template <> class Ent< CBlip >
 {
@@ -55,12 +97,21 @@ private:
     typedef Reference< CBlip >  RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Blip
     {
         // ----------------------------------------------------------------------------------------
-        Blip() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Blip() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -93,21 +144,60 @@ private:
         EBlipCustom             BlipCustom;
 
         // ----------------------------------------------------------------------------------------
-        EBlipCreated & Created() noexcept { return BlipCreated; }
-        EBlipDestroyed & Destroyed() noexcept { return BlipDestroyed; }
-        EBlipCustom & Custom() noexcept { return BlipCustom; }
+        EBlipCreated & Created() noexcept
+        {
+            return BlipCreated;
+        }
+
+        EBlipDestroyed & Destroyed() noexcept
+        {
+            return BlipDestroyed;
+        }
+
+        EBlipCustom & Custom() noexcept
+        {
+            return BlipCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        EBlipCreated & GCreated() noexcept
+        {
+            return GBlipCreated();
+        }
+
+        EBlipDestroyed & GDestroyed() noexcept
+        {
+            return GBlipDestroyed();
+        }
+
+        EBlipCustom & GCustom() noexcept
+        {
+            return GBlipCustom();
+        }
 
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 world, SQInt32 scale, SQInt32 sprite, \
-                    const Vector3 & pos, const Color4 & color) noexcept
+    static void Store(Instance & inst) noexcept
+    {
+        inst.World = SQMOD_UNKNOWN;
+        inst.Scale = SQMOD_UNKNOWN;
+        inst.SprID = SQMOD_UNKNOWN;
+        inst.Position.Clear();
+        inst.Color.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Store(Instance & inst, SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 scale, SQUint32 color, SQInt32 sprid) noexcept
     {
         inst.World = world;
         inst.Scale = scale;
-        inst.SprID = sprite;
-        inst.Position = pos;
-        inst.Color = color;
+        inst.SprID = sprid;
+        inst.Position.x = x;
+        inst.Position.y = y;
+        inst.Position.z = z;
+        inst.Color.SetRGBA(color);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -116,6 +206,19 @@ private:
         inst.BlipCreated.Clear();
         inst.BlipDestroyed.Clear();
         inst.BlipCustom.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create(SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                            SQInt32 scale, SQUint32 color, SQInt32 sprid) noexcept
+    {
+        return _Func->CreateCoordBlip(index, world, x, y, z, scale, color, sprid);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        _Func->DestroyCoordBlip(id);
     }
 
 public:
@@ -168,7 +271,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the checkpoint entity type.
 */
 template <> class Ent< CCheckpoint >
 {
@@ -182,12 +285,21 @@ private:
     typedef Reference< CCheckpoint >    RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Checkpoint
     {
         // ----------------------------------------------------------------------------------------
-        Checkpoint() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Checkpoint() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -211,14 +323,48 @@ private:
         ECheckpointExited       CheckpointExited;
 
         // ----------------------------------------------------------------------------------------
-        ECheckpointCreated & Created() noexcept { return CheckpointCreated; }
-        ECheckpointDestroyed & Destroyed() noexcept { return CheckpointDestroyed; }
-        ECheckpointCustom & Custom() noexcept { return CheckpointCustom; }
+        ECheckpointCreated & Created() noexcept
+        {
+            return CheckpointCreated;
+        }
+
+        ECheckpointDestroyed & Destroyed() noexcept
+        {
+            return CheckpointDestroyed;
+        }
+
+        ECheckpointCustom & Custom() noexcept
+        {
+            return CheckpointCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        ECheckpointCreated & GCreated() noexcept
+        {
+            return GCheckpointCreated();
+        }
+
+        ECheckpointDestroyed & GDestroyed() noexcept
+        {
+            return GCheckpointDestroyed();
+        }
+
+        ECheckpointCustom & GCustom() noexcept
+        {
+            return GCheckpointCustom();
+        }
 
     } Instance;
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
+    {
+        /* ... */
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Store(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                        SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius) noexcept
     {
         /* ... */
     }
@@ -231,6 +377,19 @@ private:
         inst.CheckpointCustom.Clear();
         inst.CheckpointEntered.Clear();
         inst.CheckpointExited.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                            SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius) noexcept
+    {
+        return _Func->CreateCheckpoint(player, world, x, y, z, r, g, b, a, radius);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        _Func->DeleteCheckpoint(id);
     }
 
 public:
@@ -289,7 +448,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the keybind entity type.
 */
 template <> class Ent< CKeybind >
 {
@@ -303,12 +462,21 @@ private:
     typedef Reference< CKeybind >   RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Keybind
     {
         // ----------------------------------------------------------------------------------------
-        Keybind() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Keybind() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -340,15 +508,51 @@ private:
         EKeybindKeyRelease      KeybindKeyRelease;
 
         // ----------------------------------------------------------------------------------------
-        EKeybindCreated & Created() noexcept { return KeybindCreated; }
-        EKeybindDestroyed & Destroyed() noexcept { return KeybindDestroyed; }
-        EKeybindCustom & Custom() noexcept { return KeybindCustom; }
+        EKeybindCreated & Created() noexcept
+        {
+            return KeybindCreated;
+        }
+
+        EKeybindDestroyed & Destroyed() noexcept
+        {
+            return KeybindDestroyed;
+        }
+
+        EKeybindCustom & Custom() noexcept
+        {
+            return KeybindCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        EKeybindCreated & GCreated() noexcept
+        {
+            return GKeybindCreated();
+        }
+
+        EKeybindDestroyed & GDestroyed() noexcept
+        {
+            return GKeybindDestroyed();
+        }
+
+        EKeybindCustom & GCustom() noexcept
+        {
+            return GKeybindCustom();
+        }
 
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 primary, SQInt32 secondary, SQInt32 alternative, \
-                        bool release) noexcept
+    static void Store(Instance & inst) noexcept
+    {
+        inst.Primary = SQMOD_UNKNOWN;
+        inst.Secondary = SQMOD_UNKNOWN;
+        inst.Alternative = SQMOD_UNKNOWN;
+        inst.Release = false;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Store(Instance & inst, SQInt32 slot, bool release, SQInt32 primary, SQInt32 secondary,
+                        SQInt32 alternative) noexcept
     {
         inst.Primary = primary;
         inst.Secondary = secondary;
@@ -364,6 +568,19 @@ private:
         inst.KeybindCustom.Clear();
         inst.KeybindKeyPress.Clear();
         inst.KeybindKeyRelease.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create(SQInt32 slot, bool release, SQInt32 primary, SQInt32 secondary,
+                            SQInt32 alternative) noexcept
+    {
+        return _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        _Func->RemoveKeyBind(id);
     }
 
 public:
@@ -422,7 +639,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the object entity type.
 */
 template <> class Ent< CObject >
 {
@@ -436,12 +653,21 @@ private:
     typedef Reference< CObject >    RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Object
     {
         // ----------------------------------------------------------------------------------------
-        Object() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Object() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -465,14 +691,48 @@ private:
         EObjectBump             ObjectBump;
 
         // ----------------------------------------------------------------------------------------
-        EObjectCreated & Created() noexcept { return ObjectCreated; }
-        EObjectDestroyed & Destroyed() noexcept { return ObjectDestroyed; }
-        EObjectCustom & Custom() noexcept { return ObjectCustom; }
+        EObjectCreated & Created() noexcept
+        {
+            return ObjectCreated;
+        }
+
+        EObjectDestroyed & Destroyed() noexcept
+        {
+            return ObjectDestroyed;
+        }
+
+        EObjectCustom & Custom() noexcept
+        {
+            return ObjectCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        EObjectCreated & GCreated() noexcept
+        {
+            return GObjectCreated();
+        }
+
+        EObjectDestroyed & GDestroyed() noexcept
+        {
+            return GObjectDestroyed();
+        }
+
+        EObjectCustom & GCustom() noexcept
+        {
+            return GObjectCustom();
+        }
 
     } Instance;
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
+    {
+        /* ... */
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha) noexcept
     {
         /* ... */
     }
@@ -485,6 +745,19 @@ private:
         inst.ObjectCustom.Clear();
         inst.ObjectShot.Clear();
         inst.ObjectBump.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                            SQInt32 alpha) noexcept
+    {
+        return _Func->CreateObject(model, world, x, y, z, alpha);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        _Func->DeleteObject(id);
     }
 
 public:
@@ -543,7 +816,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the pickup entity type.
 */
 template <> class Ent< CPickup >
 {
@@ -557,12 +830,21 @@ private:
     typedef Reference< CPickup >    RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Pickup
     {
         // ----------------------------------------------------------------------------------------
-        Pickup() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Pickup() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -587,14 +869,48 @@ private:
         EPickupCollected        PickupCollected;
 
         // ----------------------------------------------------------------------------------------
-        EPickupCreated & Created() noexcept { return PickupCreated; }
-        EPickupDestroyed & Destroyed() noexcept { return PickupDestroyed; }
-        EPickupCustom & Custom() noexcept { return PickupCustom; }
+        EPickupCreated & Created() noexcept
+        {
+            return PickupCreated;
+        }
+
+        EPickupDestroyed & Destroyed() noexcept
+        {
+            return PickupDestroyed;
+        }
+
+        EPickupCustom & Custom() noexcept
+        {
+            return PickupCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        EPickupCreated & GCreated() noexcept
+        {
+            return GPickupCreated();
+        }
+
+        EPickupDestroyed & GDestroyed() noexcept
+        {
+            return GPickupDestroyed();
+        }
+
+        EPickupCustom & GCustom() noexcept
+        {
+            return GPickupCustom();
+        }
 
     } Instance;
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
+    {
+        /* ... */
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQInt32 quantity,
+                        SQFloat x,  SQFloat y,  SQFloat z, SQInt32 alpha, bool automatic) noexcept
     {
         /* ... */
     }
@@ -608,6 +924,19 @@ private:
         inst.PickupRespawn.Clear();
         inst.PickupClaimed.Clear();
         inst.PickupCollected.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                            SQFloat x,  SQFloat y,  SQFloat z, SQInt32 alpha, bool automatic) noexcept
+    {
+        return _Func->CreatePickup(model, world, quantity, x, y, z, alpha, automatic);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        _Func->DeletePickup(id);
     }
 
 public:
@@ -668,7 +997,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the player entity type.
 */
 template <> class Ent< CPlayer >
 {
@@ -682,12 +1011,21 @@ private:
     typedef Reference< CPlayer >    RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Player
     {
         // ----------------------------------------------------------------------------------------
-        Player() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Player() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -768,9 +1106,36 @@ private:
         ESphereExited           SphereExited;
 
         // ----------------------------------------------------------------------------------------
-        EPlayerCreated & Created() noexcept { return PlayerCreated; }
-        EPlayerDestroyed & Destroyed() noexcept { return PlayerDestroyed; }
-        EPlayerCustom & Custom() noexcept { return PlayerCustom; }
+        EPlayerCreated & Created() noexcept
+        {
+            return PlayerCreated;
+        }
+
+        EPlayerDestroyed & Destroyed() noexcept
+        {
+            return PlayerDestroyed;
+        }
+
+        EPlayerCustom & Custom() noexcept
+        {
+            return PlayerCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        EPlayerCreated & GCreated() noexcept
+        {
+            return GPlayerCreated();
+        }
+
+        EPlayerDestroyed & GDestroyed() noexcept
+        {
+            return GPlayerDestroyed();
+        }
+
+        EPlayerCustom & GCustom() noexcept
+        {
+            return GPlayerCustom();
+        }
 
     } Instance;
 
@@ -845,6 +1210,18 @@ private:
         inst.CheckpointExited.Clear();
         inst.SphereEntered.Clear();
         inst.SphereExited.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create() noexcept
+    {
+        return SQMOD_UNKNOWN;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        /* @TODO: Implement as kick. */
     }
 
 public:
@@ -1017,7 +1394,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the sphere entity type.
 */
 template <> class Ent< CSphere >
 {
@@ -1031,12 +1408,21 @@ private:
     typedef Reference< CSphere >    RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Sphere
     {
         // ----------------------------------------------------------------------------------------
-        Sphere() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Sphere() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -1060,14 +1446,48 @@ private:
         ESphereExited           SphereExited;
 
         // ----------------------------------------------------------------------------------------
-        ESphereCreated & Created() noexcept { return SphereCreated; }
-        ESphereDestroyed & Destroyed() noexcept { return SphereDestroyed; }
-        ESphereCustom & Custom() noexcept { return SphereCustom; }
+        ESphereCreated & Created() noexcept
+        {
+            return SphereCreated;
+        }
+
+        ESphereDestroyed & Destroyed() noexcept
+        {
+            return SphereDestroyed;
+        }
+
+        ESphereCustom & Custom() noexcept
+        {
+            return SphereCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        ESphereCreated & GCreated() noexcept
+        {
+            return GSphereCreated();
+        }
+
+        ESphereDestroyed & GDestroyed() noexcept
+        {
+            return GSphereDestroyed();
+        }
+
+        ESphereCustom & GCustom() noexcept
+        {
+            return GSphereCustom();
+        }
 
     } Instance;
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
+    {
+        /* ... */
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Store(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                        SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius) noexcept
     {
         /* ... */
     }
@@ -1080,6 +1500,19 @@ private:
         inst.SphereCustom.Clear();
         inst.SphereEntered.Clear();
         inst.SphereExited.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                            SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius) noexcept
+    {
+        return _Func->CreateSphere(_SCI32(player), world, x, y, z, r, g, b, radius);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        _Func->DeleteSphere(id);
     }
 
 public:
@@ -1138,7 +1571,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the sprite entity type.
 */
 template <> class Ent< CSprite >
 {
@@ -1152,12 +1585,21 @@ private:
     typedef Reference< CSprite >    RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Sprite
     {
         // ----------------------------------------------------------------------------------------
-        Sprite() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Sprite() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -1182,16 +1624,50 @@ private:
         ESpriteCustom           SpriteCustom;
 
         // ----------------------------------------------------------------------------------------
-        ESpriteCreated & Created() noexcept { return SpriteCreated; }
-        ESpriteDestroyed & Destroyed() noexcept { return SpriteDestroyed; }
-        ESpriteCustom & Custom() noexcept { return SpriteCustom; }
+        ESpriteCreated & Created() noexcept
+        {
+            return SpriteCreated;
+        }
+
+        ESpriteDestroyed & Destroyed() noexcept
+        {
+            return SpriteDestroyed;
+        }
+
+        ESpriteCustom & Custom() noexcept
+        {
+            return SpriteCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        ESpriteCreated & GCreated() noexcept
+        {
+            return GSpriteCreated();
+        }
+
+        ESpriteDestroyed & GDestroyed() noexcept
+        {
+            return GSpriteDestroyed();
+        }
+
+        ESpriteCustom & GCustom() noexcept
+        {
+            return GSpriteCustom();
+        }
 
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, const String & path) noexcept
+    static void Store(Instance & inst) noexcept
     {
-        inst.Path = path;
+        inst.Path.clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Store(Instance & inst, SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
+                        SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel) noexcept
+    {
+        inst.Path.assign(file);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1200,6 +1676,19 @@ private:
         inst.SpriteCreated.Clear();
         inst.SpriteDestroyed.Clear();
         inst.SpriteCustom.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create(SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
+                            SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel) noexcept
+    {
+        return _Func->CreateSprite(index, file, xp, yp, xr, yr, angle, alpha, rel);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        _Func->DestroySprite(id);
     }
 
 public:
@@ -1253,7 +1742,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the textdraw entity type.
 */
 template <> class Ent< CTextdraw >
 {
@@ -1267,12 +1756,21 @@ private:
     typedef Reference< CTextdraw >  RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Textdraw
     {
         // ----------------------------------------------------------------------------------------
-        Textdraw() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Textdraw() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -1297,16 +1795,50 @@ private:
         ETextdrawCustom         TextdrawCustom;
 
         // ----------------------------------------------------------------------------------------
-        ETextdrawCreated & Created() noexcept { return TextdrawCreated; }
-        ETextdrawDestroyed & Destroyed() noexcept { return TextdrawDestroyed; }
-        ETextdrawCustom & Custom() noexcept { return TextdrawCustom; }
+        ETextdrawCreated & Created() noexcept
+        {
+            return TextdrawCreated;
+        }
+
+        ETextdrawDestroyed & Destroyed() noexcept
+        {
+            return TextdrawDestroyed;
+        }
+
+        ETextdrawCustom & Custom() noexcept
+        {
+            return TextdrawCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        ETextdrawCreated & GCreated() noexcept
+        {
+            return GTextdrawCreated();
+        }
+
+        ETextdrawDestroyed & GDestroyed() noexcept
+        {
+            return GTextdrawDestroyed();
+        }
+
+        ETextdrawCustom & GCustom() noexcept
+        {
+            return GTextdrawCustom();
+        }
 
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, const String & text) noexcept
+    static void Store(Instance & inst) noexcept
     {
-        inst.Text = text;
+        inst.Text.clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Store(Instance & inst, SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
+                        SQUint32 color, bool rel) noexcept
+    {
+        inst.Text.assign(text);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1315,6 +1847,19 @@ private:
         inst.TextdrawCreated.Clear();
         inst.TextdrawDestroyed.Clear();
         inst.TextdrawCustom.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create(SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
+                            SQUint32 color, bool rel) noexcept
+    {
+        return _Func->CreateTextdraw(index, text, xp, yp, color, rel);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        _Func->DestroyTextdraw(id);
     }
 
 public:
@@ -1368,7 +1913,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Specialized entity interface for the vehicle entity type.
 */
 template <> class Ent< CVehicle >
 {
@@ -1382,12 +1927,21 @@ private:
     typedef Reference< CVehicle >   RefType;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default destructor (disabled)
+    */
+    Ent() = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper structure that holds information about each entity instance of this type.
     */
     typedef struct Vehicle
     {
         // ----------------------------------------------------------------------------------------
-        Vehicle() noexcept : ID(-1), Root(0), Owned(false), Fresh(true) { /* ... */ }
+        Vehicle() noexcept
+            : ID(-1), Root(0), Owned(false), Fresh(true)
+        {
+            /* ... */
+        }
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 ID;
@@ -1416,16 +1970,50 @@ private:
         EVehicleDisembark       VehicleDisembark;
 
         // ----------------------------------------------------------------------------------------
-        EVehicleCreated & Created() noexcept { return VehicleCreated; }
-        EVehicleDestroyed & Destroyed() noexcept { return VehicleDestroyed; }
-        EVehicleCustom & Custom() noexcept { return VehicleCustom; }
+        EVehicleCreated & Created() noexcept
+        {
+            return VehicleCreated;
+        }
+
+        EVehicleDestroyed & Destroyed() noexcept
+        {
+            return VehicleDestroyed;
+        }
+
+        EVehicleCustom & Custom() noexcept
+        {
+            return VehicleCustom;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        EVehicleCreated & GCreated() noexcept
+        {
+            return GVehicleCreated();
+        }
+
+        EVehicleDestroyed & GDestroyed() noexcept
+        {
+            return GVehicleDestroyed();
+        }
+
+        EVehicleCustom & GCustom() noexcept
+        {
+            return GVehicleCustom();
+        }
 
     } Instance;
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
     {
+        /* ... */
+    }
 
+    // --------------------------------------------------------------------------------------------
+    static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+    {
+        /* ... */
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1441,6 +2029,19 @@ private:
         inst.VehicleEmbarking.Clear();
         inst.VehicleEmbarked.Clear();
         inst.VehicleDisembark.Clear();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static SQInt32 Create(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                            SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+    {
+        return _Func->CreateVehicle(model, world, x, y, z, angle, primary, secondary);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    static void Destroy(SQInt32 id) noexcept
+    {
+        _Func->DeleteVehicle(id);
     }
 
 public:
@@ -1723,7 +2324,7 @@ public:
     */
     operator bool () const noexcept
     {
-        return VALID_ENTITYEX(m_ID, Max);
+        return VALID_ENTITY(m_ID);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1731,7 +2332,7 @@ public:
     */
     bool operator ! () const noexcept
     {
-        return INVALID_ENTITYEX(m_ID, Max);
+        return INVALID_ENTITY(m_ID);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1792,7 +2393,7 @@ public:
     */
     const SQChar * GetGlobalTag() const noexcept
     {
-        if (VALID_ENTITYEX(m_ID, Max))
+        if (VALID_ENTITY(m_ID))
         {
             return s_Instances[m_ID].Tag.c_str();
         }
@@ -1809,7 +2410,7 @@ public:
     */
     void SetGlobalTag(const SQChar * tag) const noexcept
     {
-        if (VALID_ENTITYEX(m_ID, Max))
+        if (VALID_ENTITY(m_ID))
         {
             s_Instances[m_ID].Tag.assign(tag);
         }
@@ -1824,7 +2425,7 @@ public:
     */
     SqObj & GetGlobalData() noexcept
     {
-        if (VALID_ENTITYEX(m_ID, Max))
+        if (VALID_ENTITY(m_ID))
         {
             return s_Instances[m_ID].Data;
         }
@@ -1841,7 +2442,7 @@ public:
     */
     void SetGlobalData(SqObj & data) const noexcept
     {
-        if (VALID_ENTITYEX(m_ID, Max))
+        if (VALID_ENTITY(m_ID))
         {
             s_Instances[m_ID].Data = data;
         }
@@ -1892,7 +2493,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Return a new reference from the base reference
+     * Return a new reference from the base reference.
     */
     T GetReference() const noexcept
     {
@@ -1900,7 +2501,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Returns whether this entity reference points to an active entity
+     * Returns whether this entity reference points to an active entity.
     */
     bool IsActive() const noexcept
     {
@@ -1908,7 +2509,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Counts the number of active references for this entity
+     * Counts the number of active references for this entity.
     */
     SQUint32 CountRefs() const noexcept
     {
@@ -1933,7 +2534,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Counts the number of persistent references for this entity
+     * Counts the number of persistent references for this entity.
     */
     SQUint32 CountPersistentRefs() const noexcept
     {
@@ -1942,7 +2543,10 @@ public:
         if (VALID_ENTITYEX(m_ID, Max))
         {
             // Count this instance if persistent
-            if (m_Persistent) ++refs;
+            if (m_Persistent)
+            {
+                ++refs;
+            }
             // Count backward references
             for (RefType * ref = m_Prev; ref; ref = ref->m_Prev)
             {
@@ -1963,6 +2567,39 @@ public:
         return refs;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the referenced entity.
+    */
+    bool Destroy() noexcept
+    {
+        return Destroy(0, NullData());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the referenced entity.
+    */
+    bool Destroy(SQInt32 header) noexcept
+    {
+        return Destroy(header, NullData());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the referenced entity.
+    */
+    bool Destroy(SQInt32 header, SqObj & payload) noexcept
+    {
+        if (VALID_ENTITY(m_ID))
+        {
+            return EntMan< T >::Deactivate(m_ID, header, payload, true);
+        }
+        else
+        {
+            LogWrn(_SC("Attempting to <destroy %d entity> using an invalid reference: %d"), Ent< T >::Name, m_ID);
+        }
+
+        return false;
+    }
+
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1975,6 +2612,7 @@ template < class T > typename Ent< T >::Instances Reference< T >::s_Instances;
 template < class T > class EntMan
 {
     // --------------------------------------------------------------------------------------------
+    friend class Reference< T >;
     friend class Core;
 
 public:
@@ -1989,14 +2627,21 @@ private:
     static RefType    NullRef;
 
     /* --------------------------------------------------------------------------------------------
-     * Deactivates the specified entity instance
+     * Deactivates the specified entity instance.
     */
-    static bool Deactivate(SQInt32 id, SqObj & payload) noexcept
+    static bool Deactivate(SQInt32 id, SQInt32 header, SqObj & payload, bool notify) noexcept
     {
         // Make sure this entity even exists
         if (RefType::Verify(id))
         {
-            RefType * ref = 0, bkp = 0;
+            // Trigger this associated events if required
+            if (notify)
+            {
+                RefType::s_Instances[id].Destroyed().Emit(id, header, payload);
+                RefType::s_Instances[id].GDestroyed().Emit(id, header, payload);
+            }
+
+            RefType * ref = 0, * bkp = 0;
             // Get the pointer to the first backward reference
             ref = RefType::s_Instances[id].Root->m_Prev;
             // Deactivate backward references
@@ -2043,12 +2688,15 @@ private:
             }
 
             // Disable this entity instance
+            EntType::Destroy(id);
+
+            // Disable this entity instance
             RefType::s_Instances[id].ID = SQMOD_UNKNOWN;
 
             // Clear any events that are still listening
             EntType::Clear(RefType::s_Instances[id]);
 
-            // Sucessfully deactivated the instance
+            // Successfully deactivated the instance
             return true;
         }
         else
@@ -2060,7 +2708,7 @@ private:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Activates the specified entity instance
+     * Activates the specified entity instance.
     */
     template < typename... Args > static bool Activate(SQInt32 id, bool owned, Args&&... args) noexcept
     {
@@ -2078,7 +2726,7 @@ private:
                 // @TODO Remove the reference from the chain, if somehow
                 //  is present there without being persistent
 
-                // Resurect backward references
+                // Resurrect backward references
                 for (RefType * ref = RefType::s_Instances[id].Root->m_Prev; ref; ref = ref->m_Prev)
                 {
                     if (ref->m_Persistent)
@@ -2086,7 +2734,8 @@ private:
                         ref->m_ID = id;
                     }
                 }
-                // Resurect forward references
+
+                // Resurrect forward references
                 for (RefType * ref = RefType::s_Instances[id].Root->m_Next; ref; ref = ref->m_Next)
                 {
                     if (ref->m_Persistent)
@@ -2121,6 +2770,32 @@ private:
         // Failed to activate the entity
         return false;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates a new entity instance of the specified type.
+    */
+    template < typename... Args > static SQInt32 Create(SQInt32 header, SqObj & payload, bool notify, Args&&... args) noexcept
+    {
+        // Attempt to create an instance on the server and obtain it's identifier
+        SQInt32 id = EntType::Create(std::forward< Args >(args)...);
+        // Attempt to activate the instance in the plugin at the received identifier
+        if (!Activate(id, true, std::forward< Args >(args)...))
+        {
+            LogErr("Unable to <create a new %s> instance", EntType::Name);
+            // Destroy this entity instance
+            EntType::Destroy(id);
+            // Replace the id with an invalid one
+            id = SQMOD_UNKNOWN;
+        }
+        // Trigger this associated events if required
+        else if (notify)
+        {
+            RefType::s_Instances[id].Created().Emit(id, header, payload);
+            RefType::s_Instances[id].GCreated().Emit(id, header, payload);
+        }
+        // Return the obtained entity identifier
+        return id;
+    }
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -2134,25 +2809,29 @@ template < class T > bool Register_Reference(HSQUIRRELVM vm, const SQChar * cnam
     // Output debugging information
     LogDbg("Beginning registration of <%s> type", cname);
     // Attempt to register the specified type
-    Sqrat::RootTable(vm).Bind(cname, Sqrat::Class< Reference< T > >(vm, cname)
+    Sqrat::RootTable(vm).Bind(cname, Sqrat::Class< Ref >(vm, cname)
+        /* Constructors */
         .Ctor()
         .template Ctor< SQInt32 >()
-
+        /* Metamethods */
         .Func(_SC("_cmp"), &Ref::Cmp)
         .Func(_SC("_tostring"), &Ref::ToString)
-
+        /* Functions */
         .Prop(_SC("id"), &Ref::GetID, &Ref::SetID)
         .Prop(_SC("persistent"), &Ref::GetPersistent, &Ref::SetPersistent)
         .Prop(_SC("gtag"), &Ref::GetGlobalTag, &Ref::SetGlobalTag)
         .Prop(_SC("gdata"), &Ref::GetGlobalData, &Ref::SetGlobalData)
         .Prop(_SC("ltag"), &Ref::GetLocalTag, &Ref::SetLocalTag)
         .Prop(_SC("ldata"), &Ref::GetLocalData, &Ref::SetLocalData)
-
         .Prop(_SC("max"), &Ref::GetMax)
         .Prop(_SC("sref"), &Ref::GetReference)
         .Prop(_SC("active"), &Ref::IsActive)
         .Prop(_SC("refs"), &Ref::CountRefs)
         .Prop(_SC("prefs"), &Ref::CountPersistentRefs)
+        /* Overloads */
+        .template Overload< bool (Ref::*)(void) >(_SC("destroy"), &Ref::Destroy)
+        .template Overload< bool (Ref::*)(SQInt32) >(_SC("destroy"), &Ref::Destroy)
+        .template Overload< bool (Ref::*)(SQInt32, SqObj &) >(_SC("destroy"), &Ref::Destroy)
     );
     // Output debugging information
     LogDbg("Registration of <%s> type was successful", cname);

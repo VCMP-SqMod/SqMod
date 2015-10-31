@@ -181,103 +181,65 @@ public:
     /* --------------------------------------------------------------------------------------------
     * Creates a new Blip on the server
     */
-    Reference< CBlip > CreateBlip(SQInt32 index, SQInt32 world, const Vector3 & pos, SQInt32 scale, \
-                    const Color4 & color, SQInt32 sprite, SQInt32 header, SqObj & payload) noexcept;
+    Reference< CBlip > NewBlip(SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                SQInt32 scale, SQUint32 color, SQInt32 sprid,
+                                SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Checkpoint on the server
     */
-    Reference< CCheckpoint > CreateCheckpoint(const  Reference< CPlayer > & player, SQInt32 world, const Vector3 & pos, \
-                                const Color4 & color, SQFloat radius, SQInt32 header, SqObj & payload) noexcept;
+    Reference< CCheckpoint > NewCheckpoint(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                            SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius,
+                                            SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Keybind on the server
     */
-    Reference< CKeybind > CreateKeybind(SQInt32 slot, bool release, SQInt32 primary, SQInt32 secondary, \
-                        SQInt32 alternative, SQInt32 header, SqObj & payload) noexcept;
+    Reference< CKeybind > NewKeybind(SQInt32 slot, bool release,
+                                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
+                                        SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Object on the server
     */
-    Reference< CObject > CreateObject(const CModel & model, SQInt32 world, const Vector3 & pos, SQInt32 alpha, \
-                        SQInt32 header, SqObj & payload) noexcept;
+    Reference< CObject > NewObject(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                    SQInt32 alpha,
+                                    SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Pickup on the server
     */
-    Reference< CPickup > CreatePickup(const CModel & model, SQInt32 world, SQInt32 quantity, const Vector3 & pos, \
-                        SQInt32 alpha, bool automatic, SQInt32 header, SqObj & payload) noexcept;
+    Reference< CPickup > NewPickup(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                                    SQFloat x, SQFloat y, SQFloat z, SQInt32 alpha, bool automatic,
+                                    SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Sphere on the server
     */
-    Reference< CSphere > CreateSphere(const  Reference< CPlayer > & player, SQInt32 world, const Vector3 & pos, \
-                        const Color3 & color, SQFloat radius, SQInt32 header, SqObj & payload) noexcept;
+    Reference< CSphere > NewSphere(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                    SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius,
+                                    SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Sprite on the server
     */
-    Reference< CSprite > CreateSprite(SQInt32 index, const String & file, const Vector2i & pos, const Vector2i & rot, \
-                        SQFloat angle, SQInt32 alpha, bool rel, SQInt32 header, SqObj & payload) noexcept;
+    Reference< CSprite > NewSprite(SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
+                                    SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel,
+                                    SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Textdraw on the server
     */
-    Reference< CTextdraw > CreateTextdraw(SQInt32 index, const String & text, const Vector2i & pos, \
-                            const Color4 & color, bool rel, SQInt32 header, SqObj & payload) noexcept;
+    Reference< CTextdraw > NewTextdraw(SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
+                                        SQUint32 color, bool rel,
+                                        SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
     * Creates a new Vehicle on the server
     */
-    Reference< CVehicle > CreateVehicle(const CAutomobile & model, SQInt32 world, const Vector3 & pos, SQFloat angle, \
-                        SQInt32 primary, SQInt32 secondary, SQInt32 header, SqObj & payload) noexcept;
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroys a Blip created by the server
-    */
-    bool DestroyBlip(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroys a Checkpoint created by the server
-    */
-    bool DestroyCheckpoint(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroys a Keybind created by the server
-    */
-    bool DestroyKeybind(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroys a Object created by the server
-    */
-    bool DestroyObject(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroys a Pickup created by the server
-    */
-    bool DestroyPickup(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroys a Sphere created by the server
-    */
-    bool DestroySphere(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroys a Sprite created by the server
-    */
-    bool DestroySprite(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroys a Textdraw created by the server
-    */
-    bool DestroyTextdraw(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroys a Vehicle created by the server
-    */
-    bool DestroyVehicle(SQInt32 id, SQInt32 header, SqObj & payload) noexcept;
+    Reference< CVehicle > NewVehicle(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+                                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                                        SQInt32 header, SqObj & payload) noexcept;
 
 public:
 

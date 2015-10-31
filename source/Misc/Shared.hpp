@@ -166,6 +166,16 @@ protected:
             LogErr("Attempting to set global data for invalid automobile id: %d", id);
         }
     }
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * See if the specified identifier is valid and in bounds.
+    */
+    static bool Valid(SQInt32 id) noexcept
+    {
+        return VALID_ENTITYGETEX(id, Max);
+    }
 };
 
 // ------------------------------------------------------------------------------------------------

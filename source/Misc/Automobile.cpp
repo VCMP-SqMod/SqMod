@@ -223,27 +223,27 @@ void CAutomobile::SetName(const SQChar * name) noexcept
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, const Vector3 & pos, SQFloat angle,
                                             SQInt32 header, SqObj & payload) const noexcept
 {
-    return _Core->CreateVehicle(*this, world, pos, angle, SQMOD_UNKNOWN, SQMOD_UNKNOWN, header, payload);
+    return _Core->NewVehicle(m_ID, world, pos.x, pos.z, pos.y, angle, SQMOD_UNKNOWN, SQMOD_UNKNOWN, header, payload);
 }
 
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, const Vector3 & pos, SQFloat angle,
                                             SQInt32 primary, SQInt32 secondary, SQInt32 header,
                                             SqObj & payload) const noexcept
 {
-    return _Core->CreateVehicle(*this, world, pos, angle, primary, secondary, header, payload);
+    return _Core->NewVehicle(*this, world, pos.x, pos.z, pos.y, angle, primary, secondary, header, payload);
 }
 
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQFloat angle,
                                             SQInt32 header, SqObj & payload) const noexcept
 {
-    return _Core->CreateVehicle(*this, world, Vector3(x, y, z), angle, SQMOD_UNKNOWN, SQMOD_UNKNOWN, header, payload);
+    return _Core->NewVehicle(*this, world, x, y, z, angle, SQMOD_UNKNOWN, SQMOD_UNKNOWN, header, payload);
 }
 
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQFloat angle,
                                             SQInt32 primary, SQInt32 secondary, SQInt32 header,
                                             SqObj & payload) const noexcept
 {
-    return _Core->CreateVehicle(*this, world, Vector3(x, y, z), angle, primary, secondary, header, payload);
+    return _Core->NewVehicle(*this, world, x, y, z, angle, primary, secondary, header, payload);
 }
 
 // ================================================================================================
