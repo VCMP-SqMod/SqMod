@@ -22,6 +22,7 @@ Session::Session() noexcept
     if (!m_Session)
     {
         LogErr("Unable to create an IRC session");
+        // Explicitly make sure no further calls can be made to this session
         m_Session = nullptr;
     }
     else
@@ -31,11 +32,14 @@ Session::Session() noexcept
         // Connect to the on frame event so we can process callbacks
         _Core->ServerFrame.Connect< Session, &Session::Process >(this);
     }
+    // Receive notification when the VM is about to be closed to release object references
+    _Core->VMClose.Connect< Session, &Session::VMClose >(this);
 }
 
 // ------------------------------------------------------------------------------------------------
 Session::~Session()
 {
+    // Make sure there's even a session to release
     if (m_Session != nullptr)
     {
         irc_set_ctx(m_Session, NULL);
@@ -44,6 +48,49 @@ Session::~Session()
     }
     // Disconnect from the on frame event
     _Core->ServerFrame.Disconnect< Session, &Session::Process >(this);
+    // Stop receiving notification when the VM is about to be closed
+    _Core->VMClose.Disconnect< Session, &Session::VMClose >(this);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::Process(SQFloat delta) noexcept
+{
+    // Make sure that the IRC session is connected
+    if (!irc_is_connected(m_Session))
+    {
+        // @TODO: reconnect it, or abort
+        LogWrn("Session is not connected");
+        return;
+    }
+    // Create the structures for select()
+    struct timeval tv;
+    fd_set in_set, out_set;
+    int maxfd = 0;
+    // Wait 4 millisecond for events. Meaning each session instance adds 4ms to the frame delta
+    tv.tv_usec = 4000;
+    tv.tv_sec = 0;
+    // Initialize the sets
+    memset(&in_set, 0, sizeof(fd_set));
+    memset(&out_set, 0, sizeof(fd_set));
+    // Add the IRC session descriptors
+    irc_add_select_descriptors(m_Session, &in_set, &out_set, &maxfd);
+    // Call select()
+    if (select(maxfd + 1, &in_set, &out_set, 0, &tv) < 0)
+    {
+        // @TODO: Error
+        LogWrn("Unable to select() on session");
+    }
+    // Call irc_process_select_descriptors() for the session
+    if (irc_process_select_descriptors (m_Session, &in_set, &out_set))
+    {
+        // @TODO: The connection failed, or the server disconnected. Handle it
+        LogWrn("The connection failed, or the server disconnected.");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::VMClose() noexcept
+{
     // Release the reference to the specified callback
     m_OnConnect.Release2();
     m_OnNick.Release2();
@@ -68,42 +115,6 @@ Session::~Session()
     m_OnDcc_Send_Req.Release2();
     // Release the reference to the specified user data
     m_Data.Release();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Session::Process(SQFloat delta) noexcept
-{
-    // Make sure that the IRC session is connected
-    if (!irc_is_connected(m_Session))
-    {
-        // @TODO: reconnect it, or abort
-        LogWrn("Session is not connected");
-        return;
-    }
-    // Create the structures for select()
-    struct timeval tv;
-    fd_set in_set, out_set;
-    int maxfd = 0;
-    // Wait 1 millisecond for events
-    tv.tv_usec = 1000;
-    tv.tv_sec = 0;
-    // Initialize the sets
-    memset(&in_set, 0, sizeof(fd_set));
-    memset(&out_set, 0, sizeof(fd_set));
-    // Add the IRC session descriptors
-    irc_add_select_descriptors(m_Session, &in_set, &out_set, &maxfd);
-    // Call select()
-    if (select(maxfd + 1, &in_set, &out_set, 0, &tv) < 0)
-    {
-        // @TODO: Error
-        LogWrn("Unable to select() on session");
-    }
-    // Call irc_process_select_descriptors() for the session
-    if (irc_process_select_descriptors (m_Session, &in_set, &out_set))
-    {
-        // @TODO: The connection failed, or the server disconnected. Handle it
-        LogWrn("The connection failed, or the server disconnected.");
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
