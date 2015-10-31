@@ -34,16 +34,16 @@ BasicEvent::BasicEvent(SQInt32 type, bool suspended) noexcept
     , m_Suspended(suspended)
 {
     Attach();
-    // Receive notification when the VM is about to be closed to release object references
-    _Core->VMClose.Connect< BasicEvent, &BasicEvent::VMClose >(this);
 }
 
 // ------------------------------------------------------------------------------------------------
 BasicEvent::~BasicEvent()
 {
     Detach();
-    // Stop receiving notification when the VM is about to be closed
-    _Core->VMClose.Disconnect< BasicEvent, &BasicEvent::VMClose >(this);
+    // Release the reference to the specified callback
+    m_OnTrigger.Release2();
+    // Release the reference to the specified user data
+    m_Data.Release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1903,15 +1903,6 @@ void BasicEvent::Detach() noexcept
         default:
             LogErr("Attempting to <dettach> to an unknown event type: %d", _SCI32(m_Type));
     }
-}
-
-// ------------------------------------------------------------------------------------------------
-void BasicEvent::VMClose() noexcept
-{
-    // Release the reference to the specified callback
-    m_OnTrigger.Release2();
-    // Release the reference to the specified user data
-    m_Data.Release();
 }
 
 // ================================================================================================
