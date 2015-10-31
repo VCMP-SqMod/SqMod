@@ -31,6 +31,11 @@ public:
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
+     * Construct a reference from a base reference.
+    */
+    CPlayer(const Reference< CPlayer > & o) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
      * See if the referenced player instance is streamed for the specified player.
     */
     bool IsStreamedFor(const Reference < CPlayer > & player) const noexcept;

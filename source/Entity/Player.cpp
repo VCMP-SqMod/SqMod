@@ -19,6 +19,13 @@ Vector3  CPlayer::s_Vector3;
 SQChar   CPlayer::s_Buffer[128];
 
 // ------------------------------------------------------------------------------------------------
+CPlayer::CPlayer(const Reference< CPlayer > & o) noexcept
+    : Reference(o)
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsStreamedFor(const Reference < CPlayer > & player) const noexcept
 {
     if (VALID_ENTITY(m_ID) && player)
@@ -1700,10 +1707,12 @@ bool Register_CPlayer(HSQUIRRELVM vm)
         // Registration failed
         return false;
     }
+    // Typedef the base reference type for simplicity
+    typedef Reference< CPlayer > RefType;
     // Output debugging information
     LogDbg("Beginning registration of <CPlayer> type");
     // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CPlayer"), Sqrat::DerivedClass< CPlayer, Reference< CPlayer > >(vm, _SC("CPlayer"))
+    Sqrat::RootTable(vm).Bind(_SC("CPlayer"), Sqrat::DerivedClass< CPlayer, RefType >(vm, _SC("CPlayer"))
         /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
