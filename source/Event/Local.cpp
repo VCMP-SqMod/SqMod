@@ -48,8 +48,6 @@ LocalEvent::LocalEvent(SQInt32 type, bool suspended) noexcept
     , m_Textdraws(this)
     , m_Vehicles(this)
 {
-    // Receive notification when the VM is about to be closed to release object references
-    _Core->VMClose.Connect< LocalEvent, &LocalEvent::VMClose >(this);
     /* Entity filters are empty so there's nothing to hook right now! */
 }
 
@@ -58,9 +56,16 @@ LocalEvent::~LocalEvent()
 {
     // Detach from all attached signals
     Detach();
-    // Stop receiving notification when the VM is about to be closed
-    _Core->VMClose.Disconnect< LocalEvent, &LocalEvent::VMClose >(this);
     /* The entity filters should to unhook themselves from the destroy signal! */
+
+    // Release the reference to the specified callbacks
+    m_OnTrigger.Release2();
+    m_OnInclude.Release2();
+    m_OnExclude.Release2();
+    m_OnCleared.Release2();
+    m_OnRelease.Release2();
+    // Release the reference to the specified user data
+    m_Data.Release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2204,20 +2209,6 @@ void LocalEvent::Adaptable(SQInt32 type, bool inversed) noexcept
     {
         m_Vehicles.Clear(0);
     }
-}
-
-// ------------------------------------------------------------------------------------------------
-void LocalEvent::VMClose() noexcept
-{
-    // Release the reference to the specified callbacks
-    m_OnTrigger.Release2();
-    m_OnInclude.Release2();
-    m_OnExclude.Release2();
-    m_OnCleared.Release2();
-    m_OnRelease.Release2();
-    // Release the reference to the specified user data
-    m_Data.Release();
-
 }
 
 // ================================================================================================
