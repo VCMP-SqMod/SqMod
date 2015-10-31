@@ -745,7 +745,7 @@ Reference< CBlip > Core::NewBlip(SQInt32 index, SQInt32 world, SQFloat x, SQFloa
 
 // ------------------------------------------------------------------------------------------------
 Reference< CCheckpoint > Core::NewCheckpoint(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                                SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius,
+                                                Uint8 r, Uint8 g, Uint8 b, Uint8 a, SQFloat radius,
                                                 SQInt32 header, SqObj & payload) noexcept
 {
     // See if the specified player reference is valid
@@ -815,7 +815,7 @@ Reference< CPickup > Core::NewPickup(SQInt32 model, SQInt32 world, SQInt32 quant
 
 // ------------------------------------------------------------------------------------------------
 Reference< CSphere > Core::NewSphere(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                        SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius,
+                                        Uint8 r, Uint8 g, Uint8 b, SQFloat radius,
                                         SQInt32 header, SqObj & payload) noexcept
 {
     // See if the specified player reference is valid

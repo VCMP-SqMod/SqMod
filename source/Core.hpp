@@ -189,7 +189,7 @@ public:
     * Creates a new Checkpoint on the server
     */
     Reference< CCheckpoint > NewCheckpoint(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                            SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius,
+                                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, SQFloat radius,
                                             SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ public:
     * Creates a new Sphere on the server
     */
     Reference< CSphere > NewSphere(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                    SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius,
+                                    Uint8 r, Uint8 g, Uint8 b, SQFloat radius,
                                     SQInt32 header, SqObj & payload) noexcept;
 
     /* --------------------------------------------------------------------------------------------
