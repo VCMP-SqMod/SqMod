@@ -20,6 +20,11 @@ public:
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
+     * Construct a reference from a base reference.
+    */
+    CBlip(const Reference< CBlip > & o) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the referenced blip instance exists.
     */
     SQInteger GetWorld() const noexcept;
