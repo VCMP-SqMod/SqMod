@@ -1,6 +1,7 @@
 #include "Entity/Object.hpp"
 #include "Base/Quaternion.hpp"
 #include "Misc/Model.hpp"
+#include "Core.hpp"
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +14,12 @@ CModel       CObject::s_Model;
 Vector3      CObject::s_Vector3;
 Quaternion   CObject::s_Quaternion;
 
+// ------------------------------------------------------------------------------------------------
+CObject::CObject(const Reference< CObject > & o) noexcept
+    : Reference(o)
+{
+    /* ... */
+}
 
 // ------------------------------------------------------------------------------------------------
 bool CObject::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
@@ -583,6 +590,142 @@ void CObject::SetBumpReport(bool toggle) const noexcept
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+Reference< CObject > CreateBaseObject_PEF(SQInt32 model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha) noexcept
+{
+    return _Core->NewObject(model, world, x, y, z, alpha,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CObject > CreateBaseObject_PEF(SQInt32 model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewObject(model, world, x, y, z, alpha,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CObject > CreateBaseObject_PCF(SQInt32 model, SQInt32 world,
+                        const Vector3 & pos, SQInt32 alpha) noexcept
+{
+    return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CObject > CreateBaseObject_PCF(SQInt32 model, SQInt32 world,
+                        const Vector3 & pos, SQInt32 alpha,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CObject > CreateBaseObject_EF(const CModel & model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha) noexcept
+{
+    return _Core->NewObject(model, world, x, y, z, alpha,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CObject > CreateBaseObject_EF(const CModel & model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewObject(model, world, x, y, z, alpha,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CObject > CreateBaseObject_CF(const CModel & model, SQInt32 world,
+                        const Vector3 & pos, SQInt32 alpha) noexcept
+{
+    return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CObject > CreateBaseObject_CF(const CModel & model, SQInt32 world,
+                        const Vector3 & pos, SQInt32 alpha,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CObject CreateObject_PEF(SQInt32 model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha) noexcept
+{
+    return _Core->NewObject(model, world, x, y, z, alpha,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CObject CreateObject_PEF(SQInt32 model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewObject(model, world, x, y, z, alpha,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CObject CreateObject_PCF(SQInt32 model, SQInt32 world,
+                        const Vector3 & pos, SQInt32 alpha) noexcept
+{
+    return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CObject CreateObject_PCF(SQInt32 model, SQInt32 world,
+                        const Vector3 & pos, SQInt32 alpha,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CObject CreateObject_EF(const CModel & model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha) noexcept
+{
+    return _Core->NewObject(model, world, x, y, z, alpha,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CObject CreateObject_EF(const CModel & model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewObject(model, world, x, y, z, alpha,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CObject CreateObject_CF(const CModel & model, SQInt32 world,
+                        const Vector3 & pos, SQInt32 alpha) noexcept
+{
+    return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CObject CreateObject_CF(const CModel & model, SQInt32 world,
+                        const Vector3 & pos, SQInt32 alpha,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
+                            header, payload);
+}
+
 // ================================================================================================
 bool Register_CObject(HSQUIRRELVM vm)
 {
@@ -593,10 +736,12 @@ bool Register_CObject(HSQUIRRELVM vm)
         // Registration failed
         return false;
     }
+    // Typedef the base reference type for simplicity
+    typedef Reference< CObject > RefType;
     // Output debugging information
     LogDbg("Beginning registration of <CObject> type");
     // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CObject"), Sqrat::DerivedClass< CObject, Reference< CObject > >(vm, _SC("CObject"))
+    Sqrat::RootTable(vm).Bind(_SC("CObject"), Sqrat::DerivedClass< CObject, RefType >(vm, _SC("CObject"))
         /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
@@ -659,7 +804,53 @@ bool Register_CObject(HSQUIRRELVM vm)
             (_SC("rotate_by_euler"), &CObject::RotateByEulerEx)
     );
     // Output debugging information
-    LogDbg("Registration of <CObject> type was successful");
+    LogDbg("Registration of <Object> type was successful");
+    // Output debugging information
+    LogDbg("Beginning registration of <CObject functions> type");
+    // Register global functions related to this entity type
+    Sqrat::RootTable(vm)
+    /* Create BaseObject [P]rimitive [E]xtended [F]Full */
+    .Overload< RefType (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32) >
+        (_SC("CreateBaseObject_PEF"), &CreateBaseObject_PEF)
+    .Overload< RefType (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateBaseObject_PEF"), &CreateBaseObject_PEF)
+    /* Create BaseObject [P]rimitive [C]ompact [F]ull */
+    .Overload< RefType (*)(SQInt32, SQInt32, const Vector3 &, SQInt32) >
+        (_SC("CreateBaseObject_PCF"), &CreateBaseObject_PCF)
+    .Overload< RefType (*)(SQInt32, SQInt32, const Vector3 &, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateBaseObject_PCF"), &CreateBaseObject_PCF)
+    /* Create BaseObject [E]xtended [F]Full */
+    .Overload< RefType (*)(const CModel &, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32) >
+        (_SC("CreateBaseObject_EF"), &CreateBaseObject_EF)
+    .Overload< RefType (*)(const CModel &, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateBaseObject_EF"), &CreateBaseObject_EF)
+    /* Create BaseObject [C]ompact [F]ull */
+    .Overload< RefType (*)(const CModel &, SQInt32, const Vector3 &, SQInt32) >
+        (_SC("CreateBaseObject_CF"), &CreateBaseObject_CF)
+    .Overload< RefType (*)(const CModel &, SQInt32, const Vector3 &, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateBaseObject_CF"), &CreateBaseObject_CF)
+    /* Create CObject [P]rimitive [E]xtended [F]Full */
+    .Overload< CObject (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32) >
+        (_SC("CreateObject_PEF"), &CreateObject_PEF)
+    .Overload< CObject (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateObject_PEF"), &CreateObject_PEF)
+    /* Create CObject [P]rimitive [C]ompact [F]ull */
+    .Overload< CObject (*)(SQInt32, SQInt32, const Vector3 &, SQInt32) >
+        (_SC("CreateObject_PCF"), &CreateObject_PCF)
+    .Overload< CObject (*)(SQInt32, SQInt32, const Vector3 &, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateObject_PCF"), &CreateObject_PCF)
+    /* Create CObject [E]xtended [F]Full */
+    .Overload< CObject (*)(const CModel &, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32) >
+        (_SC("CreateObject_EF"), &CreateObject_EF)
+    .Overload< CObject (*)(const CModel &, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateObject_EF"), &CreateObject_EF)
+    /* Create CObject [C]ompact [F]ull */
+    .Overload< CObject (*)(const CModel &, SQInt32, const Vector3 &, SQInt32) >
+        (_SC("CreateObject_CF"), &CreateObject_CF)
+    .Overload< CObject (*)(const CModel &, SQInt32, const Vector3 &, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateObject_CF"), &CreateObject_CF);
+    // Output debugging information
+    LogDbg("Registration of <Object functions> type was successful");
     // Registration succeeded
     return true;
 }
