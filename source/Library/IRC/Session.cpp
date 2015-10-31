@@ -31,8 +31,6 @@ Session::Session() noexcept
         // Connect to the on frame event so we can process callbacks
         _Core->ServerFrame.Connect< Session, &Session::Process >(this);
     }
-    // Receive notification when the VM is about to be closed to release object references
-    _Core->VMClose.Connect< Session, &Session::VMClose >(this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -44,10 +42,32 @@ Session::~Session()
         irc_destroy_session(m_Session);
         m_Session = nullptr;
     }
-    // Disconenct from the on frame event
+    // Disconnect from the on frame event
     _Core->ServerFrame.Disconnect< Session, &Session::Process >(this);
-    // Stop receiving notification when the VM is about to be closed
-    _Core->VMClose.Disconnect< Session, &Session::VMClose >(this);
+    // Release the reference to the specified callback
+    m_OnConnect.Release2();
+    m_OnNick.Release2();
+    m_OnQuit.Release2();
+    m_OnJoin.Release2();
+    m_OnPart.Release2();
+    m_OnMode.Release2();
+    m_OnUmode.Release2();
+    m_OnTopic.Release2();
+    m_OnKick.Release2();
+    m_OnChannel.Release2();
+    m_OnPrivMSG.Release2();
+    m_OnNotice.Release2();
+    m_OnChannel_Notice.Release2();
+    m_OnInvite.Release2();
+    m_OnCTCP_Req.Release2();
+    m_OnCTCP_Rep.Release2();
+    m_OnCTCP_Action.Release2();
+    m_OnUnknown.Release2();
+    m_OnNumeric.Release2();
+    m_OnDcc_Chat_Req.Release2();
+    m_OnDcc_Send_Req.Release2();
+    // Release the reference to the specified user data
+    m_Data.Release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -84,35 +104,6 @@ void Session::Process(SQFloat delta) noexcept
         // @TODO: The connection failed, or the server disconnected. Handle it
         LogWrn("The connection failed, or the server disconnected.");
     }
-}
-
-// ------------------------------------------------------------------------------------------------
-void Session::VMClose() noexcept
-{
-    // Release the reference to the specified callback
-    m_OnConnect.Release2();
-    m_OnNick.Release2();
-    m_OnQuit.Release2();
-    m_OnJoin.Release2();
-    m_OnPart.Release2();
-    m_OnMode.Release2();
-    m_OnUmode.Release2();
-    m_OnTopic.Release2();
-    m_OnKick.Release2();
-    m_OnChannel.Release2();
-    m_OnPrivMSG.Release2();
-    m_OnNotice.Release2();
-    m_OnChannel_Notice.Release2();
-    m_OnInvite.Release2();
-    m_OnCTCP_Req.Release2();
-    m_OnCTCP_Rep.Release2();
-    m_OnCTCP_Action.Release2();
-    m_OnUnknown.Release2();
-    m_OnNumeric.Release2();
-    m_OnDcc_Chat_Req.Release2();
-    m_OnDcc_Send_Req.Release2();
-    // Release the reference to the specified user data
-    m_Data.Release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1738,7 +1729,7 @@ bool Register_IRC(HSQUIRRELVM vm)
     ircns.Func(_SC("GetErrStr"), &irc_strerror);
     // Output debugging information
     LogDbg("Registration of <IRC functions> type was successful");
-    // Attempt to bind verything to the root table
+    // Attempt to bind everything to the root table
     Sqrat::RootTable(vm).Bind(_SC("IRC"), ircns);
     // Output debugging information
     LogDbg("Beginning registration of <IRC Constants> type");
