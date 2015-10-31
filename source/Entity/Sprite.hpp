@@ -20,6 +20,11 @@ public:
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
+     * Construct a reference from a base reference.
+    */
+    CSprite(const Reference< CSprite > & o) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
      * Show the referenced sprite instance to all players on the server.
     */
     void ShowAll() const noexcept;
@@ -52,52 +57,52 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the position of the referenced sprite instance for all players on the server.
     */
-    void SetPositionAll(const Vector2u & pos) const noexcept;
+    void SetPositionAll(const Vector2i & pos) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the position of the referenced sprite instance for all players on the server.
     */
-    void SetPositionAllEx(SQUint32 x, SQUint32 y) const noexcept;
+    void SetPositionAllEx(SQInt32 x, SQInt32 y) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the position of the referenced sprite instance for the specified player instance.
     */
-    void SetPositionFor(const Reference< CPlayer > & player, const Vector2u & pos) const noexcept;
+    void SetPositionFor(const Reference< CPlayer > & player, const Vector2i & pos) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the position of the referenced sprite instance for the specified player instance.
     */
-    void SetPositionForEx(const Reference< CPlayer > & player, SQUint32 x, SQUint32 y) const noexcept;
+    void SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the position of the referenced sprite instance for all players in the specified range.
     */
-    void SetPositionRange(SQInt32 first, SQInt32 last, const Vector2u & pos) const noexcept;
+    void SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the center of the referenced sprite instance for all players on the server.
     */
-    void SetCenterAll(const Vector2u & pos) const noexcept;
+    void SetCenterAll(const Vector2i & pos) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the center of the referenced sprite instance for all players on the server.
     */
-    void SetCenterAllEx(SQUint32 x, SQUint32 y) const noexcept;
+    void SetCenterAllEx(SQInt32 x, SQInt32 y) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the center of the referenced sprite instance for the specified player instance.
     */
-    void SetCenterFor(const Reference< CPlayer > & player, const Vector2u & pos) const noexcept;
+    void SetCenterFor(const Reference< CPlayer > & player, const Vector2i & pos) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the center of the referenced sprite instance for the specified player instance.
     */
-    void SetCenterForEx(const Reference< CPlayer > & player, SQUint32 x, SQUint32 y) const noexcept;
+    void SetCenterForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the center of the referenced sprite instance for all players in the specified range.
     */
-    void SetCenterRange(SQInt32 first, SQInt32 last, const Vector2u & pos) const noexcept;
+    void SetCenterRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Set the rotation of the referenced sprite instance for all players on the server.
