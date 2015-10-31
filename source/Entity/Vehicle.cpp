@@ -2,6 +2,7 @@
 #include "Base/Quaternion.hpp"
 #include "Base/Vector4.hpp"
 #include "Misc/Automobile.hpp"
+#include "Core.hpp"
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -14,6 +15,13 @@ CAutomobile  CVehicle::s_Automobile;
 Vector3      CVehicle::s_Vector3;
 Vector4      CVehicle::s_Vector4;
 Quaternion   CVehicle::s_Quaternion;
+
+// ------------------------------------------------------------------------------------------------
+CVehicle::CVehicle(const Reference< CVehicle > & o) noexcept
+    : Reference(o)
+{
+    /* ... */
+}
 
 // ------------------------------------------------------------------------------------------------
 bool CVehicle::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
@@ -1285,6 +1293,144 @@ void CVehicle::Embark(const Reference< CPlayer > & player, SQInt32 slot, bool al
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+Reference< CVehicle > CreateBaseVehicle_PEF(SQInt32 model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+{
+    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CVehicle > CreateBaseVehicle_PEF(SQInt32 model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CVehicle > CreateBaseVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+{
+    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CVehicle > CreateBaseVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CVehicle > CreateBaseVehicle_EF(const CAutomobile & model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+{
+    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CVehicle > CreateBaseVehicle_EF(const CAutomobile & model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CVehicle > CreateBaseVehicle_CF(const CAutomobile & model, SQInt32 world,
+                        const Vector3 & pos, SQFloat angle,
+                        SQInt32 primary, SQInt32 secondary) noexcept
+{
+    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CVehicle > CreateBaseVehicle_CF(const CAutomobile & model, SQInt32 world,
+                        const Vector3 & pos, SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CVehicle CreateVehicle_PEF(SQInt32 model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+{
+    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CVehicle CreateVehicle_PEF(SQInt32 model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CVehicle CreateVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+{
+    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CVehicle CreateVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CVehicle CreateVehicle_EF(const CAutomobile & model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+{
+    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CVehicle CreateVehicle_EF(const CAutomobile & model, SQInt32 world,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CVehicle CreateVehicle_CF(const CAutomobile & model, SQInt32 world,
+                        const Vector3 & pos, SQFloat angle,
+                        SQInt32 primary, SQInt32 secondary) noexcept
+{
+    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CVehicle CreateVehicle_CF(const CAutomobile & model, SQInt32 world,
+                        const Vector3 & pos, SQFloat angle, SQInt32 primary, SQInt32 secondary,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+                            header, payload);
+}
+
 // ================================================================================================
 bool Register_CVehicle(HSQUIRRELVM vm)
 {
@@ -1295,15 +1441,63 @@ bool Register_CVehicle(HSQUIRRELVM vm)
         // Registration failed
         return false;
     }
+    // Typedef the base reference type for simplicity
+    typedef Reference< CVehicle > RefType;
     // Output debugging information
     LogDbg("Beginning registration of <CVehicle> type");
     // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CVehicle"), Sqrat::DerivedClass< CVehicle, Reference< CVehicle > >(vm, _SC("CVehicle"))
+    Sqrat::RootTable(vm).Bind(_SC("CVehicle"), Sqrat::DerivedClass< CVehicle, RefType >(vm, _SC("CVehicle"))
         .Ctor()
         .Ctor< SQInt32 >()
     );
     // Output debugging information
     LogDbg("Registration of <CVehicle> type was successful");
+    // Output debugging information
+    LogDbg("Beginning registration of <Vehicle functions> type");
+    // Register global functions related to this entity type
+    Sqrat::RootTable(vm)
+    /* Create BaseVehicle [P]rimitive [E]xtended [F]Full */
+    .Overload< RefType (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32) >
+        (_SC("CreateBaseVehicle_PEF"), &CreateBaseVehicle_PEF)
+    .Overload< RefType (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateBaseVehicle_PEF"), &CreateBaseVehicle_PEF)
+    /* Create BaseVehicle [P]rimitive [C]ompact [F]ull */
+    .Overload< RefType (*)(SQInt32, SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32) >
+        (_SC("CreateBaseVehicle_PCF"), &CreateBaseVehicle_PCF)
+    .Overload< RefType (*)(SQInt32, SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateBaseVehicle_PCF"), &CreateBaseVehicle_PCF)
+    /* Create BaseVehicle [E]xtended [F]Full */
+    .Overload< RefType (*)(const CAutomobile &, SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32) >
+        (_SC("CreateBaseVehicle_EF"), &CreateBaseVehicle_EF)
+    .Overload< RefType (*)(const CAutomobile &, SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateBaseVehicle_EF"), &CreateBaseVehicle_EF)
+    /* Create BaseVehicle [C]ompact [F]ull */
+    .Overload< RefType (*)(const CAutomobile &, SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32) >
+        (_SC("CreateBaseVehicle_CF"), &CreateBaseVehicle_CF)
+    .Overload< RefType (*)(const CAutomobile &, SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateBaseVehicle_CF"), &CreateBaseVehicle_CF)
+    /* Create CVehicle [P]rimitive [E]xtended [F]Full */
+    .Overload< CVehicle (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32) >
+        (_SC("CreateVehicle_PEF"), &CreateVehicle_PEF)
+    .Overload< CVehicle (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateVehicle_PEF"), &CreateVehicle_PEF)
+    /* Create CVehicle [P]rimitive [C]ompact [F]ull */
+    .Overload< CVehicle (*)(SQInt32, SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32) >
+        (_SC("CreateVehicle_PCF"), &CreateVehicle_PCF)
+    .Overload< CVehicle (*)(SQInt32, SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateVehicle_PCF"), &CreateVehicle_PCF)
+    /* Create CVehicle [E]xtended [F]Full */
+    .Overload< CVehicle (*)(const CAutomobile &, SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32) >
+        (_SC("CreateVehicle_EF"), &CreateVehicle_EF)
+    .Overload< CVehicle (*)(const CAutomobile &, SQInt32, SQFloat, SQFloat, SQFloat, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateVehicle_EF"), &CreateVehicle_EF)
+    /* Create CVehicle [C]ompact [F]ull */
+    .Overload< CVehicle (*)(const CAutomobile &, SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32) >
+        (_SC("CreateVehicle_CF"), &CreateVehicle_CF)
+    .Overload< CVehicle (*)(const CAutomobile &, SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) >
+        (_SC("CreateVehicle_CF"), &CreateVehicle_CF);
+    // Output debugging information
+    LogDbg("Registration of <Vehicle functions> type was successful");
     // Registration succeeded
     return true;
 }

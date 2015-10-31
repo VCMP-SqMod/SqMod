@@ -28,6 +28,11 @@ public:
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
+     * Construct a reference from a base reference.
+    */
+    CVehicle(const Reference< CVehicle > & o) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
      * See if the referenced vehicle instance is streamed for the specified player.
     */
     bool IsStreamedFor(const Reference< CPlayer > & player) const noexcept;
