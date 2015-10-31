@@ -1,9 +1,17 @@
 #include "Entity/Textdraw.hpp"
 #include "Base/Vector2i.hpp"
+#include "Core.hpp"
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
+
+// ------------------------------------------------------------------------------------------------
+CTextdraw::CTextdraw(const Reference< CTextdraw > & o) noexcept
+    : Reference(o)
+{
+    /* ... */
+}
 
 // ------------------------------------------------------------------------------------------------
 void CTextdraw::ShowAll() const noexcept
@@ -292,6 +300,150 @@ const SQChar * CTextdraw::GetText() const noexcept
     return _SC("");
 }
 
+// ------------------------------------------------------------------------------------------------
+Reference< CTextdraw > CreateBaseTextdraw_ES(const SQChar * text,
+                        SQInt32 xp, SQInt32 yp,
+                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                        bool rel) noexcept
+{
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CTextdraw > CreateBaseTextdraw_ES(const SQChar * text,
+                        SQInt32 xp, SQInt32 yp,
+                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                        bool rel,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CTextdraw > CreateBaseTextdraw_EF(SQInt32 index, const SQChar * text,
+                        SQInt32 xp, SQInt32 yp,
+                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                        bool rel) noexcept
+{
+    return _Core->NewTextdraw(index,text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CTextdraw > CreateBaseTextdraw_EF(SQInt32 index, const SQChar * text,
+                        SQInt32 xp, SQInt32 yp,
+                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                        bool rel,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewTextdraw(index, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CTextdraw > CreateBaseTextdraw_CS(const SQChar * text,
+                        const Vector2i & pos, const Color4 & color, bool rel) noexcept
+{
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CTextdraw > CreateBaseTextdraw_CS(const SQChar * text,
+                        const Vector2i & pos, const Color4 & color, bool rel,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CTextdraw > CreateBaseTextdraw_CF(SQInt32 index, const SQChar * text,
+                        const Vector2i & pos, const Color4 & color, bool rel) noexcept
+{
+    return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CTextdraw > CreateBaseTextdraw_CF(SQInt32 index, const SQChar * text,
+                        const Vector2i & pos, const Color4 & color, bool rel,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CTextdraw CreateTextdraw_ES(const SQChar * text,
+                        SQInt32 xp, SQInt32 yp,
+                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                        bool rel) noexcept
+{
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CTextdraw CreateTextdraw_ES(const SQChar * text,
+                        SQInt32 xp, SQInt32 yp,
+                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                        bool rel,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CTextdraw CreateTextdraw_EF(SQInt32 index, const SQChar * text,
+                        SQInt32 xp, SQInt32 yp,
+                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                        bool rel) noexcept
+{
+    return _Core->NewTextdraw(index,text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CTextdraw CreateTextdraw_EF(SQInt32 index, const SQChar * text,
+                        SQInt32 xp, SQInt32 yp,
+                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                        bool rel,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewTextdraw(index, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CTextdraw CreateTextdraw_CS(const SQChar * text,
+                        const Vector2i & pos, const Color4 & color, bool rel) noexcept
+{
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CTextdraw CreateTextdraw_CS(const SQChar * text,
+                        const Vector2i & pos, const Color4 & color, bool rel,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CTextdraw CreateTextdraw_CF(SQInt32 index, const SQChar * text,
+                        const Vector2i & pos, const Color4 & color, bool rel) noexcept
+{
+    return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CTextdraw CreateTextdraw_CF(SQInt32 index, const SQChar * text,
+                        const Vector2i & pos, const Color4 & color, bool rel,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
+                                header, payload);
+}
+
 // ================================================================================================
 bool Register_CTextdraw(HSQUIRRELVM vm)
 {
@@ -302,10 +454,12 @@ bool Register_CTextdraw(HSQUIRRELVM vm)
         // Registration failed
         return false;
     }
+    // Typedef the base reference type for simplicity
+    typedef Reference< CTextdraw > RefType;
     // Output debugging information
     LogDbg("Beginning registration of <CTextdraw> type");
     // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CTextdraw"), Sqrat::DerivedClass< CTextdraw, Reference< CTextdraw > >(vm, _SC("CTextdraw"))
+    Sqrat::RootTable(vm).Bind(_SC("CTextdraw"), Sqrat::DerivedClass< CTextdraw, RefType >(vm, _SC("CTextdraw"))
         /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
@@ -342,6 +496,52 @@ bool Register_CTextdraw(HSQUIRRELVM vm)
     );
     // Output debugging information
     LogDbg("Registration of <CTextdraw> type was successful");
+    // Output debugging information
+    LogDbg("Beginning registration of <Textdraw functions> type");
+    // Register global functions related to this entity type
+    Sqrat::RootTable(vm)
+    /* Create BaseTextdraw [E]xtended [S]ubstitute */
+    .Overload< RefType (*)(const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool) >
+        (_SC("CreateBaseTextdraw_ES"), &CreateBaseTextdraw_ES)
+    .Overload< RefType (*)(const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool, SQInt32, SqObj &) >
+        (_SC("CreateBaseTextdraw_ES"), &CreateBaseTextdraw_ES)
+    /* Create BaseTextdraw [E]xtended [F]Full */
+    .Overload< RefType (*)(SQInt32, const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool) >
+        (_SC("CreateBaseTextdraw_EF"), &CreateBaseTextdraw_EF)
+    .Overload< RefType (*)(SQInt32, const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool, SQInt32, SqObj &) >
+        (_SC("CreateBaseTextdraw_EF"), &CreateBaseTextdraw_EF)
+    /* Create BaseTextdraw [C]ompact [S]ubstitute */
+    .Overload< RefType (*)(const SQChar *, const Vector2i &, const Color4 &, bool) >
+        (_SC("CreateBaseTextdraw_CS"), &CreateBaseTextdraw_CS)
+    .Overload< RefType (*)(const SQChar *, const Vector2i &, const Color4 &, bool, SQInt32, SqObj &) >
+        (_SC("CreateBaseTextdraw_CS"), &CreateBaseTextdraw_CS)
+    /* Create BaseTextdraw [C]ompact [F]ull */
+    .Overload< RefType (*)(SQInt32, const SQChar *, const Vector2i &, const Color4 &, bool) >
+        (_SC("CreateBaseTextdraw_CF"), &CreateBaseTextdraw_CF)
+    .Overload< RefType (*)(SQInt32, const SQChar *, const Vector2i &, const Color4 &, bool, SQInt32, SqObj &) >
+        (_SC("CreateBaseTextdraw_CF"), &CreateBaseTextdraw_CF)
+    /* Create CTextdraw [E]xtended [S]ubstitute */
+    .Overload< CTextdraw (*)(const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool) >
+        (_SC("CreateTextdraw_ES"), &CreateTextdraw_ES)
+    .Overload< CTextdraw (*)(const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool, SQInt32, SqObj &) >
+        (_SC("CreateTextdraw_ES"), &CreateTextdraw_ES)
+    /* Create CTextdraw [E]xtended [F]Full */
+    .Overload< CTextdraw (*)(SQInt32, const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool) >
+        (_SC("CreateTextdraw_EF"), &CreateTextdraw_EF)
+    .Overload< CTextdraw (*)(SQInt32, const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool, SQInt32, SqObj &) >
+        (_SC("CreateTextdraw_EF"), &CreateTextdraw_EF)
+    /* Create CTextdraw [C]ompact [S]ubstitute */
+    .Overload< CTextdraw (*)(const SQChar *, const Vector2i &, const Color4 &, bool) >
+        (_SC("CreateTextdraw_CS"), &CreateTextdraw_CS)
+    .Overload< CTextdraw (*)(const SQChar *, const Vector2i &, const Color4 &, bool, SQInt32, SqObj &) >
+        (_SC("CreateTextdraw_CS"), &CreateTextdraw_CS)
+    /* Create CTextdraw [C]ompact [F]ull */
+    .Overload< CTextdraw (*)(SQInt32, const SQChar *, const Vector2i &, const Color4 &, bool) >
+        (_SC("CreateTextdraw_CF"), &CreateTextdraw_CF)
+    .Overload< CTextdraw (*)(SQInt32, const SQChar *, const Vector2i &, const Color4 &, bool, SQInt32, SqObj &) >
+        (_SC("CreateTextdraw_CF"), &CreateTextdraw_CF);
+    // Output debugging information
+    LogDbg("Registration of <Textdraw functions> type was successful");
     // Registration succeeded
     return true;
 }

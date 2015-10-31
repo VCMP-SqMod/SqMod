@@ -20,6 +20,11 @@ public:
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
+     * Construct a reference from a base reference.
+    */
+    CTextdraw(const Reference< CTextdraw > & o) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
      * Show the referenced textdraw instance to all players on the server.
     */
     void ShowAll() const noexcept;
