@@ -26,6 +26,11 @@ public:
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
+     * Construct a reference from a base reference.
+    */
+    CPickup(const Reference< CPickup > & o) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
      * See if the referenced pickup instance is streamed for the specified player.
     */
     bool IsStreamedFor(const Reference< CPlayer > & player) const noexcept;

@@ -1,5 +1,6 @@
 #include "Entity/Pickup.hpp"
 #include "Misc/Model.hpp"
+#include "Core.hpp"
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +11,13 @@ CModel CPickup::s_Model;
 
 // ------------------------------------------------------------------------------------------------
 Vector3 CPickup::s_Vector3;
+
+// ------------------------------------------------------------------------------------------------
+CPickup::CPickup(const Reference< CPickup > & o) noexcept
+    : Reference(o)
+{
+    /* ... */
+}
 
 // ------------------------------------------------------------------------------------------------
 bool CPickup::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
@@ -247,6 +255,142 @@ SQInt32 CPickup::GetQuantity() const noexcept
     return SQMOD_UNKNOWN;
 }
 
+// ------------------------------------------------------------------------------------------------
+Reference< CPickup > CreateBasePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha, bool automatic) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CPickup > CreateBasePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha, bool automatic,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CPickup > CreateBasePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                        const Vector3 & pos, SQInt32 alpha, bool automatic) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CPickup > CreateBasePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                        const Vector3 & pos, SQInt32 alpha, bool automatic,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CPickup > CreateBasePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha, bool automatic) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CPickup > CreateBasePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha, bool automatic,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CPickup > CreateBasePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
+                        const Vector3 & pos, SQInt32 alpha, bool automatic) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CPickup > CreateBasePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
+                        const Vector3 & pos, SQInt32 alpha, bool automatic,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CPickup CreatePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha, bool automatic) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CPickup CreatePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha, bool automatic,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CPickup CreatePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                        const Vector3 & pos, SQInt32 alpha, bool automatic) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CPickup CreatePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
+                        const Vector3 & pos, SQInt32 alpha, bool automatic,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CPickup CreatePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha, bool automatic) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CPickup CreatePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
+                        SQFloat x, SQFloat y, SQFloat z,
+                        SQInt32 alpha, bool automatic,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
+                            header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CPickup CreatePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
+                        const Vector3 & pos, SQInt32 alpha, bool automatic) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+                            SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CPickup CreatePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
+                        const Vector3 & pos, SQInt32 alpha, bool automatic,
+                        SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+                            header, payload);
+}
+
 // ================================================================================================
 bool Register_CPickup(HSQUIRRELVM vm)
 {
@@ -257,10 +401,12 @@ bool Register_CPickup(HSQUIRRELVM vm)
         // Registration failed
         return false;
     }
+    // Typedef the base reference type for simplicity
+    typedef Reference< CPickup > RefType;
     // Output debugging information
     LogDbg("Beginning registration of <CPickup> type");
     // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CPickup"), Sqrat::DerivedClass< CPickup, Reference< CPickup > >(vm, _SC("CPickup"))
+    Sqrat::RootTable(vm).Bind(_SC("CPickup"), Sqrat::DerivedClass< CPickup, RefType >(vm, _SC("CPickup"))
         /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
@@ -280,6 +426,52 @@ bool Register_CPickup(HSQUIRRELVM vm)
     );
     // Output debugging information
     LogDbg("Registration of <CPickup> type was successful");
+    // Output debugging information
+    LogDbg("Beginning registration of <Pickup functions> type");
+    // Register global functions related to this entity type
+    Sqrat::RootTable(vm)
+    /* Create BasePickup [P]rimitive [E]xtended [F]Full */
+    .Overload< RefType (*)(SQInt32, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool) >
+        (_SC("CreateBasePickup_PEF"), &CreateBasePickup_PEF)
+    .Overload< RefType (*)(SQInt32, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, SqObj &) >
+        (_SC("CreateBasePickup_PEF"), &CreateBasePickup_PEF)
+    /* Create BasePickup [P]rimitive [C]ompact [F]ull */
+    .Overload< RefType (*)(SQInt32, SQInt32, SQInt32, const Vector3 &, SQInt32, bool) >
+        (_SC("CreateBasePickup_PCF"), &CreateBasePickup_PCF)
+    .Overload< RefType (*)(SQInt32, SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) >
+        (_SC("CreateBasePickup_PCF"), &CreateBasePickup_PCF)
+    /* Create BasePickup [E]xtended [F]Full */
+    .Overload< RefType (*)(const CModel &, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool) >
+        (_SC("CreateBasePickup_EF"), &CreateBasePickup_EF)
+    .Overload< RefType (*)(const CModel &, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, SqObj &) >
+        (_SC("CreateBasePickup_EF"), &CreateBasePickup_EF)
+    /* Create BasePickup [C]ompact [F]ull */
+    .Overload< RefType (*)(const CModel &, SQInt32, SQInt32, const Vector3 &, SQInt32, bool) >
+        (_SC("CreateBasePickup_CF"), &CreateBasePickup_CF)
+    .Overload< RefType (*)(const CModel &, SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) >
+        (_SC("CreateBasePickup_CF"), &CreateBasePickup_CF)
+    /* Create CPickup [P]rimitive [E]xtended [F]Full */
+    .Overload< CPickup (*)(SQInt32, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool) >
+        (_SC("CreatePickup_PEF"), &CreatePickup_PEF)
+    .Overload< CPickup (*)(SQInt32, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, SqObj &) >
+        (_SC("CreatePickup_PEF"), &CreatePickup_PEF)
+    /* Create CPickup [P]rimitive [C]ompact [F]ull */
+    .Overload< CPickup (*)(SQInt32, SQInt32, SQInt32, const Vector3 &, SQInt32, bool) >
+        (_SC("CreatePickup_PCF"), &CreatePickup_PCF)
+    .Overload< CPickup (*)(SQInt32, SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) >
+        (_SC("CreatePickup_PCF"), &CreatePickup_PCF)
+    /* Create CPickup [E]xtended [F]Full */
+    .Overload< CPickup (*)(const CModel &, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool) >
+        (_SC("CreatePickup_EF"), &CreatePickup_EF)
+    .Overload< CPickup (*)(const CModel &, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, SqObj &) >
+        (_SC("CreatePickup_EF"), &CreatePickup_EF)
+    /* Create CPickup [C]ompact [F]ull */
+    .Overload< CPickup (*)(const CModel &, SQInt32, SQInt32, const Vector3 &, SQInt32, bool) >
+        (_SC("CreatePickup_CF"), &CreatePickup_CF)
+    .Overload< CPickup (*)(const CModel &, SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) >
+        (_SC("CreatePickup_CF"), &CreatePickup_CF);
+    // Output debugging information
+    LogDbg("Registration of <Pickup functions> type was successful");
     // Registration succeeded
     return true;
 }
