@@ -27,6 +27,11 @@ public:
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
+     * Construct a reference from a base reference.
+    */
+    CCheckpoint(const Reference< CCheckpoint > & o) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
      * See if the referenced checkpoint instance is streamed for the specified player.
     */
     bool IsStreamedFor(const Reference< CPlayer > & player) const noexcept;

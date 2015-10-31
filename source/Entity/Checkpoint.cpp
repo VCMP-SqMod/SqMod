@@ -1,4 +1,5 @@
 #include "Entity/Checkpoint.hpp"
+#include "Core.hpp"
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +14,13 @@ SQUint32  CCheckpoint::s_ColorR;
 SQUint32  CCheckpoint::s_ColorG;
 SQUint32  CCheckpoint::s_ColorB;
 SQUint32  CCheckpoint::s_ColorA;
+
+// ------------------------------------------------------------------------------------------------
+CCheckpoint::CCheckpoint(const Reference< CCheckpoint > & o) noexcept
+    : Reference(o)
+{
+    /* ... */
+}
 
 // ------------------------------------------------------------------------------------------------
 bool CCheckpoint::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
@@ -208,6 +216,150 @@ SQInt32 CCheckpoint::GetOwnerID() const noexcept
     return SQMOD_UNKNOWN;
 }
 
+// ------------------------------------------------------------------------------------------------
+Reference< CCheckpoint > CreateBaseCheckpoint_PEF(SQInt32 player, SQInt32 world,
+                            SQFloat x, SQFloat y, SQFloat z,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                            SQFloat radius) noexcept
+{
+    return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CCheckpoint > CreateBaseCheckpoint_PEF(SQInt32 player, SQInt32 world,
+                            SQFloat x, SQFloat y, SQFloat z,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                            SQFloat radius,
+                            SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CCheckpoint > CreateBaseCheckpoint_PCF(SQInt32 player, SQInt32 world,
+                            const Vector3 & pos, const Color4 & color, SQFloat radius) noexcept
+{
+    return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CCheckpoint > CreateBaseCheckpoint_PCF(SQInt32 player, SQInt32 world,
+                            const Vector3 & pos, const Color4 & color, SQFloat radius,
+                            SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CCheckpoint > CreateBaseCheckpoint_EF(const Reference< CPlayer > & player, SQInt32 world,
+                            SQFloat x, SQFloat y, SQFloat z,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                            SQFloat radius) noexcept
+{
+    return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CCheckpoint > CreateBaseCheckpoint_EF(const Reference< CPlayer > & player, SQInt32 world,
+                            SQFloat x, SQFloat y, SQFloat z,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                            SQFloat radius,
+                            SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference< CCheckpoint > CreateBaseCheckpoint_CF(const Reference< CPlayer > & player, SQInt32 world,
+                            const Vector3 & pos, const Color4 & color, SQFloat radius) noexcept
+{
+    return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+Reference< CCheckpoint > CreateBaseCheckpoint_CF(const Reference< CPlayer > & player, SQInt32 world,
+                            const Vector3 & pos, const Color4 & color, SQFloat radius,
+                            SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CCheckpoint CreateCheckpoint_PEF(SQInt32 player, SQInt32 world,
+                                SQFloat x, SQFloat y, SQFloat z,
+                                Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                                SQFloat radius) noexcept
+{
+    return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CCheckpoint CreateCheckpoint_PEF(SQInt32 player, SQInt32 world,
+                                SQFloat x, SQFloat y, SQFloat z,
+                                Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                                SQFloat radius,
+                                SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CCheckpoint CreateCheckpoint_PCF(SQInt32 player, SQInt32 world,
+                            const Vector3 & pos, const Color4 & color, SQFloat radius) noexcept
+{
+    return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CCheckpoint CreateCheckpoint_PCF(SQInt32 player, SQInt32 world,
+                            const Vector3 & pos, const Color4 & color, SQFloat radius,
+                            SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CCheckpoint CreateCheckpoint_EF(const Reference< CPlayer > & player, SQInt32 world,
+                                SQFloat x, SQFloat y, SQFloat z,
+                                Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                                SQFloat radius) noexcept
+{
+    return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CCheckpoint CreateCheckpoint_EF(const Reference< CPlayer > & player, SQInt32 world,
+                                SQFloat x, SQFloat y, SQFloat z,
+                                Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                                SQFloat radius,
+                                SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
+                                header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+CCheckpoint CreateCheckpoint_CF(const Reference< CPlayer > & player, SQInt32 world,
+                            const Vector3 & pos, const Color4 & color, SQFloat radius) noexcept
+{
+    return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
+                                SQMOD_CREATE_DEFAULT, NullData());
+}
+
+CCheckpoint CreateCheckpoint_CF(const Reference< CPlayer > & player, SQInt32 world,
+                            const Vector3 & pos, const Color4 & color, SQFloat radius,
+                            SQInt32 header, SqObj & payload) noexcept
+{
+    return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
+                                header, payload);
+}
+
 // ================================================================================================
 bool Register_CCheckpoint(HSQUIRRELVM vm)
 {
@@ -218,10 +370,12 @@ bool Register_CCheckpoint(HSQUIRRELVM vm)
         // Registration failed
         return false;
     }
+    // Typedef the base reference type for simplicity
+    typedef Reference< CCheckpoint > RefType;
     // Output debugging information
     LogDbg("Beginning registration of <CCheckpoint> type");
     // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CCheckpoint"), Sqrat::DerivedClass< CCheckpoint, Reference< CCheckpoint > >(vm, _SC("CCheckpoint"))
+    Sqrat::RootTable(vm).Bind(_SC("CCheckpoint"), Sqrat::DerivedClass< CCheckpoint, RefType >(vm, _SC("CCheckpoint"))
         /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
@@ -239,6 +393,52 @@ bool Register_CCheckpoint(HSQUIRRELVM vm)
     );
     // Output debugging information
     LogDbg("Registration of <CCheckpoint> type was successful");
+    // Output debugging information
+    LogDbg("Beginning registration of <Checkpoint functions> type");
+    // Register global functions related to this entity type
+    Sqrat::RootTable(vm)
+    /* Create BaseCheckpoint [P]rimitive [E]xtended [F]Full */
+    .Overload< RefType (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, Uint8, Uint8, Uint8, Uint8, SQFloat) >
+        (_SC("CreateBaseCheckpoint_PEF"), &CreateBaseCheckpoint_PEF)
+    .Overload< RefType (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, Uint8, Uint8, Uint8, Uint8, SQFloat, SQInt32, SqObj &) >
+        (_SC("CreateBaseCheckpoint_PEF"), &CreateBaseCheckpoint_PEF)
+    /* Create BaseCheckpoint [P]rimitive [C]ompact [F]ull */
+    .Overload< RefType (*)(SQInt32, SQInt32, const Vector3 &, const Color4 &, SQFloat) >
+        (_SC("CreateBaseCheckpoint_PCF"), &CreateBaseCheckpoint_PCF)
+    .Overload< RefType (*)(SQInt32, SQInt32, const Vector3 &, const Color4 &, SQFloat, SQInt32, SqObj &) >
+        (_SC("CreateBaseCheckpoint_PCF"), &CreateBaseCheckpoint_PCF)
+    /* Create BaseCheckpoint [E]xtended [F]Full */
+    .Overload< RefType (*)(const Reference< CPlayer > &, SQInt32, SQFloat, SQFloat, SQFloat, Uint8, Uint8, Uint8, Uint8, SQFloat) >
+        (_SC("CreateBaseCheckpoint_EF"), &CreateBaseCheckpoint_EF)
+    .Overload< RefType (*)(const Reference< CPlayer > &, SQInt32, SQFloat, SQFloat, SQFloat, Uint8, Uint8, Uint8, Uint8, SQFloat, SQInt32, SqObj &) >
+        (_SC("CreateBaseCheckpoint_EF"), &CreateBaseCheckpoint_EF)
+    /* Create BaseCheckpoint [C]ompact [F]ull */
+    .Overload< RefType (*)(const Reference< CPlayer > &, SQInt32, const Vector3 &, const Color4 &, SQFloat) >
+        (_SC("CreateBaseCheckpoint_CF"), &CreateBaseCheckpoint_CF)
+    .Overload< RefType (*)(const Reference< CPlayer > &, SQInt32, const Vector3 &, const Color4 &, SQFloat, SQInt32, SqObj &) >
+        (_SC("CreateBaseCheckpoint_CF"), &CreateBaseCheckpoint_CF)
+    /* Create CCheckpoint [P]rimitive [E]xtended [F]Full */
+    .Overload< CCheckpoint (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, Uint8, Uint8, Uint8, Uint8, SQFloat) >
+        (_SC("CreateCheckpoint_PEF"), &CreateCheckpoint_PEF)
+    .Overload< CCheckpoint (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, Uint8, Uint8, Uint8, Uint8, SQFloat, SQInt32, SqObj &) >
+        (_SC("CreateCheckpoint_PEF"), &CreateCheckpoint_PEF)
+    /* Create CCheckpoint [P]rimitive [C]ompact [F]ull */
+    .Overload< CCheckpoint (*)(SQInt32, SQInt32, const Vector3 &, const Color4 &, SQFloat) >
+        (_SC("CreateCheckpoint_PCF"), &CreateCheckpoint_PCF)
+    .Overload< CCheckpoint (*)(SQInt32, SQInt32, const Vector3 &, const Color4 &, SQFloat, SQInt32, SqObj &) >
+        (_SC("CreateCheckpoint_PCF"), &CreateCheckpoint_PCF)
+    /* Create CCheckpoint [E]xtended [F]Full */
+    .Overload< CCheckpoint (*)(const Reference< CPlayer > &, SQInt32, SQFloat, SQFloat, SQFloat, Uint8, Uint8, Uint8, Uint8, SQFloat) >
+        (_SC("CreateCheckpoint_EF"), &CreateCheckpoint_EF)
+    .Overload< CCheckpoint (*)(const Reference< CPlayer > &, SQInt32, SQFloat, SQFloat, SQFloat, Uint8, Uint8, Uint8, Uint8, SQFloat, SQInt32, SqObj &) >
+        (_SC("CreateCheckpoint_EF"), &CreateCheckpoint_EF)
+    /* Create CCheckpoint [C]ompact [F]ull */
+    .Overload< CCheckpoint (*)(const Reference< CPlayer > &, SQInt32, const Vector3 &, const Color4 &, SQFloat) >
+        (_SC("CreateCheckpoint_CF"), &CreateCheckpoint_CF)
+    .Overload< CCheckpoint (*)(const Reference< CPlayer > &, SQInt32, const Vector3 &, const Color4 &, SQFloat, SQInt32, SqObj &) >
+        (_SC("CreateCheckpoint_CF"), &CreateCheckpoint_CF);
+    // Output debugging information
+    LogDbg("Registration of <Checkpoint functions> type was successful");
     // Registration succeeded
     return true;
 }
