@@ -20,6 +20,11 @@ public:
     using RefType::Reference;
 
     /* --------------------------------------------------------------------------------------------
+     * Construct a reference from a base reference.
+    */
+    CKeybind(const Reference< CKeybind > & o) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the primary key code of the referenced keybind instance.
     */
     SQInt32 GetPrimary() const noexcept;
