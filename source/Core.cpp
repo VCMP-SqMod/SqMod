@@ -4,14 +4,11 @@
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Color3.hpp"
-#include "Base/Vector2i.hpp"
 #include "Misc/Automobile.hpp"
 #include "Misc/Model.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <SimpleIni.h>
-#include <format.h>
 
 // ------------------------------------------------------------------------------------------------
 #include <sqstdio.h>
@@ -404,38 +401,41 @@ void Core::DestroyVM() noexcept
 bool Core::LoadScripts() noexcept
 {
     LogDbg("Attempting to compile the specified scripts");
-
+    // See if the config file was loaded
     if (!g_Config)
     {
         LogWrn("Cannot compile any scripts without the configurations");
-
+        // No point in loading the plugin
         return false;
     }
-
+    // Attempt to retrieve the list of strings specified in the config
     CSimpleIniA::TNamesDepend script_list;
     g_Config->GetAllValues("Scripts", "Source", script_list);
-
+    // See if any script was specified
     if (script_list.size() <= 0)
     {
         LogWrn("No scripts specified in the configuration file");
-
+        // No point in loading the plugin
         return false;
     }
-
+    // Sort the list in it's original order
     script_list.sort(CSimpleIniA::Entry::LoadOrder());
-
+    // Process each specified script path
     for (auto const & cfg_script : script_list)
     {
+        // Get the file path as a string
         string path(cfg_script.pItem);
-
+        // See if it wasn't already loaded
         if (m_Scripts.find(path) != m_Scripts.cend())
         {
             LogWrn("Script was already loaded: %s", path.c_str());
-
+            // No point in loading it again
             continue;
         }
+        // Attempt to compile it
         else if (!Compile(path))
         {
+            // Plugin shouldn't load
             return false;
         }
         else
@@ -443,65 +443,72 @@ bool Core::LoadScripts() noexcept
             LogScs("Successfully compiled script: %s", path.c_str());
         }
     }
-
+    // See if any script could be compiled
     if (m_Scripts.empty())
     {
         LogErr("No scripts compiled. No reason to load the plugin");
-
+        // No point in loading the plugin
         return false;
     }
-
+    // At this point everything went as expected
     return true;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Core::Compile(const string & name) noexcept
 {
+    // See if the specified script path is valid
     if (name.empty())
     {
         LogErr("Cannot compile script without a valid name");
-
+        // Failed to compile the specified script
         return false;
     }
-
+    // Create a new script container and insert it into the script pool
     std::pair< SqScriptPool::iterator, bool > res = m_Scripts.emplace(name, Script(m_VM));
-
+    // See if the script container could be created and inserted
     if (res.second)
     {
+        // Attempt to load and compile the specified script file
         res.first->second.CompileFile(name);
-
+        // See if any compile time error occurred in the compiled script
         if (Error::Occurred(m_VM))
         {
+            // Output debugging information
             LogErr("Unable to compile script: %s", name.c_str());
             LogInf("=> %s", Error::Message(m_VM).c_str());
+            // Release the script container
             m_Scripts.erase(res.first);
-
+            // Failed to compile the specified script
             return false;
         }
     }
+    // Failed to create the script container
     else
     {
         LogErr("Unable to queue script: %s", name.c_str());
-
+            // Failed to compile the specified script
         return false;
     }
-
+    // At this point everything went as it should
     return true;
 }
 
 bool Core::Execute() noexcept
 {
     LogDbg("Attempting to execute the specified scripts");
-
+    // Go through each loaded script
     for (auto & elem : m_Scripts)
     {
+        // Attempt to execute the script
         elem.second.Run();
-
+        // See if the executed script had any errors
         if (Error::Occurred(m_VM))
         {
+            // Output the error information
             LogErr("Unable to execute script: %s", elem.first.c_str());
             LogInf("=> %s", Error::Message(m_VM).c_str());
-
+            // Failed to execute scripts
             return false;
         }
         else
@@ -509,7 +516,7 @@ bool Core::Execute() noexcept
             LogScs("Successfully executed script: %s", elem.first.c_str());
         }
     }
-
+    // At this point everything succeeded
     return true;
 }
 
@@ -517,23 +524,24 @@ bool Core::Execute() noexcept
 void Core::PrintCallstack() noexcept
 {
     SQStackInfos si;
-
-
+    // Begin a new section in the console
     LogMsg("%s", CenterStr("CALLSTACK", '*'));
-
+    // Trace back the function call
     for (SQInteger level = 1; SQ_SUCCEEDED(sq_stackinfos(m_VM, level, &si)); ++level)
     {
+        // Function name
         LogInf("FUNCTION %s()", si.funcname ? si.funcname : _SC("unknown"));
+        // Function location
         LogInf("=> [%d] : {%s}", si.line, si.source ? si.source : _SC("unknown"));
     }
-
+    // Dummy variables used to retrieve values from the Squirrel VM
     const SQChar * s_ = 0, * name = 0;
     SQInteger i_, seq = 0;
     SQFloat f_;
     SQUserPointer p_;
-
+    // Begin a new section in the console
     LogMsg("%s", CenterStr("LOCALS", '*'));
-
+    // Process each local variable
     for (SQInteger level = 0; level < 10; level++) {
         seq = 0;
         while((name = sq_getlocal(m_VM, level, seq))) {
@@ -688,13 +696,14 @@ void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
 // ------------------------------------------------------------------------------------------------
 SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm) noexcept
 {
+    // Verify the top of the stack and whether there's any information to process
     if (sq_gettop(vm) < 1)
     {
         return 0;
     }
 
     const SQChar * err_msg = NULL;
-
+    // Attempt to retrieve the erro message
     if (SQ_SUCCEEDED(sq_getstring(vm, 2, &err_msg)))
     {
         _Core->m_ErrorMsg.assign(err_msg);
@@ -703,18 +712,18 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm) noexcept
     {
         _Core->m_ErrorMsg.assign(_SC("An unknown runtime error has occurred"));
     }
-
+    // Start a new section in the console
     LogMsg("%s", CenterStr("ERROR", '*'));
-
+    // Output the retrieved error message
     LogInf("[MESSAGE] : %s", _Core->m_ErrorMsg.c_str());
-
+    // See if the specified verbosity level allows a print of the callstack
     if (_Log->GetVerbosity() > 0)
     {
         _Core->PrintCallstack();
     }
-
+    // Close the console section
     LogMsg("%s", CenterStr("CONCLUDED", '*'));
-
+    // The error was handled
     return SQ_OK;
 }
 
@@ -722,14 +731,14 @@ void Core::CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQCha
 {
     try
     {
-        _Core->m_ErrorMsg.assign(fmt::format("{0:s} : {1:d}:{2:d} : {3:s}", src, line, column, desc).c_str());
+        _Core->m_ErrorMsg.assign(ToStringF("%s : %s:%d : %s", src, line, column, desc));
     }
     catch (const std::exception & e)
     {
         LogErr("Compiler error: %s", e.what());
         _Core->m_ErrorMsg.assign(_SC("An unknown compiler error has occurred"));
     }
-
+    // Output the obtained error message
     LogErr("%s", _Core->m_ErrorMsg.c_str());
 }
 
