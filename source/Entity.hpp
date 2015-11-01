@@ -2110,7 +2110,7 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * A basic reference to an entity instance.
 */
 template < class T > class Reference
 {
@@ -2155,7 +2155,7 @@ protected:
 protected:
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Insert this instance into the reference chain.
     */
     void InsertIntoChain() noexcept
     {
@@ -2173,7 +2173,7 @@ protected:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Remove this instance from the reference chain.
     */
     void RemoveFromChain() noexcept
     {
@@ -2220,7 +2220,7 @@ public:
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Default constructor. (null)
     */
     Reference() noexcept
         : Reference(SQMOD_UNKNOWN)
@@ -2229,7 +2229,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Construct a reference of this type and attach it to the referenced instance.
     */
     Reference(SQInt32 id) noexcept
         : m_ID(Verify(id) ? id : SQMOD_UNKNOWN)
@@ -2243,7 +2243,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Copy constructor.
     */
     Reference(const Reference< T > & r) noexcept
         : m_ID(r.m_ID)
@@ -2257,7 +2257,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Move constructor.
     */
     Reference(Reference< T > && r) noexcept
         : m_ID(r.m_ID)
@@ -2271,7 +2271,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Destructor.
     */
     ~Reference()
     {
@@ -2279,7 +2279,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Copy assignment operator.
     */
     Reference< T > & operator = (const Reference< T > & r) noexcept
     {
@@ -2299,12 +2299,12 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Move assignment operator. (disabled)
     */
     Reference< T > & operator = (Reference< T > &&) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Implicit conversion to an entity identifier.
     */
     operator SQInt32 () const noexcept
     {
@@ -2312,7 +2312,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Implicit conversion to an entity identifier.
     */
     operator SQUint32 () const noexcept
     {
@@ -2320,7 +2320,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Implicit conversion to boolean.
     */
     operator bool () const noexcept
     {
@@ -2328,7 +2328,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Negation operator.
     */
     bool operator ! () const noexcept
     {
@@ -2336,15 +2336,26 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Used by the script VM to compare two references against eachother.
     */
     SQInteger Cmp(const Reference< T > & r) const noexcept
     {
-        return m_ID == r.m_ID ? 0 : (m_ID > r.m_ID ? 1 : -1);
+        if (m_ID == r.m_ID)
+        {
+            return 0;
+        }
+        else if (m_ID > r.m_ID)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Attempt to convert this reference to a string.
     */
     const SQChar * ToString() const noexcept
     {
@@ -2352,7 +2363,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Retrieve the identifier of the referenced instance.
     */
     SQInteger GetID() const noexcept
     {
@@ -2360,7 +2371,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Point ths reference to another entity instance.
     */
     void SetID(SQInt32 id) noexcept
     {
@@ -2373,7 +2384,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * See whether this reference is persistent.
     */
     bool GetPersistent() const noexcept
     {
@@ -2381,7 +2392,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Set this reference to be persistent.
     */
     void SetPersistent(bool toggle) noexcept
     {
@@ -2389,7 +2400,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Retrieve the global tag.
     */
     const SQChar * GetGlobalTag() const noexcept
     {
@@ -2406,7 +2417,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Change the global tag.
     */
     void SetGlobalTag(const SQChar * tag) const noexcept
     {
@@ -2421,7 +2432,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Retrieve the global data.
     */
     SqObj & GetGlobalData() noexcept
     {
@@ -2438,7 +2449,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Change the global data.
     */
     void SetGlobalData(SqObj & data) const noexcept
     {
@@ -2453,7 +2464,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Retrieve the local tag
     */
     const SQChar * GetLocalTag() const noexcept
     {
@@ -2461,7 +2472,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Change the local tag.
     */
     void SetLocalTag(const SQChar * tag) noexcept
     {
@@ -2469,7 +2480,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Retrieve the local data.
     */
     SqObj & GetLocalData() noexcept
     {
@@ -2477,7 +2488,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Change the local data.
     */
     void SetLocalData(SqObj & data) noexcept
     {
@@ -2485,7 +2496,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Retrieve the maximum allowed identifier for this entity type.
     */
     SQUint32 GetMax() const noexcept
     {
