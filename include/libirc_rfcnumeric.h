@@ -73,6 +73,14 @@
 #define LIBIRC_RFC_RPL_BOUNCE	005
 
 
+/*! \brief 300 
+ * 
+ *  Dummy reply number. Not used.
+ *
+ * \ingroup rfcnumbers
+ */
+#define LIBIRC_RFC_RPL_NONE     300
+
 /*! \brief 302 :*1\<reply\> *( 
  * 
  * No description available in RFC
@@ -188,6 +196,15 @@
  * \ingroup rfcnumbers
  */
 #define LIBIRC_RFC_RPL_ENDOFWHOWAS	369
+
+
+/*! \brief 322 \<channel\> \<nickname\>
+ * 
+ * No description available in RFC
+ *
+ * \ingroup rfcnumbers
+ */
+#define LIBIRC_RFC_RPL_LISTSTART 321
 
 
 /*! \brief 322 \<channel\> \<# visible\> :\<topic\>
