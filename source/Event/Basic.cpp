@@ -239,9 +239,14 @@ Function BasicEvent::GetOnTrigger() const noexcept
     return m_OnTrigger;
 }
 
-void BasicEvent::SetOnTrigger(const Function & func) noexcept
+void BasicEvent::SetOnTrigger(Function & func) noexcept
 {
     m_OnTrigger = func;
+}
+
+void BasicEvent::SetOnTrigger_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnTrigger = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1936,13 +1941,14 @@ bool Register_BasicEvent(HSQUIRRELVM vm)
     typedef NoCopy< BasicEvent > Allocator;
     // Attempt to register the specified type
     Sqrat::RootTable(vm).Bind(_SC("BasicEvent"), Sqrat::Class< BasicEvent, Allocator >(vm, _SC("BasicEvent"))
+        /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
         .Ctor< SQInt32, bool >()
-
+        /* Metamethods */
         .Func(_SC("_cmp"), &BasicEvent::Cmp)
         .Func(_SC("_tostring"), &BasicEvent::GetName)
-
+        /* Properties */
         .Prop(_SC("ltag"), &BasicEvent::GetTag, &BasicEvent::SetTag)
         .Prop(_SC("ldata"), &BasicEvent::GetData, &BasicEvent::SetData)
         .Prop(_SC("type"), &BasicEvent::GetType , &BasicEvent::SetType)
@@ -1955,8 +1961,9 @@ bool Register_BasicEvent(HSQUIRRELVM vm)
         .Prop(_SC("suspended"), &BasicEvent::GetSuspended, &BasicEvent::SetSuspended)
         .Func(_SC("compatible"), &BasicEvent::Compatible)
         .Func(_SC("name"), &BasicEvent::GetName)
-
         .Prop(_SC("on_trigger"), &BasicEvent::GetOnTrigger, &BasicEvent::SetOnTrigger)
+        /* Functions */
+        .Func(_SC("set_on_trigger"), &BasicEvent::SetOnTrigger_Env)
     );
     // Output debugging information
     LogDbg("Registration of <BasicEvent> type was successful");
