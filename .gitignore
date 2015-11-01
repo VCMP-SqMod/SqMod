@@ -5,10 +5,6 @@
 
 # Directories
 bin/
-cbp/
-config/
-external/
-include/
 lib/
 obj/
 sandbox/*.*
