@@ -33,17 +33,19 @@ BasicEvent::BasicEvent(SQInt32 type, bool suspended) noexcept
     , m_Data()
     , m_Suspended(suspended)
 {
+    // Attach to the specified event signal
     Attach();
+    // Receive notification when the VM is about to be closed to release object references
+    _Core->VMClose.Connect< BasicEvent, &BasicEvent::VMClose >(this);
 }
 
 // ------------------------------------------------------------------------------------------------
 BasicEvent::~BasicEvent()
 {
+    // Detach from the specified event signal
     Detach();
-    // Release the reference to the specified callback
-    m_OnTrigger.Release2();
-    // Release the reference to the specified user data
-    m_Data.Release();
+    // Stop receiving notification when the VM is about to be closed
+    _Core->VMClose.Disconnect< BasicEvent, &BasicEvent::VMClose >(this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -83,9 +85,29 @@ bool BasicEvent::operator >= (const BasicEvent & o) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
+void BasicEvent::VMClose() noexcept
+{
+    // Release the reference to the specified callbacks
+    m_OnTrigger.Release2();
+    // Release the reference to the specified user data
+    m_Data.Release();
+}
+
+// ------------------------------------------------------------------------------------------------
 SQInt32 BasicEvent::Cmp(const BasicEvent & o) const noexcept
 {
-    return m_Type == o.m_Type ? 0 : (m_Type > o.m_Type ? 1 : -1);
+    if (m_Type == o.m_Type)
+    {
+        return 0;
+    }
+    else if (m_Type > o.m_Type)
+    {
+        return 1;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

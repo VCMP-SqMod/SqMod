@@ -50,6 +50,8 @@ GlobalEvent::GlobalEvent(SQInt32 type, bool suspended) noexcept
 {
     // Attach to the specified event signal
     Attach();
+    // Receive notification when the VM is about to be closed to release object references
+    _Core->VMClose.Connect< GlobalEvent, &GlobalEvent::VMClose >(this);
     /* Entity filters are empty so there's nothing to hook to! */
 }
 
@@ -58,16 +60,9 @@ GlobalEvent::~GlobalEvent()
 {
     // Detach from the specified event signal
     Detach();
+    // Stop receiving notification when the VM is about to be closed
+    _Core->VMClose.Disconnect< GlobalEvent, &GlobalEvent::VMClose >(this);
     /* We're expecting the entity filters to unhook themselves from the destroy signal! */
-
-    // Release the reference to the specified callbacks
-    m_OnTrigger.Release2();
-    m_OnInclude.Release2();
-    m_OnExclude.Release2();
-    m_OnCleared.Release2();
-    m_OnRelease.Release2();
-    // Release the reference to the specified user data
-    m_Data.Release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -104,6 +99,19 @@ bool GlobalEvent::operator <= (const GlobalEvent & o) const noexcept
 bool GlobalEvent::operator >= (const GlobalEvent & o) const noexcept
 {
     return (m_Type >= o.m_Type);
+}
+
+// ------------------------------------------------------------------------------------------------
+void GlobalEvent::VMClose() noexcept
+{
+    // Release the reference to the specified callbacks
+    m_OnTrigger.Release2();
+    m_OnInclude.Release2();
+    m_OnExclude.Release2();
+    m_OnCleared.Release2();
+    m_OnRelease.Release2();
+    // Release the reference to the specified user data
+    m_Data.Release();
 }
 
 // ------------------------------------------------------------------------------------------------
