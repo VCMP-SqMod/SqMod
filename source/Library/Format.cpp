@@ -10,7 +10,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static const SQChar * GetTypeName(SQObjectType type_id) noexcept
+static const SQChar * GetTypeName(SQObjectType type_id)
 {
 	switch (type_id)
 	{
@@ -52,7 +52,7 @@ static const SQChar * GetTypeName(SQObjectType type_id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-String GetFormatStr(HSQUIRRELVM vm, SQInteger arg, SQInteger args) noexcept
+String GetFormatStr(HSQUIRRELVM vm, SQInteger arg, SQInteger args)
 {
 	if (sq_gettype(vm, arg) == OT_STRING)
     {
@@ -68,7 +68,7 @@ String GetFormatStr(HSQUIRRELVM vm, SQInteger arg, SQInteger args) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-String GetFormatStr(HSQUIRRELVM vm, const String & fstr,  SQInteger arg, SQInteger args) noexcept
+String GetFormatStr(HSQUIRRELVM vm, const String & fstr,  SQInteger arg, SQInteger args)
 {
 	using namespace fmt::internal;
 

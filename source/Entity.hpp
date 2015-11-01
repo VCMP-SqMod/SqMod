@@ -38,44 +38,44 @@ enum EntityType
 /* ------------------------------------------------------------------------------------------------
  * Helper functions used by the entity interfaces to obtain global signals from the core instance.
 */
-EBlipCreated & GBlipCreated() noexcept;
-ECheckpointCreated & GCheckpointCreated() noexcept;
-EKeybindCreated & GKeybindCreated() noexcept;
-EObjectCreated & GObjectCreated() noexcept;
-EPickupCreated & GPickupCreated() noexcept;
-EPlayerCreated & GPlayerCreated() noexcept;
-ESphereCreated & GSphereCreated() noexcept;
-ESpriteCreated & GSpriteCreated() noexcept;
-ETextdrawCreated & GTextdrawCreated() noexcept;
-EVehicleCreated & GVehicleCreated() noexcept;
+EBlipCreated & GBlipCreated();
+ECheckpointCreated & GCheckpointCreated();
+EKeybindCreated & GKeybindCreated();
+EObjectCreated & GObjectCreated();
+EPickupCreated & GPickupCreated();
+EPlayerCreated & GPlayerCreated();
+ESphereCreated & GSphereCreated();
+ESpriteCreated & GSpriteCreated();
+ETextdrawCreated & GTextdrawCreated();
+EVehicleCreated & GVehicleCreated();
 
 /* ------------------------------------------------------------------------------------------------
  * Helper functions used by the entity interfaces to obtain global signals from the core instance.
 */
-EBlipDestroyed & GBlipDestroyed() noexcept;
-ECheckpointDestroyed & GCheckpointDestroyed() noexcept;
-EKeybindDestroyed & GKeybindDestroyed() noexcept;
-EObjectDestroyed & GObjectDestroyed() noexcept;
-EPickupDestroyed & GPickupDestroyed() noexcept;
-EPlayerDestroyed & GPlayerDestroyed() noexcept;
-ESphereDestroyed & GSphereDestroyed() noexcept;
-ESpriteDestroyed & GSpriteDestroyed() noexcept;
-ETextdrawDestroyed & GTextdrawDestroyed() noexcept;
-EVehicleDestroyed & GVehicleDestroyed() noexcept;
+EBlipDestroyed & GBlipDestroyed();
+ECheckpointDestroyed & GCheckpointDestroyed();
+EKeybindDestroyed & GKeybindDestroyed();
+EObjectDestroyed & GObjectDestroyed();
+EPickupDestroyed & GPickupDestroyed();
+EPlayerDestroyed & GPlayerDestroyed();
+ESphereDestroyed & GSphereDestroyed();
+ESpriteDestroyed & GSpriteDestroyed();
+ETextdrawDestroyed & GTextdrawDestroyed();
+EVehicleDestroyed & GVehicleDestroyed();
 
 /* ------------------------------------------------------------------------------------------------
  * Helper functions used by the entity interfaces to obtain global signals from the core instance.
 */
-EBlipCustom & GBlipCustom() noexcept;
-ECheckpointCustom & GCheckpointCustom() noexcept;
-EKeybindCustom & GKeybindCustom() noexcept;
-EObjectCustom & GObjectCustom() noexcept;
-EPickupCustom & GPickupCustom() noexcept;
-EPlayerCustom & GPlayerCustom() noexcept;
-ESphereCustom & GSphereCustom() noexcept;
-ESpriteCustom & GSpriteCustom() noexcept;
-ETextdrawCustom & GTextdrawCustom() noexcept;
-EVehicleCustom & GVehicleCustom() noexcept;
+EBlipCustom & GBlipCustom();
+ECheckpointCustom & GCheckpointCustom();
+EKeybindCustom & GKeybindCustom();
+EObjectCustom & GObjectCustom();
+EPickupCustom & GPickupCustom();
+EPlayerCustom & GPlayerCustom();
+ESphereCustom & GSphereCustom();
+ESpriteCustom & GSpriteCustom();
+ETextdrawCustom & GTextdrawCustom();
+EVehicleCustom & GVehicleCustom();
 
 /* ------------------------------------------------------------------------------------------------
  * Forward declaration of an entity interface.
@@ -107,7 +107,7 @@ private:
     typedef struct Blip
     {
         // ----------------------------------------------------------------------------------------
-        Blip() noexcept
+        Blip()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -144,33 +144,33 @@ private:
         EBlipCustom             BlipCustom;
 
         // ----------------------------------------------------------------------------------------
-        EBlipCreated & Created() noexcept
+        EBlipCreated & Created()
         {
             return BlipCreated;
         }
 
-        EBlipDestroyed & Destroyed() noexcept
+        EBlipDestroyed & Destroyed()
         {
             return BlipDestroyed;
         }
 
-        EBlipCustom & Custom() noexcept
+        EBlipCustom & Custom()
         {
             return BlipCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        EBlipCreated & GCreated() noexcept
+        EBlipCreated & GCreated()
         {
             return GBlipCreated();
         }
 
-        EBlipDestroyed & GDestroyed() noexcept
+        EBlipDestroyed & GDestroyed()
         {
             return GBlipDestroyed();
         }
 
-        EBlipCustom & GCustom() noexcept
+        EBlipCustom & GCustom()
         {
             return GBlipCustom();
         }
@@ -178,7 +178,7 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         inst.World = SQMOD_UNKNOWN;
         inst.Scale = SQMOD_UNKNOWN;
@@ -189,7 +189,7 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 scale, SQUint32 color, SQInt32 sprid) noexcept
+                        SQInt32 scale, SQUint32 color, SQInt32 sprid)
     {
         inst.World = world;
         inst.Scale = scale;
@@ -202,7 +202,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.BlipCreated.Clear();
         inst.BlipDestroyed.Clear();
@@ -211,13 +211,13 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static SQInt32 Create(SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                            SQInt32 scale, SQUint32 color, SQInt32 sprid) noexcept
+                            SQInt32 scale, SQUint32 color, SQInt32 sprid)
     {
         return _Func->CreateCoordBlip(index, world, x, y, z, scale, color, sprid);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         _Func->DestroyCoordBlip(id);
     }
@@ -244,7 +244,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -257,7 +257,7 @@ public:
         }
     }
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool /* inversed */) noexcept
+    static bool InEvent(SQInt32 type, bool /* inversed */)
     {
         switch (type)
         {
@@ -296,7 +296,7 @@ private:
     typedef struct Checkpoint
     {
         // ----------------------------------------------------------------------------------------
-        Checkpoint() noexcept
+        Checkpoint()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -324,33 +324,33 @@ private:
         ECheckpointExited       CheckpointExited;
 
         // ----------------------------------------------------------------------------------------
-        ECheckpointCreated & Created() noexcept
+        ECheckpointCreated & Created()
         {
             return CheckpointCreated;
         }
 
-        ECheckpointDestroyed & Destroyed() noexcept
+        ECheckpointDestroyed & Destroyed()
         {
             return CheckpointDestroyed;
         }
 
-        ECheckpointCustom & Custom() noexcept
+        ECheckpointCustom & Custom()
         {
             return CheckpointCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        ECheckpointCreated & GCreated() noexcept
+        ECheckpointCreated & GCreated()
         {
             return GCheckpointCreated();
         }
 
-        ECheckpointDestroyed & GDestroyed() noexcept
+        ECheckpointDestroyed & GDestroyed()
         {
             return GCheckpointDestroyed();
         }
 
-        ECheckpointCustom & GCustom() noexcept
+        ECheckpointCustom & GCustom()
         {
             return GCheckpointCustom();
         }
@@ -358,14 +358,14 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                        SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius) noexcept
+                        SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius)
     {
         SQMOD_UNUSED_VAR(inst);
         SQMOD_UNUSED_VAR(player);
@@ -381,7 +381,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.CheckpointCreated.Clear();
         inst.CheckpointDestroyed.Clear();
@@ -392,13 +392,13 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static SQInt32 Create(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                            SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius) noexcept
+                            SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius)
     {
         return _Func->CreateCheckpoint(player, world, x, y, z, r, g, b, a, radius);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         _Func->DeleteCheckpoint(id);
     }
@@ -425,7 +425,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -441,7 +441,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    static bool InEvent(SQInt32 type, bool inversed)
     {
         switch (type)
         {
@@ -483,7 +483,7 @@ private:
     typedef struct Keybind
     {
         // ----------------------------------------------------------------------------------------
-        Keybind() noexcept
+        Keybind()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -519,33 +519,33 @@ private:
         EKeybindKeyRelease      KeybindKeyRelease;
 
         // ----------------------------------------------------------------------------------------
-        EKeybindCreated & Created() noexcept
+        EKeybindCreated & Created()
         {
             return KeybindCreated;
         }
 
-        EKeybindDestroyed & Destroyed() noexcept
+        EKeybindDestroyed & Destroyed()
         {
             return KeybindDestroyed;
         }
 
-        EKeybindCustom & Custom() noexcept
+        EKeybindCustom & Custom()
         {
             return KeybindCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        EKeybindCreated & GCreated() noexcept
+        EKeybindCreated & GCreated()
         {
             return GKeybindCreated();
         }
 
-        EKeybindDestroyed & GDestroyed() noexcept
+        EKeybindDestroyed & GDestroyed()
         {
             return GKeybindDestroyed();
         }
 
-        EKeybindCustom & GCustom() noexcept
+        EKeybindCustom & GCustom()
         {
             return GKeybindCustom();
         }
@@ -553,7 +553,7 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         inst.Primary = SQMOD_UNKNOWN;
         inst.Secondary = SQMOD_UNKNOWN;
@@ -563,7 +563,7 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 slot, bool release, SQInt32 primary, SQInt32 secondary,
-                        SQInt32 alternative) noexcept
+                        SQInt32 alternative)
     {
         inst.Primary = primary;
         inst.Secondary = secondary;
@@ -573,7 +573,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.KeybindCreated.Clear();
         inst.KeybindDestroyed.Clear();
@@ -584,13 +584,13 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static SQInt32 Create(SQInt32 slot, bool release, SQInt32 primary, SQInt32 secondary,
-                            SQInt32 alternative) noexcept
+                            SQInt32 alternative)
     {
         return _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         _Func->RemoveKeyBind(id);
     }
@@ -617,7 +617,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -633,7 +633,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    static bool InEvent(SQInt32 type, bool inversed)
     {
         switch (type)
         {
@@ -675,7 +675,7 @@ private:
     typedef struct Object
     {
         // ----------------------------------------------------------------------------------------
-        Object() noexcept
+        Object()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -703,33 +703,33 @@ private:
         EObjectBump             ObjectBump;
 
         // ----------------------------------------------------------------------------------------
-        EObjectCreated & Created() noexcept
+        EObjectCreated & Created()
         {
             return ObjectCreated;
         }
 
-        EObjectDestroyed & Destroyed() noexcept
+        EObjectDestroyed & Destroyed()
         {
             return ObjectDestroyed;
         }
 
-        EObjectCustom & Custom() noexcept
+        EObjectCustom & Custom()
         {
             return ObjectCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        EObjectCreated & GCreated() noexcept
+        EObjectCreated & GCreated()
         {
             return GObjectCreated();
         }
 
-        EObjectDestroyed & GDestroyed() noexcept
+        EObjectDestroyed & GDestroyed()
         {
             return GObjectDestroyed();
         }
 
-        EObjectCustom & GCustom() noexcept
+        EObjectCustom & GCustom()
         {
             return GObjectCustom();
         }
@@ -737,14 +737,14 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha) noexcept
+                        SQInt32 alpha)
     {
         SQMOD_UNUSED_VAR(inst);
         SQMOD_UNUSED_VAR(model);
@@ -756,7 +756,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.ObjectCreated.Clear();
         inst.ObjectDestroyed.Clear();
@@ -767,13 +767,13 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static SQInt32 Create(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                            SQInt32 alpha) noexcept
+                            SQInt32 alpha)
     {
         return _Func->CreateObject(model, world, x, y, z, alpha);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         _Func->DeleteObject(id);
     }
@@ -800,7 +800,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -816,7 +816,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    static bool InEvent(SQInt32 type, bool inversed)
     {
         switch (type)
         {
@@ -858,7 +858,7 @@ private:
     typedef struct Pickup
     {
         // ----------------------------------------------------------------------------------------
-        Pickup() noexcept
+        Pickup()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -887,33 +887,33 @@ private:
         EPickupCollected        PickupCollected;
 
         // ----------------------------------------------------------------------------------------
-        EPickupCreated & Created() noexcept
+        EPickupCreated & Created()
         {
             return PickupCreated;
         }
 
-        EPickupDestroyed & Destroyed() noexcept
+        EPickupDestroyed & Destroyed()
         {
             return PickupDestroyed;
         }
 
-        EPickupCustom & Custom() noexcept
+        EPickupCustom & Custom()
         {
             return PickupCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        EPickupCreated & GCreated() noexcept
+        EPickupCreated & GCreated()
         {
             return GPickupCreated();
         }
 
-        EPickupDestroyed & GDestroyed() noexcept
+        EPickupDestroyed & GDestroyed()
         {
             return GPickupDestroyed();
         }
 
-        EPickupCustom & GCustom() noexcept
+        EPickupCustom & GCustom()
         {
             return GPickupCustom();
         }
@@ -921,14 +921,14 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        SQFloat x,  SQFloat y,  SQFloat z, SQInt32 alpha, bool automatic) noexcept
+                        SQFloat x,  SQFloat y,  SQFloat z, SQInt32 alpha, bool automatic)
     {
         SQMOD_UNUSED_VAR(inst);
         SQMOD_UNUSED_VAR(model);
@@ -942,7 +942,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.PickupCreated.Clear();
         inst.PickupDestroyed.Clear();
@@ -954,13 +954,13 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static SQInt32 Create(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                            SQFloat x,  SQFloat y,  SQFloat z, SQInt32 alpha, bool automatic) noexcept
+                            SQFloat x,  SQFloat y,  SQFloat z, SQInt32 alpha, bool automatic)
     {
         return _Func->CreatePickup(model, world, quantity, x, y, z, alpha, automatic);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         _Func->DeletePickup(id);
     }
@@ -987,7 +987,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -1004,7 +1004,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    static bool InEvent(SQInt32 type, bool inversed)
     {
         switch (type)
         {
@@ -1047,7 +1047,7 @@ private:
     typedef struct Player
     {
         // ----------------------------------------------------------------------------------------
-        Player() noexcept
+        Player()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -1132,33 +1132,33 @@ private:
         ESphereExited           SphereExited;
 
         // ----------------------------------------------------------------------------------------
-        EPlayerCreated & Created() noexcept
+        EPlayerCreated & Created()
         {
             return PlayerCreated;
         }
 
-        EPlayerDestroyed & Destroyed() noexcept
+        EPlayerDestroyed & Destroyed()
         {
             return PlayerDestroyed;
         }
 
-        EPlayerCustom & Custom() noexcept
+        EPlayerCustom & Custom()
         {
             return PlayerCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        EPlayerCreated & GCreated() noexcept
+        EPlayerCreated & GCreated()
         {
             return GPlayerCreated();
         }
 
-        EPlayerDestroyed & GDestroyed() noexcept
+        EPlayerDestroyed & GDestroyed()
         {
             return GPlayerDestroyed();
         }
 
-        EPlayerCustom & GCustom() noexcept
+        EPlayerCustom & GCustom()
         {
             return GPlayerCustom();
         }
@@ -1166,13 +1166,13 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.PlayerCreated.Clear();
         inst.PlayerDestroyed.Clear();
@@ -1239,13 +1239,13 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static SQInt32 Create() noexcept
+    static SQInt32 Create()
     {
         return SQMOD_UNKNOWN;
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         /* @TODO: Implement as kick. */
         SQMOD_UNUSED_VAR(id);
@@ -1273,7 +1273,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -1346,7 +1346,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    static bool InEvent(SQInt32 type, bool inversed)
     {
         switch (type)
         {
@@ -1445,7 +1445,7 @@ private:
     typedef struct Sphere
     {
         // ----------------------------------------------------------------------------------------
-        Sphere() noexcept
+        Sphere()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -1473,33 +1473,33 @@ private:
         ESphereExited           SphereExited;
 
         // ----------------------------------------------------------------------------------------
-        ESphereCreated & Created() noexcept
+        ESphereCreated & Created()
         {
             return SphereCreated;
         }
 
-        ESphereDestroyed & Destroyed() noexcept
+        ESphereDestroyed & Destroyed()
         {
             return SphereDestroyed;
         }
 
-        ESphereCustom & Custom() noexcept
+        ESphereCustom & Custom()
         {
             return SphereCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        ESphereCreated & GCreated() noexcept
+        ESphereCreated & GCreated()
         {
             return GSphereCreated();
         }
 
-        ESphereDestroyed & GDestroyed() noexcept
+        ESphereDestroyed & GDestroyed()
         {
             return GSphereDestroyed();
         }
 
-        ESphereCustom & GCustom() noexcept
+        ESphereCustom & GCustom()
         {
             return GSphereCustom();
         }
@@ -1507,14 +1507,14 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                        SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius) noexcept
+                        SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius)
     {
         SQMOD_UNUSED_VAR(inst);
         SQMOD_UNUSED_VAR(player);
@@ -1529,7 +1529,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.SphereCreated.Clear();
         inst.SphereDestroyed.Clear();
@@ -1540,13 +1540,13 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static SQInt32 Create(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                            SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius) noexcept
+                            SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius)
     {
         return _Func->CreateSphere(_SCI32(player), world, x, y, z, r, g, b, radius);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         _Func->DeleteSphere(id);
     }
@@ -1573,7 +1573,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -1589,7 +1589,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    static bool InEvent(SQInt32 type, bool inversed)
     {
         switch (type)
         {
@@ -1631,7 +1631,7 @@ private:
     typedef struct Sprite
     {
         // ----------------------------------------------------------------------------------------
-        Sprite() noexcept
+        Sprite()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -1660,33 +1660,33 @@ private:
         ESpriteCustom           SpriteCustom;
 
         // ----------------------------------------------------------------------------------------
-        ESpriteCreated & Created() noexcept
+        ESpriteCreated & Created()
         {
             return SpriteCreated;
         }
 
-        ESpriteDestroyed & Destroyed() noexcept
+        ESpriteDestroyed & Destroyed()
         {
             return SpriteDestroyed;
         }
 
-        ESpriteCustom & Custom() noexcept
+        ESpriteCustom & Custom()
         {
             return SpriteCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        ESpriteCreated & GCreated() noexcept
+        ESpriteCreated & GCreated()
         {
             return GSpriteCreated();
         }
 
-        ESpriteDestroyed & GDestroyed() noexcept
+        ESpriteDestroyed & GDestroyed()
         {
             return GSpriteDestroyed();
         }
 
-        ESpriteCustom & GCustom() noexcept
+        ESpriteCustom & GCustom()
         {
             return GSpriteCustom();
         }
@@ -1694,14 +1694,14 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         inst.Path.clear();
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
-                        SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                        SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel)
     {
         inst.Path.assign(file);
         SQMOD_UNUSED_VAR(index);
@@ -1715,7 +1715,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.SpriteCreated.Clear();
         inst.SpriteDestroyed.Clear();
@@ -1724,13 +1724,13 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static SQInt32 Create(SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
-                            SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                            SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel)
     {
         return _Func->CreateSprite(index, file, xp, yp, xr, yr, angle, alpha, rel);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         _Func->DestroySprite(id);
     }
@@ -1757,7 +1757,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -1771,7 +1771,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool /* inversed */) noexcept
+    static bool InEvent(SQInt32 type, bool /* inversed */)
     {
         switch (type)
         {
@@ -1810,7 +1810,7 @@ private:
     typedef struct Textdraw
     {
         // ----------------------------------------------------------------------------------------
-        Textdraw() noexcept
+        Textdraw()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -1839,33 +1839,33 @@ private:
         ETextdrawCustom         TextdrawCustom;
 
         // ----------------------------------------------------------------------------------------
-        ETextdrawCreated & Created() noexcept
+        ETextdrawCreated & Created()
         {
             return TextdrawCreated;
         }
 
-        ETextdrawDestroyed & Destroyed() noexcept
+        ETextdrawDestroyed & Destroyed()
         {
             return TextdrawDestroyed;
         }
 
-        ETextdrawCustom & Custom() noexcept
+        ETextdrawCustom & Custom()
         {
             return TextdrawCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        ETextdrawCreated & GCreated() noexcept
+        ETextdrawCreated & GCreated()
         {
             return GTextdrawCreated();
         }
 
-        ETextdrawDestroyed & GDestroyed() noexcept
+        ETextdrawDestroyed & GDestroyed()
         {
             return GTextdrawDestroyed();
         }
 
-        ETextdrawCustom & GCustom() noexcept
+        ETextdrawCustom & GCustom()
         {
             return GTextdrawCustom();
         }
@@ -1873,14 +1873,14 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         inst.Text.clear();
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
-                        SQUint32 color, bool rel) noexcept
+                        SQUint32 color, bool rel)
     {
         inst.Text.assign(text);
         SQMOD_UNUSED_VAR(index);
@@ -1891,7 +1891,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.TextdrawCreated.Clear();
         inst.TextdrawDestroyed.Clear();
@@ -1900,13 +1900,13 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static SQInt32 Create(SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
-                            SQUint32 color, bool rel) noexcept
+                            SQUint32 color, bool rel)
     {
         return _Func->CreateTextdraw(index, text, xp, yp, color, rel);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         _Func->DestroyTextdraw(id);
     }
@@ -1933,7 +1933,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -1947,7 +1947,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool /* inversed */) noexcept
+    static bool InEvent(SQInt32 type, bool /* inversed */)
     {
         switch (type)
         {
@@ -1986,7 +1986,7 @@ private:
     typedef struct Vehicle
     {
         // ----------------------------------------------------------------------------------------
-        Vehicle() noexcept
+        Vehicle()
             : ID(-1), Root(0), Owned(false), Fresh(true)
         {
             /* ... */
@@ -2019,33 +2019,33 @@ private:
         EVehicleDisembark       VehicleDisembark;
 
         // ----------------------------------------------------------------------------------------
-        EVehicleCreated & Created() noexcept
+        EVehicleCreated & Created()
         {
             return VehicleCreated;
         }
 
-        EVehicleDestroyed & Destroyed() noexcept
+        EVehicleDestroyed & Destroyed()
         {
             return VehicleDestroyed;
         }
 
-        EVehicleCustom & Custom() noexcept
+        EVehicleCustom & Custom()
         {
             return VehicleCustom;
         }
 
         // ----------------------------------------------------------------------------------------
-        EVehicleCreated & GCreated() noexcept
+        EVehicleCreated & GCreated()
         {
             return GVehicleCreated();
         }
 
-        EVehicleDestroyed & GDestroyed() noexcept
+        EVehicleDestroyed & GDestroyed()
         {
             return GVehicleDestroyed();
         }
 
-        EVehicleCustom & GCustom() noexcept
+        EVehicleCustom & GCustom()
         {
             return GVehicleCustom();
         }
@@ -2053,14 +2053,14 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst) noexcept
+    static void Store(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary)
     {
         SQMOD_UNUSED_VAR(inst);
         SQMOD_UNUSED_VAR(model);
@@ -2074,7 +2074,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst) noexcept
+    static void Clear(Instance & inst)
     {
         inst.VehicleCreated.Clear();
         inst.VehicleDestroyed.Clear();
@@ -2090,13 +2090,13 @@ private:
 
     // --------------------------------------------------------------------------------------------
     static SQInt32 Create(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                            SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+                            SQFloat angle, SQInt32 primary, SQInt32 secondary)
     {
         return _Func->CreateVehicle(model, world, x, y, z, angle, primary, secondary);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Destroy(SQInt32 id) noexcept
+    static void Destroy(SQInt32 id)
     {
         _Func->DeleteVehicle(id);
     }
@@ -2123,7 +2123,7 @@ public:
     typedef std::bitset< Limit >            Set;
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type) noexcept
+    static bool InEvent(SQInt32 type)
     {
         switch (type)
         {
@@ -2144,7 +2144,7 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    static bool InEvent(SQInt32 type, bool inversed) noexcept
+    static bool InEvent(SQInt32 type, bool inversed)
     {
         switch (type)
         {
@@ -2214,7 +2214,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Insert this instance into the reference chain.
     */
-    void InsertIntoChain() noexcept
+    void InsertIntoChain()
     {
         if (VALID_ENTITY(m_ID))
         {
@@ -2232,7 +2232,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Remove this instance from the reference chain.
     */
-    void RemoveFromChain() noexcept
+    void RemoveFromChain()
     {
         if (VALID_ENTITY(m_ID))
         {
@@ -2261,7 +2261,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Verify that the specified entity instance is active
     */
-    static bool Verify(SQInt32 id) noexcept
+    static bool Verify(SQInt32 id)
     {
         return (VALID_ENTITYEX(id, Max) && VALID_ENTITY(s_Instances[id].ID));
     }
@@ -2269,7 +2269,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns a reference to the specified entity instance
     */
-    static typename Ent< T >::Instance & Get(SQInt32 id) noexcept
+    static typename Ent< T >::Instance & Get(SQInt32 id)
     {
         return s_Instances[id]; /* Expects the callee to deal with range checks! */
     }
@@ -2279,7 +2279,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor. (null)
     */
-    Reference() noexcept
+    Reference()
         : Reference(SQMOD_UNKNOWN)
     {
 
@@ -2288,7 +2288,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a reference of this type and attach it to the referenced instance.
     */
-    Reference(SQInt32 id) noexcept
+    Reference(SQInt32 id)
         : m_ID(Verify(id) ? id : SQMOD_UNKNOWN)
         , m_Tag()
         , m_Data()
@@ -2302,7 +2302,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Reference(const Reference< T > & r) noexcept
+    Reference(const Reference< T > & r)
         : m_ID(r.m_ID)
         , m_Tag(r.m_Tag)
         , m_Data(r.m_Data)
@@ -2316,7 +2316,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Reference(Reference< T > && r) noexcept
+    Reference(Reference< T > && r)
         : m_ID(r.m_ID)
         , m_Tag(r.m_Tag)
         , m_Data(r.m_Data)
@@ -2338,7 +2338,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Reference< T > & operator = (const Reference< T > & r) noexcept
+    Reference< T > & operator = (const Reference< T > & r)
     {
         if (this != &r)
         {
@@ -2363,7 +2363,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to an entity identifier.
     */
-    operator SQInt32 () const noexcept
+    operator SQInt32 () const
     {
         return m_ID;
     }
@@ -2371,7 +2371,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to an entity identifier.
     */
-    operator Int64 () const noexcept
+    operator Int64 () const
     {
         return _SCI64(m_ID);
     }
@@ -2379,7 +2379,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to an entity identifier.
     */
-    operator SQUint32 () const noexcept
+    operator SQUint32 () const
     {
         return _SCU32(m_ID);
     }
@@ -2387,7 +2387,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to an entity identifier.
     */
-    operator Uint64 () const noexcept
+    operator Uint64 () const
     {
         return _SCU64(m_ID);
     }
@@ -2395,7 +2395,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean.
     */
-    operator bool () const noexcept
+    operator bool () const
     {
         return VALID_ENTITY(m_ID);
     }
@@ -2403,7 +2403,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Negation operator.
     */
-    bool operator ! () const noexcept
+    bool operator ! () const
     {
         return INVALID_ENTITY(m_ID);
     }
@@ -2411,7 +2411,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script VM to compare two references against eachother.
     */
-    SQInteger Cmp(const Reference< T > & r) const noexcept
+    SQInteger Cmp(const Reference< T > & r) const
     {
         if (m_ID == r.m_ID)
         {
@@ -2430,7 +2430,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to convert this reference to a string.
     */
-    const SQChar * ToString() const noexcept
+    const SQChar * ToString() const
     {
         return ToStringF("%d", m_ID);
     }
@@ -2438,7 +2438,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the referenced instance.
     */
-    SQInteger GetID() const noexcept
+    SQInteger GetID() const
     {
         return m_ID;
     }
@@ -2446,7 +2446,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Point ths reference to another entity instance.
     */
-    void SetID(SQInt32 id) noexcept
+    void SetID(SQInt32 id)
     {
         if (id != m_ID)
         {
@@ -2459,7 +2459,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether this reference is persistent.
     */
-    bool GetPersistent() const noexcept
+    bool GetPersistent() const
     {
         return m_Persistent;
     }
@@ -2467,7 +2467,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set this reference to be persistent.
     */
-    void SetPersistent(bool toggle) noexcept
+    void SetPersistent(bool toggle)
     {
         m_Persistent = toggle;
     }
@@ -2475,7 +2475,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the global tag.
     */
-    const SQChar * GetGlobalTag() const noexcept
+    const SQChar * GetGlobalTag() const
     {
         if (VALID_ENTITY(m_ID))
         {
@@ -2492,7 +2492,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Change the global tag.
     */
-    void SetGlobalTag(const SQChar * tag) const noexcept
+    void SetGlobalTag(const SQChar * tag) const
     {
         if (VALID_ENTITY(m_ID))
         {
@@ -2507,7 +2507,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the global data.
     */
-    SqObj & GetGlobalData() noexcept
+    SqObj & GetGlobalData()
     {
         if (VALID_ENTITY(m_ID))
         {
@@ -2524,7 +2524,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Change the global data.
     */
-    void SetGlobalData(SqObj & data) const noexcept
+    void SetGlobalData(SqObj & data) const
     {
         if (VALID_ENTITY(m_ID))
         {
@@ -2539,7 +2539,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the local tag
     */
-    const SQChar * GetLocalTag() const noexcept
+    const SQChar * GetLocalTag() const
     {
         return m_Tag.c_str();
     }
@@ -2547,7 +2547,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Change the local tag.
     */
-    void SetLocalTag(const SQChar * tag) noexcept
+    void SetLocalTag(const SQChar * tag)
     {
         m_Tag.assign(tag);
     }
@@ -2555,7 +2555,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the local data.
     */
-    SqObj & GetLocalData() noexcept
+    SqObj & GetLocalData()
     {
         return m_Data;
     }
@@ -2563,7 +2563,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Change the local data.
     */
-    void SetLocalData(SqObj & data) noexcept
+    void SetLocalData(SqObj & data)
     {
         m_Data = data;
     }
@@ -2571,7 +2571,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the maximum allowed identifier for this entity type.
     */
-    SQUint32 GetMax() const noexcept
+    SQUint32 GetMax() const
     {
         return Max;
     }
@@ -2579,7 +2579,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Return a new reference from the base reference.
     */
-    T GetReference() const noexcept
+    T GetReference() const
     {
         return T(m_ID);
     }
@@ -2587,7 +2587,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns whether this entity reference points to an active entity.
     */
-    bool IsActive() const noexcept
+    bool IsActive() const
     {
         return VALID_ENTITYEX(m_ID, Max);
     }
@@ -2595,7 +2595,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Counts the number of active references for this entity.
     */
-    SQUint32 CountRefs() const noexcept
+    SQUint32 CountRefs() const
     {
         SQUint32 refs = 0;
         // Make sure the reference is valid
@@ -2620,7 +2620,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Counts the number of persistent references for this entity.
     */
-    SQUint32 CountPersistentRefs() const noexcept
+    SQUint32 CountPersistentRefs() const
     {
         SQUint32 refs = 0;
         // Make sure the reference is valid
@@ -2654,7 +2654,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the referenced entity.
     */
-    bool Destroy() noexcept
+    bool Destroy()
     {
         return Destroy(0, NullData());
     }
@@ -2662,7 +2662,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the referenced entity.
     */
-    bool Destroy(SQInt32 header) noexcept
+    bool Destroy(SQInt32 header)
     {
         return Destroy(header, NullData());
     }
@@ -2670,7 +2670,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the referenced entity.
     */
-    bool Destroy(SQInt32 header, SqObj & payload) noexcept
+    bool Destroy(SQInt32 header, SqObj & payload)
     {
         if (VALID_ENTITY(m_ID))
         {
@@ -2713,7 +2713,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Deactivates the specified entity instance.
     */
-    static bool Deactivate(SQInt32 id, SQInt32 header, SqObj & payload, bool notify) noexcept
+    static bool Deactivate(SQInt32 id, SQInt32 header, SqObj & payload, bool notify)
     {
         // Make sure this entity even exists
         if (RefType::Verify(id))
@@ -2794,7 +2794,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Activates the specified entity instance.
     */
-    template < typename... Args > static bool Activate(SQInt32 id, bool owned, Args&&... args) noexcept
+    template < typename... Args > static bool Activate(SQInt32 id, bool owned, Args&&... args)
     {
         // Validate the specified entity identifier
         if (INVALID_ENTITYEX(id, EntType::Limit))
@@ -2858,7 +2858,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Creates a new entity instance of the specified type.
     */
-    template < typename... Args > static SQInt32 Create(SQInt32 header, SqObj & payload, bool notify, Args&&... args) noexcept
+    template < typename... Args > static SQInt32 Create(SQInt32 header, SqObj & payload, bool notify, Args&&... args)
     {
         // Attempt to create an instance on the server and obtain it's identifier
         SQInt32 id = EntType::Create(std::forward< Args >(args)...);

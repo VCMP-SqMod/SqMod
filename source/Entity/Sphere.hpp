@@ -29,72 +29,72 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a reference from a base reference.
     */
-    CSphere(const Reference< CSphere > & o) noexcept;
+    CSphere(const Reference< CSphere > & o);
 
     /* --------------------------------------------------------------------------------------------
      * See if the referenced sphere instance is streamed for the specified player.
     */
-    bool IsStreamedFor(const Reference< CPlayer > & player) const noexcept;
+    bool IsStreamedFor(const Reference< CPlayer > & player) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the referenced sphere instance exists.
     */
-    SQInt32 GetWorld() const noexcept;
+    SQInt32 GetWorld() const;
 
     /* --------------------------------------------------------------------------------------------
      * Change the world in which the referenced sphere instance exists.
     */
-    void SetWorld(SQInt32 world) const noexcept;
+    void SetWorld(SQInt32 world) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the color of the referenced sphere instance.
     */
-    const Color3 & GetColor() const noexcept;
+    const Color3 & GetColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Change the color of the referenced sphere instance.
     */
-    void SetColor(const Color3 & col) const noexcept;
+    void SetColor(const Color3 & col) const;
 
     /* --------------------------------------------------------------------------------------------
      * Change the color of the referenced sphere instance.
     */
-    void SetColorEx(Uint8 r, Uint8 g, Uint8 b) const noexcept;
+    void SetColorEx(Uint8 r, Uint8 g, Uint8 b) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the referenced sphere instance.
     */
-    const Vector3 & GetPosition() const noexcept;
+    const Vector3 & GetPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Change the position of the referenced sphere instance.
     */
-    void SetPosition(const Vector3 & pos) const noexcept;
+    void SetPosition(const Vector3 & pos) const;
 
     /* --------------------------------------------------------------------------------------------
      * Change the position of the referenced sphere instance.
     */
-    void SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept;
+    void SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the radius of the referenced sphere instance.
     */
-    SQFloat GetRadius() const noexcept;
+    SQFloat GetRadius() const;
 
     /* --------------------------------------------------------------------------------------------
      * Change the radius of the referenced sphere instance.
     */
-    void SetRadius(SQFloat radius) const noexcept;
+    void SetRadius(SQFloat radius) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the owner of the referenced sphere instance.
     */
-    Reference< CPlayer > GetOwner() const noexcept;
+    Reference< CPlayer > GetOwner() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the owner identifier of the referenced sphere instance.
     */
-    SQInt32 GetOwnerID() const noexcept;
+    SQInt32 GetOwnerID() const;
 };
 
 } // Namespace:: SqMod

@@ -16,52 +16,52 @@ const Vector3 Vector3::MAX = Vector3(std::numeric_limits<Vector3::Value>::max())
 SQChar Vector3::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Vector3::Vector3() noexcept
+Vector3::Vector3()
     : x(0.0), y(0.0), z(0.0)
 {
 
 }
 
-Vector3::Vector3(Value s) noexcept
+Vector3::Vector3(Value s)
     : x(s), y(s), z(s)
 {
 
 }
 
-Vector3::Vector3(Value xv, Value yv, Value zv) noexcept
+Vector3::Vector3(Value xv, Value yv, Value zv)
     : x(xv), y(yv), z(zv)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3::Vector3(const Vector4 & v) noexcept
+Vector3::Vector3(const Vector4 & v)
     : x(v.x), y(v.y), z(v.z)
 {
 
 }
 
-Vector3::Vector3(const Quaternion & q) noexcept
+Vector3::Vector3(const Quaternion & q)
     : x(q.x), y(q.y), z(q.z)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3::Vector3(const SQChar * values, char delim) noexcept
+Vector3::Vector3(const SQChar * values, char delim)
     : Vector3(GetVector3(values, delim))
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3::Vector3(const Vector3 & v) noexcept
+Vector3::Vector3(const Vector3 & v)
     : x(v.x), y(v.y), z(v.z)
 {
 
 }
 
-Vector3::Vector3(Vector3 && v) noexcept
+Vector3::Vector3(Vector3 && v)
     : x(v.x), y(v.y), z(v.z)
 {
 
@@ -74,7 +74,7 @@ Vector3::~Vector3()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 & Vector3::operator = (const Vector3 & v) noexcept
+Vector3 & Vector3::operator = (const Vector3 & v)
 {
     x = v.x;
     y = v.y;
@@ -82,7 +82,7 @@ Vector3 & Vector3::operator = (const Vector3 & v) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator = (Vector3 && v) noexcept
+Vector3 & Vector3::operator = (Vector3 && v)
 {
     x = v.x;
     y = v.y;
@@ -91,7 +91,7 @@ Vector3 & Vector3::operator = (Vector3 && v) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 & Vector3::operator = (Value s) noexcept
+Vector3 & Vector3::operator = (Value s)
 {
     x = s;
     y = s;
@@ -99,7 +99,7 @@ Vector3 & Vector3::operator = (Value s) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator = (const Vector4 & v) noexcept
+Vector3 & Vector3::operator = (const Vector4 & v)
 {
     x = v.x;
     y = v.y;
@@ -107,7 +107,7 @@ Vector3 & Vector3::operator = (const Vector4 & v) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator = (const Quaternion & q) noexcept
+Vector3 & Vector3::operator = (const Quaternion & q)
 {
     x = q.x;
     y = q.y;
@@ -116,7 +116,7 @@ Vector3 & Vector3::operator = (const Quaternion & q) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 & Vector3::operator += (const Vector3 & v) noexcept
+Vector3 & Vector3::operator += (const Vector3 & v)
 {
     x += v.x;
     y += v.y;
@@ -124,7 +124,7 @@ Vector3 & Vector3::operator += (const Vector3 & v) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator -= (const Vector3 & v) noexcept
+Vector3 & Vector3::operator -= (const Vector3 & v)
 {
     x -= v.x;
     y -= v.y;
@@ -132,7 +132,7 @@ Vector3 & Vector3::operator -= (const Vector3 & v) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator *= (const Vector3 & v) noexcept
+Vector3 & Vector3::operator *= (const Vector3 & v)
 {
     x *= v.x;
     y *= v.y;
@@ -140,7 +140,7 @@ Vector3 & Vector3::operator *= (const Vector3 & v) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator /= (const Vector3 & v) noexcept
+Vector3 & Vector3::operator /= (const Vector3 & v)
 {
     x /= v.x;
     y /= v.y;
@@ -148,7 +148,7 @@ Vector3 & Vector3::operator /= (const Vector3 & v) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator %= (const Vector3 & v) noexcept
+Vector3 & Vector3::operator %= (const Vector3 & v)
 {
     x = std::fmod(x, v.x);
     y = std::fmod(y, v.y);
@@ -157,7 +157,7 @@ Vector3 & Vector3::operator %= (const Vector3 & v) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 & Vector3::operator += (Value s) noexcept
+Vector3 & Vector3::operator += (Value s)
 {
     x += s;
     y += s;
@@ -165,7 +165,7 @@ Vector3 & Vector3::operator += (Value s) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator -= (Value s) noexcept
+Vector3 & Vector3::operator -= (Value s)
 {
     x -= s;
     y -= s;
@@ -173,7 +173,7 @@ Vector3 & Vector3::operator -= (Value s) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator *= (Value s) noexcept
+Vector3 & Vector3::operator *= (Value s)
 {
     x *= s;
     y *= s;
@@ -181,7 +181,7 @@ Vector3 & Vector3::operator *= (Value s) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator /= (Value s) noexcept
+Vector3 & Vector3::operator /= (Value s)
 {
     x /= s;
     y /= s;
@@ -189,7 +189,7 @@ Vector3 & Vector3::operator /= (Value s) noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator %= (Value s) noexcept
+Vector3 & Vector3::operator %= (Value s)
 {
     x = std::fmod(x, s);
     y = std::fmod(y, s);
@@ -198,7 +198,7 @@ Vector3 & Vector3::operator %= (Value s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 & Vector3::operator ++ () noexcept
+Vector3 & Vector3::operator ++ ()
 {
     ++x;
     ++y;
@@ -206,7 +206,7 @@ Vector3 & Vector3::operator ++ () noexcept
     return *this;
 }
 
-Vector3 & Vector3::operator -- () noexcept
+Vector3 & Vector3::operator -- ()
 {
     --x;
     --y;
@@ -215,7 +215,7 @@ Vector3 & Vector3::operator -- () noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 Vector3::operator ++ (int) noexcept
+Vector3 Vector3::operator ++ (int)
 {
     Vector3 state(*this);
     ++x;
@@ -224,7 +224,7 @@ Vector3 Vector3::operator ++ (int) noexcept
     return state;
 }
 
-Vector3 Vector3::operator -- (int) noexcept
+Vector3 Vector3::operator -- (int)
 {
     Vector3 state(*this);
     --x;
@@ -234,120 +234,120 @@ Vector3 Vector3::operator -- (int) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 Vector3::operator + (const Vector3 & v) const noexcept
+Vector3 Vector3::operator + (const Vector3 & v) const
 {
     return Vector3(x + v.x, y + v.y, z + v.z);
 }
 
-Vector3 Vector3::operator - (const Vector3 & v) const noexcept
+Vector3 Vector3::operator - (const Vector3 & v) const
 {
     return Vector3(x - v.x, y - v.y, z - v.z);
 }
 
-Vector3 Vector3::operator * (const Vector3 & v) const noexcept
+Vector3 Vector3::operator * (const Vector3 & v) const
 {
     return Vector3(x * v.x, y * v.y, z * v.z);
 }
 
-Vector3 Vector3::operator / (const Vector3 & v) const noexcept
+Vector3 Vector3::operator / (const Vector3 & v) const
 {
     return Vector3(x / v.x, y / v.y, z / v.z);
 }
 
-Vector3 Vector3::operator % (const Vector3 & v) const noexcept
+Vector3 Vector3::operator % (const Vector3 & v) const
 {
     return Vector3(std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z));
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 Vector3::operator + (Value s) const noexcept
+Vector3 Vector3::operator + (Value s) const
 {
     return Vector3(x + s, y + s, z + s);
 }
 
-Vector3 Vector3::operator - (Value s) const noexcept
+Vector3 Vector3::operator - (Value s) const
 {
     return Vector3(x - s, y - s, z - s);
 }
 
-Vector3 Vector3::operator * (Value s) const noexcept
+Vector3 Vector3::operator * (Value s) const
 {
     return Vector3(x * s, y * s, z * s);
 }
 
-Vector3 Vector3::operator / (Value s) const noexcept
+Vector3 Vector3::operator / (Value s) const
 {
     return Vector3(x / s, y / s, z / s);
 }
 
-Vector3 Vector3::operator % (Value s) const noexcept
+Vector3 Vector3::operator % (Value s) const
 {
     return Vector3(std::fmod(x, s), std::fmod(y, s), std::fmod(z, s));
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 Vector3::operator + () const noexcept
+Vector3 Vector3::operator + () const
 {
     return Vector3(std::fabs(x), std::fabs(y), std::fabs(z));
 }
 
-Vector3 Vector3::operator - () const noexcept
+Vector3 Vector3::operator - () const
 {
     return Vector3(-x, -y, -z);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Vector3::operator == (const Vector3 & v) const noexcept
+bool Vector3::operator == (const Vector3 & v) const
 {
     return EpsEq(x, v.x) && EpsEq(y, v.y) && EpsEq(z, v.z);
 }
 
-bool Vector3::operator != (const Vector3 & v) const noexcept
+bool Vector3::operator != (const Vector3 & v) const
 {
     return !EpsEq(x, v.x) && !EpsEq(y, v.y) && !EpsEq(z, v.z);
 }
 
-bool Vector3::operator < (const Vector3 & v) const noexcept
+bool Vector3::operator < (const Vector3 & v) const
 {
     return std::isless(x, v.x) && std::isless(y, v.y) && std::isless(z, v.z);
 }
 
-bool Vector3::operator > (const Vector3 & v) const noexcept
+bool Vector3::operator > (const Vector3 & v) const
 {
     return std::isgreater(x, v.x) && std::isgreater(y, v.y) && std::isgreater(z, v.z);
 }
 
-bool Vector3::operator <= (const Vector3 & v) const noexcept
+bool Vector3::operator <= (const Vector3 & v) const
 {
     return std::islessequal(x, v.x) && std::islessequal(y, v.y) && std::islessequal(z, v.z);
 }
 
-bool Vector3::operator >= (const Vector3 & v) const noexcept
+bool Vector3::operator >= (const Vector3 & v) const
 {
     return std::isgreaterequal(x, v.x) && std::isgreaterequal(y, v.y) && std::isgreaterequal(z, v.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Vector3::Cmp(const Vector3 & v) const noexcept
+SQInteger Vector3::Cmp(const Vector3 & v) const
 {
     return *this == v ? 0 : (*this > v ? 1 : -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Vector3::ToString() const noexcept
+const SQChar * Vector3::ToString() const
 {
     return ToStringF("%f,%f,%f", x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Set(Value ns) noexcept
+void Vector3::Set(Value ns)
 {
     x = ns;
     y = ns;
     z = ns;
 }
 
-void Vector3::Set(Value nx, Value ny, Value nz) noexcept
+void Vector3::Set(Value nx, Value ny, Value nz)
 {
     x = nx;
     y = ny;
@@ -355,21 +355,21 @@ void Vector3::Set(Value nx, Value ny, Value nz) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Set(const Vector3 & v) noexcept
+void Vector3::Set(const Vector3 & v)
 {
     x = v.x;
     y = v.y;
     z = v.z;
 }
 
-void Vector3::Set(const Vector4 & v) noexcept
+void Vector3::Set(const Vector4 & v)
 {
     x = v.x;
     y = v.y;
     z = v.z;
 }
 
-void Vector3::Set(const Quaternion & q) noexcept
+void Vector3::Set(const Quaternion & q)
 {
     x = q.x;
     y = q.y;
@@ -377,20 +377,20 @@ void Vector3::Set(const Quaternion & q) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Set(const SQChar * values, char delim) noexcept
+void Vector3::Set(const SQChar * values, char delim)
 {
     Set(GetVector3(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Generate() noexcept
+void Vector3::Generate()
 {
     x = RandomVal<Value>::Get();
     y = RandomVal<Value>::Get();
     z = RandomVal<Value>::Get();
 }
 
-void Vector3::Generate(Value min, Value max) noexcept
+void Vector3::Generate(Value min, Value max)
 {
     if (max < min)
     {
@@ -404,7 +404,7 @@ void Vector3::Generate(Value min, Value max) noexcept
     }
 }
 
-void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax) noexcept
+void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
     if (std::isless(xmax, xmin) || std::isless(ymax, ymin) || std::isless(zmax, zmin))
     {
@@ -419,7 +419,7 @@ void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 Vector3::Abs() const noexcept
+Vector3 Vector3::Abs() const
 {
     return Vector3(std::fabs(x), std::fabs(y), std::fabs(z));
 }

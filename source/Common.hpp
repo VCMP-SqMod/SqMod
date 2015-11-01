@@ -31,12 +31,12 @@ extern PluginInfo*          _Info;
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-SqObj & NullData() noexcept;
+SqObj & NullData();
 
 /* ------------------------------------------------------------------------------------------------
  * Utility used to transform values into script objects on the default VM
 */
-template < typename T > SqObj MakeSqObj(const T & v) noexcept
+template < typename T > SqObj MakeSqObj(const T & v)
 {
     // Push the specified value on the stack
     Sqrat::PushVar< T >(Sqrat::DefaultVM::Get(), v);
@@ -51,7 +51,7 @@ template < typename T > SqObj MakeSqObj(const T & v) noexcept
 /* ------------------------------------------------------------------------------------------------
  * Utility used to transform values into script objects
 */
-template < typename T > SqObj MakeSqObj(HSQUIRRELVM vm, const T & v) noexcept
+template < typename T > SqObj MakeSqObj(HSQUIRRELVM vm, const T & v)
 {
     // Push the specified value on the stack
     Sqrat::PushVar< T >(vm, v);

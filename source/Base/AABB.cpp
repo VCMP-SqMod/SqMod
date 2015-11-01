@@ -15,71 +15,71 @@ const AABB AABB::MAX = AABB(Vector3::MIN, Vector3::MAX);
 SQChar AABB::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB() noexcept
+AABB::AABB()
     : min(-1), max(1)
 {
 
 }
 
-AABB::AABB(Value s) noexcept
+AABB::AABB(Value s)
     : min(-s), max(std::fabs(s))
 {
 
 }
 
-AABB::AABB(Value xv, Value yv, Value zv) noexcept
+AABB::AABB(Value xv, Value yv, Value zv)
     : min(-xv, -yv, -zv), max(std::fabs(xv), std::fabs(yv), std::fabs(zv))
 {
 
 }
 
-AABB::AABB(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) noexcept
+AABB::AABB(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
     : min(xmin, ymin, zmin), max(xmax, ymax, zmax)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(const Vector3 & v) noexcept
+AABB::AABB(const Vector3 & v)
     : min(-v), max(v.Abs())
 {
 
 }
 
-AABB::AABB(const Vector3 & vmin, const Vector3 & vmax) noexcept
+AABB::AABB(const Vector3 & vmin, const Vector3 & vmax)
     : min(vmin), max(vmax)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(const Vector4 & v) noexcept
+AABB::AABB(const Vector4 & v)
     : min(-v), max(v.Abs())
 {
 
 }
 
-AABB::AABB(const Vector4 & vmin, const Vector4 & vmax) noexcept
+AABB::AABB(const Vector4 & vmin, const Vector4 & vmax)
     : min(vmin), max(vmax)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(const SQChar * values, SQChar delim) noexcept
+AABB::AABB(const SQChar * values, SQChar delim)
     : AABB(GetAABB(values, delim))
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(const AABB & b) noexcept
+AABB::AABB(const AABB & b)
     : min(b.min), max(b.max)
 {
 
 }
 
-AABB::AABB(AABB && b) noexcept
+AABB::AABB(AABB && b)
     : min(b.min), max(b.max)
 {
 
@@ -92,14 +92,14 @@ AABB::~AABB()
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB & AABB::operator = (const AABB & b) noexcept
+AABB & AABB::operator = (const AABB & b)
 {
     min = b.min;
     max = b.max;
     return *this;
 }
 
-AABB & AABB::operator = (AABB && b) noexcept
+AABB & AABB::operator = (AABB && b)
 {
     min = b.min;
     max = b.max;
@@ -107,21 +107,21 @@ AABB & AABB::operator = (AABB && b) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB & AABB::operator = (Value s) noexcept
+AABB & AABB::operator = (Value s)
 {
     min.Set(-s);
     max.Set(std::fabs(s));
     return *this;
 }
 
-AABB & AABB::operator = (const Vector3 & v) noexcept
+AABB & AABB::operator = (const Vector3 & v)
 {
     min.Set(-v);
     max.Set(v.Abs());
     return *this;
 }
 
-AABB & AABB::operator = (const Vector4 & v) noexcept
+AABB & AABB::operator = (const Vector4 & v)
 {
     min.Set(-v);
     max.Set(v.Abs());
@@ -129,35 +129,35 @@ AABB & AABB::operator = (const Vector4 & v) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB & AABB::operator += (const AABB & b) noexcept
+AABB & AABB::operator += (const AABB & b)
 {
     min += b.min;
     max += b.max;
     return *this;
 }
 
-AABB & AABB::operator -= (const AABB & b) noexcept
+AABB & AABB::operator -= (const AABB & b)
 {
     min -= b.min;
     max -= b.max;
     return *this;
 }
 
-AABB & AABB::operator *= (const AABB & b) noexcept
+AABB & AABB::operator *= (const AABB & b)
 {
     min *= b.min;
     max *= b.max;
     return *this;
 }
 
-AABB & AABB::operator /= (const AABB & b) noexcept
+AABB & AABB::operator /= (const AABB & b)
 {
     min /= b.min;
     max /= b.max;
     return *this;
 }
 
-AABB & AABB::operator %= (const AABB & b) noexcept
+AABB & AABB::operator %= (const AABB & b)
 {
     min %= b.min;
     max %= b.max;
@@ -165,35 +165,35 @@ AABB & AABB::operator %= (const AABB & b) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB & AABB::operator += (Value s) noexcept
+AABB & AABB::operator += (Value s)
 {
     min += s;
     max += s;
     return *this;
 }
 
-AABB & AABB::operator -= (Value s) noexcept
+AABB & AABB::operator -= (Value s)
 {
     min -= s;
     max -= s;
     return *this;
 }
 
-AABB & AABB::operator *= (Value s) noexcept
+AABB & AABB::operator *= (Value s)
 {
     min *= s;
     max *= s;
     return *this;
 }
 
-AABB & AABB::operator /= (Value s) noexcept
+AABB & AABB::operator /= (Value s)
 {
     min /= s;
     max /= s;
     return *this;
 }
 
-AABB & AABB::operator %= (Value s) noexcept
+AABB & AABB::operator %= (Value s)
 {
     min %= s;
     max %= s;
@@ -201,14 +201,14 @@ AABB & AABB::operator %= (Value s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB & AABB::operator ++ () noexcept
+AABB & AABB::operator ++ ()
 {
     ++min;
     ++max;
     return *this;
 }
 
-AABB & AABB::operator -- () noexcept
+AABB & AABB::operator -- ()
 {
     --min;
     --max;
@@ -216,7 +216,7 @@ AABB & AABB::operator -- () noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB AABB::operator ++ (int) noexcept
+AABB AABB::operator ++ (int)
 {
     AABB state(*this);
     ++min;
@@ -224,7 +224,7 @@ AABB AABB::operator ++ (int) noexcept
     return state;
 }
 
-AABB AABB::operator -- (int) noexcept
+AABB AABB::operator -- (int)
 {
     AABB state(*this);
     --min;
@@ -233,171 +233,171 @@ AABB AABB::operator -- (int) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB AABB::operator + (const AABB & b) const noexcept
+AABB AABB::operator + (const AABB & b) const
 {
     return AABB(min + b.min, max + b.max);
 }
 
-AABB AABB::operator - (const AABB & b) const noexcept
+AABB AABB::operator - (const AABB & b) const
 {
     return AABB(min - b.min, max - b.max);
 }
 
-AABB AABB::operator * (const AABB & b) const noexcept
+AABB AABB::operator * (const AABB & b) const
 {
     return AABB(min * b.min, max * b.max);
 }
 
-AABB AABB::operator / (const AABB & b) const noexcept
+AABB AABB::operator / (const AABB & b) const
 {
     return AABB(min / b.min, max / b.max);
 }
 
-AABB AABB::operator % (const AABB & b) const noexcept
+AABB AABB::operator % (const AABB & b) const
 {
     return AABB(min % b.min, max % b.max);
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB AABB::operator + (Value s) const noexcept
+AABB AABB::operator + (Value s) const
 {
     return AABB(min + s, max + s);
 }
 
-AABB AABB::operator - (Value s) const noexcept
+AABB AABB::operator - (Value s) const
 {
     return AABB(min - s, max - s);
 }
 
-AABB AABB::operator * (Value s) const noexcept
+AABB AABB::operator * (Value s) const
 {
     return AABB(min * s, max * s);
 }
 
-AABB AABB::operator / (Value s) const noexcept
+AABB AABB::operator / (Value s) const
 {
     return AABB(min / s, max / s);
 }
 
-AABB AABB::operator % (Value s) const noexcept
+AABB AABB::operator % (Value s) const
 {
     return AABB(min % s, max % s);
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB AABB::operator + () const noexcept
+AABB AABB::operator + () const
 {
     return AABB(min.Abs(), max.Abs());
 }
 
-AABB AABB::operator - () const noexcept
+AABB AABB::operator - () const
 {
     return AABB(-min, -max);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool AABB::operator == (const AABB & b) const noexcept
+bool AABB::operator == (const AABB & b) const
 {
     return (min == b.min) && (max == b.max);
 }
 
-bool AABB::operator != (const AABB & b) const noexcept
+bool AABB::operator != (const AABB & b) const
 {
     return (min != b.min) && (max != b.max);
 }
 
-bool AABB::operator < (const AABB & b) const noexcept
+bool AABB::operator < (const AABB & b) const
 {
     return (min < b.min) && (max < b.max);
 }
 
-bool AABB::operator > (const AABB & b) const noexcept
+bool AABB::operator > (const AABB & b) const
 {
     return (min > b.min) && (max > b.max);
 }
 
-bool AABB::operator <= (const AABB & b) const noexcept
+bool AABB::operator <= (const AABB & b) const
 {
     return (min <= b.min) && (max <= b.max);
 }
 
-bool AABB::operator >= (const AABB & b) const noexcept
+bool AABB::operator >= (const AABB & b) const
 {
     return (min >= b.min) && (max >= b.max);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger AABB::Cmp(const AABB & b) const noexcept
+SQInteger AABB::Cmp(const AABB & b) const
 {
     return *this == b ? 0 : (*this > b ? 1 : -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * AABB::ToString() const noexcept
+const SQChar * AABB::ToString() const
 {
     return ToStringF("%f,%f,%f,%f,%f,%f", min.x, min.y, min.z, max.x, max.y, max.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(Value ns) noexcept
+void AABB::Set(Value ns)
 {
     min = -ns;
     max = std::fabs(ns);
 }
 
-void AABB::Set(Value nx, Value ny, Value nz) noexcept
+void AABB::Set(Value nx, Value ny, Value nz)
 {
     min.Set(-nx, -ny, -nz);
     max.Set(std::fabs(nx), std::fabs(ny), std::fabs(nz));
 }
 
-void AABB::Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) noexcept
+void AABB::Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
 {
     min.Set(xmin, ymin, zmin);
     max.Set(xmax, ymax, zmax);
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(const AABB & b) noexcept
+void AABB::Set(const AABB & b)
 {
     min = b.min;
     max = b.max;
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(const Vector3 & v) noexcept
+void AABB::Set(const Vector3 & v)
 {
     min = -v;
     max = v.Abs();
 }
 
-void AABB::Set(const Vector3 & nmin, const Vector3 & nmax) noexcept
+void AABB::Set(const Vector3 & nmin, const Vector3 & nmax)
 {
     min = nmin;
     max = nmax;
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(const Vector4 & v) noexcept
+void AABB::Set(const Vector4 & v)
 {
     min = -v;
     max = v.Abs();
 }
 
-void AABB::Set(const Vector4 & nmin, const Vector4 & nmax) noexcept
+void AABB::Set(const Vector4 & nmin, const Vector4 & nmax)
 {
     min = nmin;
     max = nmax;
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(const SQChar * values, SQChar delim) noexcept
+void AABB::Set(const SQChar * values, SQChar delim)
 {
     Set(GetAABB(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB AABB::Abs() const noexcept
+AABB AABB::Abs() const
 {
     return AABB(min.Abs(), max.Abs());
 }

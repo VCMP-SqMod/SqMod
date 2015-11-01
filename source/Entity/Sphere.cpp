@@ -16,14 +16,14 @@ SQUint32  CSphere::s_ColorG;
 SQUint32  CSphere::s_ColorB;
 
 // ------------------------------------------------------------------------------------------------
-CSphere::CSphere(const Reference< CSphere > & o) noexcept
+CSphere::CSphere(const Reference< CSphere > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CSphere::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
+bool CSphere::IsStreamedFor(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -42,7 +42,7 @@ bool CSphere::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CSphere::GetWorld() const noexcept
+SQInt32 CSphere::GetWorld() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -57,7 +57,7 @@ SQInt32 CSphere::GetWorld() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSphere::SetWorld(SQInt32 world) const noexcept
+void CSphere::SetWorld(SQInt32 world) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -70,7 +70,7 @@ void CSphere::SetWorld(SQInt32 world) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color3 & CSphere::GetColor() const noexcept
+const Color3 & CSphere::GetColor() const
 {
     // Clear any previous color
     s_Color3.Clear();
@@ -89,7 +89,7 @@ const Color3 & CSphere::GetColor() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSphere::SetColor(const Color3 & col) const noexcept
+void CSphere::SetColor(const Color3 & col) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -102,7 +102,7 @@ void CSphere::SetColor(const Color3 & col) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSphere::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const noexcept
+void CSphere::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -115,7 +115,7 @@ void CSphere::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CSphere::GetPosition() const noexcept
+const Vector3 & CSphere::GetPosition() const
 {
     // Clear any previous position
     s_Vector3.Clear();
@@ -133,7 +133,7 @@ const Vector3 & CSphere::GetPosition() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSphere::SetPosition(const Vector3 & pos) const noexcept
+void CSphere::SetPosition(const Vector3 & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -146,7 +146,7 @@ void CSphere::SetPosition(const Vector3 & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSphere::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CSphere::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -159,7 +159,7 @@ void CSphere::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CSphere::GetRadius() const noexcept
+SQFloat CSphere::GetRadius() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -174,7 +174,7 @@ SQFloat CSphere::GetRadius() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSphere::SetRadius(SQFloat radius) const noexcept
+void CSphere::SetRadius(SQFloat radius) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -187,7 +187,7 @@ void CSphere::SetRadius(SQFloat radius) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CPlayer > CSphere::GetOwner() const noexcept
+Reference< CPlayer > CSphere::GetOwner() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -202,7 +202,7 @@ Reference< CPlayer > CSphere::GetOwner() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CSphere::GetOwnerID() const noexcept
+SQInt32 CSphere::GetOwnerID() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -220,7 +220,7 @@ SQInt32 CSphere::GetOwnerID() const noexcept
 Reference< CSphere > CreateBaseSphere_PEF(SQInt32 player, SQInt32 world,
                             SQFloat x, SQFloat y, SQFloat z,
                             Uint8 r, Uint8 g, Uint8 b,
-                            SQFloat radius) noexcept
+                            SQFloat radius)
 {
     return _Core->NewSphere(player, world, x, y, z, r, g, b, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -230,7 +230,7 @@ Reference< CSphere > CreateBaseSphere_PEF(SQInt32 player, SQInt32 world,
                             SQFloat x, SQFloat y, SQFloat z,
                             Uint8 r, Uint8 g, Uint8 b,
                             SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewSphere(player, world, x, y, z, r, g, b, radius,
                                 header, payload);
@@ -238,7 +238,7 @@ Reference< CSphere > CreateBaseSphere_PEF(SQInt32 player, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CSphere > CreateBaseSphere_PCF(SQInt32 player, SQInt32 world,
-                            const Vector3 & pos, const Color3 & color, SQFloat radius) noexcept
+                            const Vector3 & pos, const Color3 & color, SQFloat radius)
 {
     return _Core->NewSphere(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -246,7 +246,7 @@ Reference< CSphere > CreateBaseSphere_PCF(SQInt32 player, SQInt32 world,
 
 Reference< CSphere > CreateBaseSphere_PCF(SQInt32 player, SQInt32 world,
                             const Vector3 & pos, const Color3 & color, SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewSphere(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, radius,
                                 header, payload);
@@ -256,7 +256,7 @@ Reference< CSphere > CreateBaseSphere_PCF(SQInt32 player, SQInt32 world,
 Reference< CSphere > CreateBaseSphere_EF(const Reference< CPlayer > & player, SQInt32 world,
                             SQFloat x, SQFloat y, SQFloat z,
                             Uint8 r, Uint8 g, Uint8 b,
-                            SQFloat radius) noexcept
+                            SQFloat radius)
 {
     return _Core->NewSphere(player, world, x, y, z, r, g, b, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -266,7 +266,7 @@ Reference< CSphere > CreateBaseSphere_EF(const Reference< CPlayer > & player, SQ
                             SQFloat x, SQFloat y, SQFloat z,
                             Uint8 r, Uint8 g, Uint8 b,
                             SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewSphere(player, world, x, y, z, r, g, b, radius,
                                 header, payload);
@@ -274,7 +274,7 @@ Reference< CSphere > CreateBaseSphere_EF(const Reference< CPlayer > & player, SQ
 
 // ------------------------------------------------------------------------------------------------
 Reference< CSphere > CreateBaseSphere_CF(const Reference< CPlayer > & player, SQInt32 world,
-                            const Vector3 & pos, const Color3 & color, SQFloat radius) noexcept
+                            const Vector3 & pos, const Color3 & color, SQFloat radius)
 {
     return _Core->NewSphere(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -282,7 +282,7 @@ Reference< CSphere > CreateBaseSphere_CF(const Reference< CPlayer > & player, SQ
 
 Reference< CSphere > CreateBaseSphere_CF(const Reference< CPlayer > & player, SQInt32 world,
                             const Vector3 & pos, const Color3 & color, SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewSphere(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, radius,
                                 header, payload);
@@ -292,7 +292,7 @@ Reference< CSphere > CreateBaseSphere_CF(const Reference< CPlayer > & player, SQ
 CSphere CreateSphere_PEF(SQInt32 player, SQInt32 world,
                                 SQFloat x, SQFloat y, SQFloat z,
                                 Uint8 r, Uint8 g, Uint8 b,
-                                SQFloat radius) noexcept
+                                SQFloat radius)
 {
     return _Core->NewSphere(player, world, x, y, z, r, g, b, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -302,7 +302,7 @@ CSphere CreateSphere_PEF(SQInt32 player, SQInt32 world,
                                 SQFloat x, SQFloat y, SQFloat z,
                                 Uint8 r, Uint8 g, Uint8 b,
                                 SQFloat radius,
-                                SQInt32 header, SqObj & payload) noexcept
+                                SQInt32 header, SqObj & payload)
 {
     return _Core->NewSphere(player, world, x, y, z, r, g, b, radius,
                                 header, payload);
@@ -310,7 +310,7 @@ CSphere CreateSphere_PEF(SQInt32 player, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 CSphere CreateSphere_PCF(SQInt32 player, SQInt32 world,
-                            const Vector3 & pos, const Color3 & color, SQFloat radius) noexcept
+                            const Vector3 & pos, const Color3 & color, SQFloat radius)
 {
     return _Core->NewSphere(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -318,7 +318,7 @@ CSphere CreateSphere_PCF(SQInt32 player, SQInt32 world,
 
 CSphere CreateSphere_PCF(SQInt32 player, SQInt32 world,
                             const Vector3 & pos, const Color3 & color, SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewSphere(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, radius,
                                 header, payload);
@@ -328,7 +328,7 @@ CSphere CreateSphere_PCF(SQInt32 player, SQInt32 world,
 CSphere CreateSphere_EF(const Reference< CPlayer > & player, SQInt32 world,
                                 SQFloat x, SQFloat y, SQFloat z,
                                 Uint8 r, Uint8 g, Uint8 b,
-                                SQFloat radius) noexcept
+                                SQFloat radius)
 {
     return _Core->NewSphere(player, world, x, y, z, r, g, b, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -338,7 +338,7 @@ CSphere CreateSphere_EF(const Reference< CPlayer > & player, SQInt32 world,
                                 SQFloat x, SQFloat y, SQFloat z,
                                 Uint8 r, Uint8 g, Uint8 b,
                                 SQFloat radius,
-                                SQInt32 header, SqObj & payload) noexcept
+                                SQInt32 header, SqObj & payload)
 {
     return _Core->NewSphere(player, world, x, y, z, r, g, b, radius,
                                 header, payload);
@@ -346,7 +346,7 @@ CSphere CreateSphere_EF(const Reference< CPlayer > & player, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 CSphere CreateSphere_CF(const Reference< CPlayer > & player, SQInt32 world,
-                            const Vector3 & pos, const Color3 & color, SQFloat radius) noexcept
+                            const Vector3 & pos, const Color3 & color, SQFloat radius)
 {
     return _Core->NewSphere(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -354,7 +354,7 @@ CSphere CreateSphere_CF(const Reference< CPlayer > & player, SQInt32 world,
 
 CSphere CreateSphere_CF(const Reference< CPlayer > & player, SQInt32 world,
                             const Vector3 & pos, const Color3 & color, SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewSphere(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, radius,
                                 header, payload);

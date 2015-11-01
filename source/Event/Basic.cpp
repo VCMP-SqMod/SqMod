@@ -7,21 +7,21 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-BasicEvent::BasicEvent() noexcept
+BasicEvent::BasicEvent()
     : BasicEvent(EVT_UNKNOWN, false)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-BasicEvent::BasicEvent(SQInt32 type) noexcept
+BasicEvent::BasicEvent(SQInt32 type)
     : BasicEvent(type, false)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-BasicEvent::BasicEvent(SQInt32 type, bool suspended) noexcept
+BasicEvent::BasicEvent(SQInt32 type, bool suspended)
     : m_Type(static_cast<EventType>(type))
     , m_Stride(0)
     , m_Ignore(0)
@@ -49,43 +49,43 @@ BasicEvent::~BasicEvent()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BasicEvent::operator == (const BasicEvent & o) const noexcept
+bool BasicEvent::operator == (const BasicEvent & o) const
 {
     return (m_Type == o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BasicEvent::operator != (const BasicEvent & o) const noexcept
+bool BasicEvent::operator != (const BasicEvent & o) const
 {
     return (m_Type != o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BasicEvent::operator < (const BasicEvent & o) const noexcept
+bool BasicEvent::operator < (const BasicEvent & o) const
 {
     return (m_Type < o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BasicEvent::operator > (const BasicEvent & o) const noexcept
+bool BasicEvent::operator > (const BasicEvent & o) const
 {
     return (m_Type > o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BasicEvent::operator <= (const BasicEvent & o) const noexcept
+bool BasicEvent::operator <= (const BasicEvent & o) const
 {
     return (m_Type <= o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BasicEvent::operator >= (const BasicEvent & o) const noexcept
+bool BasicEvent::operator >= (const BasicEvent & o) const
 {
     return (m_Type >= o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VMClose() noexcept
+void BasicEvent::VMClose()
 {
     // Release the reference to the specified callbacks
     m_OnTrigger.Release2();
@@ -94,7 +94,7 @@ void BasicEvent::VMClose() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 BasicEvent::Cmp(const BasicEvent & o) const noexcept
+SQInt32 BasicEvent::Cmp(const BasicEvent & o) const
 {
     if (m_Type == o.m_Type)
     {
@@ -111,40 +111,40 @@ SQInt32 BasicEvent::Cmp(const BasicEvent & o) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * BasicEvent::GetName() const noexcept
+const SQChar * BasicEvent::GetName() const
 {
     return GetEventName(m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * BasicEvent::GetTag() const noexcept
+const SQChar * BasicEvent::GetTag() const
 {
     return m_Tag.c_str();
 }
 
-void BasicEvent::SetTag(const SQChar * tag) noexcept
+void BasicEvent::SetTag(const SQChar * tag)
 {
     m_Tag = tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-SqObj & BasicEvent::GetData() noexcept
+SqObj & BasicEvent::GetData()
 {
     return m_Data;
 }
 
-void BasicEvent::SetData(SqObj & data) noexcept
+void BasicEvent::SetData(SqObj & data)
 {
     m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 BasicEvent::GetType() const noexcept
+SQInt32 BasicEvent::GetType() const
 {
     return m_Type;
 }
 
-void BasicEvent::SetType(SQInt32 type) noexcept
+void BasicEvent::SetType(SQInt32 type)
 {
     // Make sure the newly specified event is valid
     if (type == EVT_UNKNOWN || type >= EVT_COUNT)
@@ -163,100 +163,100 @@ void BasicEvent::SetType(SQInt32 type) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger BasicEvent::GetIdle() const noexcept
+SQInteger BasicEvent::GetIdle() const
 {
     return _SCSQI(std::chrono::duration_cast<std::chrono::milliseconds>(m_Idle - std::chrono::steady_clock::now()).count());
 }
 
-void BasicEvent::SetIdle(SQInteger millis) noexcept
+void BasicEvent::SetIdle(SQInteger millis)
 {
     m_Idle = (std::chrono::steady_clock::now() + std::chrono::milliseconds(_SCI64(millis)));
 }
 
-bool BasicEvent::IsIdle() const noexcept
+bool BasicEvent::IsIdle() const
 {
     return (m_Idle > std::chrono::steady_clock::now());
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 BasicEvent::GetStride() const noexcept
+SQInt32 BasicEvent::GetStride() const
 {
     return m_Stride;
 }
 
-void BasicEvent::SetStride(SQInt32 stride) noexcept
+void BasicEvent::SetStride(SQInt32 stride)
 {
     m_Stride = stride > 0 ? stride : 0;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 BasicEvent::GetIgnore() const noexcept
+SQInt32 BasicEvent::GetIgnore() const
 {
     return m_Ignore;
 }
 
-void BasicEvent::SetIgnore(SQInt32 ignore) noexcept
+void BasicEvent::SetIgnore(SQInt32 ignore)
 {
     m_Ignore = ignore > 0 ? ignore : 0;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 BasicEvent::GetPrimary() const noexcept
+SQInt32 BasicEvent::GetPrimary() const
 {
     return m_Primary;
 }
 
-void BasicEvent::SetPrimary(SQInt32 subset) noexcept
+void BasicEvent::SetPrimary(SQInt32 subset)
 {
     m_Primary = subset;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 BasicEvent::GetSecondary() const noexcept
+SQInt32 BasicEvent::GetSecondary() const
 {
     return m_Secondary;
 }
 
-void BasicEvent::SetSecondary(SQInt32 subset) noexcept
+void BasicEvent::SetSecondary(SQInt32 subset)
 {
     m_Secondary = subset;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BasicEvent::GetSuspended() const noexcept
+bool BasicEvent::GetSuspended() const
 {
     return m_Suspended;
 }
 
-void BasicEvent::SetSuspended(bool toggle) noexcept
+void BasicEvent::SetSuspended(bool toggle)
 {
     m_Suspended = toggle;
 }
 
 // ------------------------------------------------------------------------------------------------
-Function BasicEvent::GetOnTrigger() const noexcept
+Function BasicEvent::GetOnTrigger() const
 {
     return m_OnTrigger;
 }
 
-void BasicEvent::SetOnTrigger(Function & func) noexcept
+void BasicEvent::SetOnTrigger(Function & func)
 {
     m_OnTrigger = func;
 }
 
-void BasicEvent::SetOnTrigger_Env(SqObj & env, Function & func) noexcept
+void BasicEvent::SetOnTrigger_Env(SqObj & env, Function & func)
 {
     m_OnTrigger = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BasicEvent::Compatible(SQInt32 type) const noexcept
+bool BasicEvent::Compatible(SQInt32 type) const
 {
     return (type != EVT_UNKNOWN && type < EVT_COUNT);
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::BlipCreated(SQInt32 blip, SQInt32 header, Object & payload) noexcept
+void BasicEvent::BlipCreated(SQInt32 blip, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -266,7 +266,7 @@ void BasicEvent::BlipCreated(SQInt32 blip, SQInt32 header, Object & payload) noe
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::CheckpointCreated(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
+void BasicEvent::CheckpointCreated(SQInt32 checkpoint, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -276,7 +276,7 @@ void BasicEvent::CheckpointCreated(SQInt32 checkpoint, SQInt32 header, Object & 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::KeybindCreated(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
+void BasicEvent::KeybindCreated(SQInt32 keybind, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -286,7 +286,7 @@ void BasicEvent::KeybindCreated(SQInt32 keybind, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ObjectCreated(SQInt32 object, SQInt32 header, Object & payload) noexcept
+void BasicEvent::ObjectCreated(SQInt32 object, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -296,7 +296,7 @@ void BasicEvent::ObjectCreated(SQInt32 object, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PickupCreated(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
+void BasicEvent::PickupCreated(SQInt32 pickup, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -306,7 +306,7 @@ void BasicEvent::PickupCreated(SQInt32 pickup, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerCreated(SQInt32 player, SQInt32 header, Object & payload) noexcept
+void BasicEvent::PlayerCreated(SQInt32 player, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -316,7 +316,7 @@ void BasicEvent::PlayerCreated(SQInt32 player, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::SphereCreated(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
+void BasicEvent::SphereCreated(SQInt32 sphere, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -326,7 +326,7 @@ void BasicEvent::SphereCreated(SQInt32 sphere, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::SpriteCreated(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
+void BasicEvent::SpriteCreated(SQInt32 sprite, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -336,7 +336,7 @@ void BasicEvent::SpriteCreated(SQInt32 sprite, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::TextdrawCreated(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
+void BasicEvent::TextdrawCreated(SQInt32 textdraw, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -346,7 +346,7 @@ void BasicEvent::TextdrawCreated(SQInt32 textdraw, SQInt32 header, Object & payl
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleCreated(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
+void BasicEvent::VehicleCreated(SQInt32 vehicle, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -356,7 +356,7 @@ void BasicEvent::VehicleCreated(SQInt32 vehicle, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) noexcept
+void BasicEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -366,7 +366,7 @@ void BasicEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) n
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
+void BasicEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -376,7 +376,7 @@ void BasicEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
+void BasicEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -386,7 +386,7 @@ void BasicEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payl
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload) noexcept
+void BasicEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -396,7 +396,7 @@ void BasicEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
+void BasicEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -406,7 +406,7 @@ void BasicEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload) noexcept
+void BasicEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -416,7 +416,7 @@ void BasicEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
+void BasicEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -426,7 +426,7 @@ void BasicEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
+void BasicEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -436,7 +436,7 @@ void BasicEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
+void BasicEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -446,7 +446,7 @@ void BasicEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & pa
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
+void BasicEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -456,7 +456,7 @@ void BasicEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payl
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload) noexcept
+void BasicEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -466,7 +466,7 @@ void BasicEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload) noex
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
+void BasicEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -476,7 +476,7 @@ void BasicEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & p
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
+void BasicEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -486,7 +486,7 @@ void BasicEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload) noexcept
+void BasicEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -496,7 +496,7 @@ void BasicEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
+void BasicEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -506,7 +506,7 @@ void BasicEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload) noexcept
+void BasicEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -516,7 +516,7 @@ void BasicEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
+void BasicEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -526,7 +526,7 @@ void BasicEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
+void BasicEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -536,7 +536,7 @@ void BasicEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
+void BasicEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -546,7 +546,7 @@ void BasicEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & paylo
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
+void BasicEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -556,7 +556,7 @@ void BasicEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerAway(SQInt32 player, bool status) noexcept
+void BasicEvent::PlayerAway(SQInt32 player, bool status)
 {
     if (Trigger() && \
         (m_Primary < 0 || status == m_Primary) && (m_Secondary < 0 || status == m_Secondary))
@@ -566,7 +566,7 @@ void BasicEvent::PlayerAway(SQInt32 player, bool status) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void BasicEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -576,7 +576,7 @@ void BasicEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 curren
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQChar * current) noexcept
+void BasicEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQChar * current)
 {
     if (Trigger())
     {
@@ -585,7 +585,7 @@ void BasicEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQC
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset) noexcept
+void BasicEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset)
 {
     if (Trigger() && \
         (m_Primary < 0 || offset == m_Primary) && (m_Secondary < 0 || offset == m_Secondary))
@@ -595,7 +595,7 @@ void BasicEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerRequestSpawn(SQInt32 player) noexcept
+void BasicEvent::PlayerRequestSpawn(SQInt32 player)
 {
     if (Trigger())
     {
@@ -604,7 +604,7 @@ void BasicEvent::PlayerRequestSpawn(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerSpawn(SQInt32 player) noexcept
+void BasicEvent::PlayerSpawn(SQInt32 player)
 {
     if (Trigger())
     {
@@ -613,7 +613,7 @@ void BasicEvent::PlayerSpawn(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerStartTyping(SQInt32 player) noexcept
+void BasicEvent::PlayerStartTyping(SQInt32 player)
 {
     if (Trigger())
     {
@@ -622,7 +622,7 @@ void BasicEvent::PlayerStartTyping(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerStopTyping(SQInt32 player) noexcept
+void BasicEvent::PlayerStopTyping(SQInt32 player)
 {
     if (Trigger())
     {
@@ -631,7 +631,7 @@ void BasicEvent::PlayerStopTyping(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerChat(SQInt32 player, const SQChar * message) noexcept
+void BasicEvent::PlayerChat(SQInt32 player, const SQChar * message)
 {
     if (Trigger())
     {
@@ -640,7 +640,7 @@ void BasicEvent::PlayerChat(SQInt32 player, const SQChar * message) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerCommand(SQInt32 player, const SQChar * command) noexcept
+void BasicEvent::PlayerCommand(SQInt32 player, const SQChar * command)
 {
     if (Trigger())
     {
@@ -649,7 +649,7 @@ void BasicEvent::PlayerCommand(SQInt32 player, const SQChar * command) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message) noexcept
+void BasicEvent::PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message)
 {
     if (Trigger())
     {
@@ -658,7 +658,7 @@ void BasicEvent::PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current) noexcept
+void BasicEvent::PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current)
 {
     if (Trigger())
     {
@@ -667,7 +667,7 @@ void BasicEvent::PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current) noexcept
+void BasicEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current)
 {
     if (Trigger())
     {
@@ -676,7 +676,7 @@ void BasicEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void BasicEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -686,7 +686,7 @@ void BasicEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current) noexcept
+void BasicEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current)
 {
     if (Trigger())
     {
@@ -695,7 +695,7 @@ void BasicEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vect
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerWasted(SQInt32 player, SQInt32 reason) noexcept
+void BasicEvent::PlayerWasted(SQInt32 player, SQInt32 reason)
 {
     if (Trigger() && \
         (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || reason == m_Secondary))
@@ -705,7 +705,7 @@ void BasicEvent::PlayerWasted(SQInt32 player, SQInt32 reason) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept
+void BasicEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part)
 {
     if (Trigger() && \
         (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || body_part == m_Secondary))
@@ -715,7 +715,7 @@ void BasicEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQ
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept
+void BasicEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part)
 {
     if (Trigger() && \
         (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || body_part == m_Secondary))
@@ -725,7 +725,7 @@ void BasicEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerSpectate(SQInt32 player, SQInt32 target) noexcept
+void BasicEvent::PlayerSpectate(SQInt32 player, SQInt32 target)
 {
     if (Trigger())
     {
@@ -734,7 +734,7 @@ void BasicEvent::PlayerSpectate(SQInt32 player, SQInt32 target) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerCrashreport(SQInt32 player, const SQChar * report) noexcept
+void BasicEvent::PlayerCrashreport(SQInt32 player, const SQChar * report)
 {
     if (Trigger())
     {
@@ -743,7 +743,7 @@ void BasicEvent::PlayerCrashreport(SQInt32 player, const SQChar * report) noexce
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerBurning(SQInt32 player, bool state) noexcept
+void BasicEvent::PlayerBurning(SQInt32 player, bool state)
 {
     if (Trigger() && \
         (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
@@ -753,7 +753,7 @@ void BasicEvent::PlayerBurning(SQInt32 player, bool state) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerCrouching(SQInt32 player, bool state) noexcept
+void BasicEvent::PlayerCrouching(SQInt32 player, bool state)
 {
     if (Trigger() && \
         (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
@@ -763,7 +763,7 @@ void BasicEvent::PlayerCrouching(SQInt32 player, bool state) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void BasicEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -773,7 +773,7 @@ void BasicEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void BasicEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -783,7 +783,7 @@ void BasicEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::StateNone(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::StateNone(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -793,7 +793,7 @@ void BasicEvent::StateNone(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::StateNormal(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::StateNormal(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -803,7 +803,7 @@ void BasicEvent::StateNormal(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::StateShooting(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::StateShooting(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -813,7 +813,7 @@ void BasicEvent::StateShooting(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::StateDriver(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::StateDriver(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -823,7 +823,7 @@ void BasicEvent::StateDriver(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::StatePassenger(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::StatePassenger(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -833,7 +833,7 @@ void BasicEvent::StatePassenger(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::StateEnterDriver(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::StateEnterDriver(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -843,7 +843,7 @@ void BasicEvent::StateEnterDriver(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -853,7 +853,7 @@ void BasicEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::StateExitVehicle(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::StateExitVehicle(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -863,7 +863,7 @@ void BasicEvent::StateExitVehicle(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::StateUnspawned(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::StateUnspawned(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -873,7 +873,7 @@ void BasicEvent::StateUnspawned(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionNone(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionNone(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -883,7 +883,7 @@ void BasicEvent::ActionNone(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionNormal(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionNormal(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -893,7 +893,7 @@ void BasicEvent::ActionNormal(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionAiming(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionAiming(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -903,7 +903,7 @@ void BasicEvent::ActionAiming(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionShooting(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionShooting(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -913,7 +913,7 @@ void BasicEvent::ActionShooting(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionJumping(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionJumping(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -923,7 +923,7 @@ void BasicEvent::ActionJumping(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionLieDown(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionLieDown(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -933,7 +933,7 @@ void BasicEvent::ActionLieDown(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionGettingUp(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionGettingUp(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -943,7 +943,7 @@ void BasicEvent::ActionGettingUp(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -953,7 +953,7 @@ void BasicEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionDriving(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionDriving(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -963,7 +963,7 @@ void BasicEvent::ActionDriving(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionDying(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionDying(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -973,7 +973,7 @@ void BasicEvent::ActionDying(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionWasted(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionWasted(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -983,7 +983,7 @@ void BasicEvent::ActionWasted(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionEmbarking(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionEmbarking(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -993,7 +993,7 @@ void BasicEvent::ActionEmbarking(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ActionDisembarking(SQInt32 player, SQInt32 previous) noexcept
+void BasicEvent::ActionDisembarking(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1003,7 +1003,7 @@ void BasicEvent::ActionDisembarking(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleRespawn(SQInt32 vehicle) noexcept
+void BasicEvent::VehicleRespawn(SQInt32 vehicle)
 {
     if (Trigger())
     {
@@ -1012,7 +1012,7 @@ void BasicEvent::VehicleRespawn(SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleExplode(SQInt32 vehicle) noexcept
+void BasicEvent::VehicleExplode(SQInt32 vehicle)
 {
     if (Trigger())
     {
@@ -1021,7 +1021,7 @@ void BasicEvent::VehicleExplode(SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current) noexcept
+void BasicEvent::VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current)
 {
     if (Trigger())
     {
@@ -1030,7 +1030,7 @@ void BasicEvent::VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat curren
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 &current) noexcept
+void BasicEvent::VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 &current)
 {
     if (Trigger())
     {
@@ -1039,7 +1039,7 @@ void BasicEvent::VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Ve
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PickupRespawn(SQInt32 pickup) noexcept
+void BasicEvent::PickupRespawn(SQInt32 pickup)
 {
     if (Trigger())
     {
@@ -1048,7 +1048,7 @@ void BasicEvent::PickupRespawn(SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::KeybindKeyPress(SQInt32 player, SQInt32 keybind) noexcept
+void BasicEvent::KeybindKeyPress(SQInt32 player, SQInt32 keybind)
 {
     if (Trigger())
     {
@@ -1057,7 +1057,7 @@ void BasicEvent::KeybindKeyPress(SQInt32 player, SQInt32 keybind) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind) noexcept
+void BasicEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind)
 {
     if (Trigger())
     {
@@ -1066,7 +1066,7 @@ void BasicEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
+void BasicEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 {
     if (Trigger() && \
         (m_Primary < 0 || slot == m_Primary) && (m_Secondary < 0 || slot == m_Secondary))
@@ -1076,7 +1076,7 @@ void BasicEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
+void BasicEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 {
     if (Trigger() && \
         (m_Primary < 0 || slot == m_Primary) && (m_Secondary < 0 || slot == m_Secondary))
@@ -1086,7 +1086,7 @@ void BasicEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::VehicleDisembark(SQInt32 player, SQInt32 vehicle) noexcept
+void BasicEvent::VehicleDisembark(SQInt32 player, SQInt32 vehicle)
 {
     if (Trigger())
     {
@@ -1095,7 +1095,7 @@ void BasicEvent::VehicleDisembark(SQInt32 player, SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PickupClaimed(SQInt32 player, SQInt32 pickup) noexcept
+void BasicEvent::PickupClaimed(SQInt32 player, SQInt32 pickup)
 {
     if (Trigger())
     {
@@ -1104,7 +1104,7 @@ void BasicEvent::PickupClaimed(SQInt32 player, SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::PickupCollected(SQInt32 player, SQInt32 pickup) noexcept
+void BasicEvent::PickupCollected(SQInt32 player, SQInt32 pickup)
 {
     if (Trigger())
     {
@@ -1113,7 +1113,7 @@ void BasicEvent::PickupCollected(SQInt32 player, SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noexcept
+void BasicEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon)
 {
     if (Trigger() && \
         (m_Primary < 0 || weapon == m_Primary) && (m_Secondary < 0 || weapon == m_Secondary))
@@ -1123,7 +1123,7 @@ void BasicEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noex
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ObjectBump(SQInt32 player, SQInt32 object) noexcept
+void BasicEvent::ObjectBump(SQInt32 player, SQInt32 object)
 {
     if (Trigger())
     {
@@ -1132,7 +1132,7 @@ void BasicEvent::ObjectBump(SQInt32 player, SQInt32 object) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::CheckpointEntered(SQInt32 player, SQInt32 checkpoint) noexcept
+void BasicEvent::CheckpointEntered(SQInt32 player, SQInt32 checkpoint)
 {
     if (Trigger())
     {
@@ -1141,7 +1141,7 @@ void BasicEvent::CheckpointEntered(SQInt32 player, SQInt32 checkpoint) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::CheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept
+void BasicEvent::CheckpointExited(SQInt32 player, SQInt32 checkpoint)
 {
     if (Trigger())
     {
@@ -1150,7 +1150,7 @@ void BasicEvent::CheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::SphereEntered(SQInt32 player, SQInt32 sphere) noexcept
+void BasicEvent::SphereEntered(SQInt32 player, SQInt32 sphere)
 {
     if (Trigger())
     {
@@ -1159,7 +1159,7 @@ void BasicEvent::SphereEntered(SQInt32 player, SQInt32 sphere) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::SphereExited(SQInt32 player, SQInt32 sphere) noexcept
+void BasicEvent::SphereExited(SQInt32 player, SQInt32 sphere)
 {
     if (Trigger())
     {
@@ -1168,7 +1168,7 @@ void BasicEvent::SphereExited(SQInt32 player, SQInt32 sphere) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ServerFrame(SQFloat delta) noexcept
+void BasicEvent::ServerFrame(SQFloat delta)
 {
     if (Trigger())
     {
@@ -1177,7 +1177,7 @@ void BasicEvent::ServerFrame(SQFloat delta) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ServerStartup() noexcept
+void BasicEvent::ServerStartup()
 {
     if (Trigger())
     {
@@ -1186,7 +1186,7 @@ void BasicEvent::ServerStartup() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ServerShutdown() noexcept
+void BasicEvent::ServerShutdown()
 {
     if (Trigger())
     {
@@ -1195,7 +1195,7 @@ void BasicEvent::ServerShutdown() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::InternalCommand(SQInt32 type, const SQChar * text) noexcept
+void BasicEvent::InternalCommand(SQInt32 type, const SQChar * text)
 {
     if (Trigger() && \
         (m_Primary < 0 || type == m_Primary) && (m_Secondary < 0 || type == m_Secondary))
@@ -1205,7 +1205,7 @@ void BasicEvent::InternalCommand(SQInt32 type, const SQChar * text) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::LoginAttempt(const SQChar * name, const SQChar * pass, const SQChar * addr) noexcept
+void BasicEvent::LoginAttempt(const SQChar * name, const SQChar * pass, const SQChar * addr)
 {
     if (Trigger())
     {
@@ -1214,7 +1214,7 @@ void BasicEvent::LoginAttempt(const SQChar * name, const SQChar * pass, const SQ
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::CustomEvent(SQInt32 group, SQInt32 header, Object & payload) noexcept
+void BasicEvent::CustomEvent(SQInt32 group, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || group == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -1224,7 +1224,7 @@ void BasicEvent::CustomEvent(SQInt32 group, SQInt32 header, Object & payload) no
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::WorldOption(SQInt32 option, Object & value) noexcept
+void BasicEvent::WorldOption(SQInt32 option, Object & value)
 {
     if (Trigger() && \
         (m_Primary < 0 || option == m_Primary) && (m_Secondary < 0 || option == m_Secondary))
@@ -1234,7 +1234,7 @@ void BasicEvent::WorldOption(SQInt32 option, Object & value) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::WorldToggle(SQInt32 option, bool value) noexcept
+void BasicEvent::WorldToggle(SQInt32 option, bool value)
 {
     if (Trigger() && \
         (m_Primary < 0 || option == m_Primary) && (m_Secondary < 0 || value == m_Secondary))
@@ -1244,7 +1244,7 @@ void BasicEvent::WorldToggle(SQInt32 option, bool value) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::ScriptReload(SQInt32 header, Object & payload) noexcept
+void BasicEvent::ScriptReload(SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -1254,7 +1254,7 @@ void BasicEvent::ScriptReload(SQInt32 header, Object & payload) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::LogMessage(SQInt32 type, const SQChar * message) noexcept
+void BasicEvent::LogMessage(SQInt32 type, const SQChar * message)
 {
     if (Trigger() && \
         (m_Primary < 0 || type == m_Primary) && (m_Secondary < 0 || type == m_Secondary))
@@ -1264,7 +1264,7 @@ void BasicEvent::LogMessage(SQInt32 type, const SQChar * message) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BasicEvent::Trigger() noexcept
+bool BasicEvent::Trigger()
 {
     if (m_Suspended || (m_Idle > std::chrono::steady_clock::now()))
     {
@@ -1289,7 +1289,7 @@ bool BasicEvent::Trigger() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::Attach() noexcept
+void BasicEvent::Attach()
 {
     switch (m_Type)
     {
@@ -1611,7 +1611,7 @@ void BasicEvent::Attach() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::Detach() noexcept
+void BasicEvent::Detach()
 {
     switch (m_Type)
     {

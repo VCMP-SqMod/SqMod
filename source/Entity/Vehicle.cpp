@@ -17,14 +17,14 @@ Vector4      CVehicle::s_Vector4;
 Quaternion   CVehicle::s_Quaternion;
 
 // ------------------------------------------------------------------------------------------------
-CVehicle::CVehicle(const Reference< CVehicle > & o) noexcept
+CVehicle::CVehicle(const Reference< CVehicle > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
+bool CVehicle::IsStreamedFor(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -43,7 +43,7 @@ bool CVehicle::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetSyncSource() const noexcept
+SQInt32 CVehicle::GetSyncSource() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -58,7 +58,7 @@ SQInt32 CVehicle::GetSyncSource() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetSyncType() const noexcept
+SQInt32 CVehicle::GetSyncType() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -73,7 +73,7 @@ SQInt32 CVehicle::GetSyncType() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetWorld() const noexcept
+SQInt32 CVehicle::GetWorld() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -88,7 +88,7 @@ SQInt32 CVehicle::GetWorld() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetWorld(SQInt32 world) const noexcept
+void CVehicle::SetWorld(SQInt32 world) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -101,7 +101,7 @@ void CVehicle::SetWorld(SQInt32 world) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const CAutomobile & CVehicle::GetModel() const noexcept
+const CAutomobile & CVehicle::GetModel() const
 {
     // Clear any previous model
     s_Automobile.SetID(SQMOD_UNKNOWN);
@@ -119,7 +119,7 @@ const CAutomobile & CVehicle::GetModel() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetModelID() const noexcept
+SQInt32 CVehicle::GetModelID() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -134,7 +134,7 @@ SQInt32 CVehicle::GetModelID() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CPlayer > CVehicle::GetOccupant(SQInt32 slot) const noexcept
+Reference< CPlayer > CVehicle::GetOccupant(SQInt32 slot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -149,7 +149,7 @@ Reference< CPlayer > CVehicle::GetOccupant(SQInt32 slot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetOccupantID(SQInt32 slot) const noexcept
+SQInt32 CVehicle::GetOccupantID(SQInt32 slot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -164,7 +164,7 @@ SQInt32 CVehicle::GetOccupantID(SQInt32 slot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::Respawn() const noexcept
+void CVehicle::Respawn() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -177,7 +177,7 @@ void CVehicle::Respawn() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetImmunity() const noexcept
+SQInt32 CVehicle::GetImmunity() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -192,7 +192,7 @@ SQInt32 CVehicle::GetImmunity() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetImmunity(SQInt32 flags) const noexcept
+void CVehicle::SetImmunity(SQInt32 flags) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -205,7 +205,7 @@ void CVehicle::SetImmunity(SQInt32 flags) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::IsWrecked() const noexcept
+bool CVehicle::IsWrecked() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -220,7 +220,7 @@ bool CVehicle::IsWrecked() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CVehicle::GetPosition() const noexcept
+const Vector3 & CVehicle::GetPosition() const
 {
     // Clear any previous position
     s_Vector3.Clear();
@@ -238,7 +238,7 @@ const Vector3 & CVehicle::GetPosition() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPosition(const Vector3 & pos) const noexcept
+void CVehicle::SetPosition(const Vector3 & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -251,7 +251,7 @@ void CVehicle::SetPosition(const Vector3 & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPositionEx(const Vector3 & pos, bool empty) const noexcept
+void CVehicle::SetPositionEx(const Vector3 & pos, bool empty) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -264,7 +264,7 @@ void CVehicle::SetPositionEx(const Vector3 & pos, bool empty) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -277,7 +277,7 @@ void CVehicle::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPositionEx(SQFloat x, SQFloat y, SQFloat z, bool empty) const noexcept
+void CVehicle::SetPositionEx(SQFloat x, SQFloat y, SQFloat z, bool empty) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -290,7 +290,7 @@ void CVehicle::SetPositionEx(SQFloat x, SQFloat y, SQFloat z, bool empty) const 
 }
 
 // ------------------------------------------------------------------------------------------------
-const Quaternion & CVehicle::GetRotation() const noexcept
+const Quaternion & CVehicle::GetRotation() const
 {
     // Clear any previous rotation
     s_Quaternion.Clear();
@@ -308,7 +308,7 @@ const Quaternion & CVehicle::GetRotation() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRotation(const Quaternion & rot) const noexcept
+void CVehicle::SetRotation(const Quaternion & rot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -321,7 +321,7 @@ void CVehicle::SetRotation(const Quaternion & rot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const noexcept
+void CVehicle::SetRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -334,7 +334,7 @@ void CVehicle::SetRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const n
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CVehicle::GetRotationEuler() const noexcept
+const Vector3 & CVehicle::GetRotationEuler() const
 {
     // Clear any previous rotation
     s_Vector3.Clear();
@@ -352,7 +352,7 @@ const Vector3 & CVehicle::GetRotationEuler() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRotationEuler(const Vector3 & rot) const noexcept
+void CVehicle::SetRotationEuler(const Vector3 & rot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -365,7 +365,7 @@ void CVehicle::SetRotationEuler(const Vector3 & rot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::SetRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -378,7 +378,7 @@ void CVehicle::SetRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const noexcep
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CVehicle::GetSpeed() const noexcept
+const Vector3 & CVehicle::GetSpeed() const
 {
     // Clear any previous speed
     s_Vector3.Clear();
@@ -396,7 +396,7 @@ const Vector3 & CVehicle::GetSpeed() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpeed(const Vector3 & vel) const noexcept
+void CVehicle::SetSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -409,7 +409,7 @@ void CVehicle::SetSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::SetSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -422,7 +422,7 @@ void CVehicle::SetSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddSpeed(const Vector3 & vel) const noexcept
+void CVehicle::AddSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -435,7 +435,7 @@ void CVehicle::AddSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::AddSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -448,7 +448,7 @@ void CVehicle::AddSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CVehicle::GetRelSpeed() const noexcept
+const Vector3 & CVehicle::GetRelSpeed() const
 {
     // Clear any previous speed
     s_Vector3.Clear();
@@ -466,7 +466,7 @@ const Vector3 & CVehicle::GetRelSpeed() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRelSpeed(const Vector3 & vel) const noexcept
+void CVehicle::SetRelSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -479,7 +479,7 @@ void CVehicle::SetRelSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::SetRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -492,7 +492,7 @@ void CVehicle::SetRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddRelSpeed(const Vector3 & vel) const noexcept
+void CVehicle::AddRelSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -505,7 +505,7 @@ void CVehicle::AddRelSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::AddRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -518,7 +518,7 @@ void CVehicle::AddRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CVehicle::GetTurnSpeed() const noexcept
+const Vector3 & CVehicle::GetTurnSpeed() const
 {
     // Clear any previous speed
     s_Vector3.Clear();
@@ -536,7 +536,7 @@ const Vector3 & CVehicle::GetTurnSpeed() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetTurnSpeed(const Vector3 & vel) const noexcept
+void CVehicle::SetTurnSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -549,7 +549,7 @@ void CVehicle::SetTurnSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::SetTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -562,7 +562,7 @@ void CVehicle::SetTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddTurnSpeed(const Vector3 & vel) const noexcept
+void CVehicle::AddTurnSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -575,7 +575,7 @@ void CVehicle::AddTurnSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::AddTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -588,7 +588,7 @@ void CVehicle::AddTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CVehicle::GetRelTurnSpeed() const noexcept
+const Vector3 & CVehicle::GetRelTurnSpeed() const
 {
     // Clear any previous speed
     s_Vector3.Clear();
@@ -606,7 +606,7 @@ const Vector3 & CVehicle::GetRelTurnSpeed() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRelTurnSpeed(const Vector3 & vel) const noexcept
+void CVehicle::SetRelTurnSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -619,7 +619,7 @@ void CVehicle::SetRelTurnSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::SetRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -632,7 +632,7 @@ void CVehicle::SetRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddRelTurnSpeed(const Vector3 & vel) const noexcept
+void CVehicle::AddRelTurnSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -645,7 +645,7 @@ void CVehicle::AddRelTurnSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::AddRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -658,7 +658,7 @@ void CVehicle::AddRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector4 & CVehicle::GetSpawnPosition() const noexcept
+const Vector4 & CVehicle::GetSpawnPosition() const
 {
     // Clear any previous position
     s_Vector4.Clear();
@@ -676,7 +676,7 @@ const Vector4 & CVehicle::GetSpawnPosition() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpawnPosition(const Vector4 & pos) const noexcept
+void CVehicle::SetSpawnPosition(const Vector4 & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -689,7 +689,7 @@ void CVehicle::SetSpawnPosition(const Vector4 & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpawnPositionEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const noexcept
+void CVehicle::SetSpawnPositionEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -702,7 +702,7 @@ void CVehicle::SetSpawnPositionEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) co
 }
 
 // ------------------------------------------------------------------------------------------------
-const Quaternion & CVehicle::GetSpawnRotation() const noexcept
+const Quaternion & CVehicle::GetSpawnRotation() const
 {
     // Clear any previous rotation
     s_Quaternion.Clear();
@@ -720,7 +720,7 @@ const Quaternion & CVehicle::GetSpawnRotation() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpawnRotation(const Quaternion & rot) const noexcept
+void CVehicle::SetSpawnRotation(const Quaternion & rot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -733,7 +733,7 @@ void CVehicle::SetSpawnRotation(const Quaternion & rot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpawnRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const noexcept
+void CVehicle::SetSpawnRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -746,7 +746,7 @@ void CVehicle::SetSpawnRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) co
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CVehicle::GetSpawnRotationEuler() const noexcept
+const Vector3 & CVehicle::GetSpawnRotationEuler() const
 {
     // Clear any previous rotation
     s_Vector3.Clear();
@@ -764,7 +764,7 @@ const Vector3 & CVehicle::GetSpawnRotationEuler() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpawnRotationEuler(const Vector3 & rot) const noexcept
+void CVehicle::SetSpawnRotationEuler(const Vector3 & rot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -777,7 +777,7 @@ void CVehicle::SetSpawnRotationEuler(const Vector3 & rot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpawnRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CVehicle::SetSpawnRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -790,7 +790,7 @@ void CVehicle::SetSpawnRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const no
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 CVehicle::GetRespawnTimer() const noexcept
+SQUint32 CVehicle::GetRespawnTimer() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -805,7 +805,7 @@ SQUint32 CVehicle::GetRespawnTimer() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRespawnTimer(SQUint32 timer) const noexcept
+void CVehicle::SetRespawnTimer(SQUint32 timer) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -818,7 +818,7 @@ void CVehicle::SetRespawnTimer(SQUint32 timer) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CVehicle::GetHealth() const noexcept
+SQFloat CVehicle::GetHealth() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -833,7 +833,7 @@ SQFloat CVehicle::GetHealth() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetHealth(SQFloat amount) const noexcept
+void CVehicle::SetHealth(SQFloat amount) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -846,7 +846,7 @@ void CVehicle::SetHealth(SQFloat amount) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetPrimaryColor() const noexcept
+SQInt32 CVehicle::GetPrimaryColor() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -863,7 +863,7 @@ SQInt32 CVehicle::GetPrimaryColor() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPrimaryColor(SQInt32 col) const noexcept
+void CVehicle::SetPrimaryColor(SQInt32 col) const
 {
     if (VALID_ENTITY(m_ID) && VALID_VEHCOL(col))
     {
@@ -882,7 +882,7 @@ void CVehicle::SetPrimaryColor(SQInt32 col) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetSecondaryColor() const noexcept
+SQInt32 CVehicle::GetSecondaryColor() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -899,7 +899,7 @@ SQInt32 CVehicle::GetSecondaryColor() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSecondaryColor(SQInt32 col) const noexcept
+void CVehicle::SetSecondaryColor(SQInt32 col) const
 {
     if (VALID_ENTITY(m_ID) && VALID_VEHCOL(col))
     {
@@ -918,7 +918,7 @@ void CVehicle::SetSecondaryColor(SQInt32 col) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetColors(SQInt32 primary, SQInt32 secondary) const noexcept
+void CVehicle::SetColors(SQInt32 primary, SQInt32 secondary) const
 {
     if (VALID_ENTITY(m_ID) && VALID_VEHCOL(primary) && VALID_VEHCOL(secondary))
     {
@@ -935,7 +935,7 @@ void CVehicle::SetColors(SQInt32 primary, SQInt32 secondary) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::IsLocked() const noexcept
+bool CVehicle::IsLocked() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -950,7 +950,7 @@ bool CVehicle::IsLocked() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetLocked(bool toggle) const noexcept
+void CVehicle::SetLocked(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -963,7 +963,7 @@ void CVehicle::SetLocked(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetPartStatus(SQInt32 part) const noexcept
+SQInt32 CVehicle::GetPartStatus(SQInt32 part) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -978,7 +978,7 @@ SQInt32 CVehicle::GetPartStatus(SQInt32 part) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPartStatus(SQInt32 part, SQInt32 status) const noexcept
+void CVehicle::SetPartStatus(SQInt32 part, SQInt32 status) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -991,7 +991,7 @@ void CVehicle::SetPartStatus(SQInt32 part, SQInt32 status) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetTyreStatus(SQInt32 tyre) const noexcept
+SQInt32 CVehicle::GetTyreStatus(SQInt32 tyre) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1006,7 +1006,7 @@ SQInt32 CVehicle::GetTyreStatus(SQInt32 tyre) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetTyreStatus(SQInt32 tyre, SQInt32 status) const noexcept
+void CVehicle::SetTyreStatus(SQInt32 tyre, SQInt32 status) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1019,7 +1019,7 @@ void CVehicle::SetTyreStatus(SQInt32 tyre, SQInt32 status) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 CVehicle::GetDamageData() const noexcept
+SQUint32 CVehicle::GetDamageData() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1034,7 +1034,7 @@ SQUint32 CVehicle::GetDamageData() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetDamageData(SQUint32 data) const noexcept
+void CVehicle::SetDamageData(SQUint32 data) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1047,7 +1047,7 @@ void CVehicle::SetDamageData(SQUint32 data) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::HasAlarm() const noexcept
+bool CVehicle::HasAlarm() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1062,7 +1062,7 @@ bool CVehicle::HasAlarm() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetAlarm(bool toggle) const noexcept
+void CVehicle::SetAlarm(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1075,7 +1075,7 @@ void CVehicle::SetAlarm(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::HasLights() const noexcept
+bool CVehicle::HasLights() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1090,7 +1090,7 @@ bool CVehicle::HasLights() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetLights(bool toggle) const noexcept
+void CVehicle::SetLights(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1103,7 +1103,7 @@ void CVehicle::SetLights(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CVehicle::GetRadio() const noexcept
+SQInt32 CVehicle::GetRadio() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1118,7 +1118,7 @@ SQInt32 CVehicle::GetRadio() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRadio(SQInt32 radio) const noexcept
+void CVehicle::SetRadio(SQInt32 radio) const
 {
     if (VALID_ENTITY(m_ID) && VALID_ENTITY(radio))
     {
@@ -1135,7 +1135,7 @@ void CVehicle::SetRadio(SQInt32 radio) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::IsRadioLocked() const noexcept
+bool CVehicle::IsRadioLocked() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1150,7 +1150,7 @@ bool CVehicle::IsRadioLocked() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRadioLocked(bool toggle) const noexcept
+void CVehicle::SetRadioLocked(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1163,7 +1163,7 @@ void CVehicle::SetRadioLocked(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::IsGhostState() const noexcept
+bool CVehicle::IsGhostState() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1178,7 +1178,7 @@ bool CVehicle::IsGhostState() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetGhostState(bool toggle) const noexcept
+void CVehicle::SetGhostState(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1191,7 +1191,7 @@ void CVehicle::SetGhostState(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::ResetHandling() const noexcept
+void CVehicle::ResetHandling() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1204,7 +1204,7 @@ void CVehicle::ResetHandling() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::ResetHandling(SQInt32 rule) const noexcept
+void CVehicle::ResetHandling(SQInt32 rule) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1217,7 +1217,7 @@ void CVehicle::ResetHandling(SQInt32 rule) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::ExistsHandling(SQInt32 rule) const noexcept
+bool CVehicle::ExistsHandling(SQInt32 rule) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1232,7 +1232,7 @@ bool CVehicle::ExistsHandling(SQInt32 rule) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CVehicle::GetHandlingData(SQInt32 rule) const noexcept
+SQFloat CVehicle::GetHandlingData(SQInt32 rule) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1247,7 +1247,7 @@ SQFloat CVehicle::GetHandlingData(SQInt32 rule) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetHandlingData(SQInt32 rule, SQFloat data) const noexcept
+void CVehicle::SetHandlingData(SQInt32 rule, SQFloat data) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1260,7 +1260,7 @@ void CVehicle::SetHandlingData(SQInt32 rule, SQFloat data) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::Embark(const Reference< CPlayer > & player) const noexcept
+void CVehicle::Embark(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -1277,7 +1277,7 @@ void CVehicle::Embark(const Reference< CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::Embark(const Reference< CPlayer > & player, SQInt32 slot, bool allocate, bool warp) const noexcept
+void CVehicle::Embark(const Reference< CPlayer > & player, SQInt32 slot, bool allocate, bool warp) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -1296,7 +1296,7 @@ void CVehicle::Embark(const Reference< CPlayer > & player, SQInt32 slot, bool al
 // ------------------------------------------------------------------------------------------------
 Reference< CVehicle > CreateBaseVehicle_PEF(SQInt32 model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary)
 {
     return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -1305,7 +1305,7 @@ Reference< CVehicle > CreateBaseVehicle_PEF(SQInt32 model, SQInt32 world,
 Reference< CVehicle > CreateBaseVehicle_PEF(SQInt32 model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             header, payload);
@@ -1313,7 +1313,7 @@ Reference< CVehicle > CreateBaseVehicle_PEF(SQInt32 model, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CVehicle > CreateBaseVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
-                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary)
 {
     return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -1321,7 +1321,7 @@ Reference< CVehicle > CreateBaseVehicle_PCF(SQInt32 model, SQInt32 world, const 
 
 Reference< CVehicle > CreateBaseVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
                         SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             header, payload);
@@ -1330,7 +1330,7 @@ Reference< CVehicle > CreateBaseVehicle_PCF(SQInt32 model, SQInt32 world, const 
 // ------------------------------------------------------------------------------------------------
 Reference< CVehicle > CreateBaseVehicle_EF(const CAutomobile & model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary)
 {
     return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -1339,7 +1339,7 @@ Reference< CVehicle > CreateBaseVehicle_EF(const CAutomobile & model, SQInt32 wo
 Reference< CVehicle > CreateBaseVehicle_EF(const CAutomobile & model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             header, payload);
@@ -1348,7 +1348,7 @@ Reference< CVehicle > CreateBaseVehicle_EF(const CAutomobile & model, SQInt32 wo
 // ------------------------------------------------------------------------------------------------
 Reference< CVehicle > CreateBaseVehicle_CF(const CAutomobile & model, SQInt32 world,
                         const Vector3 & pos, SQFloat angle,
-                        SQInt32 primary, SQInt32 secondary) noexcept
+                        SQInt32 primary, SQInt32 secondary)
 {
     return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -1356,7 +1356,7 @@ Reference< CVehicle > CreateBaseVehicle_CF(const CAutomobile & model, SQInt32 wo
 
 Reference< CVehicle > CreateBaseVehicle_CF(const CAutomobile & model, SQInt32 world,
                         const Vector3 & pos, SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             header, payload);
@@ -1365,7 +1365,7 @@ Reference< CVehicle > CreateBaseVehicle_CF(const CAutomobile & model, SQInt32 wo
 // ------------------------------------------------------------------------------------------------
 CVehicle CreateVehicle_PEF(SQInt32 model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary)
 {
     return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -1374,7 +1374,7 @@ CVehicle CreateVehicle_PEF(SQInt32 model, SQInt32 world,
 CVehicle CreateVehicle_PEF(SQInt32 model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             header, payload);
@@ -1382,7 +1382,7 @@ CVehicle CreateVehicle_PEF(SQInt32 model, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 CVehicle CreateVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
-                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary)
 {
     return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -1390,7 +1390,7 @@ CVehicle CreateVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
 
 CVehicle CreateVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
                         SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             header, payload);
@@ -1399,7 +1399,7 @@ CVehicle CreateVehicle_PCF(SQInt32 model, SQInt32 world, const Vector3 & pos,
 // ------------------------------------------------------------------------------------------------
 CVehicle CreateVehicle_EF(const CAutomobile & model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
+                        SQFloat angle, SQInt32 primary, SQInt32 secondary)
 {
     return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -1408,7 +1408,7 @@ CVehicle CreateVehicle_EF(const CAutomobile & model, SQInt32 world,
 CVehicle CreateVehicle_EF(const CAutomobile & model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             header, payload);
@@ -1417,7 +1417,7 @@ CVehicle CreateVehicle_EF(const CAutomobile & model, SQInt32 world,
 // ------------------------------------------------------------------------------------------------
 CVehicle CreateVehicle_CF(const CAutomobile & model, SQInt32 world,
                         const Vector3 & pos, SQFloat angle,
-                        SQInt32 primary, SQInt32 secondary) noexcept
+                        SQInt32 primary, SQInt32 secondary)
 {
     return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -1425,7 +1425,7 @@ CVehicle CreateVehicle_CF(const CAutomobile & model, SQInt32 world,
 
 CVehicle CreateVehicle_CF(const CAutomobile & model, SQInt32 world,
                         const Vector3 & pos, SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             header, payload);

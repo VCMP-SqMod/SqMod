@@ -47,7 +47,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    String ToString() noexcept
+    String ToString()
     {
         return m_Encoder.getHash();
     }
@@ -55,7 +55,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Reset() noexcept
+    void Reset()
     {
         m_Encoder.reset();
     }
@@ -63,7 +63,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    String Compute(const String & str) noexcept
+    String Compute(const String & str)
     {
         return m_Encoder(str);
     }
@@ -71,7 +71,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    String GetHash() noexcept
+    String GetHash()
     {
         return m_Encoder.getHash();
     }
@@ -79,7 +79,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void AddStr(const String & str) noexcept
+    void AddStr(const String & str)
     {
         m_Encoder.add(str.data(), str.length() * sizeof(String::value_type));
     }

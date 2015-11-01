@@ -13,7 +13,7 @@ namespace SqMod {
 */
 
 // ------------------------------------------------------------------------------------------------
-bool RegisterAPI(HSQUIRRELVM vm) noexcept
+bool RegisterAPI(HSQUIRRELVM vm)
 {
     if (_Log->cFtl(!Register_AABB(vm), "Unable to register: AABB") || \
         _Log->cFtl(!Register_Circle(vm), "Unable to register: Circle") || \

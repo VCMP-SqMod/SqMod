@@ -45,19 +45,19 @@ protected:
         Node *          m_Next;
 
         // ----------------------------------------------------------------------------------------
-        Node(Executor e, void * t, Node * n) noexcept
+        Node(Executor e, void * t, Node * n)
             : m_Exec(e), m_This(t), m_Next(n)
         {
             /* ... */
         }
 
         // ----------------------------------------------------------------------------------------
-        Node(const Node &) noexcept = default;
-        Node(Node &&) noexcept = default;
+        Node(const Node &) = default;
+        Node(Node &&) = default;
 
         // ----------------------------------------------------------------------------------------
-        Node & operator = (const Node &) noexcept = default;
-        Node & operator = (Node &&) noexcept = default;
+        Node & operator = (const Node &) = default;
+        Node & operator = (Node &&) = default;
     };
 
     // --------------------------------------------------------------------------------------------
@@ -67,13 +67,13 @@ protected:
         Node * m_Head;
 
         // ----------------------------------------------------------------------------------------
-        Container() noexcept : m_Head(0) { /* ... */ }
+        Container() : m_Head(0) { /* ... */ }
 
-        Container(Node * n) noexcept : m_Head(n) { /* ... */ }
+        Container(Node * n) : m_Head(n) { /* ... */ }
 
         // ----------------------------------------------------------------------------------------
-        Container(const Container &) noexcept = default;
-        Container(Container &&) noexcept = default;
+        Container(const Container &) = default;
+        Container(Container &&) = default;
 
         // ----------------------------------------------------------------------------------------
         ~Container()
@@ -82,11 +82,11 @@ protected:
         }
 
         // ----------------------------------------------------------------------------------------
-        Container & operator = (const Container &) noexcept = default;
-        Container & operator = (Container &&) noexcept = default;
+        Container & operator = (const Container &) = default;
+        Container & operator = (Container &&) = default;
 
         // ----------------------------------------------------------------------------------------
-        void Remove(Executor e, void * t) noexcept
+        void Remove(Executor e, void * t)
         {
             for (Node * node = m_Head, * prev = 0; node; prev = node, node = node->m_Next)
             {
@@ -119,7 +119,7 @@ protected:
     };
 
     // --------------------------------------------------------------------------------------------
-    template < Ret (* FPtr) (Args...) > static inline Executor Free() noexcept
+    template < Ret (* FPtr) (Args...) > static inline Executor Free()
     {
         return [](void * /* NULL */, Args... args) -> Ret {
                  return (*FPtr)(std::forward<Args>(args)...);
@@ -127,7 +127,7 @@ protected:
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename T, Ret (T::* MPtr) (Args...) > static inline Executor Member() noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) > static inline Executor Member()
     {
         return [](void * thisptr, Args... args) -> Ret {
                 return (static_cast<T *>(thisptr)->*MPtr)(std::forward<Args>(args)...);
@@ -135,7 +135,7 @@ protected:
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename T, Ret (T::* MPtr) (Args...) const> static inline Executor Member() noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) const> static inline Executor Member()
     {
         return [](void * thisptr, Args... args) -> Ret {
                 return (static_cast<T *>(thisptr)->*MPtr)(std::forward<Args>(args)...);
@@ -143,7 +143,7 @@ protected:
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename L > static inline Executor Lambda() noexcept
+    template < typename L > static inline Executor Lambda()
     {
         return [](void * thisptr, Args... args) -> Ret {
                 return (static_cast<L *>(thisptr)->operator()(std::forward<Args>(args)...));
@@ -156,85 +156,85 @@ public:
     typedef Ret Return;
 
     // --------------------------------------------------------------------------------------------
-    template < Ret (* FPtr) (Args...) > void Connect() noexcept
+    template < Ret (* FPtr) (Args...) > void Connect()
     {
         m_Nodes.m_Head = new Node(Free< FPtr >(), 0, m_Nodes.m_Head);
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename T, Ret (T::* MPtr) (Args...) > void Connect(T * ptr) noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) > void Connect(T * ptr)
     {
         m_Nodes.m_Head = new Node(Member< T, MPtr >(), ptr, m_Nodes.m_Head);
     }
 
-    template < typename T, Ret (T::* MPtr) (Args...) > void Connect(T & ptr) noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) > void Connect(T & ptr)
     {
         m_Nodes.m_Head = new Node(Member< T, MPtr >(), std::addressof(ptr), m_Nodes.m_Head);
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename T, Ret (T::* MPtr) (Args...) const > void Connect(T * ptr) noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) const > void Connect(T * ptr)
     {
         m_Nodes.m_Head = new Node(Member< T, MPtr >(), ptr, m_Nodes.m_Head);
     }
 
-    template < typename T, Ret (T::* MPtr) (Args...) const > void Connect(T & ptr) noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) const > void Connect(T & ptr)
     {
         m_Nodes.m_Head = new Node(Member< T, MPtr >(), std::addressof(ptr), m_Nodes.m_Head);
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename L > void Connect(L * ptr) noexcept
+    template < typename L > void Connect(L * ptr)
     {
         m_Nodes.m_Head = new Node(Lambda< L >(), ptr, m_Nodes.m_Head);
     }
 
-    template < typename L > void Connect(L & ptr) noexcept
+    template < typename L > void Connect(L & ptr)
     {
         m_Nodes.m_Head = new Node(Lambda< L >(), std::addressof(ptr), m_Nodes.m_Head);
     }
 
     // --------------------------------------------------------------------------------------------
-    template < Ret (* FPtr) (Args...) > void Disconnect() noexcept
+    template < Ret (* FPtr) (Args...) > void Disconnect()
     {
         m_Nodes.Remove(Free< FPtr >(), 0);
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename T, Ret (T::* MPtr) (Args...) > void Disconnect(T * ptr) noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) > void Disconnect(T * ptr)
     {
         m_Nodes.Remove(Member< T, MPtr >(), ptr);
     }
 
-    template < typename T, Ret (T::* MPtr) (Args...) > void Disconnect(T & ptr) noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) > void Disconnect(T & ptr)
     {
         m_Nodes.Remove(Member< T, MPtr >(), std::addressof(ptr));
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename T, Ret (T::* MPtr) (Args...) const > void Disconnect(T * ptr) noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) const > void Disconnect(T * ptr)
     {
         m_Nodes.Remove(Member< T, MPtr >(), ptr);
     }
 
-    template < typename T, Ret (T::* MPtr) (Args...) const > void Disconnect(T & ptr) noexcept
+    template < typename T, Ret (T::* MPtr) (Args...) const > void Disconnect(T & ptr)
     {
         m_Nodes.Remove(Member< T, MPtr >(), std::addressof(ptr));
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename L > void Disconnect(L * ptr) noexcept
+    template < typename L > void Disconnect(L * ptr)
     {
         m_Nodes.Remove(Lambda< L >(), ptr);
     }
 
-    template < typename L > void Disconnect(L & ptr) noexcept
+    template < typename L > void Disconnect(L & ptr)
     {
         m_Nodes.Remove(Lambda< L >(), std::addressof(ptr));
     }
 
     // --------------------------------------------------------------------------------------------
-    void Clear() noexcept
+    void Clear()
     {
         m_Nodes.Clear();
     }

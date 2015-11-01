@@ -16,7 +16,7 @@ irc_callbacks_t Session::s_Callbacks;
 bool            Session::s_Initialized = false;
 
 // ------------------------------------------------------------------------------------------------
-Session::Session() noexcept
+Session::Session()
     : m_Session(irc_create_session(GetCallbacks()))
 {
     if (!m_Session)
@@ -53,7 +53,7 @@ Session::~Session()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::Process(SQFloat delta) noexcept
+void Session::Process(SQFloat delta)
 {
     SQMOD_UNUSED_VAR(delta);
     // Make sure that the IRC session is connected
@@ -90,7 +90,7 @@ void Session::Process(SQFloat delta) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::VMClose() noexcept
+void Session::VMClose()
 {
     // Release the reference to the specified callback
     m_OnConnect.Release2();
@@ -119,7 +119,7 @@ void Session::VMClose() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-irc_callbacks_t * Session::GetCallbacks() noexcept
+irc_callbacks_t * Session::GetCallbacks()
 {
     // See if the callbacks structure was initialized before
     if (!s_Initialized)
@@ -154,7 +154,7 @@ irc_callbacks_t * Session::GetCallbacks() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Function & listener, const char * event, const char * origin, const char ** params, unsigned int count) noexcept
+void Session::ForwardEvent(Function & listener, const char * event, const char * origin, const char ** params, unsigned int count)
 {
     if (listener.IsNull())
     {
@@ -175,7 +175,7 @@ void Session::ForwardEvent(Function & listener, const char * event, const char *
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Function & listener, unsigned int event, const char * origin, const char ** params, unsigned int count) noexcept
+void Session::ForwardEvent(Function & listener, unsigned int event, const char * origin, const char ** params, unsigned int count)
 {
     if (listener.IsNull())
     {
@@ -196,7 +196,7 @@ void Session::ForwardEvent(Function & listener, unsigned int event, const char *
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Function & listener, const char * nick, const char * addr, irc_dcc_t dccid) noexcept
+void Session::ForwardEvent(Function & listener, const char * nick, const char * addr, irc_dcc_t dccid)
 {
     SQMOD_UNUSED_VAR(listener);
     SQMOD_UNUSED_VAR(nick);
@@ -206,7 +206,7 @@ void Session::ForwardEvent(Function & listener, const char * nick, const char * 
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Function & listener, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid) noexcept
+void Session::ForwardEvent(Function & listener, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid)
 {
     SQMOD_UNUSED_VAR(listener);
     SQMOD_UNUSED_VAR(nick);
@@ -218,7 +218,7 @@ void Session::ForwardEvent(Function & listener, const char * nick, const char * 
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::Cmp(const Session & o) const noexcept
+SQInt32 Session::Cmp(const Session & o) const
 {
     if (m_Session == o.m_Session)
     {
@@ -235,421 +235,421 @@ SQInt32 Session::Cmp(const Session & o) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Session::ToString() const noexcept
+const SQChar * Session::ToString() const
 {
     return _SC("");
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Session::GetTag() const noexcept
+const SQChar * Session::GetTag() const
 {
     return m_Tag.c_str();
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetTag(const SQChar * tag) noexcept
+void Session::SetTag(const SQChar * tag)
 {
     m_Tag.assign(tag);
 }
 
 // ------------------------------------------------------------------------------------------------
-SqObj & Session::GetData() noexcept
+SqObj & Session::GetData()
 {
     return m_Data;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetData(SqObj & data) noexcept
+void Session::SetData(SqObj & data)
 {
     m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnConnect() noexcept
+Function Session::GetOnConnect()
 {
     return m_OnConnect;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnConnect(Function & func) noexcept
+void Session::SetOnConnect(Function & func)
 {
     m_OnConnect = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnConnect_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnConnect_Env(SqObj & env, Function & func)
 {
     m_OnConnect = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnNick() noexcept
+Function Session::GetOnNick()
 {
     return m_OnNick;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnNick(Function & func) noexcept
+void Session::SetOnNick(Function & func)
 {
     m_OnNick = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnNick_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnNick_Env(SqObj & env, Function & func)
 {
     m_OnNick = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnQuit() noexcept
+Function Session::GetOnQuit()
 {
     return m_OnQuit;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnQuit(Function & func) noexcept
+void Session::SetOnQuit(Function & func)
 {
     m_OnQuit = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnQuit_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnQuit_Env(SqObj & env, Function & func)
 {
     m_OnQuit = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnJoin() noexcept
+Function Session::GetOnJoin()
 {
     return m_OnJoin;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnJoin(Function & func) noexcept
+void Session::SetOnJoin(Function & func)
 {
     m_OnJoin = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnJoin_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnJoin_Env(SqObj & env, Function & func)
 {
     m_OnJoin = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnPart() noexcept
+Function Session::GetOnPart()
 {
     return m_OnPart;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnPart(Function & func) noexcept
+void Session::SetOnPart(Function & func)
 {
     m_OnPart = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnPart_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnPart_Env(SqObj & env, Function & func)
 {
     m_OnPart = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnMode() noexcept
+Function Session::GetOnMode()
 {
     return m_OnMode;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnMode(Function & func) noexcept
+void Session::SetOnMode(Function & func)
 {
     m_OnMode = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnMode_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnMode_Env(SqObj & env, Function & func)
 {
     m_OnMode = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnUmode() noexcept
+Function Session::GetOnUmode()
 {
     return m_OnUmode;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnUmode(Function & func) noexcept
+void Session::SetOnUmode(Function & func)
 {
     m_OnUmode = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnUmode_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnUmode_Env(SqObj & env, Function & func)
 {
     m_OnUmode = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnTopic() noexcept
+Function Session::GetOnTopic()
 {
     return m_OnTopic;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnTopic(Function & func) noexcept
+void Session::SetOnTopic(Function & func)
 {
     m_OnTopic = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnTopic_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnTopic_Env(SqObj & env, Function & func)
 {
     m_OnTopic = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnKick() noexcept
+Function Session::GetOnKick()
 {
     return m_OnKick;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnKick(Function & func) noexcept
+void Session::SetOnKick(Function & func)
 {
     m_OnKick = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnKick_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnKick_Env(SqObj & env, Function & func)
 {
     m_OnKick = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnChannel() noexcept
+Function Session::GetOnChannel()
 {
     return m_OnChannel;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnChannel(Function & func) noexcept
+void Session::SetOnChannel(Function & func)
 {
     m_OnChannel = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnChannel_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnChannel_Env(SqObj & env, Function & func)
 {
     m_OnChannel = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnPrivMSG() noexcept
+Function Session::GetOnPrivMSG()
 {
     return m_OnPrivMSG;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnPrivMSG(Function & func) noexcept
+void Session::SetOnPrivMSG(Function & func)
 {
     m_OnPrivMSG = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnPrivMSG_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnPrivMSG_Env(SqObj & env, Function & func)
 {
     m_OnPrivMSG = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnNotice() noexcept
+Function Session::GetOnNotice()
 {
     return m_OnNotice;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnNotice(Function & func) noexcept
+void Session::SetOnNotice(Function & func)
 {
     m_OnNotice = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnNotice_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnNotice_Env(SqObj & env, Function & func)
 {
     m_OnNotice = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnChannel_Notice() noexcept
+Function Session::GetOnChannel_Notice()
 {
     return m_OnChannel_Notice;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnChannel_Notice(Function & func) noexcept
+void Session::SetOnChannel_Notice(Function & func)
 {
     m_OnChannel_Notice = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnChannel_Notice_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnChannel_Notice_Env(SqObj & env, Function & func)
 {
     m_OnChannel_Notice = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnInvite() noexcept
+Function Session::GetOnInvite()
 {
     return m_OnInvite;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnInvite(Function & func) noexcept
+void Session::SetOnInvite(Function & func)
 {
     m_OnInvite = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnInvite_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnInvite_Env(SqObj & env, Function & func)
 {
     m_OnInvite = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnCTCP_Req() noexcept
+Function Session::GetOnCTCP_Req()
 {
     return m_OnCTCP_Req;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnCTCP_Req(Function & func) noexcept
+void Session::SetOnCTCP_Req(Function & func)
 {
     m_OnCTCP_Req = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnCTCP_Req_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnCTCP_Req_Env(SqObj & env, Function & func)
 {
     m_OnCTCP_Req = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnCTCP_Rep() noexcept
+Function Session::GetOnCTCP_Rep()
 {
     return m_OnCTCP_Rep;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnCTCP_Rep(Function & func) noexcept
+void Session::SetOnCTCP_Rep(Function & func)
 {
     m_OnCTCP_Rep = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnCTCP_Rep_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnCTCP_Rep_Env(SqObj & env, Function & func)
 {
     m_OnCTCP_Rep = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnCTCP_Action() noexcept
+Function Session::GetOnCTCP_Action()
 {
     return m_OnCTCP_Action;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnCTCP_Action(Function & func) noexcept
+void Session::SetOnCTCP_Action(Function & func)
 {
     m_OnCTCP_Action = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnCTCP_Action_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnCTCP_Action_Env(SqObj & env, Function & func)
 {
     m_OnCTCP_Action = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnUnknown() noexcept
+Function Session::GetOnUnknown()
 {
     return m_OnUnknown;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnUnknown(Function & func) noexcept
+void Session::SetOnUnknown(Function & func)
 {
     m_OnUnknown = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnUnknown_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnUnknown_Env(SqObj & env, Function & func)
 {
     m_OnUnknown = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnNumeric() noexcept
+Function Session::GetOnNumeric()
 {
     return m_OnNumeric;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnNumeric(Function & func) noexcept
+void Session::SetOnNumeric(Function & func)
 {
     m_OnNumeric = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnNumeric_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnNumeric_Env(SqObj & env, Function & func)
 {
     m_OnNumeric = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnDcc_Chat_Req() noexcept
+Function Session::GetOnDcc_Chat_Req()
 {
     return m_OnDcc_Chat_Req;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnDcc_Chat_Req(Function & func) noexcept
+void Session::SetOnDcc_Chat_Req(Function & func)
 {
     m_OnDcc_Chat_Req = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnDcc_Chat_Req_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnDcc_Chat_Req_Env(SqObj & env, Function & func)
 {
     m_OnDcc_Chat_Req = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function Session::GetOnDcc_Send_Req() noexcept
+Function Session::GetOnDcc_Send_Req()
 {
     return m_OnDcc_Send_Req;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnDcc_Send_Req(Function & func) noexcept
+void Session::SetOnDcc_Send_Req(Function & func)
 {
     m_OnDcc_Send_Req = func;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOnDcc_Send_Req_Env(SqObj & env, Function & func) noexcept
+void Session::SetOnDcc_Send_Req_Env(SqObj & env, Function & func)
 {
     m_OnDcc_Send_Req = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Session::IsValid() const noexcept
+bool Session::IsValid() const
 {
     return (m_Session != nullptr);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick) noexcept
+SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick)
 {
     if (m_Session != nullptr)
     {
@@ -664,7 +664,7 @@ SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * ni
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd) noexcept
+SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd)
 {
     if (m_Session != nullptr)
     {
@@ -680,7 +680,7 @@ SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * ni
 
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
-                const SQChar * username) noexcept
+                const SQChar * username)
 {
     if (m_Session != nullptr)
     {
@@ -696,7 +696,7 @@ SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * ni
 
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
-                const SQChar * username, const SQChar * realname) noexcept
+                const SQChar * username, const SQChar * realname)
 {
     if (m_Session != nullptr)
     {
@@ -711,7 +711,7 @@ SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * ni
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick) noexcept
+SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick)
 {
     if (m_Session != nullptr)
     {
@@ -726,7 +726,7 @@ SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * n
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd) noexcept
+SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd)
 {
     if (m_Session != nullptr)
     {
@@ -742,7 +742,7 @@ SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * n
 
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
-                const SQChar * username) noexcept
+                const SQChar * username)
 {
     if (m_Session != nullptr)
     {
@@ -758,7 +758,7 @@ SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * n
 
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
-                const SQChar * username, const SQChar * realname) noexcept
+                const SQChar * username, const SQChar * realname)
 {
     if (m_Session != nullptr)
     {
@@ -773,7 +773,7 @@ SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * n
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::Disconnect() noexcept
+void Session::Disconnect()
 {
     if (m_Session != nullptr)
     {
@@ -786,7 +786,7 @@ void Session::Disconnect() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Session::IsConnected() noexcept
+bool Session::IsConnected()
 {
     if (m_Session != nullptr)
     {
@@ -801,7 +801,7 @@ bool Session::IsConnected() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdJoin(const SQChar * channel) noexcept
+SQInt32 Session::CmdJoin(const SQChar * channel)
 {
     if (m_Session != nullptr)
     {
@@ -816,7 +816,7 @@ SQInt32 Session::CmdJoin(const SQChar * channel) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdJoin(const SQChar * channel, const SQChar * key) noexcept
+SQInt32 Session::CmdJoin(const SQChar * channel, const SQChar * key)
 {
     if (m_Session != nullptr)
     {
@@ -831,7 +831,7 @@ SQInt32 Session::CmdJoin(const SQChar * channel, const SQChar * key) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdPart(const SQChar * channel) noexcept
+SQInt32 Session::CmdPart(const SQChar * channel)
 {
     if (m_Session != nullptr)
     {
@@ -846,7 +846,7 @@ SQInt32 Session::CmdPart(const SQChar * channel) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdInvite(const SQChar * nick, const SQChar * channel) noexcept
+SQInt32 Session::CmdInvite(const SQChar * nick, const SQChar * channel)
 {
     if (m_Session != nullptr)
     {
@@ -861,7 +861,7 @@ SQInt32 Session::CmdInvite(const SQChar * nick, const SQChar * channel) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdNames(const SQChar * channel) noexcept
+SQInt32 Session::CmdNames(const SQChar * channel)
 {
     if (m_Session != nullptr)
     {
@@ -876,7 +876,7 @@ SQInt32 Session::CmdNames(const SQChar * channel) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdList() noexcept
+SQInt32 Session::CmdList()
 {
     if (m_Session != nullptr)
     {
@@ -891,7 +891,7 @@ SQInt32 Session::CmdList() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdList(const SQChar * channel) noexcept
+SQInt32 Session::CmdList(const SQChar * channel)
 {
     if (m_Session != nullptr)
     {
@@ -906,7 +906,7 @@ SQInt32 Session::CmdList(const SQChar * channel) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdTopic(const SQChar * channel) noexcept
+SQInt32 Session::CmdTopic(const SQChar * channel)
 {
     if (m_Session != nullptr)
     {
@@ -921,7 +921,7 @@ SQInt32 Session::CmdTopic(const SQChar * channel) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdTopic(const SQChar * channel, const SQChar * topic) noexcept
+SQInt32 Session::CmdTopic(const SQChar * channel, const SQChar * topic)
 {
     if (m_Session != nullptr)
     {
@@ -936,7 +936,7 @@ SQInt32 Session::CmdTopic(const SQChar * channel, const SQChar * topic) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdChannelMode(const SQChar * channel) noexcept
+SQInt32 Session::CmdChannelMode(const SQChar * channel)
 {
     if (m_Session != nullptr)
     {
@@ -951,7 +951,7 @@ SQInt32 Session::CmdChannelMode(const SQChar * channel) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdChannelMode(const SQChar * channel, const SQChar * mode) noexcept
+SQInt32 Session::CmdChannelMode(const SQChar * channel, const SQChar * mode)
 {
     if (m_Session != nullptr)
     {
@@ -966,7 +966,7 @@ SQInt32 Session::CmdChannelMode(const SQChar * channel, const SQChar * mode) noe
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdUserMode() noexcept
+SQInt32 Session::CmdUserMode()
 {
     if (m_Session != nullptr)
     {
@@ -981,7 +981,7 @@ SQInt32 Session::CmdUserMode() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdUserMode(const SQChar * mode) noexcept
+SQInt32 Session::CmdUserMode(const SQChar * mode)
 {
     if (m_Session != nullptr)
     {
@@ -996,7 +996,7 @@ SQInt32 Session::CmdUserMode(const SQChar * mode) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdKick(const SQChar * nick, const SQChar * channel) noexcept
+SQInt32 Session::CmdKick(const SQChar * nick, const SQChar * channel)
 {
     if (m_Session != nullptr)
     {
@@ -1011,7 +1011,7 @@ SQInt32 Session::CmdKick(const SQChar * nick, const SQChar * channel) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdKick(const SQChar * nick, const SQChar * channel, const SQChar * reason) noexcept
+SQInt32 Session::CmdKick(const SQChar * nick, const SQChar * channel, const SQChar * reason)
 {
     if (m_Session != nullptr)
     {
@@ -1026,7 +1026,7 @@ SQInt32 Session::CmdKick(const SQChar * nick, const SQChar * channel, const SQCh
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdMsg(const SQChar * nch, const SQChar * text) noexcept
+SQInt32 Session::CmdMsg(const SQChar * nch, const SQChar * text)
 {
     if (m_Session != nullptr)
     {
@@ -1041,7 +1041,7 @@ SQInt32 Session::CmdMsg(const SQChar * nch, const SQChar * text) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdMe(const SQChar * nch, const SQChar * text) noexcept
+SQInt32 Session::CmdMe(const SQChar * nch, const SQChar * text)
 {
     if (m_Session != nullptr)
     {
@@ -1056,7 +1056,7 @@ SQInt32 Session::CmdMe(const SQChar * nch, const SQChar * text) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdNotice(const SQChar * nch, const SQChar * text) noexcept
+SQInt32 Session::CmdNotice(const SQChar * nch, const SQChar * text)
 {
     if (m_Session != nullptr)
     {
@@ -1071,7 +1071,7 @@ SQInt32 Session::CmdNotice(const SQChar * nch, const SQChar * text) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdCtcpRequest(const SQChar * nick, const SQChar * request) noexcept
+SQInt32 Session::CmdCtcpRequest(const SQChar * nick, const SQChar * request)
 {
     if (m_Session != nullptr)
     {
@@ -1086,7 +1086,7 @@ SQInt32 Session::CmdCtcpRequest(const SQChar * nick, const SQChar * request) noe
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdCtcpReply(const SQChar * nick, const SQChar * reply) noexcept
+SQInt32 Session::CmdCtcpReply(const SQChar * nick, const SQChar * reply)
 {
     if (m_Session != nullptr)
     {
@@ -1101,7 +1101,7 @@ SQInt32 Session::CmdCtcpReply(const SQChar * nick, const SQChar * reply) noexcep
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdNick(const SQChar * nick) noexcept
+SQInt32 Session::CmdNick(const SQChar * nick)
 {
     if (m_Session != nullptr)
     {
@@ -1116,7 +1116,7 @@ SQInt32 Session::CmdNick(const SQChar * nick) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdWhois(const SQChar * nick) noexcept
+SQInt32 Session::CmdWhois(const SQChar * nick)
 {
     if (m_Session != nullptr)
     {
@@ -1131,7 +1131,7 @@ SQInt32 Session::CmdWhois(const SQChar * nick) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdQuit() noexcept
+SQInt32 Session::CmdQuit()
 {
     if (m_Session != nullptr)
     {
@@ -1146,7 +1146,7 @@ SQInt32 Session::CmdQuit() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::CmdQuit(const SQChar * reason) noexcept
+SQInt32 Session::CmdQuit(const SQChar * reason)
 {
     if (m_Session != nullptr)
     {
@@ -1161,7 +1161,7 @@ SQInt32 Session::CmdQuit(const SQChar * reason) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::SendRaw(const SQChar * str) noexcept
+SQInt32 Session::SendRaw(const SQChar * str)
 {
     if (m_Session != nullptr)
     {
@@ -1176,7 +1176,7 @@ SQInt32 Session::SendRaw(const SQChar * str) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::DestroyDcc(SQUint32 dccid) noexcept
+SQInt32 Session::DestroyDcc(SQUint32 dccid)
 {
     if (m_Session != nullptr)
     {
@@ -1191,7 +1191,7 @@ SQInt32 Session::DestroyDcc(SQUint32 dccid) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetCtcpVersion(const SQChar * version) noexcept
+void Session::SetCtcpVersion(const SQChar * version)
 {
     if (m_Session != nullptr)
     {
@@ -1204,7 +1204,7 @@ void Session::SetCtcpVersion(const SQChar * version) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::GetErrNo() noexcept
+SQInt32 Session::GetErrNo()
 {
     if (m_Session != nullptr)
     {
@@ -1218,7 +1218,7 @@ SQInt32 Session::GetErrNo() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Session::GetErrStr() noexcept
+const SQChar * Session::GetErrStr()
 {
     if (m_Session != nullptr)
     {
@@ -1232,7 +1232,7 @@ const SQChar * Session::GetErrStr() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::SetOption(SQUint32 option) noexcept
+void Session::SetOption(SQUint32 option)
 {
     if (m_Session != nullptr)
     {
@@ -1245,7 +1245,7 @@ void Session::SetOption(SQUint32 option) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ResetOption(SQUint32 option) noexcept
+void Session::ResetOption(SQUint32 option)
 {
     if (m_Session != nullptr)
     {
@@ -1573,7 +1573,7 @@ void Session::OnDcc_Send_Req(irc_session_t * session, const char * nick, const c
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * GetNick(const SQChar * origin) noexcept
+const SQChar * GetNick(const SQChar * origin)
 {
     // Attempt to retrieve the nickname
     irc_target_get_nick(origin, g_Buffer, std::extent< decltype(g_Buffer) >::value * sizeof(SQChar));
@@ -1582,7 +1582,7 @@ const SQChar * GetNick(const SQChar * origin) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * GetHost(const SQChar * target) noexcept
+const SQChar * GetHost(const SQChar * target)
 {
     // Attempt to retrieve the nickname
     irc_target_get_host(target, g_Buffer, std::extent< decltype(g_Buffer) >::value * sizeof(SQChar));

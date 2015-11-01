@@ -18,7 +18,7 @@ PluginCallbacks*    _Clbk = 0;
 PluginInfo*         _Info = 0;
 
 // ------------------------------------------------------------------------------------------------
-void BindCallbacks() noexcept;
+void BindCallbacks();
 
 // ------------------------------------------------------------------------------------------------
 SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
@@ -85,7 +85,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
 }
 
 // --------------------------------------------------------------------------------------------
-static int VC_InitServer(void) noexcept
+static int VC_InitServer(void)
 {
     if (_Core->Load())
     {
@@ -98,61 +98,61 @@ static int VC_InitServer(void) noexcept
     return _Core->GetState();
 }
 
-static void VC_ShutdownServer(void) noexcept
+static void VC_ShutdownServer(void)
 {
     _Core->OnServerShutdown();
     _Core->Terminate();
 }
 
-static void VC_Frame(float delta) noexcept
+static void VC_Frame(float delta)
 {
     _Core->OnServerFrame(delta);
 }
 
-static void VC_PlayerConnect(int player) noexcept
+static void VC_PlayerConnect(int player)
 {
     static SqObj playload;
     playload.Release();
     _Core->ConnectPlayer(player, SQMOD_CREATE_AUTOMATIC, playload);
 }
 
-static void VC_PlayerDisconnect(int player, int reason) noexcept
+static void VC_PlayerDisconnect(int player, int reason)
 {
     static SqObj playload;
     playload.Release();
     _Core->DisconnectPlayer(player, reason, playload);
 }
 
-static void VC_PlayerBeginTyping(int player) noexcept
+static void VC_PlayerBeginTyping(int player)
 {
     _Core->OnPlayerStartTyping(player);
 }
 
-static void VC_PlayerEndTyping(int player) noexcept
+static void VC_PlayerEndTyping(int player)
 {
     _Core->OnPlayerStopTyping(player);
 }
 
-static int VC_PlayerRequestClass(int player, int offset) noexcept
+static int VC_PlayerRequestClass(int player, int offset)
 {
     _Core->SetState(SQMOD_SUCCESS);
     _Core->OnPlayerRequestClass(player, offset);
     return _Core->GetState();
 }
 
-static int VC_PlayerRequestSpawn(int player) noexcept
+static int VC_PlayerRequestSpawn(int player)
 {
     _Core->SetState(SQMOD_SUCCESS);
     _Core->OnPlayerRequestSpawn(player);
     return _Core->GetState();
 }
 
-static void VC_PlayerSpawn(int player) noexcept
+static void VC_PlayerSpawn(int player)
 {
     _Core->OnPlayerSpawn(player);
 }
 
-static void VC_PlayerDeath(int player, int killer, int reason, int body_part) noexcept
+static void VC_PlayerDeath(int player, int killer, int reason, int body_part)
 {
     if (_Func->IsPlayerConnected(killer))
     {
@@ -164,136 +164,136 @@ static void VC_PlayerDeath(int player, int killer, int reason, int body_part) no
     }
 }
 
-static void VC_PlayerUpdate(int player, int type) noexcept
+static void VC_PlayerUpdate(int player, int type)
 {
     _Core->OnPlayerUpdate(player, type);
 }
 
-static int VC_PlayerRequestEnter(int player, int vehicle, int slot) noexcept
+static int VC_PlayerRequestEnter(int player, int vehicle, int slot)
 {
     _Core->SetState(SQMOD_SUCCESS);
     _Core->OnPlayerEmbarking(player, vehicle, slot);
     return _Core->GetState();
 }
 
-static void VC_PlayerEnterVehicle(int player, int vehicle, int slot) noexcept
+static void VC_PlayerEnterVehicle(int player, int vehicle, int slot)
 {
     _Core->OnPlayerEmbarked(player, vehicle, slot);
 }
 
-static void VC_PlayerExitVehicle(int player, int vehicle) noexcept
+static void VC_PlayerExitVehicle(int player, int vehicle)
 {
     _Core->OnPlayerDisembark(player, vehicle);
 }
 
-static int VC_PickupClaimPicked(int pickup, int player) noexcept
+static int VC_PickupClaimPicked(int pickup, int player)
 {
     _Core->SetState(SQMOD_SUCCESS);
     _Core->OnPickupClaimed(player, pickup);
     return _Core->GetState();
 }
 
-static void VC_PickupPickedUp(int pickup, int player) noexcept
+static void VC_PickupPickedUp(int pickup, int player)
 {
     _Core->OnPickupCollected(player, pickup);
 }
 
-static void VC_PickupRespawn(int pickup) noexcept
+static void VC_PickupRespawn(int pickup)
 {
     _Core->OnPickupRespawn(pickup);
 }
 
-static void VC_VehicleUpdate(int vehicle, int type) noexcept
+static void VC_VehicleUpdate(int vehicle, int type)
 {
     _Core->OnVehicleUpdate(vehicle, type);
 }
 
-static void VC_VehicleExplode(int vehicle) noexcept
+static void VC_VehicleExplode(int vehicle)
 {
     _Core->OnVehicleExplode(vehicle);
 }
 
-static void VC_VehicleRespawn(int vehicle) noexcept
+static void VC_VehicleRespawn(int vehicle)
 {
     _Core->OnVehicleRespawn(vehicle);
 }
 
-static void VC_ObjectShot(int object, int player, int weapon) noexcept
+static void VC_ObjectShot(int object, int player, int weapon)
 {
     _Core->OnObjectShot(player, object, weapon);
 }
 
-static void VC_ObjectBump(int object, int player) noexcept
+static void VC_ObjectBump(int object, int player)
 {
     _Core->OnObjectBump(player, object);
 }
 
-static int VC_PublicMessage(int player, const char * text) noexcept
+static int VC_PublicMessage(int player, const char * text)
 {
     _Core->SetState(SQMOD_SUCCESS);
     _Core->OnPlayerChat(player, static_cast<const SQChar *>(text));
     return _Core->GetState();
 }
 
-static int VC_CommandMessage(int player, const char * text) noexcept
+static int VC_CommandMessage(int player, const char * text)
 {
     _Core->SetState(SQMOD_SUCCESS);
     _Core->OnPlayerCommand(player, static_cast<const SQChar *>(text));
     return _Core->GetState();
 }
 
-static int VC_PrivateMessage(int player, int target, const char * text) noexcept
+static int VC_PrivateMessage(int player, int target, const char * text)
 {
     _Core->SetState(SQMOD_SUCCESS);
     _Core->OnPlayerMessage(player, target, static_cast<const SQChar *>(text));
     return _Core->GetState();
 }
 
-static int VC_InternalCommand(unsigned int type, const char * text) noexcept
+static int VC_InternalCommand(unsigned int type, const char * text)
 {
     _Core->SetState(SQMOD_SUCCESS);
     _Core->OnInternalCommand(type, static_cast<const SQChar *>(text));
     return _Core->GetState();
 }
 
-static int VC_LoginAttempt(char * name, const char * passwd, const char * address) noexcept
+static int VC_LoginAttempt(char * name, const char * passwd, const char * address)
 {
     _Core->SetState(SQMOD_SUCCESS);
     _Core->OnLoginAttempt(static_cast<const SQChar *>(name), static_cast<const SQChar *>(passwd), static_cast<const SQChar *>(address));
     return _Core->GetState();
 }
 
-static void VC_EntityPool(int type, int id, unsigned int deleted) noexcept
+static void VC_EntityPool(int type, int id, unsigned int deleted)
 {
     _Core->OnEntityPool(type, id, static_cast<bool>(deleted));
 }
 
-static void VC_KeyBindDown(int player, int bind) noexcept
+static void VC_KeyBindDown(int player, int bind)
 {
     _Core->OnPlayerKeyPress(player, bind);
 }
 
-static void VC_KeyBindUp(int player, int bind) noexcept
+static void VC_KeyBindUp(int player, int bind)
 {
     _Core->OnPlayerKeyRelease(player, bind);
 }
 
-static void VC_PlayerAway(int player, unsigned int status) noexcept
+static void VC_PlayerAway(int player, unsigned int status)
 {
     _Core->OnPlayerAway(player, static_cast<bool>(status));
 }
 
-static void VC_PlayerSpectate(int player, int target) noexcept
+static void VC_PlayerSpectate(int player, int target)
 {
     _Core->OnPlayerSpectate(player, target);
 }
 
-static void VC_PlayerCrashReport(int player, const char * report) noexcept
+static void VC_PlayerCrashReport(int player, const char * report)
 {
     _Core->OnPlayerCrashreport(player, static_cast<const SQChar *>(report));
 }
 
-static void VC_ServerPerformanceReport(int count, const char ** description, unsigned long long * millis) noexcept
+static void VC_ServerPerformanceReport(int count, const char ** description, unsigned long long * millis)
 {
     // Ignored for now...
     SQMOD_UNUSED_VAR(count);
@@ -301,12 +301,12 @@ static void VC_ServerPerformanceReport(int count, const char ** description, uns
     SQMOD_UNUSED_VAR(millis);
 }
 
-static void VC_PlayerName(int player, const char * previous, const char * current) noexcept
+static void VC_PlayerName(int player, const char * previous, const char * current)
 {
     _Core->OnPlayerName(player, static_cast<const SQChar *>(previous), static_cast<const SQChar *>(current));
 }
 
-static void VC_PlayerState(int player, int previous, int current) noexcept
+static void VC_PlayerState(int player, int previous, int current)
 {
     _Core->OnPlayerState(player, previous, current);
 
@@ -342,7 +342,7 @@ static void VC_PlayerState(int player, int previous, int current) noexcept
     }
 }
 
-static void VC_PlayerAction(int player, int previous, int current) noexcept
+static void VC_PlayerAction(int player, int previous, int current)
 {
     _Core->OnPlayerAction(player, previous, current);
 
@@ -390,43 +390,43 @@ static void VC_PlayerAction(int player, int previous, int current) noexcept
     }
 }
 
-static void VC_PlayerOnFire(int player, unsigned int state) noexcept
+static void VC_PlayerOnFire(int player, unsigned int state)
 {
     _Core->OnPlayerBurning(player, static_cast<bool>(state));
 }
 
-static void VC_PlayerCrouch(int player, unsigned int state) noexcept
+static void VC_PlayerCrouch(int player, unsigned int state)
 {
     _Core->OnPlayerCrouching(player, static_cast<bool>(state));
 }
 
-static void VC_PlayerGameKeys(int player, int previous, int current) noexcept
+static void VC_PlayerGameKeys(int player, int previous, int current)
 {
     _Core->OnPlayerGameKeys(player, previous, current);
 }
 
-static void VC_OnCheckpointEntered(int checkpoint, int player) noexcept
+static void VC_OnCheckpointEntered(int checkpoint, int player)
 {
     _Core->OnCheckpointEntered(player, checkpoint);
 }
 
-static void VC_OnCheckpointExited(int checkpoint, int player) noexcept
+static void VC_OnCheckpointExited(int checkpoint, int player)
 {
     _Core->OnCheckpointExited(player, checkpoint);
 }
 
-static void VC_OnSphereEntered(int sphere, int player) noexcept
+static void VC_OnSphereEntered(int sphere, int player)
 {
     _Core->OnSphereEntered(player, sphere);
 }
 
-static void VC_OnSphereExited(int sphere, int player) noexcept
+static void VC_OnSphereExited(int sphere, int player)
 {
     _Core->OnSphereExited(player, sphere);
 }
 
 // ------------------------------------------------------------------------------------------------
-void BindCallbacks() noexcept
+void BindCallbacks()
 {
     _Clbk->OnInitServer                 = VC_InitServer;
     _Clbk->OnShutdownServer             = VC_ShutdownServer;
@@ -476,7 +476,7 @@ void BindCallbacks() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SqObj & NullData() noexcept
+SqObj & NullData()
 {
     static SqObj d;
     d.Release();

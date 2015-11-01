@@ -32,34 +32,34 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    static irc_callbacks_t * GetCallbacks() noexcept;
+    static irc_callbacks_t * GetCallbacks();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    static void ForwardEvent(Function & listener, const char * event, const char * origin, const char ** params, unsigned int count) noexcept;
+    static void ForwardEvent(Function & listener, const char * event, const char * origin, const char ** params, unsigned int count);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    static void ForwardEvent(Function & listener, unsigned int event, const char * origin, const char ** params, unsigned int count) noexcept;
+    static void ForwardEvent(Function & listener, unsigned int event, const char * origin, const char ** params, unsigned int count);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    static void ForwardEvent(Function & listener, const char * nick, const char * addr, irc_dcc_t dccid) noexcept;
+    static void ForwardEvent(Function & listener, const char * nick, const char * addr, irc_dcc_t dccid);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    static void ForwardEvent(Function & listener, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid) noexcept;
+    static void ForwardEvent(Function & listener, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid);
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Session() noexcept;
+    Session();
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -89,571 +89,571 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Process(SQFloat delta) noexcept;
+    void Process(SQFloat delta);
 
     /* --------------------------------------------------------------------------------------------
       * ...
      */
-    void VMClose() noexcept;
+    void VMClose();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 Cmp(const Session & o) const noexcept;
+    SQInt32 Cmp(const Session & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    const SQChar * ToString() const noexcept;
+    const SQChar * ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the local tag.
     */
-    const SQChar * GetTag() const noexcept;
+    const SQChar * GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * Change the local tag.
     */
-    void SetTag(const SQChar * tag) noexcept;
+    void SetTag(const SQChar * tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the local data.
     */
-    SqObj & GetData() noexcept;
+    SqObj & GetData();
 
     /* --------------------------------------------------------------------------------------------
      * Change the local data.
     */
-    void SetData(SqObj & data) noexcept;
+    void SetData(SqObj & data);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnConnect() noexcept;
+    Function GetOnConnect();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnConnect(Function & func) noexcept;
+    void SetOnConnect(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnConnect_Env(SqObj & env, Function & func) noexcept;
+    void SetOnConnect_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnNick() noexcept;
+    Function GetOnNick();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnNick(Function & func) noexcept;
+    void SetOnNick(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnNick_Env(SqObj & env, Function & func) noexcept;
+    void SetOnNick_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnQuit() noexcept;
+    Function GetOnQuit();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnQuit(Function & func) noexcept;
+    void SetOnQuit(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnQuit_Env(SqObj & env, Function & func) noexcept;
+    void SetOnQuit_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnJoin() noexcept;
+    Function GetOnJoin();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnJoin(Function & func) noexcept;
+    void SetOnJoin(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnJoin_Env(SqObj & env, Function & func) noexcept;
+    void SetOnJoin_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnPart() noexcept;
+    Function GetOnPart();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnPart(Function & func) noexcept;
+    void SetOnPart(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnPart_Env(SqObj & env, Function & func) noexcept;
+    void SetOnPart_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnMode() noexcept;
+    Function GetOnMode();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnMode(Function & func) noexcept;
+    void SetOnMode(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnMode_Env(SqObj & env, Function & func) noexcept;
+    void SetOnMode_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnUmode() noexcept;
+    Function GetOnUmode();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnUmode(Function & func) noexcept;
+    void SetOnUmode(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnUmode_Env(SqObj & env, Function & func) noexcept;
+    void SetOnUmode_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnTopic() noexcept;
+    Function GetOnTopic();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnTopic(Function & func) noexcept;
+    void SetOnTopic(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnTopic_Env(SqObj & env, Function & func) noexcept;
+    void SetOnTopic_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnKick() noexcept;
+    Function GetOnKick();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnKick(Function & func) noexcept;
+    void SetOnKick(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnKick_Env(SqObj & env, Function & func) noexcept;
+    void SetOnKick_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnChannel() noexcept;
+    Function GetOnChannel();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnChannel(Function & func) noexcept;
+    void SetOnChannel(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnChannel_Env(SqObj & env, Function & func) noexcept;
+    void SetOnChannel_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnPrivMSG() noexcept;
+    Function GetOnPrivMSG();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnPrivMSG(Function & func) noexcept;
+    void SetOnPrivMSG(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnPrivMSG_Env(SqObj & env, Function & func) noexcept;
+    void SetOnPrivMSG_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnNotice() noexcept;
+    Function GetOnNotice();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnNotice(Function & func) noexcept;
+    void SetOnNotice(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnNotice_Env(SqObj & env, Function & func) noexcept;
+    void SetOnNotice_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnChannel_Notice() noexcept;
+    Function GetOnChannel_Notice();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnChannel_Notice(Function & func) noexcept;
+    void SetOnChannel_Notice(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnChannel_Notice_Env(SqObj & env, Function & func) noexcept;
+    void SetOnChannel_Notice_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnInvite() noexcept;
+    Function GetOnInvite();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnInvite(Function & func) noexcept;
+    void SetOnInvite(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnInvite_Env(SqObj & env, Function & func) noexcept;
+    void SetOnInvite_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnCTCP_Req() noexcept;
+    Function GetOnCTCP_Req();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnCTCP_Req(Function & func) noexcept;
+    void SetOnCTCP_Req(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnCTCP_Req_Env(SqObj & env, Function & func) noexcept;
+    void SetOnCTCP_Req_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnCTCP_Rep() noexcept;
+    Function GetOnCTCP_Rep();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnCTCP_Rep(Function & func) noexcept;
+    void SetOnCTCP_Rep(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnCTCP_Rep_Env(SqObj & env, Function & func) noexcept;
+    void SetOnCTCP_Rep_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnCTCP_Action() noexcept;
+    Function GetOnCTCP_Action();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnCTCP_Action(Function & func) noexcept;
+    void SetOnCTCP_Action(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnCTCP_Action_Env(SqObj & env, Function & func) noexcept;
+    void SetOnCTCP_Action_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnUnknown() noexcept;
+    Function GetOnUnknown();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnUnknown(Function & func) noexcept;
+    void SetOnUnknown(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnUnknown_Env(SqObj & env, Function & func) noexcept;
+    void SetOnUnknown_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnNumeric() noexcept;
+    Function GetOnNumeric();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnNumeric(Function & func) noexcept;
+    void SetOnNumeric(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnNumeric_Env(SqObj & env, Function & func) noexcept;
+    void SetOnNumeric_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnDcc_Chat_Req() noexcept;
+    Function GetOnDcc_Chat_Req();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnDcc_Chat_Req(Function & func) noexcept;
+    void SetOnDcc_Chat_Req(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnDcc_Chat_Req_Env(SqObj & env, Function & func) noexcept;
+    void SetOnDcc_Chat_Req_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnDcc_Send_Req() noexcept;
+    Function GetOnDcc_Send_Req();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnDcc_Send_Req(Function & func) noexcept;
+    void SetOnDcc_Send_Req(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnDcc_Send_Req_Env(SqObj & env, Function & func) noexcept;
+    void SetOnDcc_Send_Req_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool IsValid() const noexcept;
+    bool IsValid() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 Connect(const SQChar * server, SQUint32 port, const SQChar * nick) noexcept;
+    SQInt32 Connect(const SQChar * server, SQUint32 port, const SQChar * nick);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd) noexcept;
+    SQInt32 Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
     SQInt32 Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
-                    const SQChar * username) noexcept;
+                    const SQChar * username);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
     SQInt32 Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
-                    const SQChar * username, const SQChar * realname) noexcept;
+                    const SQChar * username, const SQChar * realname);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 Connect6(const SQChar * server, SQUint32 port, const SQChar * nick) noexcept;
+    SQInt32 Connect6(const SQChar * server, SQUint32 port, const SQChar * nick);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd) noexcept;
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    SQInt32 Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
-                    const SQChar * username) noexcept;
+    SQInt32 Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
     SQInt32 Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
-                    const SQChar * username, const SQChar * realname) noexcept;
+                    const SQChar * username);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Disconnect() noexcept;
+    SQInt32 Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
+                    const SQChar * username, const SQChar * realname);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool IsConnected() noexcept;
+    void Disconnect();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdJoin(const SQChar * channel) noexcept;
+    bool IsConnected();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdJoin(const SQChar * channel, const SQChar * key) noexcept;
+    SQInt32 CmdJoin(const SQChar * channel);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdPart(const SQChar * channel) noexcept;
+    SQInt32 CmdJoin(const SQChar * channel, const SQChar * key);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdInvite(const SQChar * nick, const SQChar * channel) noexcept;
+    SQInt32 CmdPart(const SQChar * channel);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdNames(const SQChar * channel) noexcept;
+    SQInt32 CmdInvite(const SQChar * nick, const SQChar * channel);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdList() noexcept;
+    SQInt32 CmdNames(const SQChar * channel);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdList(const SQChar * channel) noexcept;
+    SQInt32 CmdList();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdTopic(const SQChar * channel) noexcept;
+    SQInt32 CmdList(const SQChar * channel);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdTopic(const SQChar * channel, const SQChar * topic) noexcept;
+    SQInt32 CmdTopic(const SQChar * channel);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdChannelMode(const SQChar * channel) noexcept;
+    SQInt32 CmdTopic(const SQChar * channel, const SQChar * topic);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdChannelMode(const SQChar * channel, const SQChar * mode) noexcept;
+    SQInt32 CmdChannelMode(const SQChar * channel);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdUserMode() noexcept;
+    SQInt32 CmdChannelMode(const SQChar * channel, const SQChar * mode);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdUserMode(const SQChar * mode) noexcept;
+    SQInt32 CmdUserMode();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdKick(const SQChar * nick, const SQChar * channel) noexcept;
+    SQInt32 CmdUserMode(const SQChar * mode);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdKick(const SQChar * nick, const SQChar * channel, const SQChar * reason) noexcept;
+    SQInt32 CmdKick(const SQChar * nick, const SQChar * channel);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdMsg(const SQChar * nch, const SQChar * text) noexcept;
+    SQInt32 CmdKick(const SQChar * nick, const SQChar * channel, const SQChar * reason);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdMe(const SQChar * nch, const SQChar * text) noexcept;
+    SQInt32 CmdMsg(const SQChar * nch, const SQChar * text);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdNotice(const SQChar * nch, const SQChar * text) noexcept;
+    SQInt32 CmdMe(const SQChar * nch, const SQChar * text);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdCtcpRequest(const SQChar * nick, const SQChar * request) noexcept;
+    SQInt32 CmdNotice(const SQChar * nch, const SQChar * text);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdCtcpReply(const SQChar * nick, const SQChar * reply) noexcept;
+    SQInt32 CmdCtcpRequest(const SQChar * nick, const SQChar * request);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdNick(const SQChar * nick) noexcept;
+    SQInt32 CmdCtcpReply(const SQChar * nick, const SQChar * reply);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdWhois(const SQChar * nick) noexcept;
+    SQInt32 CmdNick(const SQChar * nick);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdQuit() noexcept;
+    SQInt32 CmdWhois(const SQChar * nick);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 CmdQuit(const SQChar * reason) noexcept;
+    SQInt32 CmdQuit();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 SendRaw(const SQChar * str) noexcept;
+    SQInt32 CmdQuit(const SQChar * reason);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 DestroyDcc(SQUint32 dccid) noexcept;
+    SQInt32 SendRaw(const SQChar * str);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetCtcpVersion(const SQChar * version) noexcept;
+    SQInt32 DestroyDcc(SQUint32 dccid);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetErrNo() noexcept;
+    void SetCtcpVersion(const SQChar * version);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    const SQChar * GetErrStr() noexcept;
+    SQInt32 GetErrNo();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOption(SQUint32 option) noexcept;
+    const SQChar * GetErrStr();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ResetOption(SQUint32 option) noexcept;
+    void SetOption(SQUint32 option);
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    void ResetOption(SQUint32 option);
 
 private:
 

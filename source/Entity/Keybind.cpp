@@ -6,14 +6,14 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CKeybind::CKeybind(const Reference< CKeybind > & o) noexcept
+CKeybind::CKeybind(const Reference< CKeybind > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CKeybind::GetPrimary() const noexcept
+SQInt32 CKeybind::GetPrimary() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -28,7 +28,7 @@ SQInt32 CKeybind::GetPrimary() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CKeybind::GetSecondary() const noexcept
+SQInt32 CKeybind::GetSecondary() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -43,7 +43,7 @@ SQInt32 CKeybind::GetSecondary() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CKeybind::GetAlternative() const noexcept
+SQInt32 CKeybind::GetAlternative() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -58,7 +58,7 @@ SQInt32 CKeybind::GetAlternative() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CKeybind::IsRelease() const noexcept
+bool CKeybind::IsRelease() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -74,7 +74,7 @@ bool CKeybind::IsRelease() const noexcept
 
 // ------------------------------------------------------------------------------------------------
 Reference< CKeybind > CreateBaseKeybind_ES(bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative) noexcept
+                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative)
 {
     return _Core->NewKeybind(SQMOD_UNKNOWN, release, primary, secondary, alternative,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -82,7 +82,7 @@ Reference< CKeybind > CreateBaseKeybind_ES(bool release,
 
 Reference< CKeybind > CreateBaseKeybind_ES(bool release,
                         SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewKeybind(SQMOD_UNKNOWN, release, primary, secondary, alternative,
                             header, payload);
@@ -90,7 +90,7 @@ Reference< CKeybind > CreateBaseKeybind_ES(bool release,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CKeybind > CreateBaseKeybind_EF(SQInt32 slot, bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative) noexcept
+                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative)
 {
     return _Core->NewKeybind(slot, release, primary, secondary, alternative,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -98,7 +98,7 @@ Reference< CKeybind > CreateBaseKeybind_EF(SQInt32 slot, bool release,
 
 Reference< CKeybind > CreateBaseKeybind_EF(SQInt32 slot, bool release,
                         SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewKeybind(slot, release, primary, secondary, alternative,
                             header, payload);
@@ -106,7 +106,7 @@ Reference< CKeybind > CreateBaseKeybind_EF(SQInt32 slot, bool release,
 
 // ------------------------------------------------------------------------------------------------
 CKeybind CreateKeybind_ES(bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative) noexcept
+                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative)
 {
     return _Core->NewKeybind(SQMOD_UNKNOWN, release, primary, secondary, alternative,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -114,7 +114,7 @@ CKeybind CreateKeybind_ES(bool release,
 
 CKeybind CreateKeybind_ES(bool release,
                         SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewKeybind(SQMOD_UNKNOWN, release, primary, secondary, alternative,
                             header, payload);
@@ -122,7 +122,7 @@ CKeybind CreateKeybind_ES(bool release,
 
 // ------------------------------------------------------------------------------------------------
 CKeybind CreateKeybind_EF(SQInt32 slot, bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative) noexcept
+                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative)
 {
     return _Core->NewKeybind(slot, release, primary, secondary, alternative,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -130,7 +130,7 @@ CKeybind CreateKeybind_EF(SQInt32 slot, bool release,
 
 CKeybind CreateKeybind_EF(SQInt32 slot, bool release,
                         SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewKeybind(slot, release, primary, secondary, alternative,
                             header, payload);

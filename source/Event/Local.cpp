@@ -7,21 +7,21 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::LocalEvent() noexcept
+LocalEvent::LocalEvent()
     : LocalEvent(EVT_UNKNOWN, false)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::LocalEvent(SQInt32 type) noexcept
+LocalEvent::LocalEvent(SQInt32 type)
     : LocalEvent(type, false)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::LocalEvent(SQInt32 type, bool suspended) noexcept
+LocalEvent::LocalEvent(SQInt32 type, bool suspended)
     : m_Type(type)
     , m_Stride(0)
     , m_Ignore(0)
@@ -64,43 +64,43 @@ LocalEvent::~LocalEvent()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::operator == (const LocalEvent & o) const noexcept
+bool LocalEvent::operator == (const LocalEvent & o) const
 {
     return (m_Type == o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::operator != (const LocalEvent & o) const noexcept
+bool LocalEvent::operator != (const LocalEvent & o) const
 {
     return (m_Type != o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::operator < (const LocalEvent & o) const noexcept
+bool LocalEvent::operator < (const LocalEvent & o) const
 {
     return (m_Type < o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::operator > (const LocalEvent & o) const noexcept
+bool LocalEvent::operator > (const LocalEvent & o) const
 {
     return (m_Type > o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::operator <= (const LocalEvent & o) const noexcept
+bool LocalEvent::operator <= (const LocalEvent & o) const
 {
     return (m_Type <= o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::operator >= (const LocalEvent & o) const noexcept
+bool LocalEvent::operator >= (const LocalEvent & o) const
 {
     return (m_Type >= o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VMClose() noexcept
+void LocalEvent::VMClose()
 {
     // Release the reference to the specified callbacks
     m_OnTrigger.Release2();
@@ -113,7 +113,7 @@ void LocalEvent::VMClose() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 LocalEvent::Cmp(const LocalEvent & o) const noexcept
+SQInt32 LocalEvent::Cmp(const LocalEvent & o) const
 {
     if (m_Type == o.m_Type)
     {
@@ -130,41 +130,41 @@ SQInt32 LocalEvent::Cmp(const LocalEvent & o) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * LocalEvent::GetName() const noexcept
+const SQChar * LocalEvent::GetName() const
 {
     return GetEventName(m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * LocalEvent::GetTag() const noexcept
+const SQChar * LocalEvent::GetTag() const
 {
     return m_Tag.c_str();
 }
 
-void LocalEvent::SetTag(const SQChar * tag) noexcept
+void LocalEvent::SetTag(const SQChar * tag)
 {
     m_Tag = tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-SqObj & LocalEvent::GetData() noexcept
+SqObj & LocalEvent::GetData()
 {
     return m_Data;
 }
 
-void LocalEvent::SetData(SqObj & data) noexcept
+void LocalEvent::SetData(SqObj & data)
 {
     m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 LocalEvent::GetType() const noexcept
+SQInt32 LocalEvent::GetType() const
 {
     return m_Type;
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::SetType(SQInt32 type) noexcept
+void LocalEvent::SetType(SQInt32 type)
 {
     // Make sure the newly specified event is compatible
     if (!Compatible(type))
@@ -185,83 +185,83 @@ void LocalEvent::SetType(SQInt32 type) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger LocalEvent::GetIdle() const noexcept
+SQInteger LocalEvent::GetIdle() const
 {
     return _SCSQI(std::chrono::duration_cast<std::chrono::milliseconds>(m_Idle - std::chrono::steady_clock::now()).count());
 }
 
-void LocalEvent::SetIdle(SQInteger millis) noexcept
+void LocalEvent::SetIdle(SQInteger millis)
 {
     m_Idle = (std::chrono::steady_clock::now() + std::chrono::milliseconds(_SCI64(millis)));
 }
 
-bool LocalEvent::IsIdle() const noexcept
+bool LocalEvent::IsIdle() const
 {
     return (m_Idle > std::chrono::steady_clock::now());
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 LocalEvent::GetStride() const noexcept
+SQInt32 LocalEvent::GetStride() const
 {
     return m_Stride;
 }
 
-void LocalEvent::SetStride(SQInt32 stride) noexcept
+void LocalEvent::SetStride(SQInt32 stride)
 {
     m_Stride = stride > 0 ? stride : 0;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 LocalEvent::GetIgnore() const noexcept
+SQInt32 LocalEvent::GetIgnore() const
 {
     return m_Ignore;
 }
 
-void LocalEvent::SetIgnore(SQInt32 ignore) noexcept
+void LocalEvent::SetIgnore(SQInt32 ignore)
 {
     m_Ignore = ignore > 0 ? ignore : 0;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 LocalEvent::GetPrimary() const noexcept
+SQInt32 LocalEvent::GetPrimary() const
 {
     return m_Primary;
 }
 
-void LocalEvent::SetPrimary(SQInt32 subset) noexcept
+void LocalEvent::SetPrimary(SQInt32 subset)
 {
     m_Primary = subset;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 LocalEvent::GetSecondary() const noexcept
+SQInt32 LocalEvent::GetSecondary() const
 {
     return m_Secondary;
 }
 
-void LocalEvent::SetSecondary(SQInt32 subset) noexcept
+void LocalEvent::SetSecondary(SQInt32 subset)
 {
     m_Secondary = subset;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::GetSuspended() const noexcept
+bool LocalEvent::GetSuspended() const
 {
     return m_Suspended;
 }
 
-void LocalEvent::SetSuspended(bool toggle) noexcept
+void LocalEvent::SetSuspended(bool toggle)
 {
     m_Suspended = toggle;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::GetInversed() const noexcept
+bool LocalEvent::GetInversed() const
 {
     return m_Inversed;
 }
 
-void LocalEvent::SetInversed(bool toggle) noexcept
+void LocalEvent::SetInversed(bool toggle)
 {
     // See if it this is an invertible event and the specified option is different
     if (CanBeInversed(m_Type) && m_Inversed != toggle)
@@ -281,87 +281,87 @@ void LocalEvent::SetInversed(bool toggle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Function LocalEvent::GetOnTrigger() const noexcept
+Function LocalEvent::GetOnTrigger() const
 {
     return m_OnTrigger;
 }
 
-void LocalEvent::SetOnTrigger(Function & func) noexcept
+void LocalEvent::SetOnTrigger(Function & func)
 {
     m_OnTrigger = func;
 }
 
-void LocalEvent::SetOnTrigger_Env(SqObj & env, Function & func) noexcept
+void LocalEvent::SetOnTrigger_Env(SqObj & env, Function & func)
 {
     m_OnTrigger = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function LocalEvent::GetOnInclude() const noexcept
+Function LocalEvent::GetOnInclude() const
 {
     return m_OnInclude;
 }
 
-void LocalEvent::SetOnInclude(Function & func) noexcept
+void LocalEvent::SetOnInclude(Function & func)
 {
     m_OnInclude = func;
 }
 
-void LocalEvent::SetOnInclude_Env(SqObj & env, Function & func) noexcept
+void LocalEvent::SetOnInclude_Env(SqObj & env, Function & func)
 {
     m_OnInclude = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function LocalEvent::GetOnExclude() const noexcept
+Function LocalEvent::GetOnExclude() const
 {
     return m_OnExclude;
 }
 
-void LocalEvent::SetOnExclude(Function & func) noexcept
+void LocalEvent::SetOnExclude(Function & func)
 {
     m_OnExclude = func;
 }
 
-void LocalEvent::SetOnExclude_Env(SqObj & env, Function & func) noexcept
+void LocalEvent::SetOnExclude_Env(SqObj & env, Function & func)
 {
     m_OnExclude = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function LocalEvent::GetOnCleared() const noexcept
+Function LocalEvent::GetOnCleared() const
 {
     return m_OnCleared;
 }
 
-void LocalEvent::SetOnCleared(Function & func) noexcept
+void LocalEvent::SetOnCleared(Function & func)
 {
     m_OnCleared = func;
 }
 
-void LocalEvent::SetOnCleared_Env(SqObj & env, Function & func) noexcept
+void LocalEvent::SetOnCleared_Env(SqObj & env, Function & func)
 {
     m_OnCleared = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function LocalEvent::GetOnRelease() const noexcept
+Function LocalEvent::GetOnRelease() const
 {
     return m_OnRelease;
 }
 
-void LocalEvent::SetOnRelease(Function & func) noexcept
+void LocalEvent::SetOnRelease(Function & func)
 {
     m_OnRelease = func;
 }
 
-void LocalEvent::SetOnRelease_Env(SqObj & env, Function & func) noexcept
+void LocalEvent::SetOnRelease_Env(SqObj & env, Function & func)
 {
     m_OnRelease = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::Compatible(SQInt32 type) const noexcept
+bool LocalEvent::Compatible(SQInt32 type) const
 {
     switch (type)
     {
@@ -456,67 +456,67 @@ bool LocalEvent::Compatible(SQInt32 type) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::BlipFilter & LocalEvent::GetBlipFilter() noexcept
+LocalEvent::BlipFilter & LocalEvent::GetBlipFilter()
 {
     return m_Blips; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::CheckpointFilter & LocalEvent::GetCheckpointFilter() noexcept
+LocalEvent::CheckpointFilter & LocalEvent::GetCheckpointFilter()
 {
     return m_Checkpoints; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::KeybindFilter & LocalEvent::GetKeybindFilter() noexcept
+LocalEvent::KeybindFilter & LocalEvent::GetKeybindFilter()
 {
     return m_Keybinds; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::ObjectFilter & LocalEvent::GetObjectFilter() noexcept
+LocalEvent::ObjectFilter & LocalEvent::GetObjectFilter()
 {
     return m_Objects; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::PickupFilter & LocalEvent::GetPickupFilter() noexcept
+LocalEvent::PickupFilter & LocalEvent::GetPickupFilter()
 {
     return m_Pickups; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::PlayerFilter & LocalEvent::GetPlayerFilter() noexcept
+LocalEvent::PlayerFilter & LocalEvent::GetPlayerFilter()
 {
     return m_Players; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::SphereFilter & LocalEvent::GetSphereFilter() noexcept
+LocalEvent::SphereFilter & LocalEvent::GetSphereFilter()
 {
     return m_Spheres; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::SpriteFilter & LocalEvent::GetSpriteFilter() noexcept
+LocalEvent::SpriteFilter & LocalEvent::GetSpriteFilter()
 {
     return m_Sprites; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::TextdrawFilter & LocalEvent::GetTextdrawFilter() noexcept
+LocalEvent::TextdrawFilter & LocalEvent::GetTextdrawFilter()
 {
     return m_Textdraws; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-LocalEvent::VehicleFilter & LocalEvent::GetVehicleFilter() noexcept
+LocalEvent::VehicleFilter & LocalEvent::GetVehicleFilter()
 {
     return m_Vehicles; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) noexcept
+void LocalEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -527,7 +527,7 @@ void LocalEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) n
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
+void LocalEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -538,7 +538,7 @@ void LocalEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
+void LocalEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -549,7 +549,7 @@ void LocalEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payl
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload) noexcept
+void LocalEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -560,7 +560,7 @@ void LocalEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
+void LocalEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -571,7 +571,7 @@ void LocalEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload) noexcept
+void LocalEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -582,7 +582,7 @@ void LocalEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
+void LocalEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -593,7 +593,7 @@ void LocalEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
+void LocalEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -604,7 +604,7 @@ void LocalEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
+void LocalEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -615,7 +615,7 @@ void LocalEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & pa
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
+void LocalEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
             (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -626,7 +626,7 @@ void LocalEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payl
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload) noexcept
+void LocalEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -636,7 +636,7 @@ void LocalEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload) noex
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
+void LocalEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -646,7 +646,7 @@ void LocalEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & p
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
+void LocalEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -656,7 +656,7 @@ void LocalEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload) noexcept
+void LocalEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -666,7 +666,7 @@ void LocalEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
+void LocalEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -676,7 +676,7 @@ void LocalEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload) noexcept
+void LocalEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -686,7 +686,7 @@ void LocalEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
+void LocalEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -696,7 +696,7 @@ void LocalEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
+void LocalEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -706,7 +706,7 @@ void LocalEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
+void LocalEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -716,7 +716,7 @@ void LocalEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & paylo
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
+void LocalEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload)
 {
     if (Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -726,7 +726,7 @@ void LocalEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerAway(SQInt32 player, bool status) noexcept
+void LocalEvent::PlayerAway(SQInt32 player, bool status)
 {
     if (Trigger() && \
         (m_Primary < 0 || status == m_Primary) && (m_Secondary < 0 || status == m_Secondary))
@@ -736,7 +736,7 @@ void LocalEvent::PlayerAway(SQInt32 player, bool status) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void LocalEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -746,7 +746,7 @@ void LocalEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 curren
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQChar * current) noexcept
+void LocalEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQChar * current)
 {
     if (Trigger())
     {
@@ -755,7 +755,7 @@ void LocalEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQC
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset) noexcept
+void LocalEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset)
 {
     if (Trigger() && \
         (m_Primary < 0 || offset == m_Primary) && (m_Secondary < 0 || offset == m_Secondary))
@@ -765,7 +765,7 @@ void LocalEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerRequestSpawn(SQInt32 player) noexcept
+void LocalEvent::PlayerRequestSpawn(SQInt32 player)
 {
     if (Trigger())
     {
@@ -774,7 +774,7 @@ void LocalEvent::PlayerRequestSpawn(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerSpawn(SQInt32 player) noexcept
+void LocalEvent::PlayerSpawn(SQInt32 player)
 {
     if (Trigger())
     {
@@ -783,7 +783,7 @@ void LocalEvent::PlayerSpawn(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerStartTyping(SQInt32 player) noexcept
+void LocalEvent::PlayerStartTyping(SQInt32 player)
 {
     if (Trigger())
     {
@@ -792,7 +792,7 @@ void LocalEvent::PlayerStartTyping(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerStopTyping(SQInt32 player) noexcept
+void LocalEvent::PlayerStopTyping(SQInt32 player)
 {
     if (Trigger())
     {
@@ -801,7 +801,7 @@ void LocalEvent::PlayerStopTyping(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerChat(SQInt32 player, const SQChar * message) noexcept
+void LocalEvent::PlayerChat(SQInt32 player, const SQChar * message)
 {
     if (Trigger())
     {
@@ -810,7 +810,7 @@ void LocalEvent::PlayerChat(SQInt32 player, const SQChar * message) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerCommand(SQInt32 player, const SQChar * command) noexcept
+void LocalEvent::PlayerCommand(SQInt32 player, const SQChar * command)
 {
     if (Trigger())
     {
@@ -819,7 +819,7 @@ void LocalEvent::PlayerCommand(SQInt32 player, const SQChar * command) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message) noexcept
+void LocalEvent::PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message)
 {
     if (Trigger())
     {
@@ -828,7 +828,7 @@ void LocalEvent::PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current) noexcept
+void LocalEvent::PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current)
 {
     if (Trigger())
     {
@@ -837,7 +837,7 @@ void LocalEvent::PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current)
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current) noexcept
+void LocalEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current)
 {
     if (Trigger())
     {
@@ -846,7 +846,7 @@ void LocalEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current)
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void LocalEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -856,7 +856,7 @@ void LocalEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current)
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current) noexcept
+void LocalEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current)
 {
     if (Trigger())
     {
@@ -865,7 +865,7 @@ void LocalEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vect
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerWasted(SQInt32 player, SQInt32 reason) noexcept
+void LocalEvent::PlayerWasted(SQInt32 player, SQInt32 reason)
 {
     if (Trigger() && \
         (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || reason == m_Secondary))
@@ -875,7 +875,7 @@ void LocalEvent::PlayerWasted(SQInt32 player, SQInt32 reason) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept
+void LocalEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part)
 {
     if (Trigger() && \
         (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || body_part == m_Secondary))
@@ -885,7 +885,7 @@ void LocalEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQ
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept
+void LocalEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part)
 {
     if (Trigger() && \
         (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || body_part == m_Secondary))
@@ -895,7 +895,7 @@ void LocalEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerSpectate(SQInt32 player, SQInt32 target) noexcept
+void LocalEvent::PlayerSpectate(SQInt32 player, SQInt32 target)
 {
     if (Trigger())
     {
@@ -904,7 +904,7 @@ void LocalEvent::PlayerSpectate(SQInt32 player, SQInt32 target) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerCrashreport(SQInt32 player, const SQChar * report) noexcept
+void LocalEvent::PlayerCrashreport(SQInt32 player, const SQChar * report)
 {
     if (Trigger())
     {
@@ -913,7 +913,7 @@ void LocalEvent::PlayerCrashreport(SQInt32 player, const SQChar * report) noexce
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerBurning(SQInt32 player, bool state) noexcept
+void LocalEvent::PlayerBurning(SQInt32 player, bool state)
 {
     if (Trigger() && \
         (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
@@ -923,7 +923,7 @@ void LocalEvent::PlayerBurning(SQInt32 player, bool state) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerCrouching(SQInt32 player, bool state) noexcept
+void LocalEvent::PlayerCrouching(SQInt32 player, bool state)
 {
     if (Trigger() && \
         (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
@@ -933,7 +933,7 @@ void LocalEvent::PlayerCrouching(SQInt32 player, bool state) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void LocalEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -943,7 +943,7 @@ void LocalEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void LocalEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -953,7 +953,7 @@ void LocalEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current)
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::StateNone(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::StateNone(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -963,7 +963,7 @@ void LocalEvent::StateNone(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::StateNormal(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::StateNormal(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -973,7 +973,7 @@ void LocalEvent::StateNormal(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::StateShooting(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::StateShooting(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -983,7 +983,7 @@ void LocalEvent::StateShooting(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::StateDriver(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::StateDriver(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -993,7 +993,7 @@ void LocalEvent::StateDriver(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::StatePassenger(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::StatePassenger(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1003,7 +1003,7 @@ void LocalEvent::StatePassenger(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::StateEnterDriver(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::StateEnterDriver(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1013,7 +1013,7 @@ void LocalEvent::StateEnterDriver(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1023,7 +1023,7 @@ void LocalEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::StateExitVehicle(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::StateExitVehicle(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1033,7 +1033,7 @@ void LocalEvent::StateExitVehicle(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::StateUnspawned(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::StateUnspawned(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1043,7 +1043,7 @@ void LocalEvent::StateUnspawned(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionNone(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionNone(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1053,7 +1053,7 @@ void LocalEvent::ActionNone(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionNormal(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionNormal(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1063,7 +1063,7 @@ void LocalEvent::ActionNormal(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionAiming(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionAiming(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1073,7 +1073,7 @@ void LocalEvent::ActionAiming(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionShooting(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionShooting(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1083,7 +1083,7 @@ void LocalEvent::ActionShooting(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionJumping(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionJumping(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1093,7 +1093,7 @@ void LocalEvent::ActionJumping(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionLieDown(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionLieDown(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1103,7 +1103,7 @@ void LocalEvent::ActionLieDown(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionGettingUp(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionGettingUp(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1113,7 +1113,7 @@ void LocalEvent::ActionGettingUp(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1123,7 +1123,7 @@ void LocalEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionDriving(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionDriving(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1133,7 +1133,7 @@ void LocalEvent::ActionDriving(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionDying(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionDying(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1143,7 +1143,7 @@ void LocalEvent::ActionDying(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionWasted(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionWasted(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1153,7 +1153,7 @@ void LocalEvent::ActionWasted(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionEmbarking(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionEmbarking(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1163,7 +1163,7 @@ void LocalEvent::ActionEmbarking(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ActionDisembarking(SQInt32 player, SQInt32 previous) noexcept
+void LocalEvent::ActionDisembarking(SQInt32 player, SQInt32 previous)
 {
     if (Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1173,7 +1173,7 @@ void LocalEvent::ActionDisembarking(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VehicleRespawn(SQInt32 vehicle) noexcept
+void LocalEvent::VehicleRespawn(SQInt32 vehicle)
 {
     if (Trigger())
     {
@@ -1182,7 +1182,7 @@ void LocalEvent::VehicleRespawn(SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VehicleExplode(SQInt32 vehicle) noexcept
+void LocalEvent::VehicleExplode(SQInt32 vehicle)
 {
     if (Trigger())
     {
@@ -1191,7 +1191,7 @@ void LocalEvent::VehicleExplode(SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current) noexcept
+void LocalEvent::VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current)
 {
     if (Trigger())
     {
@@ -1200,7 +1200,7 @@ void LocalEvent::VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat curren
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 &current) noexcept
+void LocalEvent::VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 &current)
 {
     if (Trigger())
     {
@@ -1209,7 +1209,7 @@ void LocalEvent::VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Ve
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PickupRespawn(SQInt32 pickup) noexcept
+void LocalEvent::PickupRespawn(SQInt32 pickup)
 {
     if (Trigger())
     {
@@ -1218,7 +1218,7 @@ void LocalEvent::PickupRespawn(SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::KeybindKeyPress(SQInt32 player, SQInt32 keybind) noexcept
+void LocalEvent::KeybindKeyPress(SQInt32 player, SQInt32 keybind)
 {
     if (Trigger())
     {
@@ -1227,7 +1227,7 @@ void LocalEvent::KeybindKeyPress(SQInt32 player, SQInt32 keybind) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind) noexcept
+void LocalEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind)
 {
     if (Trigger())
     {
@@ -1236,7 +1236,7 @@ void LocalEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
+void LocalEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 {
     if (Trigger() && \
         (m_Primary < 0 || slot == m_Primary) && (m_Secondary < 0 || slot == m_Secondary))
@@ -1246,7 +1246,7 @@ void LocalEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
+void LocalEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 {
     if (Trigger() && \
         (m_Primary < 0 || slot == m_Primary) && (m_Secondary < 0 || slot == m_Secondary))
@@ -1256,7 +1256,7 @@ void LocalEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::VehicleDisembark(SQInt32 player, SQInt32 vehicle) noexcept
+void LocalEvent::VehicleDisembark(SQInt32 player, SQInt32 vehicle)
 {
     if (Trigger())
     {
@@ -1265,7 +1265,7 @@ void LocalEvent::VehicleDisembark(SQInt32 player, SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PickupClaimed(SQInt32 player, SQInt32 pickup) noexcept
+void LocalEvent::PickupClaimed(SQInt32 player, SQInt32 pickup)
 {
     if (Trigger())
     {
@@ -1274,7 +1274,7 @@ void LocalEvent::PickupClaimed(SQInt32 player, SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::PickupCollected(SQInt32 player, SQInt32 pickup) noexcept
+void LocalEvent::PickupCollected(SQInt32 player, SQInt32 pickup)
 {
     if (Trigger())
     {
@@ -1283,7 +1283,7 @@ void LocalEvent::PickupCollected(SQInt32 player, SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noexcept
+void LocalEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon)
 {
     if (Trigger() && \
         (m_Primary < 0 || weapon == m_Primary) && (m_Secondary < 0 || weapon == m_Secondary))
@@ -1293,7 +1293,7 @@ void LocalEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noex
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::ObjectBump(SQInt32 player, SQInt32 object) noexcept
+void LocalEvent::ObjectBump(SQInt32 player, SQInt32 object)
 {
     if (Trigger())
     {
@@ -1302,7 +1302,7 @@ void LocalEvent::ObjectBump(SQInt32 player, SQInt32 object) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::CheckpointEntered(SQInt32 player, SQInt32 checkpoint) noexcept
+void LocalEvent::CheckpointEntered(SQInt32 player, SQInt32 checkpoint)
 {
     if (Trigger())
     {
@@ -1311,7 +1311,7 @@ void LocalEvent::CheckpointEntered(SQInt32 player, SQInt32 checkpoint) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::CheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept
+void LocalEvent::CheckpointExited(SQInt32 player, SQInt32 checkpoint)
 {
     if (Trigger())
     {
@@ -1320,7 +1320,7 @@ void LocalEvent::CheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::SphereEntered(SQInt32 player, SQInt32 sphere) noexcept
+void LocalEvent::SphereEntered(SQInt32 player, SQInt32 sphere)
 {
     if (Trigger())
     {
@@ -1329,7 +1329,7 @@ void LocalEvent::SphereEntered(SQInt32 player, SQInt32 sphere) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::SphereExited(SQInt32 player, SQInt32 sphere) noexcept
+void LocalEvent::SphereExited(SQInt32 player, SQInt32 sphere)
 {
     if (Trigger())
     {
@@ -1338,7 +1338,7 @@ void LocalEvent::SphereExited(SQInt32 player, SQInt32 sphere) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool LocalEvent::Trigger() noexcept
+bool LocalEvent::Trigger()
 {
     if (m_Suspended || (m_Idle > std::chrono::steady_clock::now()))
     {
@@ -1363,14 +1363,14 @@ bool LocalEvent::Trigger() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Attach() noexcept
+void LocalEvent::Attach()
 {
     // Filters take care of both attaching and hooking for local filters
     Hook();
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Attach(SQInt32 id) noexcept
+void LocalEvent::Attach(SQInt32 id)
 {
     switch (m_Type)
     {
@@ -1723,14 +1723,14 @@ void LocalEvent::Attach(SQInt32 id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Detach() noexcept
+void LocalEvent::Detach()
 {
     // Filters take care of both detaching and unhooking for local filters
     Unhook();
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Detach(SQInt32 id) noexcept
+void LocalEvent::Detach(SQInt32 id)
 {
     switch (m_Type)
     {
@@ -2083,7 +2083,7 @@ void LocalEvent::Detach(SQInt32 id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Hook() noexcept
+void LocalEvent::Hook()
 {
     if (Ent< CBlip >::InEvent(m_Type, m_Inversed))
     {
@@ -2137,7 +2137,7 @@ void LocalEvent::Hook() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Unhook() noexcept
+void LocalEvent::Unhook()
 {
     if (Ent< CBlip >::InEvent(m_Type, m_Inversed))
     {
@@ -2191,7 +2191,7 @@ void LocalEvent::Unhook() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Adaptable(SQInt32 type, bool inversed) noexcept
+void LocalEvent::Adaptable(SQInt32 type, bool inversed)
 {
     if (Ent< CBlip >::InEvent(m_Type, m_Inversed) && !Ent< CBlip >::InEvent(type, inversed))
     {

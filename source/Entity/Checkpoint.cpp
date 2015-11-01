@@ -16,14 +16,14 @@ SQUint32  CCheckpoint::s_ColorB;
 SQUint32  CCheckpoint::s_ColorA;
 
 // ------------------------------------------------------------------------------------------------
-CCheckpoint::CCheckpoint(const Reference< CCheckpoint > & o) noexcept
+CCheckpoint::CCheckpoint(const Reference< CCheckpoint > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CCheckpoint::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
+bool CCheckpoint::IsStreamedFor(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -42,7 +42,7 @@ bool CCheckpoint::IsStreamedFor(const Reference< CPlayer > & player) const noexc
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CCheckpoint::GetWorld() const noexcept
+SQInt32 CCheckpoint::GetWorld() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -57,7 +57,7 @@ SQInt32 CCheckpoint::GetWorld() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetWorld(SQInt32 world) const noexcept
+void CCheckpoint::SetWorld(SQInt32 world) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -70,7 +70,7 @@ void CCheckpoint::SetWorld(SQInt32 world) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color4 & CCheckpoint::GetColor() const noexcept
+const Color4 & CCheckpoint::GetColor() const
 {
     // Clear any previous color
     s_Color4.Clear();
@@ -89,7 +89,7 @@ const Color4 & CCheckpoint::GetColor() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColor(const Color4 & col) const noexcept
+void CCheckpoint::SetColor(const Color4 & col) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -102,7 +102,7 @@ void CCheckpoint::SetColor(const Color4 & col) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const noexcept
+void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -115,7 +115,7 @@ void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CCheckpoint::GetPosition() const noexcept
+const Vector3 & CCheckpoint::GetPosition() const
 {
     // Clear any previous position
     s_Vector3.Clear();
@@ -133,7 +133,7 @@ const Vector3 & CCheckpoint::GetPosition() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetPosition(const Vector3 & pos) const noexcept
+void CCheckpoint::SetPosition(const Vector3 & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -146,7 +146,7 @@ void CCheckpoint::SetPosition(const Vector3 & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CCheckpoint::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -159,7 +159,7 @@ void CCheckpoint::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CCheckpoint::GetRadius() const noexcept
+SQFloat CCheckpoint::GetRadius() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -174,7 +174,7 @@ SQFloat CCheckpoint::GetRadius() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetRadius(SQFloat radius) const noexcept
+void CCheckpoint::SetRadius(SQFloat radius) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -187,7 +187,7 @@ void CCheckpoint::SetRadius(SQFloat radius) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CPlayer > CCheckpoint::GetOwner() const noexcept
+Reference< CPlayer > CCheckpoint::GetOwner() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -202,7 +202,7 @@ Reference< CPlayer > CCheckpoint::GetOwner() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CCheckpoint::GetOwnerID() const noexcept
+SQInt32 CCheckpoint::GetOwnerID() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -220,7 +220,7 @@ SQInt32 CCheckpoint::GetOwnerID() const noexcept
 Reference< CCheckpoint > CreateBaseCheckpoint_PEF(SQInt32 player, SQInt32 world,
                             SQFloat x, SQFloat y, SQFloat z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                            SQFloat radius) noexcept
+                            SQFloat radius)
 {
     return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -230,7 +230,7 @@ Reference< CCheckpoint > CreateBaseCheckpoint_PEF(SQInt32 player, SQInt32 world,
                             SQFloat x, SQFloat y, SQFloat z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                             SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
                                 header, payload);
@@ -238,7 +238,7 @@ Reference< CCheckpoint > CreateBaseCheckpoint_PEF(SQInt32 player, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CCheckpoint > CreateBaseCheckpoint_PCF(SQInt32 player, SQInt32 world,
-                            const Vector3 & pos, const Color4 & color, SQFloat radius) noexcept
+                            const Vector3 & pos, const Color4 & color, SQFloat radius)
 {
     return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -246,7 +246,7 @@ Reference< CCheckpoint > CreateBaseCheckpoint_PCF(SQInt32 player, SQInt32 world,
 
 Reference< CCheckpoint > CreateBaseCheckpoint_PCF(SQInt32 player, SQInt32 world,
                             const Vector3 & pos, const Color4 & color, SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
                                 header, payload);
@@ -256,7 +256,7 @@ Reference< CCheckpoint > CreateBaseCheckpoint_PCF(SQInt32 player, SQInt32 world,
 Reference< CCheckpoint > CreateBaseCheckpoint_EF(const Reference< CPlayer > & player, SQInt32 world,
                             SQFloat x, SQFloat y, SQFloat z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                            SQFloat radius) noexcept
+                            SQFloat radius)
 {
     return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -266,7 +266,7 @@ Reference< CCheckpoint > CreateBaseCheckpoint_EF(const Reference< CPlayer > & pl
                             SQFloat x, SQFloat y, SQFloat z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                             SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
                                 header, payload);
@@ -274,7 +274,7 @@ Reference< CCheckpoint > CreateBaseCheckpoint_EF(const Reference< CPlayer > & pl
 
 // ------------------------------------------------------------------------------------------------
 Reference< CCheckpoint > CreateBaseCheckpoint_CF(const Reference< CPlayer > & player, SQInt32 world,
-                            const Vector3 & pos, const Color4 & color, SQFloat radius) noexcept
+                            const Vector3 & pos, const Color4 & color, SQFloat radius)
 {
     return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -282,7 +282,7 @@ Reference< CCheckpoint > CreateBaseCheckpoint_CF(const Reference< CPlayer > & pl
 
 Reference< CCheckpoint > CreateBaseCheckpoint_CF(const Reference< CPlayer > & player, SQInt32 world,
                             const Vector3 & pos, const Color4 & color, SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
                                 header, payload);
@@ -292,7 +292,7 @@ Reference< CCheckpoint > CreateBaseCheckpoint_CF(const Reference< CPlayer > & pl
 CCheckpoint CreateCheckpoint_PEF(SQInt32 player, SQInt32 world,
                                 SQFloat x, SQFloat y, SQFloat z,
                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                                SQFloat radius) noexcept
+                                SQFloat radius)
 {
     return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -302,7 +302,7 @@ CCheckpoint CreateCheckpoint_PEF(SQInt32 player, SQInt32 world,
                                 SQFloat x, SQFloat y, SQFloat z,
                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                                 SQFloat radius,
-                                SQInt32 header, SqObj & payload) noexcept
+                                SQInt32 header, SqObj & payload)
 {
     return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
                                 header, payload);
@@ -310,7 +310,7 @@ CCheckpoint CreateCheckpoint_PEF(SQInt32 player, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 CCheckpoint CreateCheckpoint_PCF(SQInt32 player, SQInt32 world,
-                            const Vector3 & pos, const Color4 & color, SQFloat radius) noexcept
+                            const Vector3 & pos, const Color4 & color, SQFloat radius)
 {
     return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -318,7 +318,7 @@ CCheckpoint CreateCheckpoint_PCF(SQInt32 player, SQInt32 world,
 
 CCheckpoint CreateCheckpoint_PCF(SQInt32 player, SQInt32 world,
                             const Vector3 & pos, const Color4 & color, SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
                                 header, payload);
@@ -328,7 +328,7 @@ CCheckpoint CreateCheckpoint_PCF(SQInt32 player, SQInt32 world,
 CCheckpoint CreateCheckpoint_EF(const Reference< CPlayer > & player, SQInt32 world,
                                 SQFloat x, SQFloat y, SQFloat z,
                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                                SQFloat radius) noexcept
+                                SQFloat radius)
 {
     return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -338,7 +338,7 @@ CCheckpoint CreateCheckpoint_EF(const Reference< CPlayer > & player, SQInt32 wor
                                 SQFloat x, SQFloat y, SQFloat z,
                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                                 SQFloat radius,
-                                SQInt32 header, SqObj & payload) noexcept
+                                SQInt32 header, SqObj & payload)
 {
     return _Core->NewCheckpoint(player, world, x, y, z, r, g, b, a, radius,
                                 header, payload);
@@ -346,7 +346,7 @@ CCheckpoint CreateCheckpoint_EF(const Reference< CPlayer > & player, SQInt32 wor
 
 // ------------------------------------------------------------------------------------------------
 CCheckpoint CreateCheckpoint_CF(const Reference< CPlayer > & player, SQInt32 world,
-                            const Vector3 & pos, const Color4 & color, SQFloat radius) noexcept
+                            const Vector3 & pos, const Color4 & color, SQFloat radius)
 {
     return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -354,7 +354,7 @@ CCheckpoint CreateCheckpoint_CF(const Reference< CPlayer > & player, SQInt32 wor
 
 CCheckpoint CreateCheckpoint_CF(const Reference< CPlayer > & player, SQInt32 world,
                             const Vector3 & pos, const Color4 & color, SQFloat radius,
-                            SQInt32 header, SqObj & payload) noexcept
+                            SQInt32 header, SqObj & payload)
 {
     return _Core->NewCheckpoint(player, world, pos.x, pos.y, pos.z, color.r, color.g, color.b, color.a, radius,
                                 header, payload);

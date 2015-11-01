@@ -17,22 +17,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio() noexcept;
+    CRadio();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio(SQInt32 id) noexcept;
+    CRadio(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio(const CRadio & x) noexcept;
+    CRadio(const CRadio & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio(CRadio && x) noexcept;
+    CRadio(CRadio && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -42,97 +42,97 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio & operator= (const CRadio & x) noexcept;
+    CRadio & operator= (const CRadio & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio & operator= (CRadio && x) noexcept;
+    CRadio & operator= (CRadio && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio operator+ (const CRadio & x) const noexcept;
+    CRadio operator+ (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio operator- (const CRadio & x) const noexcept;
+    CRadio operator- (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio operator* (const CRadio & x) const noexcept;
+    CRadio operator* (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio operator/ (const CRadio & x) const noexcept;
+    CRadio operator/ (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator == (const CRadio & x) const noexcept;
+    bool operator == (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator != (const CRadio & x) const noexcept;
+    bool operator != (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator < (const CRadio & x) const noexcept;
+    bool operator < (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator > (const CRadio & x) const noexcept;
+    bool operator > (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator <= (const CRadio & x) const noexcept;
+    bool operator <= (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator >= (const CRadio & x) const noexcept;
+    bool operator >= (const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInteger Cmp(const CRadio & x) const noexcept;
+    SQInteger Cmp(const CRadio & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator SQInt32 () const noexcept;
+    operator SQInt32 () const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator bool () const noexcept;
+    operator bool () const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetID() const noexcept;
+    SQInt32 GetID() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetID(SQInt32 id) noexcept;
+    void SetID(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CRadio & SetnGet(SQInt32 id) noexcept;
+    CRadio & SetnGet(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Apply(const CVehicle & vehicle) const noexcept;
+    void Apply(const CVehicle & vehicle) const;
 
 protected:
 

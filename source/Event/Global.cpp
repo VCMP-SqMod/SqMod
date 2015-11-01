@@ -7,21 +7,21 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::GlobalEvent() noexcept
+GlobalEvent::GlobalEvent()
     : GlobalEvent(EVT_UNKNOWN, false)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::GlobalEvent(SQInt32 type) noexcept
+GlobalEvent::GlobalEvent(SQInt32 type)
     : GlobalEvent(type, false)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::GlobalEvent(SQInt32 type, bool suspended) noexcept
+GlobalEvent::GlobalEvent(SQInt32 type, bool suspended)
     : m_Type(type)
     , m_Stride(0)
     , m_Ignore(0)
@@ -66,43 +66,43 @@ GlobalEvent::~GlobalEvent()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::operator == (const GlobalEvent & o) const noexcept
+bool GlobalEvent::operator == (const GlobalEvent & o) const
 {
     return (m_Type == o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::operator != (const GlobalEvent & o) const noexcept
+bool GlobalEvent::operator != (const GlobalEvent & o) const
 {
     return (m_Type != o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::operator < (const GlobalEvent & o) const noexcept
+bool GlobalEvent::operator < (const GlobalEvent & o) const
 {
     return (m_Type < o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::operator > (const GlobalEvent & o) const noexcept
+bool GlobalEvent::operator > (const GlobalEvent & o) const
 {
     return (m_Type > o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::operator <= (const GlobalEvent & o) const noexcept
+bool GlobalEvent::operator <= (const GlobalEvent & o) const
 {
     return (m_Type <= o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::operator >= (const GlobalEvent & o) const noexcept
+bool GlobalEvent::operator >= (const GlobalEvent & o) const
 {
     return (m_Type >= o.m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VMClose() noexcept
+void GlobalEvent::VMClose()
 {
     // Release the reference to the specified callbacks
     m_OnTrigger.Release2();
@@ -115,7 +115,7 @@ void GlobalEvent::VMClose() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 GlobalEvent::Cmp(const GlobalEvent & o) const noexcept
+SQInt32 GlobalEvent::Cmp(const GlobalEvent & o) const
 {
     if (m_Type == o.m_Type)
     {
@@ -132,41 +132,41 @@ SQInt32 GlobalEvent::Cmp(const GlobalEvent & o) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * GlobalEvent::GetName() const noexcept
+const SQChar * GlobalEvent::GetName() const
 {
     return GetEventName(m_Type);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * GlobalEvent::GetTag() const noexcept
+const SQChar * GlobalEvent::GetTag() const
 {
     return m_Tag.c_str();
 }
 
-void GlobalEvent::SetTag(const SQChar * tag) noexcept
+void GlobalEvent::SetTag(const SQChar * tag)
 {
     m_Tag = tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-SqObj & GlobalEvent::GetData() noexcept
+SqObj & GlobalEvent::GetData()
 {
     return m_Data;
 }
 
-void GlobalEvent::SetData(SqObj & data) noexcept
+void GlobalEvent::SetData(SqObj & data)
 {
     m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 GlobalEvent::GetType() const noexcept
+SQInt32 GlobalEvent::GetType() const
 {
     return m_Type;
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::SetType(SQInt32 type) noexcept
+void GlobalEvent::SetType(SQInt32 type)
 {
     // Make sure the newly specified event is compatible
     if (!Compatible(type))
@@ -188,169 +188,169 @@ void GlobalEvent::SetType(SQInt32 type) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger GlobalEvent::GetIdle() const noexcept
+SQInteger GlobalEvent::GetIdle() const
 {
     return _SCSQI(std::chrono::duration_cast<std::chrono::milliseconds>(m_Idle - std::chrono::steady_clock::now()).count());
 }
 
-void GlobalEvent::SetIdle(SQInteger millis) noexcept
+void GlobalEvent::SetIdle(SQInteger millis)
 {
     m_Idle = (std::chrono::steady_clock::now() + std::chrono::milliseconds(_SCI64(millis)));
 }
 
-bool GlobalEvent::IsIdle() const noexcept
+bool GlobalEvent::IsIdle() const
 {
     return (m_Idle > std::chrono::steady_clock::now());
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 GlobalEvent::GetStride() const noexcept
+SQInt32 GlobalEvent::GetStride() const
 {
     return m_Stride;
 }
 
-void GlobalEvent::SetStride(SQInt32 stride) noexcept
+void GlobalEvent::SetStride(SQInt32 stride)
 {
     m_Stride = stride > 0 ? stride : 0;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 GlobalEvent::GetIgnore() const noexcept
+SQInt32 GlobalEvent::GetIgnore() const
 {
     return m_Ignore;
 }
 
-void GlobalEvent::SetIgnore(SQInt32 ignore) noexcept
+void GlobalEvent::SetIgnore(SQInt32 ignore)
 {
     m_Ignore = ignore > 0 ? ignore : 0;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 GlobalEvent::GetPrimary() const noexcept
+SQInt32 GlobalEvent::GetPrimary() const
 {
     return m_Primary;
 }
 
-void GlobalEvent::SetPrimary(SQInt32 subset) noexcept
+void GlobalEvent::SetPrimary(SQInt32 subset)
 {
     m_Primary = subset;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 GlobalEvent::GetSecondary() const noexcept
+SQInt32 GlobalEvent::GetSecondary() const
 {
     return m_Secondary;
 }
 
-void GlobalEvent::SetSecondary(SQInt32 subset) noexcept
+void GlobalEvent::SetSecondary(SQInt32 subset)
 {
     m_Secondary = subset;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::GetSuspended() const noexcept
+bool GlobalEvent::GetSuspended() const
 {
     return m_Suspended;
 }
 
-void GlobalEvent::SetSuspended(bool toggle) noexcept
+void GlobalEvent::SetSuspended(bool toggle)
 {
     m_Suspended = toggle;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::GetConfined() const noexcept
+bool GlobalEvent::GetConfined() const
 {
     return m_Confined;
 }
 
-void GlobalEvent::SetConfined(bool toggle) noexcept
+void GlobalEvent::SetConfined(bool toggle)
 {
     m_Confined = toggle;
 }
 
 // ------------------------------------------------------------------------------------------------
-Function GlobalEvent::GetOnTrigger() const noexcept
+Function GlobalEvent::GetOnTrigger() const
 {
     return m_OnTrigger;
 }
 
-void GlobalEvent::SetOnTrigger(Function & func) noexcept
+void GlobalEvent::SetOnTrigger(Function & func)
 {
     m_OnTrigger = func;
 }
 
-void GlobalEvent::SetOnTrigger_Env(SqObj & env, Function & func) noexcept
+void GlobalEvent::SetOnTrigger_Env(SqObj & env, Function & func)
 {
     m_OnTrigger = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function GlobalEvent::GetOnInclude() const noexcept
+Function GlobalEvent::GetOnInclude() const
 {
     return m_OnInclude;
 }
 
-void GlobalEvent::SetOnInclude(Function & func) noexcept
+void GlobalEvent::SetOnInclude(Function & func)
 {
     m_OnInclude = func;
 }
 
-void GlobalEvent::SetOnInclude_Env(SqObj & env, Function & func) noexcept
+void GlobalEvent::SetOnInclude_Env(SqObj & env, Function & func)
 {
     m_OnInclude = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function GlobalEvent::GetOnExclude() const noexcept
+Function GlobalEvent::GetOnExclude() const
 {
     return m_OnExclude;
 }
 
-void GlobalEvent::SetOnExclude(Function & func) noexcept
+void GlobalEvent::SetOnExclude(Function & func)
 {
     m_OnExclude = func;
 }
 
-void GlobalEvent::SetOnExclude_Env(SqObj & env, Function & func) noexcept
+void GlobalEvent::SetOnExclude_Env(SqObj & env, Function & func)
 {
     m_OnExclude = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function GlobalEvent::GetOnCleared() const noexcept
+Function GlobalEvent::GetOnCleared() const
 {
     return m_OnCleared;
 }
 
-void GlobalEvent::SetOnCleared(Function & func) noexcept
+void GlobalEvent::SetOnCleared(Function & func)
 {
     m_OnCleared = func;
 }
 
-void GlobalEvent::SetOnCleared_Env(SqObj & env, Function & func) noexcept
+void GlobalEvent::SetOnCleared_Env(SqObj & env, Function & func)
 {
     m_OnCleared = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-Function GlobalEvent::GetOnRelease() const noexcept
+Function GlobalEvent::GetOnRelease() const
 {
     return m_OnRelease;
 }
 
-void GlobalEvent::SetOnRelease(Function & func) noexcept
+void GlobalEvent::SetOnRelease(Function & func)
 {
     m_OnRelease = func;
 }
 
-void GlobalEvent::SetOnRelease_Env(SqObj & env, Function & func) noexcept
+void GlobalEvent::SetOnRelease_Env(SqObj & env, Function & func)
 {
     m_OnRelease = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::Compatible(SQInt32 type) const noexcept
+bool GlobalEvent::Compatible(SQInt32 type) const
 {
     switch (type)
     {
@@ -445,67 +445,67 @@ bool GlobalEvent::Compatible(SQInt32 type) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::BlipFilter & GlobalEvent::GetBlipFilter() noexcept
+GlobalEvent::BlipFilter & GlobalEvent::GetBlipFilter()
 {
     return m_Blips; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::CheckpointFilter & GlobalEvent::GetCheckpointFilter() noexcept
+GlobalEvent::CheckpointFilter & GlobalEvent::GetCheckpointFilter()
 {
     return m_Checkpoints; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::KeybindFilter & GlobalEvent::GetKeybindFilter() noexcept
+GlobalEvent::KeybindFilter & GlobalEvent::GetKeybindFilter()
 {
     return m_Keybinds; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::ObjectFilter & GlobalEvent::GetObjectFilter() noexcept
+GlobalEvent::ObjectFilter & GlobalEvent::GetObjectFilter()
 {
     return m_Objects; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::PickupFilter & GlobalEvent::GetPickupFilter() noexcept
+GlobalEvent::PickupFilter & GlobalEvent::GetPickupFilter()
 {
     return m_Pickups; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::PlayerFilter & GlobalEvent::GetPlayerFilter() noexcept
+GlobalEvent::PlayerFilter & GlobalEvent::GetPlayerFilter()
 {
     return m_Players; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::SphereFilter & GlobalEvent::GetSphereFilter() noexcept
+GlobalEvent::SphereFilter & GlobalEvent::GetSphereFilter()
 {
     return m_Spheres; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::SpriteFilter & GlobalEvent::GetSpriteFilter() noexcept
+GlobalEvent::SpriteFilter & GlobalEvent::GetSpriteFilter()
 {
     return m_Sprites; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::TextdrawFilter & GlobalEvent::GetTextdrawFilter() noexcept
+GlobalEvent::TextdrawFilter & GlobalEvent::GetTextdrawFilter()
 {
     return m_Textdraws; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-GlobalEvent::VehicleFilter & GlobalEvent::GetVehicleFilter() noexcept
+GlobalEvent::VehicleFilter & GlobalEvent::GetVehicleFilter()
 {
     return m_Vehicles; /* This reference should not be stored anywhere! */
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload)
 {
     if (m_Blips.m_Filter[blip])
     {
@@ -519,7 +519,7 @@ void GlobalEvent::BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload)
 {
     if (m_Checkpoints.m_Filter[checkpoint])
     {
@@ -533,7 +533,7 @@ void GlobalEvent::CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload)
 {
     if (m_Keybinds.m_Filter[keybind])
     {
@@ -547,7 +547,7 @@ void GlobalEvent::KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & pay
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload)
 {
     if (m_Objects.m_Filter[object])
     {
@@ -561,7 +561,7 @@ void GlobalEvent::ObjectDestroyed(SQInt32 object, SQInt32 header, Object & paylo
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload)
 {
     if (m_Pickups.m_Filter[pickup])
     {
@@ -575,7 +575,7 @@ void GlobalEvent::PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & paylo
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload)
 {
     if (m_Players.m_Filter[player])
     {
@@ -589,7 +589,7 @@ void GlobalEvent::PlayerDestroyed(SQInt32 player, SQInt32 header, Object & paylo
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload)
 {
     if (m_Spheres.m_Filter[sphere])
     {
@@ -603,7 +603,7 @@ void GlobalEvent::SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & paylo
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload)
 {
     if (m_Sprites.m_Filter[sprite])
     {
@@ -617,7 +617,7 @@ void GlobalEvent::SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & paylo
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload)
 {
     if (m_Textdraws.m_Filter[textdraw])
     {
@@ -631,7 +631,7 @@ void GlobalEvent::TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & p
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload)
 {
     if (m_Vehicles.m_Filter[vehicle])
     {
@@ -645,7 +645,7 @@ void GlobalEvent::VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & pay
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload)
 {
     if (!m_Blips.m_Filter[blip] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -655,7 +655,7 @@ void GlobalEvent::BlipCustom(SQInt32 blip, SQInt32 header, Object & payload) noe
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & payload)
 {
     if (!m_Checkpoints.m_Filter[checkpoint] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -665,7 +665,7 @@ void GlobalEvent::CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & 
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload)
 {
     if (!m_Keybinds.m_Filter[keybind] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -675,7 +675,7 @@ void GlobalEvent::KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload)
 {
     if (!m_Objects.m_Filter[object] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -685,7 +685,7 @@ void GlobalEvent::ObjectCustom(SQInt32 object, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload)
 {
     if (!m_Pickups.m_Filter[pickup] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -695,7 +695,7 @@ void GlobalEvent::PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -705,7 +705,7 @@ void GlobalEvent::PlayerCustom(SQInt32 player, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload)
 {
     if (!m_Spheres.m_Filter[sphere] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -715,7 +715,7 @@ void GlobalEvent::SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload)
 {
     if (!m_Sprites.m_Filter[sprite] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -725,7 +725,7 @@ void GlobalEvent::SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payload)
 {
     if (!m_Textdraws.m_Filter[textdraw] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -735,7 +735,7 @@ void GlobalEvent::TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payl
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept
+void GlobalEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload)
 {
     if (!m_Vehicles.m_Filter[vehicle] && Trigger() && \
         (m_Primary < 0 || header == m_Primary) && (m_Secondary < 0 || header == m_Secondary))
@@ -745,7 +745,7 @@ void GlobalEvent::VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payloa
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerAway(SQInt32 player, bool status) noexcept
+void GlobalEvent::PlayerAway(SQInt32 player, bool status)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || status == m_Primary) && (m_Secondary < 0 || status == m_Secondary))
@@ -755,7 +755,7 @@ void GlobalEvent::PlayerAway(SQInt32 player, bool status) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void GlobalEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -765,7 +765,7 @@ void GlobalEvent::PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 curre
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQChar * current) noexcept
+void GlobalEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQChar * current)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -774,7 +774,7 @@ void GlobalEvent::PlayerRename(SQInt32 player, const SQChar * previous, const SQ
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset) noexcept
+void GlobalEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || offset == m_Primary) && (m_Secondary < 0 || offset == m_Secondary))
@@ -784,7 +784,7 @@ void GlobalEvent::PlayerRequestClass(SQInt32 player, SQInt32 offset) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerRequestSpawn(SQInt32 player) noexcept
+void GlobalEvent::PlayerRequestSpawn(SQInt32 player)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -793,7 +793,7 @@ void GlobalEvent::PlayerRequestSpawn(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerSpawn(SQInt32 player) noexcept
+void GlobalEvent::PlayerSpawn(SQInt32 player)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -802,7 +802,7 @@ void GlobalEvent::PlayerSpawn(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerStartTyping(SQInt32 player) noexcept
+void GlobalEvent::PlayerStartTyping(SQInt32 player)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -811,7 +811,7 @@ void GlobalEvent::PlayerStartTyping(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerStopTyping(SQInt32 player) noexcept
+void GlobalEvent::PlayerStopTyping(SQInt32 player)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -820,7 +820,7 @@ void GlobalEvent::PlayerStopTyping(SQInt32 player) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerChat(SQInt32 player, const SQChar * message) noexcept
+void GlobalEvent::PlayerChat(SQInt32 player, const SQChar * message)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -829,7 +829,7 @@ void GlobalEvent::PlayerChat(SQInt32 player, const SQChar * message) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerCommand(SQInt32 player, const SQChar * command) noexcept
+void GlobalEvent::PlayerCommand(SQInt32 player, const SQChar * command)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -838,7 +838,7 @@ void GlobalEvent::PlayerCommand(SQInt32 player, const SQChar * command) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message) noexcept
+void GlobalEvent::PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Players.m_Filter[receiver];
 
@@ -849,7 +849,7 @@ void GlobalEvent::PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar *
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current) noexcept
+void GlobalEvent::PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -858,7 +858,7 @@ void GlobalEvent::PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current) noexcept
+void GlobalEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -867,7 +867,7 @@ void GlobalEvent::PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void GlobalEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -877,7 +877,7 @@ void GlobalEvent::PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current) noexcept
+void GlobalEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -886,7 +886,7 @@ void GlobalEvent::PlayerMove(SQInt32 player, const Vector3 & previous, const Vec
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerWasted(SQInt32 player, SQInt32 reason) noexcept
+void GlobalEvent::PlayerWasted(SQInt32 player, SQInt32 reason)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || reason == m_Primary) && (m_Secondary < 0 || reason == m_Secondary))
@@ -896,7 +896,7 @@ void GlobalEvent::PlayerWasted(SQInt32 player, SQInt32 reason) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept
+void GlobalEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Players.m_Filter[killer];
 
@@ -908,7 +908,7 @@ void GlobalEvent::PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, S
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept
+void GlobalEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Players.m_Filter[killer];
 
@@ -920,7 +920,7 @@ void GlobalEvent::PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason,
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerSpectate(SQInt32 player, SQInt32 target) noexcept
+void GlobalEvent::PlayerSpectate(SQInt32 player, SQInt32 target)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Players.m_Filter[target];
 
@@ -931,7 +931,7 @@ void GlobalEvent::PlayerSpectate(SQInt32 player, SQInt32 target) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerCrashreport(SQInt32 player, const SQChar * report) noexcept
+void GlobalEvent::PlayerCrashreport(SQInt32 player, const SQChar * report)
 {
     if (!m_Players.m_Filter[player] && Trigger())
     {
@@ -940,7 +940,7 @@ void GlobalEvent::PlayerCrashreport(SQInt32 player, const SQChar * report) noexc
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerBurning(SQInt32 player, bool state) noexcept
+void GlobalEvent::PlayerBurning(SQInt32 player, bool state)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
@@ -950,7 +950,7 @@ void GlobalEvent::PlayerBurning(SQInt32 player, bool state) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerCrouching(SQInt32 player, bool state) noexcept
+void GlobalEvent::PlayerCrouching(SQInt32 player, bool state)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || state == m_Primary) && (m_Secondary < 0 || state == m_Secondary))
@@ -960,7 +960,7 @@ void GlobalEvent::PlayerCrouching(SQInt32 player, bool state) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void GlobalEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -970,7 +970,7 @@ void GlobalEvent::PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current)
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void GlobalEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || current == m_Secondary))
@@ -980,7 +980,7 @@ void GlobalEvent::PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::StateNone(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::StateNone(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -990,7 +990,7 @@ void GlobalEvent::StateNone(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::StateNormal(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::StateNormal(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1000,7 +1000,7 @@ void GlobalEvent::StateNormal(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::StateShooting(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::StateShooting(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1010,7 +1010,7 @@ void GlobalEvent::StateShooting(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::StateDriver(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::StateDriver(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1020,7 +1020,7 @@ void GlobalEvent::StateDriver(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::StatePassenger(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::StatePassenger(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1030,7 +1030,7 @@ void GlobalEvent::StatePassenger(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::StateEnterDriver(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::StateEnterDriver(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1040,7 +1040,7 @@ void GlobalEvent::StateEnterDriver(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1050,7 +1050,7 @@ void GlobalEvent::StateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::StateExitVehicle(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::StateExitVehicle(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1060,7 +1060,7 @@ void GlobalEvent::StateExitVehicle(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::StateUnspawned(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::StateUnspawned(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1070,7 +1070,7 @@ void GlobalEvent::StateUnspawned(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionNone(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionNone(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1080,7 +1080,7 @@ void GlobalEvent::ActionNone(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionNormal(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionNormal(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1090,7 +1090,7 @@ void GlobalEvent::ActionNormal(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionAiming(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionAiming(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1100,7 +1100,7 @@ void GlobalEvent::ActionAiming(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionShooting(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionShooting(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1110,7 +1110,7 @@ void GlobalEvent::ActionShooting(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionJumping(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionJumping(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1120,7 +1120,7 @@ void GlobalEvent::ActionJumping(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionLieDown(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionLieDown(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1130,7 +1130,7 @@ void GlobalEvent::ActionLieDown(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionGettingUp(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionGettingUp(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1140,7 +1140,7 @@ void GlobalEvent::ActionGettingUp(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1150,7 +1150,7 @@ void GlobalEvent::ActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionDriving(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionDriving(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1160,7 +1160,7 @@ void GlobalEvent::ActionDriving(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionDying(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionDying(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1170,7 +1170,7 @@ void GlobalEvent::ActionDying(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionWasted(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionWasted(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1180,7 +1180,7 @@ void GlobalEvent::ActionWasted(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionEmbarking(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionEmbarking(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1190,7 +1190,7 @@ void GlobalEvent::ActionEmbarking(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ActionDisembarking(SQInt32 player, SQInt32 previous) noexcept
+void GlobalEvent::ActionDisembarking(SQInt32 player, SQInt32 previous)
 {
     if (!m_Players.m_Filter[player] && Trigger() && \
         (m_Primary < 0 || previous == m_Primary) && (m_Secondary < 0 || previous == m_Secondary))
@@ -1200,7 +1200,7 @@ void GlobalEvent::ActionDisembarking(SQInt32 player, SQInt32 previous) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VehicleRespawn(SQInt32 vehicle) noexcept
+void GlobalEvent::VehicleRespawn(SQInt32 vehicle)
 {
     if (!m_Vehicles.m_Filter[vehicle] && Trigger())
     {
@@ -1209,7 +1209,7 @@ void GlobalEvent::VehicleRespawn(SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VehicleExplode(SQInt32 vehicle) noexcept
+void GlobalEvent::VehicleExplode(SQInt32 vehicle)
 {
     if (!m_Vehicles.m_Filter[vehicle] && Trigger())
     {
@@ -1218,7 +1218,7 @@ void GlobalEvent::VehicleExplode(SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current) noexcept
+void GlobalEvent::VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current)
 {
     if (!m_Vehicles.m_Filter[vehicle] && Trigger())
     {
@@ -1227,7 +1227,7 @@ void GlobalEvent::VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat curre
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 &current) noexcept
+void GlobalEvent::VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 &current)
 {
     if (!m_Vehicles.m_Filter[vehicle] && Trigger())
     {
@@ -1236,7 +1236,7 @@ void GlobalEvent::VehicleMove(SQInt32 vehicle, const Vector3 & previous, const V
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PickupRespawn(SQInt32 pickup) noexcept
+void GlobalEvent::PickupRespawn(SQInt32 pickup)
 {
     if (!m_Pickups.m_Filter[pickup] && Trigger())
     {
@@ -1245,7 +1245,7 @@ void GlobalEvent::PickupRespawn(SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::KeybindKeyPress(SQInt32 player, SQInt32 keybind) noexcept
+void GlobalEvent::KeybindKeyPress(SQInt32 player, SQInt32 keybind)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Keybinds.m_Filter[keybind];
 
@@ -1256,7 +1256,7 @@ void GlobalEvent::KeybindKeyPress(SQInt32 player, SQInt32 keybind) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind) noexcept
+void GlobalEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Keybinds.m_Filter[keybind];
 
@@ -1267,7 +1267,7 @@ void GlobalEvent::KeybindKeyRelease(SQInt32 player, SQInt32 keybind) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
+void GlobalEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Vehicles.m_Filter[vehicle];
 
@@ -1279,7 +1279,7 @@ void GlobalEvent::VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
+void GlobalEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Vehicles.m_Filter[vehicle];
 
@@ -1291,7 +1291,7 @@ void GlobalEvent::VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::VehicleDisembark(SQInt32 player, SQInt32 vehicle) noexcept
+void GlobalEvent::VehicleDisembark(SQInt32 player, SQInt32 vehicle)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Vehicles.m_Filter[vehicle];
 
@@ -1302,7 +1302,7 @@ void GlobalEvent::VehicleDisembark(SQInt32 player, SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PickupClaimed(SQInt32 player, SQInt32 pickup) noexcept
+void GlobalEvent::PickupClaimed(SQInt32 player, SQInt32 pickup)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Pickups.m_Filter[pickup];
 
@@ -1313,7 +1313,7 @@ void GlobalEvent::PickupClaimed(SQInt32 player, SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::PickupCollected(SQInt32 player, SQInt32 pickup) noexcept
+void GlobalEvent::PickupCollected(SQInt32 player, SQInt32 pickup)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Pickups.m_Filter[pickup];
 
@@ -1324,7 +1324,7 @@ void GlobalEvent::PickupCollected(SQInt32 player, SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noexcept
+void GlobalEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Objects.m_Filter[object];
 
@@ -1336,7 +1336,7 @@ void GlobalEvent::ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noe
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::ObjectBump(SQInt32 player, SQInt32 object) noexcept
+void GlobalEvent::ObjectBump(SQInt32 player, SQInt32 object)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Objects.m_Filter[object];
 
@@ -1347,7 +1347,7 @@ void GlobalEvent::ObjectBump(SQInt32 player, SQInt32 object) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::CheckpointEntered(SQInt32 player, SQInt32 checkpoint) noexcept
+void GlobalEvent::CheckpointEntered(SQInt32 player, SQInt32 checkpoint)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Checkpoints.m_Filter[checkpoint];
 
@@ -1358,7 +1358,7 @@ void GlobalEvent::CheckpointEntered(SQInt32 player, SQInt32 checkpoint) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::CheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept
+void GlobalEvent::CheckpointExited(SQInt32 player, SQInt32 checkpoint)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Checkpoints.m_Filter[checkpoint];
 
@@ -1369,7 +1369,7 @@ void GlobalEvent::CheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::SphereEntered(SQInt32 player, SQInt32 sphere) noexcept
+void GlobalEvent::SphereEntered(SQInt32 player, SQInt32 sphere)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Spheres.m_Filter[sphere];
 
@@ -1380,7 +1380,7 @@ void GlobalEvent::SphereEntered(SQInt32 player, SQInt32 sphere) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::SphereExited(SQInt32 player, SQInt32 sphere) noexcept
+void GlobalEvent::SphereExited(SQInt32 player, SQInt32 sphere)
 {
     const char res = (!m_Players.m_Filter[player] << 1) | !m_Spheres.m_Filter[sphere];
 
@@ -1391,7 +1391,7 @@ void GlobalEvent::SphereExited(SQInt32 player, SQInt32 sphere) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GlobalEvent::Trigger() noexcept
+bool GlobalEvent::Trigger()
 {
     if (m_Suspended || (m_Idle > std::chrono::steady_clock::now()))
     {
@@ -1416,7 +1416,7 @@ bool GlobalEvent::Trigger() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::Attach() noexcept
+void GlobalEvent::Attach()
 {
     switch (m_Type)
     {
@@ -1678,7 +1678,7 @@ void GlobalEvent::Attach() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::Detach() noexcept
+void GlobalEvent::Detach()
 {
     switch (m_Type)
     {
@@ -1940,7 +1940,7 @@ void GlobalEvent::Detach() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::Hook() noexcept
+void GlobalEvent::Hook()
 {
     if (Ent< CBlip >::InEvent(m_Type))
     {
@@ -1994,7 +1994,7 @@ void GlobalEvent::Hook() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::Unhook() noexcept
+void GlobalEvent::Unhook()
 {
     if (Ent< CBlip >::InEvent(m_Type))
     {
@@ -2048,7 +2048,7 @@ void GlobalEvent::Unhook() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::Adaptable(SQInt32 type) noexcept
+void GlobalEvent::Adaptable(SQInt32 type)
 {
     if (Ent< CBlip >::InEvent(m_Type) && !Ent< CBlip >::InEvent(type))
     {

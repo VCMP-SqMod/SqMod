@@ -198,7 +198,7 @@ static const std::vector<Color3> SQ_Color_List
 };
 
 // ------------------------------------------------------------------------------------------------
-void LogDbg(const char * fmt, ...) noexcept
+void LogDbg(const char * fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -206,7 +206,7 @@ void LogDbg(const char * fmt, ...) noexcept
     va_end(args);
 }
 
-void LogMsg(const char * fmt, ...) noexcept
+void LogMsg(const char * fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -214,7 +214,7 @@ void LogMsg(const char * fmt, ...) noexcept
     va_end(args);
 }
 
-void LogScs(const char * fmt, ...) noexcept
+void LogScs(const char * fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -222,7 +222,7 @@ void LogScs(const char * fmt, ...) noexcept
     va_end(args);
 }
 
-void LogInf(const char * fmt, ...) noexcept
+void LogInf(const char * fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -230,7 +230,7 @@ void LogInf(const char * fmt, ...) noexcept
     va_end(args);
 }
 
-void LogWrn(const char * fmt, ...) noexcept
+void LogWrn(const char * fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -238,7 +238,7 @@ void LogWrn(const char * fmt, ...) noexcept
     va_end(args);
 }
 
-void LogErr(const char * fmt, ...) noexcept
+void LogErr(const char * fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -246,7 +246,7 @@ void LogErr(const char * fmt, ...) noexcept
     va_end(args);
 }
 
-void LogFtl(const char * fmt, ...) noexcept
+void LogFtl(const char * fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -255,7 +255,7 @@ void LogFtl(const char * fmt, ...) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * ToStringF(const char * fmt, ...) noexcept
+const SQChar * ToStringF(const char * fmt, ...)
 {
     // Acquire a buffer from the buffer pool
     Core::Buffer vbuf = _Core->PullBuffer();
@@ -290,7 +290,7 @@ const SQChar * ToStringF(const char * fmt, ...) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * InsertStr(const SQChar * f, const std::vector< const SQChar * > & a) noexcept
+const SQChar * InsertStr(const SQChar * f, const std::vector< const SQChar * > & a)
 {
     // Acquire a buffer from the buffer pool
     Core::Buffer vbuf = _Core->PullBuffer();
@@ -366,13 +366,13 @@ const SQChar * InsertStr(const SQChar * f, const std::vector< const SQChar * > &
 }
 
 // Utility for the <InsertStr> function
-const SQChar * InsStr(const SQChar * f) noexcept
+const SQChar * InsStr(const SQChar * f)
 {
     return InsertStr(f, std::vector< const SQChar * >());
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
+const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w)
 {
     // Acquire a buffer from the buffer pool
     Core::Buffer vbuf = _Core->PullBuffer();
@@ -412,7 +412,7 @@ const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
     return buf;
 }
 
-const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o) noexcept
+const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o)
 {
     // Acquire a buffer from the buffer pool
     Core::Buffer vbuf = _Core->PullBuffer();
@@ -453,7 +453,7 @@ const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o) noexc
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
+const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w)
 {
     // Acquire a buffer from the buffer pool
     Core::Buffer vbuf = _Core->PullBuffer();
@@ -493,7 +493,7 @@ const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
     return buf;
 }
 
-const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o) noexcept
+const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o)
 {
     // Acquire a buffer from the buffer pool
     Core::Buffer vbuf = _Core->PullBuffer();
@@ -534,7 +534,7 @@ const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o) noex
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CenterStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
+const SQChar * CenterStr(const SQChar * t, SQChar f, SQUint32 w)
 {
     // Acquire a buffer from the buffer pool
     Core::Buffer vbuf = _Core->PullBuffer();
@@ -575,146 +575,146 @@ const SQChar * CenterStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void InitMTRG32() noexcept
+void InitMTRG32()
 {
     RG32_MT19937.reset(new std::mt19937(static_cast<unsigned>(std::time(0))));
 }
 
 // ------------------------------------------------------------------------------------------------
-void InitMTRG64() noexcept
+void InitMTRG64()
 {
     RG64_MT19937.reset(new std::mt19937_64(static_cast<unsigned>(std::time(0))));
 }
 
 // ------------------------------------------------------------------------------------------------
-Int8 GetRandomInt8() noexcept
+Int8 GetRandomInt8()
 {
     return Int8_Dist(*RG32_MT19937);
 }
 
-Int8 GetRandomInt8(Int8 min, Int8 max) noexcept
+Int8 GetRandomInt8(Int8 min, Int8 max)
 {
     std::uniform_int_distribution<Int8> dist(min, max);
     return dist(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint8 GetRandomUint8() noexcept
+Uint8 GetRandomUint8()
 {
     return UInt8_Dist(*RG32_MT19937);
 }
 
-Uint8 GetRandomUint8(Uint8 min, Uint8 max) noexcept
+Uint8 GetRandomUint8(Uint8 min, Uint8 max)
 {
     std::uniform_int_distribution<Uint8> dist(min, max);
     return dist(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int16 GetRandomInt16() noexcept
+Int16 GetRandomInt16()
 {
     return Int16_Dist(*RG32_MT19937);
 }
 
-Int16 GetRandomInt16(Int16 min, Int16 max) noexcept
+Int16 GetRandomInt16(Int16 min, Int16 max)
 {
     std::uniform_int_distribution<Int16> dist(min, max);
     return dist(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint16 GetRandomUint16() noexcept
+Uint16 GetRandomUint16()
 {
     return UInt16_Dist(*RG32_MT19937);
 }
 
-Uint16 GetRandomUint16(Uint16 min, Uint16 max) noexcept
+Uint16 GetRandomUint16(Uint16 min, Uint16 max)
 {
     std::uniform_int_distribution<Uint16> dist(min, max);
     return dist(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetRandomInt32() noexcept
+Int32 GetRandomInt32()
 {
     return Int32_Dist(*RG32_MT19937);
 }
 
-Int32 GetRandomInt32(Int32 min, Int32 max) noexcept
+Int32 GetRandomInt32(Int32 min, Int32 max)
 {
     std::uniform_int_distribution<Int32> dist(min, max);
     return dist(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetRandomUint32() noexcept
+Uint32 GetRandomUint32()
 {
     return UInt32_Dist(*RG32_MT19937);
 }
 
-Uint32 GetRandomUint32(Uint32 min, Uint32 max) noexcept
+Uint32 GetRandomUint32(Uint32 min, Uint32 max)
 {
     std::uniform_int_distribution<Uint32> dist(min, max);
     return dist(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetRandomInt64() noexcept
+Int64 GetRandomInt64()
 {
     return Int64_Dist(*RG64_MT19937);
 }
 
-Int64 GetRandomInt64(Int64 min, Int64 max) noexcept
+Int64 GetRandomInt64(Int64 min, Int64 max)
 {
     std::uniform_int_distribution<Int64> dist(min, max);
     return dist(*RG64_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint64 GetRandomUint64() noexcept
+Uint64 GetRandomUint64()
 {
     return UInt64_Dist(*RG64_MT19937);
 }
 
-Uint64 GetRandomUint64(Uint64 min, Uint64 max) noexcept
+Uint64 GetRandomUint64(Uint64 min, Uint64 max)
 {
     std::uniform_int_distribution<Uint64> dist(min, max);
     return dist(*RG64_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetRandomFloat32() noexcept
+Float32 GetRandomFloat32()
 {
     return Float32_Dist(*RG32_MT19937);
 }
 
-Float32 GetRandomFloat32(Float32 min, Float32 max) noexcept
+Float32 GetRandomFloat32(Float32 min, Float32 max)
 {
     std::uniform_real_distribution<Float32> dist(min, max);
     return dist(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float64 GetRandomFloat64() noexcept
+Float64 GetRandomFloat64()
 {
     return Float64_Dist(*RG64_MT19937);
 }
 
-Float64 GetRandomFloat64(Float64 min, Float64 max) noexcept
+Float64 GetRandomFloat64(Float64 min, Float64 max)
 {
     std::uniform_real_distribution<Float64> dist(min, max);
     return dist(*RG64_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-String GetRandomString(String::size_type len) noexcept
+String GetRandomString(String::size_type len)
 {
     String str(len, 0);
     std::generate(str.begin(), str.end(), [&] () -> String::value_type { return String_Dist(*RG32_MT19937); });
     return std::move(str);
 }
 
-String GetRandomString(String::size_type len, String::value_type min, String::value_type max) noexcept
+String GetRandomString(String::size_type len, String::value_type min, String::value_type max)
 {
     String str(len, 0);
     std::uniform_int_distribution<String::value_type> dist(min, max);
@@ -723,19 +723,19 @@ String GetRandomString(String::size_type len, String::value_type min, String::va
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GetRandomBool() noexcept
+bool GetRandomBool()
 {
     return Int8_Dist(*RG32_MT19937) > 0 ? true : false;
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color3 & GetRandomColor() noexcept
+const Color3 & GetRandomColor()
 {
     return SQ_Color_List.at(GetRandomUint32(0, SQ_Color_List.size()-1));
 }
 
 // --------------------------------------------------------------------------------------------
-bool SToB(const SQChar * str) noexcept
+bool SToB(const SQChar * str)
 {
     return (strcmp(str, "true") == 0 || \
             strcmp(str, "yes") == 0 || \
@@ -744,7 +744,7 @@ bool SToB(const SQChar * str) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 GetColor(const SQChar * name) noexcept
+Color3 GetColor(const SQChar * name)
 {
     // See if we actually have something to search for
     if(std::strlen(name) <= 0)
@@ -1355,7 +1355,7 @@ Color3 GetColor(const SQChar * name) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB GetAABB(const SQChar * str, SQChar delim) noexcept
+AABB GetAABB(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f , %f , %f , %f ");
     static AABB box;
@@ -1390,7 +1390,7 @@ AABB GetAABB(const SQChar * str, SQChar delim) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle GetCircle(const SQChar * str, SQChar delim) noexcept
+Circle GetCircle(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f ");
     static Circle circle;
@@ -1419,7 +1419,7 @@ Circle GetCircle(const SQChar * str, SQChar delim) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 GetColor3(const SQChar * str, SQChar delim) noexcept
+Color3 GetColor3(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %u , %u , %u ");
     SQUint32 r = 0, g = 0, b = 0;
@@ -1445,7 +1445,7 @@ Color3 GetColor3(const SQChar * str, SQChar delim) noexcept
     return Color3(static_cast<Color3::Value>(r), static_cast<Color3::Value>(g), static_cast<Color3::Value>(b));
 }
 
-Color4 GetColor4(const SQChar * str, SQChar delim) noexcept
+Color4 GetColor4(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %u , %u , %u , %u ");
     SQUint32 r = 0, g = 0, b = 0, a = 0;
@@ -1474,7 +1474,7 @@ Color4 GetColor4(const SQChar * str, SQChar delim) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion GetQuaternion(const SQChar * str, SQChar delim) noexcept
+Quaternion GetQuaternion(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
     static Quaternion quat;
@@ -1504,7 +1504,7 @@ Quaternion GetQuaternion(const SQChar * str, SQChar delim) noexcept
     return quat;
 }
 
-Sphere GetSphere(const SQChar * str, SQChar delim) noexcept
+Sphere GetSphere(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
     static Sphere sphere;
@@ -1535,7 +1535,7 @@ Sphere GetSphere(const SQChar * str, SQChar delim) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2f GetVector2f(const SQChar * str, SQChar delim) noexcept
+Vector2f GetVector2f(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f ");
     static Vector2f vec;
@@ -1561,7 +1561,7 @@ Vector2f GetVector2f(const SQChar * str, SQChar delim) noexcept
     return vec;
 }
 
-Vector2i GetVector2i(const SQChar * str, SQChar delim) noexcept
+Vector2i GetVector2i(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %d , %d ");
     static Vector2i vec;
@@ -1587,7 +1587,7 @@ Vector2i GetVector2i(const SQChar * str, SQChar delim) noexcept
     return vec;
 }
 
-Vector2u GetVector2u(const SQChar * str, SQChar delim) noexcept
+Vector2u GetVector2u(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %u , %u ");
     static Vector2u vec;
@@ -1614,7 +1614,7 @@ Vector2u GetVector2u(const SQChar * str, SQChar delim) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 GetVector3(const SQChar * str, SQChar delim) noexcept
+Vector3 GetVector3(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f ");
     static Vector3 vec;
@@ -1642,7 +1642,7 @@ Vector3 GetVector3(const SQChar * str, SQChar delim) noexcept
     return vec;
 }
 
-Vector4 GetVector4(const SQChar * str, SQChar delim) noexcept
+Vector4 GetVector4(const SQChar * str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
     static Vector4 vec;
@@ -1673,7 +1673,7 @@ Vector4 GetVector4(const SQChar * str, SQChar delim) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-template < typename T > T StrToInt(const SQChar * str) noexcept
+template < typename T > T StrToInt(const SQChar * str)
 {
     try
     {
@@ -1691,7 +1691,7 @@ template < typename T > T StrToInt(const SQChar * str) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-template < typename T > T StrToInt(const SQChar * str, SQInt32 base) noexcept
+template < typename T > T StrToInt(const SQChar * str, SQInt32 base)
 {
     try
     {
@@ -1709,7 +1709,7 @@ template < typename T > T StrToInt(const SQChar * str, SQInt32 base) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-template < typename T > T StrToReal(const SQChar * str) noexcept
+template < typename T > T StrToReal(const SQChar * str)
 {
     try
     {
@@ -1727,12 +1727,12 @@ template < typename T > T StrToReal(const SQChar * str) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-template < typename T > T RandomValue() noexcept
+template < typename T > T RandomValue()
 {
     return RandomVal< T >::Get();
 }
 
-template < typename T > T RandomValue(T min, T max) noexcept
+template < typename T > T RandomValue(T min, T max)
 {
     return RandomVal< T >::Get(min, max);
 }

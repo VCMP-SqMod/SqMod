@@ -23,89 +23,89 @@ struct Quaternion
     // --------------------------------------------------------------------------------------------
     Value x, y, z, w;
     // --------------------------------------------------------------------------------------------
-    Quaternion() noexcept;
-    Quaternion(Value s) noexcept;
-    Quaternion(Value xv, Value yv, Value zv) noexcept;
-    Quaternion(Value xv, Value yv, Value zv, Value wv) noexcept;
+    Quaternion();
+    Quaternion(Value s);
+    Quaternion(Value xv, Value yv, Value zv);
+    Quaternion(Value xv, Value yv, Value zv, Value wv);
     // --------------------------------------------------------------------------------------------
-    Quaternion(const Vector3 & v) noexcept;
-    Quaternion(const Vector4 & v) noexcept;
+    Quaternion(const Vector3 & v);
+    Quaternion(const Vector4 & v);
     // --------------------------------------------------------------------------------------------
-    Quaternion(const SQChar * values, SQChar delim) noexcept;
+    Quaternion(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    Quaternion(const Quaternion & q) noexcept;
-    Quaternion(Quaternion && q) noexcept;
+    Quaternion(const Quaternion & q);
+    Quaternion(Quaternion && q);
     // --------------------------------------------------------------------------------------------
     ~Quaternion();
     // --------------------------------------------------------------------------------------------
-    Quaternion & operator = (const Quaternion & q) noexcept;
-    Quaternion & operator = (Quaternion && q) noexcept;
+    Quaternion & operator = (const Quaternion & q);
+    Quaternion & operator = (Quaternion && q);
     // --------------------------------------------------------------------------------------------
-    Quaternion & operator = (Value s) noexcept;
-    Quaternion & operator = (const Vector3 & q) noexcept;
-    Quaternion & operator = (const Vector4 & q) noexcept;
+    Quaternion & operator = (Value s);
+    Quaternion & operator = (const Vector3 & q);
+    Quaternion & operator = (const Vector4 & q);
     // --------------------------------------------------------------------------------------------
-    Quaternion & operator += (const Quaternion & q) noexcept;
-    Quaternion & operator -= (const Quaternion & q) noexcept;
-    Quaternion & operator *= (const Quaternion & q) noexcept;
-    Quaternion & operator /= (const Quaternion & q) noexcept;
-    Quaternion & operator %= (const Quaternion & q) noexcept;
+    Quaternion & operator += (const Quaternion & q);
+    Quaternion & operator -= (const Quaternion & q);
+    Quaternion & operator *= (const Quaternion & q);
+    Quaternion & operator /= (const Quaternion & q);
+    Quaternion & operator %= (const Quaternion & q);
     // --------------------------------------------------------------------------------------------
-    Quaternion & operator += (Value s) noexcept;
-    Quaternion & operator -= (Value s) noexcept;
-    Quaternion & operator *= (Value s) noexcept;
-    Quaternion & operator /= (Value s) noexcept;
-    Quaternion & operator %= (Value s) noexcept;
+    Quaternion & operator += (Value s);
+    Quaternion & operator -= (Value s);
+    Quaternion & operator *= (Value s);
+    Quaternion & operator /= (Value s);
+    Quaternion & operator %= (Value s);
     // --------------------------------------------------------------------------------------------
-    Quaternion & operator ++ () noexcept;
-    Quaternion & operator -- () noexcept;
+    Quaternion & operator ++ ();
+    Quaternion & operator -- ();
     // --------------------------------------------------------------------------------------------
-    Quaternion operator ++ (int) noexcept;
-    Quaternion operator -- (int) noexcept;
+    Quaternion operator ++ (int);
+    Quaternion operator -- (int);
     // --------------------------------------------------------------------------------------------
-    Quaternion operator + (const Quaternion & q) const noexcept;
-    Quaternion operator - (const Quaternion & q) const noexcept;
-    Quaternion operator * (const Quaternion & q) const noexcept;
-    Quaternion operator / (const Quaternion & q) const noexcept;
-    Quaternion operator % (const Quaternion & q) const noexcept;
+    Quaternion operator + (const Quaternion & q) const;
+    Quaternion operator - (const Quaternion & q) const;
+    Quaternion operator * (const Quaternion & q) const;
+    Quaternion operator / (const Quaternion & q) const;
+    Quaternion operator % (const Quaternion & q) const;
     // --------------------------------------------------------------------------------------------
-    Quaternion operator + (Value s) const noexcept;
-    Quaternion operator - (Value s) const noexcept;
-    Quaternion operator * (Value s) const noexcept;
-    Quaternion operator / (Value s) const noexcept;
-    Quaternion operator % (Value s) const noexcept;
+    Quaternion operator + (Value s) const;
+    Quaternion operator - (Value s) const;
+    Quaternion operator * (Value s) const;
+    Quaternion operator / (Value s) const;
+    Quaternion operator % (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Quaternion operator + () const noexcept;
-    Quaternion operator - () const noexcept;
+    Quaternion operator + () const;
+    Quaternion operator - () const;
     // --------------------------------------------------------------------------------------------
-    bool operator == (const Quaternion & q) const noexcept;
-    bool operator != (const Quaternion & q) const noexcept;
-    bool operator < (const Quaternion & q) const noexcept;
-    bool operator > (const Quaternion & q) const noexcept;
-    bool operator <= (const Quaternion & q) const noexcept;
-    bool operator >= (const Quaternion & q) const noexcept;
+    bool operator == (const Quaternion & q) const;
+    bool operator != (const Quaternion & q) const;
+    bool operator < (const Quaternion & q) const;
+    bool operator > (const Quaternion & q) const;
+    bool operator <= (const Quaternion & q) const;
+    bool operator >= (const Quaternion & q) const;
     // --------------------------------------------------------------------------------------------
-    SQInteger Cmp(const Quaternion & q) const noexcept;
+    SQInteger Cmp(const Quaternion & q) const;
     // --------------------------------------------------------------------------------------------
-    const SQChar * ToString() const noexcept;
+    const SQChar * ToString() const;
     // --------------------------------------------------------------------------------------------
-    void Set(Value ns) noexcept;
-    void Set(Value nx, Value ny, Value nz) noexcept;
-    void Set(Value nx, Value ny, Value nz, Value nw) noexcept;
+    void Set(Value ns);
+    void Set(Value nx, Value ny, Value nz);
+    void Set(Value nx, Value ny, Value nz, Value nw);
     // --------------------------------------------------------------------------------------------
-    void Set(const Quaternion & q) noexcept;
-    void Set(const Vector3 & v) noexcept;
-    void Set(const Vector4 & v) noexcept;
+    void Set(const Quaternion & q);
+    void Set(const Vector3 & v);
+    void Set(const Vector4 & v);
     // --------------------------------------------------------------------------------------------
-    void Set(const SQChar * values, SQChar delim) noexcept;
+    void Set(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    void Generate() noexcept;
-    void Generate(Value min, Value max) noexcept;
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax) noexcept;
+    void Generate();
+    void Generate(Value min, Value max);
+    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax);
     // --------------------------------------------------------------------------------------------
-    void Clear() noexcept { x = 0.0, y = 0.0, z = 0.0, w = 0.0; }
+    void Clear() { x = 0.0, y = 0.0, z = 0.0, w = 0.0; }
     // --------------------------------------------------------------------------------------------
-    Quaternion Abs() const noexcept;
+    Quaternion Abs() const;
 };
 
 } // Namespace:: SqMod

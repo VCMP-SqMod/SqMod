@@ -13,14 +13,14 @@ CModel CPickup::s_Model;
 Vector3 CPickup::s_Vector3;
 
 // ------------------------------------------------------------------------------------------------
-CPickup::CPickup(const Reference< CPickup > & o) noexcept
+CPickup::CPickup(const Reference< CPickup > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPickup::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
+bool CPickup::IsStreamedFor(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -39,7 +39,7 @@ bool CPickup::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const CModel & CPickup::GetModel() const noexcept
+const CModel & CPickup::GetModel() const
 {
     // Clear any previous model
     s_Model.SetID(SQMOD_UNKNOWN);
@@ -57,7 +57,7 @@ const CModel & CPickup::GetModel() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetModelID() const noexcept
+SQInt32 CPickup::GetModelID() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -72,7 +72,7 @@ SQInt32 CPickup::GetModelID() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetWorld() const noexcept
+SQInt32 CPickup::GetWorld() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -87,7 +87,7 @@ SQInt32 CPickup::GetWorld() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetWorld(SQInt32 world) const noexcept
+void CPickup::SetWorld(SQInt32 world) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -100,7 +100,7 @@ void CPickup::SetWorld(SQInt32 world) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetAlpha() const noexcept
+SQInt32 CPickup::GetAlpha() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -115,7 +115,7 @@ SQInt32 CPickup::GetAlpha() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetAlpha(SQInt32 alpha) const noexcept
+void CPickup::SetAlpha(SQInt32 alpha) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -128,7 +128,7 @@ void CPickup::SetAlpha(SQInt32 alpha) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPickup::GetAutomatic() const noexcept
+bool CPickup::GetAutomatic() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -143,7 +143,7 @@ bool CPickup::GetAutomatic() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetAutomatic(bool toggle) const noexcept
+void CPickup::SetAutomatic(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -156,7 +156,7 @@ void CPickup::SetAutomatic(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetAutoTimer() const noexcept
+SQInt32 CPickup::GetAutoTimer() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -171,7 +171,7 @@ SQInt32 CPickup::GetAutoTimer() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetAutoTimer(SQInt32 timer) const noexcept
+void CPickup::SetAutoTimer(SQInt32 timer) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -184,7 +184,7 @@ void CPickup::SetAutoTimer(SQInt32 timer) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::Refresh() const noexcept
+void CPickup::Refresh() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -197,7 +197,7 @@ void CPickup::Refresh() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPickup::GetPosition() noexcept
+const Vector3 & CPickup::GetPosition()
 {
     // Clear any previous position
     s_Vector3.Clear();
@@ -215,7 +215,7 @@ const Vector3 & CPickup::GetPosition() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetPosition(const Vector3 & pos) const noexcept
+void CPickup::SetPosition(const Vector3 & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -228,7 +228,7 @@ void CPickup::SetPosition(const Vector3 & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CPickup::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -241,7 +241,7 @@ void CPickup::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetQuantity() const noexcept
+SQInt32 CPickup::GetQuantity() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -258,7 +258,7 @@ SQInt32 CPickup::GetQuantity() const noexcept
 // ------------------------------------------------------------------------------------------------
 Reference< CPickup > CreateBasePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic) noexcept
+                        SQInt32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -267,7 +267,7 @@ Reference< CPickup > CreateBasePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 
 Reference< CPickup > CreateBasePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
                             header, payload);
@@ -275,7 +275,7 @@ Reference< CPickup > CreateBasePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 
 
 // ------------------------------------------------------------------------------------------------
 Reference< CPickup > CreateBasePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic) noexcept
+                        const Vector3 & pos, SQInt32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -283,7 +283,7 @@ Reference< CPickup > CreateBasePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 
 
 Reference< CPickup > CreateBasePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
                         const Vector3 & pos, SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             header, payload);
@@ -292,7 +292,7 @@ Reference< CPickup > CreateBasePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 
 // ------------------------------------------------------------------------------------------------
 Reference< CPickup > CreateBasePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic) noexcept
+                        SQInt32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -301,7 +301,7 @@ Reference< CPickup > CreateBasePickup_EF(const CModel & model, SQInt32 world, SQ
 Reference< CPickup > CreateBasePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
                             header, payload);
@@ -309,7 +309,7 @@ Reference< CPickup > CreateBasePickup_EF(const CModel & model, SQInt32 world, SQ
 
 // ------------------------------------------------------------------------------------------------
 Reference< CPickup > CreateBasePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic) noexcept
+                        const Vector3 & pos, SQInt32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -317,7 +317,7 @@ Reference< CPickup > CreateBasePickup_CF(const CModel & model, SQInt32 world, SQ
 
 Reference< CPickup > CreateBasePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
                         const Vector3 & pos, SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             header, payload);
@@ -326,7 +326,7 @@ Reference< CPickup > CreateBasePickup_CF(const CModel & model, SQInt32 world, SQ
 // ------------------------------------------------------------------------------------------------
 CPickup CreatePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic) noexcept
+                        SQInt32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -335,7 +335,7 @@ CPickup CreatePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
 CPickup CreatePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
                             header, payload);
@@ -343,7 +343,7 @@ CPickup CreatePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
 
 // ------------------------------------------------------------------------------------------------
 CPickup CreatePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic) noexcept
+                        const Vector3 & pos, SQInt32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -351,7 +351,7 @@ CPickup CreatePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
 
 CPickup CreatePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
                         const Vector3 & pos, SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             header, payload);
@@ -360,7 +360,7 @@ CPickup CreatePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
 // ------------------------------------------------------------------------------------------------
 CPickup CreatePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic) noexcept
+                        SQInt32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -369,7 +369,7 @@ CPickup CreatePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
 CPickup CreatePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
                             header, payload);
@@ -377,7 +377,7 @@ CPickup CreatePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
 
 // ------------------------------------------------------------------------------------------------
 CPickup CreatePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic) noexcept
+                        const Vector3 & pos, SQInt32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -385,7 +385,7 @@ CPickup CreatePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
 
 CPickup CreatePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
                         const Vector3 & pos, SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             header, payload);

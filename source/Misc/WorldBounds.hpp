@@ -22,27 +22,27 @@ struct CWorldBounds
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds() noexcept;
+    CWorldBounds();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds(const Vector2f & vec) noexcept;
+    CWorldBounds(const Vector2f & vec);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds(const Vector2f & min, const Vector2f & max) noexcept;
+    CWorldBounds(const Vector2f & min, const Vector2f & max);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds(const CWorldBounds & x) noexcept;
+    CWorldBounds(const CWorldBounds & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds(CWorldBounds && x) noexcept;
+    CWorldBounds(CWorldBounds && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -52,57 +52,57 @@ struct CWorldBounds
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds & operator= (const CWorldBounds & x) noexcept;
+    CWorldBounds & operator= (const CWorldBounds & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds & operator= (CWorldBounds && x) noexcept;
+    CWorldBounds & operator= (CWorldBounds && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds operator+ (const CWorldBounds & x) const noexcept;
+    CWorldBounds operator+ (const CWorldBounds & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds operator- (const CWorldBounds & x) const noexcept;
+    CWorldBounds operator- (const CWorldBounds & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds operator* (const CWorldBounds & x) const noexcept;
+    CWorldBounds operator* (const CWorldBounds & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CWorldBounds operator/ (const CWorldBounds & x) const noexcept;
+    CWorldBounds operator/ (const CWorldBounds & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator== (const CWorldBounds & x) const noexcept;
+    bool operator== (const CWorldBounds & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator!= (const CWorldBounds & x) const noexcept;
+    bool operator!= (const CWorldBounds & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInteger Cmp(const CWorldBounds & x) const noexcept;
+    SQInteger Cmp(const CWorldBounds & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Set() const noexcept;
+    void Set() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Get() const noexcept;
+    void Get() const;
 };
 
 

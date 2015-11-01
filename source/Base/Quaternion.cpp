@@ -16,58 +16,58 @@ const Quaternion Quaternion::MAX = Quaternion(std::numeric_limits<Quaternion::Va
 SQChar Quaternion::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion() noexcept
+Quaternion::Quaternion()
     : x(0.0), y(0.0), z(0.0), w(0.0)
 {
 
 }
 
-Quaternion::Quaternion(Value s) noexcept
+Quaternion::Quaternion(Value s)
     : x(s), y(s), z(s), w(s)
 {
 
 }
 
-Quaternion::Quaternion(Value xv, Value yv, Value zv) noexcept
+Quaternion::Quaternion(Value xv, Value yv, Value zv)
     : x(xv), y(yv), z(zv), w(0.0)
 {
 
 }
 
-Quaternion::Quaternion(Value xv, Value yv, Value zv, Value wv) noexcept
+Quaternion::Quaternion(Value xv, Value yv, Value zv, Value wv)
     : x(xv), y(yv), z(zv), w(wv)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion(const Vector3 & v) noexcept
+Quaternion::Quaternion(const Vector3 & v)
     : x(v.x), y(v.y), z(v.z), w(0.0)
 {
 
 }
 
-Quaternion::Quaternion(const Vector4 & v) noexcept
+Quaternion::Quaternion(const Vector4 & v)
     : x(v.x), y(v.y), z(v.z), w(v.w)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion(const SQChar * values, SQChar delim) noexcept
+Quaternion::Quaternion(const SQChar * values, SQChar delim)
     : Quaternion(GetQuaternion(values, delim))
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion(const Quaternion & q) noexcept
+Quaternion::Quaternion(const Quaternion & q)
     : x(q.x), y(q.y), z(q.z), w(q.w)
 {
 
 }
 
-Quaternion::Quaternion(Quaternion && q) noexcept
+Quaternion::Quaternion(Quaternion && q)
     : x(q.x), y(q.y), z(q.z), w(q.w)
 {
 
@@ -80,7 +80,7 @@ Quaternion::~Quaternion()
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion & Quaternion::operator = (const Quaternion & q) noexcept
+Quaternion & Quaternion::operator = (const Quaternion & q)
 {
     x = q.x;
     y = q.y;
@@ -89,7 +89,7 @@ Quaternion & Quaternion::operator = (const Quaternion & q) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator = (Quaternion && q) noexcept
+Quaternion & Quaternion::operator = (Quaternion && q)
 {
     x = q.x;
     y = q.y;
@@ -99,7 +99,7 @@ Quaternion & Quaternion::operator = (Quaternion && q) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion & Quaternion::operator = (Value s) noexcept
+Quaternion & Quaternion::operator = (Value s)
 {
     x = s;
     y = s;
@@ -108,7 +108,7 @@ Quaternion & Quaternion::operator = (Value s) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator = (const Vector3 & q) noexcept
+Quaternion & Quaternion::operator = (const Vector3 & q)
 {
     x = q.x;
     y = q.y;
@@ -117,7 +117,7 @@ Quaternion & Quaternion::operator = (const Vector3 & q) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator = (const Vector4 & q) noexcept
+Quaternion & Quaternion::operator = (const Vector4 & q)
 {
     x = q.x;
     y = q.y;
@@ -127,7 +127,7 @@ Quaternion & Quaternion::operator = (const Vector4 & q) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion & Quaternion::operator += (const Quaternion & q) noexcept
+Quaternion & Quaternion::operator += (const Quaternion & q)
 {
     x += q.x;
     y += q.y;
@@ -136,7 +136,7 @@ Quaternion & Quaternion::operator += (const Quaternion & q) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator -= (const Quaternion & q) noexcept
+Quaternion & Quaternion::operator -= (const Quaternion & q)
 {
     x -= q.x;
     y -= q.y;
@@ -145,7 +145,7 @@ Quaternion & Quaternion::operator -= (const Quaternion & q) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator *= (const Quaternion & q) noexcept
+Quaternion & Quaternion::operator *= (const Quaternion & q)
 {
     x *= q.x;
     y *= q.y;
@@ -154,7 +154,7 @@ Quaternion & Quaternion::operator *= (const Quaternion & q) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator /= (const Quaternion & q) noexcept
+Quaternion & Quaternion::operator /= (const Quaternion & q)
 {
     x /= q.x;
     y /= q.y;
@@ -163,7 +163,7 @@ Quaternion & Quaternion::operator /= (const Quaternion & q) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator %= (const Quaternion & q) noexcept
+Quaternion & Quaternion::operator %= (const Quaternion & q)
 {
     x = std::fmod(x, q.x);
     y = std::fmod(y, q.y);
@@ -173,7 +173,7 @@ Quaternion & Quaternion::operator %= (const Quaternion & q) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion & Quaternion::operator += (Value s) noexcept
+Quaternion & Quaternion::operator += (Value s)
 {
     x += s;
     y += s;
@@ -182,7 +182,7 @@ Quaternion & Quaternion::operator += (Value s) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator -= (Value s) noexcept
+Quaternion & Quaternion::operator -= (Value s)
 {
     x -= s;
     y -= s;
@@ -191,7 +191,7 @@ Quaternion & Quaternion::operator -= (Value s) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator *= (Value s) noexcept
+Quaternion & Quaternion::operator *= (Value s)
 {
     x *= s;
     y *= s;
@@ -200,7 +200,7 @@ Quaternion & Quaternion::operator *= (Value s) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator /= (Value s) noexcept
+Quaternion & Quaternion::operator /= (Value s)
 {
     x /= s;
     y /= s;
@@ -209,7 +209,7 @@ Quaternion & Quaternion::operator /= (Value s) noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator %= (Value s) noexcept
+Quaternion & Quaternion::operator %= (Value s)
 {
     x = std::fmod(x, s);
     y = std::fmod(y, s);
@@ -219,7 +219,7 @@ Quaternion & Quaternion::operator %= (Value s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion & Quaternion::operator ++ () noexcept
+Quaternion & Quaternion::operator ++ ()
 {
     ++x;
     ++y;
@@ -228,7 +228,7 @@ Quaternion & Quaternion::operator ++ () noexcept
     return *this;
 }
 
-Quaternion & Quaternion::operator -- () noexcept
+Quaternion & Quaternion::operator -- ()
 {
     --x;
     --y;
@@ -238,7 +238,7 @@ Quaternion & Quaternion::operator -- () noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::operator ++ (int) noexcept
+Quaternion Quaternion::operator ++ (int)
 {
     Quaternion state(*this);
     ++x;
@@ -248,7 +248,7 @@ Quaternion Quaternion::operator ++ (int) noexcept
     return state;
 }
 
-Quaternion Quaternion::operator -- (int) noexcept
+Quaternion Quaternion::operator -- (int)
 {
     Quaternion state(*this);
     --x;
@@ -259,116 +259,116 @@ Quaternion Quaternion::operator -- (int) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::operator + (const Quaternion & q) const noexcept
+Quaternion Quaternion::operator + (const Quaternion & q) const
 {
     return Quaternion(x + q.x, y + q.y, z + q.z, w + q.w);
 }
 
-Quaternion Quaternion::operator + (Value s) const noexcept
+Quaternion Quaternion::operator + (Value s) const
 {
     return Quaternion(x + s, y + s, z + s, w + s);
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::operator - (const Quaternion & q) const noexcept
+Quaternion Quaternion::operator - (const Quaternion & q) const
 {
     return Quaternion(x - q.x, y - q.y, z - q.z, w - q.w);
 }
 
-Quaternion Quaternion::operator - (Value s) const noexcept
+Quaternion Quaternion::operator - (Value s) const
 {
     return Quaternion(x - s, y - s, z - s, w - s);
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::operator * (const Quaternion & q) const noexcept
+Quaternion Quaternion::operator * (const Quaternion & q) const
 {
     return Quaternion(x * q.x, y * q.y, z * q.z, w * q.w);
 }
 
-Quaternion Quaternion::operator * (Value s) const noexcept
+Quaternion Quaternion::operator * (Value s) const
 {
     return Quaternion(x * s, y * s, z * s, w * s);
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::operator / (const Quaternion & q) const noexcept
+Quaternion Quaternion::operator / (const Quaternion & q) const
 {
     return Quaternion(x / q.x, y / q.y, z / q.z, w / q.w);
 }
 
-Quaternion Quaternion::operator / (Value s) const noexcept
+Quaternion Quaternion::operator / (Value s) const
 {
     return Quaternion(x / s, y / s, z / s, w / s);
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::operator % (const Quaternion & q) const noexcept
+Quaternion Quaternion::operator % (const Quaternion & q) const
 {
     return Quaternion(std::fmod(x, q.x), std::fmod(y, q.y), std::fmod(z, q.z), std::fmod(w, q.w));
 }
 
-Quaternion Quaternion::operator % (Value s) const noexcept
+Quaternion Quaternion::operator % (Value s) const
 {
     return Quaternion(std::fmod(x, s), std::fmod(y, s), std::fmod(z, s), std::fmod(w, s));
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::operator + () const noexcept
+Quaternion Quaternion::operator + () const
 {
     return Quaternion(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
 }
 
-Quaternion Quaternion::operator - () const noexcept
+Quaternion Quaternion::operator - () const
 {
     return Quaternion(-x, -y, -z, -w);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Quaternion::operator == (const Quaternion & q) const noexcept
+bool Quaternion::operator == (const Quaternion & q) const
 {
     return EpsEq(x, q.x) && EpsEq(y, q.y) && EpsEq(z, q.z) && EpsEq(w, q.w);
 }
 
-bool Quaternion::operator != (const Quaternion & q) const noexcept
+bool Quaternion::operator != (const Quaternion & q) const
 {
     return !EpsEq(x, q.x) && !EpsEq(y, q.y) && !EpsEq(z, q.z) && !EpsEq(w, q.w);
 }
 
-bool Quaternion::operator < (const Quaternion & q) const noexcept
+bool Quaternion::operator < (const Quaternion & q) const
 {
     return std::isless(x, q.x) && std::isless(y, q.y) && std::isless(z, q.z) && std::isless(w, q.w);
 }
 
-bool Quaternion::operator > (const Quaternion & q) const noexcept
+bool Quaternion::operator > (const Quaternion & q) const
 {
     return std::isgreater(x, q.x) && std::isgreater(y, q.y) && std::isgreater(z, q.z) && std::isgreater(w, q.w);
 }
 
-bool Quaternion::operator <= (const Quaternion & q) const noexcept
+bool Quaternion::operator <= (const Quaternion & q) const
 {
     return std::islessequal(x, q.x) && std::islessequal(y, q.y) && std::islessequal(z, q.z) && std::islessequal(w, q.w);
 }
 
-bool Quaternion::operator >= (const Quaternion & q) const noexcept
+bool Quaternion::operator >= (const Quaternion & q) const
 {
     return std::isgreaterequal(x, q.x) && std::isgreaterequal(y, q.y) && std::isgreaterequal(z, q.z) && std::isgreaterequal(w, q.w);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Quaternion::Cmp(const Quaternion & q) const noexcept
+SQInteger Quaternion::Cmp(const Quaternion & q) const
 {
     return *this == q ? 0 : (*this > q ? 1 : -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Quaternion::ToString() const noexcept
+const SQChar * Quaternion::ToString() const
 {
     return ToStringF("%f,%f,%f,%f", x, y, z, w);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Quaternion::Set(Value ns) noexcept
+void Quaternion::Set(Value ns)
 {
     x = ns;
     y = ns;
@@ -376,14 +376,14 @@ void Quaternion::Set(Value ns) noexcept
     w = ns;
 }
 
-void Quaternion::Set(Value nx, Value ny, Value nz) noexcept
+void Quaternion::Set(Value nx, Value ny, Value nz)
 {
     x = nx;
     y = ny;
     z = nz;
 }
 
-void Quaternion::Set(Value nx, Value ny, Value nz, Value nw) noexcept
+void Quaternion::Set(Value nx, Value ny, Value nz, Value nw)
 {
     x = nx;
     y = ny;
@@ -392,7 +392,7 @@ void Quaternion::Set(Value nx, Value ny, Value nz, Value nw) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Quaternion::Set(const Quaternion & q) noexcept
+void Quaternion::Set(const Quaternion & q)
 {
     x = q.x;
     y = q.y;
@@ -400,7 +400,7 @@ void Quaternion::Set(const Quaternion & q) noexcept
     w = q.w;
 }
 
-void Quaternion::Set(const Vector3 & v) noexcept
+void Quaternion::Set(const Vector3 & v)
 {
     x = v.x;
     y = v.y;
@@ -408,7 +408,7 @@ void Quaternion::Set(const Vector3 & v) noexcept
     w = 0.0;
 }
 
-void Quaternion::Set(const Vector4 & v) noexcept
+void Quaternion::Set(const Vector4 & v)
 {
     x = v.x;
     y = v.y;
@@ -417,13 +417,13 @@ void Quaternion::Set(const Vector4 & v) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Quaternion::Set(const SQChar * values, SQChar delim) noexcept
+void Quaternion::Set(const SQChar * values, SQChar delim)
 {
     Set(GetQuaternion(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Quaternion::Generate() noexcept
+void Quaternion::Generate()
 {
     x = RandomVal<Value>::Get();
     y = RandomVal<Value>::Get();
@@ -431,7 +431,7 @@ void Quaternion::Generate() noexcept
     w = RandomVal<Value>::Get();
 }
 
-void Quaternion::Generate(Value min, Value max) noexcept
+void Quaternion::Generate(Value min, Value max)
 {
     if (max < min)
     {
@@ -446,7 +446,7 @@ void Quaternion::Generate(Value min, Value max) noexcept
     }
 }
 
-void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax) noexcept
+void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
 {
     if (std::isless(xmax, xmin) || std::isless(ymax, ymin) || std::isless(zmax, zmin) || std::isless(wmax, wmin))
     {
@@ -462,7 +462,7 @@ void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value 
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::Abs() const noexcept
+Quaternion Quaternion::Abs() const
 {
     return Quaternion(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
 }

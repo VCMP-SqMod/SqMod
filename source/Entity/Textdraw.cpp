@@ -7,14 +7,14 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CTextdraw::CTextdraw(const Reference< CTextdraw > & o) noexcept
+CTextdraw::CTextdraw(const Reference< CTextdraw > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::ShowAll() const noexcept
+void CTextdraw::ShowAll() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -27,7 +27,7 @@ void CTextdraw::ShowAll() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::ShowFor(const Reference< CPlayer > & player) const noexcept
+void CTextdraw::ShowFor(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -44,7 +44,7 @@ void CTextdraw::ShowFor(const Reference< CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::ShowRange(SQInt32 first, SQInt32 last) const noexcept
+void CTextdraw::ShowRange(SQInt32 first, SQInt32 last) const
 {
     if (VALID_ENTITY(m_ID) && (last >= first))
     {
@@ -67,7 +67,7 @@ void CTextdraw::ShowRange(SQInt32 first, SQInt32 last) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::HideAll() const noexcept
+void CTextdraw::HideAll() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -80,7 +80,7 @@ void CTextdraw::HideAll() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::HideFor(const Reference< CPlayer > & player) const noexcept
+void CTextdraw::HideFor(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -97,7 +97,7 @@ void CTextdraw::HideFor(const Reference< CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::HideRange(SQInt32 first, SQInt32 last) const noexcept
+void CTextdraw::HideRange(SQInt32 first, SQInt32 last) const
 {
     if (VALID_ENTITY(m_ID) && (last >= first))
     {
@@ -120,7 +120,7 @@ void CTextdraw::HideRange(SQInt32 first, SQInt32 last) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetPositionAll(const Vector2i & pos) const noexcept
+void CTextdraw::SetPositionAll(const Vector2i & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -133,7 +133,7 @@ void CTextdraw::SetPositionAll(const Vector2i & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetPositionAllEx(SQInt32 x, SQInt32 y) const noexcept
+void CTextdraw::SetPositionAllEx(SQInt32 x, SQInt32 y) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -146,7 +146,7 @@ void CTextdraw::SetPositionAllEx(SQInt32 x, SQInt32 y) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetPositionFor(const Reference< CPlayer > & player, const Vector2i & pos) const noexcept
+void CTextdraw::SetPositionFor(const Reference< CPlayer > & player, const Vector2i & pos) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -163,7 +163,7 @@ void CTextdraw::SetPositionFor(const Reference< CPlayer > & player, const Vector
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const noexcept
+void CTextdraw::SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -180,7 +180,7 @@ void CTextdraw::SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x,
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const noexcept
+void CTextdraw::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const
 {
     if (VALID_ENTITY(m_ID) && (last >= first))
     {
@@ -203,7 +203,7 @@ void CTextdraw::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & p
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetColorAll(const Color4 & col) const noexcept
+void CTextdraw::SetColorAll(const Color4 & col) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -216,7 +216,7 @@ void CTextdraw::SetColorAll(const Color4 & col) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetColorAllEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const noexcept
+void CTextdraw::SetColorAllEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -229,7 +229,7 @@ void CTextdraw::SetColorAllEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetColorFor(const Reference< CPlayer > & player, const Color4 & col) const noexcept
+void CTextdraw::SetColorFor(const Reference< CPlayer > & player, const Color4 & col) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -246,7 +246,7 @@ void CTextdraw::SetColorFor(const Reference< CPlayer > & player, const Color4 & 
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetColorForEx(const Reference< CPlayer > & player, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const noexcept
+void CTextdraw::SetColorForEx(const Reference< CPlayer > & player, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -263,7 +263,7 @@ void CTextdraw::SetColorForEx(const Reference< CPlayer > & player, Uint8 r, Uint
 }
 
 // ------------------------------------------------------------------------------------------------
-void CTextdraw::SetColorRange(SQInt32 first, SQInt32 last, const Color4 & col) const noexcept
+void CTextdraw::SetColorRange(SQInt32 first, SQInt32 last, const Color4 & col) const
 {
     if (VALID_ENTITY(m_ID) && (last >= first))
     {
@@ -286,7 +286,7 @@ void CTextdraw::SetColorRange(SQInt32 first, SQInt32 last, const Color4 & col) c
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CTextdraw::GetText() const noexcept
+const SQChar * CTextdraw::GetText() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -304,7 +304,7 @@ const SQChar * CTextdraw::GetText() const noexcept
 Reference< CTextdraw > CreateBaseTextdraw_ES(const SQChar * text,
                         SQInt32 xp, SQInt32 yp,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel) noexcept
+                        bool rel)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -314,7 +314,7 @@ Reference< CTextdraw > CreateBaseTextdraw_ES(const SQChar * text,
                         SQInt32 xp, SQInt32 yp,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                         bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
                                 header, payload);
@@ -324,7 +324,7 @@ Reference< CTextdraw > CreateBaseTextdraw_ES(const SQChar * text,
 Reference< CTextdraw > CreateBaseTextdraw_EF(SQInt32 index, const SQChar * text,
                         SQInt32 xp, SQInt32 yp,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel) noexcept
+                        bool rel)
 {
     return _Core->NewTextdraw(index,text, xp, yp, PACK_ARGB(a, r, g, b), rel,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -334,7 +334,7 @@ Reference< CTextdraw > CreateBaseTextdraw_EF(SQInt32 index, const SQChar * text,
                         SQInt32 xp, SQInt32 yp,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                         bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewTextdraw(index, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
                                 header, payload);
@@ -342,7 +342,7 @@ Reference< CTextdraw > CreateBaseTextdraw_EF(SQInt32 index, const SQChar * text,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CTextdraw > CreateBaseTextdraw_CS(const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel) noexcept
+                        const Vector2i & pos, const Color4 & color, bool rel)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -350,7 +350,7 @@ Reference< CTextdraw > CreateBaseTextdraw_CS(const SQChar * text,
 
 Reference< CTextdraw > CreateBaseTextdraw_CS(const SQChar * text,
                         const Vector2i & pos, const Color4 & color, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
                                 header, payload);
@@ -358,7 +358,7 @@ Reference< CTextdraw > CreateBaseTextdraw_CS(const SQChar * text,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CTextdraw > CreateBaseTextdraw_CF(SQInt32 index, const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel) noexcept
+                        const Vector2i & pos, const Color4 & color, bool rel)
 {
     return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -366,7 +366,7 @@ Reference< CTextdraw > CreateBaseTextdraw_CF(SQInt32 index, const SQChar * text,
 
 Reference< CTextdraw > CreateBaseTextdraw_CF(SQInt32 index, const SQChar * text,
                         const Vector2i & pos, const Color4 & color, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
                                 header, payload);
@@ -376,7 +376,7 @@ Reference< CTextdraw > CreateBaseTextdraw_CF(SQInt32 index, const SQChar * text,
 CTextdraw CreateTextdraw_ES(const SQChar * text,
                         SQInt32 xp, SQInt32 yp,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel) noexcept
+                        bool rel)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -386,7 +386,7 @@ CTextdraw CreateTextdraw_ES(const SQChar * text,
                         SQInt32 xp, SQInt32 yp,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                         bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
                                 header, payload);
@@ -396,7 +396,7 @@ CTextdraw CreateTextdraw_ES(const SQChar * text,
 CTextdraw CreateTextdraw_EF(SQInt32 index, const SQChar * text,
                         SQInt32 xp, SQInt32 yp,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel) noexcept
+                        bool rel)
 {
     return _Core->NewTextdraw(index,text, xp, yp, PACK_ARGB(a, r, g, b), rel,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -406,7 +406,7 @@ CTextdraw CreateTextdraw_EF(SQInt32 index, const SQChar * text,
                         SQInt32 xp, SQInt32 yp,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                         bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewTextdraw(index, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
                                 header, payload);
@@ -414,7 +414,7 @@ CTextdraw CreateTextdraw_EF(SQInt32 index, const SQChar * text,
 
 // ------------------------------------------------------------------------------------------------
 CTextdraw CreateTextdraw_CS(const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel) noexcept
+                        const Vector2i & pos, const Color4 & color, bool rel)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -422,7 +422,7 @@ CTextdraw CreateTextdraw_CS(const SQChar * text,
 
 CTextdraw CreateTextdraw_CS(const SQChar * text,
                         const Vector2i & pos, const Color4 & color, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
                                 header, payload);
@@ -430,7 +430,7 @@ CTextdraw CreateTextdraw_CS(const SQChar * text,
 
 // ------------------------------------------------------------------------------------------------
 CTextdraw CreateTextdraw_CF(SQInt32 index, const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel) noexcept
+                        const Vector2i & pos, const Color4 & color, bool rel)
 {
     return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
                                 SQMOD_CREATE_DEFAULT, NullData());
@@ -438,7 +438,7 @@ CTextdraw CreateTextdraw_CF(SQInt32 index, const SQChar * text,
 
 CTextdraw CreateTextdraw_CF(SQInt32 index, const SQChar * text,
                         const Vector2i & pos, const Color4 & color, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
                                 header, payload);

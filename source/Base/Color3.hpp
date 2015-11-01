@@ -23,121 +23,121 @@ struct Color3
     // --------------------------------------------------------------------------------------------
     Value r, g, b;
     // --------------------------------------------------------------------------------------------
-    Color3() noexcept;
-    Color3(Value s) noexcept;
-    Color3(Value r, Value g, Value b) noexcept;
+    Color3();
+    Color3(Value s);
+    Color3(Value r, Value g, Value b);
     // --------------------------------------------------------------------------------------------
-    Color3(const Color4 & c) noexcept;
+    Color3(const Color4 & c);
     // --------------------------------------------------------------------------------------------
-    Color3(const SQChar * name) noexcept;
-    Color3(const SQChar * str, SQChar delim) noexcept;
+    Color3(const SQChar * name);
+    Color3(const SQChar * str, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    Color3(const Color3 & c) noexcept;
-    Color3(Color3 && c) noexcept;
+    Color3(const Color3 & c);
+    Color3(Color3 && c);
     // --------------------------------------------------------------------------------------------
     ~Color3();
     // --------------------------------------------------------------------------------------------
-    Color3 & operator = (const Color3 & c) noexcept;
-    Color3 & operator = (Color3 && c) noexcept;
+    Color3 & operator = (const Color3 & c);
+    Color3 & operator = (Color3 && c);
     // --------------------------------------------------------------------------------------------
-    Color3 & operator = (Value s) noexcept;
-    Color3 & operator = (const SQChar * name) noexcept;
-    Color3 & operator = (const Color4 & c) noexcept;
+    Color3 & operator = (Value s);
+    Color3 & operator = (const SQChar * name);
+    Color3 & operator = (const Color4 & c);
     // --------------------------------------------------------------------------------------------
-    Color3 & operator += (const Color3 & c) noexcept;
-    Color3 & operator -= (const Color3 & c) noexcept;
-    Color3 & operator *= (const Color3 & c) noexcept;
-    Color3 & operator /= (const Color3 & c) noexcept;
-    Color3 & operator %= (const Color3 & c) noexcept;
-    Color3 & operator &= (const Color3 & c) noexcept;
-    Color3 & operator |= (const Color3 & c) noexcept;
-    Color3 & operator ^= (const Color3 & c) noexcept;
-    Color3 & operator <<= (const Color3 & c) noexcept;
-    Color3 & operator >>= (const Color3 & c) noexcept;
+    Color3 & operator += (const Color3 & c);
+    Color3 & operator -= (const Color3 & c);
+    Color3 & operator *= (const Color3 & c);
+    Color3 & operator /= (const Color3 & c);
+    Color3 & operator %= (const Color3 & c);
+    Color3 & operator &= (const Color3 & c);
+    Color3 & operator |= (const Color3 & c);
+    Color3 & operator ^= (const Color3 & c);
+    Color3 & operator <<= (const Color3 & c);
+    Color3 & operator >>= (const Color3 & c);
     // --------------------------------------------------------------------------------------------
-    Color3 & operator += (Value s) noexcept;
-    Color3 & operator -= (Value s) noexcept;
-    Color3 & operator *= (Value s) noexcept;
-    Color3 & operator /= (Value s) noexcept;
-    Color3 & operator %= (Value s) noexcept;
-    Color3 & operator &= (Value s) noexcept;
-    Color3 & operator |= (Value s) noexcept;
-    Color3 & operator ^= (Value s) noexcept;
-    Color3 & operator <<= (Value s) noexcept;
-    Color3 & operator >>= (Value s) noexcept;
+    Color3 & operator += (Value s);
+    Color3 & operator -= (Value s);
+    Color3 & operator *= (Value s);
+    Color3 & operator /= (Value s);
+    Color3 & operator %= (Value s);
+    Color3 & operator &= (Value s);
+    Color3 & operator |= (Value s);
+    Color3 & operator ^= (Value s);
+    Color3 & operator <<= (Value s);
+    Color3 & operator >>= (Value s);
     // --------------------------------------------------------------------------------------------
-    Color3 & operator ++ () noexcept;
-    Color3 & operator -- () noexcept;
+    Color3 & operator ++ ();
+    Color3 & operator -- ();
     // --------------------------------------------------------------------------------------------
-    Color3 operator ++ (int) noexcept;
-    Color3 operator -- (int) noexcept;
+    Color3 operator ++ (int);
+    Color3 operator -- (int);
     // --------------------------------------------------------------------------------------------
-    Color3 operator + (const Color3 & c) const noexcept;
-    Color3 operator - (const Color3 & c) const noexcept;
-    Color3 operator * (const Color3 & c) const noexcept;
-    Color3 operator / (const Color3 & c) const noexcept;
-    Color3 operator % (const Color3 & c) const noexcept;
-    Color3 operator & (const Color3 & c) const noexcept;
-    Color3 operator | (const Color3 & c) const noexcept;
-    Color3 operator ^ (const Color3 & c) const noexcept;
-    Color3 operator << (const Color3 & c) const noexcept;
-    Color3 operator >> (const Color3 & c) const noexcept;
+    Color3 operator + (const Color3 & c) const;
+    Color3 operator - (const Color3 & c) const;
+    Color3 operator * (const Color3 & c) const;
+    Color3 operator / (const Color3 & c) const;
+    Color3 operator % (const Color3 & c) const;
+    Color3 operator & (const Color3 & c) const;
+    Color3 operator | (const Color3 & c) const;
+    Color3 operator ^ (const Color3 & c) const;
+    Color3 operator << (const Color3 & c) const;
+    Color3 operator >> (const Color3 & c) const;
     // --------------------------------------------------------------------------------------------
-    Color3 operator + (Value s) const noexcept;
-    Color3 operator - (Value s) const noexcept;
-    Color3 operator * (Value s) const noexcept;
-    Color3 operator / (Value s) const noexcept;
-    Color3 operator % (Value s) const noexcept;
-    Color3 operator & (Value s) const noexcept;
-    Color3 operator | (Value s) const noexcept;
-    Color3 operator ^ (Value s) const noexcept;
-    Color3 operator << (Value s) const noexcept;
-    Color3 operator >> (Value s) const noexcept;
+    Color3 operator + (Value s) const;
+    Color3 operator - (Value s) const;
+    Color3 operator * (Value s) const;
+    Color3 operator / (Value s) const;
+    Color3 operator % (Value s) const;
+    Color3 operator & (Value s) const;
+    Color3 operator | (Value s) const;
+    Color3 operator ^ (Value s) const;
+    Color3 operator << (Value s) const;
+    Color3 operator >> (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Color3 operator + () const noexcept;
-    Color3 operator - () const noexcept;
+    Color3 operator + () const;
+    Color3 operator - () const;
     // --------------------------------------------------------------------------------------------
-    Color3 operator ~ () const noexcept;
+    Color3 operator ~ () const;
     // --------------------------------------------------------------------------------------------
-    bool operator == (const Color3 & c) const noexcept;
-    bool operator != (const Color3 & c) const noexcept;
-    bool operator < (const Color3 & c) const noexcept;
-    bool operator > (const Color3 & c) const noexcept;
-    bool operator <= (const Color3 & c) const noexcept;
-    bool operator >= (const Color3 & c) const noexcept;
+    bool operator == (const Color3 & c) const;
+    bool operator != (const Color3 & c) const;
+    bool operator < (const Color3 & c) const;
+    bool operator > (const Color3 & c) const;
+    bool operator <= (const Color3 & c) const;
+    bool operator >= (const Color3 & c) const;
     // --------------------------------------------------------------------------------------------
-    SQInteger Cmp(const Color3 & c) const noexcept;
+    SQInteger Cmp(const Color3 & c) const;
     // --------------------------------------------------------------------------------------------
-    const SQChar * ToString() const noexcept;
+    const SQChar * ToString() const;
     // --------------------------------------------------------------------------------------------
-    void Set(Value ns) noexcept;
-    void Set(Value nr, Value ng, Value nb) noexcept;
+    void Set(Value ns);
+    void Set(Value nr, Value ng, Value nb);
     // --------------------------------------------------------------------------------------------
-    void Set(const Color3 & c) noexcept;
-    void Set(const Color4 & c) noexcept;
+    void Set(const Color3 & c);
+    void Set(const Color4 & c);
     // --------------------------------------------------------------------------------------------
-    void Set(const SQChar * str, SQChar delim) noexcept;
+    void Set(const SQChar * str, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    void SetCol(const SQChar * name) noexcept;
+    void SetCol(const SQChar * name);
     // --------------------------------------------------------------------------------------------
-    SQUint32 GetRGB() const noexcept;
-    void SetRGB(SQUint32 p) noexcept;
+    SQUint32 GetRGB() const;
+    void SetRGB(SQUint32 p);
     // --------------------------------------------------------------------------------------------
-    SQUint32 GetRGBA() const noexcept;
-    void SetRGBA(SQUint32 p) noexcept;
+    SQUint32 GetRGBA() const;
+    void SetRGBA(SQUint32 p);
     // --------------------------------------------------------------------------------------------
-    SQUint32 GetARGB() const noexcept;
-    void SetARGB(SQUint32 p) noexcept;
+    SQUint32 GetARGB() const;
+    void SetARGB(SQUint32 p);
     // --------------------------------------------------------------------------------------------
-    void Generate() noexcept;
-    void Generate(Value min, Value max) noexcept;
-    void Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax) noexcept;
+    void Generate();
+    void Generate(Value min, Value max);
+    void Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax);
     // --------------------------------------------------------------------------------------------
-    void Clear() noexcept { r = 0, g = 0, b = 0; }
+    void Clear() { r = 0, g = 0, b = 0; }
     // --------------------------------------------------------------------------------------------
-    void Random() noexcept;
+    void Random();
     // --------------------------------------------------------------------------------------------
-    void Inverse() noexcept;
+    void Inverse();
 };
 
 } // Namespace:: SqMod

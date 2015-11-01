@@ -12,19 +12,19 @@ namespace SqMod {
 const CAutomobile CAutomobile::NIL;
 
 // ------------------------------------------------------------------------------------------------
-CAutomobile::CAutomobile() noexcept
+CAutomobile::CAutomobile()
     : m_ID(SQMOD_UNKNOWN)
 {
 
 }
 
-CAutomobile::CAutomobile(SQInt32 id) noexcept
+CAutomobile::CAutomobile(SQInt32 id)
     : m_ID(VALID_ENTITYGETEX(id, Max))
 {
 
 }
 
-CAutomobile::CAutomobile(const SQChar * name, SQInt32 id) noexcept
+CAutomobile::CAutomobile(const SQChar * name, SQInt32 id)
     : m_ID(GetAutomobileID(name))
 {
     if (VALID_ENTITYEX(m_ID, Max))
@@ -34,7 +34,7 @@ CAutomobile::CAutomobile(const SQChar * name, SQInt32 id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-CAutomobile::CAutomobile(const CAutomobile & a) noexcept
+CAutomobile::CAutomobile(const CAutomobile & a)
     : m_ID(a.m_ID)
     , m_Tag(a.m_Tag)
     , m_Data(a.m_Data)
@@ -42,7 +42,7 @@ CAutomobile::CAutomobile(const CAutomobile & a) noexcept
 
 }
 
-CAutomobile::CAutomobile(CAutomobile && a) noexcept
+CAutomobile::CAutomobile(CAutomobile && a)
     : m_ID(a.m_ID)
     , m_Tag(a.m_Tag)
     , m_Data(a.m_Data)
@@ -57,7 +57,7 @@ CAutomobile::~CAutomobile()
 }
 
 // ------------------------------------------------------------------------------------------------
-CAutomobile & CAutomobile::operator = (const CAutomobile & a) noexcept
+CAutomobile & CAutomobile::operator = (const CAutomobile & a)
 {
     m_ID = a.m_ID;
     m_Tag = a.m_Tag;
@@ -66,7 +66,7 @@ CAutomobile & CAutomobile::operator = (const CAutomobile & a) noexcept
     return *this;
 }
 
-CAutomobile & CAutomobile::operator = (CAutomobile && a) noexcept
+CAutomobile & CAutomobile::operator = (CAutomobile && a)
 {
     m_ID = a.m_ID;
     m_Tag = a.m_Tag;
@@ -76,7 +76,7 @@ CAutomobile & CAutomobile::operator = (CAutomobile && a) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-CAutomobile & CAutomobile::operator = (SQInt32 id) noexcept
+CAutomobile & CAutomobile::operator = (SQInt32 id)
 {
     m_ID = VALID_ENTITYGETEX(id, Max);
 
@@ -84,38 +84,38 @@ CAutomobile & CAutomobile::operator = (SQInt32 id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CAutomobile::operator == (const CAutomobile & a) const noexcept
+bool CAutomobile::operator == (const CAutomobile & a) const
 {
     return (m_ID == a.m_ID);
 }
 
-bool CAutomobile::operator != (const CAutomobile & a) const noexcept
+bool CAutomobile::operator != (const CAutomobile & a) const
 {
     return (m_ID != a.m_ID);
 }
 
-bool CAutomobile::operator < (const CAutomobile & a) const noexcept
+bool CAutomobile::operator < (const CAutomobile & a) const
 {
     return (m_ID < a.m_ID);
 }
 
-bool CAutomobile::operator > (const CAutomobile & a) const noexcept
+bool CAutomobile::operator > (const CAutomobile & a) const
 {
     return (m_ID < a.m_ID);
 }
 
-bool CAutomobile::operator <= (const CAutomobile & a) const noexcept
+bool CAutomobile::operator <= (const CAutomobile & a) const
 {
     return (m_ID <= a.m_ID);
 }
 
-bool CAutomobile::operator >= (const CAutomobile & a) const noexcept
+bool CAutomobile::operator >= (const CAutomobile & a) const
 {
     return (m_ID >= a.m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CAutomobile::Cmp(const CAutomobile & a) const noexcept
+SQInteger CAutomobile::Cmp(const CAutomobile & a) const
 {
     if (m_ID == a.m_ID)
     {
@@ -132,24 +132,24 @@ SQInteger CAutomobile::Cmp(const CAutomobile & a) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CAutomobile::ToString() const noexcept
+const SQChar * CAutomobile::ToString() const
 {
     return GetAutomobileName(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CAutomobile::GetID() const noexcept
+SQInteger CAutomobile::GetID() const
 {
     return m_ID;
 }
 
-void CAutomobile::SetID(SQInt32 id) noexcept
+void CAutomobile::SetID(SQInt32 id)
 {
     m_ID = VALID_ENTITYGETEX(id, Max);
 }
 
 // ------------------------------------------------------------------------------------------------
-CAutomobile & CAutomobile::SetnGet(SQInt32 id) noexcept
+CAutomobile & CAutomobile::SetnGet(SQInt32 id)
 {
     m_ID = VALID_ENTITYGETEX(id, Max);
 
@@ -157,63 +157,63 @@ CAutomobile & CAutomobile::SetnGet(SQInt32 id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CAutomobile::GetGlobalTag() const noexcept
+const SQChar * CAutomobile::GetGlobalTag() const
 {
     return GlobalTag(m_ID);
 }
 
-void CAutomobile::SetGlobalTag(const SQChar * tag) const noexcept
+void CAutomobile::SetGlobalTag(const SQChar * tag) const
 {
     GlobalTag(m_ID, tag);
 }
 
 // ------------------------------------------------------------------------------------------------
-SqObj & CAutomobile::GetGlobalData() const noexcept
+SqObj & CAutomobile::GetGlobalData() const
 {
     return GlobalData(m_ID);
 }
 
-void CAutomobile::SetGlobalData(SqObj & data) const noexcept
+void CAutomobile::SetGlobalData(SqObj & data) const
 {
     GlobalData(m_ID, data);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CAutomobile::GetLocalTag() const noexcept
+const SQChar * CAutomobile::GetLocalTag() const
 {
     return m_Tag.c_str();
 }
 
-void CAutomobile::SetLocalTag(const SQChar * tag) noexcept
+void CAutomobile::SetLocalTag(const SQChar * tag)
 {
     m_Tag = tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-SqObj & CAutomobile::GetLocalData() noexcept
+SqObj & CAutomobile::GetLocalData()
 {
     return m_Data;
 }
 
-void CAutomobile::SetLocalData(SqObj & data) noexcept
+void CAutomobile::SetLocalData(SqObj & data)
 {
     m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CAutomobile::IsValid() const noexcept
+bool CAutomobile::IsValid() const
 {
     return (VALID_ENTITYEX(m_ID, Max));
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CAutomobile::GetName() const noexcept
+const SQChar * CAutomobile::GetName() const
 {
     return GetAutomobileName(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CAutomobile::SetName(const SQChar * name) noexcept
+void CAutomobile::SetName(const SQChar * name)
 {
     m_ID = GetAutomobileID(name);
     m_ID = VALID_ENTITYGETEX(m_ID, Max);
@@ -221,27 +221,27 @@ void CAutomobile::SetName(const SQChar * name) noexcept
 
 // ------------------------------------------------------------------------------------------------
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, const Vector3 & pos, SQFloat angle,
-                                            SQInt32 header, SqObj & payload) const noexcept
+                                            SQInt32 header, SqObj & payload) const
 {
     return _Core->NewVehicle(m_ID, world, pos.x, pos.z, pos.y, angle, SQMOD_UNKNOWN, SQMOD_UNKNOWN, header, payload);
 }
 
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, const Vector3 & pos, SQFloat angle,
                                             SQInt32 primary, SQInt32 secondary, SQInt32 header,
-                                            SqObj & payload) const noexcept
+                                            SqObj & payload) const
 {
     return _Core->NewVehicle(*this, world, pos.x, pos.z, pos.y, angle, primary, secondary, header, payload);
 }
 
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQFloat angle,
-                                            SQInt32 header, SqObj & payload) const noexcept
+                                            SQInt32 header, SqObj & payload) const
 {
     return _Core->NewVehicle(*this, world, x, y, z, angle, SQMOD_UNKNOWN, SQMOD_UNKNOWN, header, payload);
 }
 
 Reference< CVehicle > CAutomobile::Create(SQInt32 world, SQFloat x, SQFloat y, SQFloat z, SQFloat angle,
                                             SQInt32 primary, SQInt32 secondary, SQInt32 header,
-                                            SqObj & payload) const noexcept
+                                            SqObj & payload) const
 {
     return _Core->NewVehicle(*this, world, x, y, z, angle, primary, secondary, header, payload);
 }

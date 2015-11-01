@@ -5,14 +5,14 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CBlip::CBlip(const Reference< CBlip > & o) noexcept
+CBlip::CBlip(const Reference< CBlip > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CBlip::GetWorld() const noexcept
+SQInteger CBlip::GetWorld() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -26,7 +26,7 @@ SQInteger CBlip::GetWorld() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CBlip::GetScale() const noexcept
+SQInteger CBlip::GetScale() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -40,7 +40,7 @@ SQInteger CBlip::GetScale() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CBlip::GetPosition() const noexcept
+const Vector3 & CBlip::GetPosition() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -55,7 +55,7 @@ const Vector3 & CBlip::GetPosition() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CBlip::GetPositionX() const noexcept
+SQFloat CBlip::GetPositionX() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -70,7 +70,7 @@ SQFloat CBlip::GetPositionX() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CBlip::GetPositionY() const noexcept
+SQFloat CBlip::GetPositionY() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -85,7 +85,7 @@ SQFloat CBlip::GetPositionY() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CBlip::GetPositionZ() const noexcept
+SQFloat CBlip::GetPositionZ() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -100,7 +100,7 @@ SQFloat CBlip::GetPositionZ() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color4 & CBlip::GetColor() const noexcept
+const Color4 & CBlip::GetColor() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -115,7 +115,7 @@ const Color4 & CBlip::GetColor() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CBlip::GetSprID() const noexcept
+SQInt32 CBlip::GetSprID() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -134,7 +134,7 @@ Reference< CBlip > CreateBaseBlip_ES(SQInt32 world,
                     SQFloat x, SQFloat y, SQFloat z,
                     SQInt32 scale,
                     Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid) noexcept
+                    SQInt32 sprid)
 {
     return _Core->NewBlip(SQMOD_UNKNOWN, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -145,7 +145,7 @@ Reference< CBlip > CreateBaseBlip_ES(SQInt32 world,
                     SQInt32 scale,
                     Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                     SQInt32 sprid,
-                    SQInt32 header, SqObj & payload) noexcept
+                    SQInt32 header, SqObj & payload)
 {
     return _Core->NewBlip(SQMOD_UNKNOWN, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
                             header, payload);
@@ -156,7 +156,7 @@ Reference< CBlip > CreateBaseBlip_EF(SQInt32 index, SQInt32 world,
                     SQFloat x, SQFloat y, SQFloat z,
                     SQInt32 scale,
                     Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid) noexcept
+                    SQInt32 sprid)
 {
     return _Core->NewBlip(index, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -167,7 +167,7 @@ Reference< CBlip > CreateBaseBlip_EF(SQInt32 index, SQInt32 world,
                     SQInt32 scale,
                     Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                     SQInt32 sprid,
-                    SQInt32 header, SqObj & payload) noexcept
+                    SQInt32 header, SqObj & payload)
 {
     return _Core->NewBlip(index, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
                             header, payload);
@@ -175,7 +175,7 @@ Reference< CBlip > CreateBaseBlip_EF(SQInt32 index, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CBlip > CreateBaseBlip_CS(SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid) noexcept
+                    SQInt32 scale, const Color4 & color, SQInt32 sprid)
 {
     return _Core->NewBlip(SQMOD_UNKNOWN, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -183,7 +183,7 @@ Reference< CBlip > CreateBaseBlip_CS(SQInt32 world, const Vector3 & pos,
 
 Reference< CBlip > CreateBaseBlip_CS(SQInt32 world, const Vector3 & pos,
                     SQInt32 scale, const Color4 & color, SQInt32 sprid,
-                    SQInt32 header, SqObj & payload) noexcept
+                    SQInt32 header, SqObj & payload)
 {
     return _Core->NewBlip(SQMOD_UNKNOWN, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             header, payload);
@@ -191,7 +191,7 @@ Reference< CBlip > CreateBaseBlip_CS(SQInt32 world, const Vector3 & pos,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CBlip > CreateBaseBlip_CF(SQInt32 index, SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid) noexcept
+                    SQInt32 scale, const Color4 & color, SQInt32 sprid)
 {
     return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -199,7 +199,7 @@ Reference< CBlip > CreateBaseBlip_CF(SQInt32 index, SQInt32 world, const Vector3
 
 Reference< CBlip > CreateBaseBlip_CF(SQInt32 index, SQInt32 world, const Vector3 & pos,
                     SQInt32 scale, const Color4 & color, SQInt32 sprid,
-                    SQInt32 header, SqObj & payload) noexcept
+                    SQInt32 header, SqObj & payload)
 {
     return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             header, payload);
@@ -210,7 +210,7 @@ CBlip CreateBlip_ES(SQInt32 world,
                     SQFloat x, SQFloat y, SQFloat z,
                     SQInt32 scale,
                     Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid) noexcept
+                    SQInt32 sprid)
 {
     return _Core->NewBlip(SQMOD_UNKNOWN, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -221,7 +221,7 @@ CBlip CreateBlip_ES(SQInt32 world,
                     SQInt32 scale,
                     Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                     SQInt32 sprid,
-                    SQInt32 header, SqObj & payload) noexcept
+                    SQInt32 header, SqObj & payload)
 {
     return _Core->NewBlip(SQMOD_UNKNOWN, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
                             header, payload);
@@ -232,7 +232,7 @@ CBlip CreateBlip_EF(SQInt32 index, SQInt32 world,
                     SQFloat x, SQFloat y, SQFloat z,
                     SQInt32 scale,
                     Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid) noexcept
+                    SQInt32 sprid)
 {
     return _Core->NewBlip(index, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -243,7 +243,7 @@ CBlip CreateBlip_EF(SQInt32 index, SQInt32 world,
                     SQInt32 scale,
                     Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                     SQInt32 sprid,
-                    SQInt32 header, SqObj & payload) noexcept
+                    SQInt32 header, SqObj & payload)
 {
     return _Core->NewBlip(index, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
                             header, payload);
@@ -251,7 +251,7 @@ CBlip CreateBlip_EF(SQInt32 index, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 CBlip CreateBlip_CS(SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid) noexcept
+                    SQInt32 scale, const Color4 & color, SQInt32 sprid)
 {
     return _Core->NewBlip(SQMOD_UNKNOWN, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -259,7 +259,7 @@ CBlip CreateBlip_CS(SQInt32 world, const Vector3 & pos,
 
 CBlip CreateBlip_CS(SQInt32 world, const Vector3 & pos,
                     SQInt32 scale, const Color4 & color, SQInt32 sprid,
-                    SQInt32 header, SqObj & payload) noexcept
+                    SQInt32 header, SqObj & payload)
 {
     return _Core->NewBlip(SQMOD_UNKNOWN, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             header, payload);
@@ -267,7 +267,7 @@ CBlip CreateBlip_CS(SQInt32 world, const Vector3 & pos,
 
 // ------------------------------------------------------------------------------------------------
 CBlip CreateBlip_CF(SQInt32 index, SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid) noexcept
+                    SQInt32 scale, const Color4 & color, SQInt32 sprid)
 {
     return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -275,7 +275,7 @@ CBlip CreateBlip_CF(SQInt32 index, SQInt32 world, const Vector3 & pos,
 
 CBlip CreateBlip_CF(SQInt32 index, SQInt32 world, const Vector3 & pos,
                     SQInt32 scale, const Color4 & color, SQInt32 sprid,
-                    SQInt32 header, SqObj & payload) noexcept
+                    SQInt32 header, SqObj & payload)
 {
     return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             header, payload);

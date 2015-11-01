@@ -14,44 +14,44 @@ const Circle Circle::MAX = Circle(std::numeric_limits<Circle::Value>::max());
 SQChar Circle::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Circle::Circle() noexcept
+Circle::Circle()
     : pos(0.0, 0.0), rad(0.0)
 {
 
 }
 
-Circle::Circle(Value r) noexcept
+Circle::Circle(Value r)
     : pos(0.0, 0.0), rad(r)
 {
 
 }
 
-Circle::Circle(const Vector2f & p) noexcept
+Circle::Circle(const Vector2f & p)
     : pos(p), rad(0.0)
 {
 
 }
 
-Circle::Circle(const Vector2f & p, Value r) noexcept
+Circle::Circle(const Vector2f & p, Value r)
     : pos(p), rad(r)
 {
 
 }
 
-Circle::Circle(Value x, Value y, Value r) noexcept
+Circle::Circle(Value x, Value y, Value r)
     : pos(x, y), rad(r)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle::Circle(const Circle & c) noexcept
+Circle::Circle(const Circle & c)
     : pos(c.pos), rad(c.rad)
 {
 
 }
 
-Circle::Circle(Circle && c) noexcept
+Circle::Circle(Circle && c)
     : pos(c.pos), rad(c.rad)
 {
 
@@ -64,14 +64,14 @@ Circle::~Circle()
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle & Circle::operator = (const Circle & c) noexcept
+Circle & Circle::operator = (const Circle & c)
 {
     pos = c.pos;
     rad = c.rad;
     return *this;
 }
 
-Circle & Circle::operator = (Circle && c) noexcept
+Circle & Circle::operator = (Circle && c)
 {
     pos = c.pos;
     rad = c.rad;
@@ -79,48 +79,48 @@ Circle & Circle::operator = (Circle && c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle & Circle::operator = (Value r) noexcept
+Circle & Circle::operator = (Value r)
 {
     rad = r;
     return *this;
 }
 
-Circle & Circle::operator = (const Vector2f & p) noexcept
+Circle & Circle::operator = (const Vector2f & p)
 {
     pos = p;
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle & Circle::operator += (const Circle & c) noexcept
+Circle & Circle::operator += (const Circle & c)
 {
     pos += c.pos;
     rad += c.rad;
     return *this;
 }
 
-Circle & Circle::operator -= (const Circle & c) noexcept
+Circle & Circle::operator -= (const Circle & c)
 {
     pos -= c.pos;
     rad -= c.rad;
     return *this;
 }
 
-Circle & Circle::operator *= (const Circle & c) noexcept
+Circle & Circle::operator *= (const Circle & c)
 {
     pos *= c.pos;
     rad *= c.rad;
     return *this;
 }
 
-Circle & Circle::operator /= (const Circle & c) noexcept
+Circle & Circle::operator /= (const Circle & c)
 {
     pos /= c.pos;
     rad /= c.rad;
     return *this;
 }
 
-Circle & Circle::operator %= (const Circle & c) noexcept
+Circle & Circle::operator %= (const Circle & c)
 {
     pos %= c.pos;
     rad = std::fmod(rad, c.rad);
@@ -129,76 +129,76 @@ Circle & Circle::operator %= (const Circle & c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle & Circle::operator += (Value r) noexcept
+Circle & Circle::operator += (Value r)
 {
     rad += r;
     return *this;
 }
 
-Circle & Circle::operator -= (Value r) noexcept
+Circle & Circle::operator -= (Value r)
 {
     rad -= r;
     return *this;
 }
 
-Circle & Circle::operator *= (Value r) noexcept
+Circle & Circle::operator *= (Value r)
 {
     rad *= r;
     return *this;
 }
 
-Circle & Circle::operator /= (Value r) noexcept
+Circle & Circle::operator /= (Value r)
 {
     rad /= r;
     return *this;
 }
 
-Circle & Circle::operator %= (Value r) noexcept
+Circle & Circle::operator %= (Value r)
 {
     rad = std::fmod(rad, r);
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle & Circle::operator += (const Vector2f & p) noexcept
+Circle & Circle::operator += (const Vector2f & p)
 {
     pos += p;
     return *this;
 }
 
-Circle & Circle::operator -= (const Vector2f & p) noexcept
+Circle & Circle::operator -= (const Vector2f & p)
 {
     pos -= p;
     return *this;
 }
 
-Circle & Circle::operator *= (const Vector2f & p) noexcept
+Circle & Circle::operator *= (const Vector2f & p)
 {
     pos *= p;
     return *this;
 }
 
-Circle & Circle::operator /= (const Vector2f & p) noexcept
+Circle & Circle::operator /= (const Vector2f & p)
 {
     pos /= p;
     return *this;
 }
 
-Circle & Circle::operator %= (const Vector2f & p) noexcept
+Circle & Circle::operator %= (const Vector2f & p)
 {
     pos %= p;
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle & Circle::operator ++ () noexcept
+Circle & Circle::operator ++ ()
 {
     ++pos;
     ++rad;
     return *this;
 }
 
-Circle & Circle::operator -- () noexcept
+Circle & Circle::operator -- ()
 {
     --pos;
     --rad;
@@ -206,7 +206,7 @@ Circle & Circle::operator -- () noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle Circle::operator ++ (int) noexcept
+Circle Circle::operator ++ (int)
 {
     Circle state(*this);
     ++pos;
@@ -214,7 +214,7 @@ Circle Circle::operator ++ (int) noexcept
     return state;
 }
 
-Circle Circle::operator -- (int) noexcept
+Circle Circle::operator -- (int)
 {
     Circle state(*this);
     --pos;
@@ -223,186 +223,186 @@ Circle Circle::operator -- (int) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle Circle::operator + (const Circle & c) const noexcept
+Circle Circle::operator + (const Circle & c) const
 {
     return Circle(pos + c.pos, rad + c.rad);
 }
 
-Circle Circle::operator - (const Circle & c) const noexcept
+Circle Circle::operator - (const Circle & c) const
 {
     return Circle(pos - c.pos, rad - c.rad);
 }
 
-Circle Circle::operator * (const Circle & c) const noexcept
+Circle Circle::operator * (const Circle & c) const
 {
     return Circle(pos * c.pos, rad * c.rad);
 }
 
-Circle Circle::operator / (const Circle & c) const noexcept
+Circle Circle::operator / (const Circle & c) const
 {
     return Circle(pos / c.pos, rad / c.rad);
 }
 
-Circle Circle::operator % (const Circle & c) const noexcept
+Circle Circle::operator % (const Circle & c) const
 {
     return Circle(pos % c.pos, std::fmod(rad, c.rad));
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle Circle::operator + (Value r) const noexcept
+Circle Circle::operator + (Value r) const
 {
     return Circle(rad + r);
 }
 
-Circle Circle::operator - (Value r) const noexcept
+Circle Circle::operator - (Value r) const
 {
     return Circle(rad - r);
 }
 
-Circle Circle::operator * (Value r) const noexcept
+Circle Circle::operator * (Value r) const
 {
     return Circle(rad * r);
 }
 
-Circle Circle::operator / (Value r) const noexcept
+Circle Circle::operator / (Value r) const
 {
     return Circle(rad / r);
 }
 
-Circle Circle::operator % (Value r) const noexcept
+Circle Circle::operator % (Value r) const
 {
     return Circle(std::fmod(rad, r));
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle Circle::operator + (const Vector2f & p) const noexcept
+Circle Circle::operator + (const Vector2f & p) const
 {
     return Circle(pos + p);
 }
 
-Circle Circle::operator - (const Vector2f & p) const noexcept
+Circle Circle::operator - (const Vector2f & p) const
 {
     return Circle(pos - p);
 }
 
-Circle Circle::operator * (const Vector2f & p) const noexcept
+Circle Circle::operator * (const Vector2f & p) const
 {
     return Circle(pos * p);
 }
 
-Circle Circle::operator / (const Vector2f & p) const noexcept
+Circle Circle::operator / (const Vector2f & p) const
 {
     return Circle(pos / p);
 }
 
-Circle Circle::operator % (const Vector2f & p) const noexcept
+Circle Circle::operator % (const Vector2f & p) const
 {
     return Circle(pos % p);
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle Circle::operator + () const noexcept
+Circle Circle::operator + () const
 {
     return Circle(pos.Abs(), std::fabs(rad));
 }
 
-Circle Circle::operator - () const noexcept
+Circle Circle::operator - () const
 {
     return Circle(-pos, -rad);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Circle::operator == (const Circle & c) const noexcept
+bool Circle::operator == (const Circle & c) const
 {
     return (rad == c.rad) && (pos == c.pos);
 }
 
-bool Circle::operator != (const Circle & c) const noexcept
+bool Circle::operator != (const Circle & c) const
 {
     return (rad != c.rad) && (pos != c.pos);
 }
 
-bool Circle::operator < (const Circle & c) const noexcept
+bool Circle::operator < (const Circle & c) const
 {
     return (rad < c.rad) && (pos < c.pos);
 }
 
-bool Circle::operator > (const Circle & c) const noexcept
+bool Circle::operator > (const Circle & c) const
 {
     return (rad > c.rad) && (pos > c.pos);
 }
 
-bool Circle::operator <= (const Circle & c) const noexcept
+bool Circle::operator <= (const Circle & c) const
 {
     return (rad <= c.rad) && (pos <= c.pos);
 }
 
-bool Circle::operator >= (const Circle & c) const noexcept
+bool Circle::operator >= (const Circle & c) const
 {
     return (rad >= c.rad) && (pos >= c.pos);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Circle::Cmp(const Circle & c) const noexcept
+SQInteger Circle::Cmp(const Circle & c) const
 {
     return *this == c ? 0 : (*this > c ? 1 : -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Circle::ToString() const noexcept
+const SQChar * Circle::ToString() const
 {
     return ToStringF("%f,%f,%f", pos.x, pos.y, rad);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Set(Value nr) noexcept
+void Circle::Set(Value nr)
 {
     rad = nr;
 }
 
-void Circle::Set(const Circle & nc) noexcept
+void Circle::Set(const Circle & nc)
 {
     pos = nc.pos;
     rad = nc.rad;
 }
 
-void Circle::Set(const Vector2f & np) noexcept
+void Circle::Set(const Vector2f & np)
 {
     pos = np;
 }
 
-void Circle::Set(const Vector2f & np, Value nr) noexcept
+void Circle::Set(const Vector2f & np, Value nr)
 {
     pos = np;
     rad = nr;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Set(Value nx, Value ny) noexcept
+void Circle::Set(Value nx, Value ny)
 {
     pos.Set(nx, ny);
 }
 
-void Circle::Set(Value nx, Value ny, Value nr) noexcept
+void Circle::Set(Value nx, Value ny, Value nr)
 {
     pos.Set(nx, ny);
     rad = nr;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Set(const SQChar * values, SQChar delim) noexcept
+void Circle::Set(const SQChar * values, SQChar delim)
 {
     Set(GetCircle(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Generate() noexcept
+void Circle::Generate()
 {
     pos.Generate();
     rad = RandomVal<Value>::Get();
 }
 
-void Circle::Generate(Value min, Value max, bool r) noexcept
+void Circle::Generate(Value min, Value max, bool r)
 {
     if (max < min)
     {
@@ -418,12 +418,12 @@ void Circle::Generate(Value min, Value max, bool r) noexcept
     }
 }
 
-void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax) noexcept
+void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     pos.Generate(xmin, xmax, ymin, ymax);
 }
 
-void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax) noexcept
+void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax)
 {
     if (std::isless(rmax, rmin))
     {
@@ -437,7 +437,7 @@ void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle Circle::Abs() const noexcept
+Circle Circle::Abs() const
 {
     return Circle(pos.Abs(), std::fabs(rad));
 }

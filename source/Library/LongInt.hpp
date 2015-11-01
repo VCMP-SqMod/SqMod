@@ -21,37 +21,37 @@ public:
 	typedef T Value;
 
 	// --------------------------------------------------------------------------------------------
-	LongInt() noexcept
+	LongInt()
 		: m_Data(0), m_Text()
 	{
 
 	}
 
 	template <typename U>
-	LongInt(U data) noexcept
+	LongInt(U data)
 	{
 		*this = data;
 	}
 
 	// --------------------------------------------------------------------------------------------
-    LongInt(const SQChar * text) noexcept
+    LongInt(const SQChar * text)
     {
         *this = text;
     }
 
-    LongInt(const SQChar * text, SQInteger overload = 0) noexcept
+    LongInt(const SQChar * text, SQInteger overload = 0)
     {
         *this = text;
     }
 
     // --------------------------------------------------------------------------------------------
-	LongInt(const LongInt<T> & i) noexcept
+	LongInt(const LongInt<T> & i)
         : m_Data(i.m_Data), m_Text(i.m_Text)
     {
 
     }
 
-    LongInt(LongInt<T> && i) noexcept
+    LongInt(LongInt<T> && i)
         : m_Data(i.m_Data), m_Text(std::move(i.m_Text))
     {
 
@@ -64,7 +64,7 @@ public:
     }
 
 	// --------------------------------------------------------------------------------------------
-	LongInt & operator = (const LongInt<T> & i) noexcept
+	LongInt & operator = (const LongInt<T> & i)
     {
         m_Data = i.m_Data;
         m_Text = i.m_Text;
@@ -72,7 +72,7 @@ public:
         return *this;
     }
 
-    LongInt & operator = (LongInt<T> && i) noexcept
+    LongInt & operator = (LongInt<T> && i)
     {
         m_Data = i.m_Data;
         m_Text = std::move(i.m_Text);
@@ -82,14 +82,14 @@ public:
 
 	// --------------------------------------------------------------------------------------------
 	template <typename U, typename std::enable_if<std::is_integral<U>::value>::type* = nullptr>
-	LongInt & operator = (U data) noexcept
+	LongInt & operator = (U data)
 	{
 		m_Data = static_cast<Value>(data);
 		m_Text = std::to_string(m_Data);
 		return *this;
 	}
 
-	LongInt & operator = (const SQChar * text) noexcept
+	LongInt & operator = (const SQChar * text)
 	{
 		m_Text = text;
         try
@@ -104,125 +104,125 @@ public:
 	}
 
 	// --------------------------------------------------------------------------------------------
-	bool operator == (const LongInt<T> & x) const noexcept
+	bool operator == (const LongInt<T> & x) const
 	{
 		return (m_Data == x.m_Data);
 	}
 
-	bool operator != (const LongInt<T> & x) const noexcept
+	bool operator != (const LongInt<T> & x) const
 	{
 		return (m_Data != x.m_Data);
 	}
 
-	bool operator < (const LongInt<T> & x) const noexcept
+	bool operator < (const LongInt<T> & x) const
 	{
 		return (m_Data < x.m_Data);
 	}
 
-	bool operator > (const LongInt<T> & x) const noexcept
+	bool operator > (const LongInt<T> & x) const
 	{
 		return (m_Data > x.m_Data);
 	}
 
-	bool operator <= (const LongInt<T> & x) const noexcept
+	bool operator <= (const LongInt<T> & x) const
 	{
 		return (m_Data <= x.m_Data);
 	}
 
-	bool operator >= (const LongInt<T> & x) const noexcept
+	bool operator >= (const LongInt<T> & x) const
 	{
 		return (m_Data >= x.m_Data);
 	}
 
 	// --------------------------------------------------------------------------------------------
-	inline operator T () const noexcept
+	inline operator T () const
     {
         return m_Data;
     }
 
     // --------------------------------------------------------------------------------------------
-    LongInt<T> operator + (const LongInt<T> & x) const noexcept
+    LongInt<T> operator + (const LongInt<T> & x) const
     {
         return LongInt<T>(m_Data + x.m_Data);
     }
 
-    LongInt<T> operator - (const LongInt<T> & x) const noexcept
+    LongInt<T> operator - (const LongInt<T> & x) const
     {
         return LongInt<T>(m_Data - x.m_Data);
     }
 
-    LongInt<T> operator * (const LongInt<T> & x) const noexcept
+    LongInt<T> operator * (const LongInt<T> & x) const
     {
         return LongInt<T>(m_Data * x.m_Data);
     }
 
-    LongInt<T> operator / (const LongInt<T> & x) const noexcept
+    LongInt<T> operator / (const LongInt<T> & x) const
     {
         return LongInt<T>(m_Data / x.m_Data);
     }
 
-    LongInt<T> operator % (const LongInt<T> & x) const noexcept
+    LongInt<T> operator % (const LongInt<T> & x) const
     {
         return LongInt<T>(m_Data % x.m_Data);
     }
 
     // --------------------------------------------------------------------------------------------
-    LongInt<T> operator - () const noexcept
+    LongInt<T> operator - () const
     {
         return LongInt<T>(-m_Data);
     }
 
     // --------------------------------------------------------------------------------------------
-    SQInteger Cmp(const LongInt<T> & x) const noexcept
+    SQInteger Cmp(const LongInt<T> & x) const
     {
         return m_Data == x.m_Data ? 0 : (m_Data > x.m_Data ? 1 : -1);
     }
 
-    const SQChar * ToString() const noexcept
+    const SQChar * ToString() const
     {
         return m_Text.c_str();
     }
 
 	// --------------------------------------------------------------------------------------------
-	void SetNum(T data) noexcept
+	void SetNum(T data)
 	{
 		*this = data;
 	}
 
-    T GetNum() const noexcept
+    T GetNum() const
     {
         return m_Data;
     }
 
-    SQInteger GetSNum() const noexcept
+    SQInteger GetSNum() const
     {
         return static_cast<SQInteger>(m_Data);
     }
 
     // --------------------------------------------------------------------------------------------
-	void SetStr(const SQChar * text) noexcept
+	void SetStr(const SQChar * text)
 	{
 		*this = text;
 	}
 
-	const String & GetStr() const noexcept
+	const String & GetStr() const
 	{
 		return m_Text;
 	}
 
-	const SQChar * GetCStr() const noexcept
+	const SQChar * GetCStr() const
 	{
 		return m_Text.c_str();
 	}
 
     // --------------------------------------------------------------------------------------------
-    void Random() noexcept
+    void Random()
     {
         m_Data = RandomVal<T>::Get();
         m_Text = std::to_string(m_Data);
     }
 
-    void Random(T min, T max) noexcept
+    void Random(T min, T max)
     {
         m_Data = RandomVal<T>::Get(min, max);
         m_Text = std::to_string(m_Data);

@@ -115,7 +115,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the global tag.
     */
-    static const SQChar * GlobalTag(SQUint32 id) noexcept
+    static const SQChar * GlobalTag(SQUint32 id)
     {
         if (id < N)
         {
@@ -128,7 +128,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Change the global tag.
     */
-    static void GlobalTag(SQUint32 id,  const SQChar * tag) noexcept
+    static void GlobalTag(SQUint32 id,  const SQChar * tag)
     {
         if (id < N)
         {
@@ -143,7 +143,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the global data.
     */
-    static SqObj & GlobalData(SQUint32 id) noexcept
+    static SqObj & GlobalData(SQUint32 id)
     {
         if (id < N)
         {
@@ -155,7 +155,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Change the global data.
     */
-    static void GlobalData(SQUint32 id,  SqObj & data) noexcept
+    static void GlobalData(SQUint32 id,  SqObj & data)
     {
         if (id < N)
         {
@@ -172,7 +172,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See if the specified identifier is valid and in bounds.
     */
-    static bool Valid(SQInt32 id) noexcept
+    static bool Valid(SQInt32 id)
     {
         return VALID_ENTITYGETEX(id, Max);
     }

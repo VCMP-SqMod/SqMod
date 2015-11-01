@@ -14,44 +14,44 @@ const Sphere Sphere::MAX = Sphere(std::numeric_limits<Sphere::Value>::max());
 SQChar Sphere::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Sphere::Sphere() noexcept
+Sphere::Sphere()
     : pos(0.0, 0.0, 0.0), rad(0.0)
 {
 
 }
 
-Sphere::Sphere(Value r) noexcept
+Sphere::Sphere(Value r)
     : pos(0.0, 0.0, 0.0), rad(r)
 {
 
 }
 
-Sphere::Sphere(const Vector3 & p) noexcept
+Sphere::Sphere(const Vector3 & p)
     : pos(p), rad(0.0)
 {
 
 }
 
-Sphere::Sphere(const Vector3 & p, Value r) noexcept
+Sphere::Sphere(const Vector3 & p, Value r)
     : pos(p), rad(r)
 {
 
 }
 
-Sphere::Sphere(Value x, Value y, Value z, Value r) noexcept
+Sphere::Sphere(Value x, Value y, Value z, Value r)
     : pos(x, y, z), rad(r)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere::Sphere(const Sphere & s) noexcept
+Sphere::Sphere(const Sphere & s)
     : pos(s.pos), rad(s.rad)
 {
 
 }
 
-Sphere::Sphere(Sphere && s) noexcept
+Sphere::Sphere(Sphere && s)
     : pos(s.pos), rad(s.rad)
 {
 
@@ -64,14 +64,14 @@ Sphere::~Sphere()
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere & Sphere::operator = (const Sphere & s) noexcept
+Sphere & Sphere::operator = (const Sphere & s)
 {
     pos = s.pos;
     rad = s.rad;
     return *this;
 }
 
-Sphere & Sphere::operator = (Sphere && s) noexcept
+Sphere & Sphere::operator = (Sphere && s)
 {
     pos = s.pos;
     rad = s.rad;
@@ -79,48 +79,48 @@ Sphere & Sphere::operator = (Sphere && s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere & Sphere::operator = (Value r) noexcept
+Sphere & Sphere::operator = (Value r)
 {
     rad = r;
     return *this;
 }
 
-Sphere & Sphere::operator = (const Vector3 & p) noexcept
+Sphere & Sphere::operator = (const Vector3 & p)
 {
     pos = p;
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere & Sphere::operator += (const Sphere & s) noexcept
+Sphere & Sphere::operator += (const Sphere & s)
 {
     pos += s.pos;
     rad += s.rad;
     return *this;
 }
 
-Sphere & Sphere::operator -= (const Sphere & s) noexcept
+Sphere & Sphere::operator -= (const Sphere & s)
 {
     pos -= s.pos;
     rad -= s.rad;
     return *this;
 }
 
-Sphere & Sphere::operator *= (const Sphere & s) noexcept
+Sphere & Sphere::operator *= (const Sphere & s)
 {
     pos *= s.pos;
     rad *= s.rad;
     return *this;
 }
 
-Sphere & Sphere::operator /= (const Sphere & s) noexcept
+Sphere & Sphere::operator /= (const Sphere & s)
 {
     pos /= s.pos;
     rad /= s.rad;
     return *this;
 }
 
-Sphere & Sphere::operator %= (const Sphere & s) noexcept
+Sphere & Sphere::operator %= (const Sphere & s)
 {
     pos %= s.pos;
     rad = std::fmod(rad, s.rad);
@@ -129,76 +129,76 @@ Sphere & Sphere::operator %= (const Sphere & s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere & Sphere::operator += (Value r) noexcept
+Sphere & Sphere::operator += (Value r)
 {
     rad += r;
     return *this;
 }
 
-Sphere & Sphere::operator -= (Value r) noexcept
+Sphere & Sphere::operator -= (Value r)
 {
     rad -= r;
     return *this;
 }
 
-Sphere & Sphere::operator *= (Value r) noexcept
+Sphere & Sphere::operator *= (Value r)
 {
     rad *= r;
     return *this;
 }
 
-Sphere & Sphere::operator /= (Value r) noexcept
+Sphere & Sphere::operator /= (Value r)
 {
     rad /= r;
     return *this;
 }
 
-Sphere & Sphere::operator %= (Value r) noexcept
+Sphere & Sphere::operator %= (Value r)
 {
     rad = std::fmod(rad, r);
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere & Sphere::operator += (const Vector3 & p) noexcept
+Sphere & Sphere::operator += (const Vector3 & p)
 {
     pos += p;
     return *this;
 }
 
-Sphere & Sphere::operator -= (const Vector3 & p) noexcept
+Sphere & Sphere::operator -= (const Vector3 & p)
 {
     pos -= p;
     return *this;
 }
 
-Sphere & Sphere::operator *= (const Vector3 & p) noexcept
+Sphere & Sphere::operator *= (const Vector3 & p)
 {
     pos *= p;
     return *this;
 }
 
-Sphere & Sphere::operator /= (const Vector3 & p) noexcept
+Sphere & Sphere::operator /= (const Vector3 & p)
 {
     pos /= p;
     return *this;
 }
 
-Sphere & Sphere::operator %= (const Vector3 & p) noexcept
+Sphere & Sphere::operator %= (const Vector3 & p)
 {
     pos %= p;
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere & Sphere::operator ++ () noexcept
+Sphere & Sphere::operator ++ ()
 {
     ++pos;
     ++rad;
     return *this;
 }
 
-Sphere & Sphere::operator -- () noexcept
+Sphere & Sphere::operator -- ()
 {
     --pos;
     --rad;
@@ -206,7 +206,7 @@ Sphere & Sphere::operator -- () noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere Sphere::operator ++ (int) noexcept
+Sphere Sphere::operator ++ (int)
 {
     Sphere state(*this);
     ++pos;
@@ -214,7 +214,7 @@ Sphere Sphere::operator ++ (int) noexcept
     return state;
 }
 
-Sphere Sphere::operator -- (int) noexcept
+Sphere Sphere::operator -- (int)
 {
     Sphere state(*this);
     --pos;
@@ -223,186 +223,186 @@ Sphere Sphere::operator -- (int) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere Sphere::operator + (const Sphere & s) const noexcept
+Sphere Sphere::operator + (const Sphere & s) const
 {
     return Sphere(pos + s.pos, rad + s.rad);
 }
 
-Sphere Sphere::operator - (const Sphere & s) const noexcept
+Sphere Sphere::operator - (const Sphere & s) const
 {
     return Sphere(pos - s.pos, rad - s.rad);
 }
 
-Sphere Sphere::operator * (const Sphere & s) const noexcept
+Sphere Sphere::operator * (const Sphere & s) const
 {
     return Sphere(pos * s.pos, rad * s.rad);
 }
 
-Sphere Sphere::operator / (const Sphere & s) const noexcept
+Sphere Sphere::operator / (const Sphere & s) const
 {
     return Sphere(pos / s.pos, rad / s.rad);
 }
 
-Sphere Sphere::operator % (const Sphere & s) const noexcept
+Sphere Sphere::operator % (const Sphere & s) const
 {
     return Sphere(pos % s.pos, std::fmod(rad, s.rad));
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere Sphere::operator + (Value r) const noexcept
+Sphere Sphere::operator + (Value r) const
 {
     return Sphere(rad + r);
 }
 
-Sphere Sphere::operator - (Value r) const noexcept
+Sphere Sphere::operator - (Value r) const
 {
     return Sphere(rad - r);
 }
 
-Sphere Sphere::operator * (Value r) const noexcept
+Sphere Sphere::operator * (Value r) const
 {
     return Sphere(rad * r);
 }
 
-Sphere Sphere::operator / (Value r) const noexcept
+Sphere Sphere::operator / (Value r) const
 {
     return Sphere(rad / r);
 }
 
-Sphere Sphere::operator % (Value r) const noexcept
+Sphere Sphere::operator % (Value r) const
 {
     return Sphere(std::fmod(rad, r));
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere Sphere::operator + (const Vector3 & p) const noexcept
+Sphere Sphere::operator + (const Vector3 & p) const
 {
     return Sphere(pos + p);
 }
 
-Sphere Sphere::operator - (const Vector3 & p) const noexcept
+Sphere Sphere::operator - (const Vector3 & p) const
 {
     return Sphere(pos - p);
 }
 
-Sphere Sphere::operator * (const Vector3 & p) const noexcept
+Sphere Sphere::operator * (const Vector3 & p) const
 {
     return Sphere(pos * p);
 }
 
-Sphere Sphere::operator / (const Vector3 & p) const noexcept
+Sphere Sphere::operator / (const Vector3 & p) const
 {
     return Sphere(pos / p);
 }
 
-Sphere Sphere::operator % (const Vector3 & p) const noexcept
+Sphere Sphere::operator % (const Vector3 & p) const
 {
     return Sphere(pos % p);
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere Sphere::operator + () const noexcept
+Sphere Sphere::operator + () const
 {
     return Sphere(pos.Abs(), std::fabs(rad));
 }
 
-Sphere Sphere::operator - () const noexcept
+Sphere Sphere::operator - () const
 {
     return Sphere(-pos, -rad);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Sphere::operator == (const Sphere & s) const noexcept
+bool Sphere::operator == (const Sphere & s) const
 {
     return (rad == s.rad) && (pos == s.pos);
 }
 
-bool Sphere::operator != (const Sphere & s) const noexcept
+bool Sphere::operator != (const Sphere & s) const
 {
     return (rad != s.rad) && (pos != s.pos);
 }
 
-bool Sphere::operator < (const Sphere & s) const noexcept
+bool Sphere::operator < (const Sphere & s) const
 {
     return (rad < s.rad) && (pos < s.pos);
 }
 
-bool Sphere::operator > (const Sphere & s) const noexcept
+bool Sphere::operator > (const Sphere & s) const
 {
     return (rad > s.rad) && (pos > s.pos);
 }
 
-bool Sphere::operator <= (const Sphere & s) const noexcept
+bool Sphere::operator <= (const Sphere & s) const
 {
     return (rad <= s.rad) && (pos <= s.pos);
 }
 
-bool Sphere::operator >= (const Sphere & s) const noexcept
+bool Sphere::operator >= (const Sphere & s) const
 {
     return (rad >= s.rad) && (pos >= s.pos);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Sphere::Cmp(const Sphere & s) const noexcept
+SQInteger Sphere::Cmp(const Sphere & s) const
 {
     return *this == s ? 0 : (*this > s ? 1 : -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Sphere::ToString() const noexcept
+const SQChar * Sphere::ToString() const
 {
     return ToStringF("%f,%f,%f,%f", pos.x, pos.y, pos.z, rad);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Set(Value nr) noexcept
+void Sphere::Set(Value nr)
 {
     rad = nr;
 }
 
-void Sphere::Set(const Sphere & ns) noexcept
+void Sphere::Set(const Sphere & ns)
 {
     pos = ns.pos;
     rad = ns.rad;
 }
 
-void Sphere::Set(const Vector3 & np) noexcept
+void Sphere::Set(const Vector3 & np)
 {
     pos = np;
 }
 
-void Sphere::Set(const Vector3 & np, Value nr) noexcept
+void Sphere::Set(const Vector3 & np, Value nr)
 {
     pos = np;
     rad = nr;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Set(Value nx, Value ny, Value nz) noexcept
+void Sphere::Set(Value nx, Value ny, Value nz)
 {
     pos.Set(nx, ny, nz);
 }
 
-void Sphere::Set(Value nx, Value ny, Value nz, Value nr) noexcept
+void Sphere::Set(Value nx, Value ny, Value nz, Value nr)
 {
     pos.Set(nx, ny, nz);
     rad = nr;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Set(const SQChar * values, SQChar delim) noexcept
+void Sphere::Set(const SQChar * values, SQChar delim)
 {
     Set(GetSphere(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Generate() noexcept
+void Sphere::Generate()
 {
     pos.Generate();
     rad = RandomVal<Value>::Get();
 }
 
-void Sphere::Generate(Value min, Value max, bool r) noexcept
+void Sphere::Generate(Value min, Value max, bool r)
 {
     if (max < min)
     {
@@ -418,12 +418,12 @@ void Sphere::Generate(Value min, Value max, bool r) noexcept
     }
 }
 
-void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax) noexcept
+void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
     pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
 }
 
-void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax) noexcept
+void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax)
 {
     if (std::isless(rmax, rmin))
     {
@@ -437,7 +437,7 @@ void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere Sphere::Abs() const noexcept
+Sphere Sphere::Abs() const
 {
     return Sphere(pos.Abs(), std::fabs(rad));
 }

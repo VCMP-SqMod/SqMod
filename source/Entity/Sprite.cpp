@@ -7,14 +7,14 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CSprite::CSprite(const Reference< CSprite > & o) noexcept
+CSprite::CSprite(const Reference< CSprite > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::ShowAll() const noexcept
+void CSprite::ShowAll() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -27,7 +27,7 @@ void CSprite::ShowAll() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::ShowFor(const Reference< CPlayer > & player) const noexcept
+void CSprite::ShowFor(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -44,7 +44,7 @@ void CSprite::ShowFor(const Reference< CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::ShowRange(SQInt32 first, SQInt32 last) const noexcept
+void CSprite::ShowRange(SQInt32 first, SQInt32 last) const
 {
     if (VALID_ENTITY(m_ID) && (first <= last))
     {
@@ -67,7 +67,7 @@ void CSprite::ShowRange(SQInt32 first, SQInt32 last) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::HideAll() const noexcept
+void CSprite::HideAll() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -80,7 +80,7 @@ void CSprite::HideAll() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::HideFor(const Reference< CPlayer > & player) const noexcept
+void CSprite::HideFor(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -97,7 +97,7 @@ void CSprite::HideFor(const Reference< CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::HideRange(SQInt32 first, SQInt32 last) const noexcept
+void CSprite::HideRange(SQInt32 first, SQInt32 last) const
 {
     if (VALID_ENTITY(m_ID) && (first <= last))
     {
@@ -120,7 +120,7 @@ void CSprite::HideRange(SQInt32 first, SQInt32 last) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetPositionAll(const Vector2i & pos) const noexcept
+void CSprite::SetPositionAll(const Vector2i & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -133,7 +133,7 @@ void CSprite::SetPositionAll(const Vector2i & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetPositionAllEx(SQInt32 x, SQInt32 y) const noexcept
+void CSprite::SetPositionAllEx(SQInt32 x, SQInt32 y) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -146,7 +146,7 @@ void CSprite::SetPositionAllEx(SQInt32 x, SQInt32 y) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetPositionFor(const Reference< CPlayer > & player, const Vector2i & pos) const noexcept
+void CSprite::SetPositionFor(const Reference< CPlayer > & player, const Vector2i & pos) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -164,7 +164,7 @@ void CSprite::SetPositionFor(const Reference< CPlayer > & player, const Vector2i
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const noexcept
+void CSprite::SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -181,7 +181,7 @@ void CSprite::SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, S
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const noexcept
+void CSprite::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const
 {
     if (VALID_ENTITY(m_ID) && (first <= last))
     {
@@ -204,7 +204,7 @@ void CSprite::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetCenterAll(const Vector2i & pos) const noexcept
+void CSprite::SetCenterAll(const Vector2i & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -217,7 +217,7 @@ void CSprite::SetCenterAll(const Vector2i & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetCenterAllEx(SQInt32 x, SQInt32 y) const noexcept
+void CSprite::SetCenterAllEx(SQInt32 x, SQInt32 y) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -230,7 +230,7 @@ void CSprite::SetCenterAllEx(SQInt32 x, SQInt32 y) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetCenterFor(const Reference< CPlayer > & player, const Vector2i & pos) const noexcept
+void CSprite::SetCenterFor(const Reference< CPlayer > & player, const Vector2i & pos) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -247,7 +247,7 @@ void CSprite::SetCenterFor(const Reference< CPlayer > & player, const Vector2i &
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetCenterForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const noexcept
+void CSprite::SetCenterForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -264,7 +264,7 @@ void CSprite::SetCenterForEx(const Reference< CPlayer > & player, SQInt32 x, SQI
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetCenterRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const noexcept
+void CSprite::SetCenterRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const
 {
     if (VALID_ENTITY(m_ID) && (first <= last))
     {
@@ -287,7 +287,7 @@ void CSprite::SetCenterRange(SQInt32 first, SQInt32 last, const Vector2i & pos) 
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetRotationAll(SQFloat rot) const noexcept
+void CSprite::SetRotationAll(SQFloat rot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -300,7 +300,7 @@ void CSprite::SetRotationAll(SQFloat rot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetRotationFor(const Reference< CPlayer > & player, SQFloat rot) const noexcept
+void CSprite::SetRotationFor(const Reference< CPlayer > & player, SQFloat rot) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -317,7 +317,7 @@ void CSprite::SetRotationFor(const Reference< CPlayer > & player, SQFloat rot) c
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetRotationRange(SQInt32 first, SQInt32 last, SQFloat rot) const noexcept
+void CSprite::SetRotationRange(SQInt32 first, SQInt32 last, SQFloat rot) const
 {
     if (VALID_ENTITY(m_ID) && (first <= last))
     {
@@ -340,7 +340,7 @@ void CSprite::SetRotationRange(SQInt32 first, SQInt32 last, SQFloat rot) const n
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetAlphaAll(Uint8 alpha) const noexcept
+void CSprite::SetAlphaAll(Uint8 alpha) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -353,7 +353,7 @@ void CSprite::SetAlphaAll(Uint8 alpha) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetAlphaFor(const Reference< CPlayer > & player, Uint8 alpha) const noexcept
+void CSprite::SetAlphaFor(const Reference< CPlayer > & player, Uint8 alpha) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -370,7 +370,7 @@ void CSprite::SetAlphaFor(const Reference< CPlayer > & player, Uint8 alpha) cons
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSprite::SetAlphaRange(SQInt32 first, SQInt32 last, Uint8 alpha) const noexcept
+void CSprite::SetAlphaRange(SQInt32 first, SQInt32 last, Uint8 alpha) const
 {
     if (VALID_ENTITY(m_ID) && (first <= last))
     {
@@ -393,7 +393,7 @@ void CSprite::SetAlphaRange(SQInt32 first, SQInt32 last, Uint8 alpha) const noex
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CSprite::GetFilePath() const noexcept
+const SQChar * CSprite::GetFilePath() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -411,7 +411,7 @@ const SQChar * CSprite::GetFilePath() const noexcept
 Reference< CSprite > CreateBaseSprite_ES(const SQChar * file,
                         SQInt32 xp, SQInt32 yp,
                         SQInt32 xr, SQInt32 yr,
-                        SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                        SQFloat angle, SQInt32 alpha, bool rel)
 {
     return _Core->NewSprite(SQMOD_UNKNOWN, file, xp, yp, xr, yr, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -421,7 +421,7 @@ Reference< CSprite > CreateBaseSprite_ES(const SQChar * file,
                         SQInt32 xp, SQInt32 yp,
                         SQInt32 xr, SQInt32 yr,
                         SQFloat angle, SQInt32 alpha, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewSprite(SQMOD_UNKNOWN, file, xp, yp, xr, yr, angle, alpha, rel,
                             header, payload);
@@ -431,7 +431,7 @@ Reference< CSprite > CreateBaseSprite_ES(const SQChar * file,
 Reference< CSprite > CreateBaseSprite_EF(SQInt32 index, const SQChar * file,
                         SQInt32 xp, SQInt32 yp,
                         SQInt32 xr, SQInt32 yr,
-                        SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                        SQFloat angle, SQInt32 alpha, bool rel)
 {
     return _Core->NewSprite(index, file, xp, yp, xr, yr, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -441,7 +441,7 @@ Reference< CSprite > CreateBaseSprite_EF(SQInt32 index, const SQChar * file,
                         SQInt32 xp, SQInt32 yp,
                         SQInt32 xr, SQInt32 yr,
                         SQFloat angle, SQInt32 alpha, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewSprite(index, file, xp, yp, xr, yr, angle, alpha, rel,
                             header, payload);
@@ -450,7 +450,7 @@ Reference< CSprite > CreateBaseSprite_EF(SQInt32 index, const SQChar * file,
 // ------------------------------------------------------------------------------------------------
 Reference< CSprite > CreateBaseSprite_CS(const SQChar * file,
                         const Vector2i & pos, const Vector2i & rot,
-                        SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                        SQFloat angle, SQInt32 alpha, bool rel)
 {
     return _Core->NewSprite(SQMOD_UNKNOWN, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -459,7 +459,7 @@ Reference< CSprite > CreateBaseSprite_CS(const SQChar * file,
 Reference< CSprite > CreateBaseSprite_CS(const SQChar * file,
                         const Vector2i & pos, const Vector2i & rot,
                         SQFloat angle, SQInt32 alpha, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewSprite(SQMOD_UNKNOWN, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             header, payload);
@@ -468,7 +468,7 @@ Reference< CSprite > CreateBaseSprite_CS(const SQChar * file,
 // ------------------------------------------------------------------------------------------------
 Reference< CSprite > CreateBaseSprite_CF(SQInt32 index, const SQChar * file,
                         const Vector2i & pos, const Vector2i & rot,
-                        SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                        SQFloat angle, SQInt32 alpha, bool rel)
 {
     return _Core->NewSprite(index, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -477,7 +477,7 @@ Reference< CSprite > CreateBaseSprite_CF(SQInt32 index, const SQChar * file,
 Reference< CSprite > CreateBaseSprite_CF(SQInt32 index, const SQChar * file,
                         const Vector2i & pos, const Vector2i & rot,
                         SQFloat angle, SQInt32 alpha, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewSprite(index, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             header, payload);
@@ -487,7 +487,7 @@ Reference< CSprite > CreateBaseSprite_CF(SQInt32 index, const SQChar * file,
 CSprite CreateSprite_ES(const SQChar * file,
                         SQInt32 xp, SQInt32 yp,
                         SQInt32 xr, SQInt32 yr,
-                        SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                        SQFloat angle, SQInt32 alpha, bool rel)
 {
     return _Core->NewSprite(SQMOD_UNKNOWN, file, xp, yp, xr, yr, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -497,7 +497,7 @@ CSprite CreateSprite_ES(const SQChar * file,
                         SQInt32 xp, SQInt32 yp,
                         SQInt32 xr, SQInt32 yr,
                         SQFloat angle, SQInt32 alpha, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewSprite(SQMOD_UNKNOWN, file, xp, yp, xr, yr, angle, alpha, rel,
                             header, payload);
@@ -507,7 +507,7 @@ CSprite CreateSprite_ES(const SQChar * file,
 CSprite CreateSprite_EF(SQInt32 index, const SQChar * file,
                         SQInt32 xp, SQInt32 yp,
                         SQInt32 xr, SQInt32 yr,
-                        SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                        SQFloat angle, SQInt32 alpha, bool rel)
 {
     return _Core->NewSprite(index, file, xp, yp, xr, yr, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -517,7 +517,7 @@ CSprite CreateSprite_EF(SQInt32 index, const SQChar * file,
                         SQInt32 xp, SQInt32 yp,
                         SQInt32 xr, SQInt32 yr,
                         SQFloat angle, SQInt32 alpha, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewSprite(index, file, xp, yp, xr, yr, angle, alpha, rel,
                             header, payload);
@@ -526,7 +526,7 @@ CSprite CreateSprite_EF(SQInt32 index, const SQChar * file,
 // ------------------------------------------------------------------------------------------------
 CSprite CreateSprite_CS(const SQChar * file,
                         const Vector2i & pos, const Vector2i & rot,
-                        SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                        SQFloat angle, SQInt32 alpha, bool rel)
 {
     return _Core->NewSprite(SQMOD_UNKNOWN, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -535,7 +535,7 @@ CSprite CreateSprite_CS(const SQChar * file,
 CSprite CreateSprite_CS(const SQChar * file,
                         const Vector2i & pos, const Vector2i & rot,
                         SQFloat angle, SQInt32 alpha, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewSprite(SQMOD_UNKNOWN, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             header, payload);
@@ -544,7 +544,7 @@ CSprite CreateSprite_CS(const SQChar * file,
 // ------------------------------------------------------------------------------------------------
 CSprite CreateSprite_CF(SQInt32 index, const SQChar * file,
                         const Vector2i & pos, const Vector2i & rot,
-                        SQFloat angle, SQInt32 alpha, bool rel) noexcept
+                        SQFloat angle, SQInt32 alpha, bool rel)
 {
     return _Core->NewSprite(index, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -553,7 +553,7 @@ CSprite CreateSprite_CF(SQInt32 index, const SQChar * file,
 CSprite CreateSprite_CF(SQInt32 index, const SQChar * file,
                         const Vector2i & pos, const Vector2i & rot,
                         SQFloat angle, SQInt32 alpha, bool rel,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewSprite(index, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             header, payload);

@@ -7,7 +7,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * GetEventName(SQInt32 type) noexcept
+const SQChar * GetEventName(SQInt32 type)
 {
     switch (type)
     {
@@ -121,7 +121,7 @@ const SQChar * GetEventName(SQInt32 type) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsEntityEvent(SQInt32 type) noexcept
+bool IsEntityEvent(SQInt32 type)
 {
     switch (type)
     {
@@ -226,7 +226,7 @@ bool IsEntityEvent(SQInt32 type) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsCreateEvent(SQInt32 type) noexcept
+bool IsCreateEvent(SQInt32 type)
 {
     switch (type)
     {
@@ -247,7 +247,7 @@ bool IsCreateEvent(SQInt32 type) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsDestroyEvent(SQInt32 type) noexcept
+bool IsDestroyEvent(SQInt32 type)
 {
     switch (type)
     {
@@ -268,7 +268,7 @@ bool IsDestroyEvent(SQInt32 type) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsCustomEvent(SQInt32 type) noexcept
+bool IsCustomEvent(SQInt32 type)
 {
     switch (type)
     {
@@ -289,7 +289,7 @@ bool IsCustomEvent(SQInt32 type) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CanBeInversed(SQInt32 type) noexcept
+bool CanBeInversed(SQInt32 type)
 {
     switch (type)
     {

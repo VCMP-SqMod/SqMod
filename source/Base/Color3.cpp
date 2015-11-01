@@ -15,52 +15,52 @@ const Color3 Color3::MAX = Color3(std::numeric_limits<Color3::Value>::max());
 SQChar Color3::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Color3::Color3() noexcept
+Color3::Color3()
     : r(0), g(0), b(0)
 {
 
 }
 
-Color3::Color3(Value s) noexcept
+Color3::Color3(Value s)
     : r(s), g(s), b(s)
 {
 
 }
 
-Color3::Color3(Value rv, Value gv, Value bv) noexcept
+Color3::Color3(Value rv, Value gv, Value bv)
     : r(rv), g(gv), b(bv)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3::Color3(const Color4 & c) noexcept
+Color3::Color3(const Color4 & c)
     : r(c.r), g(c.g), b(c.b)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3::Color3(const SQChar * name) noexcept
+Color3::Color3(const SQChar * name)
     : Color3(GetColor(name))
 {
 
 }
 
-Color3::Color3(const SQChar * str, SQChar delim) noexcept
+Color3::Color3(const SQChar * str, SQChar delim)
     : Color3(GetColor3(str, delim))
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3::Color3(const Color3 & c) noexcept
+Color3::Color3(const Color3 & c)
     : r(c.r), g(c.g), b(c.b)
 {
 
 }
 
-Color3::Color3(Color3 && c) noexcept
+Color3::Color3(Color3 && c)
     : r(c.r), g(c.g), b(c.b)
 {
 
@@ -73,7 +73,7 @@ Color3::~Color3()
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 & Color3::operator = (const Color3 & c) noexcept
+Color3 & Color3::operator = (const Color3 & c)
 {
     r = c.r;
     g = c.g;
@@ -81,7 +81,7 @@ Color3 & Color3::operator = (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator = (Color3 && c) noexcept
+Color3 & Color3::operator = (Color3 && c)
 {
     r = c.r;
     g = c.g;
@@ -90,7 +90,7 @@ Color3 & Color3::operator = (Color3 && c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 & Color3::operator = (Value s) noexcept
+Color3 & Color3::operator = (Value s)
 {
     r = s;
     g = s;
@@ -98,13 +98,13 @@ Color3 & Color3::operator = (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator = (const SQChar * name) noexcept
+Color3 & Color3::operator = (const SQChar * name)
 {
     Set(GetColor(name));
     return *this;
 }
 
-Color3 & Color3::operator = (const Color4 & c) noexcept
+Color3 & Color3::operator = (const Color4 & c)
 {
     r = c.r;
     g = c.g;
@@ -113,7 +113,7 @@ Color3 & Color3::operator = (const Color4 & c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 & Color3::operator += (const Color3 & c) noexcept
+Color3 & Color3::operator += (const Color3 & c)
 {
     r += c.r;
     g += c.g;
@@ -121,7 +121,7 @@ Color3 & Color3::operator += (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator -= (const Color3 & c) noexcept
+Color3 & Color3::operator -= (const Color3 & c)
 {
     r -= c.r;
     g -= c.g;
@@ -129,7 +129,7 @@ Color3 & Color3::operator -= (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator *= (const Color3 & c) noexcept
+Color3 & Color3::operator *= (const Color3 & c)
 {
     r *= c.r;
     g *= c.g;
@@ -137,7 +137,7 @@ Color3 & Color3::operator *= (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator /= (const Color3 & c) noexcept
+Color3 & Color3::operator /= (const Color3 & c)
 {
     r /= c.r;
     g /= c.g;
@@ -145,7 +145,7 @@ Color3 & Color3::operator /= (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator %= (const Color3 & c) noexcept
+Color3 & Color3::operator %= (const Color3 & c)
 {
     r %= c.r;
     g %= c.g;
@@ -153,7 +153,7 @@ Color3 & Color3::operator %= (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator &= (const Color3 & c) noexcept
+Color3 & Color3::operator &= (const Color3 & c)
 {
     r &= c.r;
     g &= c.g;
@@ -161,7 +161,7 @@ Color3 & Color3::operator &= (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator |= (const Color3 & c) noexcept
+Color3 & Color3::operator |= (const Color3 & c)
 {
     r |= c.r;
     g |= c.g;
@@ -169,7 +169,7 @@ Color3 & Color3::operator |= (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator ^= (const Color3 & c) noexcept
+Color3 & Color3::operator ^= (const Color3 & c)
 {
     r ^= c.r;
     g ^= c.g;
@@ -177,7 +177,7 @@ Color3 & Color3::operator ^= (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator <<= (const Color3 & c) noexcept
+Color3 & Color3::operator <<= (const Color3 & c)
 {
     r <<= c.r;
     g <<= c.g;
@@ -185,7 +185,7 @@ Color3 & Color3::operator <<= (const Color3 & c) noexcept
     return *this;
 }
 
-Color3 & Color3::operator >>= (const Color3 & c) noexcept
+Color3 & Color3::operator >>= (const Color3 & c)
 {
     r >>= c.r;
     g >>= c.g;
@@ -194,7 +194,7 @@ Color3 & Color3::operator >>= (const Color3 & c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 & Color3::operator += (Value s) noexcept
+Color3 & Color3::operator += (Value s)
 {
     r += s;
     g += s;
@@ -202,7 +202,7 @@ Color3 & Color3::operator += (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator -= (Value s) noexcept
+Color3 & Color3::operator -= (Value s)
 {
     r -= s;
     g -= s;
@@ -210,7 +210,7 @@ Color3 & Color3::operator -= (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator *= (Value s) noexcept
+Color3 & Color3::operator *= (Value s)
 {
     r *= s;
     g *= s;
@@ -218,7 +218,7 @@ Color3 & Color3::operator *= (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator /= (Value s) noexcept
+Color3 & Color3::operator /= (Value s)
 {
     r /= s;
     g /= s;
@@ -226,7 +226,7 @@ Color3 & Color3::operator /= (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator %= (Value s) noexcept
+Color3 & Color3::operator %= (Value s)
 {
     r %= s;
     g %= s;
@@ -234,7 +234,7 @@ Color3 & Color3::operator %= (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator &= (Value s) noexcept
+Color3 & Color3::operator &= (Value s)
 {
     r &= s;
     g &= s;
@@ -242,7 +242,7 @@ Color3 & Color3::operator &= (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator |= (Value s) noexcept
+Color3 & Color3::operator |= (Value s)
 {
     r |= s;
     g |= s;
@@ -250,7 +250,7 @@ Color3 & Color3::operator |= (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator ^= (Value s) noexcept
+Color3 & Color3::operator ^= (Value s)
 {
     r ^= s;
     g ^= s;
@@ -258,7 +258,7 @@ Color3 & Color3::operator ^= (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator <<= (Value s) noexcept
+Color3 & Color3::operator <<= (Value s)
 {
     r <<= s;
     g <<= s;
@@ -266,7 +266,7 @@ Color3 & Color3::operator <<= (Value s) noexcept
     return *this;
 }
 
-Color3 & Color3::operator >>= (Value s) noexcept
+Color3 & Color3::operator >>= (Value s)
 {
     r >>= s;
     g >>= s;
@@ -275,7 +275,7 @@ Color3 & Color3::operator >>= (Value s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 & Color3::operator ++ () noexcept
+Color3 & Color3::operator ++ ()
 {
     ++r;
     ++g;
@@ -283,7 +283,7 @@ Color3 & Color3::operator ++ () noexcept
     return *this;
 }
 
-Color3 & Color3::operator -- () noexcept
+Color3 & Color3::operator -- ()
 {
     --r;
     --g;
@@ -292,7 +292,7 @@ Color3 & Color3::operator -- () noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 Color3::operator ++ (int) noexcept
+Color3 Color3::operator ++ (int)
 {
     Color3 state(*this);
     ++r;
@@ -301,7 +301,7 @@ Color3 Color3::operator ++ (int) noexcept
     return state;
 }
 
-Color3 Color3::operator -- (int) noexcept
+Color3 Color3::operator -- (int)
 {
     Color3 state(*this);
     --r;
@@ -311,176 +311,176 @@ Color3 Color3::operator -- (int) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 Color3::operator + (const Color3 & c) const noexcept
+Color3 Color3::operator + (const Color3 & c) const
 {
     return Color3(r + c.r, g + c.g, b + c.b);
 }
 
-Color3 Color3::operator - (const Color3 & c) const noexcept
+Color3 Color3::operator - (const Color3 & c) const
 {
     return Color3(r - c.r, g - c.g, b - c.b);
 }
 
-Color3 Color3::operator * (const Color3 & c) const noexcept
+Color3 Color3::operator * (const Color3 & c) const
 {
     return Color3(r * c.r, g * c.g, b * c.b);
 }
 
-Color3 Color3::operator / (const Color3 & c) const noexcept
+Color3 Color3::operator / (const Color3 & c) const
 {
     return Color3(r / c.r, g / c.g, b / c.b);
 }
 
-Color3 Color3::operator % (const Color3 & c) const noexcept
+Color3 Color3::operator % (const Color3 & c) const
 {
     return Color3(r % c.r, g % c.g, b % c.b);
 }
 
-Color3 Color3::operator & (const Color3 & c) const noexcept
+Color3 Color3::operator & (const Color3 & c) const
 {
     return Color3(r & c.r, g & c.g, b & c.b);
 }
 
-Color3 Color3::operator | (const Color3 & c) const noexcept
+Color3 Color3::operator | (const Color3 & c) const
 {
     return Color3(r | c.r, g | c.g, b | c.b);
 }
 
-Color3 Color3::operator ^ (const Color3 & c) const noexcept
+Color3 Color3::operator ^ (const Color3 & c) const
 {
     return Color3(r ^ c.r, g ^ c.g, b ^ c.b);
 }
 
-Color3 Color3::operator << (const Color3 & c) const noexcept
+Color3 Color3::operator << (const Color3 & c) const
 {
     return Color3(r << c.r, g << c.g, b << c.b);
 }
 
-Color3 Color3::operator >> (const Color3 & c) const noexcept
+Color3 Color3::operator >> (const Color3 & c) const
 {
     return Color3(r >> c.r, g >> c.g, b >> c.b);
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 Color3::operator + (Value s) const noexcept
+Color3 Color3::operator + (Value s) const
 {
     return Color3(r + s, g + s, b + s);
 }
 
-Color3 Color3::operator - (Value s) const noexcept
+Color3 Color3::operator - (Value s) const
 {
     return Color3(r - s, g - s, b - s);
 }
 
-Color3 Color3::operator * (Value s) const noexcept
+Color3 Color3::operator * (Value s) const
 {
     return Color3(r * s, g * s, b * s);
 }
 
-Color3 Color3::operator / (Value s) const noexcept
+Color3 Color3::operator / (Value s) const
 {
     return Color3(r / s, g / s, b / s);
 }
 
-Color3 Color3::operator % (Value s) const noexcept
+Color3 Color3::operator % (Value s) const
 {
     return Color3(r % s, g % s, b % s);
 }
 
-Color3 Color3::operator & (Value s) const noexcept
+Color3 Color3::operator & (Value s) const
 {
     return Color3(r & s, g & s, b & s);
 }
 
-Color3 Color3::operator | (Value s) const noexcept
+Color3 Color3::operator | (Value s) const
 {
     return Color3(r | s, g | s, b | s);
 }
 
-Color3 Color3::operator ^ (Value s) const noexcept
+Color3 Color3::operator ^ (Value s) const
 {
     return Color3(r ^ s, g ^ s, b ^ s);
 }
 
-Color3 Color3::operator << (Value s) const noexcept
+Color3 Color3::operator << (Value s) const
 {
     return Color3(r << s, g << s, b << s);
 }
 
-Color3 Color3::operator >> (Value s) const noexcept
+Color3 Color3::operator >> (Value s) const
 {
     return Color3(r >> s, g >> s, b >> s);
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 Color3::operator + () const noexcept
+Color3 Color3::operator + () const
 {
     return Color3(r, g, b);
 }
 
-Color3 Color3::operator - () const noexcept
+Color3 Color3::operator - () const
 {
     return Color3(0, 0, 0);
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 Color3::operator ~ () const noexcept
+Color3 Color3::operator ~ () const
 {
     return Color3(~r, ~g, ~b);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Color3::operator == (const Color3 & c) const noexcept
+bool Color3::operator == (const Color3 & c) const
 {
     return (r == c.r) && (g == c.g) && (b == c.b);
 }
 
-bool Color3::operator != (const Color3 & c) const noexcept
+bool Color3::operator != (const Color3 & c) const
 {
     return (r != c.r) && (g != c.g) && (b != c.b);
 }
 
-bool Color3::operator < (const Color3 & c) const noexcept
+bool Color3::operator < (const Color3 & c) const
 {
     return (r < c.r) && (g < c.g) && (b < c.b);
 }
 
-bool Color3::operator > (const Color3 & c) const noexcept
+bool Color3::operator > (const Color3 & c) const
 {
     return (r > c.r) && (g > c.g) && (b > c.b);
 }
 
-bool Color3::operator <= (const Color3 & c) const noexcept
+bool Color3::operator <= (const Color3 & c) const
 {
     return (r <= c.r) && (g <= c.g) && (b <= c.b);
 }
 
-bool Color3::operator >= (const Color3 & c) const noexcept
+bool Color3::operator >= (const Color3 & c) const
 {
     return (r >= c.r) && (g >= c.g) && (b >= c.b);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Color3::Cmp(const Color3 & c) const noexcept
+SQInteger Color3::Cmp(const Color3 & c) const
 {
     return *this == c ? 0 : (*this > c ? 1 : -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Color3::ToString() const noexcept
+const SQChar * Color3::ToString() const
 {
     return ToStringF("%u,%u,%u", r, g, b);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Set(Value ns) noexcept
+void Color3::Set(Value ns)
 {
     r = ns;
     g = ns;
     b = ns;
 }
 
-void Color3::Set(Value nr, Value ng, Value nb) noexcept
+void Color3::Set(Value nr, Value ng, Value nb)
 {
     r = nr;
     g = ng;
@@ -488,14 +488,14 @@ void Color3::Set(Value nr, Value ng, Value nb) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Set(const Color3 & c) noexcept
+void Color3::Set(const Color3 & c)
 {
     r = c.r;
     g = c.g;
     b = c.b;
 }
 
-void Color3::Set(const Color4 & c) noexcept
+void Color3::Set(const Color4 & c)
 {
     r = c.r;
     g = c.g;
@@ -503,24 +503,24 @@ void Color3::Set(const Color4 & c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Set(const SQChar * str, SQChar delim) noexcept
+void Color3::Set(const SQChar * str, SQChar delim)
 {
     Set(GetColor3(str, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::SetCol(const SQChar * name) noexcept
+void Color3::SetCol(const SQChar * name)
 {
     Set(GetColor(name));
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color3::GetRGB() const noexcept
+SQUint32 Color3::GetRGB() const
 {
     return static_cast<SQUint32>(r << 16 | g << 8 | b);
 }
 
-void Color3::SetRGB(SQUint32 p) noexcept
+void Color3::SetRGB(SQUint32 p)
 {
     r = static_cast<Value>((p >> 16) & 0xFF);
     g = static_cast<Value>((p >> 8) & 0xFF);
@@ -528,12 +528,12 @@ void Color3::SetRGB(SQUint32 p) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color3::GetRGBA() const noexcept
+SQUint32 Color3::GetRGBA() const
 {
     return static_cast<SQUint32>(r << 24 | g << 16 | b << 8 | 0x00);
 }
 
-void Color3::SetRGBA(SQUint32 p) noexcept
+void Color3::SetRGBA(SQUint32 p)
 {
     r = static_cast<Value>((p >> 24) & 0xFF);
     g = static_cast<Value>((p >> 16) & 0xFF);
@@ -541,12 +541,12 @@ void Color3::SetRGBA(SQUint32 p) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color3::GetARGB() const noexcept
+SQUint32 Color3::GetARGB() const
 {
     return static_cast<SQUint32>(0x00 << 24 | r << 16 | g << 8 | b);
 }
 
-void Color3::SetARGB(SQUint32 p) noexcept
+void Color3::SetARGB(SQUint32 p)
 {
     r = static_cast<Value>((p >> 16) & 0xFF);
     g = static_cast<Value>((p >> 8) & 0xFF);
@@ -554,14 +554,14 @@ void Color3::SetARGB(SQUint32 p) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Generate() noexcept
+void Color3::Generate()
 {
     r = RandomVal<Value>::Get();
     g = RandomVal<Value>::Get();
     b = RandomVal<Value>::Get();
 }
 
-void Color3::Generate(Value min, Value max) noexcept
+void Color3::Generate(Value min, Value max)
 {
     if (max < min)
     {
@@ -575,7 +575,7 @@ void Color3::Generate(Value min, Value max) noexcept
     }
 }
 
-void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax) noexcept
+void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin)
     {
@@ -590,13 +590,13 @@ void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Random() noexcept
+void Color3::Random()
 {
     Set(GetRandomColor());
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Inverse() noexcept
+void Color3::Inverse()
 {
     r = static_cast<Value>(~r);
     g = static_cast<Value>(~g);

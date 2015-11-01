@@ -21,37 +21,37 @@ static SHA256       g_EncodeSHA256;
 static SHA3         g_EncodeSHA3;
 
 // ------------------------------------------------------------------------------------------------
-String HashCRC32(const String & str) noexcept
+String HashCRC32(const String & str)
 {
     return g_EncodeCRC32(str);
 }
 
 // ------------------------------------------------------------------------------------------------
-String HashKeccak(const String & str) noexcept
+String HashKeccak(const String & str)
 {
     return g_EncodeKeccak(str);
 }
 
 // ------------------------------------------------------------------------------------------------
-String HashMD5(const String & str) noexcept
+String HashMD5(const String & str)
 {
     return g_EncodeMD5(str);
 }
 
 // ------------------------------------------------------------------------------------------------
-String HashSHA1(const String & str) noexcept
+String HashSHA1(const String & str)
 {
     return g_EncodeSHA1(str);
 }
 
 // ------------------------------------------------------------------------------------------------
-String HashSHA256(const String & str) noexcept
+String HashSHA256(const String & str)
 {
     return g_EncodeSHA256(str);
 }
 
 // ------------------------------------------------------------------------------------------------
-String HashSHA3(const String & str) noexcept
+String HashSHA3(const String & str)
 {
     return g_EncodeSHA3(str);
 }

@@ -15,58 +15,58 @@ const Color4 Color4::MAX = Color4(std::numeric_limits<Color4::Value>::max());
 SQChar Color4::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Color4::Color4() noexcept
+Color4::Color4()
     : r(0), g(0), b(0), a(0)
 {
 
 }
 
-Color4::Color4(Value s) noexcept
+Color4::Color4(Value s)
     : r(s), g(s), b(s), a(s)
 {
 
 }
 
-Color4::Color4(Value rv, Value gv, Value bv) noexcept
+Color4::Color4(Value rv, Value gv, Value bv)
     : r(rv), g(gv), b(bv), a(0)
 {
 
 }
 
-Color4::Color4(Value rv, Value gv, Value bv, Value av) noexcept
+Color4::Color4(Value rv, Value gv, Value bv, Value av)
     : r(rv), g(gv), b(bv), a(av)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4::Color4(const Color3 & c) noexcept
+Color4::Color4(const Color3 & c)
     : r(c.r), g(c.g), b(c.b), a(0)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4::Color4(const SQChar * name) noexcept
+Color4::Color4(const SQChar * name)
     : Color4(GetColor(name))
 {
 
 }
 
-Color4::Color4(const SQChar * str, SQChar delim) noexcept
+Color4::Color4(const SQChar * str, SQChar delim)
     : Color4(GetColor4(str, delim))
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4::Color4(const Color4 & c) noexcept
+Color4::Color4(const Color4 & c)
     : r(c.r), g(c.g), b(c.b), a(c.a)
 {
 
 }
 
-Color4::Color4(Color4 && c) noexcept
+Color4::Color4(Color4 && c)
     : r(c.r), g(c.g), b(c.b), a(c.a)
 {
 
@@ -79,7 +79,7 @@ Color4::~Color4()
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 & Color4::operator = (const Color4 & c) noexcept
+Color4 & Color4::operator = (const Color4 & c)
 {
     r = c.r;
     g = c.g;
@@ -88,7 +88,7 @@ Color4 & Color4::operator = (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator = (Color4 && c) noexcept
+Color4 & Color4::operator = (Color4 && c)
 {
     r = c.r;
     g = c.g;
@@ -98,7 +98,7 @@ Color4 & Color4::operator = (Color4 && c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 & Color4::operator = (Value s) noexcept
+Color4 & Color4::operator = (Value s)
 {
     r = s;
     g = s;
@@ -107,13 +107,13 @@ Color4 & Color4::operator = (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator = (const SQChar * name) noexcept
+Color4 & Color4::operator = (const SQChar * name)
 {
     Set(GetColor(name));
     return *this;
 }
 
-Color4 & Color4::operator = (const Color3 & c) noexcept
+Color4 & Color4::operator = (const Color3 & c)
 {
     r = c.r;
     g = c.g;
@@ -122,7 +122,7 @@ Color4 & Color4::operator = (const Color3 & c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 & Color4::operator += (const Color4 & c) noexcept
+Color4 & Color4::operator += (const Color4 & c)
 {
     r += c.r;
     g += c.g;
@@ -131,7 +131,7 @@ Color4 & Color4::operator += (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator -= (const Color4 & c) noexcept
+Color4 & Color4::operator -= (const Color4 & c)
 {
     r -= c.r;
     g -= c.g;
@@ -140,7 +140,7 @@ Color4 & Color4::operator -= (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator *= (const Color4 & c) noexcept
+Color4 & Color4::operator *= (const Color4 & c)
 {
     r *= c.r;
     g *= c.g;
@@ -149,7 +149,7 @@ Color4 & Color4::operator *= (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator /= (const Color4 & c) noexcept
+Color4 & Color4::operator /= (const Color4 & c)
 {
     r /= c.r;
     g /= c.g;
@@ -158,7 +158,7 @@ Color4 & Color4::operator /= (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator %= (const Color4 & c) noexcept
+Color4 & Color4::operator %= (const Color4 & c)
 {
     r %= c.r;
     g %= c.g;
@@ -167,7 +167,7 @@ Color4 & Color4::operator %= (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator &= (const Color4 & c) noexcept
+Color4 & Color4::operator &= (const Color4 & c)
 {
     r &= c.r;
     g &= c.g;
@@ -176,7 +176,7 @@ Color4 & Color4::operator &= (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator |= (const Color4 & c) noexcept
+Color4 & Color4::operator |= (const Color4 & c)
 {
     r |= c.r;
     g |= c.g;
@@ -185,7 +185,7 @@ Color4 & Color4::operator |= (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator ^= (const Color4 & c) noexcept
+Color4 & Color4::operator ^= (const Color4 & c)
 {
     r ^= c.r;
     g ^= c.g;
@@ -194,7 +194,7 @@ Color4 & Color4::operator ^= (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator <<= (const Color4 & c) noexcept
+Color4 & Color4::operator <<= (const Color4 & c)
 {
     r <<= c.r;
     g <<= c.g;
@@ -203,7 +203,7 @@ Color4 & Color4::operator <<= (const Color4 & c) noexcept
     return *this;
 }
 
-Color4 & Color4::operator >>= (const Color4 & c) noexcept
+Color4 & Color4::operator >>= (const Color4 & c)
 {
     r >>= c.r;
     g >>= c.g;
@@ -213,7 +213,7 @@ Color4 & Color4::operator >>= (const Color4 & c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 & Color4::operator += (Value s) noexcept
+Color4 & Color4::operator += (Value s)
 {
     r += s;
     g += s;
@@ -222,7 +222,7 @@ Color4 & Color4::operator += (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator -= (Value s) noexcept
+Color4 & Color4::operator -= (Value s)
 {
     r -= s;
     g -= s;
@@ -231,7 +231,7 @@ Color4 & Color4::operator -= (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator *= (Value s) noexcept
+Color4 & Color4::operator *= (Value s)
 {
     r *= s;
     g *= s;
@@ -240,7 +240,7 @@ Color4 & Color4::operator *= (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator /= (Value s) noexcept
+Color4 & Color4::operator /= (Value s)
 {
     r /= s;
     g /= s;
@@ -249,7 +249,7 @@ Color4 & Color4::operator /= (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator %= (Value s) noexcept
+Color4 & Color4::operator %= (Value s)
 {
     r %= s;
     g %= s;
@@ -258,7 +258,7 @@ Color4 & Color4::operator %= (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator &= (Value s) noexcept
+Color4 & Color4::operator &= (Value s)
 {
     r &= s;
     g &= s;
@@ -267,7 +267,7 @@ Color4 & Color4::operator &= (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator |= (Value s) noexcept
+Color4 & Color4::operator |= (Value s)
 {
     r |= s;
     g |= s;
@@ -276,7 +276,7 @@ Color4 & Color4::operator |= (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator ^= (Value s) noexcept
+Color4 & Color4::operator ^= (Value s)
 {
     r ^= s;
     g ^= s;
@@ -285,7 +285,7 @@ Color4 & Color4::operator ^= (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator <<= (Value s) noexcept
+Color4 & Color4::operator <<= (Value s)
 {
     r <<= s;
     g <<= s;
@@ -294,7 +294,7 @@ Color4 & Color4::operator <<= (Value s) noexcept
     return *this;
 }
 
-Color4 & Color4::operator >>= (Value s) noexcept
+Color4 & Color4::operator >>= (Value s)
 {
     r >>= s;
     g >>= s;
@@ -304,7 +304,7 @@ Color4 & Color4::operator >>= (Value s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 & Color4::operator ++ () noexcept
+Color4 & Color4::operator ++ ()
 {
     ++r;
     ++g;
@@ -313,7 +313,7 @@ Color4 & Color4::operator ++ () noexcept
     return *this;
 }
 
-Color4 & Color4::operator -- () noexcept
+Color4 & Color4::operator -- ()
 {
     --r;
     --g;
@@ -323,7 +323,7 @@ Color4 & Color4::operator -- () noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 Color4::operator ++ (int) noexcept
+Color4 Color4::operator ++ (int)
 {
     Color4 state(*this);
     ++r;
@@ -333,7 +333,7 @@ Color4 Color4::operator ++ (int) noexcept
     return state;
 }
 
-Color4 Color4::operator -- (int) noexcept
+Color4 Color4::operator -- (int)
 {
     Color4 state(*this);
     --r;
@@ -344,169 +344,169 @@ Color4 Color4::operator -- (int) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 Color4::operator + (const Color4 & c) const noexcept
+Color4 Color4::operator + (const Color4 & c) const
 {
     return Color4(r + c.r, g + c.g, b + c.b, a + c.a);
 }
 
-Color4 Color4::operator - (const Color4 & c) const noexcept
+Color4 Color4::operator - (const Color4 & c) const
 {
     return Color4(r - c.r, g - c.g, b - c.b, a - c.a);
 }
 
-Color4 Color4::operator * (const Color4 & c) const noexcept
+Color4 Color4::operator * (const Color4 & c) const
 {
     return Color4(r * c.r, g * c.g, b * c.b, a * c.a);
 }
 
-Color4 Color4::operator / (const Color4 & c) const noexcept
+Color4 Color4::operator / (const Color4 & c) const
 {
     return Color4(r / c.r, g / c.g, b / c.b, a / c.a);
 }
 
-Color4 Color4::operator % (const Color4 & c) const noexcept
+Color4 Color4::operator % (const Color4 & c) const
 {
     return Color4(r % c.r, g % c.g, b % c.b, a % c.a);
 }
 
-Color4 Color4::operator & (const Color4 & c) const noexcept
+Color4 Color4::operator & (const Color4 & c) const
 {
     return Color4(r & c.r, g & c.g, b & c.b, a & c.a);
 }
 
-Color4 Color4::operator | (const Color4 & c) const noexcept
+Color4 Color4::operator | (const Color4 & c) const
 {
     return Color4(r | c.r, g | c.g, b | c.b, a | c.a);
 }
 
-Color4 Color4::operator ^ (const Color4 & c) const noexcept
+Color4 Color4::operator ^ (const Color4 & c) const
 {
     return Color4(r ^ c.r, g ^ c.g, b ^ c.b, a ^ c.a);
 }
 
-Color4 Color4::operator << (const Color4 & c) const noexcept
+Color4 Color4::operator << (const Color4 & c) const
 {
     return Color4(r << c.r, g << c.g, b << c.b, a << c.a);
 }
 
-Color4 Color4::operator >> (const Color4 & c) const noexcept
+Color4 Color4::operator >> (const Color4 & c) const
 {
     return Color4(r >> c.r, g >> c.g, b >> c.b, a >> c.a);
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 Color4::operator + (Value s) const noexcept
+Color4 Color4::operator + (Value s) const
 {
     return Color4(r + s, g + s, b + s, a + s);
 }
 
-Color4 Color4::operator - (Value s) const noexcept
+Color4 Color4::operator - (Value s) const
 {
     return Color4(r - s, g - s, b - s, a - s);
 }
 
-Color4 Color4::operator * (Value s) const noexcept
+Color4 Color4::operator * (Value s) const
 {
     return Color4(r * s, g * s, b * s, a * s);
 }
 
-Color4 Color4::operator / (Value s) const noexcept
+Color4 Color4::operator / (Value s) const
 {
     return Color4(r / s, g / s, b / s, a / s);
 }
 
-Color4 Color4::operator % (Value s) const noexcept
+Color4 Color4::operator % (Value s) const
 {
     return Color4(r % s, g % s, b % s, a % s);
 }
 
-Color4 Color4::operator & (Value s) const noexcept
+Color4 Color4::operator & (Value s) const
 {
     return Color4(r & s, g & s, b & s, a & s);
 }
 
-Color4 Color4::operator | (Value s) const noexcept
+Color4 Color4::operator | (Value s) const
 {
     return Color4(r | s, g | s, b | s, a | s);
 }
 
-Color4 Color4::operator ^ (Value s) const noexcept
+Color4 Color4::operator ^ (Value s) const
 {
     return Color4(r ^ s, g ^ s, b ^ s, a ^ s);
 }
 
-Color4 Color4::operator << (Value s) const noexcept
+Color4 Color4::operator << (Value s) const
 {
     return Color4(r << s, g << s, b << s, a << s);
 }
 
-Color4 Color4::operator >> (Value s) const noexcept
+Color4 Color4::operator >> (Value s) const
 {
     return Color4(r >> s, g >> s, b >> s, a >> s);
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 Color4::operator + () const noexcept
+Color4 Color4::operator + () const
 {
     return Color4(r, g, b, a);
 }
 
-Color4 Color4::operator - () const noexcept
+Color4 Color4::operator - () const
 {
     return Color4(0, 0, 0, 0);
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 Color4::operator ~ () const noexcept
+Color4 Color4::operator ~ () const
 {
     return Color4(~r, ~g, ~b, ~a);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Color4::operator == (const Color4 & c) const noexcept
+bool Color4::operator == (const Color4 & c) const
 {
     return (r == c.r) && (g == c.g) && (b == c.b) && (a == c.a);
 }
 
-bool Color4::operator != (const Color4 & c) const noexcept
+bool Color4::operator != (const Color4 & c) const
 {
     return (r != c.r) && (g != c.g) && (b != c.b) && (a != c.a);
 }
 
-bool Color4::operator < (const Color4 & c) const noexcept
+bool Color4::operator < (const Color4 & c) const
 {
     return (r < c.r) && (g < c.g) && (b < c.b) && (a < c.a);
 }
 
-bool Color4::operator > (const Color4 & c) const noexcept
+bool Color4::operator > (const Color4 & c) const
 {
     return (r > c.r) && (g > c.g) && (b > c.b) && (a > c.a);
 }
 
-bool Color4::operator <= (const Color4 & c) const noexcept
+bool Color4::operator <= (const Color4 & c) const
 {
     return (r <= c.r) && (g <= c.g) && (b <= c.b) && (a <= c.a);
 }
 
-bool Color4::operator >= (const Color4 & c) const noexcept
+bool Color4::operator >= (const Color4 & c) const
 {
     return (r >= c.r) && (g >= c.g) && (b >= c.b) && (a >= c.a);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Color4::Cmp(const Color4 & c) const noexcept
+SQInteger Color4::Cmp(const Color4 & c) const
 {
     return *this == c ? 0 : (*this > c ? 1 : -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Color4::ToString() const noexcept
+const SQChar * Color4::ToString() const
 {
     return ToStringF("%u,%u,%u,%u", r, g, b, a);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Set(Value ns) noexcept
+void Color4::Set(Value ns)
 {
     r = ns;
     g = ns;
@@ -514,14 +514,14 @@ void Color4::Set(Value ns) noexcept
     a = ns;
 }
 
-void Color4::Set(Value nr, Value ng, Value nb) noexcept
+void Color4::Set(Value nr, Value ng, Value nb)
 {
     r = nr;
     g = ng;
     b = nb;
 }
 
-void Color4::Set(Value nr, Value ng, Value nb, Value na) noexcept
+void Color4::Set(Value nr, Value ng, Value nb, Value na)
 {
     r = nr;
     g = ng;
@@ -530,7 +530,7 @@ void Color4::Set(Value nr, Value ng, Value nb, Value na) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Set(const Color4 & c) noexcept
+void Color4::Set(const Color4 & c)
 {
     r = c.r;
     g = c.g;
@@ -538,7 +538,7 @@ void Color4::Set(const Color4 & c) noexcept
     a = c.a;
 }
 
-void Color4::Set(const Color3 & c) noexcept
+void Color4::Set(const Color3 & c)
 {
     r = c.r;
     g = c.g;
@@ -547,24 +547,24 @@ void Color4::Set(const Color3 & c) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Set(const SQChar * str, SQChar delim) noexcept
+void Color4::Set(const SQChar * str, SQChar delim)
 {
     Set(GetColor4(str, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetCol(const SQChar * name) noexcept
+void Color4::SetCol(const SQChar * name)
 {
     Set(GetColor(name));
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color4::GetRGB() const noexcept
+SQUint32 Color4::GetRGB() const
 {
     return static_cast<SQUint32>(r << 16 | g << 8 | b);
 }
 
-void Color4::SetRGB(SQUint32 p) noexcept
+void Color4::SetRGB(SQUint32 p)
 {
     r = static_cast<Value>((p >> 16) & 0xFF);
     g = static_cast<Value>((p >> 8) & 0xFF);
@@ -572,12 +572,12 @@ void Color4::SetRGB(SQUint32 p) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color4::GetRGBA() const noexcept
+SQUint32 Color4::GetRGBA() const
 {
     return static_cast<SQUint32>(r << 24 | g << 16 | b << 8 | a);
 }
 
-void Color4::SetRGBA(SQUint32 p) noexcept
+void Color4::SetRGBA(SQUint32 p)
 {
     r = static_cast<Value>((p >> 24) & 0xFF);
     g = static_cast<Value>((p >> 16) & 0xFF);
@@ -586,12 +586,12 @@ void Color4::SetRGBA(SQUint32 p) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color4::GetARGB() const noexcept
+SQUint32 Color4::GetARGB() const
 {
     return static_cast<SQUint32>(a << 24 | r << 16 | g << 8 | b);
 }
 
-void Color4::SetARGB(SQUint32 p) noexcept
+void Color4::SetARGB(SQUint32 p)
 {
     a = static_cast<Value>((p >> 24) & 0xFF);
     r = static_cast<Value>((p >> 16) & 0xFF);
@@ -600,7 +600,7 @@ void Color4::SetARGB(SQUint32 p) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Generate() noexcept
+void Color4::Generate()
 {
     r = RandomVal<Value>::Get();
     g = RandomVal<Value>::Get();
@@ -608,7 +608,7 @@ void Color4::Generate() noexcept
     a = RandomVal<Value>::Get();
 }
 
-void Color4::Generate(Value min, Value max) noexcept
+void Color4::Generate(Value min, Value max)
 {
     if (max < min)
     {
@@ -623,7 +623,7 @@ void Color4::Generate(Value min, Value max) noexcept
     }
 }
 
-void Color4::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax, Value amin, Value amax) noexcept
+void Color4::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax, Value amin, Value amax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin || amax < amin)
     {
@@ -639,13 +639,13 @@ void Color4::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Random() noexcept
+void Color4::Random()
 {
     Set(GetRandomColor());
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Inverse() noexcept
+void Color4::Inverse()
 {
     r = static_cast<Value>(~r);
     g = static_cast<Value>(~g);

@@ -51,7 +51,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Construct the filter for the specified event.
     */
-    LocalFilter(LocalEvent * evt) noexcept
+    LocalFilter(LocalEvent * evt)
         : m_Filter(), m_Event(evt)
     {
         /* The filter is empty so there's nothing to hook to at this moment! */
@@ -80,7 +80,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator
     */
-    LocalFilter< T > & operator = (const LocalFilter< T > & o) noexcept;
+    LocalFilter< T > & operator = (const LocalFilter< T > & o);
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator (disabled)
@@ -90,7 +90,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convert this class to an integer with the count of the filtered entities
     */
-    operator SQInt32 () const noexcept
+    operator SQInt32 () const
     {
         return _SCI32(m_Filter.count());
     }
@@ -98,7 +98,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script to compare two instances of this type.
     */
-    SQInt32 Cmp(const LocalFilter< T > & o) const noexcept
+    SQInt32 Cmp(const LocalFilter< T > & o) const
     {
         // Rule out equality first
         if (m_Filter.count() == o.m_Filter.count())
@@ -119,7 +119,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script to convert this type to a string.
     */
-    String ToString() const noexcept
+    String ToString() const
     {
         return NToS(m_Filter.count());
     }
@@ -127,12 +127,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Include the specified entity in the filter.
     */
-    bool Include(const RefType & ent, SQInt32 header) noexcept;
+    bool Include(const RefType & ent, SQInt32 header);
 
     /* --------------------------------------------------------------------------------------------
      * Include the specified entity in the filter.
     */
-    bool Include(const RefType & ent) noexcept
+    bool Include(const RefType & ent)
     {
         return Include(ent, 0);
     }
@@ -140,12 +140,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Exclude the specified entity from the filter.
     */
-    bool Exclude(const RefType & ent, SQInt32 header) noexcept;
+    bool Exclude(const RefType & ent, SQInt32 header);
 
     /* --------------------------------------------------------------------------------------------
      * Exclude the specified entity from the filter.
     */
-    bool Exclude(const RefType & ent) noexcept
+    bool Exclude(const RefType & ent)
     {
         return Exclude(ent, 0);
     }
@@ -153,7 +153,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Test whether the specified entity is included in the filter.
     */
-    bool Enabled(const RefType & ent) const noexcept
+    bool Enabled(const RefType & ent) const
     {
         if (ent)
         {
@@ -171,7 +171,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all the entities included in the filter.
     */
-    SQInt32 Count() const noexcept
+    SQInt32 Count() const
     {
         return _SCI32(m_Filter.count());
     }
@@ -179,17 +179,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Remove all the entities included in the filter.
     */
-    void Clear(SQInt32 header) noexcept;
+    void Clear(SQInt32 header);
 
     /* --------------------------------------------------------------------------------------------
      * Reverse the filter to exclude currently include entities.
     */
-    void Flip(SQInt32 header) noexcept;
+    void Flip(SQInt32 header);
 
     /* --------------------------------------------------------------------------------------------
      * Test whether we have any entity included in this filter?
     */
-    bool Any() const noexcept
+    bool Any() const
     {
         return m_Filter.any();
     }
@@ -197,7 +197,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Test whether we have no entity included in this filter?
     */
-    bool None() const noexcept
+    bool None() const
     {
         return m_Filter.none();
     }
@@ -205,7 +205,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Test whether we have all entities included in this filter?
     */
-    bool All() const noexcept
+    bool All() const
     {
         return m_Filter.all();
     }
@@ -213,7 +213,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Exclude the entity from filter when the parent event isn't attached to the destroy signal.
     */
-    void Destroyed(SQInt32 id, SQInt32 /* header */, Object & /* payload */) noexcept
+    void Destroyed(SQInt32 id, SQInt32 /* header */, Object & /* payload */)
     {
         Release(id);
     }
@@ -223,17 +223,17 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Used by either the parent event or it self to release an entity from the filter.
     */
-    void Release(SQInt32 id) noexcept;
+    void Release(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * Hook to the entity destroy signal that the parent didn't.
     */
-    void Hook() noexcept;
+    void Hook();
 
     /* --------------------------------------------------------------------------------------------
      * Unhook from the entity destroy signal that the parent didn't.
     */
-    void Unhook() noexcept;
+    void Unhook();
 
 private:
 
@@ -274,17 +274,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    LocalEvent() noexcept;
+    LocalEvent();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    LocalEvent(SQInt32 type) noexcept;
+    LocalEvent(SQInt32 type);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    LocalEvent(SQInt32 type, bool suspended) noexcept;
+    LocalEvent(SQInt32 type, bool suspended);
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -314,37 +314,37 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator == (const LocalEvent & o) const noexcept;
+    bool operator == (const LocalEvent & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator != (const LocalEvent & o) const noexcept;
+    bool operator != (const LocalEvent & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator < (const LocalEvent & o) const noexcept;
+    bool operator < (const LocalEvent & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator > (const LocalEvent & o) const noexcept;
+    bool operator > (const LocalEvent & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator <= (const LocalEvent & o) const noexcept;
+    bool operator <= (const LocalEvent & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator >= (const LocalEvent & o) const noexcept;
+    bool operator >= (const LocalEvent & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator SQInt32 () const noexcept
+    operator SQInt32 () const
     {
         return m_Type;
     }
@@ -352,7 +352,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator bool () const noexcept
+    operator bool () const
     {
         return (m_Type != EVT_UNKNOWN && m_Type < EVT_COUNT);
     }
@@ -360,7 +360,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator ! () const noexcept
+    operator ! () const
     {
         return (m_Type == EVT_UNKNOWN || m_Type >= EVT_COUNT);
     }
@@ -368,714 +368,714 @@ public:
     /* --------------------------------------------------------------------------------------------
       * ...
      */
-    void VMClose() noexcept;
+    void VMClose();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 Cmp(const LocalEvent & o) const noexcept;
+    SQInt32 Cmp(const LocalEvent & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    const SQChar * GetName() const noexcept;
+    const SQChar * GetName() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    const SQChar * GetTag() const noexcept;
+    const SQChar * GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetTag(const SQChar * tag) noexcept;
+    void SetTag(const SQChar * tag);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SqObj & GetData() noexcept;
+    SqObj & GetData();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetData(SqObj & data) noexcept;
+    void SetData(SqObj & data);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetType() const noexcept;
+    SQInt32 GetType() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetType(SQInt32 type) noexcept;
+    void SetType(SQInt32 type);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInteger GetIdle() const noexcept;
+    SQInteger GetIdle() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetIdle(SQInteger millis) noexcept;
+    void SetIdle(SQInteger millis);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool IsIdle() const noexcept;
+    bool IsIdle() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetStride() const noexcept;
+    SQInt32 GetStride() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetStride(SQInt32 stride) noexcept;
+    void SetStride(SQInt32 stride);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetIgnore() const noexcept;
+    SQInt32 GetIgnore() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetIgnore(SQInt32 ignore) noexcept;
+    void SetIgnore(SQInt32 ignore);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetPrimary() const noexcept;
+    SQInt32 GetPrimary() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetPrimary(SQInt32 subset) noexcept;
+    void SetPrimary(SQInt32 subset);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetSecondary() const noexcept;
+    SQInt32 GetSecondary() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetSecondary(SQInt32 subset) noexcept;
+    void SetSecondary(SQInt32 subset);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool GetInversed() const noexcept;
+    bool GetInversed() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetInversed(bool toggle) noexcept;
+    void SetInversed(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool GetSuspended() const noexcept;
+    bool GetSuspended() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetSuspended(bool toggle) noexcept;
+    void SetSuspended(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnTrigger() const noexcept;
+    Function GetOnTrigger() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnTrigger(Function & func) noexcept;
+    void SetOnTrigger(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnTrigger_Env(SqObj & env, Function & func) noexcept;
+    void SetOnTrigger_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnInclude() const noexcept;
+    Function GetOnInclude() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnInclude(Function & func) noexcept;
+    void SetOnInclude(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnInclude_Env(SqObj & env, Function & func) noexcept;
+    void SetOnInclude_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnExclude() const noexcept;
+    Function GetOnExclude() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnExclude(Function & func) noexcept;
+    void SetOnExclude(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnExclude_Env(SqObj & env, Function & func) noexcept;
+    void SetOnExclude_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnCleared() const noexcept;
+    Function GetOnCleared() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnCleared(Function & func) noexcept;
+    void SetOnCleared(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnCleared_Env(SqObj & env, Function & func) noexcept;
+    void SetOnCleared_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    Function GetOnRelease() const noexcept;
+    Function GetOnRelease() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnRelease(Function & func) noexcept;
+    void SetOnRelease(Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetOnRelease_Env(SqObj & env, Function & func) noexcept;
+    void SetOnRelease_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool Compatible(SQInt32 type) const noexcept;
+    bool Compatible(SQInt32 type) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    BlipFilter & GetBlipFilter() noexcept;
+    BlipFilter & GetBlipFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CheckpointFilter & GetCheckpointFilter() noexcept;
+    CheckpointFilter & GetCheckpointFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    KeybindFilter & GetKeybindFilter() noexcept;
+    KeybindFilter & GetKeybindFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    ObjectFilter & GetObjectFilter() noexcept;
+    ObjectFilter & GetObjectFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    PickupFilter & GetPickupFilter() noexcept;
+    PickupFilter & GetPickupFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    PlayerFilter & GetPlayerFilter() noexcept;
+    PlayerFilter & GetPlayerFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SphereFilter & GetSphereFilter() noexcept;
+    SphereFilter & GetSphereFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SpriteFilter & GetSpriteFilter() noexcept;
+    SpriteFilter & GetSpriteFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    TextdrawFilter & GetTextdrawFilter() noexcept;
+    TextdrawFilter & GetTextdrawFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    VehicleFilter & GetVehicleFilter() noexcept;
+    VehicleFilter & GetVehicleFilter();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload) noexcept;
+    void BlipDestroyed(SQInt32 blip, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept;
+    void CheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload) noexcept;
+    void KeybindDestroyed(SQInt32 keybind, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload) noexcept;
+    void ObjectDestroyed(SQInt32 object, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload) noexcept;
+    void PickupDestroyed(SQInt32 pickup, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload) noexcept;
+    void PlayerDestroyed(SQInt32 player, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload) noexcept;
+    void SphereDestroyed(SQInt32 sphere, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload) noexcept;
+    void SpriteDestroyed(SQInt32 sprite, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept;
+    void TextdrawDestroyed(SQInt32 textdraw, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept;
+    void VehicleDestroyed(SQInt32 vehicle, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BlipCustom(SQInt32 blip, SQInt32 header, Object & payload) noexcept;
+    void BlipCustom(SQInt32 blip, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & payload) noexcept;
+    void CheckpointCustom(SQInt32 checkpoint, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload) noexcept;
+    void KeybindCustom(SQInt32 keybind, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ObjectCustom(SQInt32 object, SQInt32 header, Object & payload) noexcept;
+    void ObjectCustom(SQInt32 object, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload) noexcept;
+    void PickupCustom(SQInt32 pickup, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerCustom(SQInt32 player, SQInt32 header, Object & payload) noexcept;
+    void PlayerCustom(SQInt32 player, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload) noexcept;
+    void SphereCustom(SQInt32 sphere, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload) noexcept;
+    void SpriteCustom(SQInt32 sprite, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payload) noexcept;
+    void TextdrawCustom(SQInt32 textdraw, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload) noexcept;
+    void VehicleCustom(SQInt32 vehicle, SQInt32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerAway(SQInt32 player, bool status) noexcept;
+    void PlayerAway(SQInt32 player, bool status);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept;
+    void PlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerRename(SQInt32 player, const SQChar * previous, const SQChar * current) noexcept;
+    void PlayerRename(SQInt32 player, const SQChar * previous, const SQChar * current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerRequestClass(SQInt32 player, SQInt32 offset) noexcept;
+    void PlayerRequestClass(SQInt32 player, SQInt32 offset);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerRequestSpawn(SQInt32 player) noexcept;
+    void PlayerRequestSpawn(SQInt32 player);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerSpawn(SQInt32 player) noexcept;
+    void PlayerSpawn(SQInt32 player);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerStartTyping(SQInt32 player) noexcept;
+    void PlayerStartTyping(SQInt32 player);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerStopTyping(SQInt32 player) noexcept;
+    void PlayerStopTyping(SQInt32 player);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerChat(SQInt32 player, const SQChar * message) noexcept;
+    void PlayerChat(SQInt32 player, const SQChar * message);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerCommand(SQInt32 player, const SQChar * command) noexcept;
+    void PlayerCommand(SQInt32 player, const SQChar * command);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message) noexcept;
+    void PlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current) noexcept;
+    void PlayerHealth(SQInt32 player, SQFloat previous, SQFloat current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current) noexcept;
+    void PlayerArmour(SQInt32 player, SQFloat previous, SQFloat current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept;
+    void PlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current) noexcept;
+    void PlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerWasted(SQInt32 player, SQInt32 reason) noexcept;
+    void PlayerWasted(SQInt32 player, SQInt32 reason);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept;
+    void PlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept;
+    void PlayerTeamKill(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerSpectate(SQInt32 player, SQInt32 target) noexcept;
+    void PlayerSpectate(SQInt32 player, SQInt32 target);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerCrashreport(SQInt32 player, const SQChar * report) noexcept;
+    void PlayerCrashreport(SQInt32 player, const SQChar * report);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerBurning(SQInt32 player, bool state) noexcept;
+    void PlayerBurning(SQInt32 player, bool state);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerCrouching(SQInt32 player, bool state) noexcept;
+    void PlayerCrouching(SQInt32 player, bool state);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept;
+    void PlayerState(SQInt32 player, SQInt32 previous, SQInt32 current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept;
+    void PlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void StateNone(SQInt32 player, SQInt32 previous) noexcept;
+    void StateNone(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void StateNormal(SQInt32 player, SQInt32 previous) noexcept;
+    void StateNormal(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void StateShooting(SQInt32 player, SQInt32 previous) noexcept;
+    void StateShooting(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void StateDriver(SQInt32 player, SQInt32 previous) noexcept;
+    void StateDriver(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void StatePassenger(SQInt32 player, SQInt32 previous) noexcept;
+    void StatePassenger(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void StateEnterDriver(SQInt32 player, SQInt32 previous) noexcept;
+    void StateEnterDriver(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void StateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept;
+    void StateEnterPassenger(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void StateExitVehicle(SQInt32 player, SQInt32 previous) noexcept;
+    void StateExitVehicle(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void StateUnspawned(SQInt32 player, SQInt32 previous) noexcept;
+    void StateUnspawned(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionNone(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionNone(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionNormal(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionNormal(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionAiming(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionAiming(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionShooting(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionShooting(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionJumping(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionJumping(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionLieDown(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionLieDown(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionGettingUp(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionGettingUp(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionJumpVehicle(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionDriving(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionDriving(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionDying(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionDying(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionWasted(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionWasted(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionEmbarking(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionEmbarking(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ActionDisembarking(SQInt32 player, SQInt32 previous) noexcept;
+    void ActionDisembarking(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void VehicleRespawn(SQInt32 vehicle) noexcept;
+    void VehicleRespawn(SQInt32 vehicle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void VehicleExplode(SQInt32 vehicle) noexcept;
+    void VehicleExplode(SQInt32 vehicle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current) noexcept;
+    void VehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 &current) noexcept;
+    void VehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 &current);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PickupRespawn(SQInt32 pickup) noexcept;
+    void PickupRespawn(SQInt32 pickup);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void KeybindKeyPress(SQInt32 player, SQInt32 keybind) noexcept;
+    void KeybindKeyPress(SQInt32 player, SQInt32 keybind);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void KeybindKeyRelease(SQInt32 player, SQInt32 keybind) noexcept;
+    void KeybindKeyRelease(SQInt32 player, SQInt32 keybind);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept;
+    void VehicleEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept;
+    void VehicleEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void VehicleDisembark(SQInt32 player, SQInt32 vehicle) noexcept;
+    void VehicleDisembark(SQInt32 player, SQInt32 vehicle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PickupClaimed(SQInt32 player, SQInt32 pickup) noexcept;
+    void PickupClaimed(SQInt32 player, SQInt32 pickup);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void PickupCollected(SQInt32 player, SQInt32 pickup) noexcept;
+    void PickupCollected(SQInt32 player, SQInt32 pickup);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noexcept;
+    void ObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void ObjectBump(SQInt32 player, SQInt32 object) noexcept;
+    void ObjectBump(SQInt32 player, SQInt32 object);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void CheckpointEntered(SQInt32 player, SQInt32 checkpoint) noexcept;
+    void CheckpointEntered(SQInt32 player, SQInt32 checkpoint);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void CheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept;
+    void CheckpointExited(SQInt32 player, SQInt32 checkpoint);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SphereEntered(SQInt32 player, SQInt32 sphere) noexcept;
+    void SphereEntered(SQInt32 player, SQInt32 sphere);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SphereExited(SQInt32 player, SQInt32 sphere) noexcept;
+    void SphereExited(SQInt32 player, SQInt32 sphere);
 
 protected:
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool Trigger() noexcept;
+    bool Trigger();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Attach() noexcept;
+    void Attach();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Attach(SQInt32 id) noexcept;
+    void Attach(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Detach() noexcept;
+    void Detach();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Detach(SQInt32 id) noexcept;
+    void Detach(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Hook() noexcept;
+    void Hook();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Unhook() noexcept;
+    void Unhook();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Adaptable(SQInt32 type, bool inversed) noexcept;
+    void Adaptable(SQInt32 type, bool inversed);
 
 private:
 
@@ -1122,7 +1122,7 @@ private:
 };
 
 // ------------------------------------------------------------------------------------------------
-template < class T > LocalFilter< T > & LocalFilter< T >::operator = (const LocalFilter< T > & o) noexcept
+template < class T > LocalFilter< T > & LocalFilter< T >::operator = (const LocalFilter< T > & o)
 {
     // Make sure we're not doing self assignment or incompatible events
     if (this != &o && EntType::InEvent(m_Event->m_Type, m_Event->m_Inversed))
@@ -1140,7 +1140,7 @@ template < class T > LocalFilter< T > & LocalFilter< T >::operator = (const Loca
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > bool LocalFilter< T >::Include(const RefType & ent, SQInt32 header) noexcept
+template < class T > bool LocalFilter< T >::Include(const RefType & ent, SQInt32 header)
 {
     // Make sure the entity is valid before we proceed
     if (!ent)
@@ -1188,7 +1188,7 @@ template < class T > bool LocalFilter< T >::Include(const RefType & ent, SQInt32
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > bool LocalFilter< T >::Exclude(const RefType & ent, SQInt32 header) noexcept
+template < class T > bool LocalFilter< T >::Exclude(const RefType & ent, SQInt32 header)
 {
     // Make sure the entity is valid before we proceed
     if (!ent)
@@ -1236,7 +1236,7 @@ template < class T > bool LocalFilter< T >::Exclude(const RefType & ent, SQInt32
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > void LocalFilter< T >::Clear(SQInt32 header) noexcept
+template < class T > void LocalFilter< T >::Clear(SQInt32 header)
 {
     // Make sure the filter is compatible with the specified event type
     if (!EntType::InEvent(m_Event->m_Type, m_Event->m_Inversed))
@@ -1261,7 +1261,7 @@ template < class T > void LocalFilter< T >::Clear(SQInt32 header) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > void LocalFilter< T >::Flip(SQInt32 header) noexcept
+template < class T > void LocalFilter< T >::Flip(SQInt32 header)
 {
     // Make sure the filter is compatible with the parent event type
     if (!EntType::InEvent(m_Event->m_Type, m_Event->m_Inversed))
@@ -1283,7 +1283,7 @@ template < class T > void LocalFilter< T >::Flip(SQInt32 header) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > void LocalFilter< T >::Release(SQInt32 id) noexcept
+template < class T > void LocalFilter< T >::Release(SQInt32 id)
 {
     // Do we have to notify someone that this entity is about to be released?
     if (!m_Event->m_OnRelease.IsNull())
@@ -1295,7 +1295,7 @@ template < class T > void LocalFilter< T >::Release(SQInt32 id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > void LocalFilter< T >::Hook() noexcept
+template < class T > void LocalFilter< T >::Hook()
 {
     // No iterators here because we're dealing with a bitset!
     unsigned i = 0;
@@ -1322,7 +1322,7 @@ template < class T > void LocalFilter< T >::Hook() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > void LocalFilter< T >::Unhook() noexcept
+template < class T > void LocalFilter< T >::Unhook()
 {
     // No iterators here because we're dealing with a bitset!
     unsigned i = 0;

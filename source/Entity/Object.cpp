@@ -15,14 +15,14 @@ Vector3      CObject::s_Vector3;
 Quaternion   CObject::s_Quaternion;
 
 // ------------------------------------------------------------------------------------------------
-CObject::CObject(const Reference< CObject > & o) noexcept
+CObject::CObject(const Reference< CObject > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CObject::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
+bool CObject::IsStreamedFor(const Reference< CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -41,7 +41,7 @@ bool CObject::IsStreamedFor(const Reference< CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const CModel & CObject::GetModel() const noexcept
+const CModel & CObject::GetModel() const
 {
     // Clear any previous model
     s_Model.SetID(SQMOD_UNKNOWN);
@@ -59,7 +59,7 @@ const CModel & CObject::GetModel() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CObject::GetModelID() const noexcept
+SQInt32 CObject::GetModelID() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -74,7 +74,7 @@ SQInt32 CObject::GetModelID() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CObject::GetWorld() const noexcept
+SQInt32 CObject::GetWorld() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -89,7 +89,7 @@ SQInt32 CObject::GetWorld() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetWorld(SQInt32 world) const noexcept
+void CObject::SetWorld(SQInt32 world) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -102,7 +102,7 @@ void CObject::SetWorld(SQInt32 world) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CObject::GetAlpha() const noexcept
+SQInt32 CObject::GetAlpha() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -117,7 +117,7 @@ SQInt32 CObject::GetAlpha() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetAlpha(SQInt32 alpha) const noexcept
+void CObject::SetAlpha(SQInt32 alpha) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -130,7 +130,7 @@ void CObject::SetAlpha(SQInt32 alpha) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetAlphaEx(SQInt32 alpha, SQInt32 time) const noexcept
+void CObject::SetAlphaEx(SQInt32 alpha, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -143,7 +143,7 @@ void CObject::SetAlphaEx(SQInt32 alpha, SQInt32 time) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveToPr(const Vector3 & pos) const noexcept
+void CObject::MoveToPr(const Vector3 & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -156,7 +156,7 @@ void CObject::MoveToPr(const Vector3 & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveTo(const Vector3 & pos, SQInt32 time) const noexcept
+void CObject::MoveTo(const Vector3 & pos, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -169,7 +169,7 @@ void CObject::MoveTo(const Vector3 & pos, SQInt32 time) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveToEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CObject::MoveToEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -182,7 +182,7 @@ void CObject::MoveToEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveToEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const noexcept
+void CObject::MoveToEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -195,7 +195,7 @@ void CObject::MoveToEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const noex
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveByPr(const Vector3 & pos) const noexcept
+void CObject::MoveByPr(const Vector3 & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -208,7 +208,7 @@ void CObject::MoveByPr(const Vector3 & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveBy(const Vector3 & pos, SQInt32 time) const noexcept
+void CObject::MoveBy(const Vector3 & pos, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -221,7 +221,7 @@ void CObject::MoveBy(const Vector3 & pos, SQInt32 time) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveByEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CObject::MoveByEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -234,7 +234,7 @@ void CObject::MoveByEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveByEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const noexcept
+void CObject::MoveByEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -247,7 +247,7 @@ void CObject::MoveByEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const noex
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CObject::GetPosition() noexcept
+const Vector3 & CObject::GetPosition()
 {
     // Clear any previous position
     s_Vector3.Clear();
@@ -265,7 +265,7 @@ const Vector3 & CObject::GetPosition() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetPosition(const Vector3 & pos) const noexcept
+void CObject::SetPosition(const Vector3 & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -278,7 +278,7 @@ void CObject::SetPosition(const Vector3 & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CObject::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -291,7 +291,7 @@ void CObject::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToPr(const Quaternion & rot) const noexcept
+void CObject::RotateToPr(const Quaternion & rot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -304,7 +304,7 @@ void CObject::RotateToPr(const Quaternion & rot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateTo(const Quaternion & rot, SQInt32 time) const noexcept
+void CObject::RotateTo(const Quaternion & rot, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -317,7 +317,7 @@ void CObject::RotateTo(const Quaternion & rot, SQInt32 time) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const noexcept
+void CObject::RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -330,7 +330,7 @@ void CObject::RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const noexc
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 time) const noexcept
+void CObject::RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -343,7 +343,7 @@ void CObject::RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 tim
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEulerPr(const Vector3 & rot) const noexcept
+void CObject::RotateToEulerPr(const Vector3 & rot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -356,7 +356,7 @@ void CObject::RotateToEulerPr(const Vector3 & rot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEuler(const Vector3 & rot, SQInt32 time) const noexcept
+void CObject::RotateToEuler(const Vector3 & rot, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -369,7 +369,7 @@ void CObject::RotateToEuler(const Vector3 & rot, SQInt32 time) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CObject::RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -382,7 +382,7 @@ void CObject::RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const noexcept
+void CObject::RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -395,7 +395,7 @@ void CObject::RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) con
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByPr(const Quaternion & rot) const noexcept
+void CObject::RotateByPr(const Quaternion & rot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -408,7 +408,7 @@ void CObject::RotateByPr(const Quaternion & rot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateBy(const Quaternion & rot, SQInt32 time) const noexcept
+void CObject::RotateBy(const Quaternion & rot, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -421,7 +421,7 @@ void CObject::RotateBy(const Quaternion & rot, SQInt32 time) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const noexcept
+void CObject::RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -434,7 +434,7 @@ void CObject::RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const noexc
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 time) const noexcept
+void CObject::RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -447,7 +447,7 @@ void CObject::RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 tim
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEulerPr(const Vector3 & rot) const noexcept
+void CObject::RotateByEulerPr(const Vector3 & rot) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -460,7 +460,7 @@ void CObject::RotateByEulerPr(const Vector3 & rot) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEuler(const Vector3 & rot, SQInt32 time) const noexcept
+void CObject::RotateByEuler(const Vector3 & rot, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -473,7 +473,7 @@ void CObject::RotateByEuler(const Vector3 & rot, SQInt32 time) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CObject::RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -486,7 +486,7 @@ void CObject::RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const noexcept
+void CObject::RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -499,7 +499,7 @@ void CObject::RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) con
 }
 
 // ------------------------------------------------------------------------------------------------
-const Quaternion & CObject::GetRotation() noexcept
+const Quaternion & CObject::GetRotation()
 {
     // Clear any previous rotation
     s_Quaternion.Clear();
@@ -517,7 +517,7 @@ const Quaternion & CObject::GetRotation() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CObject::GetRotationEuler() noexcept
+const Vector3 & CObject::GetRotationEuler()
 {
     // Clear any previous rotation
     s_Vector3.Clear();
@@ -535,7 +535,7 @@ const Vector3 & CObject::GetRotationEuler() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CObject::GetShotReport() const noexcept
+bool CObject::GetShotReport() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -550,7 +550,7 @@ bool CObject::GetShotReport() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetShotReport(bool toggle) const noexcept
+void CObject::SetShotReport(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -563,7 +563,7 @@ void CObject::SetShotReport(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CObject::GetBumpReport() const noexcept
+bool CObject::GetBumpReport() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -578,7 +578,7 @@ bool CObject::GetBumpReport() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetBumpReport(bool toggle) const noexcept
+void CObject::SetBumpReport(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -593,7 +593,7 @@ void CObject::SetBumpReport(bool toggle) const noexcept
 // ------------------------------------------------------------------------------------------------
 Reference< CObject > CreateBaseObject_PEF(SQInt32 model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha) noexcept
+                        SQInt32 alpha)
 {
     return _Core->NewObject(model, world, x, y, z, alpha,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -602,7 +602,7 @@ Reference< CObject > CreateBaseObject_PEF(SQInt32 model, SQInt32 world,
 Reference< CObject > CreateBaseObject_PEF(SQInt32 model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewObject(model, world, x, y, z, alpha,
                             header, payload);
@@ -610,7 +610,7 @@ Reference< CObject > CreateBaseObject_PEF(SQInt32 model, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CObject > CreateBaseObject_PCF(SQInt32 model, SQInt32 world,
-                        const Vector3 & pos, SQInt32 alpha) noexcept
+                        const Vector3 & pos, SQInt32 alpha)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -618,7 +618,7 @@ Reference< CObject > CreateBaseObject_PCF(SQInt32 model, SQInt32 world,
 
 Reference< CObject > CreateBaseObject_PCF(SQInt32 model, SQInt32 world,
                         const Vector3 & pos, SQInt32 alpha,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             header, payload);
@@ -627,7 +627,7 @@ Reference< CObject > CreateBaseObject_PCF(SQInt32 model, SQInt32 world,
 // ------------------------------------------------------------------------------------------------
 Reference< CObject > CreateBaseObject_EF(const CModel & model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha) noexcept
+                        SQInt32 alpha)
 {
     return _Core->NewObject(model, world, x, y, z, alpha,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -636,7 +636,7 @@ Reference< CObject > CreateBaseObject_EF(const CModel & model, SQInt32 world,
 Reference< CObject > CreateBaseObject_EF(const CModel & model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewObject(model, world, x, y, z, alpha,
                             header, payload);
@@ -644,7 +644,7 @@ Reference< CObject > CreateBaseObject_EF(const CModel & model, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 Reference< CObject > CreateBaseObject_CF(const CModel & model, SQInt32 world,
-                        const Vector3 & pos, SQInt32 alpha) noexcept
+                        const Vector3 & pos, SQInt32 alpha)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -652,7 +652,7 @@ Reference< CObject > CreateBaseObject_CF(const CModel & model, SQInt32 world,
 
 Reference< CObject > CreateBaseObject_CF(const CModel & model, SQInt32 world,
                         const Vector3 & pos, SQInt32 alpha,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             header, payload);
@@ -661,7 +661,7 @@ Reference< CObject > CreateBaseObject_CF(const CModel & model, SQInt32 world,
 // ------------------------------------------------------------------------------------------------
 CObject CreateObject_PEF(SQInt32 model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha) noexcept
+                        SQInt32 alpha)
 {
     return _Core->NewObject(model, world, x, y, z, alpha,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -670,7 +670,7 @@ CObject CreateObject_PEF(SQInt32 model, SQInt32 world,
 CObject CreateObject_PEF(SQInt32 model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewObject(model, world, x, y, z, alpha,
                             header, payload);
@@ -678,7 +678,7 @@ CObject CreateObject_PEF(SQInt32 model, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 CObject CreateObject_PCF(SQInt32 model, SQInt32 world,
-                        const Vector3 & pos, SQInt32 alpha) noexcept
+                        const Vector3 & pos, SQInt32 alpha)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -686,7 +686,7 @@ CObject CreateObject_PCF(SQInt32 model, SQInt32 world,
 
 CObject CreateObject_PCF(SQInt32 model, SQInt32 world,
                         const Vector3 & pos, SQInt32 alpha,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             header, payload);
@@ -695,7 +695,7 @@ CObject CreateObject_PCF(SQInt32 model, SQInt32 world,
 // ------------------------------------------------------------------------------------------------
 CObject CreateObject_EF(const CModel & model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha) noexcept
+                        SQInt32 alpha)
 {
     return _Core->NewObject(model, world, x, y, z, alpha,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -704,7 +704,7 @@ CObject CreateObject_EF(const CModel & model, SQInt32 world,
 CObject CreateObject_EF(const CModel & model, SQInt32 world,
                         SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewObject(model, world, x, y, z, alpha,
                             header, payload);
@@ -712,7 +712,7 @@ CObject CreateObject_EF(const CModel & model, SQInt32 world,
 
 // ------------------------------------------------------------------------------------------------
 CObject CreateObject_CF(const CModel & model, SQInt32 world,
-                        const Vector3 & pos, SQInt32 alpha) noexcept
+                        const Vector3 & pos, SQInt32 alpha)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             SQMOD_CREATE_DEFAULT, NullData());
@@ -720,7 +720,7 @@ CObject CreateObject_CF(const CModel & model, SQInt32 world,
 
 CObject CreateObject_CF(const CModel & model, SQInt32 world,
                         const Vector3 & pos, SQInt32 alpha,
-                        SQInt32 header, SqObj & payload) noexcept
+                        SQInt32 header, SqObj & payload)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             header, payload);

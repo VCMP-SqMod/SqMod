@@ -11,7 +11,7 @@ namespace SqMod {
 using namespace Sqrat;
 
 // ------------------------------------------------------------------------------------------------
-bool RegisterAPI(HSQUIRRELVM vm) noexcept;
+bool RegisterAPI(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 bool Register_AABB(HSQUIRRELVM vm);

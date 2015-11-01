@@ -22,47 +22,47 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a reference from a base reference.
     */
-    CBlip(const Reference< CBlip > & o) noexcept;
+    CBlip(const Reference< CBlip > & o);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the referenced blip instance exists.
     */
-    SQInteger GetWorld() const noexcept;
+    SQInteger GetWorld() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the scale of the referenced blip instance.
     */
-    SQInteger GetScale() const noexcept;
+    SQInteger GetScale() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the referenced blip instance.
     */
-    const Vector3 & GetPosition() const noexcept;
+    const Vector3 & GetPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the x axis position of the referenced blip instance.
     */
-    SQFloat GetPositionX() const noexcept;
+    SQFloat GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the y axis position of the referenced blip instance.
     */
-    SQFloat GetPositionY() const noexcept;
+    SQFloat GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the z axis position of the referenced blip instance.
     */
-    SQFloat GetPositionZ() const noexcept;
+    SQFloat GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the color of the referenced blip instance.
     */
-    const Color4 & GetColor() const noexcept;
+    const Color4 & GetColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the sprite identifier of the referenced blip instance.
     */
-    SQInt32 GetSprID() const noexcept;
+    SQInt32 GetSprID() const;
 };
 
 } // Namespace:: SqMod

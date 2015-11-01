@@ -27,13 +27,13 @@ private:
     friend class std::unique_ptr<Logger, void(*)(Logger *)>;
 
     // --------------------------------------------------------------------------------------------
-    Logger() noexcept;
+    Logger();
 
     // --------------------------------------------------------------------------------------------
     ~Logger();
 
     // --------------------------------------------------------------------------------------------
-    static void _Finalizer(Logger * ptr) noexcept;
+    static void _Finalizer(Logger * ptr);
 
     // --------------------------------------------------------------------------------------------
 public:
@@ -41,7 +41,7 @@ public:
     typedef std::unique_ptr<Logger, void(*)(Logger *)>    Pointer;
 
     // --------------------------------------------------------------------------------------------
-    static Pointer Inst() noexcept;
+    static Pointer Inst();
 
     // --------------------------------------------------------------------------------------------
     bool Init();
@@ -55,70 +55,70 @@ public:
     void Terminate();
 
     // --------------------------------------------------------------------------------------------
-    void ToggleConsoleTime(bool enabled) noexcept;
-    void ToggleFileTime(bool enabled) noexcept;
-    bool HasConsoleTime() const noexcept;
-    bool HasFileTime() const noexcept;
+    void ToggleConsoleTime(bool enabled);
+    void ToggleFileTime(bool enabled);
+    bool HasConsoleTime() const;
+    bool HasFileTime() const;
 
     // --------------------------------------------------------------------------------------------
-    void SetConsoleLevels(Uint8 levels) noexcept;
-    void SetFileLevels(Uint8 levels) noexcept;
-    Uint8 GetConsoleLevels() const noexcept;
-    Uint8 GetFileLevels() const noexcept;
+    void SetConsoleLevels(Uint8 levels);
+    void SetFileLevels(Uint8 levels);
+    Uint8 GetConsoleLevels() const;
+    Uint8 GetFileLevels() const;
 
     // --------------------------------------------------------------------------------------------
-    void EnableConsoleLevel(Uint8 level) noexcept;
-    void EnableFileLevel(Uint8 level) noexcept;
-    void DisableConsoleLevel(Uint8 level) noexcept;
-    void DisableFileLevel(Uint8 level) noexcept;
+    void EnableConsoleLevel(Uint8 level);
+    void EnableFileLevel(Uint8 level);
+    void DisableConsoleLevel(Uint8 level);
+    void DisableFileLevel(Uint8 level);
 
     // --------------------------------------------------------------------------------------------
-    Uint8 GetDebugLevel() const noexcept;
-    void SetDebugLevel(Uint8 level) noexcept;
+    Uint8 GetDebugLevel() const;
+    void SetDebugLevel(Uint8 level);
 
     // --------------------------------------------------------------------------------------------
-    SQInt32 GetVerbosity() const noexcept;
-    void SetVerbosity(SQInt32 level) noexcept;
+    SQInt32 GetVerbosity() const;
+    void SetVerbosity(SQInt32 level);
 
 public:
     // --------------------------------------------------------------------------------------------
-    void Send(Uint8 type, bool sub, const char * fmt, va_list args) noexcept;
+    void Send(Uint8 type, bool sub, const char * fmt, va_list args);
 
     // --------------------------------------------------------------------------------------------
-    void Dbg(const char * fmt, ...) noexcept;
-    void Msg(const char * fmt, ...) noexcept;
-    void Scs(const char * fmt, ...) noexcept;
-    void Inf(const char * fmt, ...) noexcept;
-    void Wrn(const char * fmt, ...) noexcept;
-    void Err(const char * fmt, ...) noexcept;
-    void Ftl(const char * fmt, ...) noexcept;
+    void Dbg(const char * fmt, ...);
+    void Msg(const char * fmt, ...);
+    void Scs(const char * fmt, ...);
+    void Inf(const char * fmt, ...);
+    void Wrn(const char * fmt, ...);
+    void Err(const char * fmt, ...);
+    void Ftl(const char * fmt, ...);
 
     // --------------------------------------------------------------------------------------------
-    void SDbg(const char * fmt, ...) noexcept;
-    void SMsg(const char * fmt, ...) noexcept;
-    void SScs(const char * fmt, ...) noexcept;
-    void SInf(const char * fmt, ...) noexcept;
-    void SWrn(const char * fmt, ...) noexcept;
-    void SErr(const char * fmt, ...) noexcept;
-    void SFtl(const char * fmt, ...) noexcept;
+    void SDbg(const char * fmt, ...);
+    void SMsg(const char * fmt, ...);
+    void SScs(const char * fmt, ...);
+    void SInf(const char * fmt, ...);
+    void SWrn(const char * fmt, ...);
+    void SErr(const char * fmt, ...);
+    void SFtl(const char * fmt, ...);
 
     // --------------------------------------------------------------------------------------------
-    bool cDbg(bool cond, const char * fmt, ...) noexcept;
-    bool cMsg(bool cond, const char * fmt, ...) noexcept;
-    bool cScs(bool cond, const char * fmt, ...) noexcept;
-    bool cInf(bool cond, const char * fmt, ...) noexcept;
-    bool cWrn(bool cond, const char * fmt, ...) noexcept;
-    bool cErr(bool cond, const char * fmt, ...) noexcept;
-    bool cFtl(bool cond, const char * fmt, ...) noexcept;
+    bool cDbg(bool cond, const char * fmt, ...);
+    bool cMsg(bool cond, const char * fmt, ...);
+    bool cScs(bool cond, const char * fmt, ...);
+    bool cInf(bool cond, const char * fmt, ...);
+    bool cWrn(bool cond, const char * fmt, ...);
+    bool cErr(bool cond, const char * fmt, ...);
+    bool cFtl(bool cond, const char * fmt, ...);
 
     // --------------------------------------------------------------------------------------------
-    bool cSDbg(bool cond, const char * fmt, ...) noexcept;
-    bool cSMsg(bool cond, const char * fmt, ...) noexcept;
-    bool cSScs(bool cond, const char * fmt, ...) noexcept;
-    bool cSInf(bool cond, const char * fmt, ...) noexcept;
-    bool cSWrn(bool cond, const char * fmt, ...) noexcept;
-    bool cSErr(bool cond, const char * fmt, ...) noexcept;
-    bool cSFtl(bool cond, const char * fmt, ...) noexcept;
+    bool cSDbg(bool cond, const char * fmt, ...);
+    bool cSMsg(bool cond, const char * fmt, ...);
+    bool cSScs(bool cond, const char * fmt, ...);
+    bool cSInf(bool cond, const char * fmt, ...);
+    bool cSWrn(bool cond, const char * fmt, ...);
+    bool cSErr(bool cond, const char * fmt, ...);
+    bool cSFtl(bool cond, const char * fmt, ...);
 
 private:
     // --------------------------------------------------------------------------------------------

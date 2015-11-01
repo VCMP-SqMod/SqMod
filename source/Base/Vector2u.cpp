@@ -16,52 +16,52 @@ const Vector2u Vector2u::MAX = Vector2u(std::numeric_limits<Vector2u::Value>::ma
 SQChar Vector2u::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Vector2u::Vector2u() noexcept
+Vector2u::Vector2u()
     : x(0), y(0)
 {
 
 }
 
-Vector2u::Vector2u(Value s) noexcept
+Vector2u::Vector2u(Value s)
     : x(s), y(s)
 {
 
 }
 
-Vector2u::Vector2u(Value xv, Value yv) noexcept
+Vector2u::Vector2u(Value xv, Value yv)
     : x(xv), y(yv)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u::Vector2u(const Vector2i & v) noexcept
+Vector2u::Vector2u(const Vector2i & v)
     : x(static_cast<Value>(v.x)), y(static_cast<Value>(v.y))
 {
 
 }
 
-Vector2u::Vector2u(const Vector2f & v) noexcept
+Vector2u::Vector2u(const Vector2f & v)
     : x(static_cast<Value>(v.x)), y(static_cast<Value>(v.y))
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u::Vector2u(const SQChar * values, SQChar delim) noexcept
+Vector2u::Vector2u(const SQChar * values, SQChar delim)
     : Vector2u(GetVector2u(values, delim))
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u::Vector2u(const Vector2u & v) noexcept
+Vector2u::Vector2u(const Vector2u & v)
     : x(v.x), y(v.y)
 {
 
 }
 
-Vector2u::Vector2u(Vector2u && v) noexcept
+Vector2u::Vector2u(Vector2u && v)
     : x(v.x), y(v.y)
 {
 
@@ -74,14 +74,14 @@ Vector2u::~Vector2u()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u & Vector2u::operator = (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator = (const Vector2u & v)
 {
     x = v.x;
     y = v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator = (Vector2u && v) noexcept
+Vector2u & Vector2u::operator = (Vector2u && v)
 {
     x = v.x;
     y = v.y;
@@ -89,27 +89,27 @@ Vector2u & Vector2u::operator = (Vector2u && v) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u & Vector2u::operator = (Value s) noexcept
+Vector2u & Vector2u::operator = (Value s)
 {
     x = s;
     y = s;
     return *this;
 }
 
-Vector2u & Vector2u::operator = (const SQChar * values) noexcept
+Vector2u & Vector2u::operator = (const SQChar * values)
 {
     Set(GetVector2i(values, Delim));
     return *this;
 }
 
-Vector2u & Vector2u::operator = (const Vector2i & v) noexcept
+Vector2u & Vector2u::operator = (const Vector2i & v)
 {
     x = static_cast<Value>(v.x);
     y = static_cast<Value>(v.y);
     return *this;
 }
 
-Vector2u & Vector2u::operator = (const Vector2f & v) noexcept
+Vector2u & Vector2u::operator = (const Vector2f & v)
 {
     x = static_cast<Value>(v.x);
     y = static_cast<Value>(v.y);
@@ -117,70 +117,70 @@ Vector2u & Vector2u::operator = (const Vector2f & v) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u & Vector2u::operator += (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator += (const Vector2u & v)
 {
     x += v.x;
     y += v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator -= (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator -= (const Vector2u & v)
 {
     x -= v.x;
     y -= v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator *= (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator *= (const Vector2u & v)
 {
     x *= v.x;
     y *= v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator /= (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator /= (const Vector2u & v)
 {
     x /= v.x;
     y /= v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator %= (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator %= (const Vector2u & v)
 {
     x %= v.x;
     y %= v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator &= (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator &= (const Vector2u & v)
 {
     x &= v.x;
     y &= v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator |= (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator |= (const Vector2u & v)
 {
     x |= v.x;
     y |= v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator ^= (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator ^= (const Vector2u & v)
 {
     x ^= v.x;
     y ^= v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator <<= (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator <<= (const Vector2u & v)
 {
     x <<= v.x;
     y <<= v.y;
     return *this;
 }
 
-Vector2u & Vector2u::operator >>= (const Vector2u & v) noexcept
+Vector2u & Vector2u::operator >>= (const Vector2u & v)
 {
     x >>= v.x;
     y >>= v.y;
@@ -188,70 +188,70 @@ Vector2u & Vector2u::operator >>= (const Vector2u & v) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u & Vector2u::operator += (Value s) noexcept
+Vector2u & Vector2u::operator += (Value s)
 {
     x += s;
     y += s;
     return *this;
 }
 
-Vector2u & Vector2u::operator -= (Value s) noexcept
+Vector2u & Vector2u::operator -= (Value s)
 {
     x -= s;
     y -= s;
     return *this;
 }
 
-Vector2u & Vector2u::operator *= (Value s) noexcept
+Vector2u & Vector2u::operator *= (Value s)
 {
     x *= s;
     y *= s;
     return *this;
 }
 
-Vector2u & Vector2u::operator /= (Value s) noexcept
+Vector2u & Vector2u::operator /= (Value s)
 {
     x /= s;
     y /= s;
     return *this;
 }
 
-Vector2u & Vector2u::operator %= (Value s) noexcept
+Vector2u & Vector2u::operator %= (Value s)
 {
     x %= s;
     y %= s;
     return *this;
 }
 
-Vector2u & Vector2u::operator &= (Value s) noexcept
+Vector2u & Vector2u::operator &= (Value s)
 {
     x &= s;
     y &= s;
     return *this;
 }
 
-Vector2u & Vector2u::operator |= (Value s) noexcept
+Vector2u & Vector2u::operator |= (Value s)
 {
     x |= s;
     y |= s;
     return *this;
 }
 
-Vector2u & Vector2u::operator ^= (Value s) noexcept
+Vector2u & Vector2u::operator ^= (Value s)
 {
     x ^= s;
     y ^= s;
     return *this;
 }
 
-Vector2u & Vector2u::operator <<= (Value s) noexcept
+Vector2u & Vector2u::operator <<= (Value s)
 {
     x <<= s;
     y <<= s;
     return *this;
 }
 
-Vector2u & Vector2u::operator >>= (Value s) noexcept
+Vector2u & Vector2u::operator >>= (Value s)
 {
     x >>= s;
     y >>= s;
@@ -259,14 +259,14 @@ Vector2u & Vector2u::operator >>= (Value s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u & Vector2u::operator ++ () noexcept
+Vector2u & Vector2u::operator ++ ()
 {
     ++x;
     ++y;
     return *this;
 }
 
-Vector2u & Vector2u::operator -- () noexcept
+Vector2u & Vector2u::operator -- ()
 {
     --x;
     --y;
@@ -274,7 +274,7 @@ Vector2u & Vector2u::operator -- () noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u Vector2u::operator ++ (int) noexcept
+Vector2u Vector2u::operator ++ (int)
 {
     Vector2i state(*this);
     ++x;
@@ -282,7 +282,7 @@ Vector2u Vector2u::operator ++ (int) noexcept
     return state;
 }
 
-Vector2u Vector2u::operator -- (int) noexcept
+Vector2u Vector2u::operator -- (int)
 {
     Vector2i state(*this);
     --x;
@@ -291,213 +291,213 @@ Vector2u Vector2u::operator -- (int) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u Vector2u::operator + (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator + (const Vector2u & v) const
 {
     return Vector2i(x + v.x, y + v.y);
 }
 
-Vector2u Vector2u::operator - (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator - (const Vector2u & v) const
 {
     return Vector2i(x - v.x, y - v.y);
 }
 
-Vector2u Vector2u::operator * (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator * (const Vector2u & v) const
 {
     return Vector2i(x * v.x, y * v.y);
 }
 
-Vector2u Vector2u::operator / (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator / (const Vector2u & v) const
 {
     return Vector2i(x / v.x, y / v.y);
 }
 
-Vector2u Vector2u::operator % (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator % (const Vector2u & v) const
 {
     return Vector2i(x % v.x, y % v.y);
 }
 
-Vector2u Vector2u::operator & (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator & (const Vector2u & v) const
 {
     return Vector2i(x & v.x, y & v.y);
 }
 
-Vector2u Vector2u::operator | (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator | (const Vector2u & v) const
 {
     return Vector2i(x | v.x, y | v.y);
 }
 
-Vector2u Vector2u::operator ^ (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator ^ (const Vector2u & v) const
 {
     return Vector2i(x ^ v.x, y ^ v.y);
 }
 
-Vector2u Vector2u::operator << (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator << (const Vector2u & v) const
 {
     return Vector2i(x << v.x, y << v.y);
 }
 
-Vector2u Vector2u::operator >> (const Vector2u & v) const noexcept
+Vector2u Vector2u::operator >> (const Vector2u & v) const
 {
     return Vector2i(x >> v.x, y >> v.y);
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u Vector2u::operator + (Value s) const noexcept
+Vector2u Vector2u::operator + (Value s) const
 {
     return Vector2i(x + s, y + s);
 }
 
-Vector2u Vector2u::operator - (Value s) const noexcept
+Vector2u Vector2u::operator - (Value s) const
 {
     return Vector2i(x - s, y - s);
 }
 
-Vector2u Vector2u::operator * (Value s) const noexcept
+Vector2u Vector2u::operator * (Value s) const
 {
     return Vector2i(x - s, y - s);
 }
 
-Vector2u Vector2u::operator / (Value s) const noexcept
+Vector2u Vector2u::operator / (Value s) const
 {
     return Vector2i(x / s, y / s);
 }
 
-Vector2u Vector2u::operator % (Value s) const noexcept
+Vector2u Vector2u::operator % (Value s) const
 {
     return Vector2i(x % s, y % s);
 }
 
-Vector2u Vector2u::operator & (Value s) const noexcept
+Vector2u Vector2u::operator & (Value s) const
 {
     return Vector2i(x & s, y & s);
 }
 
-Vector2u Vector2u::operator | (Value s) const noexcept
+Vector2u Vector2u::operator | (Value s) const
 {
     return Vector2i(x | s, y | s);
 }
 
-Vector2u Vector2u::operator ^ (Value s) const noexcept
+Vector2u Vector2u::operator ^ (Value s) const
 {
     return Vector2i(x ^ s, y ^ s);
 }
 
-Vector2u Vector2u::operator << (Value s) const noexcept
+Vector2u Vector2u::operator << (Value s) const
 {
     return Vector2i(x << s, y << s);
 }
 
-Vector2u Vector2u::operator >> (Value s) const noexcept
+Vector2u Vector2u::operator >> (Value s) const
 {
     return Vector2i(x >> s, y >> s);
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u Vector2u::operator + () const noexcept
+Vector2u Vector2u::operator + () const
 {
     return Vector2i(x, y);
 }
 
-Vector2u Vector2u::operator - () const noexcept
+Vector2u Vector2u::operator - () const
 {
     return Vector2i(0, 0);
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u Vector2u::operator ~ () const noexcept
+Vector2u Vector2u::operator ~ () const
 {
     return Vector2i(~x, ~y);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Vector2u::operator == (const Vector2u & v) const noexcept
+bool Vector2u::operator == (const Vector2u & v) const
 {
     return (x == v.x) && (y == v.y);
 }
 
-bool Vector2u::operator != (const Vector2u & v) const noexcept
+bool Vector2u::operator != (const Vector2u & v) const
 {
     return (x != v.x) && (y != v.y);
 }
 
-bool Vector2u::operator < (const Vector2u & v) const noexcept
+bool Vector2u::operator < (const Vector2u & v) const
 {
     return (x < v.x) && (y < v.y);
 }
 
-bool Vector2u::operator > (const Vector2u & v) const noexcept
+bool Vector2u::operator > (const Vector2u & v) const
 {
     return (x > v.x) && (y > v.y);
 }
 
-bool Vector2u::operator <= (const Vector2u & v) const noexcept
+bool Vector2u::operator <= (const Vector2u & v) const
 {
     return (x <= v.x) && (y <= v.y);
 }
 
-bool Vector2u::operator >= (const Vector2u & v) const noexcept
+bool Vector2u::operator >= (const Vector2u & v) const
 {
     return (x >= v.x) && (y >= v.y);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Vector2u::Cmp(const Vector2u & v) const noexcept
+SQInteger Vector2u::Cmp(const Vector2u & v) const
 {
     return *this == v ? 0 : (*this > v ? 1 : -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Vector2u::ToString() const noexcept
+const SQChar * Vector2u::ToString() const
 {
     return ToStringF("%u,%u", x, y);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2u::Set(Value ns) noexcept
+void Vector2u::Set(Value ns)
 {
     x = ns;
     y = ns;
 }
 
-void Vector2u::Set(Value nx, Value ny) noexcept
+void Vector2u::Set(Value nx, Value ny)
 {
     x = nx;
     y = ny;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2u::Set(const Vector2u & v) noexcept
+void Vector2u::Set(const Vector2u & v)
 {
     x = v.x;
     y = v.y;
 }
 
-void Vector2u::Set(const Vector2i & v) noexcept
+void Vector2u::Set(const Vector2i & v)
 {
     x = static_cast<SQInt32>(v.x);
     y = static_cast<SQInt32>(v.y);
 }
 
-void Vector2u::Set(const Vector2f & v) noexcept
+void Vector2u::Set(const Vector2f & v)
 {
     x = static_cast<SQInt32>(v.x);
     y = static_cast<SQInt32>(v.y);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2u::Set(const SQChar * values, SQChar delim) noexcept
+void Vector2u::Set(const SQChar * values, SQChar delim)
 {
     Set(GetVector2i(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2u::Generate() noexcept
+void Vector2u::Generate()
 {
     x = RandomVal<Value>::Get();
     y = RandomVal<Value>::Get();
 }
 
-void Vector2u::Generate(Value min, Value max) noexcept
+void Vector2u::Generate(Value min, Value max)
 {
     if (max < min)
     {
@@ -510,7 +510,7 @@ void Vector2u::Generate(Value min, Value max) noexcept
     }
 }
 
-void Vector2u::Generate(Value xmin, Value xmax, Value ymin, Value ymax) noexcept
+void Vector2u::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (xmax < xmin || ymax < ymin)
     {
@@ -524,7 +524,7 @@ void Vector2u::Generate(Value xmin, Value xmax, Value ymin, Value ymax) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2u Vector2u::Abs() const noexcept
+Vector2u Vector2u::Abs() const
 {
     return Vector2i(x, y);
 }

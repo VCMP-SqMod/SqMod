@@ -23,89 +23,89 @@ struct Vector4
     // --------------------------------------------------------------------------------------------
     Value x, y, z, w;
     // --------------------------------------------------------------------------------------------
-    Vector4() noexcept;
-    Vector4(Value s) noexcept;
-    Vector4(Value xv, Value yv, Value zv) noexcept;
-    Vector4(Value xv, Value yv, Value zv, Value wv) noexcept;
+    Vector4();
+    Vector4(Value s);
+    Vector4(Value xv, Value yv, Value zv);
+    Vector4(Value xv, Value yv, Value zv, Value wv);
     // --------------------------------------------------------------------------------------------
-    Vector4(const Vector3 & v) noexcept;
-    Vector4(const Quaternion & q) noexcept;
+    Vector4(const Vector3 & v);
+    Vector4(const Quaternion & q);
     // --------------------------------------------------------------------------------------------
-    Vector4(const SQChar * values, SQChar delim) noexcept;
+    Vector4(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    Vector4(const Vector4 & v) noexcept;
-    Vector4(Vector4 && v) noexcept;
+    Vector4(const Vector4 & v);
+    Vector4(Vector4 && v);
     // --------------------------------------------------------------------------------------------
     ~Vector4();
     // --------------------------------------------------------------------------------------------
-    Vector4 & operator = (const Vector4 & v) noexcept;
-    Vector4 & operator = (Vector4 && v) noexcept;
+    Vector4 & operator = (const Vector4 & v);
+    Vector4 & operator = (Vector4 && v);
     // --------------------------------------------------------------------------------------------
-    Vector4 & operator = (Value s) noexcept;
-    Vector4 & operator = (const Vector3 & v) noexcept;
-    Vector4 & operator = (const Quaternion & q) noexcept;
+    Vector4 & operator = (Value s);
+    Vector4 & operator = (const Vector3 & v);
+    Vector4 & operator = (const Quaternion & q);
     // --------------------------------------------------------------------------------------------
-    Vector4 & operator += (const Vector4 & v) noexcept;
-    Vector4 & operator -= (const Vector4 & v) noexcept;
-    Vector4 & operator *= (const Vector4 & v) noexcept;
-    Vector4 & operator /= (const Vector4 & v) noexcept;
-    Vector4 & operator %= (const Vector4 & v) noexcept;
+    Vector4 & operator += (const Vector4 & v);
+    Vector4 & operator -= (const Vector4 & v);
+    Vector4 & operator *= (const Vector4 & v);
+    Vector4 & operator /= (const Vector4 & v);
+    Vector4 & operator %= (const Vector4 & v);
     // --------------------------------------------------------------------------------------------
-    Vector4 & operator += (Value s) noexcept;
-    Vector4 & operator -= (Value s) noexcept;
-    Vector4 & operator *= (Value s) noexcept;
-    Vector4 & operator /= (Value s) noexcept;
-    Vector4 & operator %= (Value s) noexcept;
+    Vector4 & operator += (Value s);
+    Vector4 & operator -= (Value s);
+    Vector4 & operator *= (Value s);
+    Vector4 & operator /= (Value s);
+    Vector4 & operator %= (Value s);
     // --------------------------------------------------------------------------------------------
-    Vector4 & operator ++ () noexcept;
-    Vector4 & operator -- () noexcept;
+    Vector4 & operator ++ ();
+    Vector4 & operator -- ();
     // --------------------------------------------------------------------------------------------
-    Vector4 operator ++ (int) noexcept;
-    Vector4 operator -- (int) noexcept; 
+    Vector4 operator ++ (int);
+    Vector4 operator -- (int); 
     // --------------------------------------------------------------------------------------------
-    Vector4 operator + (const Vector4 & v) const noexcept;
-    Vector4 operator - (const Vector4 & v) const noexcept;
-    Vector4 operator * (const Vector4 & v) const noexcept;
-    Vector4 operator / (const Vector4 & v) const noexcept;
-    Vector4 operator % (const Vector4 & v) const noexcept;
+    Vector4 operator + (const Vector4 & v) const;
+    Vector4 operator - (const Vector4 & v) const;
+    Vector4 operator * (const Vector4 & v) const;
+    Vector4 operator / (const Vector4 & v) const;
+    Vector4 operator % (const Vector4 & v) const;
     // --------------------------------------------------------------------------------------------
-    Vector4 operator + (Value s) const noexcept;
-    Vector4 operator - (Value s) const noexcept;
-    Vector4 operator * (Value s) const noexcept;
-    Vector4 operator / (Value s) const noexcept;
-    Vector4 operator % (Value s) const noexcept;
+    Vector4 operator + (Value s) const;
+    Vector4 operator - (Value s) const;
+    Vector4 operator * (Value s) const;
+    Vector4 operator / (Value s) const;
+    Vector4 operator % (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector4 operator + () const noexcept;
-    Vector4 operator - () const noexcept;
+    Vector4 operator + () const;
+    Vector4 operator - () const;
     // --------------------------------------------------------------------------------------------
-    bool operator == (const Vector4 & v) const noexcept;
-    bool operator != (const Vector4 & v) const noexcept;
-    bool operator < (const Vector4 & v) const noexcept;
-    bool operator > (const Vector4 & v) const noexcept;
-    bool operator <= (const Vector4 & v) const noexcept;
-    bool operator >= (const Vector4 & v) const noexcept;
+    bool operator == (const Vector4 & v) const;
+    bool operator != (const Vector4 & v) const;
+    bool operator < (const Vector4 & v) const;
+    bool operator > (const Vector4 & v) const;
+    bool operator <= (const Vector4 & v) const;
+    bool operator >= (const Vector4 & v) const;
     // --------------------------------------------------------------------------------------------
-    SQInteger Cmp(const Vector4 & v) const noexcept;
+    SQInteger Cmp(const Vector4 & v) const;
     // --------------------------------------------------------------------------------------------
-    const SQChar * ToString() const noexcept;
+    const SQChar * ToString() const;
     // --------------------------------------------------------------------------------------------
-    void Set(Value ns) noexcept;
-    void Set(Value nx, Value ny, Value nz) noexcept;
-    void Set(Value nx, Value ny, Value nz, Value nw) noexcept;
+    void Set(Value ns);
+    void Set(Value nx, Value ny, Value nz);
+    void Set(Value nx, Value ny, Value nz, Value nw);
     // --------------------------------------------------------------------------------------------
-    void Set(const Vector4 & v) noexcept;
-    void Set(const Vector3 & v) noexcept;
-    void Set(const Quaternion & q) noexcept;
+    void Set(const Vector4 & v);
+    void Set(const Vector3 & v);
+    void Set(const Quaternion & q);
     // --------------------------------------------------------------------------------------------
-    void Set(const SQChar * values, SQChar delim) noexcept;
+    void Set(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    void Generate() noexcept;
-    void Generate(Value min, Value max) noexcept;
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax) noexcept;
+    void Generate();
+    void Generate(Value min, Value max);
+    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax);
     // --------------------------------------------------------------------------------------------
-    void Clear() noexcept { x = 0.0, y = 0.0, z = 0.0, w = 0.0; }
+    void Clear() { x = 0.0, y = 0.0, z = 0.0, w = 0.0; }
     // --------------------------------------------------------------------------------------------
-    Vector4 Abs() const noexcept;
+    Vector4 Abs() const;
 };
 
 } // Namespace:: SqMod

@@ -25,97 +25,97 @@ struct Circle
     Vector2f    pos;
     Value       rad;
     // --------------------------------------------------------------------------------------------
-    Circle() noexcept;
-    Circle(Value r) noexcept;
-    Circle(const Vector2f & p) noexcept;
-    Circle(const Vector2f & p, Value r) noexcept;
-    Circle(Value x, Value y, Value r) noexcept;
+    Circle();
+    Circle(Value r);
+    Circle(const Vector2f & p);
+    Circle(const Vector2f & p, Value r);
+    Circle(Value x, Value y, Value r);
     // --------------------------------------------------------------------------------------------
-    Circle(const Circle & c) noexcept;
-    Circle(Circle && c) noexcept;
+    Circle(const Circle & c);
+    Circle(Circle && c);
     // --------------------------------------------------------------------------------------------
     ~Circle();
     // --------------------------------------------------------------------------------------------
-    Circle & operator = (const Circle & c) noexcept;
-    Circle & operator = (Circle && c) noexcept;
+    Circle & operator = (const Circle & c);
+    Circle & operator = (Circle && c);
     // --------------------------------------------------------------------------------------------
-    Circle & operator = (Value r) noexcept;
-    Circle & operator = (const Vector2f & p) noexcept;
+    Circle & operator = (Value r);
+    Circle & operator = (const Vector2f & p);
     // --------------------------------------------------------------------------------------------
-    Circle & operator += (const Circle & c) noexcept;
-    Circle & operator -= (const Circle & c) noexcept;
-    Circle & operator *= (const Circle & c) noexcept;
-    Circle & operator /= (const Circle & c) noexcept;
-    Circle & operator %= (const Circle & c) noexcept;
+    Circle & operator += (const Circle & c);
+    Circle & operator -= (const Circle & c);
+    Circle & operator *= (const Circle & c);
+    Circle & operator /= (const Circle & c);
+    Circle & operator %= (const Circle & c);
     // --------------------------------------------------------------------------------------------
-    Circle & operator += (Value r) noexcept;
-    Circle & operator -= (Value r) noexcept;
-    Circle & operator *= (Value r) noexcept;
-    Circle & operator /= (Value r) noexcept;
-    Circle & operator %= (Value r) noexcept;
+    Circle & operator += (Value r);
+    Circle & operator -= (Value r);
+    Circle & operator *= (Value r);
+    Circle & operator /= (Value r);
+    Circle & operator %= (Value r);
     // --------------------------------------------------------------------------------------------
-    Circle & operator += (const Vector2f & p) noexcept;
-    Circle & operator -= (const Vector2f & p) noexcept;
-    Circle & operator *= (const Vector2f & p) noexcept;
-    Circle & operator /= (const Vector2f & p) noexcept;
-    Circle & operator %= (const Vector2f & p) noexcept;
+    Circle & operator += (const Vector2f & p);
+    Circle & operator -= (const Vector2f & p);
+    Circle & operator *= (const Vector2f & p);
+    Circle & operator /= (const Vector2f & p);
+    Circle & operator %= (const Vector2f & p);
     // --------------------------------------------------------------------------------------------
-    Circle & operator ++ () noexcept;
-    Circle & operator -- () noexcept;
+    Circle & operator ++ ();
+    Circle & operator -- ();
     // --------------------------------------------------------------------------------------------
-    Circle operator ++ (int) noexcept;
-    Circle operator -- (int) noexcept;
+    Circle operator ++ (int);
+    Circle operator -- (int);
     // --------------------------------------------------------------------------------------------
-    Circle operator + (const Circle & c) const noexcept;
-    Circle operator - (const Circle & c) const noexcept;
-    Circle operator * (const Circle & c) const noexcept;
-    Circle operator / (const Circle & c) const noexcept;
-    Circle operator % (const Circle & c) const noexcept;
+    Circle operator + (const Circle & c) const;
+    Circle operator - (const Circle & c) const;
+    Circle operator * (const Circle & c) const;
+    Circle operator / (const Circle & c) const;
+    Circle operator % (const Circle & c) const;
     // --------------------------------------------------------------------------------------------
-    Circle operator + (Value r) const noexcept;
-    Circle operator - (Value r) const noexcept;
-    Circle operator * (Value r) const noexcept;
-    Circle operator / (Value r) const noexcept;
-    Circle operator % (Value r) const noexcept;
+    Circle operator + (Value r) const;
+    Circle operator - (Value r) const;
+    Circle operator * (Value r) const;
+    Circle operator / (Value r) const;
+    Circle operator % (Value r) const;
     // --------------------------------------------------------------------------------------------
-    Circle operator + (const Vector2f & p) const noexcept;
-    Circle operator - (const Vector2f & p) const noexcept;
-    Circle operator * (const Vector2f & p) const noexcept;
-    Circle operator / (const Vector2f & p) const noexcept;
-    Circle operator % (const Vector2f & p) const noexcept;
+    Circle operator + (const Vector2f & p) const;
+    Circle operator - (const Vector2f & p) const;
+    Circle operator * (const Vector2f & p) const;
+    Circle operator / (const Vector2f & p) const;
+    Circle operator % (const Vector2f & p) const;
     // --------------------------------------------------------------------------------------------
-    Circle operator + () const noexcept;
-    Circle operator - () const noexcept;
+    Circle operator + () const;
+    Circle operator - () const;
     // --------------------------------------------------------------------------------------------
-    bool operator == (const Circle & c) const noexcept;
-    bool operator != (const Circle & c) const noexcept;
-    bool operator < (const Circle & c) const noexcept;
-    bool operator > (const Circle & c) const noexcept;
-    bool operator <= (const Circle & c) const noexcept;
-    bool operator >= (const Circle & c) const noexcept;
+    bool operator == (const Circle & c) const;
+    bool operator != (const Circle & c) const;
+    bool operator < (const Circle & c) const;
+    bool operator > (const Circle & c) const;
+    bool operator <= (const Circle & c) const;
+    bool operator >= (const Circle & c) const;
     // --------------------------------------------------------------------------------------------
-    SQInteger Cmp(const Circle & c) const noexcept;
+    SQInteger Cmp(const Circle & c) const;
     // --------------------------------------------------------------------------------------------
-    const SQChar * ToString() const noexcept;
+    const SQChar * ToString() const;
     // --------------------------------------------------------------------------------------------
-    void Set(Value nr) noexcept;
-    void Set(const Circle & nc) noexcept;
-    void Set(const Vector2f & np) noexcept;
-    void Set(const Vector2f & np, Value nr) noexcept;
+    void Set(Value nr);
+    void Set(const Circle & nc);
+    void Set(const Vector2f & np);
+    void Set(const Vector2f & np, Value nr);
     // --------------------------------------------------------------------------------------------
-    void Set(Value nx, Value ny) noexcept;
-    void Set(Value nx, Value ny, Value nr) noexcept;
+    void Set(Value nx, Value ny);
+    void Set(Value nx, Value ny, Value nr);
     // --------------------------------------------------------------------------------------------
-    void Set(const SQChar * values, SQChar delim) noexcept;
+    void Set(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    void Generate() noexcept;
-    void Generate(Value min, Value max, bool r) noexcept;
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax) noexcept;
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax) noexcept;
+    void Generate();
+    void Generate(Value min, Value max, bool r);
+    void Generate(Value xmin, Value xmax, Value ymin, Value ymax);
+    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax);
     // --------------------------------------------------------------------------------------------
-    void Clear() noexcept { pos.Clear(); rad = 0.0; }
+    void Clear() { pos.Clear(); rad = 0.0; }
     // --------------------------------------------------------------------------------------------
-    Circle Abs() const noexcept;
+    Circle Abs() const;
 };
 
 } // Namespace:: SqMod

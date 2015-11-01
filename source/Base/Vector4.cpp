@@ -16,58 +16,58 @@ const Vector4 Vector4::MAX = Vector4(std::numeric_limits<Vector4::Value>::max())
 SQChar Vector4::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Vector4::Vector4() noexcept
+Vector4::Vector4()
     : x(0.0), y(0.0), z(0.0), w(0.0)
 {
 
 }
 
-Vector4::Vector4(Value s) noexcept
+Vector4::Vector4(Value s)
     : x(s), y(s), z(s), w(s)
 {
 
 }
 
-Vector4::Vector4(Value xv, Value yv, Value zv) noexcept
+Vector4::Vector4(Value xv, Value yv, Value zv)
     : x(xv), y(yv), z(zv), w(0.0)
 {
 
 }
 
-Vector4::Vector4(Value xv, Value yv, Value zv, Value wv) noexcept
+Vector4::Vector4(Value xv, Value yv, Value zv, Value wv)
     : x(xv), y(yv), z(zv), w(wv)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4::Vector4(const Vector3 & v) noexcept
+Vector4::Vector4(const Vector3 & v)
     : x(v.x), y(v.y), z(v.z), w(0.0)
 {
 
 }
 
-Vector4::Vector4(const Quaternion & q) noexcept
+Vector4::Vector4(const Quaternion & q)
     : x(q.x), y(q.y), z(q.z), w(q.w)
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4::Vector4(const SQChar * values, SQChar delim) noexcept
+Vector4::Vector4(const SQChar * values, SQChar delim)
     : Vector4(GetVector4(values, delim))
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4::Vector4(const Vector4 & v) noexcept
+Vector4::Vector4(const Vector4 & v)
     : x(v.x), y(v.y), z(v.z), w(v.w)
 {
 
 }
 
-Vector4::Vector4(Vector4 && v) noexcept
+Vector4::Vector4(Vector4 && v)
     : x(v.x), y(v.y), z(v.z), w(v.w)
 {
 
@@ -80,7 +80,7 @@ Vector4::~Vector4()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 & Vector4::operator = (const Vector4 & v) noexcept
+Vector4 & Vector4::operator = (const Vector4 & v)
 {
     x = v.x;
     y = v.y;
@@ -89,7 +89,7 @@ Vector4 & Vector4::operator = (const Vector4 & v) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator = (Vector4 && v) noexcept
+Vector4 & Vector4::operator = (Vector4 && v)
 {
     x = v.x;
     y = v.y;
@@ -99,7 +99,7 @@ Vector4 & Vector4::operator = (Vector4 && v) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 & Vector4::operator = (Value s) noexcept
+Vector4 & Vector4::operator = (Value s)
 {
     x = s;
     y = s;
@@ -108,7 +108,7 @@ Vector4 & Vector4::operator = (Value s) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator = (const Vector3 & v) noexcept
+Vector4 & Vector4::operator = (const Vector3 & v)
 {
     x = v.x;
     y = v.y;
@@ -117,7 +117,7 @@ Vector4 & Vector4::operator = (const Vector3 & v) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator = (const Quaternion & q) noexcept
+Vector4 & Vector4::operator = (const Quaternion & q)
 {
     x = q.x;
     y = q.y;
@@ -127,7 +127,7 @@ Vector4 & Vector4::operator = (const Quaternion & q) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 & Vector4::operator += (const Vector4 & v) noexcept
+Vector4 & Vector4::operator += (const Vector4 & v)
 {
     x += v.x;
     y += v.y;
@@ -136,7 +136,7 @@ Vector4 & Vector4::operator += (const Vector4 & v) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator -= (const Vector4 & v) noexcept
+Vector4 & Vector4::operator -= (const Vector4 & v)
 {
     x -= v.x;
     y -= v.y;
@@ -145,7 +145,7 @@ Vector4 & Vector4::operator -= (const Vector4 & v) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator *= (const Vector4 & v) noexcept
+Vector4 & Vector4::operator *= (const Vector4 & v)
 {
     x *= v.x;
     y *= v.y;
@@ -154,7 +154,7 @@ Vector4 & Vector4::operator *= (const Vector4 & v) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator /= (const Vector4 & v) noexcept
+Vector4 & Vector4::operator /= (const Vector4 & v)
 {
     x /= v.x;
     y /= v.y;
@@ -163,7 +163,7 @@ Vector4 & Vector4::operator /= (const Vector4 & v) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator %= (const Vector4 & v) noexcept
+Vector4 & Vector4::operator %= (const Vector4 & v)
 {
     x = std::fmod(x, v.x);
     y = std::fmod(y, v.y);
@@ -173,7 +173,7 @@ Vector4 & Vector4::operator %= (const Vector4 & v) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 & Vector4::operator += (Value s) noexcept
+Vector4 & Vector4::operator += (Value s)
 {
     x += s;
     y += s;
@@ -182,7 +182,7 @@ Vector4 & Vector4::operator += (Value s) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator -= (Value s) noexcept
+Vector4 & Vector4::operator -= (Value s)
 {
     x -= s;
     y -= s;
@@ -191,7 +191,7 @@ Vector4 & Vector4::operator -= (Value s) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator *= (Value s) noexcept
+Vector4 & Vector4::operator *= (Value s)
 {
     x *= s;
     y *= s;
@@ -200,7 +200,7 @@ Vector4 & Vector4::operator *= (Value s) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator /= (Value s) noexcept
+Vector4 & Vector4::operator /= (Value s)
 {
     x /= s;
     y /= s;
@@ -209,7 +209,7 @@ Vector4 & Vector4::operator /= (Value s) noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator %= (Value s) noexcept
+Vector4 & Vector4::operator %= (Value s)
 {
     x = std::fmod(x, s);
     y = std::fmod(y, s);
@@ -219,7 +219,7 @@ Vector4 & Vector4::operator %= (Value s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 & Vector4::operator ++ () noexcept
+Vector4 & Vector4::operator ++ ()
 {
     ++x;
     ++y;
@@ -228,7 +228,7 @@ Vector4 & Vector4::operator ++ () noexcept
     return *this;
 }
 
-Vector4 & Vector4::operator -- () noexcept
+Vector4 & Vector4::operator -- ()
 {
     --x;
     --y;
@@ -238,7 +238,7 @@ Vector4 & Vector4::operator -- () noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 Vector4::operator ++ (int) noexcept
+Vector4 Vector4::operator ++ (int)
 {
     Vector4 state(*this);
     ++x;
@@ -248,7 +248,7 @@ Vector4 Vector4::operator ++ (int) noexcept
     return state;
 }
 
-Vector4 Vector4::operator -- (int) noexcept
+Vector4 Vector4::operator -- (int)
 {
     Vector4 state(*this);
     --x;
@@ -259,113 +259,113 @@ Vector4 Vector4::operator -- (int) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 Vector4::operator + (const Vector4 & v) const noexcept
+Vector4 Vector4::operator + (const Vector4 & v) const
 {
     return Vector4(x + v.x, y + v.y, z + v.z, w + v.w);
 }
 
-Vector4 Vector4::operator - (const Vector4 & v) const noexcept
+Vector4 Vector4::operator - (const Vector4 & v) const
 {
     return Vector4(x - v.x, y - v.y, z - v.z, w - v.w);
 }
 
-Vector4 Vector4::operator * (const Vector4 & v) const noexcept
+Vector4 Vector4::operator * (const Vector4 & v) const
 {
     return Vector4(x * v.x, y * v.y, z * v.z, w * v.w);
 }
 
-Vector4 Vector4::operator / (const Vector4 & v) const noexcept
+Vector4 Vector4::operator / (const Vector4 & v) const
 {
     return Vector4(x / v.x, y / v.y, z / v.z, w / v.w);
 }
 
-Vector4 Vector4::operator % (const Vector4 & v) const noexcept
+Vector4 Vector4::operator % (const Vector4 & v) const
 {
     return Vector4(std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z), std::fmod(w, v.w));
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 Vector4::operator + (Value s) const noexcept
+Vector4 Vector4::operator + (Value s) const
 {
     return Vector4(x + s, y + s, z + s, w + s);
 }
 
-Vector4 Vector4::operator - (Value s) const noexcept
+Vector4 Vector4::operator - (Value s) const
 {
     return Vector4(x - s, y - s, z - s, w - s);
 }
 
-Vector4 Vector4::operator * (Value s) const noexcept
+Vector4 Vector4::operator * (Value s) const
 {
     return Vector4(x * s, y * s, z * s, w * s);
 }
 
-Vector4 Vector4::operator / (Value s) const noexcept
+Vector4 Vector4::operator / (Value s) const
 {
     return Vector4(x / s, y / s, z / s, w / s);
 }
 
-Vector4 Vector4::operator % (Value s) const noexcept
+Vector4 Vector4::operator % (Value s) const
 {
     return Vector4(std::fmod(x, s), std::fmod(y, s), std::fmod(z, s), std::fmod(w, s));
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 Vector4::operator + () const noexcept
+Vector4 Vector4::operator + () const
 {
     return Vector4(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
 }
 
-Vector4 Vector4::operator - () const noexcept
+Vector4 Vector4::operator - () const
 {
     return Vector4(-x, -y, -z, -w);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Vector4::operator == (const Vector4 & v) const noexcept
+bool Vector4::operator == (const Vector4 & v) const
 {
     return EpsEq(x, v.x) && EpsEq(y, v.y) && EpsEq(z, v.z) && EpsEq(w, v.w);
 }
 
-bool Vector4::operator != (const Vector4 & v) const noexcept
+bool Vector4::operator != (const Vector4 & v) const
 {
     return !EpsEq(x, v.x) && !EpsEq(y, v.y) && !EpsEq(z, v.z) && !EpsEq(w, v.w);
 }
 
-bool Vector4::operator < (const Vector4 & v) const noexcept
+bool Vector4::operator < (const Vector4 & v) const
 {
     return std::isless(x, v.x) && std::isless(y, v.y) && std::isless(z, v.z) && std::isless(w, v.w);
 }
 
-bool Vector4::operator > (const Vector4 & v) const noexcept
+bool Vector4::operator > (const Vector4 & v) const
 {
     return std::isgreater(x, v.x) && std::isgreater(y, v.y) && std::isgreater(z, v.z) && std::isgreater(w, v.w);
 }
 
-bool Vector4::operator <= (const Vector4 & v) const noexcept
+bool Vector4::operator <= (const Vector4 & v) const
 {
     return std::islessequal(x, v.x) && std::islessequal(y, v.y) && std::islessequal(z, v.z) && std::islessequal(w, v.w);
 }
 
-bool Vector4::operator >= (const Vector4 & v) const noexcept
+bool Vector4::operator >= (const Vector4 & v) const
 {
     return std::isgreaterequal(x, v.x) && std::isgreaterequal(y, v.y) && std::isgreaterequal(z, v.z) && std::isgreaterequal(w, v.w);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Vector4::Cmp(const Vector4 & v) const noexcept
+SQInteger Vector4::Cmp(const Vector4 & v) const
 {
     return *this == v ? 0 : (*this > v ? 1 : -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Vector4::ToString() const noexcept
+const SQChar * Vector4::ToString() const
 {
     return ToStringF("%f,%f,%f,%f", x, y, z, w);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector4::Set(Value ns) noexcept
+void Vector4::Set(Value ns)
 {
     x = ns;
     y = ns;
@@ -373,14 +373,14 @@ void Vector4::Set(Value ns) noexcept
     w = ns;
 }
 
-void Vector4::Set(Value nx, Value ny, Value nz) noexcept
+void Vector4::Set(Value nx, Value ny, Value nz)
 {
     x = nx;
     y = ny;
     z = nz;
 }
 
-void Vector4::Set(Value nx, Value ny, Value nz, Value nw) noexcept
+void Vector4::Set(Value nx, Value ny, Value nz, Value nw)
 {
     x = nx;
     y = ny;
@@ -389,7 +389,7 @@ void Vector4::Set(Value nx, Value ny, Value nz, Value nw) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector4::Set(const Vector4 & v) noexcept
+void Vector4::Set(const Vector4 & v)
 {
     x = v.x;
     y = v.y;
@@ -397,7 +397,7 @@ void Vector4::Set(const Vector4 & v) noexcept
     w = v.w;
 }
 
-void Vector4::Set(const Vector3 & v) noexcept
+void Vector4::Set(const Vector3 & v)
 {
     x = v.x;
     y = v.y;
@@ -405,7 +405,7 @@ void Vector4::Set(const Vector3 & v) noexcept
     w = 0.0;
 }
 
-void Vector4::Set(const Quaternion & q) noexcept
+void Vector4::Set(const Quaternion & q)
 {
     x = q.x;
     y = q.y;
@@ -414,13 +414,13 @@ void Vector4::Set(const Quaternion & q) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector4::Set(const SQChar * values, SQChar delim) noexcept
+void Vector4::Set(const SQChar * values, SQChar delim)
 {
     Set(GetVector4(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector4::Generate() noexcept
+void Vector4::Generate()
 {
     x = RandomVal<Value>::Get();
     y = RandomVal<Value>::Get();
@@ -428,7 +428,7 @@ void Vector4::Generate() noexcept
     w = RandomVal<Value>::Get();
 }
 
-void Vector4::Generate(Value min, Value max) noexcept
+void Vector4::Generate(Value min, Value max)
 {
     if (max < min)
     {
@@ -443,7 +443,7 @@ void Vector4::Generate(Value min, Value max) noexcept
     }
 }
 
-void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax) noexcept
+void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
 {
     if (std::isless(xmax, xmin) || std::isless(ymax, ymin) || std::isless(zmax, zmin) || std::isless(wmax, wmin))
     {
@@ -459,7 +459,7 @@ void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 Vector4::Abs() const noexcept
+Vector4 Vector4::Abs() const
 {
     return Vector4(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
 }

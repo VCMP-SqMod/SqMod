@@ -52,7 +52,7 @@ namespace SqMod {
 const Logger::Pointer _Log = Logger::Inst();
 
 // ------------------------------------------------------------------------------------------------
-inline const char * GetLevelTag(Uint8 type) noexcept
+inline const char * GetLevelTag(Uint8 type)
 {
     switch (type)
     {
@@ -70,7 +70,7 @@ inline const char * GetLevelTag(Uint8 type) noexcept
 #ifdef SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
-inline Uint16 GetLevelColor(Uint8 type) noexcept
+inline Uint16 GetLevelColor(Uint8 type)
 {
     switch (type)
     {
@@ -87,7 +87,7 @@ inline Uint16 GetLevelColor(Uint8 type) noexcept
 #else
 
 // ------------------------------------------------------------------------------------------------
-inline const char * GetLevelColor(Uint8 type) noexcept
+inline const char * GetLevelColor(Uint8 type)
 {
     return "";
 }
@@ -95,7 +95,7 @@ inline const char * GetLevelColor(Uint8 type) noexcept
 #endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
-Logger::Logger() noexcept
+Logger::Logger()
     : m_ConsoleTime(false), m_FileTime(true)
     , m_ConsoleLevels(Logger::LEVEL_ANY), m_FileLevels(Logger::LEVEL_ANY)
     , m_LogPath("./logs/"), m_DebugLevel(SQMOD_DEBUG_LEVEL), m_Verbosity(0)
@@ -110,13 +110,13 @@ Logger::~Logger()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::_Finalizer(Logger * ptr) noexcept
+void Logger::_Finalizer(Logger * ptr)
 {
     if (ptr) delete ptr;
 }
 
 // ------------------------------------------------------------------------------------------------
-Logger::Pointer Logger::Inst() noexcept
+Logger::Pointer Logger::Inst()
 {
     if (!_Log) return Pointer(new Logger(), &Logger::_Finalizer);
     return Pointer(nullptr, &Logger::_Finalizer);
@@ -153,95 +153,95 @@ void Logger::Terminate()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::ToggleConsoleTime(bool enabled) noexcept
+void Logger::ToggleConsoleTime(bool enabled)
 {
     m_ConsoleTime = enabled;
 }
 
-void Logger::ToggleFileTime(bool enabled) noexcept
+void Logger::ToggleFileTime(bool enabled)
 {
     m_FileTime = enabled;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Logger::HasConsoleTime() const noexcept
+bool Logger::HasConsoleTime() const
 {
     return m_ConsoleTime;
 }
 
-bool Logger::HasFileTime()const noexcept
+bool Logger::HasFileTime()const
 {
     return m_FileTime;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::SetConsoleLevels(Uint8 levels) noexcept
+void Logger::SetConsoleLevels(Uint8 levels)
 {
     m_ConsoleLevels = levels;
 }
 
-void Logger::SetFileLevels(Uint8 levels) noexcept
+void Logger::SetFileLevels(Uint8 levels)
 {
     m_FileLevels = levels;
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint8 Logger::GetConsoleLevels() const noexcept
+Uint8 Logger::GetConsoleLevels() const
 {
     return m_ConsoleLevels;
 }
 
-Uint8 Logger::GetFileLevels() const noexcept
+Uint8 Logger::GetFileLevels() const
 {
     return m_FileLevels;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::EnableConsoleLevel(Uint8 level) noexcept
+void Logger::EnableConsoleLevel(Uint8 level)
 {
     m_ConsoleLevels |= level;
 }
 
-void Logger::EnableFileLevel(Uint8 level) noexcept
+void Logger::EnableFileLevel(Uint8 level)
 {
     m_FileLevels |= level;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::DisableConsoleLevel(Uint8 level) noexcept
+void Logger::DisableConsoleLevel(Uint8 level)
 {
     if (m_ConsoleLevels & level) m_ConsoleLevels ^= level;
 }
 
-void Logger::DisableFileLevel(Uint8 level) noexcept
+void Logger::DisableFileLevel(Uint8 level)
 {
     if (m_FileLevels & level) m_FileLevels ^= level;
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint8 Logger::GetDebugLevel() const noexcept
+Uint8 Logger::GetDebugLevel() const
 {
     return m_DebugLevel;
 }
 
-void Logger::SetDebugLevel(Uint8 level) noexcept
+void Logger::SetDebugLevel(Uint8 level)
 {
     m_DebugLevel = level;
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Logger::GetVerbosity() const noexcept
+SQInt32 Logger::GetVerbosity() const
 {
     return m_Verbosity;
 }
 
-void Logger::SetVerbosity(SQInt32 level) noexcept
+void Logger::SetVerbosity(SQInt32 level)
 {
     m_Verbosity = level;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Send(Uint8 type, bool sub, const char * fmt, va_list args)  noexcept
+void Logger::Send(Uint8 type, bool sub, const char * fmt, va_list args) 
 {
     // Verify that this level is allowed to be streamed
     if (!(m_ConsoleLevels & type) && !(m_FileLevels & type)) return;
@@ -318,7 +318,7 @@ void Logger::Send(Uint8 type, bool sub, const char * fmt, va_list args)  noexcep
 
 // ------------------------------------------------------------------------------------------------
 #define SQMOD_LOG(N_, L_, S_) /*
-*/ void Logger::N_(const char * fmt, ...) noexcept /*
+*/ void Logger::N_(const char * fmt, ...) /*
 */ { /*
 */  va_list args; /*
 */  va_start(args, fmt); /*
@@ -347,7 +347,7 @@ SQMOD_LOG(SFtl, LEVEL_FTL, true)
 
 // ------------------------------------------------------------------------------------------------
 #define SQMOD_CLOG(N_, L_, S_) /*
-*/bool Logger::N_(bool c, const char * fmt, ...) noexcept /*
+*/bool Logger::N_(bool c, const char * fmt, ...) /*
 */ { /*
 */  if (c) /*
 */  { /*

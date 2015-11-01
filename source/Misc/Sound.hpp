@@ -17,22 +17,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound() noexcept;
+    CSound();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound(SQInt32 id) noexcept;
+    CSound(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound(const CSound & x) noexcept;
+    CSound(const CSound & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound(CSound && x) noexcept;
+    CSound(CSound && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -42,92 +42,92 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound & operator= (const CSound & x) noexcept;
+    CSound & operator= (const CSound & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound & operator= (CSound && x) noexcept;
+    CSound & operator= (CSound && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound operator+ (const CSound & x) const noexcept;
+    CSound operator+ (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound operator- (const CSound & x) const noexcept;
+    CSound operator- (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound operator* (const CSound & x) const noexcept;
+    CSound operator* (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CSound operator/ (const CSound & x) const noexcept;
+    CSound operator/ (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator == (const CSound & x) const noexcept;
+    bool operator == (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator != (const CSound & x) const noexcept;
+    bool operator != (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator < (const CSound & x) const noexcept;
+    bool operator < (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator > (const CSound & x) const noexcept;
+    bool operator > (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator <= (const CSound & x) const noexcept;
+    bool operator <= (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator >= (const CSound & x) const noexcept;
+    bool operator >= (const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInteger Cmp(const CSound & x) const noexcept;
+    SQInteger Cmp(const CSound & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator SQInt32 () const noexcept;
+    operator SQInt32 () const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator bool () const noexcept;
+    operator bool () const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetID() const noexcept;
+    SQInt32 GetID() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetID(SQInt32 id) noexcept;
+    void SetID(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Play() const noexcept;
+    void Play() const;
 
 protected:
 

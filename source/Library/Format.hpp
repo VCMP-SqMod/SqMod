@@ -8,8 +8,8 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-String GetFormatStr(HSQUIRRELVM vm, SQInteger arg, SQInteger args) noexcept;
-String GetFormatStr(HSQUIRRELVM vm, const String & fstr,  SQInteger arg, SQInteger args) noexcept;
+String GetFormatStr(HSQUIRRELVM vm, SQInteger arg, SQInteger args);
+String GetFormatStr(HSQUIRRELVM vm, const String & fstr,  SQInteger arg, SQInteger args);
 
 } // Namespace:: SqMod
 

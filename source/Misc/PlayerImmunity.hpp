@@ -15,22 +15,22 @@ struct CPlayerImmunity
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CPlayerImmunity() noexcept;
+    CPlayerImmunity();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CPlayerImmunity(SQInt32 flags) noexcept;
+    CPlayerImmunity(SQInt32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CPlayerImmunity(const CPlayerImmunity & x) noexcept;
+    CPlayerImmunity(const CPlayerImmunity & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CPlayerImmunity(CPlayerImmunity && x) noexcept;
+    CPlayerImmunity(CPlayerImmunity && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -40,137 +40,137 @@ struct CPlayerImmunity
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CPlayerImmunity & operator = (const CPlayerImmunity & x) noexcept;
+    CPlayerImmunity & operator = (const CPlayerImmunity & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CPlayerImmunity & operator = (CPlayerImmunity && x) noexcept;
+    CPlayerImmunity & operator = (CPlayerImmunity && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator == (const CPlayerImmunity & x) const noexcept;
+    bool operator == (const CPlayerImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator != (const CPlayerImmunity & x) const noexcept;
+    bool operator != (const CPlayerImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator < (const CPlayerImmunity & x) const noexcept;
+    bool operator < (const CPlayerImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator > (const CPlayerImmunity & x) const noexcept;
+    bool operator > (const CPlayerImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator <= (const CPlayerImmunity & x) const noexcept;
+    bool operator <= (const CPlayerImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator >= (const CPlayerImmunity & x) const noexcept;
+    bool operator >= (const CPlayerImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInteger Cmp(const CPlayerImmunity & x) const noexcept;
+    SQInteger Cmp(const CPlayerImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator SQInt32 () const noexcept;
+    operator SQInt32 () const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator bool () const noexcept;
+    operator bool () const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetFlags() const noexcept;
+    SQInt32 GetFlags() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetFlags(SQInt32 flags) noexcept;
+    void SetFlags(SQInt32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CPlayerImmunity & SetnGet(SQInt32 flags) noexcept;
+    CPlayerImmunity & SetnGet(SQInt32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Apply(const CPlayer & player) const noexcept;
+    void Apply(const CPlayer & player) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool GetBullet() const noexcept;
+    bool GetBullet() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetBullet(bool toggle) noexcept;
+    void SetBullet(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool GetFire() const noexcept;
+    bool GetFire() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetFire(bool toggle) noexcept;
+    void SetFire(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool GetExplosion() const noexcept;
+    bool GetExplosion() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetExplosion(bool toggle) noexcept;
+    void SetExplosion(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool GetCollision() const noexcept;
+    bool GetCollision() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetCollision(bool toggle) noexcept;
+    void SetCollision(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool GetMelee() const noexcept;
+    bool GetMelee() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetMelee(bool toggle) noexcept;
+    void SetMelee(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void EnableAll() noexcept;
+    void EnableAll();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void DisableAll() noexcept;
+    void DisableAll();
 
 protected:
 

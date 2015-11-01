@@ -23,118 +23,118 @@ struct Vector2u
     // --------------------------------------------------------------------------------------------
     Value x, y;
     // --------------------------------------------------------------------------------------------
-    Vector2u() noexcept;
-    Vector2u(Value s) noexcept;
-    Vector2u(Value xv, Value yv) noexcept;
+    Vector2u();
+    Vector2u(Value s);
+    Vector2u(Value xv, Value yv);
     // --------------------------------------------------------------------------------------------
-    Vector2u(const Vector2i & v) noexcept;
-    Vector2u(const Vector2f & v) noexcept;
+    Vector2u(const Vector2i & v);
+    Vector2u(const Vector2f & v);
     // --------------------------------------------------------------------------------------------
-    Vector2u(const SQChar * values, SQChar delim) noexcept;
+    Vector2u(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    Vector2u(const Vector2u & v) noexcept;
-    Vector2u(Vector2u && v) noexcept;
+    Vector2u(const Vector2u & v);
+    Vector2u(Vector2u && v);
     // --------------------------------------------------------------------------------------------
     ~Vector2u();
     // --------------------------------------------------------------------------------------------
-    Vector2u & operator = (const Vector2u & v) noexcept;
-    Vector2u & operator = (Vector2u && v) noexcept;
+    Vector2u & operator = (const Vector2u & v);
+    Vector2u & operator = (Vector2u && v);
     // --------------------------------------------------------------------------------------------
-    Vector2u & operator = (Value s) noexcept;
-    Vector2u & operator = (const SQChar * values) noexcept;
-    Vector2u & operator = (const Vector2i & v) noexcept;
-    Vector2u & operator = (const Vector2f & v) noexcept;
+    Vector2u & operator = (Value s);
+    Vector2u & operator = (const SQChar * values);
+    Vector2u & operator = (const Vector2i & v);
+    Vector2u & operator = (const Vector2f & v);
     // --------------------------------------------------------------------------------------------
-    Vector2u & operator += (const Vector2u & v) noexcept;
-    Vector2u & operator -= (const Vector2u & v) noexcept;
-    Vector2u & operator *= (const Vector2u & v) noexcept;
-    Vector2u & operator /= (const Vector2u & v) noexcept;
-    Vector2u & operator %= (const Vector2u & v) noexcept;
-    Vector2u & operator &= (const Vector2u & v) noexcept;
-    Vector2u & operator |= (const Vector2u & v) noexcept;
-    Vector2u & operator ^= (const Vector2u & v) noexcept;
-    Vector2u & operator <<= (const Vector2u & v) noexcept;
-    Vector2u & operator >>= (const Vector2u & v) noexcept; 
+    Vector2u & operator += (const Vector2u & v);
+    Vector2u & operator -= (const Vector2u & v);
+    Vector2u & operator *= (const Vector2u & v);
+    Vector2u & operator /= (const Vector2u & v);
+    Vector2u & operator %= (const Vector2u & v);
+    Vector2u & operator &= (const Vector2u & v);
+    Vector2u & operator |= (const Vector2u & v);
+    Vector2u & operator ^= (const Vector2u & v);
+    Vector2u & operator <<= (const Vector2u & v);
+    Vector2u & operator >>= (const Vector2u & v); 
     // --------------------------------------------------------------------------------------------
-    Vector2u & operator += (Value s) noexcept;
-    Vector2u & operator -= (Value s) noexcept;
-    Vector2u & operator *= (Value s) noexcept;
-    Vector2u & operator /= (Value s) noexcept;
-    Vector2u & operator %= (Value s) noexcept;
-    Vector2u & operator &= (Value s) noexcept;
-    Vector2u & operator |= (Value s) noexcept;
-    Vector2u & operator ^= (Value s) noexcept;
-    Vector2u & operator <<= (Value s) noexcept;
-    Vector2u & operator >>= (Value s) noexcept; 
+    Vector2u & operator += (Value s);
+    Vector2u & operator -= (Value s);
+    Vector2u & operator *= (Value s);
+    Vector2u & operator /= (Value s);
+    Vector2u & operator %= (Value s);
+    Vector2u & operator &= (Value s);
+    Vector2u & operator |= (Value s);
+    Vector2u & operator ^= (Value s);
+    Vector2u & operator <<= (Value s);
+    Vector2u & operator >>= (Value s); 
     // --------------------------------------------------------------------------------------------
-    Vector2u & operator ++ () noexcept;
-    Vector2u & operator -- () noexcept;
+    Vector2u & operator ++ ();
+    Vector2u & operator -- ();
     // --------------------------------------------------------------------------------------------
-    Vector2u operator ++ (int) noexcept;
-    Vector2u operator -- (int) noexcept; 
+    Vector2u operator ++ (int);
+    Vector2u operator -- (int); 
     // --------------------------------------------------------------------------------------------
-    Vector2u operator + (const Vector2u & v) const noexcept;
-    Vector2u operator + (Value s) const noexcept;
+    Vector2u operator + (const Vector2u & v) const;
+    Vector2u operator + (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator - (const Vector2u & v) const noexcept;
-    Vector2u operator - (Value s) const noexcept;
+    Vector2u operator - (const Vector2u & v) const;
+    Vector2u operator - (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator * (const Vector2u & v) const noexcept;
-    Vector2u operator * (Value s) const noexcept;
+    Vector2u operator * (const Vector2u & v) const;
+    Vector2u operator * (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator / (const Vector2u & v) const noexcept;
-    Vector2u operator / (Value s) const noexcept;
+    Vector2u operator / (const Vector2u & v) const;
+    Vector2u operator / (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator % (const Vector2u & v) const noexcept;
-    Vector2u operator % (Value s) const noexcept;
+    Vector2u operator % (const Vector2u & v) const;
+    Vector2u operator % (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator & (const Vector2u & v) const noexcept;
-    Vector2u operator & (Value s) const noexcept;
+    Vector2u operator & (const Vector2u & v) const;
+    Vector2u operator & (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator | (const Vector2u & v) const noexcept;
-    Vector2u operator | (Value s) const noexcept;
+    Vector2u operator | (const Vector2u & v) const;
+    Vector2u operator | (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator ^ (const Vector2u & v) const noexcept;
-    Vector2u operator ^ (Value s) const noexcept;
+    Vector2u operator ^ (const Vector2u & v) const;
+    Vector2u operator ^ (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator << (const Vector2u & v) const noexcept;
-    Vector2u operator << (Value s) const noexcept;
+    Vector2u operator << (const Vector2u & v) const;
+    Vector2u operator << (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator >> (const Vector2u & v) const noexcept;
-    Vector2u operator >> (Value s) const noexcept;
+    Vector2u operator >> (const Vector2u & v) const;
+    Vector2u operator >> (Value s) const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator + () const noexcept;
-    Vector2u operator - () const noexcept;
+    Vector2u operator + () const;
+    Vector2u operator - () const;
     // --------------------------------------------------------------------------------------------
-    Vector2u operator ~ () const noexcept;
+    Vector2u operator ~ () const;
     // --------------------------------------------------------------------------------------------
-    bool operator == (const Vector2u & v) const noexcept;
-    bool operator != (const Vector2u & v) const noexcept;
-    bool operator < (const Vector2u & v) const noexcept;
-    bool operator > (const Vector2u & v) const noexcept;
-    bool operator <= (const Vector2u & v) const noexcept;
-    bool operator >= (const Vector2u & v) const noexcept;
+    bool operator == (const Vector2u & v) const;
+    bool operator != (const Vector2u & v) const;
+    bool operator < (const Vector2u & v) const;
+    bool operator > (const Vector2u & v) const;
+    bool operator <= (const Vector2u & v) const;
+    bool operator >= (const Vector2u & v) const;
     // --------------------------------------------------------------------------------------------
-    SQInteger Cmp(const Vector2u & v) const noexcept;
+    SQInteger Cmp(const Vector2u & v) const;
     // --------------------------------------------------------------------------------------------
-    const SQChar * ToString() const noexcept;
+    const SQChar * ToString() const;
     // --------------------------------------------------------------------------------------------
-    void Set(Value ns) noexcept;
-    void Set(Value nx, Value ny) noexcept;
+    void Set(Value ns);
+    void Set(Value nx, Value ny);
     // --------------------------------------------------------------------------------------------
-    void Set(const Vector2u & v) noexcept;
-    void Set(const Vector2i & v) noexcept;
-    void Set(const Vector2f & v) noexcept;
+    void Set(const Vector2u & v);
+    void Set(const Vector2i & v);
+    void Set(const Vector2f & v);
     // --------------------------------------------------------------------------------------------
-    void Set(const SQChar * values, SQChar delim) noexcept;
+    void Set(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    void Generate() noexcept;
-    void Generate(Value min, Value max) noexcept;
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax) noexcept;
+    void Generate();
+    void Generate(Value min, Value max);
+    void Generate(Value xmin, Value xmax, Value ymin, Value ymax);
     // --------------------------------------------------------------------------------------------
-    void Clear() noexcept { x = 0, y = 0; }
+    void Clear() { x = 0, y = 0; }
     // --------------------------------------------------------------------------------------------
-    Vector2u Abs() const noexcept;
+    Vector2u Abs() const;
 };
 
 } // Namespace:: SqMod

@@ -16,22 +16,22 @@ struct CVehicleImmunity
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CVehicleImmunity() noexcept;
+    CVehicleImmunity();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CVehicleImmunity(SQInt32 flags) noexcept;
+    CVehicleImmunity(SQInt32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CVehicleImmunity(const CVehicleImmunity & x) noexcept;
+    CVehicleImmunity(const CVehicleImmunity & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CVehicleImmunity(CVehicleImmunity && x) noexcept;
+    CVehicleImmunity(CVehicleImmunity && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -41,87 +41,87 @@ struct CVehicleImmunity
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CVehicleImmunity & operator= (const CVehicleImmunity & x) noexcept;
+    CVehicleImmunity & operator= (const CVehicleImmunity & x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CVehicleImmunity & operator= (CVehicleImmunity && x) noexcept;
+    CVehicleImmunity & operator= (CVehicleImmunity && x);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator == (const CVehicleImmunity & x) const noexcept;
+    bool operator == (const CVehicleImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator != (const CVehicleImmunity & x) const noexcept;
+    bool operator != (const CVehicleImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator < (const CVehicleImmunity & x) const noexcept;
+    bool operator < (const CVehicleImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator > (const CVehicleImmunity & x) const noexcept;
+    bool operator > (const CVehicleImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator <= (const CVehicleImmunity & x) const noexcept;
+    bool operator <= (const CVehicleImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    bool operator >= (const CVehicleImmunity & x) const noexcept;
+    bool operator >= (const CVehicleImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInteger Cmp(const CVehicleImmunity & x) const noexcept;
+    SQInteger Cmp(const CVehicleImmunity & x) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator SQInt32 () const noexcept;
+    operator SQInt32 () const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    operator bool () const noexcept;
+    operator bool () const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    SQInt32 GetFlags() const noexcept;
+    SQInt32 GetFlags() const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void SetFlags(SQInt32 flags) noexcept;
+    void SetFlags(SQInt32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    CVehicleImmunity & SetnGet(SQInt32 flags) noexcept;
+    CVehicleImmunity & SetnGet(SQInt32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Apply(const CVehicle & vehicle) const noexcept;
+    void Apply(const CVehicle & vehicle) const;
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void EnableAll() noexcept;
+    void EnableAll();
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void DisableAll() noexcept;
+    void DisableAll();
 
 protected:
 

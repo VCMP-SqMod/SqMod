@@ -6,154 +6,154 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-EBlipCreated & GBlipCreated() noexcept
+EBlipCreated & GBlipCreated()
 {
     return _Core->BlipCreated;
 }
 
-ECheckpointCreated & GCheckpointCreated() noexcept
+ECheckpointCreated & GCheckpointCreated()
 {
     return _Core->CheckpointCreated;
 }
 
-EKeybindCreated & GKeybindCreated() noexcept
+EKeybindCreated & GKeybindCreated()
 {
     return _Core->KeybindCreated;
 }
 
-EObjectCreated & GObjectCreated() noexcept
+EObjectCreated & GObjectCreated()
 {
     return _Core->ObjectCreated;
 }
 
-EPickupCreated & GPickupCreated() noexcept
+EPickupCreated & GPickupCreated()
 {
     return _Core->PickupCreated;
 }
 
-EPlayerCreated & GPlayerCreated() noexcept
+EPlayerCreated & GPlayerCreated()
 {
     return _Core->PlayerCreated;
 }
 
-ESphereCreated & GSphereCreated() noexcept
+ESphereCreated & GSphereCreated()
 {
     return _Core->SphereCreated;
 }
 
-ESpriteCreated & GSpriteCreated() noexcept
+ESpriteCreated & GSpriteCreated()
 {
     return _Core->SpriteCreated;
 }
 
-ETextdrawCreated & GTextdrawCreated() noexcept
+ETextdrawCreated & GTextdrawCreated()
 {
     return _Core->TextdrawCreated;
 }
 
-EVehicleCreated & GVehicleCreated() noexcept
+EVehicleCreated & GVehicleCreated()
 {
     return _Core->VehicleCreated;
 }
 
 // ------------------------------------------------------------------------------------------------
-EBlipDestroyed & GBlipDestroyed() noexcept
+EBlipDestroyed & GBlipDestroyed()
 {
     return _Core->BlipDestroyed;
 }
 
-ECheckpointDestroyed & GCheckpointDestroyed() noexcept
+ECheckpointDestroyed & GCheckpointDestroyed()
 {
     return _Core->CheckpointDestroyed;
 }
 
-EKeybindDestroyed & GKeybindDestroyed() noexcept
+EKeybindDestroyed & GKeybindDestroyed()
 {
     return _Core->KeybindDestroyed;
 }
 
-EObjectDestroyed & GObjectDestroyed() noexcept
+EObjectDestroyed & GObjectDestroyed()
 {
     return _Core->ObjectDestroyed;
 }
 
-EPickupDestroyed & GPickupDestroyed() noexcept
+EPickupDestroyed & GPickupDestroyed()
 {
     return _Core->PickupDestroyed;
 }
 
-EPlayerDestroyed & GPlayerDestroyed() noexcept
+EPlayerDestroyed & GPlayerDestroyed()
 {
     return _Core->PlayerDestroyed;
 }
 
-ESphereDestroyed & GSphereDestroyed() noexcept
+ESphereDestroyed & GSphereDestroyed()
 {
     return _Core->SphereDestroyed;
 }
 
-ESpriteDestroyed & GSpriteDestroyed() noexcept
+ESpriteDestroyed & GSpriteDestroyed()
 {
     return _Core->SpriteDestroyed;
 }
 
-ETextdrawDestroyed & GTextdrawDestroyed() noexcept
+ETextdrawDestroyed & GTextdrawDestroyed()
 {
     return _Core->TextdrawDestroyed;
 }
 
-EVehicleDestroyed & GVehicleDestroyed() noexcept
+EVehicleDestroyed & GVehicleDestroyed()
 {
     return _Core->VehicleDestroyed;
 }
 
 // ------------------------------------------------------------------------------------------------
-EBlipCustom & GBlipCustom() noexcept
+EBlipCustom & GBlipCustom()
 {
     return _Core->BlipCustom;
 }
 
-ECheckpointCustom & GCheckpointCustom() noexcept
+ECheckpointCustom & GCheckpointCustom()
 {
     return _Core->CheckpointCustom;
 }
 
-EKeybindCustom & GKeybindCustom() noexcept
+EKeybindCustom & GKeybindCustom()
 {
     return _Core->KeybindCustom;
 }
 
-EObjectCustom & GObjectCustom() noexcept
+EObjectCustom & GObjectCustom()
 {
     return _Core->ObjectCustom;
 }
 
-EPickupCustom & GPickupCustom() noexcept
+EPickupCustom & GPickupCustom()
 {
     return _Core->PickupCustom;
 }
 
-EPlayerCustom & GPlayerCustom() noexcept
+EPlayerCustom & GPlayerCustom()
 {
     return _Core->PlayerCustom;
 }
 
-ESphereCustom & GSphereCustom() noexcept
+ESphereCustom & GSphereCustom()
 {
     return _Core->SphereCustom;
 }
 
-ESpriteCustom & GSpriteCustom() noexcept
+ESpriteCustom & GSpriteCustom()
 {
     return _Core->SpriteCustom;
 }
 
-ETextdrawCustom & GTextdrawCustom() noexcept
+ETextdrawCustom & GTextdrawCustom()
 {
     return _Core->TextdrawCustom;
 }
 
-EVehicleCustom & GVehicleCustom() noexcept
+EVehicleCustom & GVehicleCustom()
 {
     return _Core->VehicleCustom;
 }

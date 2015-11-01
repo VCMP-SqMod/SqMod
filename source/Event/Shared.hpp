@@ -10,32 +10,32 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-const SQChar * GetEventName(SQInt32 type) noexcept;
+const SQChar * GetEventName(SQInt32 type);
 
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-bool IsEntityEvent(SQInt32 type) noexcept;
+bool IsEntityEvent(SQInt32 type);
 
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-bool IsCreateEvent(SQInt32 type) noexcept;
+bool IsCreateEvent(SQInt32 type);
 
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-bool IsDestroyEvent(SQInt32 type) noexcept;
+bool IsDestroyEvent(SQInt32 type);
 
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-bool IsCustomEvent(SQInt32 type) noexcept;
+bool IsCustomEvent(SQInt32 type);
 
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-bool CanBeInversed(SQInt32 type) noexcept;
+bool CanBeInversed(SQInt32 type);
 
 } // Namespace:: SqMod
 

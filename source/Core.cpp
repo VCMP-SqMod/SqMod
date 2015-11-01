@@ -34,7 +34,7 @@ const Core::Pointer _Core = Core::Inst();
 static std::shared_ptr<CSimpleIni> g_Config;
 
 // ------------------------------------------------------------------------------------------------
-Core::Core() noexcept
+Core::Core()
     : m_State(SQMOD_SUCCESS)
     , m_Options()
     , m_VM(nullptr)
@@ -56,13 +56,13 @@ Core::~Core()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::_Finalizer(Core * ptr) noexcept
+void Core::_Finalizer(Core * ptr)
 {
     delete ptr; /* Assuming 'delete' checks for NULL */
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::Pointer Core::Inst() noexcept
+Core::Pointer Core::Inst()
 {
     if (!_Core)
     {
@@ -73,7 +73,7 @@ Core::Pointer Core::Inst() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::Init() noexcept
+bool Core::Init()
 {
     LogMsg("%s", CenterStr("INITIALIZING", '*'));
     // Attempt to initialize the plugin resources
@@ -87,7 +87,7 @@ bool Core::Init() noexcept
     return true;
 }
 
-bool Core::Load() noexcept
+bool Core::Load()
 {
     LogMsg("%s", CenterStr("LOADING", '*'));
     // Attempt to execute the loaded scripts
@@ -102,37 +102,37 @@ bool Core::Load() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::Deinit() noexcept
+void Core::Deinit()
 {
     // Release the VM created during the initialization process
     this->DestroyVM();
 }
 
-void Core::Unload() noexcept
+void Core::Unload()
 {
 
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::Terminate() noexcept
+void Core::Terminate()
 {
     this->Deinit();
     this->Unload();
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::SetState(SQInteger val) noexcept
+void Core::SetState(SQInteger val)
 {
     m_State = val;
 }
 
-SQInteger Core::GetState() const noexcept
+SQInteger Core::GetState() const
 {
     return m_State;
 }
 
 // ------------------------------------------------------------------------------------------------
-string Core::GetOption(const String & name) const noexcept
+string Core::GetOption(const String & name) const
 {
     // Attempt to find the specified option
     OptionPool::const_iterator elem = m_Options.find(name);
@@ -140,13 +140,13 @@ string Core::GetOption(const String & name) const noexcept
     return (elem == m_Options.cend()) ? String() : elem->second;
 }
 
-void Core::SetOption(const String & name, const String & value) noexcept
+void Core::SetOption(const String & name, const String & value)
 {
     m_Options[name] = value;
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::Buffer Core::PullBuffer(unsigned sz) noexcept
+Core::Buffer Core::PullBuffer(unsigned sz)
 {
     // The container that will manage the buffer
     Buffer buf;
@@ -169,7 +169,7 @@ Core::Buffer Core::PullBuffer(unsigned sz) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PushBuffer(Buffer && buf) noexcept
+void Core::PushBuffer(Buffer && buf)
 {
     // Make sure we don't store empty buffers
     if (!buf.empty())
@@ -180,7 +180,7 @@ void Core::PushBuffer(Buffer && buf) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::MakeBuffer(unsigned num, unsigned sz) noexcept
+void Core::MakeBuffer(unsigned num, unsigned sz)
 {
     // Create the specified number of buffers
     while (num--)
@@ -190,7 +190,7 @@ void Core::MakeBuffer(unsigned num, unsigned sz) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::ConnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
+void Core::ConnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload)
 {
     // Attempt to activate the instance in the plugin at the received identifier
     if (EntMan< CPlayer >::Activate(id, false))
@@ -204,7 +204,7 @@ void Core::ConnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
     }
 }
 
-void Core::DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcept
+void Core::DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload)
 {
     // Check to be sure we have this player instance active
     if (Reference< CPlayer >::Verify(id))
@@ -215,7 +215,7 @@ void Core::DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload) noexcep
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::Configure() noexcept
+bool Core::Configure()
 {
     LogDbg("Attempting to instantiate the configuration file");
     // See if the configurations instance was previously created
@@ -303,7 +303,7 @@ bool Core::Configure() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::CreateVM() noexcept
+bool Core::CreateVM()
 {
     LogDbg("Acquiring the virtual machine stack size");
 
@@ -377,7 +377,7 @@ bool Core::CreateVM() noexcept
     return true;
 }
 
-void Core::DestroyVM() noexcept
+void Core::DestroyVM()
 {
     // See if the Virtual Machine wasn't already destroyed
     if (m_VM != nullptr)
@@ -398,7 +398,7 @@ void Core::DestroyVM() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::LoadScripts() noexcept
+bool Core::LoadScripts()
 {
     LogDbg("Attempting to compile the specified scripts");
     // See if the config file was loaded
@@ -455,7 +455,7 @@ bool Core::LoadScripts() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::Compile(const string & name) noexcept
+bool Core::Compile(const string & name)
 {
     // See if the specified script path is valid
     if (name.empty())
@@ -494,7 +494,7 @@ bool Core::Compile(const string & name) noexcept
     return true;
 }
 
-bool Core::Execute() noexcept
+bool Core::Execute()
 {
     LogDbg("Attempting to execute the specified scripts");
     // Go through each loaded script
@@ -521,7 +521,7 @@ bool Core::Execute() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PrintCallstack() noexcept
+void Core::PrintCallstack()
 {
     SQStackInfos si;
     // Begin a new section in the console
@@ -611,7 +611,7 @@ void Core::PrintCallstack() noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
+void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...)
 {
     SQMOD_UNUSED_VAR(vm);
     // Prepare the arguments list
@@ -653,7 +653,7 @@ void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
     _Core->PushBuffer(std::move(vbuf));
 }
 
-void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
+void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...)
 {
     SQMOD_UNUSED_VAR(vm);
     // Prepare the arguments list
@@ -696,7 +696,7 @@ void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm) noexcept
+SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
 {
     // Verify the top of the stack and whether there's any information to process
     if (sq_gettop(vm) < 1)
@@ -729,7 +729,7 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm) noexcept
     return SQ_OK;
 }
 
-void Core::CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQChar * src, SQInteger line, SQInteger column) noexcept
+void Core::CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQChar * src, SQInteger line, SQInteger column)
 {
     SQMOD_UNUSED_VAR(vm);
     try
@@ -748,7 +748,7 @@ void Core::CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQCha
 // ------------------------------------------------------------------------------------------------
 Reference< CBlip > Core::NewBlip(SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                                     SQInt32 scale, SQUint32 color, SQInt32 sprid,
-                                    SQInt32 header, SqObj & payload) noexcept
+                                    SQInt32 header, SqObj & payload)
 {
     // Attempt to create the entity and return a reference to it
     return Reference< CBlip >(EntMan< CBlip >::Create(header, payload, true,
@@ -758,7 +758,7 @@ Reference< CBlip > Core::NewBlip(SQInt32 index, SQInt32 world, SQFloat x, SQFloa
 // ------------------------------------------------------------------------------------------------
 Reference< CCheckpoint > Core::NewCheckpoint(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a, SQFloat radius,
-                                                SQInt32 header, SqObj & payload) noexcept
+                                                SQInt32 header, SqObj & payload)
 {
     // See if the specified player reference is valid
     if (!Reference< CPlayer >::Verify(player))
@@ -778,7 +778,7 @@ Reference< CCheckpoint > Core::NewCheckpoint(SQInt32 player, SQInt32 world, SQFl
 // ------------------------------------------------------------------------------------------------
 Reference< CKeybind > Core::NewKeybind(SQInt32 slot, bool release,
                                         SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                                        SQInt32 header, SqObj & payload) noexcept
+                                        SQInt32 header, SqObj & payload)
 {
     // Attempt to create the entity and return a reference to it
     return Reference< CKeybind >(EntMan< CKeybind >::Create(header, payload, true,
@@ -788,7 +788,7 @@ Reference< CKeybind > Core::NewKeybind(SQInt32 slot, bool release,
 // ------------------------------------------------------------------------------------------------
 Reference< CObject > Core::NewObject(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                                         SQInt32 alpha,
-                                        SQInt32 header, SqObj & payload) noexcept
+                                        SQInt32 header, SqObj & payload)
 {
     // See if the specified model is valid
     if (!CModel::Valid(model))
@@ -808,7 +808,7 @@ Reference< CObject > Core::NewObject(SQInt32 model, SQInt32 world, SQFloat x, SQ
 // ------------------------------------------------------------------------------------------------
 Reference< CPickup > Core::NewPickup(SQInt32 model, SQInt32 world, SQInt32 quantity,
                                         SQFloat x, SQFloat y, SQFloat z, SQInt32 alpha, bool automatic,
-                                        SQInt32 header, SqObj & payload) noexcept
+                                        SQInt32 header, SqObj & payload)
 {
     // See if the specified model is valid
     if (!CModel::Valid(model))
@@ -828,7 +828,7 @@ Reference< CPickup > Core::NewPickup(SQInt32 model, SQInt32 world, SQInt32 quant
 // ------------------------------------------------------------------------------------------------
 Reference< CSphere > Core::NewSphere(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                                         Uint8 r, Uint8 g, Uint8 b, SQFloat radius,
-                                        SQInt32 header, SqObj & payload) noexcept
+                                        SQInt32 header, SqObj & payload)
 {
     // See if the specified player reference is valid
     if (!Reference< CPlayer >::Verify(player))
@@ -848,7 +848,7 @@ Reference< CSphere > Core::NewSphere(SQInt32 player, SQInt32 world, SQFloat x, S
 // ------------------------------------------------------------------------------------------------
 Reference< CSprite > Core::NewSprite(SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
                                         SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel,
-                                        SQInt32 header, SqObj & payload) noexcept
+                                        SQInt32 header, SqObj & payload)
 {
     // See if the specified file path is valid
     if (!file)
@@ -868,7 +868,7 @@ Reference< CSprite > Core::NewSprite(SQInt32 index, const SQChar * file, SQInt32
 // ------------------------------------------------------------------------------------------------
 Reference< CTextdraw > Core::NewTextdraw(SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
                                             SQUint32 color, bool rel,
-                                            SQInt32 header, SqObj & payload) noexcept
+                                            SQInt32 header, SqObj & payload)
 {
     // See if the specified text is valid
     if (!text)
@@ -888,7 +888,7 @@ Reference< CTextdraw > Core::NewTextdraw(SQInt32 index, const SQChar * text, SQI
 // ------------------------------------------------------------------------------------------------
 Reference< CVehicle > Core::NewVehicle(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                                         SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                                        SQInt32 header, SqObj & payload) noexcept
+                                        SQInt32 header, SqObj & payload)
 {
     // See if the specified model is valid
     if (!CAutomobile::Valid(model))
@@ -906,513 +906,513 @@ Reference< CVehicle > Core::NewVehicle(SQInt32 model, SQInt32 world, SQFloat x, 
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnBlipCreated(SQInt32 blip, SQInt32 header, SqObj & payload) noexcept
+void Core::OnBlipCreated(SQInt32 blip, SQInt32 header, SqObj & payload)
 {
     BlipCreated.Emit(blip, header, payload);
     Reference< CBlip >::Get(blip).BlipCreated.Emit(blip, header, payload);
 }
 
-void Core::OnCheckpointCreated(SQInt32 checkpoint, SQInt32 header, SqObj & payload) noexcept
+void Core::OnCheckpointCreated(SQInt32 checkpoint, SQInt32 header, SqObj & payload)
 {
     CheckpointCreated.Emit(checkpoint, header, payload);
     Reference< CCheckpoint >::Get(checkpoint).CheckpointCreated.Emit(checkpoint, header, payload);
 }
 
-void Core::OnKeybindCreated(SQInt32 keybind, SQInt32 header, SqObj & payload) noexcept
+void Core::OnKeybindCreated(SQInt32 keybind, SQInt32 header, SqObj & payload)
 {
     KeybindCreated.Emit(keybind, header, payload);
     Reference< CKeybind >::Get(keybind).KeybindCreated.Emit(keybind, header, payload);
 }
 
-void Core::OnObjectCreated(SQInt32 object, SQInt32 header, SqObj & payload) noexcept
+void Core::OnObjectCreated(SQInt32 object, SQInt32 header, SqObj & payload)
 {
     ObjectCreated.Emit(object, header, payload);
     Reference< CObject >::Get(object).ObjectCreated.Emit(object, header, payload);
 }
 
-void Core::OnPickupCreated(SQInt32 pickup, SQInt32 header, SqObj & payload) noexcept
+void Core::OnPickupCreated(SQInt32 pickup, SQInt32 header, SqObj & payload)
 {
     PickupCreated.Emit(pickup, header, payload);
     Reference< CPickup >::Get(pickup).PickupCreated.Emit(pickup, header, payload);
 }
 
-void Core::OnPlayerCreated(SQInt32 player, SQInt32 header, SqObj & payload) noexcept
+void Core::OnPlayerCreated(SQInt32 player, SQInt32 header, SqObj & payload)
 {
     PlayerCreated.Emit(player, header, payload);
     Reference< CPlayer >::Get(player).PlayerCreated.Emit(player, header, payload);
 }
 
-void Core::OnSphereCreated(SQInt32 sphere, SQInt32 header, SqObj & payload) noexcept
+void Core::OnSphereCreated(SQInt32 sphere, SQInt32 header, SqObj & payload)
 {
     SphereCreated.Emit(sphere, header, payload);
     Reference< CSphere >::Get(sphere).SphereCreated.Emit(sphere, header, payload);
 }
 
-void Core::OnSpriteCreated(SQInt32 sprite, SQInt32 header, SqObj & payload) noexcept
+void Core::OnSpriteCreated(SQInt32 sprite, SQInt32 header, SqObj & payload)
 {
     SpriteCreated.Emit(sprite, header, payload);
     Reference< CSprite >::Get(sprite).SpriteCreated.Emit(sprite, header, payload);
 }
 
-void Core::OnTextdrawCreated(SQInt32 textdraw, SQInt32 header, SqObj & payload) noexcept
+void Core::OnTextdrawCreated(SQInt32 textdraw, SQInt32 header, SqObj & payload)
 {
     TextdrawCreated.Emit(textdraw, header, payload);
     Reference< CTextdraw >::Get(textdraw).TextdrawCreated.Emit(textdraw, header, payload);
 }
 
-void Core::OnVehicleCreated(SQInt32 vehicle, SQInt32 header, SqObj & payload) noexcept
+void Core::OnVehicleCreated(SQInt32 vehicle, SQInt32 header, SqObj & payload)
 {
     VehicleCreated.Emit(vehicle, header, payload);
     Reference< CVehicle >::Get(vehicle).VehicleCreated.Emit(vehicle, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnBlipDestroyed(SQInt32 blip, SQInt32 header, SqObj & payload) noexcept
+void Core::OnBlipDestroyed(SQInt32 blip, SQInt32 header, SqObj & payload)
 {
     BlipDestroyed.Emit(blip, header, payload);
     Reference< CBlip >::Get(blip).BlipDestroyed.Emit(blip, header, payload);
 }
 
-void Core::OnCheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, SqObj & payload) noexcept
+void Core::OnCheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, SqObj & payload)
 {
     CheckpointDestroyed.Emit(checkpoint, header, payload);
     Reference< CCheckpoint >::Get(checkpoint).CheckpointDestroyed.Emit(checkpoint, header, payload);
 }
 
-void Core::OnKeybindDestroyed(SQInt32 keybind, SQInt32 header, SqObj & payload) noexcept
+void Core::OnKeybindDestroyed(SQInt32 keybind, SQInt32 header, SqObj & payload)
 {
     KeybindDestroyed.Emit(keybind, header, payload);
     Reference< CKeybind >::Get(keybind).KeybindDestroyed.Emit(keybind, header, payload);
 }
 
-void Core::OnObjectDestroyed(SQInt32 object, SQInt32 header, SqObj & payload) noexcept
+void Core::OnObjectDestroyed(SQInt32 object, SQInt32 header, SqObj & payload)
 {
     ObjectDestroyed.Emit(object, header, payload);
     Reference< CObject >::Get(object).ObjectDestroyed.Emit(object, header, payload);
 }
 
-void Core::OnPickupDestroyed(SQInt32 pickup, SQInt32 header, SqObj & payload) noexcept
+void Core::OnPickupDestroyed(SQInt32 pickup, SQInt32 header, SqObj & payload)
 {
     PickupDestroyed.Emit(pickup, header, payload);
     Reference< CPickup >::Get(pickup).PickupDestroyed.Emit(pickup, header, payload);
 }
 
-void Core::OnPlayerDestroyed(SQInt32 player, SQInt32 header, SqObj & payload) noexcept
+void Core::OnPlayerDestroyed(SQInt32 player, SQInt32 header, SqObj & payload)
 {
     PlayerDestroyed.Emit(player, header, payload);
     Reference< CPlayer >::Get(player).PlayerDestroyed.Emit(player, header, payload);
 }
 
-void Core::OnSphereDestroyed(SQInt32 sphere, SQInt32 header, SqObj & payload) noexcept
+void Core::OnSphereDestroyed(SQInt32 sphere, SQInt32 header, SqObj & payload)
 {
     SphereDestroyed.Emit(sphere, header, payload);
     Reference< CSphere >::Get(sphere).SphereDestroyed.Emit(sphere, header, payload);
 }
 
-void Core::OnSpriteDestroyed(SQInt32 sprite, SQInt32 header, SqObj & payload) noexcept
+void Core::OnSpriteDestroyed(SQInt32 sprite, SQInt32 header, SqObj & payload)
 {
     SpriteDestroyed.Emit(sprite, header, payload);
     Reference< CSprite >::Get(sprite).SpriteDestroyed.Emit(sprite, header, payload);
 }
 
-void Core::OnTextdrawDestroyed(SQInt32 textdraw, SQInt32 header, SqObj & payload) noexcept
+void Core::OnTextdrawDestroyed(SQInt32 textdraw, SQInt32 header, SqObj & payload)
 {
     TextdrawDestroyed.Emit(textdraw, header, payload);
     Reference< CTextdraw >::Get(textdraw).TextdrawDestroyed.Emit(textdraw, header, payload);
 }
 
-void Core::OnVehicleDestroyed(SQInt32 vehicle, SQInt32 header, SqObj & payload) noexcept
+void Core::OnVehicleDestroyed(SQInt32 vehicle, SQInt32 header, SqObj & payload)
 {
     VehicleDestroyed.Emit(vehicle, header, payload);
     Reference< CVehicle >::Get(vehicle).VehicleDestroyed.Emit(vehicle, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnBlipCustom(SQInt32 blip, SQInt32 header, SqObj & payload) noexcept
+void Core::OnBlipCustom(SQInt32 blip, SQInt32 header, SqObj & payload)
 {
     BlipCustom.Emit(blip, header, payload);
     Reference< CBlip >::Get(blip).BlipCustom.Emit(blip, header, payload);
 }
 
-void Core::OnCheckpointCustom(SQInt32 checkpoint, SQInt32 header, SqObj & payload) noexcept
+void Core::OnCheckpointCustom(SQInt32 checkpoint, SQInt32 header, SqObj & payload)
 {
     CheckpointCustom.Emit(checkpoint, header, payload);
     Reference< CCheckpoint >::Get(checkpoint).CheckpointCustom.Emit(checkpoint, header, payload);
 }
 
-void Core::OnKeybindCustom(SQInt32 keybind, SQInt32 header, SqObj & payload) noexcept
+void Core::OnKeybindCustom(SQInt32 keybind, SQInt32 header, SqObj & payload)
 {
     KeybindCustom.Emit(keybind, header, payload);
     Reference< CKeybind >::Get(keybind).KeybindCustom.Emit(keybind, header, payload);
 }
 
-void Core::OnObjectCustom(SQInt32 object, SQInt32 header, SqObj & payload) noexcept
+void Core::OnObjectCustom(SQInt32 object, SQInt32 header, SqObj & payload)
 {
     ObjectCustom.Emit(object, header, payload);
     Reference< CObject >::Get(object).ObjectCustom.Emit(object, header, payload);
 }
 
-void Core::OnPickupCustom(SQInt32 pickup, SQInt32 header, SqObj & payload) noexcept
+void Core::OnPickupCustom(SQInt32 pickup, SQInt32 header, SqObj & payload)
 {
     PickupCustom.Emit(pickup, header, payload);
     Reference< CPickup >::Get(pickup).PickupCustom.Emit(pickup, header, payload);
 }
 
-void Core::OnPlayerCustom(SQInt32 player, SQInt32 header, SqObj & payload) noexcept
+void Core::OnPlayerCustom(SQInt32 player, SQInt32 header, SqObj & payload)
 {
     PlayerCustom.Emit(player, header, payload);
     Reference< CPlayer >::Get(player).PlayerCustom.Emit(player, header, payload);
 }
 
-void Core::OnSphereCustom(SQInt32 sphere, SQInt32 header, SqObj & payload) noexcept
+void Core::OnSphereCustom(SQInt32 sphere, SQInt32 header, SqObj & payload)
 {
     SphereCustom.Emit(sphere, header, payload);
     Reference< CSphere >::Get(sphere).SphereCustom.Emit(sphere, header, payload);
 }
 
-void Core::OnSpriteCustom(SQInt32 sprite, SQInt32 header, SqObj & payload) noexcept
+void Core::OnSpriteCustom(SQInt32 sprite, SQInt32 header, SqObj & payload)
 {
     SpriteCustom.Emit(sprite, header, payload);
     Reference< CSprite >::Get(sprite).SpriteCustom.Emit(sprite, header, payload);
 }
 
-void Core::OnTextdrawCustom(SQInt32 textdraw, SQInt32 header, SqObj & payload) noexcept
+void Core::OnTextdrawCustom(SQInt32 textdraw, SQInt32 header, SqObj & payload)
 {
     TextdrawCustom.Emit(textdraw, header, payload);
     Reference< CTextdraw >::Get(textdraw).TextdrawCustom.Emit(textdraw, header, payload);
 }
 
-void Core::OnVehicleCustom(SQInt32 vehicle, SQInt32 header, SqObj & payload) noexcept
+void Core::OnVehicleCustom(SQInt32 vehicle, SQInt32 header, SqObj & payload)
 {
     VehicleCustom.Emit(vehicle, header, payload);
     Reference< CVehicle >::Get(vehicle).VehicleCustom.Emit(vehicle, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerAway(SQInt32 player, bool status) noexcept
+void Core::OnPlayerAway(SQInt32 player, bool status)
 {
     PlayerAway.Emit(player, status);
     Reference< CPlayer >::Get(player).PlayerAway.Emit(player, status);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void Core::OnPlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     PlayerGameKeys.Emit(player, previous, current);
     Reference< CPlayer >::Get(player).PlayerGameKeys.Emit(player, previous, current);
 }
 
-void Core::OnPlayerName(SQInt32 player, const SQChar * previous, const SQChar * current) noexcept
+void Core::OnPlayerName(SQInt32 player, const SQChar * previous, const SQChar * current)
 {
     PlayerRename.Emit(player, previous, current);
     Reference< CPlayer >::Get(player).PlayerRename.Emit(player, previous, current);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerRequestClass(SQInt32 player, SQInt32 offset) noexcept
+void Core::OnPlayerRequestClass(SQInt32 player, SQInt32 offset)
 {
     PlayerRequestClass.Emit(player, offset);
     Reference< CPlayer >::Get(player).PlayerRequestClass.Emit(player, offset);
 }
 
-void Core::OnPlayerRequestSpawn(SQInt32 player) noexcept
+void Core::OnPlayerRequestSpawn(SQInt32 player)
 {
     PlayerRequestSpawn.Emit(player);
     Reference< CPlayer >::Get(player).PlayerRequestSpawn.Emit(player);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerSpawn(SQInt32 player) noexcept
+void Core::OnPlayerSpawn(SQInt32 player)
 {
     PlayerSpawn.Emit(player);
     Reference< CPlayer >::Get(player).PlayerSpawn.Emit(player);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerStartTyping(SQInt32 player) noexcept
+void Core::OnPlayerStartTyping(SQInt32 player)
 {
     PlayerStartTyping.Emit(player);
     Reference< CPlayer >::Get(player).PlayerStartTyping.Emit(player);
 }
 
-void Core::OnPlayerStopTyping(SQInt32 player) noexcept
+void Core::OnPlayerStopTyping(SQInt32 player)
 {
     PlayerStopTyping.Emit(player);
     Reference< CPlayer >::Get(player).PlayerStopTyping.Emit(player);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerChat(SQInt32 player, const SQChar * message) noexcept
+void Core::OnPlayerChat(SQInt32 player, const SQChar * message)
 {
     PlayerChat.Emit(player, message);
     Reference< CPlayer >::Get(player).PlayerChat.Emit(player, message);
 }
 
-void Core::OnPlayerCommand(SQInt32 player, const SQChar * command) noexcept
+void Core::OnPlayerCommand(SQInt32 player, const SQChar * command)
 {
     PlayerCommand.Emit(player, command);
     Reference< CPlayer >::Get(player).PlayerCommand.Emit(player, command);
 }
 
-void Core::OnPlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message) noexcept
+void Core::OnPlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message)
 {
     PlayerMessage.Emit(player, receiver, message);
     Reference< CPlayer >::Get(player).PlayerMessage.Emit(player, receiver, message);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerHealth(SQInt32 player, SQFloat previous, SQFloat current) noexcept
+void Core::OnPlayerHealth(SQInt32 player, SQFloat previous, SQFloat current)
 {
     PlayerHealth.Emit(player, previous, current);
     Reference< CPlayer >::Get(player).PlayerHealth.Emit(player, previous, current);
 }
 
-void Core::OnPlayerArmour(SQInt32 player, SQFloat previous, SQFloat current) noexcept
+void Core::OnPlayerArmour(SQInt32 player, SQFloat previous, SQFloat current)
 {
     PlayerArmour.Emit(player, previous, current);
     Reference< CPlayer >::Get(player).PlayerArmour.Emit(player, previous, current);
 }
 
-void Core::OnPlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void Core::OnPlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     PlayerWeapon.Emit(player, previous, current);
     Reference< CPlayer >::Get(player).PlayerWeapon.Emit(player, previous, current);
 }
 
-void Core::OnPlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current) noexcept
+void Core::OnPlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current)
 {
     PlayerMove.Emit(player, previous, current);
     Reference< CPlayer >::Get(player).PlayerMove.Emit(player, previous, current);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerWasted(SQInt32 player, SQInt32 reason) noexcept
+void Core::OnPlayerWasted(SQInt32 player, SQInt32 reason)
 {
     PlayerWasted.Emit(player, reason);
     Reference< CPlayer >::Get(player).PlayerWasted.Emit(player, reason);
 }
 
-void Core::OnPlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part) noexcept
+void Core::OnPlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part)
 {
     PlayerKilled.Emit(player, killer, reason, body_part);
     Reference< CPlayer >::Get(player).PlayerKilled.Emit(player, killer, reason, body_part);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerSpectate(SQInt32 player, SQInt32 target) noexcept
+void Core::OnPlayerSpectate(SQInt32 player, SQInt32 target)
 {
     PlayerSpectate.Emit(player, target);
     Reference< CPlayer >::Get(player).PlayerSpectate.Emit(player, target);
 }
 
-void Core::OnPlayerCrashreport(SQInt32 player, const SQChar * report) noexcept
+void Core::OnPlayerCrashreport(SQInt32 player, const SQChar * report)
 {
     PlayerCrashreport.Emit(player, report);
     Reference< CPlayer >::Get(player).PlayerCrashreport.Emit(player, report);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerBurning(SQInt32 player, bool state) noexcept
+void Core::OnPlayerBurning(SQInt32 player, bool state)
 {
     PlayerBurning.Emit(player, state);
     Reference< CPlayer >::Get(player).PlayerBurning.Emit(player, state);
 }
 
-void Core::OnPlayerCrouching(SQInt32 player, bool state) noexcept
+void Core::OnPlayerCrouching(SQInt32 player, bool state)
 {
     PlayerCrouching.Emit(player, state);
     Reference< CPlayer >::Get(player).PlayerCrouching.Emit(player, state);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerState(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void Core::OnPlayerState(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     PlayerState.Emit(player, previous, current);
     Reference< CPlayer >::Get(player).PlayerState.Emit(player, previous, current);
 }
 
-void Core::OnPlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current) noexcept
+void Core::OnPlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current)
 {
     PlayerAction.Emit(player, previous, current);
     Reference< CPlayer >::Get(player).PlayerAction.Emit(player, previous, current);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnStateNone(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnStateNone(SQInt32 player, SQInt32 previous)
 {
     StateNone.Emit(player, previous);
     Reference< CPlayer >::Get(player).StateNone.Emit(player, previous);
 }
 
-void Core::OnStateNormal(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnStateNormal(SQInt32 player, SQInt32 previous)
 {
     StateNormal.Emit(player, previous);
     Reference< CPlayer >::Get(player).StateNormal.Emit(player, previous);
 }
 
-void Core::OnStateShooting(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnStateShooting(SQInt32 player, SQInt32 previous)
 {
     StateShooting.Emit(player, previous);
     Reference< CPlayer >::Get(player).StateShooting.Emit(player, previous);
 }
 
-void Core::OnStateDriver(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnStateDriver(SQInt32 player, SQInt32 previous)
 {
     StateDriver.Emit(player, previous);
     Reference< CPlayer >::Get(player).StateDriver.Emit(player, previous);
 }
 
-void Core::OnStatePassenger(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnStatePassenger(SQInt32 player, SQInt32 previous)
 {
     StatePassenger.Emit(player, previous);
     Reference< CPlayer >::Get(player).StatePassenger.Emit(player, previous);
 }
 
-void Core::OnStateEnterDriver(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnStateEnterDriver(SQInt32 player, SQInt32 previous)
 {
     StateEnterDriver.Emit(player, previous);
     Reference< CPlayer >::Get(player).StateEnterDriver.Emit(player, previous);
 }
 
-void Core::OnStateEnterPassenger(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnStateEnterPassenger(SQInt32 player, SQInt32 previous)
 {
     StateEnterPassenger.Emit(player, previous);
     Reference< CPlayer >::Get(player).StateEnterPassenger.Emit(player, previous);
 }
 
-void Core::OnStateExitVehicle(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnStateExitVehicle(SQInt32 player, SQInt32 previous)
 {
     StateExitVehicle.Emit(player, previous);
     Reference< CPlayer >::Get(player).StateExitVehicle.Emit(player, previous);
 }
 
-void Core::OnStateUnspawned(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnStateUnspawned(SQInt32 player, SQInt32 previous)
 {
     StateUnspawned.Emit(player, previous);
     Reference< CPlayer >::Get(player).StateUnspawned.Emit(player, previous);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnActionNone(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionNone(SQInt32 player, SQInt32 previous)
 {
     ActionNone.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionNone.Emit(player, previous);
 }
 
-void Core::OnActionNormal(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionNormal(SQInt32 player, SQInt32 previous)
 {
     ActionNormal.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionNormal.Emit(player, previous);
 }
 
-void Core::OnActionAiming(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionAiming(SQInt32 player, SQInt32 previous)
 {
     ActionAiming.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionAiming.Emit(player, previous);
 }
 
-void Core::OnActionShooting(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionShooting(SQInt32 player, SQInt32 previous)
 {
     ActionShooting.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionShooting.Emit(player, previous);
 }
 
-void Core::OnActionJumping(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionJumping(SQInt32 player, SQInt32 previous)
 {
     ActionJumping.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionJumping.Emit(player, previous);
 }
 
-void Core::OnActionLieDown(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionLieDown(SQInt32 player, SQInt32 previous)
 {
     ActionLieDown.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionLieDown.Emit(player, previous);
 }
 
-void Core::OnActionGettingUp(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionGettingUp(SQInt32 player, SQInt32 previous)
 {
     ActionGettingUp.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionGettingUp.Emit(player, previous);
 }
 
-void Core::OnActionJumpVehicle(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionJumpVehicle(SQInt32 player, SQInt32 previous)
 {
     ActionJumpVehicle.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionJumpVehicle.Emit(player, previous);
 }
 
-void Core::OnActionDriving(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionDriving(SQInt32 player, SQInt32 previous)
 {
     ActionDriving.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionDriving.Emit(player, previous);
 }
 
-void Core::OnActionDying(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionDying(SQInt32 player, SQInt32 previous)
 {
     ActionDying.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionDying.Emit(player, previous);
 }
 
-void Core::OnActionWasted(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionWasted(SQInt32 player, SQInt32 previous)
 {
     ActionWasted.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionWasted.Emit(player, previous);
 }
 
-void Core::OnActionEmbarking(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionEmbarking(SQInt32 player, SQInt32 previous)
 {
     ActionEmbarking.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionEmbarking.Emit(player, previous);
 }
 
-void Core::OnActionDisembarking(SQInt32 player, SQInt32 previous) noexcept
+void Core::OnActionDisembarking(SQInt32 player, SQInt32 previous)
 {
     ActionDisembarking.Emit(player, previous);
     Reference< CPlayer >::Get(player).ActionDisembarking.Emit(player, previous);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnVehicleRespawn(SQInt32 vehicle) noexcept
+void Core::OnVehicleRespawn(SQInt32 vehicle)
 {
     VehicleRespawn.Emit(vehicle);
     Reference< CVehicle >::Get(vehicle).VehicleRespawn.Emit(vehicle);
 }
 
-void Core::OnVehicleExplode(SQInt32 vehicle) noexcept
+void Core::OnVehicleExplode(SQInt32 vehicle)
 {
     VehicleExplode.Emit(vehicle);
     Reference< CVehicle >::Get(vehicle).VehicleExplode.Emit(vehicle);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnVehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current) noexcept
+void Core::OnVehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current)
 {
     VehicleHealth.Emit(vehicle, previous, current);
     Reference< CVehicle >::Get(vehicle).VehicleHealth.Emit(vehicle, previous, current);
 }
 
-void Core::OnVehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 & current) noexcept
+void Core::OnVehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 & current)
 {
     VehicleMove.Emit(vehicle, previous, current);
     Reference< CVehicle >::Get(vehicle).VehicleMove.Emit(vehicle, previous, current);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPickupRespawn(SQInt32 pickup) noexcept
+void Core::OnPickupRespawn(SQInt32 pickup)
 {
     PickupRespawn.Emit(pickup);
     Reference< CPickup >::Get(pickup).PickupRespawn.Emit(pickup);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerKeyPress(SQInt32 player, SQInt32 keybind) noexcept
+void Core::OnPlayerKeyPress(SQInt32 player, SQInt32 keybind)
 {
     KeybindKeyPress.Emit(player, keybind);
     Reference< CKeybind >::Get(keybind).KeybindKeyPress.Emit(player, keybind);
     Reference< CPlayer >::Get(player).KeybindKeyPress.Emit(player, keybind);
 }
 
-void Core::OnPlayerKeyRelease(SQInt32 player, SQInt32 keybind) noexcept
+void Core::OnPlayerKeyRelease(SQInt32 player, SQInt32 keybind)
 {
     KeybindKeyRelease.Emit(player, keybind);
     Reference< CKeybind >::Get(keybind).KeybindKeyRelease.Emit(player, keybind);
@@ -1420,21 +1420,21 @@ void Core::OnPlayerKeyRelease(SQInt32 player, SQInt32 keybind) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
+void Core::OnPlayerEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 {
     VehicleEmbarking.Emit(player, vehicle, slot);
     Reference< CVehicle >::Get(vehicle).VehicleEmbarking.Emit(player, vehicle, slot);
     Reference< CPlayer >::Get(player).VehicleEmbarking.Emit(player, vehicle, slot);
 }
 
-void Core::OnPlayerEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot) noexcept
+void Core::OnPlayerEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
 {
     VehicleEmbarked.Emit(player, vehicle, slot);
     Reference< CVehicle >::Get(vehicle).VehicleEmbarked.Emit(player, vehicle, slot);
     Reference< CPlayer >::Get(player).VehicleEmbarked.Emit(player, vehicle, slot);
 }
 
-void Core::OnPlayerDisembark(SQInt32 player, SQInt32 vehicle) noexcept
+void Core::OnPlayerDisembark(SQInt32 player, SQInt32 vehicle)
 {
     VehicleDisembark.Emit(player, vehicle);
     Reference< CVehicle >::Get(vehicle).VehicleDisembark.Emit(player, vehicle);
@@ -1442,14 +1442,14 @@ void Core::OnPlayerDisembark(SQInt32 player, SQInt32 vehicle) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPickupClaimed(SQInt32 player, SQInt32 pickup) noexcept
+void Core::OnPickupClaimed(SQInt32 player, SQInt32 pickup)
 {
     PickupClaimed.Emit(player, pickup);
     Reference< CPickup >::Get(pickup).PickupClaimed.Emit(player, pickup);
     Reference< CPlayer >::Get(player).PickupClaimed.Emit(player, pickup);
 }
 
-void Core::OnPickupCollected(SQInt32 player, SQInt32 pickup) noexcept
+void Core::OnPickupCollected(SQInt32 player, SQInt32 pickup)
 {
     PickupClaimed.Emit(player, pickup);
     Reference< CPickup >::Get(pickup).PickupClaimed.Emit(player, pickup);
@@ -1457,14 +1457,14 @@ void Core::OnPickupCollected(SQInt32 player, SQInt32 pickup) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon) noexcept
+void Core::OnObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon)
 {
     ObjectShot.Emit(player, object, weapon);
     Reference< CObject >::Get(object).ObjectShot.Emit(player, object, weapon);
     Reference< CPlayer >::Get(player).ObjectShot.Emit(player, object, weapon);
 }
 
-void Core::OnObjectBump(SQInt32 player, SQInt32 object) noexcept
+void Core::OnObjectBump(SQInt32 player, SQInt32 object)
 {
     ObjectBump.Emit(player, object);
     Reference< CObject >::Get(object).ObjectBump.Emit(player, object);
@@ -1472,14 +1472,14 @@ void Core::OnObjectBump(SQInt32 player, SQInt32 object) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnCheckpointEntered(SQInt32 player, SQInt32 checkpoint) noexcept
+void Core::OnCheckpointEntered(SQInt32 player, SQInt32 checkpoint)
 {
     CheckpointEntered.Emit(player, checkpoint);
     Reference< CCheckpoint >::Get(checkpoint).CheckpointEntered.Emit(player, checkpoint);
     Reference< CPlayer >::Get(player).CheckpointEntered.Emit(player, checkpoint);
 }
 
-void Core::OnCheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept
+void Core::OnCheckpointExited(SQInt32 player, SQInt32 checkpoint)
 {
     CheckpointExited.Emit(player, checkpoint);
     Reference< CCheckpoint >::Get(checkpoint).CheckpointExited.Emit(player, checkpoint);
@@ -1487,14 +1487,14 @@ void Core::OnCheckpointExited(SQInt32 player, SQInt32 checkpoint) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnSphereEntered(SQInt32 player, SQInt32 sphere) noexcept
+void Core::OnSphereEntered(SQInt32 player, SQInt32 sphere)
 {
     SphereEntered.Emit(player, sphere);
     Reference< CSphere >::Get(sphere).SphereEntered.Emit(player, sphere);
     Reference< CPlayer >::Get(player).SphereEntered.Emit(player, sphere);
 }
 
-void Core::OnSphereExited(SQInt32 player, SQInt32 sphere) noexcept
+void Core::OnSphereExited(SQInt32 player, SQInt32 sphere)
 {
     SphereExited.Emit(player, sphere);
     Reference< CSphere >::Get(sphere).SphereExited.Emit(player, sphere);
@@ -1502,64 +1502,64 @@ void Core::OnSphereExited(SQInt32 player, SQInt32 sphere) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnServerFrame(SQFloat delta) noexcept
+void Core::OnServerFrame(SQFloat delta)
 {
     ServerFrame.Emit(delta);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnServerStartup() noexcept
+void Core::OnServerStartup()
 {
     ServerStartup.Emit();
 }
 
-void Core::OnServerShutdown() noexcept
+void Core::OnServerShutdown()
 {
     ServerShutdown.Emit();
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnInternalCommand(SQInt32 type, const SQChar * text) noexcept
+void Core::OnInternalCommand(SQInt32 type, const SQChar * text)
 {
     InternalCommand.Emit(type, text);
 }
 
-void Core::OnLoginAttempt(const SQChar * name, const SQChar * passwd, const SQChar * ip) noexcept
+void Core::OnLoginAttempt(const SQChar * name, const SQChar * passwd, const SQChar * ip)
 {
     LoginAttempt.Emit(name, passwd, ip);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnCustomEvent(SQInt32 group, SQInt32 header, SqObj & payload) noexcept
+void Core::OnCustomEvent(SQInt32 group, SQInt32 header, SqObj & payload)
 {
     CustomEvent.Emit(group, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnWorldOption(SQInt32 option, SqObj & value) noexcept
+void Core::OnWorldOption(SQInt32 option, SqObj & value)
 {
     WorldOption.Emit(option, value);
 }
 
-void Core::OnWorldToggle(SQInt32 option, bool value) noexcept
+void Core::OnWorldToggle(SQInt32 option, bool value)
 {
     WorldToggle.Emit(option, value);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnScriptReload(SQInt32 header, SqObj & payload) noexcept
+void Core::OnScriptReload(SQInt32 header, SqObj & payload)
 {
     ScriptReload.Emit(header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnLogMessage(SQInt32 type, const SQChar * message) noexcept
+void Core::OnLogMessage(SQInt32 type, const SQChar * message)
 {
     LogMessage.Emit(type, message);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type) noexcept
+void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type)
 {
     SQMOD_UNUSED_VAR(type);
     Vector3 pos;
@@ -1619,7 +1619,7 @@ void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type) noexcept
     }
 }
 
-void Core::OnVehicleUpdate(SQInt32 vehicle, SQInt32 type) noexcept
+void Core::OnVehicleUpdate(SQInt32 vehicle, SQInt32 type)
 {
     SQMOD_UNUSED_VAR(type);
     Vector3 pos;
@@ -1657,7 +1657,7 @@ void Core::OnVehicleUpdate(SQInt32 vehicle, SQInt32 type) noexcept
     }
 }
 
-void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted) noexcept
+void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted)
 {
     // Script object to play the role of a dummy payload
     static SqObj payload;

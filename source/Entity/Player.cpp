@@ -19,14 +19,14 @@ Vector3  CPlayer::s_Vector3;
 SQChar   CPlayer::s_Buffer[128];
 
 // ------------------------------------------------------------------------------------------------
-CPlayer::CPlayer(const Reference< CPlayer > & o) noexcept
+CPlayer::CPlayer(const Reference< CPlayer > & o)
     : Reference(o)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsStreamedFor(const Reference < CPlayer > & player) const noexcept
+bool CPlayer::IsStreamedFor(const Reference < CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)
     {
@@ -45,7 +45,7 @@ bool CPlayer::IsStreamedFor(const Reference < CPlayer > & player) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetClass() const noexcept
+SQInt32 CPlayer::GetClass() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -60,7 +60,7 @@ SQInt32 CPlayer::GetClass() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetAdmin() const noexcept
+bool CPlayer::GetAdmin() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -75,7 +75,7 @@ bool CPlayer::GetAdmin() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAdmin(bool toggle) const noexcept
+void CPlayer::SetAdmin(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -88,7 +88,7 @@ void CPlayer::SetAdmin(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CPlayer::GetIP() const noexcept
+const SQChar * CPlayer::GetIP() const
 {
     // Clear any previous ip address
     s_Buffer[0] = '\0';
@@ -107,7 +107,7 @@ const SQChar * CPlayer::GetIP() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::Kick() const noexcept
+void CPlayer::Kick() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -120,7 +120,7 @@ void CPlayer::Kick() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::Ban() const noexcept
+void CPlayer::Ban() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -133,7 +133,7 @@ void CPlayer::Ban() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsConnected() const noexcept
+bool CPlayer::IsConnected() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -148,7 +148,7 @@ bool CPlayer::IsConnected() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsSpawned() const noexcept
+bool CPlayer::IsSpawned() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -163,7 +163,7 @@ bool CPlayer::IsSpawned() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUnsignedInteger CPlayer::GetKey() const noexcept
+SQUnsignedInteger CPlayer::GetKey() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -178,7 +178,7 @@ SQUnsignedInteger CPlayer::GetKey() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetWorld() const noexcept
+SQInt32 CPlayer::GetWorld() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -193,7 +193,7 @@ SQInt32 CPlayer::GetWorld() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWorld(SQInt32 world) const noexcept
+void CPlayer::SetWorld(SQInt32 world) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -206,7 +206,7 @@ void CPlayer::SetWorld(SQInt32 world) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetSecWorld() const noexcept
+SQInt32 CPlayer::GetSecWorld() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -221,7 +221,7 @@ SQInt32 CPlayer::GetSecWorld() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSecWorld(SQInt32 world) const noexcept
+void CPlayer::SetSecWorld(SQInt32 world) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -234,7 +234,7 @@ void CPlayer::SetSecWorld(SQInt32 world) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetUniqueWorld() const noexcept
+SQInt32 CPlayer::GetUniqueWorld() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -249,7 +249,7 @@ SQInt32 CPlayer::GetUniqueWorld() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsWorldCompatible(SQInt32 world) const noexcept
+bool CPlayer::IsWorldCompatible(SQInt32 world) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -264,7 +264,7 @@ bool CPlayer::IsWorldCompatible(SQInt32 world) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetState() const noexcept
+SQInt32 CPlayer::GetState() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -279,7 +279,7 @@ SQInt32 CPlayer::GetState() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CPlayer::GetName() const noexcept
+const SQChar * CPlayer::GetName() const
 {
     // Clear any previous ip address
     s_Buffer[0] = '\0';
@@ -298,7 +298,7 @@ const SQChar * CPlayer::GetName() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetName(const SQChar * name) const noexcept
+void CPlayer::SetName(const SQChar * name) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -311,7 +311,7 @@ void CPlayer::SetName(const SQChar * name) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetTeam() const noexcept
+SQInt32 CPlayer::GetTeam() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -326,7 +326,7 @@ SQInt32 CPlayer::GetTeam() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetTeam(SQInt32 team) const noexcept
+void CPlayer::SetTeam(SQInt32 team) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -339,7 +339,7 @@ void CPlayer::SetTeam(SQInt32 team) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const CSkin & CPlayer::GetSkin() const noexcept
+const CSkin & CPlayer::GetSkin() const
 {
     // Clear any previous skin
     s_Skin.SetID(SQMOD_UNKNOWN);
@@ -357,7 +357,7 @@ const CSkin & CPlayer::GetSkin() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSkin(const CSkin & skin) const noexcept
+void CPlayer::SetSkin(const CSkin & skin) const
 {
     if (VALID_ENTITY(m_ID) && skin)
     {
@@ -374,7 +374,7 @@ void CPlayer::SetSkin(const CSkin & skin) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetSkinID() const noexcept
+SQInt32 CPlayer::GetSkinID() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -389,7 +389,7 @@ SQInt32 CPlayer::GetSkinID() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSkinID(SQInt32 skin) const noexcept
+void CPlayer::SetSkinID(SQInt32 skin) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -402,7 +402,7 @@ void CPlayer::SetSkinID(SQInt32 skin) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color3 & CPlayer::GetColor() const noexcept
+const Color3 & CPlayer::GetColor() const
 {
     // Clear any previous color
     s_Color3.Clear();
@@ -420,7 +420,7 @@ const Color3 & CPlayer::GetColor() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetColor(const Color3 & color) const noexcept
+void CPlayer::SetColor(const Color3 & color) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -433,7 +433,7 @@ void CPlayer::SetColor(const Color3 & color) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const noexcept
+void CPlayer::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -446,7 +446,7 @@ void CPlayer::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::ForceSpawn() const noexcept
+void CPlayer::ForceSpawn() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -459,7 +459,7 @@ void CPlayer::ForceSpawn() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::ForceSelect() const noexcept
+void CPlayer::ForceSelect() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -472,7 +472,7 @@ void CPlayer::ForceSelect() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetMoney() const noexcept
+SQInt32 CPlayer::GetMoney() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -487,7 +487,7 @@ SQInt32 CPlayer::GetMoney() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetMoney(SQInt32 amount) const noexcept
+void CPlayer::SetMoney(SQInt32 amount) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -500,7 +500,7 @@ void CPlayer::SetMoney(SQInt32 amount) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::GiveMoney(SQInt32 amount) const noexcept
+void CPlayer::GiveMoney(SQInt32 amount) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -513,7 +513,7 @@ void CPlayer::GiveMoney(SQInt32 amount) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetScore() const noexcept
+SQInt32 CPlayer::GetScore() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -528,7 +528,7 @@ SQInt32 CPlayer::GetScore() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetScore(SQInt32 score) const noexcept
+void CPlayer::SetScore(SQInt32 score) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -541,7 +541,7 @@ void CPlayer::SetScore(SQInt32 score) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetPing() const noexcept
+SQInt32 CPlayer::GetPing() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -556,7 +556,7 @@ SQInt32 CPlayer::GetPing() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CPlayer::GetFPS() const noexcept
+SQFloat CPlayer::GetFPS() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -571,7 +571,7 @@ SQFloat CPlayer::GetFPS() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsTyping() const noexcept
+bool CPlayer::IsTyping() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -586,7 +586,7 @@ bool CPlayer::IsTyping() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CPlayer::GetUID() const noexcept
+const SQChar * CPlayer::GetUID() const
 {
     // Clear any previous uid
     s_Buffer[0] = '\0';
@@ -605,7 +605,7 @@ const SQChar * CPlayer::GetUID() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CPlayer::GetUID2() const noexcept
+const SQChar * CPlayer::GetUID2() const
 {
     // Clear any previous uid2
     s_Buffer[0] = '\0';
@@ -624,7 +624,7 @@ const SQChar * CPlayer::GetUID2() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CPlayer::GetHealth() const noexcept
+SQFloat CPlayer::GetHealth() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -639,7 +639,7 @@ SQFloat CPlayer::GetHealth() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetHealth(SQFloat amount) const noexcept
+void CPlayer::SetHealth(SQFloat amount) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -652,7 +652,7 @@ void CPlayer::SetHealth(SQFloat amount) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CPlayer::GetArmour() const noexcept
+SQFloat CPlayer::GetArmour() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -667,7 +667,7 @@ SQFloat CPlayer::GetArmour() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetArmour(SQFloat amount) const noexcept
+void CPlayer::SetArmour(SQFloat amount) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -680,7 +680,7 @@ void CPlayer::SetArmour(SQFloat amount) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetImmunity() const noexcept
+SQInt32 CPlayer::GetImmunity() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -695,7 +695,7 @@ SQInt32 CPlayer::GetImmunity() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetImmunity(SQInt32 flags) const noexcept
+void CPlayer::SetImmunity(SQInt32 flags) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -708,7 +708,7 @@ void CPlayer::SetImmunity(SQInt32 flags) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetPosition() const noexcept
+const Vector3 & CPlayer::GetPosition() const
 {
     // Clear any previous position
     s_Vector3.Clear();
@@ -726,7 +726,7 @@ const Vector3 & CPlayer::GetPosition() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetPosition(const Vector3 & pos) const noexcept
+void CPlayer::SetPosition(const Vector3 & pos) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -739,7 +739,7 @@ void CPlayer::SetPosition(const Vector3 & pos) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CPlayer::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -752,7 +752,7 @@ void CPlayer::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetSpeed() const noexcept
+const Vector3 & CPlayer::GetSpeed() const
 {
     // Clear any previous speed
     s_Vector3.Clear();
@@ -770,7 +770,7 @@ const Vector3 & CPlayer::GetSpeed() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSpeed(const Vector3 & vel) const noexcept
+void CPlayer::SetSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -783,7 +783,7 @@ void CPlayer::SetSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CPlayer::SetSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -796,7 +796,7 @@ void CPlayer::SetSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::AddSpeed(const Vector3 & vel) const noexcept
+void CPlayer::AddSpeed(const Vector3 & vel) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -809,7 +809,7 @@ void CPlayer::AddSpeed(const Vector3 & vel) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::AddSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
+void CPlayer::AddSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -822,7 +822,7 @@ void CPlayer::AddSpeedEx(SQFloat x, SQFloat y, SQFloat z) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat CPlayer::GetHeading() const noexcept
+SQFloat CPlayer::GetHeading() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -836,7 +836,7 @@ SQFloat CPlayer::GetHeading() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetHeading(SQFloat angle) const noexcept
+void CPlayer::SetHeading(SQFloat angle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -849,7 +849,7 @@ void CPlayer::SetHeading(SQFloat angle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetAlpha() const noexcept
+SQInt32 CPlayer::GetAlpha() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -864,7 +864,7 @@ SQInt32 CPlayer::GetAlpha() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAlpha(SQInt32 alpha, SQInt32 fade) const noexcept
+void CPlayer::SetAlpha(SQInt32 alpha, SQInt32 fade) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -877,7 +877,7 @@ void CPlayer::SetAlpha(SQInt32 alpha, SQInt32 fade) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetVehicleStatus() const noexcept
+SQInt32 CPlayer::GetVehicleStatus() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -892,7 +892,7 @@ SQInt32 CPlayer::GetVehicleStatus() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetOccupiedSlot() const noexcept
+SQInt32 CPlayer::GetOccupiedSlot() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -907,7 +907,7 @@ SQInt32 CPlayer::GetOccupiedSlot() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference < CVehicle > CPlayer::GetVehicle() const noexcept
+Reference < CVehicle > CPlayer::GetVehicle() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -922,7 +922,7 @@ Reference < CVehicle > CPlayer::GetVehicle() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetVehicleID() const noexcept
+SQInt32 CPlayer::GetVehicleID() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -937,7 +937,7 @@ SQInt32 CPlayer::GetVehicleID() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetControllable() const noexcept
+bool CPlayer::GetControllable() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -952,7 +952,7 @@ bool CPlayer::GetControllable() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetControllable(bool toggle) const noexcept
+void CPlayer::SetControllable(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -965,7 +965,7 @@ void CPlayer::SetControllable(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetDriveby() const noexcept
+bool CPlayer::GetDriveby() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -980,7 +980,7 @@ bool CPlayer::GetDriveby() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetDriveby(bool toggle) const noexcept
+void CPlayer::SetDriveby(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -993,7 +993,7 @@ void CPlayer::SetDriveby(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetWhiteScanlines() const noexcept
+bool CPlayer::GetWhiteScanlines() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1008,7 +1008,7 @@ bool CPlayer::GetWhiteScanlines() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWhiteScanlines(bool toggle) const noexcept
+void CPlayer::SetWhiteScanlines(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1021,7 +1021,7 @@ void CPlayer::SetWhiteScanlines(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetGreenScanlines() const noexcept
+bool CPlayer::GetGreenScanlines() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1036,7 +1036,7 @@ bool CPlayer::GetGreenScanlines() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetGreenScanlines(bool toggle) const noexcept
+void CPlayer::SetGreenScanlines(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1049,7 +1049,7 @@ void CPlayer::SetGreenScanlines(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetWidescreen() const noexcept
+bool CPlayer::GetWidescreen() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1064,7 +1064,7 @@ bool CPlayer::GetWidescreen() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWidescreen(bool toggle) const noexcept
+void CPlayer::SetWidescreen(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1077,7 +1077,7 @@ void CPlayer::SetWidescreen(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetShowMarkers() const noexcept
+bool CPlayer::GetShowMarkers() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1091,7 +1091,7 @@ bool CPlayer::GetShowMarkers() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetShowMarkers(bool toggle) const noexcept
+void CPlayer::SetShowMarkers(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1104,7 +1104,7 @@ void CPlayer::SetShowMarkers(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetAttackPriv() const noexcept
+bool CPlayer::GetAttackPriv() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1119,7 +1119,7 @@ bool CPlayer::GetAttackPriv() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAttackPriv(bool toggle) const noexcept
+void CPlayer::SetAttackPriv(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1132,7 +1132,7 @@ void CPlayer::SetAttackPriv(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetHasMarker() const noexcept
+bool CPlayer::GetHasMarker() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1147,7 +1147,7 @@ bool CPlayer::GetHasMarker() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetHasMarker(bool toggle) const noexcept
+void CPlayer::SetHasMarker(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1160,7 +1160,7 @@ void CPlayer::SetHasMarker(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetChatTags() const noexcept
+bool CPlayer::GetChatTags() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1175,7 +1175,7 @@ bool CPlayer::GetChatTags() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetChatTags(bool toggle) const noexcept
+void CPlayer::SetChatTags(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1188,7 +1188,7 @@ void CPlayer::SetChatTags(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::GetDrunkEffects() const noexcept
+bool CPlayer::GetDrunkEffects() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1203,7 +1203,7 @@ bool CPlayer::GetDrunkEffects() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetDrunkEffects(bool toggle) const noexcept
+void CPlayer::SetDrunkEffects(bool toggle) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1216,7 +1216,7 @@ void CPlayer::SetDrunkEffects(bool toggle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const CWeapon & CPlayer::GetWeapon() const noexcept
+const CWeapon & CPlayer::GetWeapon() const
 {
     // Clear any previous weapon
     s_Weapon.SetID(SQMOD_UNKNOWN);
@@ -1234,7 +1234,7 @@ const CWeapon & CPlayer::GetWeapon() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWeapon(const CWeapon & wep) const noexcept
+void CPlayer::SetWeapon(const CWeapon & wep) const
 {
     if (VALID_ENTITY(m_ID) && wep)
     {
@@ -1251,7 +1251,7 @@ void CPlayer::SetWeapon(const CWeapon & wep) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWeaponEx(const CWeapon & wep, SQInt32 ammo) const noexcept
+void CPlayer::SetWeaponEx(const CWeapon & wep, SQInt32 ammo) const
 {
     if (VALID_ENTITY(m_ID) && wep)
     {
@@ -1268,7 +1268,7 @@ void CPlayer::SetWeaponEx(const CWeapon & wep, SQInt32 ammo) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetWeaponID() const noexcept
+SQInt32 CPlayer::GetWeaponID() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1282,7 +1282,7 @@ SQInt32 CPlayer::GetWeaponID() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWeaponID(SQInt32 wep) const noexcept
+void CPlayer::SetWeaponID(SQInt32 wep) const
 {
     if (VALID_ENTITY(m_ID) && VALID_ENTITY(wep))
     {
@@ -1299,7 +1299,7 @@ void CPlayer::SetWeaponID(SQInt32 wep) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWeaponIDEx(SQInt32 wep, SQInt32 ammo) const noexcept
+void CPlayer::SetWeaponIDEx(SQInt32 wep, SQInt32 ammo) const
 {
     if (VALID_ENTITY(m_ID) && VALID_ENTITY(wep))
     {
@@ -1316,7 +1316,7 @@ void CPlayer::SetWeaponIDEx(SQInt32 wep, SQInt32 ammo) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::GiveWeapon(const CWeapon & wep) const noexcept
+void CPlayer::GiveWeapon(const CWeapon & wep) const
 {
     if (VALID_ENTITY(m_ID) && wep)
     {
@@ -1333,7 +1333,7 @@ void CPlayer::GiveWeapon(const CWeapon & wep) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::GiveWeaponEx(const CWeapon & wep, SQInt32 ammo) const noexcept
+void CPlayer::GiveWeaponEx(const CWeapon & wep, SQInt32 ammo) const
 {
     if (VALID_ENTITY(m_ID) && wep)
     {
@@ -1350,7 +1350,7 @@ void CPlayer::GiveWeaponEx(const CWeapon & wep, SQInt32 ammo) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::GiveWeaponIDEx(SQInt32 wep, SQInt32 ammo) const noexcept
+void CPlayer::GiveWeaponIDEx(SQInt32 wep, SQInt32 ammo) const
 {
     if (VALID_ENTITY(m_ID) && VALID_ENTITY(wep))
     {
@@ -1367,7 +1367,7 @@ void CPlayer::GiveWeaponIDEx(SQInt32 wep, SQInt32 ammo) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::StripWeapons() const noexcept
+void CPlayer::StripWeapons() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1380,7 +1380,7 @@ void CPlayer::StripWeapons() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetCameraPosition(const Vector3 & pos, const Vector3 & aim) const noexcept
+void CPlayer::SetCameraPosition(const Vector3 & pos, const Vector3 & aim) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1393,7 +1393,7 @@ void CPlayer::SetCameraPosition(const Vector3 & pos, const Vector3 & aim) const 
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::RestoreCamera() const noexcept
+void CPlayer::RestoreCamera() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1406,7 +1406,7 @@ void CPlayer::RestoreCamera() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsCameraLocked() const noexcept
+bool CPlayer::IsCameraLocked() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1421,7 +1421,7 @@ bool CPlayer::IsCameraLocked() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAnimation(SQInt32 group, SQInt32 anim) const noexcept
+void CPlayer::SetAnimation(SQInt32 group, SQInt32 anim) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1434,7 +1434,7 @@ void CPlayer::SetAnimation(SQInt32 group, SQInt32 anim) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetWantedLevel() const noexcept
+SQInt32 CPlayer::GetWantedLevel() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1449,7 +1449,7 @@ SQInt32 CPlayer::GetWantedLevel() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWantedLevel(SQInt32 level) const noexcept
+void CPlayer::SetWantedLevel(SQInt32 level) const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1462,7 +1462,7 @@ void CPlayer::SetWantedLevel(SQInt32 level) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference < CVehicle > CPlayer::StandingOnVehicle() const noexcept
+Reference < CVehicle > CPlayer::StandingOnVehicle() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1477,7 +1477,7 @@ Reference < CVehicle > CPlayer::StandingOnVehicle() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference < CObject > CPlayer::StandingOnObject() const noexcept
+Reference < CObject > CPlayer::StandingOnObject() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1492,7 +1492,7 @@ Reference < CObject > CPlayer::StandingOnObject() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsAway() const noexcept
+bool CPlayer::IsAway() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1507,7 +1507,7 @@ bool CPlayer::IsAway() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference < CPlayer > CPlayer::Spectating() const noexcept
+Reference < CPlayer > CPlayer::Spectating() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1522,7 +1522,7 @@ Reference < CPlayer > CPlayer::Spectating() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::Spectate(const Reference < CPlayer > & target) const noexcept
+void CPlayer::Spectate(const Reference < CPlayer > & target) const
 {
     if (VALID_ENTITY(m_ID) && target)
     {
@@ -1539,7 +1539,7 @@ void CPlayer::Spectate(const Reference < CPlayer > & target) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsBurning() const noexcept
+bool CPlayer::IsBurning() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1554,7 +1554,7 @@ bool CPlayer::IsBurning() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsCrouched() const noexcept
+bool CPlayer::IsCrouched() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1569,7 +1569,7 @@ bool CPlayer::IsCrouched() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetAction() const noexcept
+SQInt32 CPlayer::GetAction() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1584,7 +1584,7 @@ SQInt32 CPlayer::GetAction() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CPlayer::GetGameKeys() const noexcept
+SQInt32 CPlayer::GetGameKeys() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1599,7 +1599,7 @@ SQInt32 CPlayer::GetGameKeys() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetAimPos() const noexcept
+const Vector3 & CPlayer::GetAimPos() const
 {
     // Clear any previous aim position
     s_Vector3.Clear();
@@ -1617,7 +1617,7 @@ const Vector3 & CPlayer::GetAimPos() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetAimDir() const noexcept
+const Vector3 & CPlayer::GetAimDir() const
 {
     // Clear any previous aim direction
     s_Vector3.Clear();
@@ -1635,7 +1635,7 @@ const Vector3 & CPlayer::GetAimDir() const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::Embark(const Reference < CVehicle > & vehicle) const noexcept
+void CPlayer::Embark(const Reference < CVehicle > & vehicle) const
 {
     if (VALID_ENTITY(m_ID) && vehicle)
     {
@@ -1652,7 +1652,7 @@ void CPlayer::Embark(const Reference < CVehicle > & vehicle) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::Embark(const Reference < CVehicle > & vehicle, SQInt32 slot, bool allocate, bool warp) const noexcept
+void CPlayer::Embark(const Reference < CVehicle > & vehicle, SQInt32 slot, bool allocate, bool warp) const
 {
     if (VALID_ENTITY(m_ID) && vehicle)
     {
@@ -1669,7 +1669,7 @@ void CPlayer::Embark(const Reference < CVehicle > & vehicle, SQInt32 slot, bool 
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::Disembark() const noexcept
+void CPlayer::Disembark() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1683,7 +1683,7 @@ void CPlayer::Disembark() const noexcept
 
 // ------------------------------------------------------------------------------------------------
 bool CPlayer::Redirect(const SQChar * ip, SQUnsignedInteger port, const SQChar * nick, \
-                const SQChar * pass, const SQChar * user) noexcept
+                const SQChar * pass, const SQChar * user)
 {
     if (VALID_ENTITY(m_ID))
     {

@@ -22,27 +22,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a reference from a base reference.
     */
-    CKeybind(const Reference< CKeybind > & o) noexcept;
+    CKeybind(const Reference< CKeybind > & o);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the primary key code of the referenced keybind instance.
     */
-    SQInt32 GetPrimary() const noexcept;
+    SQInt32 GetPrimary() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the secondary key code of the referenced keybind instance.
     */
-    SQInt32 GetSecondary() const noexcept;
+    SQInt32 GetSecondary() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the alternative key code of the referenced keybind instance.
     */
-    SQInt32 GetAlternative() const noexcept;
+    SQInt32 GetAlternative() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the referenced keybind instance reacts to key press events.
     */
-    bool IsRelease() const noexcept;
+    bool IsRelease() const;
 };
 
 } // Namespace:: SqMod

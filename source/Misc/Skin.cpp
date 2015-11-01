@@ -9,19 +9,19 @@ namespace SqMod {
 const CSkin CSkin::NIL = CSkin();
 
 // ------------------------------------------------------------------------------------------------
-CSkin::CSkin() noexcept
+CSkin::CSkin()
     : m_ID(SQMOD_UNKNOWN)
 {
 
 }
 
-CSkin::CSkin(SQInt32 id) noexcept
+CSkin::CSkin(SQInt32 id)
     : m_ID(VALID_ENTITYGETEX(id, Max))
 {
 
 }
 
-CSkin::CSkin(const SQChar * name, SQInt32 id) noexcept
+CSkin::CSkin(const SQChar * name, SQInt32 id)
     : m_ID(GetSkinID(name))
 {
     if (VALID_ENTITYEX(m_ID, Max))
@@ -31,7 +31,7 @@ CSkin::CSkin(const SQChar * name, SQInt32 id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-CSkin::CSkin(const CSkin & s) noexcept
+CSkin::CSkin(const CSkin & s)
     : m_ID(s.m_ID)
     , m_Tag(s.m_Tag)
     , m_Data(s.m_Data)
@@ -39,7 +39,7 @@ CSkin::CSkin(const CSkin & s) noexcept
 
 }
 
-CSkin::CSkin(CSkin && s) noexcept
+CSkin::CSkin(CSkin && s)
     : m_ID(s.m_ID)
     , m_Tag(s.m_Tag)
     , m_Data(s.m_Data)
@@ -54,7 +54,7 @@ CSkin::~CSkin()
 }
 
 // ------------------------------------------------------------------------------------------------
-CSkin & CSkin::operator = (const CSkin & s) noexcept
+CSkin & CSkin::operator = (const CSkin & s)
 {
     m_ID = s.m_ID;
     m_Tag = s.m_Tag;
@@ -63,7 +63,7 @@ CSkin & CSkin::operator = (const CSkin & s) noexcept
     return *this;
 }
 
-CSkin & CSkin::operator = (CSkin && s) noexcept
+CSkin & CSkin::operator = (CSkin && s)
 {
     m_ID = s.m_ID;
     m_Tag = s.m_Tag;
@@ -73,7 +73,7 @@ CSkin & CSkin::operator = (CSkin && s) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-CSkin & CSkin::operator = (SQInt32 id) noexcept
+CSkin & CSkin::operator = (SQInt32 id)
 {
     m_ID = VALID_ENTITYGETEX(id, Max);
 
@@ -81,38 +81,38 @@ CSkin & CSkin::operator = (SQInt32 id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CSkin::operator == (const CSkin & s) const noexcept
+bool CSkin::operator == (const CSkin & s) const
 {
     return (m_ID == s.m_ID);
 }
 
-bool CSkin::operator != (const CSkin & s) const noexcept
+bool CSkin::operator != (const CSkin & s) const
 {
     return (m_ID != s.m_ID);
 }
 
-bool CSkin::operator < (const CSkin & s) const noexcept
+bool CSkin::operator < (const CSkin & s) const
 {
     return (m_ID < s.m_ID);
 }
 
-bool CSkin::operator > (const CSkin & s) const noexcept
+bool CSkin::operator > (const CSkin & s) const
 {
     return (m_ID < s.m_ID);
 }
 
-bool CSkin::operator <= (const CSkin & s) const noexcept
+bool CSkin::operator <= (const CSkin & s) const
 {
     return (m_ID <= s.m_ID);
 }
 
-bool CSkin::operator >= (const CSkin & s) const noexcept
+bool CSkin::operator >= (const CSkin & s) const
 {
     return (m_ID >= s.m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CSkin::Cmp(const CSkin & s) const noexcept
+SQInteger CSkin::Cmp(const CSkin & s) const
 {
     if (m_ID == s.m_ID)
     {
@@ -129,24 +129,24 @@ SQInteger CSkin::Cmp(const CSkin & s) const noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CSkin::ToString() const noexcept
+const SQChar * CSkin::ToString() const
 {
     return GetSkinName(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CSkin::GetID() const noexcept
+SQInteger CSkin::GetID() const
 {
     return m_ID;
 }
 
-void CSkin::SetID(SQInt32 id) noexcept
+void CSkin::SetID(SQInt32 id)
 {
     m_ID = VALID_ENTITYGETEX(id, Max);
 }
 
 // ------------------------------------------------------------------------------------------------
-CSkin & CSkin::SetnGet(SQInt32 id) noexcept
+CSkin & CSkin::SetnGet(SQInt32 id)
 {
     m_ID = VALID_ENTITYGETEX(id, Max);
 
@@ -154,70 +154,70 @@ CSkin & CSkin::SetnGet(SQInt32 id) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CSkin::GetGlobalTag() const noexcept
+const SQChar * CSkin::GetGlobalTag() const
 {
     return GlobalTag(m_ID);
 }
 
-void CSkin::SetGlobalTag(const SQChar * tag) const noexcept
+void CSkin::SetGlobalTag(const SQChar * tag) const
 {
     GlobalTag(m_ID, tag);
 }
 
 // ------------------------------------------------------------------------------------------------
-SqObj & CSkin::GetGlobalData() const noexcept
+SqObj & CSkin::GetGlobalData() const
 {
     return GlobalData(m_ID);
 }
 
-void CSkin::SetGlobalData(SqObj & data) const noexcept
+void CSkin::SetGlobalData(SqObj & data) const
 {
     GlobalData(m_ID, data);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CSkin::GetLocalTag() const noexcept
+const SQChar * CSkin::GetLocalTag() const
 {
     return m_Tag.c_str();
 }
 
-void CSkin::SetLocalTag(const SQChar * tag) noexcept
+void CSkin::SetLocalTag(const SQChar * tag)
 {
     m_Tag = tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-SqObj & CSkin::GetLocalData() noexcept
+SqObj & CSkin::GetLocalData()
 {
     return m_Data;
 }
 
-void CSkin::SetLocalData(SqObj & data) noexcept
+void CSkin::SetLocalData(SqObj & data)
 {
     m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CSkin::IsValid() const noexcept
+bool CSkin::IsValid() const
 {
     return (m_ID > 0);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CSkin::GetName() const noexcept
+const SQChar * CSkin::GetName() const
 {
     return GetSkinName(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSkin::SetName(const SQChar * name) noexcept
+void CSkin::SetName(const SQChar * name)
 {
     m_ID = GetSkinID(name);
     m_ID = VALID_ENTITYGETEX(m_ID, Max);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CSkin::Apply(const Reference< CPlayer > & player) const noexcept
+void CSkin::Apply(const Reference< CPlayer > & player) const
 {
     if (player)
     {

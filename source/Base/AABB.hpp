@@ -24,92 +24,92 @@ struct AABB
     // --------------------------------------------------------------------------------------------
     Vector3 min, max;
     // --------------------------------------------------------------------------------------------
-    AABB() noexcept;
-    AABB(Value s) noexcept;
-    AABB(Value x, Value y, Value z) noexcept;
-    AABB(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) noexcept;
+    AABB();
+    AABB(Value s);
+    AABB(Value x, Value y, Value z);
+    AABB(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax);
     // --------------------------------------------------------------------------------------------
-    AABB(const Vector3 & b) noexcept;
-    AABB(const Vector3 & vmin, const Vector3 & vmax) noexcept;
+    AABB(const Vector3 & b);
+    AABB(const Vector3 & vmin, const Vector3 & vmax);
     // --------------------------------------------------------------------------------------------
-    AABB(const Vector4 & b) noexcept;
-    AABB(const Vector4 & vmin, const Vector4 & vmax) noexcept;
+    AABB(const Vector4 & b);
+    AABB(const Vector4 & vmin, const Vector4 & vmax);
     // --------------------------------------------------------------------------------------------
-    AABB(const SQChar * values, SQChar delim) noexcept;
+    AABB(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    AABB(const AABB & b) noexcept;
-    AABB(AABB && b) noexcept;
+    AABB(const AABB & b);
+    AABB(AABB && b);
     // --------------------------------------------------------------------------------------------
     ~AABB();
     // --------------------------------------------------------------------------------------------
-    AABB & operator = (const AABB & b) noexcept;
-    AABB & operator = (AABB && b) noexcept;
+    AABB & operator = (const AABB & b);
+    AABB & operator = (AABB && b);
     // --------------------------------------------------------------------------------------------
-    AABB & operator = (Value s) noexcept;
-    AABB & operator = (const Vector3 & v) noexcept;
-    AABB & operator = (const Vector4 & v) noexcept;
+    AABB & operator = (Value s);
+    AABB & operator = (const Vector3 & v);
+    AABB & operator = (const Vector4 & v);
     // --------------------------------------------------------------------------------------------
-    AABB & operator += (const AABB & b) noexcept;
-    AABB & operator -= (const AABB & b) noexcept;
-    AABB & operator *= (const AABB & b) noexcept;
-    AABB & operator /= (const AABB & b) noexcept;
-    AABB & operator %= (const AABB & b) noexcept;
+    AABB & operator += (const AABB & b);
+    AABB & operator -= (const AABB & b);
+    AABB & operator *= (const AABB & b);
+    AABB & operator /= (const AABB & b);
+    AABB & operator %= (const AABB & b);
     // --------------------------------------------------------------------------------------------
-    AABB & operator += (Value s) noexcept;
-    AABB & operator -= (Value s) noexcept;
-    AABB & operator *= (Value s) noexcept;
-    AABB & operator /= (Value s) noexcept;
-    AABB & operator %= (Value s) noexcept;
+    AABB & operator += (Value s);
+    AABB & operator -= (Value s);
+    AABB & operator *= (Value s);
+    AABB & operator /= (Value s);
+    AABB & operator %= (Value s);
     // --------------------------------------------------------------------------------------------
-    AABB & operator ++ () noexcept;
-    AABB & operator -- () noexcept;
+    AABB & operator ++ ();
+    AABB & operator -- ();
     // --------------------------------------------------------------------------------------------
-    AABB operator ++ (int) noexcept;
-    AABB operator -- (int) noexcept;
+    AABB operator ++ (int);
+    AABB operator -- (int);
     // --------------------------------------------------------------------------------------------
-    AABB operator + (const AABB & b) const noexcept;
-    AABB operator - (const AABB & b) const noexcept;
-    AABB operator * (const AABB & b) const noexcept;
-    AABB operator / (const AABB & b) const noexcept;
-    AABB operator % (const AABB & b) const noexcept;
+    AABB operator + (const AABB & b) const;
+    AABB operator - (const AABB & b) const;
+    AABB operator * (const AABB & b) const;
+    AABB operator / (const AABB & b) const;
+    AABB operator % (const AABB & b) const;
     // --------------------------------------------------------------------------------------------
-    AABB operator + (Value s) const noexcept;
-    AABB operator - (Value s) const noexcept;
-    AABB operator * (Value s) const noexcept;
-    AABB operator / (Value s) const noexcept;
-    AABB operator % (Value s) const noexcept;
+    AABB operator + (Value s) const;
+    AABB operator - (Value s) const;
+    AABB operator * (Value s) const;
+    AABB operator / (Value s) const;
+    AABB operator % (Value s) const;
     // --------------------------------------------------------------------------------------------
-    AABB operator + () const noexcept;
-    AABB operator - () const noexcept;
+    AABB operator + () const;
+    AABB operator - () const;
     // --------------------------------------------------------------------------------------------
-    bool operator == (const AABB & b) const noexcept;
-    bool operator != (const AABB & b) const noexcept;
-    bool operator < (const AABB & b) const noexcept;
-    bool operator > (const AABB & b) const noexcept;
-    bool operator <= (const AABB & b) const noexcept;
-    bool operator >= (const AABB & b) const noexcept;
+    bool operator == (const AABB & b) const;
+    bool operator != (const AABB & b) const;
+    bool operator < (const AABB & b) const;
+    bool operator > (const AABB & b) const;
+    bool operator <= (const AABB & b) const;
+    bool operator >= (const AABB & b) const;
     // --------------------------------------------------------------------------------------------
-    SQInteger Cmp(const AABB & b) const noexcept;
+    SQInteger Cmp(const AABB & b) const;
     // --------------------------------------------------------------------------------------------
-    const SQChar * ToString() const noexcept;
+    const SQChar * ToString() const;
     // --------------------------------------------------------------------------------------------
-    void Set(Value ns) noexcept;
-    void Set(Value nx, Value ny, Value nz) noexcept;
-    void Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) noexcept;
+    void Set(Value ns);
+    void Set(Value nx, Value ny, Value nz);
+    void Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax);
     // --------------------------------------------------------------------------------------------
-    void Set(const AABB & b) noexcept;
+    void Set(const AABB & b);
     // --------------------------------------------------------------------------------------------
-    void Set(const Vector3 & v) noexcept;
-    void Set(const Vector3 & nmin, const Vector3 & nmax) noexcept;
+    void Set(const Vector3 & v);
+    void Set(const Vector3 & nmin, const Vector3 & nmax);
     // --------------------------------------------------------------------------------------------
-    void Set(const Vector4 & v) noexcept;
-    void Set(const Vector4 & nmin, const Vector4 & nmax) noexcept;
+    void Set(const Vector4 & v);
+    void Set(const Vector4 & nmin, const Vector4 & nmax);
     // --------------------------------------------------------------------------------------------
-    void Set(const SQChar * values, SQChar delim) noexcept;
+    void Set(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    void Clear() noexcept { min.Clear(); max.Clear(); }
+    void Clear() { min.Clear(); max.Clear(); }
     // --------------------------------------------------------------------------------------------
-    AABB Abs() const noexcept;
+    AABB Abs() const;
 };
 
 } // Namespace:: SqMod

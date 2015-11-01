@@ -25,97 +25,97 @@ struct Sphere
     Vector3     pos;
     Value       rad;
     // --------------------------------------------------------------------------------------------
-    Sphere() noexcept;
-    Sphere(Value r) noexcept;
-    Sphere(const Vector3 & p) noexcept;
-    Sphere(const Vector3 & p, Value r) noexcept;
-    Sphere(Value x, Value y, Value z, Value r) noexcept;
+    Sphere();
+    Sphere(Value r);
+    Sphere(const Vector3 & p);
+    Sphere(const Vector3 & p, Value r);
+    Sphere(Value x, Value y, Value z, Value r);
     // --------------------------------------------------------------------------------------------
-    Sphere(const Sphere & s) noexcept;
-    Sphere(Sphere && s) noexcept;
+    Sphere(const Sphere & s);
+    Sphere(Sphere && s);
     // --------------------------------------------------------------------------------------------
     ~Sphere();
     // --------------------------------------------------------------------------------------------
-    Sphere & operator = (const Sphere & s) noexcept;
-    Sphere & operator = (Sphere && s) noexcept;
+    Sphere & operator = (const Sphere & s);
+    Sphere & operator = (Sphere && s);
     // --------------------------------------------------------------------------------------------
-    Sphere & operator = (Value r) noexcept;
-    Sphere & operator = (const Vector3 & p) noexcept;
+    Sphere & operator = (Value r);
+    Sphere & operator = (const Vector3 & p);
     // --------------------------------------------------------------------------------------------
-    Sphere & operator += (const Sphere & s) noexcept;
-    Sphere & operator -= (const Sphere & s) noexcept;
-    Sphere & operator *= (const Sphere & s) noexcept;
-    Sphere & operator /= (const Sphere & s) noexcept;
-    Sphere & operator %= (const Sphere & s) noexcept;
+    Sphere & operator += (const Sphere & s);
+    Sphere & operator -= (const Sphere & s);
+    Sphere & operator *= (const Sphere & s);
+    Sphere & operator /= (const Sphere & s);
+    Sphere & operator %= (const Sphere & s);
     // --------------------------------------------------------------------------------------------
-    Sphere & operator += (Value r) noexcept;
-    Sphere & operator -= (Value r) noexcept;
-    Sphere & operator *= (Value r) noexcept;
-    Sphere & operator /= (Value r) noexcept;
-    Sphere & operator %= (Value r) noexcept;
+    Sphere & operator += (Value r);
+    Sphere & operator -= (Value r);
+    Sphere & operator *= (Value r);
+    Sphere & operator /= (Value r);
+    Sphere & operator %= (Value r);
     // --------------------------------------------------------------------------------------------
-    Sphere & operator += (const Vector3 & p) noexcept;
-    Sphere & operator -= (const Vector3 & p) noexcept;
-    Sphere & operator *= (const Vector3 & p) noexcept;
-    Sphere & operator /= (const Vector3 & p) noexcept;
-    Sphere & operator %= (const Vector3 & p) noexcept;
+    Sphere & operator += (const Vector3 & p);
+    Sphere & operator -= (const Vector3 & p);
+    Sphere & operator *= (const Vector3 & p);
+    Sphere & operator /= (const Vector3 & p);
+    Sphere & operator %= (const Vector3 & p);
     // --------------------------------------------------------------------------------------------
-    Sphere & operator ++ () noexcept;
-    Sphere & operator -- () noexcept;
+    Sphere & operator ++ ();
+    Sphere & operator -- ();
     // --------------------------------------------------------------------------------------------
-    Sphere operator ++ (int) noexcept;
-    Sphere operator -- (int) noexcept;
+    Sphere operator ++ (int);
+    Sphere operator -- (int);
     // --------------------------------------------------------------------------------------------
-    Sphere operator + (const Sphere & s) const noexcept;
-    Sphere operator - (const Sphere & s) const noexcept;
-    Sphere operator * (const Sphere & s) const noexcept;
-    Sphere operator / (const Sphere & s) const noexcept;
-    Sphere operator % (const Sphere & s) const noexcept;
+    Sphere operator + (const Sphere & s) const;
+    Sphere operator - (const Sphere & s) const;
+    Sphere operator * (const Sphere & s) const;
+    Sphere operator / (const Sphere & s) const;
+    Sphere operator % (const Sphere & s) const;
     // --------------------------------------------------------------------------------------------
-    Sphere operator + (Value r) const noexcept;
-    Sphere operator - (Value r) const noexcept;
-    Sphere operator * (Value r) const noexcept;
-    Sphere operator / (Value r) const noexcept;
-    Sphere operator % (Value r) const noexcept;
+    Sphere operator + (Value r) const;
+    Sphere operator - (Value r) const;
+    Sphere operator * (Value r) const;
+    Sphere operator / (Value r) const;
+    Sphere operator % (Value r) const;
     // --------------------------------------------------------------------------------------------
-    Sphere operator + (const Vector3 & p) const noexcept;
-    Sphere operator - (const Vector3 & p) const noexcept;
-    Sphere operator * (const Vector3 & p) const noexcept;
-    Sphere operator / (const Vector3 & p) const noexcept;
-    Sphere operator % (const Vector3 & p) const noexcept;
+    Sphere operator + (const Vector3 & p) const;
+    Sphere operator - (const Vector3 & p) const;
+    Sphere operator * (const Vector3 & p) const;
+    Sphere operator / (const Vector3 & p) const;
+    Sphere operator % (const Vector3 & p) const;
     // --------------------------------------------------------------------------------------------
-    Sphere operator + () const noexcept;
-    Sphere operator - () const noexcept;
+    Sphere operator + () const;
+    Sphere operator - () const;
     // --------------------------------------------------------------------------------------------
-    bool operator == (const Sphere & s) const noexcept;
-    bool operator != (const Sphere & s) const noexcept;
-    bool operator < (const Sphere & s) const noexcept;
-    bool operator > (const Sphere & s) const noexcept;
-    bool operator <= (const Sphere & s) const noexcept;
-    bool operator >= (const Sphere & s) const noexcept;
+    bool operator == (const Sphere & s) const;
+    bool operator != (const Sphere & s) const;
+    bool operator < (const Sphere & s) const;
+    bool operator > (const Sphere & s) const;
+    bool operator <= (const Sphere & s) const;
+    bool operator >= (const Sphere & s) const;
     // --------------------------------------------------------------------------------------------
-    SQInteger Cmp(const Sphere & s) const noexcept;
+    SQInteger Cmp(const Sphere & s) const;
     // --------------------------------------------------------------------------------------------
-    const SQChar * ToString() const noexcept;
+    const SQChar * ToString() const;
     // --------------------------------------------------------------------------------------------
-    void Set(Value nr) noexcept;
-    void Set(const Sphere & ns) noexcept;
-    void Set(const Vector3 & np) noexcept;
-    void Set(const Vector3 & np, Value nr) noexcept;
+    void Set(Value nr);
+    void Set(const Sphere & ns);
+    void Set(const Vector3 & np);
+    void Set(const Vector3 & np, Value nr);
     // --------------------------------------------------------------------------------------------
-    void Set(Value nx, Value ny, Value nz) noexcept;
-    void Set(Value nx, Value ny, Value nz, Value nr) noexcept;
+    void Set(Value nx, Value ny, Value nz);
+    void Set(Value nx, Value ny, Value nz, Value nr);
     // --------------------------------------------------------------------------------------------
-    void Set(const SQChar * values, SQChar delim) noexcept;
+    void Set(const SQChar * values, SQChar delim);
     // --------------------------------------------------------------------------------------------
-    void Generate() noexcept;
-    void Generate(Value min, Value max, bool r) noexcept;
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax) noexcept;
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax) noexcept;
+    void Generate();
+    void Generate(Value min, Value max, bool r);
+    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax);
+    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax);
     // --------------------------------------------------------------------------------------------
-    void Clear() noexcept { pos.Clear(); rad = 0.0; }
+    void Clear() { pos.Clear(); rad = 0.0; }
     // --------------------------------------------------------------------------------------------
-    Sphere Abs() const noexcept;
+    Sphere Abs() const;
 };
 
 } // Namespace:: SqMod
