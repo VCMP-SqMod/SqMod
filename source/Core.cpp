@@ -90,7 +90,7 @@ bool Core::Init() noexcept
 bool Core::Load() noexcept
 {
     LogMsg("%s", CenterStr("LOADING", '*'));
-    // Attemot to execute the loaded scripts
+    // Attempt to execute the loaded scripts
     if (!this->Execute())
     {
         return false;
@@ -229,7 +229,7 @@ bool Core::Configure() noexcept
     {
         g_Config.reset(new CSimpleIniA(true, true, true));
     }
-    // See if a configuration instance couuld be created
+    // See if a configuration instance could be created
     if (!g_Config)
     {
         LogFtl("Unable to instantiate the configuration class");
@@ -631,7 +631,7 @@ void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
     // See if the buffer was big enough
     else if (_SCSZT(fmt_ret) > vbuf.size())
     {
-        // Resize the buffer to accomodate the required size
+        // Resize the buffer to accommodate the required size
         vbuf.resize(++fmt_ret);
         // Attempt to process the specified format string again
         fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
@@ -672,7 +672,7 @@ void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
     // See if the buffer was big enough
     else if (_SCSZT(fmt_ret) > vbuf.size())
     {
-        // Resize the buffer to accomodate the required size
+        // Resize the buffer to accommodate the required size
         vbuf.resize(++fmt_ret);
         // Attempt to process the specified format string again
         fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
@@ -703,7 +703,7 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm) noexcept
     }
 
     const SQChar * err_msg = NULL;
-    // Attempt to retrieve the erro message
+    // Attempt to retrieve the error message
     if (SQ_SUCCEEDED(sq_getstring(vm, 2, &err_msg)))
     {
         _Core->m_ErrorMsg.assign(err_msg);
@@ -716,7 +716,7 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm) noexcept
     LogMsg("%s", CenterStr("ERROR", '*'));
     // Output the retrieved error message
     LogInf("[MESSAGE] : %s", _Core->m_ErrorMsg.c_str());
-    // See if the specified verbosity level allows a print of the callstack
+    // See if the specified verbosity level allows a print of the call-stack
     if (_Log->GetVerbosity() > 0)
     {
         _Core->PrintCallstack();
@@ -1578,7 +1578,7 @@ void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type) noexcept
     // Did the position change since the last tracked value?
     if (pos != m_PlayerTrack[player].Position)
     {
-        // Triger the speciffic event
+        // Trigger the specific event
         PlayerMove.Emit(player, m_PlayerTrack[player].Position, pos);
         // Update the tracked value
         m_PlayerTrack[player].Position = pos;
@@ -1588,17 +1588,17 @@ void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type) noexcept
     // Did the health change since the last tracked value?
     if (!EpsEq(health, m_PlayerTrack[player].Health))
     {
-        // Triger the speciffic event
+        // Trigger the specific event
         PlayerHealth.Emit(player, m_PlayerTrack[player].Health, health);
         // Update the tracked value
         m_PlayerTrack[player].Health = health;
     }
-    // Obtain the current armour of this instance
+    // Obtain the current armor of this instance
     SQFloat armour = _Func->GetPlayerArmour(player);
-    // Did the armour change since the last tracked value?
+    // Did the armor change since the last tracked value?
     if (!EpsEq(armour, m_PlayerTrack[player].Armour))
     {
-        // Triger the speciffic event
+        // Trigger the specific event
         PlayerArmour.Emit(player, m_PlayerTrack[player].Armour, armour);
         // Update the tracked value
         m_PlayerTrack[player].Armour = armour;
@@ -1608,7 +1608,7 @@ void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type) noexcept
     // Did the weapon change since the last tracked value?
     if (wep != m_PlayerTrack[player].Weapon)
     {
-        // Triger the speciffic event
+        // Trigger the specific event
         PlayerWeapon.Emit(player, m_PlayerTrack[player].Weapon, wep);
         // Update the tracked value
         m_PlayerTrack[player].Weapon = wep;
@@ -1635,7 +1635,7 @@ void Core::OnVehicleUpdate(SQInt32 vehicle, SQInt32 type) noexcept
     // Did the position change since the last tracked value?
     if (pos != m_VehicleTrack[vehicle].Position)
     {
-        // Triger the speciffic event
+        // Trigger the specific event
         VehicleMove.Emit(vehicle, m_VehicleTrack[vehicle].Position, pos);
         // Update the tracked value
         m_VehicleTrack[vehicle].Position = pos;
@@ -1645,7 +1645,7 @@ void Core::OnVehicleUpdate(SQInt32 vehicle, SQInt32 type) noexcept
     // Did the health change since the last tracked value?
     if (!EpsEq(health, m_VehicleTrack[vehicle].Health))
     {
-        // Triger the speciffic event
+        // Trigger the specific event
         VehicleHealth.Emit(vehicle, m_VehicleTrack[vehicle].Health, health);
         // Update the tracked value
         m_VehicleTrack[vehicle].Health = health;
