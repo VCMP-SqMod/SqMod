@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="SqMod">
+		<Project filename="Module.cbp" />
+		<Project filename="Sandbox.cbp" />
+		<Project filename="Common.cbp" />
+		<Project filename="Squirrel.cbp" />
+		<Project filename="SQLite.cbp" />
+	</Workspace>
+</CodeBlocks_workspace_file>

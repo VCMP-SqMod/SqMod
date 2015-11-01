@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Squirrel" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Win32 Debug Static">
+				<Option output="../lib/mingw32/squirrel-d" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/win32-d/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+					<Add option="-DWIN32" />
+					<Add option="-DGARBAGE_COLLECTOR" />
+					<Add directory="../config/mingw32" />
+				</Compiler>
+			</Target>
+			<Target title="Win32 Release Static">
+				<Option output="../lib/mingw32/squirrel" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/win32/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DWIN32" />
+					<Add option="-DGARBAGE_COLLECTOR" />
+					<Add directory="../config/mingw32" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="Win64 Debug Static">
+				<Option output="../lib/mingw64/squirrel-d" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/win32-d/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+					<Add option="-DWIN64" />
+					<Add option="-D_SQ64" />
+					<Add option="-DGARBAGE_COLLECTOR" />
+					<Add directory="../config/mingw64" />
+				</Compiler>
+			</Target>
+			<Target title="Win64 Release Static">
+				<Option output="../lib/mingw64/squirrel" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/win32/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DWIN64" />
+					<Add option="-D_SQ64" />
+					<Add option="-DGARBAGE_COLLECTOR" />
+					<Add directory="../config/mingw64" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fno-exceptions" />
+			<Add option="-fno-rtti" />
+			<Add option="-fno-strict-aliasing" />
+			<Add option="-Wno-unused-variable" />
+			<Add directory="../include" />
+			<Add directory="../config/common" />
+		</Compiler>
+		<Unit filename="../external/Squirrel/Lib/sqstdaux.cpp" />
+		<Unit filename="../external/Squirrel/Lib/sqstdblob.cpp" />
+		<Unit filename="../external/Squirrel/Lib/sqstdblobimpl.h" />
+		<Unit filename="../external/Squirrel/Lib/sqstdio.cpp" />
+		<Unit filename="../external/Squirrel/Lib/sqstdmath.cpp" />
+		<Unit filename="../external/Squirrel/Lib/sqstdrex.cpp" />
+		<Unit filename="../external/Squirrel/Lib/sqstdstream.cpp" />
+		<Unit filename="../external/Squirrel/Lib/sqstdstream.h" />
+		<Unit filename="../external/Squirrel/Lib/sqstdstring.cpp" />
+		<Unit filename="../external/Squirrel/Lib/sqstdsystem.cpp" />
+		<Unit filename="../external/Squirrel/sqapi.cpp" />
+		<Unit filename="../external/Squirrel/sqarray.h" />
+		<Unit filename="../external/Squirrel/sqbaselib.cpp" />
+		<Unit filename="../external/Squirrel/sqclass.cpp" />
+		<Unit filename="../external/Squirrel/sqclass.h" />
+		<Unit filename="../external/Squirrel/sqclosure.h" />
+		<Unit filename="../external/Squirrel/sqcompiler.cpp" />
+		<Unit filename="../external/Squirrel/sqcompiler.h" />
+		<Unit filename="../external/Squirrel/sqdebug.cpp" />
+		<Unit filename="../external/Squirrel/sqfuncproto.h" />
+		<Unit filename="../external/Squirrel/sqfuncstate.cpp" />
+		<Unit filename="../external/Squirrel/sqfuncstate.h" />
+		<Unit filename="../external/Squirrel/sqlexer.cpp" />
+		<Unit filename="../external/Squirrel/sqlexer.h" />
+		<Unit filename="../external/Squirrel/sqmem.cpp" />
+		<Unit filename="../external/Squirrel/sqobject.cpp" />
+		<Unit filename="../external/Squirrel/sqobject.h" />
+		<Unit filename="../external/Squirrel/sqopcodes.h" />
+		<Unit filename="../external/Squirrel/sqpcheader.h" />
+		<Unit filename="../external/Squirrel/sqstate.cpp" />
+		<Unit filename="../external/Squirrel/sqstate.h" />
+		<Unit filename="../external/Squirrel/sqstring.h" />
+		<Unit filename="../external/Squirrel/sqtable.cpp" />
+		<Unit filename="../external/Squirrel/sqtable.h" />
+		<Unit filename="../external/Squirrel/squserdata.h" />
+		<Unit filename="../external/Squirrel/squtils.h" />
+		<Unit filename="../external/Squirrel/sqvm.cpp" />
+		<Unit filename="../external/Squirrel/sqvm.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
