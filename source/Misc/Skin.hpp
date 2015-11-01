@@ -97,17 +97,34 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to skin identifier.
     */
-    operator SQInt32 () const noexcept { return m_ID; }
+    operator SQInt32 () const noexcept
+    {
+        return m_ID;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit conversion to skin identifier.
+    */
+    operator Int64 () const noexcept
+    {
+        return _SCI64(m_ID);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean.
     */
-    operator bool () const noexcept { return IsSkinValid(m_ID); }
+    operator bool () const noexcept
+    {
+        return IsSkinValid(m_ID);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Negation operator.
     */
-    bool operator ! () const noexcept { return !IsSkinValid(m_ID); }
+    bool operator ! () const noexcept
+    {
+        return !IsSkinValid(m_ID);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script to compare two instances of this type.

@@ -160,6 +160,7 @@ String GetFormatStr(HSQUIRRELVM vm, const String & fstr,  SQInteger arg, SQInteg
 // ------------------------------------------------------------------------------------------------
 bool Register_Format(HSQUIRRELVM vm)
 {
+    SQMOD_UNUSED_VAR(vm);
     return true;
 }
 

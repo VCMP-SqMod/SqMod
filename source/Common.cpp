@@ -296,6 +296,9 @@ static void VC_PlayerCrashReport(int player, const char * report) noexcept
 static void VC_ServerPerformanceReport(int count, const char ** description, unsigned long long * millis) noexcept
 {
     // Ignored for now...
+    SQMOD_UNUSED_VAR(count);
+    SQMOD_UNUSED_VAR(description);
+    SQMOD_UNUSED_VAR(millis);
 }
 
 static void VC_PlayerName(int player, const char * previous, const char * current) noexcept

@@ -103,6 +103,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Implicit conversion to model identifier.
+    */
+    operator Int64 () const noexcept
+    {
+        return _SCI64(m_ID);
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean.
     */
     operator bool () const noexcept

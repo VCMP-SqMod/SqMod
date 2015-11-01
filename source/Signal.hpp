@@ -240,29 +240,29 @@ public:
     }
 
     // --------------------------------------------------------------------------------------------
-    void Emit(Args &... args)
+    template <typename... Uref> void Emit(Uref &&... args)
     {
         for (Node * node = m_Nodes.m_Head; node; node = node->m_Next)
         {
-            (*node->m_Exec)(node->m_This, std::forward<Args>(args)...);
+            (*node->m_Exec)(node->m_This, std::forward<Uref>(args)...);
         }
     }
 
     // --------------------------------------------------------------------------------------------
-    template <typename T> void Query(T && collecter, Args &... args)
+    template <typename T, typename... Uref> void Query(T && collecter, Uref &&... args)
     {
         for (Node * node = m_Nodes.m_Head; node; node = node->m_Next)
         {
-            collecter( ( (*node->m_Exec) (node->m_This, std::forward<Args>(args)...) ) );
+            collecter( ( (*node->m_Exec) (node->m_This, std::forward<Uref>(args)...) ) );
         }
     }
 
     // --------------------------------------------------------------------------------------------
-    void operator () (Args &... args)
+    template <typename... Uref> void operator () (Uref &&... args)
     {
         for (Node * node = m_Nodes.m_Head; node; node = node->m_Next)
         {
-            (*node->m_Exec)(node->m_This, std::forward<Args>(args)...);
+            (*node->m_Exec)(node->m_This, std::forward<Uref>(args)...);
         }
     }
 

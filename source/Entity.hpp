@@ -198,6 +198,7 @@ private:
         inst.Position.y = y;
         inst.Position.z = z;
         inst.Color.SetRGBA(color);
+        SQMOD_UNUSED_VAR(index);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -359,14 +360,24 @@ private:
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                         SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
+        SQMOD_UNUSED_VAR(player);
+        SQMOD_UNUSED_VAR(world);
+        SQMOD_UNUSED_VAR(x);
+        SQMOD_UNUSED_VAR(y);
+        SQMOD_UNUSED_VAR(z);
+        SQMOD_UNUSED_VAR(r);
+        SQMOD_UNUSED_VAR(g);
+        SQMOD_UNUSED_VAR(b);
+        SQMOD_UNUSED_VAR(a);
+        SQMOD_UNUSED_VAR(radius);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -558,6 +569,7 @@ private:
         inst.Secondary = secondary;
         inst.Alternative = alternative;
         inst.Release = release;
+        SQMOD_UNUSED_VAR(slot);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -727,14 +739,20 @@ private:
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
+        SQMOD_UNUSED_VAR(model);
+        SQMOD_UNUSED_VAR(world);
+        SQMOD_UNUSED_VAR(x);
+        SQMOD_UNUSED_VAR(y);
+        SQMOD_UNUSED_VAR(z);
+        SQMOD_UNUSED_VAR(alpha);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -905,14 +923,22 @@ private:
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQInt32 quantity,
                         SQFloat x,  SQFloat y,  SQFloat z, SQInt32 alpha, bool automatic) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
+        SQMOD_UNUSED_VAR(model);
+        SQMOD_UNUSED_VAR(world);
+        SQMOD_UNUSED_VAR(quantity);
+        SQMOD_UNUSED_VAR(x);
+        SQMOD_UNUSED_VAR(y);
+        SQMOD_UNUSED_VAR(z);
+        SQMOD_UNUSED_VAR(alpha);
+        SQMOD_UNUSED_VAR(automatic);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1142,7 +1168,7 @@ private:
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1222,6 +1248,7 @@ private:
     static void Destroy(SQInt32 id) noexcept
     {
         /* @TODO: Implement as kick. */
+        SQMOD_UNUSED_VAR(id);
     }
 
 public:
@@ -1482,14 +1509,23 @@ private:
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                         SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
+        SQMOD_UNUSED_VAR(player);
+        SQMOD_UNUSED_VAR(world);
+        SQMOD_UNUSED_VAR(x);
+        SQMOD_UNUSED_VAR(y);
+        SQMOD_UNUSED_VAR(z);
+        SQMOD_UNUSED_VAR(r);
+        SQMOD_UNUSED_VAR(g);
+        SQMOD_UNUSED_VAR(b);
+        SQMOD_UNUSED_VAR(radius);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1668,6 +1704,14 @@ private:
                         SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel) noexcept
     {
         inst.Path.assign(file);
+        SQMOD_UNUSED_VAR(index);
+        SQMOD_UNUSED_VAR(xp);
+        SQMOD_UNUSED_VAR(yp);
+        SQMOD_UNUSED_VAR(xr);
+        SQMOD_UNUSED_VAR(yr);
+        SQMOD_UNUSED_VAR(angle);
+        SQMOD_UNUSED_VAR(alpha);
+        SQMOD_UNUSED_VAR(rel);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1839,6 +1883,11 @@ private:
                         SQUint32 color, bool rel) noexcept
     {
         inst.Text.assign(text);
+        SQMOD_UNUSED_VAR(index);
+        SQMOD_UNUSED_VAR(xp);
+        SQMOD_UNUSED_VAR(yp);
+        SQMOD_UNUSED_VAR(color);
+        SQMOD_UNUSED_VAR(rel);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -2006,14 +2055,22 @@ private:
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
     static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                         SQFloat angle, SQInt32 primary, SQInt32 secondary) noexcept
     {
-        /* ... */
+        SQMOD_UNUSED_VAR(inst);
+        SQMOD_UNUSED_VAR(model);
+        SQMOD_UNUSED_VAR(world);
+        SQMOD_UNUSED_VAR(x);
+        SQMOD_UNUSED_VAR(y);
+        SQMOD_UNUSED_VAR(z);
+        SQMOD_UNUSED_VAR(angle);
+        SQMOD_UNUSED_VAR(primary);
+        SQMOD_UNUSED_VAR(secondary);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -2314,9 +2371,25 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to an entity identifier.
     */
+    operator Int64 () const noexcept
+    {
+        return _SCI64(m_ID);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit conversion to an entity identifier.
+    */
     operator SQUint32 () const noexcept
     {
-        return static_cast< SQUint32 >(m_ID);
+        return _SCU32(m_ID);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit conversion to an entity identifier.
+    */
+    operator Uint64 () const noexcept
+    {
+        return _SCU64(m_ID);
     }
 
     /* --------------------------------------------------------------------------------------------

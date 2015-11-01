@@ -290,6 +290,9 @@ class LocalEvent;
  * VARIOUS DEFINES
 */
 
+#define SQMOD_DEC_UNUSED_VAR(t, n, v) t n = v; (void)(n)
+#define SQMOD_UNUSED_VAR(n) (void)(n)
+
 #define VALID_ENTITY(e) (e >= 0)
 #define INVALID_ENTITY(e) (e < 0)
 

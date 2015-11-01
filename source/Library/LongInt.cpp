@@ -7,6 +7,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 bool Register_LongInt(HSQUIRRELVM vm)
 {
+    SQMOD_UNUSED_VAR(vm);
 /*
     Sqrat::RootTable(vm).Bind(_SC("SLongInt"), Sqrat::Class<SLongInt>(vm, _SC("SLongInt"))
         .Ctor()

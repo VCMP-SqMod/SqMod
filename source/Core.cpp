@@ -613,6 +613,7 @@ void Core::PrintCallstack() noexcept
 // ------------------------------------------------------------------------------------------------
 void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
 {
+    SQMOD_UNUSED_VAR(vm);
     // Prepare the arguments list
     va_list args;
     va_start(args, str);
@@ -654,6 +655,7 @@ void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
 
 void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...) noexcept
 {
+    SQMOD_UNUSED_VAR(vm);
     // Prepare the arguments list
     va_list args;
     va_start(args, str);
@@ -729,6 +731,7 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm) noexcept
 
 void Core::CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQChar * src, SQInteger line, SQInteger column) noexcept
 {
+    SQMOD_UNUSED_VAR(vm);
     try
     {
         _Core->m_ErrorMsg.assign(ToStringF("%s : %s:%d : %s", src, line, column, desc));
@@ -1558,6 +1561,7 @@ void Core::OnLogMessage(SQInt32 type, const SQChar * message) noexcept
 // ------------------------------------------------------------------------------------------------
 void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type) noexcept
 {
+    SQMOD_UNUSED_VAR(type);
     Vector3 pos;
     // Is this player instance tracked for the first time
     if (m_PlayerTrack[player].Fresh)
@@ -1617,6 +1621,7 @@ void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type) noexcept
 
 void Core::OnVehicleUpdate(SQInt32 vehicle, SQInt32 type) noexcept
 {
+    SQMOD_UNUSED_VAR(type);
     Vector3 pos;
     // Is this vehicle instance tracked for the first time
     if (m_VehicleTrack[vehicle].Fresh)

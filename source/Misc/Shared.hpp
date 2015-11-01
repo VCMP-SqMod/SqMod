@@ -14,7 +14,7 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Attempt to convert the specified key code to a name.
 */
-const SQChar * GetKeyCodeName(SQInteger keycode);
+const SQChar * GetKeyCodeName(SQInt32 keycode);
 
 /* ------------------------------------------------------------------------------------------------
  * Attemp to convert the specified model identifier to a name.

@@ -2450,10 +2450,9 @@ SQInt32 WeaponToModel(SQInt32 id)
 bool Register_Misc(HSQUIRRELVM vm)
 {
     // Output debugging information
-    LogDbg("Beginning registration of <Misc> API");
+    LogDbg("Beginning registration of <Miscellaneous> API");
     // Attempt to register the specified API
     Sqrat::RootTable(vm)
-
     .Func(_SC("GetKeyCodeName"), &GetKeyCodeName)
     .Func(_SC("GetModelName"), &GetModelName)
     .Func(_SC("IsModelWeapon"), &IsModelWeapon)
@@ -2469,12 +2468,12 @@ bool Register_Misc(HSQUIRRELVM vm)
     .Func(_SC("GetWeaponID"), &GetWeaponID)
     .Func(_SC("IsWeaponValid"), &IsWeaponValid)
     .Func(_SC("IsWeaponNatural"), &IsWeaponNatural)
-    .Func(_SC("WeaponToModel"), &WeaponToModel)
+    .Func(_SC("WeaponToModel"), &WeaponToModel);
 
     /* END REGISTRATION STATEMENT */ ;
 
     // Output debugging information
-    LogDbg("Registration of <Misc> API was successful");
+    LogDbg("Registration of <Miscellaneous> API was successful");
     // Registration succeeded
     return true;
 }

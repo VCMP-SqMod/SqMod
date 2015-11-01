@@ -214,6 +214,7 @@ const SQChar * CModel::GetName() const noexcept
 // ------------------------------------------------------------------------------------------------
 void CModel::SetName(const SQChar * name) noexcept
 {
+    SQMOD_UNUSED_VAR(name);
     m_ID = -1; /* @TODO Implement! */
 }
 

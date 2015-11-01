@@ -55,6 +55,7 @@ Session::~Session()
 // ------------------------------------------------------------------------------------------------
 void Session::Process(SQFloat delta) noexcept
 {
+    SQMOD_UNUSED_VAR(delta);
     // Make sure that the IRC session is connected
     if (!irc_is_connected(m_Session))
     {
@@ -197,12 +198,22 @@ void Session::ForwardEvent(Function & listener, unsigned int event, const char *
 // ------------------------------------------------------------------------------------------------
 void Session::ForwardEvent(Function & listener, const char * nick, const char * addr, irc_dcc_t dccid) noexcept
 {
+    SQMOD_UNUSED_VAR(listener);
+    SQMOD_UNUSED_VAR(nick);
+    SQMOD_UNUSED_VAR(addr);
+    SQMOD_UNUSED_VAR(dccid);
     /* @TODO: Implement! */
 }
 
 // ------------------------------------------------------------------------------------------------
 void Session::ForwardEvent(Function & listener, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid) noexcept
 {
+    SQMOD_UNUSED_VAR(listener);
+    SQMOD_UNUSED_VAR(nick);
+    SQMOD_UNUSED_VAR(addr);
+    SQMOD_UNUSED_VAR(filename);
+    SQMOD_UNUSED_VAR(size);
+    SQMOD_UNUSED_VAR(dccid);
     /* @TODO: Implement! */
 }
 

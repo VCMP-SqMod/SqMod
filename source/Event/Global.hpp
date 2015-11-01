@@ -1243,6 +1243,7 @@ template < class T > void GlobalFilter< T >::Clear(SQInt32 header) noexcept
         // Now it's safe to reset the filter
         m_Filter.reset();
     }
+    SQMOD_UNUSED_VAR(header);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1264,6 +1265,7 @@ template < class T > void GlobalFilter< T >::Flip(SQInt32 header) noexcept
         // Hook from the newly filtered entities
         Hook();
     }
+    SQMOD_UNUSED_VAR(header);
 }
 
 // ------------------------------------------------------------------------------------------------

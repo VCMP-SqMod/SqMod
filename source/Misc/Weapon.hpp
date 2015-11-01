@@ -100,11 +100,19 @@ public:
     bool operator >= (const CWeapon & w) const noexcept;
 
     /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to model identifier.
+     * Implicit conversion to weapon identifier.
     */
     operator SQInt32 () const noexcept
     {
         return m_ID;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit conversion to weapon identifier.
+    */
+    operator Int64 () const noexcept
+    {
+        return _SCI64(m_ID);
     }
 
     /* --------------------------------------------------------------------------------------------

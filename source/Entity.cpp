@@ -161,6 +161,7 @@ EVehicleCustom & GVehicleCustom() noexcept
 // ------------------------------------------------------------------------------------------------
 bool Register_Entity(HSQUIRRELVM vm)
 {
+    SQMOD_UNUSED_VAR(vm);
     return true;
 }
 

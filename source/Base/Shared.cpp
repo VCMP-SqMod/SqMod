@@ -390,7 +390,7 @@ const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
         w = 0;
     }
     // Is the string empty?
-    else if (n < 0)
+    else if (n == 0)
     {
         LogWrn("Invalid string length: %d < 0", n);
     }
@@ -430,7 +430,7 @@ const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o) noexc
         w = 0;
     }
     // Is the string empty?
-    else if (n < 0)
+    else if (n == 0)
     {
         LogWrn("Invalid string length: %d < 0", n);
     }
@@ -471,7 +471,7 @@ const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
         w = 0;
     }
     // Is the string empty?
-    else if (n < 0)
+    else if (n == 0)
     {
         LogWrn("Invalid string length: %d < 0", n);
     }
@@ -511,7 +511,7 @@ const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o) noex
         w = 0;
     }
     // Is the string empty?
-    else if (n < 0)
+    else if (n == 0)
     {
         LogWrn("Invalid string length: %d < 0", n);
     }
@@ -552,7 +552,7 @@ const SQChar * CenterStr(const SQChar * t, SQChar f, SQUint32 w) noexcept
         w = 0;
     }
     // Is the string empty?
-    else if (n < 0)
+    else if (n == 0)
     {
         LogWrn("Invalid string length: %d < 0", n);
     }
