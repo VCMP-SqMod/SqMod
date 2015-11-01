@@ -275,9 +275,14 @@ Function GlobalEvent::GetOnTrigger() const noexcept
     return m_OnTrigger;
 }
 
-void GlobalEvent::SetOnTrigger(const Function & func) noexcept
+void GlobalEvent::SetOnTrigger(Function & func) noexcept
 {
     m_OnTrigger = func;
+}
+
+void GlobalEvent::SetOnTrigger_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnTrigger = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -286,9 +291,14 @@ Function GlobalEvent::GetOnInclude() const noexcept
     return m_OnInclude;
 }
 
-void GlobalEvent::SetOnInclude(const Function & func) noexcept
+void GlobalEvent::SetOnInclude(Function & func) noexcept
 {
     m_OnInclude = func;
+}
+
+void GlobalEvent::SetOnInclude_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnInclude = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -297,9 +307,14 @@ Function GlobalEvent::GetOnExclude() const noexcept
     return m_OnExclude;
 }
 
-void GlobalEvent::SetOnExclude(const Function & func) noexcept
+void GlobalEvent::SetOnExclude(Function & func) noexcept
 {
     m_OnExclude = func;
+}
+
+void GlobalEvent::SetOnExclude_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnExclude = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -308,9 +323,14 @@ Function GlobalEvent::GetOnCleared() const noexcept
     return m_OnCleared;
 }
 
-void GlobalEvent::SetOnCleared(const Function & func) noexcept
+void GlobalEvent::SetOnCleared(Function & func) noexcept
 {
     m_OnCleared = func;
+}
+
+void GlobalEvent::SetOnCleared_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnCleared = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -319,9 +339,14 @@ Function GlobalEvent::GetOnRelease() const noexcept
     return m_OnRelease;
 }
 
-void GlobalEvent::SetOnRelease(const Function & func) noexcept
+void GlobalEvent::SetOnRelease(Function & func) noexcept
 {
     m_OnRelease = func;
+}
+
+void GlobalEvent::SetOnRelease_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnRelease = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2087,19 +2112,20 @@ template < class T > static bool Register_GlobalFilter(HSQUIRRELVM vm, const SQC
     typedef NoConstructor< Filter > Allocator;
     // Attempt to register the specified filtertype
     Sqrat::RootTable(vm).Bind(cname, Sqrat::Class< Filter, Allocator >(vm, cname)
+        /* Metamethods */
         .Func(_SC("_cmp"), &Filter::Cmp)
         .Func(_SC("_tostring"), &Filter::ToString)
-
+        /* Properties */
         .Prop(_SC("count"), &Filter::Count)
         .Prop(_SC("any"), &Filter::Any)
         .Prop(_SC("none"), &Filter::None)
         .Prop(_SC("all"), &Filter::All)
-
+        /* Overloads */
         .template Overload< bool (Filter::*)(const typename Filter::RefType &) >(_SC("include"), &Filter::Include)
         .template Overload< bool (Filter::*)(const typename Filter::RefType &, SQInt32) >(_SC("include"), &Filter::Include)
         .template Overload< bool (Filter::*)(const typename Filter::RefType &) >(_SC("exclude"), &Filter::Exclude)
         .template Overload< bool (Filter::*)(const typename Filter::RefType &, SQInt32) >(_SC("exclude"), &Filter::Exclude)
-        //.Func(_SC("exclude"), &Filter::Exclude)
+        /* Functions */
         .Func(_SC("enabled"), &Filter::Enabled)
         .Func(_SC("clear"), &Filter::Clear)
         .Func(_SC("flip"), &Filter::Flip)
@@ -2133,13 +2159,14 @@ bool Register_GlobalEvent(HSQUIRRELVM vm)
     typedef NoCopy< GlobalEvent > Allocator;
     // Attempt to register the specified type
     Sqrat::RootTable(vm).Bind(_SC("GlobalEvent"), Sqrat::Class< GlobalEvent, Allocator >(vm, _SC("GlobalEvent"))
+        /* Constructors */
         .Ctor()
         .Ctor<SQInt32>()
         .Ctor<SQInt32, bool>()
-
+        /* Metamethods */
         .Func(_SC("_cmp"), &GlobalEvent::Cmp)
         .Func(_SC("_tostring"), &GlobalEvent::GetName)
-
+        /* Properties */
         .Prop(_SC("ltag"), &GlobalEvent::GetTag, &GlobalEvent::SetTag)
         .Prop(_SC("ldata"), &GlobalEvent::GetData, &GlobalEvent::SetData)
         .Prop(_SC("type"), &GlobalEvent::GetType, &GlobalEvent::SetType)
@@ -2153,13 +2180,11 @@ bool Register_GlobalEvent(HSQUIRRELVM vm)
         .Prop(_SC("suspended"), &GlobalEvent::GetSuspended, &GlobalEvent::SetSuspended)
         .Prop(_SC("compatible"), &GlobalEvent::Compatible)
         .Prop(_SC("name"), &GlobalEvent::GetName)
-
         .Prop(_SC("on_trigger"), &GlobalEvent::GetOnTrigger, &GlobalEvent::SetOnTrigger)
         .Prop(_SC("on_include"), &GlobalEvent::GetOnInclude, &GlobalEvent::SetOnInclude)
         .Prop(_SC("on_exclude"), &GlobalEvent::GetOnExclude, &GlobalEvent::SetOnExclude)
         .Prop(_SC("on_cleared"), &GlobalEvent::GetOnCleared, &GlobalEvent::SetOnCleared)
         .Prop(_SC("on_release"), &GlobalEvent::GetOnRelease, &GlobalEvent::SetOnRelease)
-
         .Prop(_SC("blips"), &GlobalEvent::GetBlipFilter)
         .Prop(_SC("checkpoints"), &GlobalEvent::GetCheckpointFilter)
         .Prop(_SC("keybinds"), &GlobalEvent::GetKeybindFilter)
@@ -2170,6 +2195,12 @@ bool Register_GlobalEvent(HSQUIRRELVM vm)
         .Prop(_SC("sprites"), &GlobalEvent::GetSpriteFilter)
         .Prop(_SC("textdraws"), &GlobalEvent::GetTextdrawFilter)
         .Prop(_SC("vehicles"), &GlobalEvent::GetVehicleFilter)
+        /* Functions */
+        .Func(_SC("set_on_trigger"), &GlobalEvent::SetOnTrigger_Env)
+        .Func(_SC("set_on_include"), &GlobalEvent::SetOnInclude_Env)
+        .Func(_SC("set_on_exclude"), &GlobalEvent::SetOnExclude_Env)
+        .Func(_SC("set_on_cleared"), &GlobalEvent::SetOnCleared_Env)
+        .Func(_SC("set_on_release"), &GlobalEvent::SetOnRelease_Env)
     );
     // Output debugging information
     LogDbg("Registration of <GlobalEvent> type was successful");
