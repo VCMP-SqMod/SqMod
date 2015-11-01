@@ -286,9 +286,14 @@ Function LocalEvent::GetOnTrigger() const noexcept
     return m_OnTrigger;
 }
 
-void LocalEvent::SetOnTrigger(const Function & func) noexcept
+void LocalEvent::SetOnTrigger(Function & func) noexcept
 {
     m_OnTrigger = func;
+}
+
+void LocalEvent::SetOnTrigger_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnTrigger = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -297,9 +302,14 @@ Function LocalEvent::GetOnInclude() const noexcept
     return m_OnInclude;
 }
 
-void LocalEvent::SetOnInclude(const Function & func) noexcept
+void LocalEvent::SetOnInclude(Function & func) noexcept
 {
     m_OnInclude = func;
+}
+
+void LocalEvent::SetOnInclude_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnInclude = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -308,9 +318,14 @@ Function LocalEvent::GetOnExclude() const noexcept
     return m_OnExclude;
 }
 
-void LocalEvent::SetOnExclude(const Function & func) noexcept
+void LocalEvent::SetOnExclude(Function & func) noexcept
 {
     m_OnExclude = func;
+}
+
+void LocalEvent::SetOnExclude_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnExclude = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -319,9 +334,14 @@ Function LocalEvent::GetOnCleared() const noexcept
     return m_OnCleared;
 }
 
-void LocalEvent::SetOnCleared(const Function & func) noexcept
+void LocalEvent::SetOnCleared(Function & func) noexcept
 {
     m_OnCleared = func;
+}
+
+void LocalEvent::SetOnCleared_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnCleared = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -330,9 +350,14 @@ Function LocalEvent::GetOnRelease() const noexcept
     return m_OnRelease;
 }
 
-void LocalEvent::SetOnRelease(const Function & func) noexcept
+void LocalEvent::SetOnRelease(Function & func) noexcept
 {
     m_OnRelease = func;
+}
+
+void LocalEvent::SetOnRelease_Env(SqObj & env, Function & func) noexcept
+{
+    m_OnRelease = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2230,19 +2255,20 @@ template < class T > static bool Register_LocalFilter(HSQUIRRELVM vm, const SQCh
     typedef NoConstructor< Filter > Allocator;
     // Attempt to register the specified filter type
     Sqrat::RootTable(vm).Bind(cname, Sqrat::Class< Filter, Allocator >(vm, cname)
+        /* Metamethods */
         .Func(_SC("_cmp"), &Filter::Cmp)
         .Func(_SC("_tostring"), &Filter::ToString)
-
+        /* Properties */
         .Prop(_SC("count"), &Filter::Count)
         .Prop(_SC("any"), &Filter::Any)
         .Prop(_SC("none"), &Filter::None)
         .Prop(_SC("all"), &Filter::All)
-
+        /* Overloads */
         .template Overload< bool (Filter::*)(const typename Filter::RefType &) >(_SC("include"), &Filter::Include)
         .template Overload< bool (Filter::*)(const typename Filter::RefType &, SQInt32) >(_SC("include"), &Filter::Include)
         .template Overload< bool (Filter::*)(const typename Filter::RefType &) >(_SC("exclude"), &Filter::Exclude)
         .template Overload< bool (Filter::*)(const typename Filter::RefType &, SQInt32) >(_SC("exclude"), &Filter::Exclude)
-
+        /* Functions */
         .Func(_SC("enabled"), &Filter::Enabled)
         .Func(_SC("clear"), &Filter::Clear)
         .Func(_SC("flip"), &Filter::Flip)
@@ -2276,13 +2302,14 @@ bool Register_LocalEvent(HSQUIRRELVM vm)
     typedef NoCopy< LocalEvent > Allocator;
     // Attempt to register the specified type
     Sqrat::RootTable(vm).Bind(_SC("LocalEvent"), Sqrat::Class< LocalEvent, Allocator >(vm, _SC("LocalEvent"))
+        /* Constructors */
         .Ctor()
         .Ctor<SQInt32>()
         .Ctor<SQInt32, bool>()
-
+        /* Metamethods */
         .Func(_SC("_cmp"), &LocalEvent::Cmp)
         .Func(_SC("_tostring"), &LocalEvent::GetName)
-
+        /* Properties */
         .Prop(_SC("ltag"), &LocalEvent::GetTag, &LocalEvent::SetTag)
         .Prop(_SC("ldata"), &LocalEvent::GetData, &LocalEvent::SetData)
         .Prop(_SC("type"), &LocalEvent::GetType, &LocalEvent::SetType)
@@ -2296,13 +2323,11 @@ bool Register_LocalEvent(HSQUIRRELVM vm)
         .Prop(_SC("suspended"), &LocalEvent::GetSuspended, &LocalEvent::SetSuspended)
         .Prop(_SC("compatible"), &LocalEvent::Compatible)
         .Prop(_SC("name"), &LocalEvent::GetName)
-
         .Prop(_SC("on_trigger"), &LocalEvent::GetOnTrigger, &LocalEvent::SetOnTrigger)
         .Prop(_SC("on_include"), &LocalEvent::GetOnInclude, &LocalEvent::SetOnInclude)
         .Prop(_SC("on_exclude"), &LocalEvent::GetOnExclude, &LocalEvent::SetOnExclude)
         .Prop(_SC("on_cleared"), &LocalEvent::GetOnCleared, &LocalEvent::SetOnCleared)
         .Prop(_SC("on_release"), &LocalEvent::GetOnRelease, &LocalEvent::SetOnRelease)
-
         .Prop(_SC("blips"), &LocalEvent::GetBlipFilter)
         .Prop(_SC("checkpoints"), &LocalEvent::GetCheckpointFilter)
         .Prop(_SC("keybinds"), &LocalEvent::GetKeybindFilter)
@@ -2313,6 +2338,12 @@ bool Register_LocalEvent(HSQUIRRELVM vm)
         .Prop(_SC("sprites"), &LocalEvent::GetSpriteFilter)
         .Prop(_SC("textdraws"), &LocalEvent::GetTextdrawFilter)
         .Prop(_SC("vehicles"), &LocalEvent::GetVehicleFilter)
+        /* Functions */
+        .Func(_SC("set_on_trigger"), &LocalEvent::SetOnTrigger_Env)
+        .Func(_SC("set_on_include"), &LocalEvent::SetOnInclude_Env)
+        .Func(_SC("set_on_exclude"), &LocalEvent::SetOnExclude_Env)
+        .Func(_SC("set_on_cleared"), &LocalEvent::SetOnCleared_Env)
+        .Func(_SC("set_on_release"), &LocalEvent::SetOnRelease_Env)
     );
     // Output debugging information
     LogDbg("Registration of <LocalEvent> type was successful");
