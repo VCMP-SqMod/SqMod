@@ -11,90 +11,117 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-template <typename T> class LongInt
+template < typename T > class LongInt
 {
 public:
     // --------------------------------------------------------------------------------------------
-    static_assert(std::is_integral<T>::value, "LongInt type is not an integral type");
+    static_assert(std::is_integral< T >::value, "LongInt type is not an integral type");
 
 	// --------------------------------------------------------------------------------------------
-	typedef T Value;
+	typedef T Type;
 
-	// --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	LongInt()
 		: m_Data(0), m_Text()
 	{
 
 	}
 
-	template <typename U>
-	LongInt(U data)
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+	template <typename U> LongInt(U data)
 	{
 		*this = data;
 	}
 
-	// --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
     LongInt(const SQChar * text)
     {
         *this = text;
     }
 
-    LongInt(const SQChar * text, SQInteger overload = 0)
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    LongInt(const SQChar * text, SQInteger overload)
     {
+        SQMOD_UNUSED_VAR(overload);
         *this = text;
     }
 
-    // --------------------------------------------------------------------------------------------
-	LongInt(const LongInt<T> & i)
-        : m_Data(i.m_Data), m_Text(i.m_Text)
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+	LongInt(const LongInt<T> & o)
+        : m_Data(o.m_Data), m_Text(o.m_Text)
     {
 
     }
 
-    LongInt(LongInt<T> && i)
-        : m_Data(i.m_Data), m_Text(std::move(i.m_Text))
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    LongInt(LongInt<T> && o)
+        : m_Data(o.m_Data), m_Text(std::move(o.m_Text))
     {
 
     }
 
-	// --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	~LongInt()
     {
 
     }
 
-	// --------------------------------------------------------------------------------------------
-	LongInt & operator = (const LongInt<T> & i)
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+	LongInt & operator = (const LongInt<T> & o)
     {
-        m_Data = i.m_Data;
-        m_Text = i.m_Text;
+        m_Data = o.m_Data;
+        m_Text = o.m_Text;
 
         return *this;
     }
 
-    LongInt & operator = (LongInt<T> && i)
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    LongInt & operator = (LongInt<T> && o)
     {
-        m_Data = i.m_Data;
-        m_Text = std::move(i.m_Text);
+        m_Data = o.m_Data;
+        m_Text = std::move(o.m_Text);
 
         return *this;
     }
 
-	// --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	template <typename U, typename std::enable_if<std::is_integral<U>::value>::type* = nullptr>
 	LongInt & operator = (U data)
 	{
-		m_Data = static_cast<Value>(data);
+		m_Data = static_cast< Type >(data);
 		m_Text = std::to_string(m_Data);
 		return *this;
 	}
 
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	LongInt & operator = (const SQChar * text)
 	{
 		m_Text = text;
         try
         {
-            m_Data = SToI<T>(text, 0, 10);
+            m_Data = SToI< T >::Fn(text, 0, 10);
         }
         catch (const std::invalid_argument & e)
         {
@@ -103,125 +130,197 @@ public:
         return *this;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	bool operator == (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+	bool operator == (const LongInt<T> & o) const
 	{
-		return (m_Data == x.m_Data);
+		return (m_Data == o.m_Data);
 	}
 
-	bool operator != (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+	bool operator != (const LongInt<T> & o) const
 	{
-		return (m_Data != x.m_Data);
+		return (m_Data != o.m_Data);
 	}
 
-	bool operator < (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+	bool operator < (const LongInt<T> & o) const
 	{
-		return (m_Data < x.m_Data);
+		return (m_Data < o.m_Data);
 	}
 
-	bool operator > (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+	bool operator > (const LongInt<T> & o) const
 	{
-		return (m_Data > x.m_Data);
+		return (m_Data > o.m_Data);
 	}
 
-	bool operator <= (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+	bool operator <= (const LongInt<T> & o) const
 	{
-		return (m_Data <= x.m_Data);
+		return (m_Data <= o.m_Data);
 	}
 
-	bool operator >= (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+	bool operator >= (const LongInt<T> & o) const
 	{
-		return (m_Data >= x.m_Data);
+		return (m_Data >= o.m_Data);
 	}
 
-	// --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	inline operator T () const
     {
         return m_Data;
     }
 
-    // --------------------------------------------------------------------------------------------
-    LongInt<T> operator + (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    LongInt<T> operator + (const LongInt<T> & o) const
     {
-        return LongInt<T>(m_Data + x.m_Data);
+        return LongInt<T>(m_Data + o.m_Data);
     }
 
-    LongInt<T> operator - (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    LongInt<T> operator - (const LongInt<T> & o) const
     {
-        return LongInt<T>(m_Data - x.m_Data);
+        return LongInt<T>(m_Data - o.m_Data);
     }
 
-    LongInt<T> operator * (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    LongInt<T> operator * (const LongInt<T> & o) const
     {
-        return LongInt<T>(m_Data * x.m_Data);
+        return LongInt<T>(m_Data * o.m_Data);
     }
 
-    LongInt<T> operator / (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    LongInt<T> operator / (const LongInt<T> & o) const
     {
-        return LongInt<T>(m_Data / x.m_Data);
+        return LongInt<T>(m_Data / o.m_Data);
     }
 
-    LongInt<T> operator % (const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    LongInt<T> operator % (const LongInt<T> & o) const
     {
-        return LongInt<T>(m_Data % x.m_Data);
+        return LongInt<T>(m_Data % o.m_Data);
     }
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
     LongInt<T> operator - () const
     {
         return LongInt<T>(-m_Data);
     }
 
-    // --------------------------------------------------------------------------------------------
-    SQInteger Cmp(const LongInt<T> & x) const
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    SQInteger Cmp(const LongInt<T> & o) const
     {
-        return m_Data == x.m_Data ? 0 : (m_Data > x.m_Data ? 1 : -1);
+        if (m_Data == o.m_Data)
+        {
+            return 0;
+        }
+        else if (m_Data > o.m_Data)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
     const SQChar * ToString() const
     {
         return m_Text.c_str();
     }
 
-	// --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	void SetNum(T data)
 	{
 		*this = data;
 	}
 
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
     T GetNum() const
     {
         return m_Data;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
     SQInteger GetSNum() const
     {
-        return static_cast<SQInteger>(m_Data);
+        return static_cast< SQInteger >(m_Data);
     }
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	void SetStr(const SQChar * text)
 	{
 		*this = text;
 	}
 
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	const String & GetStr() const
 	{
 		return m_Text;
 	}
 
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	const SQChar * GetCStr() const
 	{
 		return m_Text.c_str();
 	}
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
     void Random()
     {
         m_Data = RandomVal<T>::Get();
         m_Text = std::to_string(m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
     void Random(T min, T max)
     {
         m_Data = RandomVal<T>::Get(min, max);
@@ -229,14 +328,21 @@ public:
     }
 
 private:
-	// --------------------------------------------------------------------------------------------
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	T      m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
 	String m_Text;
 };
 
 // ------------------------------------------------------------------------------------------------
-typedef LongInt<Int64> SLongInt;
-typedef LongInt<Uint64> ULongInt;
+typedef LongInt< Int64 > SLongInt;
+typedef LongInt< Uint64 > ULongInt;
 
 } // Namespace:: SqMod
 
