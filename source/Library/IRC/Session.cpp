@@ -1596,14 +1596,16 @@ const SQChar * GetHost(const SQChar * target)
 bool Register_IRC(HSQUIRRELVM vm)
 {
     using namespace IRC;
+
+    // // Attempt to create the IRC namespace
+    Sqrat::Table ircns(vm);
+
     // Output debugging information
     LogDbg("Beginning registration of <IRC Session> type");
-    // IRC sessions should not be copied for the sake of simplicity
-    //typedef Default< Session > Allocator;
     // Attempt to register the specified type
-    Sqrat::Class< Session/*, Allocator*/ >  session(vm, _SC("CSession"));
+    ircns.Bind(_SC("Session"), Sqrat::Class< Session, NoCopy< Session > >(vm, _SC("Session"))
         /* Constructors */
-        session.Ctor()
+        .Ctor()
         /* Metamethods */
         .Func(_SC("_cmp"), &Session::Cmp)
         .Func(_SC("_tostring"), &Session::ToString)
@@ -1738,21 +1740,23 @@ bool Register_IRC(HSQUIRRELVM vm)
         .Overload< SQInt32 (Session::*)(void) >
             (_SC("cmd_quit"), &Session::CmdQuit)
         .Overload< SQInt32 (Session::*)(const SQChar *) >
-            (_SC("cmd_quit"), &Session::CmdQuit);
+            (_SC("cmd_quit"), &Session::CmdQuit)
+    );
     // Output debugging information
-    LogDbg("Registration of <IRCSession> type was successful");
+    LogDbg("Registration of <IRC Session> type was successful");
+
     // Output debugging information
     LogDbg("Beginning registration of <IRC functions> type");
     // Attempt to register the free functions
-    Sqrat::Table ircns(vm);
-    ircns.Bind(_SC("CSession"), session);
     ircns.Func(_SC("GetNick"), &GetNick);
     ircns.Func(_SC("GetHost"), &GetHost);
     ircns.Func(_SC("GetErrStr"), &irc_strerror);
     // Output debugging information
     LogDbg("Registration of <IRC functions> type was successful");
-    // Attempt to bind everything to the root table
+
+    // Attempt to bind the namespace to the root table
     Sqrat::RootTable(vm).Bind(_SC("IRC"), ircns);
+
     // Output debugging information
     LogDbg("Beginning registration of <IRC Constants> type");
     // Attempt to register the error codes enumeration
