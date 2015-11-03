@@ -50,6 +50,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
         _Log->cFtl(!Register_LongInt(vm), "Unable to register: LongInt") || \
         _Log->cFtl(!Register_Math(vm), "Unable to register: Math") || \
         _Log->cFtl(!Register_Numeric(vm), "Unable to register: Numeric") || \
+        _Log->cFtl(!Register_SQLite(vm), "Unable to register: SQLite") || \
         _Log->cFtl(!Register_String(vm), "Unable to register: String") || \
         _Log->cFtl(!Register_SysPath(vm), "Unable to register: SysPath") || \
         _Log->cFtl(!Register_System(vm), "Unable to register: System") || \

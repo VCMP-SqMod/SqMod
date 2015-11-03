@@ -25,6 +25,7 @@
 					<Add option="-static" />
 					<Add library="common-d" />
 					<Add library="squirrel-d" />
+					<Add library="sqlite-d" />
 					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw32" />
 				</Linker>
@@ -49,6 +50,7 @@
 					<Add option="-static" />
 					<Add library="common" />
 					<Add library="squirrel" />
+					<Add library="sqlite" />
 					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw32" />
 				</Linker>
@@ -74,6 +76,7 @@
 					<Add option="-static" />
 					<Add library="common-d" />
 					<Add library="squirrel-d" />
+					<Add library="sqlite-d" />
 					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw64" />
 				</Linker>
@@ -100,6 +103,7 @@
 					<Add option="-static" />
 					<Add library="common" />
 					<Add library="squirrel" />
+					<Add library="sqlite" />
 					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw64" />
 				</Linker>
@@ -204,16 +208,12 @@
 		<Unit filename="../source/Library/Math.hpp" />
 		<Unit filename="../source/Library/Numeric.cpp" />
 		<Unit filename="../source/Library/Numeric.hpp" />
-		<Unit filename="../source/Library/SQLite/Common.cpp" />
-		<Unit filename="../source/Library/SQLite/Common.hpp" />
 		<Unit filename="../source/Library/SQLite/Connection.cpp" />
 		<Unit filename="../source/Library/SQLite/Connection.hpp" />
-		<Unit filename="../source/Library/SQLite/Result.cpp" />
-		<Unit filename="../source/Library/SQLite/Result.hpp" />
+		<Unit filename="../source/Library/SQLite/Shared.cpp" />
+		<Unit filename="../source/Library/SQLite/Shared.hpp" />
 		<Unit filename="../source/Library/SQLite/Statement.cpp" />
 		<Unit filename="../source/Library/SQLite/Statement.hpp" />
-		<Unit filename="../source/Library/SQLite/Transaction.cpp" />
-		<Unit filename="../source/Library/SQLite/Transaction.hpp" />
 		<Unit filename="../source/Library/Shared.cpp" />
 		<Unit filename="../source/Library/Shared.hpp" />
 		<Unit filename="../source/Library/String.cpp" />

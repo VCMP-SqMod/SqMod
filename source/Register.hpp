@@ -51,6 +51,7 @@ bool Register_JSON(HSQUIRRELVM vm);
 bool Register_LongInt(HSQUIRRELVM vm);
 bool Register_Math(HSQUIRRELVM vm);
 bool Register_Numeric(HSQUIRRELVM vm);
+bool Register_SQLite(HSQUIRRELVM vm);
 bool Register_String(HSQUIRRELVM vm);
 bool Register_SysPath(HSQUIRRELVM vm);
 bool Register_System(HSQUIRRELVM vm);
