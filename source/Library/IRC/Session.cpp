@@ -154,50 +154,69 @@ irc_callbacks_t * Session::GetCallbacks()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Function & listener, const char * event, const char * origin, const char ** params, unsigned int count)
+void Session::ForwardEvent(Session * session, Function & listener, const char * event,
+                            const char * origin, const char ** params, unsigned int count)
 {
+    // Is there anyone even listening to this event?
     if (listener.IsNull())
     {
         return;
     }
-
+    // Each event must have an array of parameters (empty or not)
     Array parameters(DefaultVM::Get(), count);
-
+    // Are the any parameters?
     if (params && count > 0)
     {
+    // Transofrm the parameters into a squirrel array
+        for (unsigned int i = 0; i < count; ++i)
+        {
+            parameters.SetValue(i, params[i]);
+        }
+    }
+    // Obtain an object to this session instance without creating a new reference counter!
+    ClassType< Session >::PushInstance(DefaultVM::Get(), session);
+    // Obtain the pushed object from the stack
+    Var< Object > var(DefaultVM::Get(), -1);
+    // Call the event with the obtaine values
+    listener.Execute< Object &, const SQChar *, const SQChar *, Array >(var.value, event,
+        origin ? origin : _SC(""), parameters);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::ForwardEvent(Session * session, Function & listener, unsigned int event,
+                            const char * origin, const char ** params, unsigned int count)
+{
+    // Is there anyone even listening to this event?
+    if (listener.IsNull())
+    {
+        return;
+    }
+    // Each event must have an array of parameters (empty or not)
+    Array parameters(DefaultVM::Get(), count);
+    // Are the any parameters?
+    if (params && count > 0)
+    {
+        // Transofrm the parameters into a squirrel array
         for (unsigned int i = 0; i < count; ++i)
         {
             parameters.SetValue(i, params[i]);
         }
     }
 
-    listener.Execute< const SQChar *, const SQChar *, Array >(event, origin ? origin : _SC(""), parameters);
+    // Obtain an object to this session instance without creating a new reference counter!
+    ClassType< Session >::PushInstance(DefaultVM::Get(), session);
+    // Obtain the pushed object from the stack
+    Var< Object > var(DefaultVM::Get(), -1);
+    // Call the event with the obtaine values
+    listener.Execute< Object &, unsigned int, const SQChar *, Array >(var.value, event,
+        origin ? origin : _SC(""), parameters);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Function & listener, unsigned int event, const char * origin, const char ** params, unsigned int count)
+void Session::ForwardEvent(Session * session, Function & listener, const char * nick,
+                            const char * addr, irc_dcc_t dccid)
 {
-    if (listener.IsNull())
-    {
-        return;
-    }
-
-    Array parameters(DefaultVM::Get(), count);
-
-    if (params && count > 0)
-    {
-        for (unsigned int i = 0; i < count; ++i)
-        {
-            parameters.SetValue(i, params[i]);
-        }
-    }
-
-    listener.Execute< unsigned int, const SQChar *, Array >(event, origin ? origin : _SC(""), parameters);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Function & listener, const char * nick, const char * addr, irc_dcc_t dccid)
-{
+    SQMOD_UNUSED_VAR(session);
     SQMOD_UNUSED_VAR(listener);
     SQMOD_UNUSED_VAR(nick);
     SQMOD_UNUSED_VAR(addr);
@@ -206,8 +225,10 @@ void Session::ForwardEvent(Function & listener, const char * nick, const char * 
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Function & listener, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid)
+void Session::ForwardEvent(Session * session, Function & listener, const char * nick, const char * addr,
+                            const char * filename, unsigned long size, irc_dcc_t dccid)
 {
+    SQMOD_UNUSED_VAR(session);
     SQMOD_UNUSED_VAR(listener);
     SQMOD_UNUSED_VAR(nick);
     SQMOD_UNUSED_VAR(addr);
@@ -1268,7 +1289,7 @@ void Session::OnConnect(irc_session_t * session, const char * event, const char 
     }
     else
     {
-        ForwardEvent(inst->m_OnConnect, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnConnect, event, origin, params, count);
     }
 }
 
@@ -1283,7 +1304,7 @@ void Session::OnNick(irc_session_t * session, const char * event, const char * o
     }
     else
     {
-        ForwardEvent(inst->m_OnNick, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnNick, event, origin, params, count);
     }
 }
 
@@ -1298,7 +1319,7 @@ void Session::OnQuit(irc_session_t * session, const char * event, const char * o
     }
     else
     {
-        ForwardEvent(inst->m_OnQuit, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnQuit, event, origin, params, count);
     }
 }
 
@@ -1313,7 +1334,7 @@ void Session::OnJoin(irc_session_t * session, const char * event, const char * o
     }
     else
     {
-        ForwardEvent(inst->m_OnJoin, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnJoin, event, origin, params, count);
     }
 }
 
@@ -1328,7 +1349,7 @@ void Session::OnPart(irc_session_t * session, const char * event, const char * o
     }
     else
     {
-        ForwardEvent(inst->m_OnPart, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnPart, event, origin, params, count);
     }
 }
 
@@ -1343,7 +1364,7 @@ void Session::OnMode(irc_session_t * session, const char * event, const char * o
     }
     else
     {
-        ForwardEvent(inst->m_OnMode, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnMode, event, origin, params, count);
     }
 }
 
@@ -1358,7 +1379,7 @@ void Session::OnUmode(irc_session_t * session, const char * event, const char * 
     }
     else
     {
-        ForwardEvent(inst->m_OnUmode, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnUmode, event, origin, params, count);
     }
 }
 
@@ -1373,7 +1394,7 @@ void Session::OnTopic(irc_session_t * session, const char * event, const char * 
     }
     else
     {
-        ForwardEvent(inst->m_OnTopic, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnTopic, event, origin, params, count);
     }
 }
 
@@ -1388,7 +1409,7 @@ void Session::OnKick(irc_session_t * session, const char * event, const char * o
     }
     else
     {
-        ForwardEvent(inst->m_OnKick, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnKick, event, origin, params, count);
     }
 }
 
@@ -1403,7 +1424,7 @@ void Session::OnChannel(irc_session_t * session, const char * event, const char 
     }
     else
     {
-        ForwardEvent(inst->m_OnChannel, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnChannel, event, origin, params, count);
     }
 }
 
@@ -1418,7 +1439,7 @@ void Session::OnPrivMSG(irc_session_t * session, const char * event, const char 
     }
     else
     {
-        ForwardEvent(inst->m_OnPrivMSG, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnPrivMSG, event, origin, params, count);
     }
 }
 
@@ -1433,7 +1454,7 @@ void Session::OnNotice(irc_session_t * session, const char * event, const char *
     }
     else
     {
-        ForwardEvent(inst->m_OnNotice, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnNotice, event, origin, params, count);
     }
 }
 
@@ -1448,7 +1469,7 @@ void Session::OnChannel_Notice(irc_session_t * session, const char * event, cons
     }
     else
     {
-        ForwardEvent(inst->m_OnChannel_Notice, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnChannel_Notice, event, origin, params, count);
     }
 }
 
@@ -1463,7 +1484,7 @@ void Session::OnInvite(irc_session_t * session, const char * event, const char *
     }
     else
     {
-        ForwardEvent(inst->m_OnInvite, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnInvite, event, origin, params, count);
     }
 }
 
@@ -1478,7 +1499,7 @@ void Session::OnCTCP_Req(irc_session_t * session, const char * event, const char
     }
     else
     {
-        ForwardEvent(inst->m_OnCTCP_Req, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnCTCP_Req, event, origin, params, count);
     }
 }
 
@@ -1493,7 +1514,7 @@ void Session::OnCTCP_Rep(irc_session_t * session, const char * event, const char
     }
     else
     {
-        ForwardEvent(inst->m_OnCTCP_Rep, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnCTCP_Rep, event, origin, params, count);
     }
 }
 
@@ -1508,7 +1529,7 @@ void Session::OnCTCP_Action(irc_session_t * session, const char * event, const c
     }
     else
     {
-        ForwardEvent(inst->m_OnCTCP_Action, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnCTCP_Action, event, origin, params, count);
     }
 }
 
@@ -1523,7 +1544,7 @@ void Session::OnUnknown(irc_session_t * session, const char * event, const char 
     }
     else
     {
-        ForwardEvent(inst->m_OnUnknown, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnUnknown, event, origin, params, count);
     }
 }
 
@@ -1538,7 +1559,7 @@ void Session::OnNumeric(irc_session_t * session, unsigned int event, const char 
     }
     else
     {
-        ForwardEvent(inst->m_OnNumeric, event, origin, params, count);
+        ForwardEvent(inst, inst->m_OnNumeric, event, origin, params, count);
     }
 }
 
@@ -1553,7 +1574,7 @@ void Session::OnDcc_Chat_Req(irc_session_t * session, const char * nick, const c
     }
     else
     {
-        ForwardEvent(inst->m_OnConnect, nick, addr, dccid);
+        ForwardEvent(inst, inst->m_OnDcc_Chat_Req, nick, addr, dccid);
     }
 }
 
@@ -1568,7 +1589,7 @@ void Session::OnDcc_Send_Req(irc_session_t * session, const char * nick, const c
     }
     else
     {
-        ForwardEvent(inst->m_OnConnect, nick, addr, filename, size, dccid);
+        ForwardEvent(inst, inst->m_OnDcc_Send_Req, nick, addr, filename, size, dccid);
     }
 }
 

@@ -37,22 +37,26 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    static void ForwardEvent(Function & listener, const char * event, const char * origin, const char ** params, unsigned int count);
+    static void ForwardEvent(Session * session, Function & listener, const char * event,
+                                const char * origin, const char ** params, unsigned int count);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    static void ForwardEvent(Function & listener, unsigned int event, const char * origin, const char ** params, unsigned int count);
+    static void ForwardEvent(Session * session, Function & listener, unsigned int event,
+                                const char * origin, const char ** params, unsigned int count);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    static void ForwardEvent(Function & listener, const char * nick, const char * addr, irc_dcc_t dccid);
+    static void ForwardEvent(Session * session, Function & listener, const char * nick,
+                                const char * addr, irc_dcc_t dccid);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    static void ForwardEvent(Function & listener, const char * nick, const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid);
+    static void ForwardEvent(Session * session, Function & listener, const char * nick,
+                                const char * addr, const char * filename, unsigned long size, irc_dcc_t dccid);
 
 public:
 
