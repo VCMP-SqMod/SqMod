@@ -26,6 +26,34 @@ CPlayer::CPlayer(const Reference< CPlayer > & o)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInt32 CPlayer::GetLevel() const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        return Get(m_ID).Level;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <get player level> using an invalid reference: %d"), m_ID);
+    }
+
+    return SQMOD_UNKNOWN;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetLevel(SQInt32 val) const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        Get(m_ID).Level = val;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <set player level> using an invalid reference: %d"), m_ID);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsStreamedFor(const Reference < CPlayer > & player) const
 {
     if (VALID_ENTITY(m_ID) && player)

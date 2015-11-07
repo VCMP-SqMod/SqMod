@@ -1048,7 +1048,7 @@ private:
     {
         // ----------------------------------------------------------------------------------------
         Player()
-            : ID(-1), Root(0), Owned(false), Fresh(true)
+            : ID(-1), Root(0), Owned(false), Fresh(true), Level(0)
         {
             /* ... */
         }
@@ -1062,6 +1062,9 @@ private:
         // ----------------------------------------------------------------------------------------
         bool                    Owned; /* Useless but required by the instance activation system */
         bool                    Fresh;
+
+        // ----------------------------------------------------------------------------------------
+        SQInt32                 Level;
 
         // ----------------------------------------------------------------------------------------
         SqTag                   Tag;
@@ -2218,7 +2221,7 @@ protected:
     {
         if (VALID_ENTITY(m_ID))
         {
-            if (s_Instances[m_ID].Root)
+            if (s_Instances[m_ID].Root != nullptr)
             {
                 m_Next = s_Instances[m_ID].Root;
                 m_Prev = m_Next->m_Prev;
@@ -2236,23 +2239,23 @@ protected:
     {
         if (VALID_ENTITY(m_ID))
         {
-            if (m_Next)
+            if (m_Next != nullptr)
             {
                 m_Next->m_Prev = m_Prev;
             }
 
-            if (m_Prev)
+            if (m_Prev != nullptr)
             {
                 m_Prev->m_Next = m_Next;
             }
 
             if (s_Instances[m_ID].Root == this)
             {
-                s_Instances[m_ID].Root = (m_Next ? m_Next : (m_Prev ? m_Prev : 0));
+                s_Instances[m_ID].Root = (m_Next ? m_Next : (m_Prev ? m_Prev : nullptr));
             }
 
-            m_Next = 0;
-            m_Prev = 0;
+            m_Next = nullptr;
+            m_Prev = nullptr;
         }
     }
 
@@ -2292,8 +2295,8 @@ public:
         : m_ID(Verify(id) ? id : SQMOD_UNKNOWN)
         , m_Tag()
         , m_Data()
-        , m_Prev(0)
-        , m_Next(0)
+        , m_Prev(nullptr)
+        , m_Next(nullptr)
         , m_Persistent(false)
     {
         InsertIntoChain();
@@ -2306,8 +2309,8 @@ public:
         : m_ID(r.m_ID)
         , m_Tag(r.m_Tag)
         , m_Data(r.m_Data)
-        , m_Prev(0)
-        , m_Next(0)
+        , m_Prev(nullptr)
+        , m_Next(nullptr)
         , m_Persistent(r.m_Persistent)
     {
         InsertIntoChain();
@@ -2320,8 +2323,8 @@ public:
         : m_ID(r.m_ID)
         , m_Tag(r.m_Tag)
         , m_Data(r.m_Data)
-        , m_Prev(0)
-        , m_Next(0)
+        , m_Prev(nullptr)
+        , m_Next(nullptr)
         , m_Persistent(r.m_Persistent)
     {
         InsertIntoChain();
@@ -2601,15 +2604,8 @@ public:
         // Make sure the reference is valid
         if (VALID_ENTITYEX(m_ID, Max))
         {
-            // Count this instance
-            ++refs;
-            // Count backward references
-            for (RefType * ref = m_Prev; ref; ref = ref->m_Prev)
-            {
-                ++refs;
-            }
             // Count forward references
-            for (RefType * ref = m_Next; ref; ref = ref->m_Next)
+            for (RefType * ref = s_Instances[m_ID].Root; ref != nullptr; ref = ref->m_Next)
             {
                 ++refs;
             }
@@ -2626,21 +2622,8 @@ public:
         // Make sure the reference is valid
         if (VALID_ENTITYEX(m_ID, Max))
         {
-            // Count this instance if persistent
-            if (m_Persistent)
-            {
-                ++refs;
-            }
-            // Count backward references
-            for (RefType * ref = m_Prev; ref; ref = ref->m_Prev)
-            {
-                if (ref->m_Persistent)
-                {
-                    ++refs;
-                }
-            }
             // Count forward references
-            for (RefType * ref = m_Next; ref; ref = ref->m_Next)
+            for (RefType * ref = s_Instances[m_ID].Root; ref != nullptr; ref = ref->m_Next)
             {
                 if (ref->m_Persistent)
                 {
@@ -2725,33 +2708,8 @@ private:
                 RefType::s_Instances[id].GDestroyed().Emit(id, header, payload);
             }
 
-            RefType * ref = 0, * bkp = 0;
-            // Get the pointer to the first backward reference
-            ref = RefType::s_Instances[id].Root->m_Prev;
-            // Deactivate backward references
-            while (ref)
-            {
-                if (ref->m_Persistent)
-                {
-                    // Just disable the entity if persistent
-                    ref->m_ID = SQMOD_UNKNOWN;
-                    // Move to the previous reference
-                    ref = ref->m_Prev;
-                }
-                else
-                {
-                    // Backup the current reference
-                    bkp = ref;
-                    // Move to the previous reference before unchaining
-                    ref = ref->m_Prev;
-                    // Now it's safe to unchain the reference
-                    bkp->RemoveFromChain();
-                }
-            }
-            // Get the pointer to the first forward reference
-            ref = RefType::s_Instances[id].Root->m_Next;
             // Deactivate forward references
-            while (ref)
+            for (RefType * ref = RefType::s_Instances[id].Root, * bkp = nullptr; ref != nullptr;)
             {
                 if (ref->m_Persistent)
                 {

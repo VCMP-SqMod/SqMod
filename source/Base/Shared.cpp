@@ -28,10 +28,10 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 static std::unique_ptr<std::mt19937>       RG32_MT19937 = std::unique_ptr<std::mt19937>( \
-                                            new std::mt19937(static_cast<unsigned>(std::time(0))));
+                                            new std::mt19937(_SCU32(std::time(0))));
 
 static std::unique_ptr<std::mt19937_64>    RG64_MT19937 = std::unique_ptr<std::mt19937_64>( \
-                                            new std::mt19937_64(static_cast<unsigned>(std::time(0))));
+                                            new std::mt19937_64(_SCU32(std::time(0))));
 
 // ------------------------------------------------------------------------------------------------
 static std::uniform_int_distribution<Int8>      Int8_Dist(std::numeric_limits<Int8>::min(), std::numeric_limits<Int8>::max());
@@ -258,30 +258,30 @@ void LogFtl(const char * fmt, ...)
 const SQChar * ToStringF(const char * fmt, ...)
 {
     // Acquire a buffer from the buffer pool
-    Core::Buffer vbuf = _Core->PullBuffer();
+    Buffer vbuf = _Core->PullBuffer(128);
     // Get direct access to the buffer data
-    Core::Buffer::value_type * buf = vbuf.data();
+    Buffer::Pointer buf = vbuf.Data();
     // Variable arguments structure
     va_list args;
     // Get the specified arguments
     va_start (args, fmt);
     // Run the specified format
-    int ret =  std::vsnprintf(buf, vbuf.size() * sizeof(Core::Buffer::value_type), fmt, args);
+    int ret =  std::vsnprintf(buf, vbuf.Size() * sizeof(Buffer::Value), fmt, args);
     // Check for buffer overflows
-    if (static_cast<unsigned>(ret) >= vbuf.size())
+    if (_SCU32(ret) >= vbuf.Size())
     {
-        // Throw error
-        LogErr("Buffer overflow object to string conversion: %d > %d", ret, vbuf.size());
-        // Return an empty string
-        buf[0] = '\0';
+        // Scale buffer
+        vbuf.Reserve(ret);
+        // Run the specified format
+        ret =  std::vsnprintf(buf, vbuf.Size() * sizeof(Buffer::Value), fmt, args);
     }
     // Check for formatting errors
-    else if (ret < 0)
+    if (ret < 0)
     {
         // Throw error
-        LogErr("Failed to convert object to string");
+        LogErr("Failed to run the specified string format");
         // Return an empty string
-        buf[0] = '\0';
+        buf[0] = 0;
     }
     // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
@@ -293,11 +293,11 @@ const SQChar * ToStringF(const char * fmt, ...)
 const SQChar * InsertStr(const SQChar * f, const std::vector< const SQChar * > & a)
 {
     // Acquire a buffer from the buffer pool
-    Core::Buffer vbuf = _Core->PullBuffer();
+    Buffer vbuf = _Core->PullBuffer(128);
     // Get direct access to the buffer data
-    Core::Buffer::value_type * buf = vbuf.data();
+    Buffer::Pointer buf = vbuf.Data();
     // Get the size of the buffer
-    const Core::Buffer::size_type sz = vbuf.size();
+    const Buffer::SzType sz = vbuf.Size();
     // Size of the resulted string and the number of specified arguments
     unsigned n = 0, s = a.size();
     // See if the format string is valid
@@ -375,17 +375,17 @@ const SQChar * InsStr(const SQChar * f)
 const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w)
 {
     // Acquire a buffer from the buffer pool
-    Core::Buffer vbuf = _Core->PullBuffer();
+    Buffer vbuf = _Core->PullBuffer(w);
     // Get direct access to the buffer data
-    Core::Buffer::value_type * buf = vbuf.data();
+    Buffer::Pointer buf = vbuf.Data();
     // Get the length of the string
     SQUint32 n = strlen(t);
     // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Core::Buffer::value_type));
+    memset(buf, f, w * sizeof(Buffer::Value));
     // Is the width in bounds?
-    if (w >= vbuf.size())
+    if (w >= vbuf.Size())
     {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.size());
+        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
         // Invalidate the width
         w = 0;
     }
@@ -415,17 +415,17 @@ const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w)
 const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o)
 {
     // Acquire a buffer from the buffer pool
-    Core::Buffer vbuf = _Core->PullBuffer();
+    Buffer vbuf = _Core->PullBuffer(w);
     // Get direct access to the buffer data
-    Core::Buffer::value_type * buf = vbuf.data();
+    Buffer::Pointer buf = vbuf.Data();
     // Get the length of the string
     SQUint32 n = strlen(t);
     // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Core::Buffer::value_type));
+    memset(buf, f, w * sizeof(Buffer::Value));
     // Is the width in bounds?
-    if (w >= vbuf.size())
+    if (w >= vbuf.Size())
     {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.size());
+        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
         // Invalidate the width
         w = 0;
     }
@@ -456,17 +456,17 @@ const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o)
 const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w)
 {
     // Acquire a buffer from the buffer pool
-    Core::Buffer vbuf = _Core->PullBuffer();
+    Buffer vbuf = _Core->PullBuffer(w);
     // Get direct access to the buffer data
-    Core::Buffer::value_type * buf = vbuf.data();
+    Buffer::Pointer buf = vbuf.Data();
     // Get the length of the string
     SQUint32 n = strlen(t);
     // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Core::Buffer::value_type));
+    memset(buf, f, w * sizeof(Buffer::Value));
     // Is the width in bounds?
-    if (w >= vbuf.size())
+    if (w >= vbuf.Size())
     {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.size());
+        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
         // Invalidate the width
         w = 0;
     }
@@ -496,17 +496,17 @@ const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w)
 const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o)
 {
     // Acquire a buffer from the buffer pool
-    Core::Buffer vbuf = _Core->PullBuffer();
+    Buffer vbuf = _Core->PullBuffer(w);
     // Get direct access to the buffer data
-    Core::Buffer::value_type * buf = vbuf.data();
+    Buffer::Pointer buf = vbuf.Data();
     // Get the length of the string
     SQUint32 n = strlen(t);
     // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Core::Buffer::value_type));
+    memset(buf, f, w * sizeof(Buffer::Value));
     // Is the width in bounds?
-    if (w >= vbuf.size())
+    if (w >= vbuf.Size())
     {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.size());
+        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
         // Invalidate the width
         w = 0;
     }
@@ -537,17 +537,17 @@ const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o)
 const SQChar * CenterStr(const SQChar * t, SQChar f, SQUint32 w)
 {
     // Acquire a buffer from the buffer pool
-    Core::Buffer vbuf = _Core->PullBuffer();
+    Buffer vbuf = _Core->PullBuffer(w);
     // Get direct access to the buffer data
-    Core::Buffer::value_type * buf = vbuf.data();
+    Buffer::Pointer buf = vbuf.Data();
     // Get the length of the string
     SQUint32 n = strlen(t);
     // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Core::Buffer::value_type));
+    memset(buf, f, w * sizeof(Buffer::Value));
     // Is the width in bounds?
-    if (w >= vbuf.size())
+    if (w >= vbuf.Size())
     {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.size());
+        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
         // Invalidate the width
         w = 0;
     }
@@ -577,13 +577,13 @@ const SQChar * CenterStr(const SQChar * t, SQChar f, SQUint32 w)
 // ------------------------------------------------------------------------------------------------
 void InitMTRG32()
 {
-    RG32_MT19937.reset(new std::mt19937(static_cast<unsigned>(std::time(0))));
+    RG32_MT19937.reset(new std::mt19937(_SCU32(std::time(0))));
 }
 
 // ------------------------------------------------------------------------------------------------
 void InitMTRG64()
 {
-    RG64_MT19937.reset(new std::mt19937_64(static_cast<unsigned>(std::time(0))));
+    RG64_MT19937.reset(new std::mt19937_64(_SCU32(std::time(0))));
 }
 
 // ------------------------------------------------------------------------------------------------

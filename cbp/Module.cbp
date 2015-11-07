@@ -127,6 +127,8 @@
 		</ExtraCommands>
 		<Unit filename="../source/Base/AABB.cpp" />
 		<Unit filename="../source/Base/AABB.hpp" />
+		<Unit filename="../source/Base/Buffer.cpp" />
+		<Unit filename="../source/Base/Buffer.hpp" />
 		<Unit filename="../source/Base/Circle.cpp" />
 		<Unit filename="../source/Base/Circle.hpp" />
 		<Unit filename="../source/Base/Color3.cpp" />
@@ -149,6 +151,8 @@
 		<Unit filename="../source/Base/Vector3.hpp" />
 		<Unit filename="../source/Base/Vector4.cpp" />
 		<Unit filename="../source/Base/Vector4.hpp" />
+		<Unit filename="../source/Command.cpp" />
+		<Unit filename="../source/Command.hpp" />
 		<Unit filename="../source/Common.cpp" />
 		<Unit filename="../source/Common.hpp" />
 		<Unit filename="../source/Config.hpp" />

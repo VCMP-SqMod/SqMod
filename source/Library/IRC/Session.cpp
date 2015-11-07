@@ -18,6 +18,19 @@ bool            Session::s_Initialized = false;
 // ------------------------------------------------------------------------------------------------
 Session::Session()
     : m_Session(irc_create_session(GetCallbacks()))
+    , m_Server(_SC(""))
+    , m_Passwd(_SC(""))
+    , m_Nick(_SC(""))
+    , m_User(_SC(""))
+    , m_Name(_SC(""))
+    , m_Port(6667)
+    , m_Tries(3)
+    , m_Wait(5.0f)
+    , m_LeftTries(0)
+    , m_NextTry(0.0f)
+    , m_SessionTime(0.0f)
+    , m_Reconnect(false)
+    , m_IPv6(false)
 {
     if (!m_Session)
     {
@@ -55,12 +68,38 @@ Session::~Session()
 // ------------------------------------------------------------------------------------------------
 void Session::Process(SQFloat delta)
 {
-    SQMOD_UNUSED_VAR(delta);
+    m_SessionTime += delta;
     // Make sure that the IRC session is connected
     if (!irc_is_connected(m_Session))
     {
-        // @TODO: reconnect it, or abort
-        LogWrn("Session is not connected");
+        // Do we meet the condition to attempt to reconnect?
+        if (m_Reconnect && (m_LeftTries != 0) && (m_NextTry <= m_SessionTime))
+        {
+            // Take out one try
+            --m_LeftTries;
+            // Update the timepoint for the next try 
+            m_NextTry = (m_SessionTime + m_Wait);
+            // Attempt to reconnect
+            if (m_IPv6)
+            {
+                irc_connect6(m_Session, m_Server.c_str(), m_Port,
+                            m_Passwd.empty() ? NULL : m_Passwd.c_str(),
+                            m_Nick.c_str(),
+                            m_User.empty() ? NULL : m_User.c_str(),
+                            m_Name.empty() ? NULL : m_Name.c_str()
+                );
+            }
+            else
+            {
+                irc_connect(m_Session, m_Server.c_str(), m_Port,
+                            m_Passwd.empty() ? NULL : m_Passwd.c_str(),
+                            m_Nick.c_str(),
+                            m_User.empty() ? NULL : m_User.c_str(),
+                            m_Name.empty() ? NULL : m_Name.c_str()
+                );
+            }
+        }
+        // We're done for now
         return;
     }
     // Create the structures for select()
@@ -283,6 +322,153 @@ SqObj & Session::GetData()
 void Session::SetData(SqObj & data)
 {
     m_Data = data;
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * Session::GetServer() const
+{
+    return m_Server.c_str();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetServer(const SQChar * server)
+{
+    m_Server.assign(server);
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * Session::GetPassword() const
+{
+    return m_Passwd.c_str();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetPassword(const SQChar * passwd)
+{
+    m_Passwd.assign(passwd);
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * Session::GetNick() const
+{
+    return m_Nick.c_str();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetNick(const SQChar * nick)
+{
+    m_Nick.assign(nick);
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * Session::GetUser() const
+{
+    return m_User.c_str();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetUser(const SQChar * user)
+{
+    m_User.assign(user);
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * Session::GetName() const
+{
+    return m_Name.c_str();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetName(const SQChar * name)
+{
+    m_Name.assign(name);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQUint32 Session::GetPort() const
+{
+    return m_Port;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetPort(SQUint32 port)
+{
+    m_Port = port > _NLMAX(Uint16) ? _NLMAX(Uint16) : port;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQUint32 Session::GetTries() const
+{
+    return m_Tries;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetTries(SQUint32 num)
+{
+    if (m_Tries < num)
+    {
+        m_LeftTries += (num - m_Tries);
+    }
+    else
+    {
+        m_LeftTries -= (m_Tries - num);
+    }
+
+    m_Tries = num;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQFloat Session::GetWait() const
+{
+    return m_Wait;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetWait(SQFloat time)
+{
+    m_Wait = time;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQUint32 Session::GetLeftTries() const
+{
+    return m_LeftTries;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetLeftTries(SQUint32 num)
+{
+    m_LeftTries = num;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQFloat Session::GetNextTry() const
+{
+    return m_NextTry;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::SetNextTry(SQFloat time)
+{
+    m_NextTry = time;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQFloat Session::GetSessionTime() const
+{
+    return m_SessionTime;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Session::GetReconnect() const
+{
+    return m_Reconnect;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Session::GetIPv6() const
+{
+    return m_IPv6;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -670,11 +856,35 @@ bool Session::IsValid() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick)
+SQInt32 Session::Connect()
 {
-    if (m_Session != nullptr)
+    if (m_Session != nullptr && !irc_is_connected(m_Session) && !m_Server.empty() && !m_Nick.empty())
     {
-        return irc_connect(m_Session, server, port, NULL, nick, NULL, NULL);
+        // Enable the reconnection system
+        m_Reconnect = true;
+        m_LeftTries = m_Tries;
+        m_NextTry = (m_SessionTime + m_Wait);
+        // This is not an IPv6 connection
+        m_IPv6 = false;
+        // Attempt to connect
+        return irc_connect(m_Session, m_Server.c_str(), m_Port,
+                            m_Passwd.empty() ? NULL : m_Passwd.c_str(),
+                            m_Nick.c_str(),
+                            m_User.empty() ? NULL : m_User.c_str(),
+                            m_Name.empty() ? NULL : m_Name.c_str()
+                );
+    }
+    else if (irc_is_connected(m_Session))
+    {
+        LogWrn("Attempting to <connect session to server> while already connected to server");
+    }
+    else if (m_Server.empty())
+    {
+        LogWrn("Attempting to <connect session to server> without specifying a server first");
+    }
+    else if (m_Nick.empty())
+    {
+        LogWrn("Attempting to <connect session to server> without specifying a nickname first");
     }
     else
     {
@@ -685,27 +895,49 @@ SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * ni
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick)
+{
+    return Connect(server, port, NULL, nick, NULL, NULL);
+}
+
+// ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd)
 {
-    if (m_Session != nullptr)
-    {
-        return irc_connect(m_Session, server, port, passwd, nick, NULL, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <connect session to server> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return Connect(server, port, passwd, nick, NULL, NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
                 const SQChar * username)
 {
-    if (m_Session != nullptr)
+    return Connect(server, port, passwd, nick, username, NULL);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
+                const SQChar * username, const SQChar * realname)
+{
+    if (m_Session != nullptr && !irc_is_connected(m_Session))
     {
-        return irc_connect(m_Session, server, port, passwd, nick, username, NULL);
+        // Save information
+        SetServer(server == NULL ? _SC("") : server);
+        SetPort(port);
+        SetPassword(passwd == NULL ? _SC("") : passwd);
+        SetNick(nick == NULL ? _SC("") : nick);
+        SetUser(username == NULL ? _SC("") : username);
+        SetName(realname == NULL ? _SC("") : realname);
+        // Enable the reconnection system
+        m_Reconnect = true;
+        m_LeftTries = m_Tries;
+        m_NextTry = (m_SessionTime + m_Wait);
+        // This is not an IPv6 connection
+        m_IPv6 = false;
+        // Attempt to connect
+        return irc_connect(m_Session, server, m_Port, passwd, nick, username, realname);
+    }
+    else if (irc_is_connected(m_Session))
+    {
+        LogWrn("Attempting to <connect session to server> while already connected to server");
     }
     else
     {
@@ -716,12 +948,35 @@ SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * ni
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
-                const SQChar * username, const SQChar * realname)
+SQInt32 Session::Connect6()
 {
-    if (m_Session != nullptr)
+    if (m_Session != nullptr && !irc_is_connected(m_Session) && !m_Server.empty() && !m_Nick.empty())
     {
-        return irc_connect(m_Session, server, port, passwd, nick, username, realname);
+        // Enable the reconnection system
+        m_Reconnect = true;
+        m_LeftTries = m_Tries;
+        m_NextTry = (m_SessionTime + m_Wait);
+        // This is an IPv6 connection
+        m_IPv6 = true;
+        // Attempt to connect
+        return irc_connect6(m_Session, m_Server.c_str(), m_Port,
+                            m_Passwd.empty() ? NULL : m_Passwd.c_str(),
+                            m_Nick.c_str(),
+                            m_User.empty() ? NULL : m_User.c_str(),
+                            m_Name.empty() ? NULL : m_Name.c_str()
+                );
+    }
+    else if (irc_is_connected(m_Session))
+    {
+        LogWrn("Attempting to <connect session to server> while already connected to server");
+    }
+    else if (m_Server.empty())
+    {
+        LogWrn("Attempting to <connect session to server> without specifying a server first");
+    }
+    else if (m_Nick.empty())
+    {
+        LogWrn("Attempting to <connect session to server> without specifying a nickname first");
     }
     else
     {
@@ -734,56 +989,47 @@ SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * ni
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick)
 {
-    if (m_Session != nullptr)
-    {
-        return irc_connect6(m_Session, server, port, NULL, nick, NULL, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <connect session to server> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return Connect6(server, port, NULL, nick, NULL, NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd)
 {
-    if (m_Session != nullptr)
-    {
-        return irc_connect6(m_Session, server, port, passwd, nick, NULL, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <connect session to server> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return Connect6(server, port, passwd, nick, NULL, NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
                 const SQChar * username)
 {
-    if (m_Session != nullptr)
-    {
-        return irc_connect6(m_Session, server, port, passwd, nick, username, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <connect session to server> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return Connect6(server, port, passwd, nick, username, NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * nick, const SQChar * passwd,
                 const SQChar * username, const SQChar * realname)
 {
-    if (m_Session != nullptr)
+    if (m_Session != nullptr && !irc_is_connected(m_Session))
     {
-        return irc_connect6(m_Session, server, port, passwd, nick, username, realname);
+        // Save infomation
+        SetServer(server == NULL ? _SC("") : server);
+        SetPort(port);
+        SetPassword(passwd == NULL ? _SC("") : passwd);
+        SetNick(nick == NULL ? _SC("") : nick);
+        SetUser(username == NULL ? _SC("") : username);
+        SetName(realname == NULL ? _SC("") : realname);
+        // Enable the reconnection system
+        m_Reconnect = true;
+        m_LeftTries = m_Tries;
+        m_NextTry = (m_SessionTime + m_Wait);
+        // This is an IPv6 connection
+        m_IPv6 = true;
+        // Attempt to connect
+        return irc_connect6(m_Session, server, m_Port, passwd, nick, username, realname);
+    }
+    else if (irc_is_connected(m_Session))
+    {
+        LogWrn("Attempting to <connect session to server> while already connected to server");
     }
     else
     {
@@ -798,6 +1044,9 @@ void Session::Disconnect()
 {
     if (m_Session != nullptr)
     {
+        // Disable the reconnection system
+        m_Reconnect = false;
+        // Attempt to disconnect
         irc_disconnect(m_Session);
     }
     else
@@ -824,16 +1073,7 @@ bool Session::IsConnected()
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::CmdJoin(const SQChar * channel)
 {
-    if (m_Session != nullptr)
-    {
-        return irc_cmd_join(m_Session, channel, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <join channel> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return CmdJoin(channel, NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -899,16 +1139,7 @@ SQInt32 Session::CmdNames(const SQChar * channel)
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::CmdList()
 {
-    if (m_Session != nullptr)
-    {
-        return irc_cmd_list(m_Session, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <get active channel list> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return CmdList(NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -929,16 +1160,7 @@ SQInt32 Session::CmdList(const SQChar * channel)
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::CmdTopic(const SQChar * channel)
 {
-    if (m_Session != nullptr)
-    {
-        return irc_cmd_topic(m_Session, channel, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <get channel topic> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return (channel, NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -959,16 +1181,7 @@ SQInt32 Session::CmdTopic(const SQChar * channel, const SQChar * topic)
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::CmdChannelMode(const SQChar * channel)
 {
-    if (m_Session != nullptr)
-    {
-        return irc_cmd_channel_mode(m_Session, channel, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <get channel mode> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return CmdChannelMode(channel, NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -989,16 +1202,7 @@ SQInt32 Session::CmdChannelMode(const SQChar * channel, const SQChar * mode)
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::CmdUserMode()
 {
-    if (m_Session != nullptr)
-    {
-        return irc_cmd_user_mode(m_Session, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <get user mode> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return CmdUserMode(NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1019,16 +1223,7 @@ SQInt32 Session::CmdUserMode(const SQChar * mode)
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::CmdKick(const SQChar * nick, const SQChar * channel)
 {
-    if (m_Session != nullptr)
-    {
-        return irc_cmd_kick(m_Session, nick, channel, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <kick from channel> using an invalid session: null");
-    }
-
-    return SQMOD_UNKNOWN;
+    return CmdKick(nick, channel, NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1154,16 +1349,8 @@ SQInt32 Session::CmdWhois(const SQChar * nick)
 // ------------------------------------------------------------------------------------------------
 SQInt32 Session::CmdQuit()
 {
-    if (m_Session != nullptr)
-    {
-        return irc_cmd_quit(m_Session, NULL);
-    }
-    else
-    {
-        LogWrn("Attempting to <quit server> using an invalid session: null");
-    }
 
-    return SQMOD_UNKNOWN;
+    return CmdQuit(NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1289,6 +1476,9 @@ void Session::OnConnect(irc_session_t * session, const char * event, const char 
     }
     else
     {
+        // Prevent any attempts to reconnect now
+        inst->m_Reconnect = false;
+        // Now forward event
         ForwardEvent(inst, inst->m_OnConnect, event, origin, params, count);
     }
 }
@@ -1597,7 +1787,7 @@ void Session::OnDcc_Send_Req(irc_session_t * session, const char * nick, const c
 const SQChar * GetNick(const SQChar * origin)
 {
     // Attempt to retrieve the nickname
-    irc_target_get_nick(origin, g_Buffer, std::extent< decltype(g_Buffer) >::value * sizeof(SQChar));
+    irc_target_get_nick(origin, g_Buffer, sizeof(g_Buffer));
     // Return the nickname that could be retrieved
     return g_Buffer;
 }
@@ -1606,7 +1796,7 @@ const SQChar * GetNick(const SQChar * origin)
 const SQChar * GetHost(const SQChar * target)
 {
     // Attempt to retrieve the nickname
-    irc_target_get_host(target, g_Buffer, std::extent< decltype(g_Buffer) >::value * sizeof(SQChar));
+    irc_target_get_host(target, g_Buffer, sizeof(g_Buffer));
     // Return the nickname that could be retrieved
     return g_Buffer;
 }
@@ -1633,6 +1823,20 @@ bool Register_IRC(HSQUIRRELVM vm)
         /* Properties */
         .Prop(_SC("ltag"), &Session::GetTag, &Session::SetTag)
         .Prop(_SC("ldata"), &Session::GetData, &Session::SetData)
+        .Prop(_SC("server"), &Session::GetData, &Session::SetData)
+        .Prop(_SC("server"), &Session::GetServer, &Session::SetServer)
+        .Prop(_SC("passwd"), &Session::GetPassword, &Session::SetPassword)
+        .Prop(_SC("nick"), &Session::GetNick, &Session::SetNick)
+        .Prop(_SC("user"), &Session::GetUser, &Session::SetUser)
+        .Prop(_SC("name"), &Session::GetName, &Session::SetName)
+        .Prop(_SC("port"), &Session::GetPort, &Session::SetPort)
+        .Prop(_SC("tries"), &Session::GetTries, &Session::SetTries)
+        .Prop(_SC("wait"), &Session::GetWait, &Session::SetWait)
+        .Prop(_SC("left_tries"), &Session::GetLeftTries, &Session::SetLeftTries)
+        .Prop(_SC("next_try"), &Session::GetNextTry, &Session::SetNextTry)
+        .Prop(_SC("session_time"), &Session::GetSessionTime)
+        .Prop(_SC("reconnect"), &Session::GetReconnect)
+        .Prop(_SC("ipv6"), &Session::GetIPv6)
         .Prop(_SC("on_connect"), &Session::GetOnConnect, &Session::SetOnConnect)
         .Prop(_SC("on_nick"), &Session::GetOnNick, &Session::SetOnNick)
         .Prop(_SC("on_quit"), &Session::GetOnQuit, &Session::SetOnQuit)
@@ -1718,6 +1922,8 @@ bool Register_IRC(HSQUIRRELVM vm)
         .Func(_SC("set_option"), &Session::SetOption)
         .Func(_SC("reset_option"), &Session::ResetOption)
         /* Overloads */
+        .Overload< SQInt32 (Session::*)(void) >
+            (_SC("connect"), &Session::Connect)
         .Overload< SQInt32 (Session::*)(const SQChar *, SQUint32, const SQChar *) >
             (_SC("connect"), &Session::Connect)
         .Overload< SQInt32 (Session::*)(const SQChar *, SQUint32, const SQChar *, const SQChar *) >
@@ -1726,6 +1932,8 @@ bool Register_IRC(HSQUIRRELVM vm)
             (_SC("connect"), &Session::Connect)
         .Overload< SQInt32 (Session::*)(const SQChar *, SQUint32, const SQChar *, const SQChar *, const SQChar *, const SQChar *) >
             (_SC("connect"), &Session::Connect)
+        .Overload< SQInt32 (Session::*)(void) >
+            (_SC("connect6"), &Session::Connect6)
         .Overload< SQInt32 (Session::*)(const SQChar *, SQUint32, const SQChar *) >
             (_SC("connect6"), &Session::Connect6)
         .Overload< SQInt32 (Session::*)(const SQChar *, SQUint32, const SQChar *, const SQChar *) >
@@ -1763,6 +1971,7 @@ bool Register_IRC(HSQUIRRELVM vm)
         .Overload< SQInt32 (Session::*)(const SQChar *) >
             (_SC("cmd_quit"), &Session::CmdQuit)
     );
+
     // Output debugging information
     LogDbg("Registration of <IRC Session> type was successful");
 

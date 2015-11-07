@@ -111,16 +111,12 @@ static void VC_Frame(float delta)
 
 static void VC_PlayerConnect(int player)
 {
-    static SqObj playload;
-    playload.Release();
-    _Core->ConnectPlayer(player, SQMOD_CREATE_AUTOMATIC, playload);
+    _Core->ConnectPlayer(player, SQMOD_CREATE_AUTOMATIC, NullData());
 }
 
 static void VC_PlayerDisconnect(int player, int reason)
 {
-    static SqObj playload;
-    playload.Release();
-    _Core->DisconnectPlayer(player, reason, playload);
+    _Core->DisconnectPlayer(player, reason, NullData());
 }
 
 static void VC_PlayerBeginTyping(int player)

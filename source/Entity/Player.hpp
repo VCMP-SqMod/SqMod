@@ -36,6 +36,16 @@ public:
     CPlayer(const Reference< CPlayer > & o);
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the referenced player instance has administrator privileges.
+    */
+    SQInt32 GetLevel() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the referenced player instance has administrator privileges.
+    */
+    void SetLevel(SQInt32 val) const;
+
+    /* --------------------------------------------------------------------------------------------
      * See if the referenced player instance is streamed for the specified player.
     */
     bool IsStreamedFor(const Reference < CPlayer > & player) const;

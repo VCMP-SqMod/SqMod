@@ -109,6 +109,11 @@ bool Register_Event(HSQUIRRELVM vm);
 // ------------------------------------------------------------------------------------------------
 bool Register_Utility(HSQUIRRELVM vm);
 
+// ------------------------------------------------------------------------------------------------
+bool Register_Log(HSQUIRRELVM vm);
+bool Register_Core(HSQUIRRELVM vm);
+bool Register_Cmd(HSQUIRRELVM vm);
+
 } // Namespace:: SqMod
 
 #endif // _REGISTER_HPP_

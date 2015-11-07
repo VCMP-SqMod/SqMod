@@ -4,6 +4,7 @@
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include "Command.hpp"
 #include "Misc/Automobile.hpp"
 #include "Misc/Model.hpp"
 
@@ -146,23 +147,65 @@ void Core::SetOption(const String & name, const String & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::Buffer Core::PullBuffer(unsigned sz)
+SQFloat Core::GetUptime() const
+{
+    return m_Uptime;
+}
+
+// ------------------------------------------------------------------------------------------------
+Buffer Core::PullBuffer(unsigned sz)
 {
     // The container that will manage the buffer
     Buffer buf;
     // See if there's any buffers available in the pool
     if (m_BufferPool.empty())
     {
-        //  Create a new buffer if one wasn't available
-        buf.resize(sz);
+        // Create a new buffer if one wasn't available
+        buf.Reserve(sz);
     }
-    // Just fetch one from the pool
-    else
+    // Is the last buffer big enough?
+    else if (m_BufferPool.back().Size() >= sz)
     {
         // Fetch the buffer
         buf = std::move(m_BufferPool.back());
         // Remove it from the pool
-        m_BufferPool.pop();
+        m_BufferPool.pop_back();
+    }
+    // Is the first buffer big enough?
+    else if (m_BufferPool.front().Size() >= sz)
+    {
+        // Fetch the buffer
+        buf = std::move(m_BufferPool.front());
+        // Remove it from the pool
+        m_BufferPool.pop_front();
+    }
+    // Just fetch one from the pool if possible
+    else
+    {
+        // Get an iterator to the beginning of the pool
+        auto itr = m_BufferPool.begin();
+        // See if there are any buffers with the size we need
+        for (; itr != m_BufferPool.end(); ++itr)
+        {
+            if (itr->Size() >= sz)
+            {
+                // Stop searching
+                break;
+            }
+        }
+        // Have we found anything?
+        if (itr != m_BufferPool.end())
+        {
+            // Fetch the buffer
+            buf = std::move((*itr));
+            // Remove it from the pool
+            m_BufferPool.erase(itr);
+        }
+        // Just make one to satisfy the requested size
+        else
+        {
+            buf.Reserve(sz);
+        }
     }
     // Give the obtained buffer
     return std::move(buf);
@@ -172,10 +215,10 @@ Core::Buffer Core::PullBuffer(unsigned sz)
 void Core::PushBuffer(Buffer && buf)
 {
     // Make sure we don't store empty buffers
-    if (!buf.empty())
+    if (buf)
     {
         // Return the specified buffer back to the pool
-        m_BufferPool.push(std::move(buf));
+        m_BufferPool.push_back(std::move(buf));
     }
 }
 
@@ -185,7 +228,7 @@ void Core::MakeBuffer(unsigned num, unsigned sz)
     // Create the specified number of buffers
     while (num--)
     {
-        m_BufferPool.emplace(sz);
+        m_BufferPool.emplace_back(sz);
     }
 }
 
@@ -200,17 +243,16 @@ void Core::ConnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload)
     }
     else
     {
-        LogErr("Unable to create a new <CPlayer> instance");
+        LogErr("Unable to activate player instance: %d", id);
     }
 }
 
 void Core::DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload)
 {
-    // Check to be sure we have this player instance active
-    if (Reference< CPlayer >::Verify(id))
+    // Attempt to deactivate this player instance
+    if (!EntMan< CPlayer >::Deactivate(id, header, payload, true))
     {
-        // Trigger the specific event
-        OnPlayerDestroyed(id, header, payload);
+        LogErr("Unable to deactivate player instance: %d", id);
     }
 }
 
@@ -383,7 +425,7 @@ void Core::DestroyVM()
     if (m_VM != nullptr)
     {
         // Let instances know that they should release links to this VM
-        VMClose.Emit();
+        OnVMClose();
         // Release the references to the script objects
         m_Scripts.clear();
         // Release the reference to the root table
@@ -618,9 +660,9 @@ void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...)
     va_list args;
     va_start(args, str);
     // Acquire a buffer from the buffer pool
-    Core::Buffer vbuf = _Core->PullBuffer();
+    Buffer vbuf = _Core->PullBuffer();
     // Attempt to process the specified format string
-    SQInt32 fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
+    SQInt32 fmt_ret = std::vsnprintf(vbuf.Data(), vbuf.Size(), str, args);
     // See if the formatting was successful
     if (fmt_ret < 0)
     {
@@ -630,12 +672,12 @@ void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...)
         return;
     }
     // See if the buffer was big enough
-    else if (_SCSZT(fmt_ret) > vbuf.size())
+    else if (_SCU32(fmt_ret) > vbuf.Size())
     {
         // Resize the buffer to accommodate the required size
-        vbuf.resize(++fmt_ret);
+        vbuf.Reserve(++fmt_ret);
         // Attempt to process the specified format string again
-        fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
+        fmt_ret = std::vsnprintf(vbuf.Data(), vbuf.Size(), str, args);
         // See if the formatting was successful
         if (fmt_ret < 0)
         {
@@ -648,7 +690,7 @@ void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...)
     // Release the arguments list
     va_end(args);
     // Output the buffer content
-    LogMsg("%s", vbuf.data());
+    LogMsg("%s", vbuf.Data());
     // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
 }
@@ -660,9 +702,9 @@ void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...)
     va_list args;
     va_start(args, str);
     // Acquire a buffer from the buffer pool
-    Core::Buffer vbuf = _Core->PullBuffer();
+    Buffer vbuf = _Core->PullBuffer();
     // Attempt to process the specified format string
-    SQInt32 fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
+    SQInt32 fmt_ret = std::vsnprintf(vbuf.Data(), vbuf.Size(), str, args);
     // See if the formatting was successful
     if (fmt_ret < 0)
     {
@@ -672,12 +714,12 @@ void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...)
         return;
     }
     // See if the buffer was big enough
-    else if (_SCSZT(fmt_ret) > vbuf.size())
+    else if (_SCU32(fmt_ret) > vbuf.Size())
     {
         // Resize the buffer to accommodate the required size
-        vbuf.resize(++fmt_ret);
+        vbuf.Reserve(++fmt_ret);
         // Attempt to process the specified format string again
-        fmt_ret = std::vsnprintf(vbuf.data(), vbuf.size(), str, args);
+        fmt_ret = std::vsnprintf(vbuf.Data(), vbuf.Size(), str, args);
         // See if the formatting was successful
         if (fmt_ret < 0)
         {
@@ -690,7 +732,7 @@ void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...)
     // Release the arguments list
     va_end(args);
     // Output the buffer content
-    LogErr("%s", vbuf.data());
+    LogErr("%s", vbuf.Data());
     // Return the buffer back to the buffer pool
     _Core->PushBuffer(std::move(vbuf));
 }
@@ -1150,6 +1192,9 @@ void Core::OnPlayerChat(SQInt32 player, const SQChar * message)
 
 void Core::OnPlayerCommand(SQInt32 player, const SQChar * command)
 {
+    // Send it to the command manager
+    _Cmd->Execute(player, command);
+    // Forward to instances
     PlayerCommand.Emit(player, command);
     Reference< CPlayer >::Get(player).PlayerCommand.Emit(player, command);
 }
@@ -1504,6 +1549,7 @@ void Core::OnSphereExited(SQInt32 player, SQInt32 sphere)
 // ------------------------------------------------------------------------------------------------
 void Core::OnServerFrame(SQFloat delta)
 {
+    m_Uptime += delta;
     ServerFrame.Emit(delta);
 }
 
@@ -1556,6 +1602,15 @@ void Core::OnScriptReload(SQInt32 header, SqObj & payload)
 void Core::OnLogMessage(SQInt32 type, const SQChar * message)
 {
     LogMessage.Emit(type, message);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::OnVMClose()
+{
+    // Call base classes manually
+    _Cmd->VMClose();
+    // Froward to instances
+    VMClose.Emit();
 }
 
 // ------------------------------------------------------------------------------------------------
