@@ -551,7 +551,7 @@ using EWorldOption          = Signal< void (SQInt32 /* option */, Object & /* va
 using EWorldToggle          = Signal< void (SQInt32 /* option */, bool /* value */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EScriptReload           = Signal< void (SQInt32 /* header */, Object & /* payload */) >;
+using EScriptReload         = Signal< void (SQInt32 /* header */, Object & /* payload */) >;
 
 // ------------------------------------------------------------------------------------------------
 using EVMClose              = Signal< void (void) >;

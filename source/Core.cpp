@@ -43,6 +43,8 @@ Core::Core()
     , m_ErrorMsg()
     , m_PlayerTrack()
     , m_VehicleTrack()
+    , m_BufferPool()
+    , m_Uptime(0.0)
 {
     // Create a few shared buffers
     MakeBuffer(8);
@@ -51,7 +53,7 @@ Core::Core()
 // ------------------------------------------------------------------------------------------------
 Core::~Core()
 {
-    // Tell the plugin to terminate
+    // Tell the plug-in to terminate
     this->Terminate();
 }
 
@@ -76,7 +78,7 @@ Core::Pointer Core::Inst()
 bool Core::Init()
 {
     LogMsg("%s", CenterStr("INITIALIZING", '*'));
-    // Attempt to initialize the plugin resources
+    // Attempt to initialize the plug-in resources
     if (!this->Configure() || !this->CreateVM() || !this->LoadScripts())
     {
         return false;
@@ -234,7 +236,7 @@ void Core::MakeBuffer(unsigned num, unsigned sz)
 // ------------------------------------------------------------------------------------------------
 void Core::ConnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload)
 {
-    // Attempt to activate the instance in the plugin at the received identifier
+    // Attempt to activate the instance in the plug-in at the received identifier
     if (EntMan< CPlayer >::Activate(id, false))
     {
         // Trigger the specific event
@@ -406,11 +408,11 @@ bool Core::CreateVM()
     sq_newclosure(m_VM, RuntimeErrorHandler, 0);
     sq_seterrorhandler(m_VM);
 
-    LogDbg("Registering the plugin API");
-    // Register the plugin API
+    LogDbg("Registering the plug-in API");
+    // Register the plug-in API
     if (!RegisterAPI(m_VM))
     {
-        LogFtl("Unable to register the plugin API");
+        LogFtl("Unable to register the plug-in API");
         return false;
     }
     // At this point the VM is ready
@@ -443,7 +445,7 @@ bool Core::LoadScripts()
     if (!g_Config)
     {
         LogWrn("Cannot compile any scripts without the configurations");
-        // No point in loading the plugin
+        // No point in loading the plug-in
         return false;
     }
     // Attempt to retrieve the list of strings specified in the config
@@ -453,7 +455,7 @@ bool Core::LoadScripts()
     if (script_list.size() <= 0)
     {
         LogWrn("No scripts specified in the configuration file");
-        // No point in loading the plugin
+        // No point in loading the plug-in
         return false;
     }
     // Sort the list in it's original order
@@ -473,7 +475,7 @@ bool Core::LoadScripts()
         // Attempt to compile it
         else if (!Compile(path))
         {
-            // Plugin shouldn't load
+            // Plug-in shouldn't load
             return false;
         }
         else
@@ -484,8 +486,8 @@ bool Core::LoadScripts()
     // See if any script could be compiled
     if (m_Scripts.empty())
     {
-        LogErr("No scripts compiled. No reason to load the plugin");
-        // No point in loading the plugin
+        LogErr("No scripts compiled. No reason to load the plug-in");
+        // No point in loading the plug-in
         return false;
     }
     // At this point everything went as expected

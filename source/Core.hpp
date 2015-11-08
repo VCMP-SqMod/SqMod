@@ -19,7 +19,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * The central core class is supposed to manage the life time of the polugin and it's resources.
+ * The central core class is supposed to manage the life time of the plug-in and it's resources.
 */
 class Core
 {
@@ -71,7 +71,7 @@ protected:
     typedef std::array< TVehicle, SQMOD_VEHICLE_POOL >      TVehicleInstPool;
 
     /* --------------------------------------------------------------------------------------------
-     * Reference to all compiled scripts specified in the configuration file. 
+     * Reference to all compiled scripts specified in the configuration file.
     */
     typedef std::unordered_map< String, Script >            SqScriptPool;
 
@@ -88,7 +88,7 @@ protected:
 private:
 
     /* --------------------------------------------------------------------------------------------
-     * Last known state of the plugin that is to be returned by the event callbacks.
+     * Last known state of the plug-in that is to be returned by the event callbacks.
     */
     SQInteger                           m_State;
 
@@ -108,29 +108,29 @@ private:
     SqScriptPool                        m_Scripts;
 
     /* --------------------------------------------------------------------------------------------
-     * Last known error message in the plugin throwing an error at certain stages is not an option.
+     * Last known error message in the plug-in throwing an error at certain stages is not an option.
     */
     String                              m_ErrorMsg;
 
     /* --------------------------------------------------------------------------------------------
-     * An array of instances of the tracking structure for each posible player on the server.
+     * An array of instances of the tracking structure for each possible player on the server.
     */
     TPlayerInstPool                     m_PlayerTrack;
 
     /* --------------------------------------------------------------------------------------------
-     * An array of instances of the tracking structure for each posible vehicle on the server.
+     * An array of instances of the tracking structure for each possible vehicle on the server.
     */
     TVehicleInstPool                    m_VehicleTrack;
 
     /* --------------------------------------------------------------------------------------------
-     * A pool of shared buffers shared throught the plugin through move semantics.
+     * A pool of shared buffers shared throughout the plug-in through move semantics.
     */
     BufferPool                          m_BufferPool;
 
     /* --------------------------------------------------------------------------------------------
      * Server uptime calculated as the sum of delta time between server frames.
     */
-    SQFloat                             m_Uptime;
+    Float32                             m_Uptime;
 
 protected:
 
@@ -180,37 +180,37 @@ public:
     static Pointer Inst();
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to initialize the plugin subsystems and prepare it for the loading stage.
+     * Attempt to initialize the plug-in subsystems and prepare it for the loading stage.
     */
     bool Init();
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt load the plugin resources and finally startup the plugin.
+     * Attempt load the plug-in resources and finally startup the plug-in.
     */
     bool Load();
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to deinitialize the plugin subsystems and prepare the plugin for propper shutdown.
+     * Attempt to de-initialize the plug-in subsystems and prepare the plug-in for proper shutdown.
     */
     void Deinit();
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to unload the plugin resouces and release everything from the load stage.
+     * Attempt to unload the plug-in resources and release everything from the load stage.
     */
     void Unload();
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to completely terminate the plugin instance with no intention of starting up again.
+     * Attempt to completely terminate the plug-in instance with no intention of starting up again.
     */
     void Terminate();
 
     /* --------------------------------------------------------------------------------------------
-     * Set the current plugin state to the specified value.
+     * Set the current plug-in state to the specified value.
     */
     void SetState(SQInteger val);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the current plugin state.
+     * Retrieve the current plug-in state.
     */
     SQInteger GetState() const;
 
@@ -225,7 +225,7 @@ public:
     void SetOption(const String & name, const String & value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the plugin/server cumulated uptime.
+     * Retrieve the plug-in/server cumulated uptime.
     */
     SQFloat GetUptime() const;
 
@@ -235,7 +235,7 @@ public:
     Buffer PullBuffer(unsigned sz = 4096);
 
     /* --------------------------------------------------------------------------------------------
-     * Return a previously borrwoed buffer back to the pool of buffers.
+     * Return a previously borrowed buffer back to the pool of buffers.
     */
     void PushBuffer(Buffer && buf);
 
@@ -245,12 +245,12 @@ public:
     void MakeBuffer(unsigned num, unsigned sz = 4096);
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to activate a speciffic player within the plugin.
+     * Attempt to activate a specific player within the plug-in.
     */
     void ConnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload);
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to deactivate a specific player withing the plugin.
+     * Attempt to deactivate a specific player withing the plug-in.
     */
     void DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload);
 
@@ -267,7 +267,7 @@ protected:
     bool CreateVM();
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to close a Squirrel Virtual Machine and destroy it's resources allong with it.
+     * Attempt to close a Squirrel Virtual Machine and destroy it's resources along with it.
     */
     void DestroyVM();
 
@@ -287,29 +287,29 @@ protected:
     bool Execute();
 
     /* --------------------------------------------------------------------------------------------
-     * Print debugging information about the current callstack.
+     * Print debugging information about the current call-stack.
     */
     void PrintCallstack();
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the Squirrel VM to outpute text messages to a stream defined by the plugin.
+     * Used by the Squirrel VM to output text messages to a stream defined by the plug-in.
     */
     static void PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...);
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the Squirrel VM to outpute error messages to a stream defined by the plugin.
+     * Used by the Squirrel VM to output error messages to a stream defined by the plug-in.
     */
     static void ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...);
 
     /* --------------------------------------------------------------------------------------------
-     * A custom error handler defined by the plugin to be invoked when runtime errors occur.
+     * A custom error handler defined by the plug-in to be invoked when runtime errors occur.
     */
     static SQInteger RuntimeErrorHandler(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * A custom error handler defined by the plugin to be invoked when compile time errors occur.
+     * A custom error handler defined by the plug-in to be invoked when compile time errors occur.
     */
     static void CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQChar * src,
                                         SQInteger line, SQInteger column);
@@ -552,7 +552,7 @@ public:
     void OnPlayerName(SQInt32 player, const SQChar * previous, const SQChar * current);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player is requesting a speciffic class to be assigned to.
+     * Notify event listeners that a player is requesting a specific class to be assigned to.
     */
     void OnPlayerRequestClass(SQInt32 player, SQInt32 offset);
 
@@ -587,17 +587,17 @@ public:
     void OnPlayerCommand(SQInt32 player, const SQChar * command);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player sent a private chat mesage.
+     * Notify event listeners that a player sent a private chat message.
     */
     void OnPlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the health changed for a speciffic player.
+     * Notify event listeners that the health changed for a specific player.
     */
     void OnPlayerHealth(SQInt32 player, SQFloat previous, SQFloat current);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the armour changed for a speciffic player.
+     * Notify event listeners that the armour changed for a specific player.
     */
     void OnPlayerArmour(SQInt32 player, SQFloat previous, SQFloat current);
 
@@ -622,7 +622,7 @@ public:
     void OnPlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player began to spectate another player.
+     * Notify event listeners that a player began to spectator another player.
     */
     void OnPlayerSpectate(SQInt32 player, SQInt32 target);
 
@@ -696,7 +696,7 @@ public:
     void OnStateExitVehicle(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to being unspawned.
+     * Notify event listeners that the current state of a player has changed to being unspanned.
     */
     void OnStateUnspawned(SQInt32 player, SQInt32 previous);
 
@@ -766,13 +766,13 @@ public:
     void OnActionEmbarking(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to dissembarking
+     * Notify event listeners that the current action of a player has changed to disembarking
      * a vehicle.
     */
     void OnActionDisembarking(SQInt32 player, SQInt32 previous);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the a vehicle instance has respawned.
+     * Notify event listeners that the a vehicle instance has re-spawned.
     */
     void OnVehicleRespawn(SQInt32 vehicle);
 
@@ -782,7 +782,7 @@ public:
     void OnVehicleExplode(SQInt32 vehicle);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the health changed for a speciffic vehicle.
+     * Notify event listeners that the health changed for a specific vehicle.
     */
     void OnVehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current);
 
@@ -792,7 +792,7 @@ public:
     void OnVehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 & current);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the a pickup instance has respawned.
+     * Notify event listeners that the a pickup instance has re-spawned.
     */
     void OnPickupRespawn(SQInt32 pickup);
 
@@ -817,17 +817,17 @@ public:
     void OnPlayerEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player just dissembarked from a vehicle.
+     * Notify event listeners that a player just disembarked from a vehicle.
     */
     void OnPlayerDisembark(SQInt32 player, SQInt32 vehicle);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player claimed owenership over a pickup.
+     * Notify event listeners that a player claimed ownership over a pickup.
     */
     void OnPickupClaimed(SQInt32 player, SQInt32 pickup);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player colected a pickup.
+     * Notify event listeners that a player collected a pickup.
     */
     void OnPickupCollected(SQInt32 player, SQInt32 pickup);
 
@@ -882,7 +882,7 @@ public:
     void OnInternalCommand(SQInt32 type, const SQChar * text);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that somone is trying to log into the server.
+     * Notify event listeners that someone is trying to log into the server.
     */
     void OnLoginAttempt(const SQChar * name, const SQChar * passwd, const SQChar * ip);
 
@@ -897,12 +897,12 @@ public:
     void OnWorldOption(SQInt32 option, SqObj & value);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that something was just toggeled in the game world.
+     * Notify event listeners that something was just toggled in the game world.
     */
     void OnWorldToggle(SQInt32 option, bool value);
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the plugin is about to reload it's resources.
+     * Notify event listeners that the plug-in is about to reload it's resources.
     */
     void OnScriptReload(SQInt32 header, SqObj & payload);
 
@@ -930,121 +930,121 @@ public:
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a blip entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     EBlipCreated                BlipCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a checkpoint entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     ECheckpointCreated          CheckpointCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a keybind entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     EKeybindCreated             KeybindCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a object entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     EObjectCreated              ObjectCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a pickup entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     EPickupCreated              PickupCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a Player entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     EPlayerCreated              PlayerCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a sphere entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     ESphereCreated              SphereCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a sprite entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     ESpriteCreated              SpriteCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a textdraw entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     ETextdrawCreated            TextdrawCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a vehicle entity instance was
-     * created on the server. Either by this plugin or external ones.
+     * created on the server. Either by this plug-in or external ones.
     */
     EVehicleCreated             VehicleCreated;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a blip entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     EBlipDestroyed              BlipDestroyed;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a checkpoint entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     ECheckpointDestroyed        CheckpointDestroyed;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a keybind entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     EKeybindDestroyed           KeybindDestroyed;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a object entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     EObjectDestroyed            ObjectDestroyed;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a pickup entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     EPickupDestroyed            PickupDestroyed;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a player entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     EPlayerDestroyed            PlayerDestroyed;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a sphere entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     ESphereDestroyed            SphereDestroyed;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a sprite entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     ESpriteDestroyed            SpriteDestroyed;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a textdraw entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     ETextdrawDestroyed          TextdrawDestroyed;
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when a vehicle entity instance was
-     * destroyed from the server. Either by this plugin or external ones.
+     * destroyed from the server. Either by this plug-in or external ones.
     */
     EVehicleDestroyed           VehicleDestroyed;
 
@@ -1134,7 +1134,7 @@ public:
     EPlayerRequestSpawn         PlayerRequestSpawn;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just spaned in the game.
+     * A collection of listeners waiting to be notified when a player just spawned in the game.
     */
     EPlayerSpawn                PlayerSpawn;
 
@@ -1161,17 +1161,17 @@ public:
     EPlayerCommand              PlayerCommand;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player sent a private chat mesage.
+     * A collection of listeners waiting to be notified when a player sent a private chat message.
     */
     EPlayerMessage              PlayerMessage;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when health changed for a speciffic player.
+     * A collection of listeners waiting to be notified when health changed for a specific player.
     */
     EPlayerHealth               PlayerHealth;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the armour changed for a speciffic
+     * A collection of listeners waiting to be notified when the armour changed for a specific
      * player.
     */
     EPlayerArmour               PlayerArmour;
@@ -1290,7 +1290,7 @@ public:
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when current state of a player has changed
-     * to being unspawned.
+     * to being un-spawned.
     */
     EStateUnspawned             StateUnspawned;
 
@@ -1368,12 +1368,12 @@ public:
 
     /* --------------------------------------------------------------------------------------------
      * A collection of listeners waiting to be notified when current state of a player has changed
-     * to dissembarking a vehicle.
+     * to disembarking a vehicle.
     */
     EActionDisembarking         ActionDisembarking;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a vehicle instance has respawned.
+     * A collection of listeners waiting to be notified when a vehicle instance has re-spawned.
     */
     EVehicleRespawn             VehicleRespawn;
 
@@ -1383,7 +1383,7 @@ public:
     EVehicleExplode             VehicleExplode;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the health changed for a speciffic
+     * A collection of listeners waiting to be notified when the health changed for a specific
      * vehicle.
     */
     EVehicleHealth              VehicleHealth;
@@ -1395,7 +1395,7 @@ public:
     EVehicleMove                VehicleMove;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a pickup instance has respawned.
+     * A collection of listeners waiting to be notified when a pickup instance has re-spawned.
     */
     EPickupRespawn              PickupRespawn;
 
@@ -1423,19 +1423,19 @@ public:
     EVehicleEmbarked            VehicleEmbarked;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just dissembarked from a
+     * A collection of listeners waiting to be notified when a player just disembarked from a
      * vehicle.
     */
     EVehicleDisembark           VehicleDisembark;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player claimed owenership over a
+     * A collection of listeners waiting to be notified when a player claimed ownership over a
      * pickup.
     */
     EPickupClaimed              PickupClaimed;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player colected a pickup.
+     * A collection of listeners waiting to be notified when a player collected a pickup.
     */
     EPickupCollected            PickupCollected;
 
@@ -1492,7 +1492,7 @@ public:
     EInternalCommand            InternalCommand;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when somone is trying to log into the
+     * A collection of listeners waiting to be notified when someone is trying to log into the
      * server.
     */
     ELoginAttempt               LoginAttempt;
@@ -1509,13 +1509,13 @@ public:
     EWorldOption                WorldOption;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when something was just toggeled in the
+     * A collection of listeners waiting to be notified when something was just toggled in the
      * game world.
     */
     EWorldToggle                WorldToggle;
 
     /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the plugin is about to reload it's
+     * A collection of listeners waiting to be notified when the plug-in is about to reload it's
      * resources.
     */
     EScriptReload               ScriptReload;
