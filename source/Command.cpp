@@ -91,6 +91,12 @@ void CmdManager::SetOnAuth(Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInt32 CmdManager::GetInvokerID()
+{
+    return m_Invoker;
+}
+
+// ------------------------------------------------------------------------------------------------
 const SQChar * CmdManager::GetName()
 {
     return m_Name.c_str();

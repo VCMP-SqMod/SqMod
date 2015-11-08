@@ -54,7 +54,9 @@ class CmdListener;
 */
 class CmdManager
 {
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Allow only the smart pointer to delete this class instance as soon as it's not needed.
+    */
     friend class std::unique_ptr< CmdManager, void(*)(CmdManager *) >;
 
 protected:
@@ -115,7 +117,32 @@ public:
     static Pointer Inst();
 
     /* --------------------------------------------------------------------------------------------
-      * Called by the core class before the VM is clodes to release all resources.
+     * ...
+    */
+    bool Init();
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    bool Load();
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    void Deinit();
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    void Unload();
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    void Terminate();
+
+    /* --------------------------------------------------------------------------------------------
+      * Called by the core class before the VM is closed to release all resources.
     */
     void VMClose();
 
@@ -150,6 +177,11 @@ public:
     void SetOnAuth(Function & func);
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the default authority inspector.
+    */
+    SQInt32 GetInvokerID();
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the name of the currently executed command.
     */
     const SQChar * GetName();
@@ -167,7 +199,7 @@ public:
 protected:
 
     /* --------------------------------------------------------------------------------------------
-     * Execute the specified comand.
+     * Execute the specified command.
     */
     void Exec(CmdListener & cmd);
 
@@ -226,7 +258,7 @@ private:
     Function        m_OnError;
 
     /* --------------------------------------------------------------------------------------------
-     * Default authority inspector for newlly created commands.
+     * Default authority inspector for newly created commands.
     */
     Function        m_OnAuth;
 };
@@ -285,7 +317,7 @@ public:
     CmdListener & operator = (CmdListener && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
-      * Used to released stored resouces before the VM is closed.
+      * Used to released stored resources before the VM is closed.
     */
     void VMClose();
 
@@ -335,7 +367,7 @@ public:
     const SQChar * GetSpec() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Change the argument type specifiers for this command by extracing them from a string.
+     * Change the argument type specifiers for this command by extracting them from a string.
     */
     void SetSpec(const SQChar * spec);
 
@@ -355,7 +387,7 @@ public:
     const SQChar * GetInfo() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Chage the informational text associated with this command.
+     * Change the informational text associated with this command.
     */
     void SetInfo(const SQChar * info);
 
@@ -435,7 +467,7 @@ public:
     bool ArgCheck(SQUint32 arg, Uint8 mask) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Sheck whether the specified player is allowed to execute this command.
+     * Check whether the specified player is allowed to execute this command.
     */
     bool AuthCheck(SQInt32 id);
 
