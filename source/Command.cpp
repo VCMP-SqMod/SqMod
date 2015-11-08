@@ -149,7 +149,7 @@ void CmdManager::Execute(SQInt32 invoker, const String & str)
 void CmdManager::Exec(CmdListener & cmd)
 {
     // See if the invoker has enough authority to execute this command
-    if (!cmd.AuthCheck(m_Invoker))
+    if (!cmd.AuthCheckID(m_Invoker))
     {
         Error(CMDERR_INSUFFICIENT_AUTH, _SC("Insufficient authority to execute command"));
         // Command failed
@@ -888,7 +888,7 @@ bool CmdListener::ArgCheck(SQUint32 arg, Uint8 mask) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CmdListener::AuthCheck(SQInt32 id)
+bool CmdListener::AuthCheckID(SQInt32 id)
 {
     // Allow execution by default
     bool allow = true;
@@ -1121,6 +1121,8 @@ bool Register_Cmd(HSQUIRRELVM vm)
         .Func(_SC("set_arg_tag"), &CmdListener::SetArgTag)
         .Func(_SC("set_on_exec"), &CmdListener::SetOnExec_Env)
         .Func(_SC("set_on_auth"), &CmdListener::SetOnAuth_Env)
+        .Func(_SC("arg_check"), &CmdListener::ArgCheck)
+        .Func(_SC("auth_check"), &CmdListener::AuthCheckID)
     );
 
     // Output debugging information

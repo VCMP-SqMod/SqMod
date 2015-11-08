@@ -514,7 +514,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check whether the specified player is allowed to execute this command.
     */
-    bool AuthCheck(SQInt32 id);
+    bool AuthCheckID(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to execute this command.
