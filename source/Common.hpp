@@ -34,6 +34,11 @@ extern PluginInfo*          _Info;
 SqObj & NullData();
 
 /* ------------------------------------------------------------------------------------------------
+ * ...
+*/
+Array & NullArray();
+
+/* ------------------------------------------------------------------------------------------------
  * Utility used to transform values into script objects on the default VM
 */
 template < typename T > SqObj MakeSqObj(const T & v)

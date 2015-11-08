@@ -294,7 +294,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct and instance and attach it to the specified name.
     */
+    CmdListener(const SQChar * name, const SQChar * spec, Array & tags);
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct and instance and attach it to the specified name.
+    */
     CmdListener(const SQChar * name, const SQChar * spec, SQUint32 min, SQUint32 max);
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct and instance and attach it to the specified name.
+    */
+    CmdListener(const SQChar * name, const SQChar * spec, Array & tags, SQUint32 min, SQUint32 max);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor (disabled).
@@ -375,6 +385,26 @@ public:
      * Change the argument type specifiers for this command by extracting them from a string.
     */
     void SetSpec(const SQChar * spec);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the tag/name of a command argument.
+    */
+    const SQChar * GetArgTag(SQUint32 arg) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Change the tag/name of a command argument.
+    */
+    void SetArgTag(SQUint32 arg, const SQChar * name);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the tag/name of multiple command arguments.
+    */
+    Array GetArgTags() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Change the tag/name of multiple command arguments.
+    */
+    void SetArgTags(Array & tags);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the help text associated with this command.
@@ -496,6 +526,9 @@ protected:
     // --------------------------------------------------------------------------------------------
     typedef std::array< Uint8 , MAX_CMD_ARGS > Args;
 
+    // --------------------------------------------------------------------------------------------
+    typedef std::array< String , MAX_CMD_ARGS > Argt;
+
     /* --------------------------------------------------------------------------------------------
      * Process the specifiers string.
     */
@@ -507,6 +540,11 @@ private:
      * Array of type specifiers for each of the command arguments.
     */
     Args        m_Args;
+
+    /* --------------------------------------------------------------------------------------------
+     * Array of strings to be used as the tag/name for each argument.
+    */
+    Argt        m_Argt;
 
     /* --------------------------------------------------------------------------------------------
      * Minimum arguments allowed to execute this command.

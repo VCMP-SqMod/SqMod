@@ -491,21 +491,36 @@ CmdListener::CmdListener()
 
 // ------------------------------------------------------------------------------------------------
 CmdListener::CmdListener(const SQChar * name)
-    : CmdListener(name, _SC(""))
+    : CmdListener(name, _SC(""), NullArray(), 0, MAX_CMD_ARGS)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 CmdListener::CmdListener(const SQChar * name, const SQChar * spec)
-    : CmdListener(name, spec, 0, MAX_CMD_ARGS)
+    : CmdListener(name, spec, NullArray(), 0, MAX_CMD_ARGS)
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+CmdListener::CmdListener(const SQChar * name, const SQChar * spec, Array & tags)
+    : CmdListener(name, spec, tags, 0, MAX_CMD_ARGS)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 CmdListener::CmdListener(const SQChar * name, const SQChar * spec, SQUint32 min, SQUint32 max)
-    : m_Args({{0}})
+    : CmdListener(name, spec, NullArray(), min, max)
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+CmdListener::CmdListener(const SQChar * name, const SQChar * spec, Array & tags, SQUint32 min, SQUint32 max)
+    : m_Args({{CMDARG_ANY}})
+    , m_Argt({{_SC("")}})
     , m_MinArgc(0)
     , m_MaxArgc(MAX_CMD_ARGS)
     , m_Name()
@@ -524,6 +539,8 @@ CmdListener::CmdListener(const SQChar * name, const SQChar * spec, SQUint32 min,
     // Set the minimum and maximum allowed arguments
     SetMinArgC(min);
     SetMaxArgC(max);
+    // Extract the specified argument tags
+    SetArgTags(tags);
     // Bind to the specified command name
     SetName(name);
     // Apply the specified argument rules
@@ -638,6 +655,73 @@ void CmdListener::SetSpec(const SQChar * spec)
     if (ProcSpec(spec))
     {
         m_Spec.assign(spec);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * CmdListener::GetArgTag(SQUint32 arg) const
+{
+    if (arg < MAX_CMD_ARGS)
+    {
+        return m_Argt[arg].c_str();
+    }
+    else
+    {
+        LogErr("Unable to <get command argument tag/name> because : argument is out of bounds %u > %u",
+                arg, MAX_CMD_ARGS);
+    }
+    // Argument failed inspection
+    return _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdListener::SetArgTag(SQUint32 arg, const SQChar * name)
+{
+    if (arg < MAX_CMD_ARGS)
+    {
+        m_Argt[arg].assign(name);
+    }
+    else
+    {
+        LogErr("Unable to <set command argument tag/name> because : argument is out of bounds %u > %u",
+                arg, MAX_CMD_ARGS);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Array CmdListener::GetArgTags() const
+{
+    // Allocate an array to encapsulate all tags
+    Array arr(DefaultVM::Get(), MAX_CMD_ARGS);
+    // Put the tags to the allocated array
+    for (SQUint32 arg = 0; arg < MAX_CMD_ARGS; ++arg)
+    {
+        arr.SetValue(arg, m_Argt[arg]);
+    }
+    // Return the array with the tags
+    return arr;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdListener::SetArgTags(Array & tags)
+{
+    // Attempt to retrieve the number of specified tags
+    const SQUint32 max = _SCU32(tags.Length());
+    // If no tags were specified then clear current tags
+    if (max == 0)
+    {
+        m_Argt.fill(Argt::value_type());
+    }
+    // See if we're in range
+    else if (max < MAX_CMD_ARGS)
+    {
+        // Attempt to get all arguments in one go
+        tags.GetArray(m_Argt.data(), max);
+    }
+    else
+    {
+        LogErr("Unable to <set command argument tag/name> because : argument is out of bounds %u > %u",
+                max, MAX_CMD_ARGS);
     }
 }
 
@@ -1010,7 +1094,9 @@ bool Register_Cmd(HSQUIRRELVM vm)
         .Ctor()
         .Ctor< const SQChar * >()
         .Ctor< const SQChar *, const SQChar * >()
+        .Ctor< const SQChar *, const SQChar *, Array & >()
         .Ctor< const SQChar *, const SQChar *, SQUint32, SQUint32 >()
+        .Ctor< const SQChar *, const SQChar *, Array &, SQUint32, SQUint32 >()
         /* Metamethods */
         .Func(_SC("_cmp"), &CmdListener::Cmp)
         .Func(_SC("_tostring"), &CmdListener::ToString)
@@ -1019,6 +1105,7 @@ bool Register_Cmd(HSQUIRRELVM vm)
         .Prop(_SC("ldata"), &CmdListener::GetData, &CmdListener::SetData)
         .Prop(_SC("name"), &CmdListener::GetName, &CmdListener::SetName)
         .Prop(_SC("spec"), &CmdListener::GetSpec, &CmdListener::SetSpec)
+        .Prop(_SC("tags"), &CmdListener::GetArgTags, &CmdListener::SetArgTags)
         .Prop(_SC("help"), &CmdListener::GetHelp, &CmdListener::SetHelp)
         .Prop(_SC("info"), &CmdListener::GetInfo, &CmdListener::SetInfo)
         .Prop(_SC("on_exec"), &CmdListener::GetOnExec, &CmdListener::SetOnExec)
@@ -1030,6 +1117,8 @@ bool Register_Cmd(HSQUIRRELVM vm)
         .Prop(_SC("min_args"), &CmdListener::GetMinArgC, &CmdListener::SetMinArgC)
         .Prop(_SC("max_args"), &CmdListener::GetMaxArgC, &CmdListener::SetMaxArgC)
         /* Functions */
+        .Func(_SC("get_arg_tag"), &CmdListener::GetArgTag)
+        .Func(_SC("set_arg_tag"), &CmdListener::SetArgTag)
         .Func(_SC("set_on_exec"), &CmdListener::SetOnExec_Env)
         .Func(_SC("set_on_auth"), &CmdListener::SetOnAuth_Env)
     );

@@ -479,4 +479,12 @@ SqObj & NullData()
     return d;
 }
 
+// ------------------------------------------------------------------------------------------------
+Array & NullArray()
+{
+    static Array a;
+    a.Release();
+    return a;
+}
+
 } // Namespace:: SqMod
