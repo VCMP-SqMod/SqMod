@@ -184,7 +184,7 @@ void CmdManager::Exec(CmdListener & cmd)
         // Command failed
         return;
     }
-    // Check argument types agains the command specifiers
+    // Check argument types against the command specifiers
     for (Uint32 arg = 0; arg < m_Argc; ++arg)
     {
         if (!cmd.ArgCheck(arg, m_Argv[arg].first))
@@ -204,7 +204,7 @@ void CmdManager::Exec(CmdListener & cmd)
     }
     // Attempt to execute the command with the specified arguments
     bool result = cmd.Execute(m_Invoker, args);
-    // See if an error occured
+    // See if an error occurred
     if (Error::Occurred(DefaultVM::Get()))
     {
         Error(CMDERR_EXECUTION_FAILED, _SC("Command execution failed: %s"), Error::Message(DefaultVM::Get()).c_str());
@@ -511,14 +511,14 @@ CmdListener::CmdListener(const SQChar * name, const SQChar * spec, Array & tags)
 }
 
 // ------------------------------------------------------------------------------------------------
-CmdListener::CmdListener(const SQChar * name, const SQChar * spec, SQUint32 min, SQUint32 max)
+CmdListener::CmdListener(const SQChar * name, const SQChar * spec, Uint8 min, Uint8 max)
     : CmdListener(name, spec, NullArray(), min, max)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-CmdListener::CmdListener(const SQChar * name, const SQChar * spec, Array & tags, SQUint32 min, SQUint32 max)
+CmdListener::CmdListener(const SQChar * name, const SQChar * spec, Array & tags, Uint8 min, Uint8 max)
     : m_Args({{CMDARG_ANY}})
     , m_Argt({{_SC("")}})
     , m_MinArgc(0)
@@ -822,13 +822,13 @@ void CmdListener::SetSuspended(bool toggle)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 CmdListener::GetMinArgC() const
+Uint8 CmdListener::GetMinArgC() const
 {
     return m_MinArgc;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CmdListener::SetMinArgC(SQUint32 val)
+void CmdListener::SetMinArgC(Uint8 val)
 {
     if (val < MAX_CMD_ARGS && val <= m_MaxArgc)
     {
@@ -847,13 +847,13 @@ void CmdListener::SetMinArgC(SQUint32 val)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 CmdListener::GetMaxArgC() const
+Uint8 CmdListener::GetMaxArgC() const
 {
     return m_MaxArgc;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CmdListener::SetMaxArgC(SQUint32 val)
+void CmdListener::SetMaxArgC(Uint8 val)
 {
     if (val < MAX_CMD_ARGS && val >= m_MinArgc)
     {
@@ -868,6 +868,110 @@ void CmdListener::SetMaxArgC(SQUint32 val)
     {
         LogWrn("Attempting to <set maximum command arguments> using an out of bounds value: %u > %d",
                 val, MAX_CMD_ARGS);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdListener::GenerateInfo(bool full)
+{
+    // Clear any previously generated informational message
+    m_Info.clear();
+    // Process each supported command argument
+    for (SQUint32 arg = 0; arg < m_MaxArgc; ++arg)
+    {
+        // If this is not a full command request then see if we must stop
+        if (!full)
+        {
+            // Default to stop if criteria are not meet
+            bool stop = true;
+            // Check all arguments after this and see if there's any left
+            for (Uint32 idx = arg; idx < m_MaxArgc; ++idx)
+            {
+                // If the argument has a name or a type specifier then it's valid
+                if (!m_Argt[idx].empty() || m_Args[idx] != CMDARG_ANY)
+                {
+                    // We have more arguments that need to be parsed
+                    stop = false;
+                    // Go back to the main loop
+                    break;
+                }
+            }
+            // Is there any argument left?
+            if (stop)
+            {
+                // Stop the main loop as well
+                break;
+            }
+        }
+        // Begin the argument block
+        m_Info += '<';
+        // If the current argument is beyond minimum then mark it as optional
+        if (arg >= m_MinArgc)
+        {
+            m_Info += '*';
+        }
+        // If the argument has a tag/name associated then add it as well
+        if (!m_Argt[arg].empty())
+        {
+            // Add the name first
+            m_Info += m_Argt[arg];
+            // Separate the name from the specifiers
+            m_Info += ':';
+        }
+        // If the argument has any explicit types specified
+        if (m_Args[arg] != CMDARG_ANY)
+        {
+            // Does it support integers?
+            if (m_Args[arg] & CMDARG_INTEGER)
+            {
+                m_Info += _SC("integer");
+            }
+            // Does it support floats?
+            if (m_Args[arg] & CMDARG_FLOAT)
+            {
+                // Add a separator if this is not the first enabled type?
+                if (m_Info.back() != ':' && m_Info.back() != '<')
+                {
+                    m_Info += ',';
+                }
+                // Now add the type name
+                m_Info += _SC("float");
+            }
+            // Does it support booleans?
+            if (m_Args[arg] & CMDARG_BOOLEAN)
+            {
+                // Add a separator if this is not the first enabled type?
+                if (m_Info.back() != ':' && m_Info.back() != '<')
+                {
+                    m_Info += ',';
+                }
+                // Now add the type name
+                m_Info += _SC("boolean");
+            }
+            // Does it support strings?
+            if (m_Args[arg] & CMDARG_STRING)
+            {
+                // Add a separator if this is not the first enabled type?
+                if (m_Info.back() != ':' && m_Info.back() != '<')
+                {
+                    m_Info += ',';
+                }
+                // Now add the type name
+                m_Info += _SC("string");
+            }
+        }
+        // Any kind of value is supported by this argument
+        else
+        {
+            m_Info += _SC("any");
+        }
+        // Stop the argument block
+        m_Info += '>';
+        // If this is not the last argument then add a spacer
+        if (arg+1 != m_MaxArgc)
+        {
+            m_Info += ' ';
+        }
     }
 }
 
@@ -901,7 +1005,7 @@ bool CmdListener::AuthCheckID(SQInt32 id)
             // Ask the specified authority inspector if this execution should be allowed
             SharedPtr< bool > ret = m_OnAuth.Evaluate< bool, SQInt32 >(id);
             // See what the custom authority inspector said or default to disallow
-            allow = !ret ? false : *ret;
+            allow = (!ret ? false : *ret);
         }
         // Can we use the default authority system?
         else if (m_Level >= 0)
@@ -922,7 +1026,7 @@ bool CmdListener::Execute(SQInt32 invoker, Array & args)
     {
         // Attempt to evaluate the specified executer
         SharedPtr< bool > ret = m_OnExec.Evaluate< bool, SQInt32, Array & >(invoker, args);
-        // See if the executer succeded or default to failed
+        // See if the executer succeeded or default to failed
         result = !ret ? false : *ret;
     }
     // Return result
@@ -1014,6 +1118,8 @@ bool CmdListener::ProcSpec(const SQChar * str)
     {
         m_Args.fill(CMDARG_ANY);
     }
+    // Attempt to generate an informational message
+    GenerateInfo(false);
     // Return whether the parsing was successful
     return good;
 }
@@ -1095,8 +1201,8 @@ bool Register_Cmd(HSQUIRRELVM vm)
         .Ctor< const SQChar * >()
         .Ctor< const SQChar *, const SQChar * >()
         .Ctor< const SQChar *, const SQChar *, Array & >()
-        .Ctor< const SQChar *, const SQChar *, SQUint32, SQUint32 >()
-        .Ctor< const SQChar *, const SQChar *, Array &, SQUint32, SQUint32 >()
+        .Ctor< const SQChar *, const SQChar *, Uint8, Uint8 >()
+        .Ctor< const SQChar *, const SQChar *, Array &, Uint8, Uint8 >()
         /* Metamethods */
         .Func(_SC("_cmp"), &CmdListener::Cmp)
         .Func(_SC("_tostring"), &CmdListener::ToString)
@@ -1121,6 +1227,7 @@ bool Register_Cmd(HSQUIRRELVM vm)
         .Func(_SC("set_arg_tag"), &CmdListener::SetArgTag)
         .Func(_SC("set_on_exec"), &CmdListener::SetOnExec_Env)
         .Func(_SC("set_on_auth"), &CmdListener::SetOnAuth_Env)
+        .Func(_SC("generate_info"), &CmdListener::GenerateInfo)
         .Func(_SC("arg_check"), &CmdListener::ArgCheck)
         .Func(_SC("auth_check"), &CmdListener::AuthCheckID)
     );

@@ -299,12 +299,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct and instance and attach it to the specified name.
     */
-    CmdListener(const SQChar * name, const SQChar * spec, SQUint32 min, SQUint32 max);
+    CmdListener(const SQChar * name, const SQChar * spec, Uint8 min, Uint8 max);
 
     /* --------------------------------------------------------------------------------------------
      * Construct and instance and attach it to the specified name.
     */
-    CmdListener(const SQChar * name, const SQChar * spec, Array & tags, SQUint32 min, SQUint32 max);
+    CmdListener(const SQChar * name, const SQChar * spec, Array & tags, Uint8 min, Uint8 max);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor (disabled).
@@ -489,22 +489,28 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the minimum arguments allowed required to execute this command.
     */
-    SQUint32 GetMinArgC() const;
+    Uint8 GetMinArgC() const;
 
     /* --------------------------------------------------------------------------------------------
      * Change the minimum arguments allowed required to execute this command.
     */
-    void SetMinArgC(SQUint32 val);
+    void SetMinArgC(Uint8 val);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the maximum arguments allowed required to execute this command.
     */
-    SQUint32 GetMaxArgC() const;
+    Uint8 GetMaxArgC() const;
 
     /* --------------------------------------------------------------------------------------------
      * Change the maximum arguments allowed required to execute this command.
     */
-    void SetMaxArgC(SQUint32 val);
+    void SetMaxArgC(Uint8 val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Makes use of the specified argument type specifiers and tags/names to generate an
+     * informational string with the allowed command syntax.
+    */
+    void GenerateInfo(bool full);
 
     /* --------------------------------------------------------------------------------------------
      * Check whether the specified argument is compatible with the specified type.
@@ -549,12 +555,12 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Minimum arguments allowed to execute this command.
     */
-    SQUint32    m_MinArgc;
+    Uint8       m_MinArgc;
 
     /* --------------------------------------------------------------------------------------------
      * Maximum arguments allowed to execute this command.
     */
-    SQUint32    m_MaxArgc;
+    Uint8       m_MaxArgc;
 
     /* --------------------------------------------------------------------------------------------
      * The name of the command.
