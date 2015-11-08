@@ -176,6 +176,14 @@ void CmdManager::Exec(CmdListener & cmd)
         // Command failed
         return;
     }
+    // The check during the parsing may not count the last argument
+    else if (cmd.GetMaxArgC() < m_Argc)
+    {
+        Error(CMDERR_EXTRANEOUS_ARGS, _SC("Extraneous command arguments: %u < %u"),
+                                    cmd.GetMaxArgC(), m_Argc);
+        // Command failed
+        return;
+    }
     // Check argument types agains the command specifiers
     for (Uint32 arg = 0; arg < m_Argc; ++arg)
     {
@@ -236,10 +244,11 @@ bool CmdManager::Parse(SQUint32 max)
             // Finished parsing
             break;
         }
-        else if (m_Argc > max)
+        // Early check to prevent parsing unneeded arguments
+        else if (max < m_Argc)
         {
-            Error(CMDERR_EXTRANEOUS_ARGS, _SC("Extraneous command arguments: %u > %u"),
-                                                m_Argc, max);
+            Error(CMDERR_EXTRANEOUS_ARGS, _SC("Extraneous command arguments: %u < %u"),
+                                                max, m_Argc);
             // Parsing failed
             good = false;
             // Stop parsing
@@ -378,8 +387,6 @@ bool CmdManager::Parse(SQUint32 max)
                     // Add it to the argument list along with it's type
                     m_Argv[m_Argc].first = CMDARG_INTEGER;
                     m_Argv[m_Argc].second = var.value;
-                    // Move to the next argument
-                    ++m_Argc;
                     // We've found the correct value
                     found = true;
                 }
@@ -405,8 +412,6 @@ bool CmdManager::Parse(SQUint32 max)
                     // Add it to the argument list along with it's type
                     m_Argv[m_Argc].first = CMDARG_FLOAT;
                     m_Argv[m_Argc].second = var.value;
-                    // Move to the next argument
-                    ++m_Argc;
                     // We've found the correct value
                     found = true;
                 }
@@ -428,8 +433,6 @@ bool CmdManager::Parse(SQUint32 max)
                     // Add it to the argument list along with it's type
                     m_Argv[m_Argc].first = CMDARG_BOOLEAN;
                     m_Argv[m_Argc].second = var.value;
-                    // Move to the next argument
-                    ++m_Argc;
                     // We've found the correct value
                     found = true;
                 }
@@ -447,8 +450,6 @@ bool CmdManager::Parse(SQUint32 max)
                     // Add it to the argument list along with it's type
                     m_Argv[m_Argc].first = CMDARG_BOOLEAN;
                     m_Argv[m_Argc].second = var.value;
-                    // Move to the next argument
-                    ++m_Argc;
                     // We've found the correct value
                     found = true;
                 }
@@ -468,9 +469,9 @@ bool CmdManager::Parse(SQUint32 max)
                 // Add it to the argument list along with it's type
                 m_Argv[m_Argc].first = CMDARG_STRING;
                 m_Argv[m_Argc].second = var.value;
-                // Move to the next argument
-                ++m_Argc;
             }
+            // Move to the next argument
+            ++m_Argc;
         }
         // Save current argument as the previous one
         pr = ch;
