@@ -39,7 +39,7 @@ Core::Core()
     : m_State(SQMOD_SUCCESS)
     , m_Options()
     , m_VM(nullptr)
-    , m_RootTable(nullptr)
+    , m_RootTable()
     , m_Scripts()
     , m_ErrorMsg()
     , m_PlayerTrack()
@@ -384,7 +384,7 @@ bool Core::CreateVM()
     {
         DefaultVM::Set(m_VM);
         ErrorHandling::Enable(true);
-        m_RootTable.reset(new RootTable(m_VM));
+        m_RootTable = RootTable(m_VM);
         m_Scripts.clear();
     }
 
@@ -429,7 +429,7 @@ void Core::DestroyVM()
         // Release the references to the script objects
         m_Scripts.clear();
         // Release the reference to the root table
-        m_RootTable.reset();
+        m_RootTable.Release();
         // Assertions during close may cause double delete
         HSQUIRRELVM sq_vm = m_VM;
         // Explicitly set the virtual machine to null
@@ -945,6 +945,15 @@ Reference< CVehicle > Core::NewVehicle(SQInt32 model, SQInt32 world, SQFloat x, 
     }
     // Return an invalid reference
     return Reference< CVehicle >();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::OnVMClose()
+{
+    // Call base classes manually
+    _Cmd->VMClose();
+    // Froward to instances
+    VMClose.Emit();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1596,21 +1605,6 @@ void Core::OnWorldToggle(SQInt32 option, bool value)
 void Core::OnScriptReload(SQInt32 header, SqObj & payload)
 {
     ScriptReload.Emit(header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnLogMessage(SQInt32 type, const SQChar * message)
-{
-    LogMessage.Emit(type, message);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnVMClose()
-{
-    // Call base classes manually
-    _Cmd->VMClose();
-    // Froward to instances
-    VMClose.Emit();
 }
 
 // ------------------------------------------------------------------------------------------------
