@@ -434,8 +434,6 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
     else
     {
         _Log->Err("Unable to <extract the log message> from the specified value");
-        // Failed to log the value
-        return 0;
     }
     // At this point everything went correctly
     return 0;
