@@ -103,11 +103,6 @@ private:
     HSQUIRRELVM                         m_VM;
 
     /* --------------------------------------------------------------------------------------------
-     * Reference to the root table to be used whenever interaction with the root table is required.
-    */
-    RootTable                           m_RootTable;
-
-    /* --------------------------------------------------------------------------------------------
      * All the scripts specified in the configuration file in their compiled form.
     */
     SqScriptPool                        m_Scripts;

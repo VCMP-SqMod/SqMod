@@ -39,7 +39,6 @@ Core::Core()
     : m_State(SQMOD_SUCCESS)
     , m_Options()
     , m_VM(nullptr)
-    , m_RootTable()
     , m_Scripts()
     , m_ErrorMsg()
     , m_PlayerTrack()
@@ -384,7 +383,6 @@ bool Core::CreateVM()
     {
         DefaultVM::Set(m_VM);
         ErrorHandling::Enable(true);
-        m_RootTable = RootTable(m_VM);
         m_Scripts.clear();
     }
 
@@ -428,8 +426,6 @@ void Core::DestroyVM()
         OnVMClose();
         // Release the references to the script objects
         m_Scripts.clear();
-        // Release the reference to the root table
-        m_RootTable.Release();
         // Assertions during close may cause double delete
         HSQUIRRELVM sq_vm = m_VM;
         // Explicitly set the virtual machine to null
