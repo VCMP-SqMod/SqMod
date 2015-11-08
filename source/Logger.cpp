@@ -1,9 +1,14 @@
 #include "Logger.hpp"
+#include "Register.hpp"
+#include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <ctime>
 #include <cstdio>
 #include <cstdarg>
+
+// ------------------------------------------------------------------------------------------------
+#include <sqstdstring.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace {
@@ -241,7 +246,7 @@ void Logger::SetVerbosity(SQInt32 level)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Send(Uint8 type, bool sub, const char * fmt, va_list args) 
+void Logger::Send(Uint8 type, bool sub, const char * fmt, va_list args)
 {
     // Verify that this level is allowed to be streamed
     if (!(m_ConsoleLevels & type) && !(m_FileLevels & type)) return;
@@ -317,6 +322,15 @@ void Logger::Send(Uint8 type, bool sub, const char * fmt, va_list args)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Logger::Message(Uint8 type, bool sub, const char * fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    Send(type, sub, fmt, args);
+    va_end(args);
+}
+
+// ------------------------------------------------------------------------------------------------
 #define SQMOD_LOG(N_, L_, S_) /*
 */ void Logger::N_(const char * fmt, ...) /*
 */ { /*
@@ -377,5 +391,88 @@ SQMOD_CLOG(cSInf, LEVEL_INF, true)
 SQMOD_CLOG(cSWrn, LEVEL_WRN, true)
 SQMOD_CLOG(cSErr, LEVEL_ERR, true)
 SQMOD_CLOG(cSFtl, LEVEL_FTL, true)
+
+// ------------------------------------------------------------------------------------------------
+template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
+{
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        _Log->Err("Attempting to <log message> without specifying a value");
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * msg = 0;
+        // Attempt to retrieve the specified message from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            _Log->Err("Unable to <retrieve the log message> from the stack");
+            // Failed to log the value
+            return 0;
+        }
+        // Log the specified string
+        _Log->Message(L, S, "%s", msg);
+    }
+    else if (top > 2)
+    {
+        // Variables containing the resulted string
+        SQChar * msg = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 2, &len, &msg)))
+        {
+            _Log->Err("Unable to <generate the log message> because : %s", Error::Message(vm).c_str());
+            // Failed to log the value
+            return 0;
+        }
+        // Log the resulted string
+        _Log->Message(L, S, "%s", msg);
+    }
+    else
+    {
+        _Log->Err("Unable to <extract the log message> from the specified value");
+        // Failed to log the value
+        return 0;
+    }
+    // At this point everything went correctly
+    return 0;
+}
+
+// ================================================================================================
+bool Register_Log(HSQUIRRELVM vm)
+{
+
+    // // Attempt to create the Log namespace
+    Sqrat::Table logns(vm);
+
+    // Output debugging information
+    LogDbg("Beginning registration of <Log functions> type");
+    // Attempt to register the free functions
+    logns.SquirrelFunc(_SC("Dbg"), &LogBasicMessage< Logger::LEVEL_DBG, false >);
+    logns.SquirrelFunc(_SC("Msg"), &LogBasicMessage< Logger::LEVEL_MSG, false >);
+    logns.SquirrelFunc(_SC("Scs"), &LogBasicMessage< Logger::LEVEL_SCS, false >);
+    logns.SquirrelFunc(_SC("Inf"), &LogBasicMessage< Logger::LEVEL_INF, false >);
+    logns.SquirrelFunc(_SC("Wrn"), &LogBasicMessage< Logger::LEVEL_WRN, false >);
+    logns.SquirrelFunc(_SC("Err"), &LogBasicMessage< Logger::LEVEL_ERR, false >);
+    logns.SquirrelFunc(_SC("Ftl"), &LogBasicMessage< Logger::LEVEL_FTL, false >);
+    logns.SquirrelFunc(_SC("SDbg"), &LogBasicMessage< Logger::LEVEL_DBG, true >);
+    logns.SquirrelFunc(_SC("SMsg"), &LogBasicMessage< Logger::LEVEL_MSG, true >);
+    logns.SquirrelFunc(_SC("SScs"), &LogBasicMessage< Logger::LEVEL_SCS, true >);
+    logns.SquirrelFunc(_SC("SInf"), &LogBasicMessage< Logger::LEVEL_INF, true >);
+    logns.SquirrelFunc(_SC("SWrn"), &LogBasicMessage< Logger::LEVEL_WRN, true >);
+    logns.SquirrelFunc(_SC("SErr"), &LogBasicMessage< Logger::LEVEL_ERR, true >);
+    logns.SquirrelFunc(_SC("SFtl"), &LogBasicMessage< Logger::LEVEL_FTL, true >);
+    // Output debugging information
+    LogDbg("Registration of <Log functions> type was successful");
+
+    // Attempt to bind the namespace to the root table
+    Sqrat::RootTable(vm).Bind(_SC("Log"), logns);
+
+    // Registration succeeded
+    return true;
+}
 
 } // Namespace:: SqMod

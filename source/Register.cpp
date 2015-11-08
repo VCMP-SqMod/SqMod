@@ -78,6 +78,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
         _Log->cFtl(!Register_LocalEvent(vm), "Unable to register: LocalEvent") || \
         _Log->cFtl(!Register_Event(vm), "Unable to register: Event") || \
 
+        _Log->cFtl(!Register_Log(vm), "Unable to register: Logger") || \
         _Log->cFtl(!Register_Cmd(vm), "Unable to register: Command")
     ) return false;
 
