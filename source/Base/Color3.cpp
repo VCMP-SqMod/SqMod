@@ -461,6 +461,12 @@ bool Color3::operator >= (const Color3 & c) const
 }
 
 // ------------------------------------------------------------------------------------------------
+Color3::operator Color4 () const
+{
+    return Color4(r, g, b);
+}
+
+// ------------------------------------------------------------------------------------------------
 SQInteger Color3::Cmp(const Color3 & c) const
 {
     return *this == c ? 0 : (*this > c ? 1 : -1);
