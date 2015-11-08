@@ -497,6 +497,13 @@ CmdListener::CmdListener(const SQChar * name)
 
 // ------------------------------------------------------------------------------------------------
 CmdListener::CmdListener(const SQChar * name, const SQChar * spec)
+    : CmdListener(name, spec, 0, MAX_CMD_ARGS)
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+CmdListener::CmdListener(const SQChar * name, const SQChar * spec, SQUint32 min, SQUint32 max)
     : m_Args({{0}})
     , m_MinArgc(0)
     , m_MaxArgc(MAX_CMD_ARGS)
@@ -504,15 +511,18 @@ CmdListener::CmdListener(const SQChar * name, const SQChar * spec)
     , m_Spec()
     , m_Help()
     , m_Info()
-    , m_OnAuth(_Cmd->GetOnAuth())
     , m_OnExec()
+    , m_OnAuth(_Cmd->GetOnAuth())
     , m_Tag()
     , m_Data()
     , m_Level(SQMOD_UNKNOWN)
-    , m_Suspended(false)
     , m_Authority(false)
+    , m_Suspended(false)
     , m_Lock(false)
 {
+    // Set the minimum and maximum allowed arguments
+    SetMinArgC(min);
+    SetMaxArgC(max);
     // Bind to the specified command name
     SetName(name);
     // Apply the specified argument rules
@@ -655,6 +665,24 @@ void CmdListener::SetInfo(const SQChar * info)
 }
 
 // ------------------------------------------------------------------------------------------------
+Function & CmdListener::GetOnExec()
+{
+    return m_OnExec;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdListener::SetOnExec(Function & func)
+{
+    m_OnExec = func;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdListener::SetOnExec_Env(SqObj & env, Function & func)
+{
+    m_OnExec = Function(env.GetVM(), env, func.GetFunc());
+}
+
+// ------------------------------------------------------------------------------------------------
 Function & CmdListener::GetOnAuth()
 {
     return m_OnAuth;
@@ -667,15 +695,9 @@ void CmdListener::SetOnAuth(Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & CmdListener::GetOnExec()
+void CmdListener::SetOnAuth_Env(SqObj & env, Function & func)
 {
-    return m_OnExec;
-}
-
-// ------------------------------------------------------------------------------------------------
-void CmdListener::SetOnExec(Function & func)
-{
-    m_OnExec = func;
+    m_OnAuth = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -691,18 +713,6 @@ void CmdListener::SetLevel(SQInt32 level)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CmdListener::GetSuspended() const
-{
-    return m_Suspended;
-}
-
-// ------------------------------------------------------------------------------------------------
-void CmdListener::SetSuspended(bool toggle)
-{
-    m_Suspended = toggle;
-}
-
-// ------------------------------------------------------------------------------------------------
 bool CmdListener::GetAuthority() const
 {
     return m_Authority;
@@ -712,6 +722,18 @@ bool CmdListener::GetAuthority() const
 void CmdListener::SetAuthority(bool toggle)
 {
     m_Authority = toggle;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CmdListener::GetSuspended() const
+{
+    return m_Suspended;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdListener::SetSuspended(bool toggle)
+{
+    m_Suspended = toggle;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -926,37 +948,49 @@ const SQChar * CmdArgSpecToStr(Uint8 spec)
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Cmd_GetOnError()
+static Function & Cmd_GetOnError()
 {
     return _Cmd->GetOnError();
 }
 
 // ------------------------------------------------------------------------------------------------
-void Cmd_SetOnError(Function & func)
+static void Cmd_SetOnError(Function & func)
 {
     _Cmd->SetOnError(func);
 }
 
 // ------------------------------------------------------------------------------------------------
-Function & Cmd_GetOnAuth()
+static Function & Cmd_GetOnAuth()
 {
     return _Cmd->GetOnAuth();
 }
 
 // ------------------------------------------------------------------------------------------------
-void Cmd_SetOnAuth(Function & func)
+static void Cmd_SetOnAuth(Function & func)
 {
     _Cmd->SetOnAuth(func);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Cmd_GetName()
+static SQInt32 Cmd_GetInvokerID()
+{
+    return _Cmd->GetInvokerID();
+}
+
+// ------------------------------------------------------------------------------------------------
+static Reference< CPlayer > Cmd_GetInvoker()
+{
+    return Reference< CPlayer >(_Cmd->GetInvokerID());
+}
+
+// ------------------------------------------------------------------------------------------------
+static const SQChar * Cmd_GetName()
 {
     return _Cmd->GetName();
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Cmd_GetText()
+static const SQChar * Cmd_GetText()
 {
     return _Cmd->GetText();
 }
@@ -975,6 +1009,7 @@ bool Register_Cmd(HSQUIRRELVM vm)
         .Ctor()
         .Ctor< const SQChar * >()
         .Ctor< const SQChar *, const SQChar * >()
+        .Ctor< const SQChar *, const SQChar *, SQUint32, SQUint32 >()
         /* Metamethods */
         .Func(_SC("_cmp"), &CmdListener::Cmp)
         .Func(_SC("_tostring"), &CmdListener::ToString)
@@ -985,15 +1020,17 @@ bool Register_Cmd(HSQUIRRELVM vm)
         .Prop(_SC("spec"), &CmdListener::GetSpec, &CmdListener::SetSpec)
         .Prop(_SC("help"), &CmdListener::GetHelp, &CmdListener::SetHelp)
         .Prop(_SC("info"), &CmdListener::GetInfo, &CmdListener::SetInfo)
-        .Prop(_SC("on_auth"), &CmdListener::GetOnAuth, &CmdListener::SetOnAuth)
         .Prop(_SC("on_exec"), &CmdListener::GetOnExec, &CmdListener::SetOnExec)
+        .Prop(_SC("on_auth"), &CmdListener::GetOnAuth, &CmdListener::SetOnAuth)
         .Prop(_SC("level"), &CmdListener::GetLevel, &CmdListener::SetLevel)
-        .Prop(_SC("suspended"), &CmdListener::GetSuspended, &CmdListener::SetSuspended)
         .Prop(_SC("auth"), &CmdListener::GetAuthority, &CmdListener::SetAuthority)
         .Prop(_SC("authority"), &CmdListener::GetAuthority, &CmdListener::SetAuthority)
+        .Prop(_SC("suspended"), &CmdListener::GetSuspended, &CmdListener::SetSuspended)
         .Prop(_SC("min_args"), &CmdListener::GetMinArgC, &CmdListener::SetMinArgC)
         .Prop(_SC("max_args"), &CmdListener::GetMaxArgC, &CmdListener::SetMaxArgC)
         /* Functions */
+        .Func(_SC("set_on_exec"), &CmdListener::SetOnExec_Env)
+        .Func(_SC("set_on_auth"), &CmdListener::SetOnAuth_Env)
     );
 
     // Output debugging information
@@ -1002,12 +1039,14 @@ bool Register_Cmd(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Beginning registration of <Cmd functions> type");
     // Attempt to register the free functions
-    cmdns.Func(_SC("get_on_error"), &Cmd_GetOnError);
-    cmdns.Func(_SC("set_on_error"), &Cmd_SetOnError);
-    cmdns.Func(_SC("get_on_auth"), &Cmd_GetOnAuth);
-    cmdns.Func(_SC("set_on_auth"), &Cmd_SetOnAuth);
-    cmdns.Func(_SC("get_name"), &Cmd_GetName);
-    cmdns.Func(_SC("get_text"), &Cmd_GetText);
+    cmdns.Func(_SC("GetOnError"), &Cmd_GetOnError);
+    cmdns.Func(_SC("SetOnError"), &Cmd_SetOnError);
+    cmdns.Func(_SC("GetOnAuth"), &Cmd_GetOnAuth);
+    cmdns.Func(_SC("SetOnAuth"), &Cmd_SetOnAuth);
+    cmdns.Func(_SC("GetInvoker"), &Cmd_GetInvoker);
+    cmdns.Func(_SC("GetInvokerID"), &Cmd_GetInvokerID);
+    cmdns.Func(_SC("GetName"), &Cmd_GetName);
+    cmdns.Func(_SC("getText"), &Cmd_GetText);
     // Output debugging information
     LogDbg("Registration of <Cmd functions> type was successful");
 

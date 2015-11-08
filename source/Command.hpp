@@ -292,6 +292,11 @@ public:
     CmdListener(const SQChar * name, const SQChar * spec);
 
     /* --------------------------------------------------------------------------------------------
+     * Construct and instance and attach it to the specified name.
+    */
+    CmdListener(const SQChar * name, const SQChar * spec, SQUint32 min, SQUint32 max);
+
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor (disabled).
     */
     CmdListener(const CmdListener & o) = delete;
@@ -392,6 +397,21 @@ public:
     void SetInfo(const SQChar * info);
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the function responsible for processing the command.
+    */
+    Function & GetOnExec();
+
+    /* --------------------------------------------------------------------------------------------
+     * Change the function responsible for processing the command.
+    */
+    void SetOnExec(Function & func);
+
+    /* --------------------------------------------------------------------------------------------
+     * Change the function responsible for processing the command.
+    */
+    void SetOnExec_Env(SqObj & env, Function & func);
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the function responsible for testing the invoker authority.
     */
     Function & GetOnAuth();
@@ -402,14 +422,9 @@ public:
     void SetOnAuth(Function & func);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the function responsible for processing the command.
+     * Change the function responsible for testing the invoker authority.
     */
-    Function & GetOnExec();
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the function responsible for processing the command.
-    */
-    void SetOnExec(Function & func);
+    void SetOnAuth_Env(SqObj & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the internal level required to execute this command.
@@ -422,16 +437,6 @@ public:
     void SetLevel(SQInt32 level);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this command listener is allowed to execute or not.
-    */
-    bool GetSuspended() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether this command listener is allowed to execute or not.
-    */
-    void SetSuspended(bool toggle);
-
-    /* --------------------------------------------------------------------------------------------
      * See whether this command needs explicit authority clearance to execute.
     */
     bool GetAuthority() const;
@@ -440,6 +445,16 @@ public:
      * Set whether this command needs explicit authority clearance to execute.
     */
     void SetAuthority(bool toggle);
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether this command listener is allowed to execute or not.
+    */
+    bool GetSuspended() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether this command listener is allowed to execute or not.
+    */
+    void SetSuspended(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the minimum arguments allowed required to execute this command.
@@ -524,14 +539,14 @@ private:
     String      m_Info;
 
     /* --------------------------------------------------------------------------------------------
-     * Function responsible for deciding whether the invoker is allowed to execute.
-    */
-    Function    m_OnAuth;
-
-    /* --------------------------------------------------------------------------------------------
      * Function responsible for processing the received command arguments.
     */
     Function    m_OnExec;
+
+    /* --------------------------------------------------------------------------------------------
+     * Function responsible for deciding whether the invoker is allowed to execute.
+    */
+    Function    m_OnAuth;
 
     /* --------------------------------------------------------------------------------------------
      * Arbitrary tag associated with this instance.
@@ -549,14 +564,14 @@ private:
     SQInt32     m_Level;
 
     /* --------------------------------------------------------------------------------------------
-     * Whether the command is allowed to execute or not.
-    */
-    bool        m_Suspended;
-
-    /* --------------------------------------------------------------------------------------------
      * Whether this command needs an explicit authority verification in order to execute.
     */
     bool        m_Authority;
+
+    /* --------------------------------------------------------------------------------------------
+     * Whether the command is allowed to execute or not.
+    */
+    bool        m_Suspended;
 
     /* --------------------------------------------------------------------------------------------
      * Whether the command is allowed to change name.
