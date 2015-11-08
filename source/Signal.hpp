@@ -385,181 +385,176 @@ enum EventType
     EVT_WORLDOPTION,
     EVT_WORLDTOGGLE,
     EVT_SCRIPTRELOAD,
-    EVT_LOGMESSAGE,
-    EVT_VMCLOSE,
     EVT_COUNT
 };
 
 // ------------------------------------------------------------------------------------------------
-using EBlipCreated          = Signal< void (SQInt32 /* blip */, SQInt32 /* header */, Object & /* payload */), EVT_BLIPCREATED >;
-using ECheckpointCreated    = Signal< void (SQInt32 /* checkpoint */, SQInt32 /* header */, Object & /* payload */), EVT_CHECKPOINTCREATED >;
-using EKeybindCreated       = Signal< void (SQInt32 /* keybind */, SQInt32 /* header */, Object & /* payload */), EVT_KEYBINDCREATED >;
-using EObjectCreated        = Signal< void (SQInt32 /* object */, SQInt32 /* header */, Object & /* payload */), EVT_OBJECTCREATED >;
-using EPickupCreated        = Signal< void (SQInt32 /* pickup */, SQInt32 /* header */, Object & /* payload */), EVT_PICKUPCREATED >;
-using EPlayerCreated        = Signal< void (SQInt32 /* player */, SQInt32 /* header */, Object & /* payload */), EVT_PLAYERCREATED >;
-using ESphereCreated        = Signal< void (SQInt32 /* sphere */, SQInt32 /* header */, Object & /* payload */), EVT_SPHERECREATED >;
-using ESpriteCreated        = Signal< void (SQInt32 /* sprite */, SQInt32 /* header */, Object & /* payload */), EVT_SPRITECREATED >;
-using ETextdrawCreated      = Signal< void (SQInt32 /* textdraw */, SQInt32 /* header */, Object & /* payload */), EVT_TEXTDRAWCREATED >;
-using EVehicleCreated       = Signal< void (SQInt32 /* vehicle */, SQInt32 /* header */, Object & /* payload */), EVT_VEHICLECREATED >;
+using EBlipCreated          = Signal< void (SQInt32 /* blip */, SQInt32 /* header */, Object & /* payload */) >;
+using ECheckpointCreated    = Signal< void (SQInt32 /* checkpoint */, SQInt32 /* header */, Object & /* payload */) >;
+using EKeybindCreated       = Signal< void (SQInt32 /* keybind */, SQInt32 /* header */, Object & /* payload */) >;
+using EObjectCreated        = Signal< void (SQInt32 /* object */, SQInt32 /* header */, Object & /* payload */) >;
+using EPickupCreated        = Signal< void (SQInt32 /* pickup */, SQInt32 /* header */, Object & /* payload */) >;
+using EPlayerCreated        = Signal< void (SQInt32 /* player */, SQInt32 /* header */, Object & /* payload */) >;
+using ESphereCreated        = Signal< void (SQInt32 /* sphere */, SQInt32 /* header */, Object & /* payload */) >;
+using ESpriteCreated        = Signal< void (SQInt32 /* sprite */, SQInt32 /* header */, Object & /* payload */) >;
+using ETextdrawCreated      = Signal< void (SQInt32 /* textdraw */, SQInt32 /* header */, Object & /* payload */) >;
+using EVehicleCreated       = Signal< void (SQInt32 /* vehicle */, SQInt32 /* header */, Object & /* payload */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EBlipDestroyed        = Signal< void (SQInt32 /* blip */, SQInt32 /* header */, Object & /* payload */), EVT_BLIPDESTROYED >;
-using ECheckpointDestroyed  = Signal< void (SQInt32 /* checkpoint */, SQInt32 /* header */, Object & /* payload */), EVT_CHECKPOINTDESTROYED >;
-using EKeybindDestroyed     = Signal< void (SQInt32 /* keybind */, SQInt32 /* header */, Object & /* payload */), EVT_KEYBINDDESTROYED >;
-using EObjectDestroyed      = Signal< void (SQInt32 /* object */, SQInt32 /* header */, Object & /* payload */), EVT_OBJECTDESTROYED >;
-using EPickupDestroyed      = Signal< void (SQInt32 /* pickup */, SQInt32 /* header */, Object & /* payload */), EVT_PICKUPDESTROYED >;
-using EPlayerDestroyed      = Signal< void (SQInt32 /* player */, SQInt32 /* header */, Object & /* payload */), EVT_PLAYERDESTROYED >;
-using ESphereDestroyed      = Signal< void (SQInt32 /* sphere */, SQInt32 /* header */, Object & /* payload */), EVT_SPHEREDESTROYED >;
-using ESpriteDestroyed      = Signal< void (SQInt32 /* sprite */, SQInt32 /* header */, Object & /* payload */), EVT_SPRITEDESTROYED >;
-using ETextdrawDestroyed    = Signal< void (SQInt32 /* textdraw */, SQInt32 /* header */, Object & /* payload */), EVT_TEXTDRAWDESTROYED >;
-using EVehicleDestroyed     = Signal< void (SQInt32 /* vehicle */, SQInt32 /* header */, Object & /* payload */), EVT_VEHICLEDESTROYED >;
+using EBlipDestroyed        = Signal< void (SQInt32 /* blip */, SQInt32 /* header */, Object & /* payload */) >;
+using ECheckpointDestroyed  = Signal< void (SQInt32 /* checkpoint */, SQInt32 /* header */, Object & /* payload */) >;
+using EKeybindDestroyed     = Signal< void (SQInt32 /* keybind */, SQInt32 /* header */, Object & /* payload */) >;
+using EObjectDestroyed      = Signal< void (SQInt32 /* object */, SQInt32 /* header */, Object & /* payload */) >;
+using EPickupDestroyed      = Signal< void (SQInt32 /* pickup */, SQInt32 /* header */, Object & /* payload */) >;
+using EPlayerDestroyed      = Signal< void (SQInt32 /* player */, SQInt32 /* header */, Object & /* payload */) >;
+using ESphereDestroyed      = Signal< void (SQInt32 /* sphere */, SQInt32 /* header */, Object & /* payload */) >;
+using ESpriteDestroyed      = Signal< void (SQInt32 /* sprite */, SQInt32 /* header */, Object & /* payload */) >;
+using ETextdrawDestroyed    = Signal< void (SQInt32 /* textdraw */, SQInt32 /* header */, Object & /* payload */) >;
+using EVehicleDestroyed     = Signal< void (SQInt32 /* vehicle */, SQInt32 /* header */, Object & /* payload */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EBlipCustom           = Signal< void (SQInt32 /* blip */, SQInt32 /* header */, Object & /* payload */), EVT_BLIPCUSTOM >;
-using ECheckpointCustom     = Signal< void (SQInt32 /* checkpoint */, SQInt32 /* header */, Object & /* payload */), EVT_CHECKPOINTCUSTOM >;
-using EKeybindCustom        = Signal< void (SQInt32 /* keybind */, SQInt32 /* header */, Object & /* payload */), EVT_KEYBINDCUSTOM >;
-using EObjectCustom         = Signal< void (SQInt32 /* object */, SQInt32 /* header */, Object & /* payload */), EVT_OBJECTCUSTOM >;
-using EPickupCustom         = Signal< void (SQInt32 /* pickup */, SQInt32 /* header */, Object & /* payload */), EVT_PICKUPCUSTOM >;
-using EPlayerCustom         = Signal< void (SQInt32 /* player */, SQInt32 /* header */, Object & /* payload */), EVT_PLAYERCUSTOM >;
-using ESphereCustom         = Signal< void (SQInt32 /* sphere */, SQInt32 /* header */, Object & /* payload */), EVT_SPHERECUSTOM >;
-using ESpriteCustom         = Signal< void (SQInt32 /* sprite */, SQInt32 /* header */, Object & /* payload */), EVT_SPRITECUSTOM >;
-using ETextdrawCustom       = Signal< void (SQInt32 /* textdraw */, SQInt32 /* header */, Object & /* payload */), EVT_TEXTDRAWCUSTOM >;
-using EVehicleCustom        = Signal< void (SQInt32 /* vehicle */, SQInt32 /* header */, Object & /* payload */), EVT_VEHICLECUSTOM >;
+using EBlipCustom           = Signal< void (SQInt32 /* blip */, SQInt32 /* header */, Object & /* payload */) >;
+using ECheckpointCustom     = Signal< void (SQInt32 /* checkpoint */, SQInt32 /* header */, Object & /* payload */) >;
+using EKeybindCustom        = Signal< void (SQInt32 /* keybind */, SQInt32 /* header */, Object & /* payload */) >;
+using EObjectCustom         = Signal< void (SQInt32 /* object */, SQInt32 /* header */, Object & /* payload */) >;
+using EPickupCustom         = Signal< void (SQInt32 /* pickup */, SQInt32 /* header */, Object & /* payload */) >;
+using EPlayerCustom         = Signal< void (SQInt32 /* player */, SQInt32 /* header */, Object & /* payload */) >;
+using ESphereCustom         = Signal< void (SQInt32 /* sphere */, SQInt32 /* header */, Object & /* payload */) >;
+using ESpriteCustom         = Signal< void (SQInt32 /* sprite */, SQInt32 /* header */, Object & /* payload */) >;
+using ETextdrawCustom       = Signal< void (SQInt32 /* textdraw */, SQInt32 /* header */, Object & /* payload */) >;
+using EVehicleCustom        = Signal< void (SQInt32 /* vehicle */, SQInt32 /* header */, Object & /* payload */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerAway           = Signal< void (SQInt32 /* player */, bool /* status */), EVT_PLAYERAWAY >;
+using EPlayerAway           = Signal< void (SQInt32 /* player */, bool /* status */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerGameKeys       = Signal< void (SQInt32 /* player */, SQInt32 /* previous */, SQInt32 /* current */), EVT_PLAYERGAMEKEYS >;
-using EPlayerRename         = Signal< void (SQInt32 /* player */, const SQChar * /* previous */, const SQChar * /* current */), EVT_PLAYERRENAME >;
+using EPlayerGameKeys       = Signal< void (SQInt32 /* player */, SQInt32 /* previous */, SQInt32 /* current */) >;
+using EPlayerRename         = Signal< void (SQInt32 /* player */, const SQChar * /* previous */, const SQChar * /* current */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerRequestClass   = Signal< void (SQInt32 /* player */, SQInt32 /* offset */), EVT_PLAYERREQUESTCLASS >;
-using EPlayerRequestSpawn   = Signal< void (SQInt32 /* player */), EVT_PLAYERREQUESTSPAWN >;
+using EPlayerRequestClass   = Signal< void (SQInt32 /* player */, SQInt32 /* offset */) >;
+using EPlayerRequestSpawn   = Signal< void (SQInt32 /* player */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerSpawn          = Signal< void (SQInt32 /* player */), EVT_PLAYERSPAWN >;
+using EPlayerSpawn          = Signal< void (SQInt32 /* player */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerStartTyping    = Signal< void (SQInt32 /* player */), EVT_PLAYERSTARTTYPING >;
-using EPlayerStopTyping     = Signal< void (SQInt32 /* player */), EVT_PLAYERSTOPTYPING >;
+using EPlayerStartTyping    = Signal< void (SQInt32 /* player */) >;
+using EPlayerStopTyping     = Signal< void (SQInt32 /* player */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerChat           = Signal< void (SQInt32 /* player */, const SQChar * /* message */), EVT_PLAYERCHAT >;
-using EPlayerCommand        = Signal< void (SQInt32 /* player */, const SQChar * /* command */), EVT_PLAYERCOMMAND >;
-using EPlayerMessage        = Signal< void (SQInt32 /* player */, SQInt32 /* receiver */, const SQChar * /* message */), EVT_PLAYERMESSAGE >;
+using EPlayerChat           = Signal< void (SQInt32 /* player */, const SQChar * /* message */) >;
+using EPlayerCommand        = Signal< void (SQInt32 /* player */, const SQChar * /* command */) >;
+using EPlayerMessage        = Signal< void (SQInt32 /* player */, SQInt32 /* receiver */, const SQChar * /* message */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerHealth         = Signal< void (SQInt32 /* player */, SQFloat /* previous */, SQFloat /* current */), EVT_PLAYERHEALTH >;
-using EPlayerArmour         = Signal< void (SQInt32 /* player */, SQFloat /* previous */, SQFloat /* current */), EVT_PLAYERARMOUR >;
-using EPlayerWeapon         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */, SQInt32 /* current */), EVT_PLAYERWEAPON >;
-using EPlayerMove           = Signal< void (SQInt32 /* player */, const Vector3 & /* previous */, const Vector3 & /* current */), EVT_PLAYERMOVE >;
+using EPlayerHealth         = Signal< void (SQInt32 /* player */, SQFloat /* previous */, SQFloat /* current */) >;
+using EPlayerArmour         = Signal< void (SQInt32 /* player */, SQFloat /* previous */, SQFloat /* current */) >;
+using EPlayerWeapon         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */, SQInt32 /* current */) >;
+using EPlayerMove           = Signal< void (SQInt32 /* player */, const Vector3 & /* previous */, const Vector3 & /* current */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerWasted         = Signal< void (SQInt32 /* player */, SQInt32 /* reason */), EVT_PLAYERWASTED >;
-using EPlayerKilled         = Signal< void (SQInt32 /* player */, SQInt32 /* killer */, SQInt32 /* reason */, SQInt32 /* body_part */), EVT_PLAYERKILLED >;
-using EPlayerTeamKill       = Signal< void (SQInt32 /* player */, SQInt32 /* killer */, SQInt32 /* reason */, SQInt32 /* body_part */), EVT_PLAYERTEAMKILL >;
+using EPlayerWasted         = Signal< void (SQInt32 /* player */, SQInt32 /* reason */) >;
+using EPlayerKilled         = Signal< void (SQInt32 /* player */, SQInt32 /* killer */, SQInt32 /* reason */, SQInt32 /* body_part */) >;
+using EPlayerTeamKill       = Signal< void (SQInt32 /* player */, SQInt32 /* killer */, SQInt32 /* reason */, SQInt32 /* body_part */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerSpectate       = Signal< void (SQInt32 /* player */, SQInt32 /* target */), EVT_PLAYERSPECTATE >;
-using EPlayerCrashreport    = Signal< void (SQInt32 /* player */, const SQChar * /* report */), EVT_PLAYERCRASHREPORT >;
+using EPlayerSpectate       = Signal< void (SQInt32 /* player */, SQInt32 /* target */) >;
+using EPlayerCrashreport    = Signal< void (SQInt32 /* player */, const SQChar * /* report */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerBurning        = Signal< void (SQInt32 /* player */, bool /* state */), EVT_PLAYERBURNING >;
-using EPlayerCrouching      = Signal< void (SQInt32 /* player */, bool /* state */), EVT_PLAYERCROUCHING >;
+using EPlayerBurning        = Signal< void (SQInt32 /* player */, bool /* state */) >;
+using EPlayerCrouching      = Signal< void (SQInt32 /* player */, bool /* state */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPlayerState          = Signal< void (SQInt32 /* player */, SQInt32 /* previous */, SQInt32 /* current */), EVT_PLAYERSTATE >;
-using EPlayerAction         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */, SQInt32 /* current */), EVT_PLAYERACTION >;
+using EPlayerState          = Signal< void (SQInt32 /* player */, SQInt32 /* previous */, SQInt32 /* current */) >;
+using EPlayerAction         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */, SQInt32 /* current */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EStateNone            = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_STATENONE >;
-using EStateNormal          = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_STATENORMAL >;
-using EStateShooting        = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_STATESHOOTING >;
-using EStateDriver          = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_STATEDRIVER >;
-using EStatePassenger       = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_STATEPASSENGER >;
-using EStateEnterDriver     = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_STATEENTERDRIVER >;
-using EStateEnterPassenger  = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_STATEENTERPASSENGER >;
-using EStateExitVehicle     = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_STATEEXITVEHICLE >;
-using EStateUnspawned       = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_STATEUNSPAWNED >;
+using EStateNone            = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EStateNormal          = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EStateShooting        = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EStateDriver          = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EStatePassenger       = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EStateEnterDriver     = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EStateEnterPassenger  = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EStateExitVehicle     = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EStateUnspawned       = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EActionNone           = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONNONE >;
-using EActionNormal         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONNORMAL >;
-using EActionAiming         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONAIMING >;
-using EActionShooting       = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONSHOOTING >;
-using EActionJumping        = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONJUMPING >;
-using EActionLieDown        = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONLIEDOWN >;
-using EActionGettingUp      = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONGETTINGUP >;
-using EActionJumpVehicle    = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONJUMPVEHICLE >;
-using EActionDriving        = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONDRIVING >;
-using EActionDying          = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONDYING >;
-using EActionWasted         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONWASTED >;
-using EActionEmbarking      = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONEMBARKING >;
-using EActionDisembarking   = Signal< void (SQInt32 /* player */, SQInt32 /* previous */), EVT_ACTIONDISEMBARKING >;
+using EActionNone           = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionNormal         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionAiming         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionShooting       = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionJumping        = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionLieDown        = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionGettingUp      = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionJumpVehicle    = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionDriving        = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionDying          = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionWasted         = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionEmbarking      = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
+using EActionDisembarking   = Signal< void (SQInt32 /* player */, SQInt32 /* previous */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EVehicleRespawn       = Signal< void (SQInt32 /* vehicle */), EVT_VEHICLERESPAWN >;
-using EVehicleExplode       = Signal< void (SQInt32 /* vehicle */), EVT_VEHICLEEXPLODE >;
+using EVehicleRespawn       = Signal< void (SQInt32 /* vehicle */) >;
+using EVehicleExplode       = Signal< void (SQInt32 /* vehicle */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EVehicleHealth        = Signal< void (SQInt32 /* vehicle */, SQFloat /* previous */, SQFloat /* current */), EVT_VEHICLEHEALTH >;
-using EVehicleMove          = Signal< void (SQInt32 /* vehicle */, const Vector3 & /* previous */, const Vector3 &/* current */), EVT_VEHICLEMOVE >;
+using EVehicleHealth        = Signal< void (SQInt32 /* vehicle */, SQFloat /* previous */, SQFloat /* current */) >;
+using EVehicleMove          = Signal< void (SQInt32 /* vehicle */, const Vector3 & /* previous */, const Vector3 &/* current */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPickupRespawn        = Signal< void (SQInt32 /* pickup */), EVT_PICKUPRESPAWN >;
+using EPickupRespawn        = Signal< void (SQInt32 /* pickup */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EKeybindKeyPress      = Signal< void (SQInt32 /* player */, SQInt32 /* keybind */), EVT_KEYBINDKEYPRESS >;
-using EKeybindKeyRelease    = Signal< void (SQInt32 /* player */, SQInt32 /* keybind */), EVT_KEYBINDKEYRELEASE >;
+using EKeybindKeyPress      = Signal< void (SQInt32 /* player */, SQInt32 /* keybind */) >;
+using EKeybindKeyRelease    = Signal< void (SQInt32 /* player */, SQInt32 /* keybind */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EVehicleEmbarking     = Signal< void (SQInt32 /* player */, SQInt32 /* vehicle */, SQInt32 /* slot */), EVT_VEHICLEEMBARKING >;
-using EVehicleEmbarked      = Signal< void (SQInt32 /* player */, SQInt32 /* vehicle */, SQInt32 /* slot */), EVT_VEHICLEEMBARKED >;
-using EVehicleDisembark     = Signal< void (SQInt32 /* player */, SQInt32 /* vehicle */), EVT_VEHICLEDISEMBARK >;
+using EVehicleEmbarking     = Signal< void (SQInt32 /* player */, SQInt32 /* vehicle */, SQInt32 /* slot */) >;
+using EVehicleEmbarked      = Signal< void (SQInt32 /* player */, SQInt32 /* vehicle */, SQInt32 /* slot */) >;
+using EVehicleDisembark     = Signal< void (SQInt32 /* player */, SQInt32 /* vehicle */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EPickupClaimed        = Signal< void (SQInt32 /* player */, SQInt32 /* pickup */), EVT_PICKUPCLAIMED >;
-using EPickupCollected      = Signal< void (SQInt32 /* player */, SQInt32 /* pickup */), EVT_PICKUPCOLLECTED >;
+using EPickupClaimed        = Signal< void (SQInt32 /* player */, SQInt32 /* pickup */) >;
+using EPickupCollected      = Signal< void (SQInt32 /* player */, SQInt32 /* pickup */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EObjectShot           = Signal< void (SQInt32 /* player */, SQInt32 /* object */, SQInt32 /* weapon */), EVT_OBJECTSHOT >;
-using EObjectBump           = Signal< void (SQInt32 /* player */, SQInt32 /* object */), EVT_OBJECTBUMP >;
+using EObjectShot           = Signal< void (SQInt32 /* player */, SQInt32 /* object */, SQInt32 /* weapon */) >;
+using EObjectBump           = Signal< void (SQInt32 /* player */, SQInt32 /* object */) >;
 
 // ------------------------------------------------------------------------------------------------
-using ECheckpointEntered    = Signal< void (SQInt32 /* player */, SQInt32 /* checkpoint */), EVT_CHECKPOINTENTERED >;
-using ECheckpointExited     = Signal< void (SQInt32 /* player */, SQInt32 /* checkpoint */), EVT_CHECKPOINTEXITED >;
+using ECheckpointEntered    = Signal< void (SQInt32 /* player */, SQInt32 /* checkpoint */) >;
+using ECheckpointExited     = Signal< void (SQInt32 /* player */, SQInt32 /* checkpoint */) >;
 
 // ------------------------------------------------------------------------------------------------
-using ESphereEntered        = Signal< void (SQInt32 /* player */, SQInt32 /* sphere */), EVT_SPHEREENTERED >;
-using ESphereExited         = Signal< void (SQInt32 /* player */, SQInt32 /* sphere */), EVT_SPHEREEXITED >;
+using ESphereEntered        = Signal< void (SQInt32 /* player */, SQInt32 /* sphere */) >;
+using ESphereExited         = Signal< void (SQInt32 /* player */, SQInt32 /* sphere */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EServerFrame          = Signal< void (SQFloat /* delta */), EVT_SERVERFRAME >;
+using EServerFrame          = Signal< void (SQFloat /* delta */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EServerStartup        = Signal< void (void), EVT_SERVERSTARTUP >;
-using EServerShutdown       = Signal< void (void), EVT_SERVERSHUTDOWN >;
+using EServerStartup        = Signal< void (void) >;
+using EServerShutdown       = Signal< void (void) >;
 
 // ------------------------------------------------------------------------------------------------
-using EInternalCommand      = Signal< void (SQInt32 /* type */, const SQChar * /* text */), EVT_INTERNALCOMMAND >;
-using ELoginAttempt         = Signal< void (const SQChar * /* name */, const SQChar * /* pass */, const SQChar * /* addr */), EVT_LOGINATTEMPT >;
+using EInternalCommand      = Signal< void (SQInt32 /* type */, const SQChar * /* text */) >;
+using ELoginAttempt         = Signal< void (const SQChar * /* name */, const SQChar * /* pass */, const SQChar * /* addr */) >;
 
 // ------------------------------------------------------------------------------------------------
-using ECustomEvent          = Signal< void (SQInt32 /* group */, SQInt32 /* header */, Object & /* payload */), EVT_CUSTOMEVENT >;
+using ECustomEvent          = Signal< void (SQInt32 /* group */, SQInt32 /* header */, Object & /* payload */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EWorldOption          = Signal< void (SQInt32 /* option */, Object & /* value */), EVT_WORLDOPTION >;
-using EWorldToggle          = Signal< void (SQInt32 /* option */, bool /* value */), EVT_WORLDTOGGLE >;
+using EWorldOption          = Signal< void (SQInt32 /* option */, Object & /* value */) >;
+using EWorldToggle          = Signal< void (SQInt32 /* option */, bool /* value */) >;
 
 // ------------------------------------------------------------------------------------------------
-using EScriptReload           = Signal< void (SQInt32 /* header */, Object & /* payload */), EVT_SCRIPTRELOAD >;
+using EScriptReload           = Signal< void (SQInt32 /* header */, Object & /* payload */) >;
 
 // ------------------------------------------------------------------------------------------------
-using ELogMessage           = Signal< void (SQInt32 /* type */, const SQChar * /* message */), EVT_LOGMESSAGE >;
-
-// ------------------------------------------------------------------------------------------------
-using EVMClose              = Signal< void (void), EVT_VMCLOSE >;
+using EVMClose              = Signal< void (void) >;
 
 } // Namespace:: SqMod
 

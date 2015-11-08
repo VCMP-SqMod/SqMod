@@ -1602,9 +1602,6 @@ void BasicEvent::Attach()
         case EVT_SCRIPTRELOAD:
             _Core->ScriptReload.Connect< BasicEvent, &BasicEvent::ScriptReload >(this);
         break;
-        case EVT_LOGMESSAGE:
-            _Core->LogMessage.Connect< BasicEvent, &BasicEvent::LogMessage >(this);
-        break;
         default:
             LogErr("Attempting to <attach> to an unknown event type: %d", _SCI32(m_Type));
     }
@@ -1923,9 +1920,6 @@ void BasicEvent::Detach()
         break;
         case EVT_SCRIPTRELOAD:
             _Core->ScriptReload.Disconnect< BasicEvent, &BasicEvent::ScriptReload >(this);
-        break;
-        case EVT_LOGMESSAGE:
-            _Core->LogMessage.Disconnect< BasicEvent, &BasicEvent::LogMessage >(this);
         break;
         default:
             LogErr("Attempting to <dettach> to an unknown event type: %d", _SCI32(m_Type));

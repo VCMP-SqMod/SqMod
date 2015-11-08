@@ -114,7 +114,6 @@ const SQChar * GetEventName(SQInt32 type)
         case EVT_WORLDOPTION:           return _SC("World Option");
         case EVT_WORLDTOGGLE:           return _SC("World Toggle");
         case EVT_SCRIPTRELOAD:          return _SC("Script Reload");
-        case EVT_LOGMESSAGE:            return _SC("Log Message");
         default:                        return _SC("Unknown");
     }
 

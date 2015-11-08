@@ -152,7 +152,6 @@ bool Register_Constants(HSQUIRRELVM vm)
         .Const(_SC("WORLDOPTION"),              EVT_WORLDOPTION)
         .Const(_SC("WORLDTOGGLE"),              EVT_WORLDTOGGLE)
         .Const(_SC("SCRIPTRELOAD"),             EVT_SCRIPTRELOAD)
-        .Const(_SC("LOGMESSAGE"),               EVT_LOGMESSAGE)
         .Const(_SC("COUNT"),                    EVT_COUNT)
     );
 
