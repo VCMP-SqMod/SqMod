@@ -159,9 +159,17 @@ EVehicleCustom & GVehicleCustom()
 }
 
 // ------------------------------------------------------------------------------------------------
+static SQInt32 GetPlayerLevel(SQInt32 id)
+{
+    return Reference< CPlayer >::Get(id).Level;
+} 
+
+// ------------------------------------------------------------------------------------------------
 bool Register_Entity(HSQUIRRELVM vm)
 {
-    SQMOD_UNUSED_VAR(vm);
+    // Attempt to bind the namespace to the root table
+    Sqrat::RootTable(vm).Func(_SC("GetPlayerLevel"), GetPlayerLevel);
+    // Registration succeeded
     return true;
 }
 

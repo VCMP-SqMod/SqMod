@@ -1052,6 +1052,31 @@ bool Register_Cmd(HSQUIRRELVM vm)
 
     // Attempt to bind the namespace to the root table
     Sqrat::RootTable(vm).Bind(_SC("Cmd"), cmdns);
+
+    // Output debugging information
+    LogDbg("Beginning registration of <Cmd Constants> type");
+    // Attempt to register the argument types enumeration
+    Sqrat::ConstTable(vm).Enum(_SC("ECMDARG"), Sqrat::Enumeration(vm)
+        .Const(_SC("ANY"),                  CMDARG_ANY)
+        .Const(_SC("INTEGER"),              CMDARG_INTEGER)
+        .Const(_SC("FLOAT"),                CMDARG_FLOAT)
+        .Const(_SC("BOOLEAN"),              CMDARG_BOOLEAN)
+        .Const(_SC("STRING"),               CMDARG_STRING)
+    );
+    // Attempt to register the error codes enumeration
+    Sqrat::ConstTable(vm).Enum(_SC("ECMDERR"), Sqrat::Enumeration(vm)
+        .Const(_SC("UNKNOWN"),              CMDERR_UNKNOWN)
+        .Const(_SC("SYNTAX_ERROR"),         CMDERR_SYNTAX_ERROR)
+        .Const(_SC("UNKNOWN_COMMAND"),      CMDERR_UNKNOWN_COMMAND)
+        .Const(_SC("MISSING_EXECUTER"),     CMDERR_MISSING_EXECUTER)
+        .Const(_SC("INSUFFICIENT_AUTH"),    CMDERR_INSUFFICIENT_AUTH)
+        .Const(_SC("INCOMPLETE_ARGS"),      CMDERR_INCOMPLETE_ARGS)
+        .Const(_SC("EXTRANEOUS_ARGS"),      CMDERR_EXTRANEOUS_ARGS)
+        .Const(_SC("UNSUPPORTED_ARG"),      CMDERR_UNSUPPORTED_ARG)
+        .Const(_SC("EXECUTION_FAILED"),     CMDERR_EXECUTION_FAILED)
+    );
+    // Output debugging information
+    LogDbg("Registration of <IRC Constants> type was successful");
     // Registration succeeded
     return true;
 }
