@@ -1,4 +1,4 @@
-#include "Library/IRC/Session.hpp"
+#include "Library/IRC.hpp"
 #include "Core.hpp"
 #include "Register.hpp"
 

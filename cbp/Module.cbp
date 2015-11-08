@@ -202,8 +202,8 @@
 		<Unit filename="../source/Library/Hashing.hpp" />
 		<Unit filename="../source/Library/INI.cpp" />
 		<Unit filename="../source/Library/INI.hpp" />
-		<Unit filename="../source/Library/IRC/Session.cpp" />
-		<Unit filename="../source/Library/IRC/Session.hpp" />
+		<Unit filename="../source/Library/IRC.cpp" />
+		<Unit filename="../source/Library/IRC.hpp" />
 		<Unit filename="../source/Library/JSON.cpp" />
 		<Unit filename="../source/Library/JSON.hpp" />
 		<Unit filename="../source/Library/LongInt.cpp" />

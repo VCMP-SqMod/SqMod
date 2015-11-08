@@ -1,5 +1,5 @@
-#ifndef _LIBRARY_IRC_SESSION_HPP_
-#define _LIBRARY_IRC_SESSION_HPP_
+#ifndef _LIBRARY_IRC_HPP_
+#define _LIBRARY_IRC_HPP_
 
 // ------------------------------------------------------------------------------------------------
 #include "Common.hpp"
@@ -987,4 +987,4 @@ public:
 } // Namespace:: IRC
 } // Namespace:: SqMod
 
-#endif // _LIBRARY_IRC_SESSION_HPP_
+#endif // _LIBRARY_IRC_HPP_
