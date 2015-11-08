@@ -3,6 +3,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Common.hpp"
+#include "Entity/Player.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <unordered_map>
@@ -179,7 +180,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the default authority inspector.
     */
-    SQInt32 GetInvokerID();
+    const CPlayer & GetInvoker() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the default authority inspector.
+    */
+    SQInt32 GetInvokerID() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the name of the currently executed command.
@@ -230,7 +236,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Currently and last command invoker.
     */
-    SQInt32         m_Invoker;
+    CPlayer         m_Invoker;
 
     /* --------------------------------------------------------------------------------------------
      * Currently and last used command name.
@@ -520,12 +526,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check whether the specified player is allowed to execute this command.
     */
+    bool AuthCheck(Reference< CPlayer > & player);
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether the specified player is allowed to execute this command.
+    */
     bool AuthCheckID(SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to execute this command.
     */
-    bool Execute(SQInt32 invoker, Array & args);
+    bool Execute(CPlayer & invoker, Array & args);
 
 protected:
 

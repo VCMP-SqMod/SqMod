@@ -1,7 +1,6 @@
 #include "Command.hpp"
 #include "Register.hpp"
 #include "Core.hpp"
-#include "Entity.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
@@ -91,7 +90,13 @@ void CmdManager::SetOnAuth(Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CmdManager::GetInvokerID()
+const CPlayer & CmdManager::GetInvoker() const
+{
+    return m_Invoker;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInt32 CmdManager::GetInvokerID() const
 {
     return m_Invoker;
 }
@@ -112,7 +117,7 @@ const SQChar * CmdManager::GetText()
 void CmdManager::Execute(SQInt32 invoker, const String & str)
 {
     // Save the invoker identifier
-    m_Invoker = invoker;
+    m_Invoker.SetID(invoker);
     // Find where the command name ends
     String::size_type split_pos = str.find_first_of(' ');
     // Attempt to separate the command name from arguments
@@ -149,7 +154,7 @@ void CmdManager::Execute(SQInt32 invoker, const String & str)
 void CmdManager::Exec(CmdListener & cmd)
 {
     // See if the invoker has enough authority to execute this command
-    if (!cmd.AuthCheckID(m_Invoker))
+    if (!cmd.AuthCheck(m_Invoker))
     {
         Error(CMDERR_INSUFFICIENT_AUTH, _SC("Insufficient authority to execute command"));
         // Command failed
@@ -992,6 +997,12 @@ bool CmdListener::ArgCheck(SQUint32 arg, Uint8 mask) const
 }
 
 // ------------------------------------------------------------------------------------------------
+bool CmdListener::AuthCheck(Reference< CPlayer > & player)
+{
+    return AuthCheckID(player);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CmdListener::AuthCheckID(SQInt32 id)
 {
     // Allow execution by default
@@ -1018,14 +1029,14 @@ bool CmdListener::AuthCheckID(SQInt32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CmdListener::Execute(SQInt32 invoker, Array & args)
+bool CmdListener::Execute(CPlayer & invoker, Array & args)
 {
     bool result = false;
     // Was there an executer specified?
     if (!m_OnExec.IsNull())
     {
         // Attempt to evaluate the specified executer
-        SharedPtr< bool > ret = m_OnExec.Evaluate< bool, SQInt32, Array & >(invoker, args);
+        SharedPtr< bool > ret = m_OnExec.Evaluate< bool, CPlayer &, Array & >(invoker, args);
         // See if the executer succeeded or default to failed
         result = !ret ? false : *ret;
     }
@@ -1163,15 +1174,15 @@ static void Cmd_SetOnAuth(Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQInt32 Cmd_GetInvokerID()
+static const CPlayer & Cmd_GetInvoker()
 {
-    return _Cmd->GetInvokerID();
+    return _Cmd->GetInvoker();
 }
 
 // ------------------------------------------------------------------------------------------------
-static Reference< CPlayer > Cmd_GetInvoker()
+static SQInt32 Cmd_GetInvokerID()
 {
-    return Reference< CPlayer >(_Cmd->GetInvokerID());
+    return _Cmd->GetInvokerID();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1229,7 +1240,8 @@ bool Register_Cmd(HSQUIRRELVM vm)
         .Func(_SC("set_on_auth"), &CmdListener::SetOnAuth_Env)
         .Func(_SC("generate_info"), &CmdListener::GenerateInfo)
         .Func(_SC("arg_check"), &CmdListener::ArgCheck)
-        .Func(_SC("auth_check"), &CmdListener::AuthCheckID)
+        .Func(_SC("auth_check"), &CmdListener::AuthCheck)
+        .Func(_SC("auth_check_id"), &CmdListener::AuthCheckID)
     );
 
     // Output debugging information
