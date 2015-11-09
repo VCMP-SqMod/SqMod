@@ -610,6 +610,32 @@ public:
     */
     bool Redirect(const SQChar * ip, SQUnsignedInteger port, const SQChar * nick, \
                     const SQChar * pass, const SQChar * user);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a chat message to the referenced player instance.
+    */
+    static SQInteger Msg(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a chat message to the referenced player instance.
+    */
+    static SQInteger MsgEx(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a chat message to the referenced player instance.
+    */
+    static SQInteger Message(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send an announcement message to the referenced player instance.
+    */
+    static SQInteger Announce(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send an announcement message to the referenced player instance.
+    */
+    static SQInteger AnnounceEx(HSQUIRRELVM vm);
+
 };
 
 } // Namespace:: SqMod

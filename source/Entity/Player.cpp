@@ -5,6 +5,9 @@
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <sqstdstring.h>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -1725,6 +1728,345 @@ bool CPlayer::Redirect(const SQChar * ip, SQUnsignedInteger port, const SQChar *
     return false;
 }
 
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::Msg(HSQUIRRELVM vm)
+{
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        LogErr("Attempting to <send player message> without specifying a color");
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a valid color on the stack?
+    else if (top == 2)
+    {
+        LogErr("Attempting to <send player message> without specifying a value");
+        // Failed to send the message
+        return 0;
+    }
+    // Attempt to retrieve the player instance
+    Var< CPlayer & > inst(vm, 1);
+    // Attempt to retrieve the color
+    Var< Color3 > color(vm, 2);
+    // Validate the player instance
+    if (!inst.value)
+    {
+        LogErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 3 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * msg = 0;
+        // Attempt to retrieve the specified message from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            LogErr("Unable to <retrieve the player message> from the stack");
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
+            // Failed to send the value
+            return 0;
+        }
+        // Pop any pushed values pushed to the stack
+        sq_settop(vm, top);
+        // Send the specified string
+        _Func->SendClientMessage(_SCI32(inst.value), color.value.GetRGBA(), "%s", msg);
+    }
+    else if (top > 3)
+    {
+        // Variables containing the resulted string
+        SQChar * msg = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 3, &len, &msg)))
+        {
+            LogErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
+            // Failed to send the value
+            return 0;
+        }
+        // Send the resulted string
+        _Func->SendClientMessage(_SCI32(inst.value), color.value.GetRGBA(), "%s", msg);
+    }
+    else
+    {
+        LogErr("Unable to <extract the player message> from the specified value");
+    }
+    // At this point everything went correctly
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
+{
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        LogErr("Attempting to <send player message> without specifying a color");
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a valid color on the stack?
+    else if (top <= 4)
+    {
+        LogErr("Attempting to <send player message> without specifying a value");
+        // Failed to send the message
+        return 0;
+    }
+    // Attempt to retrieve the player instance
+    Var< CPlayer & > inst(vm, 1);
+    // Attempt to retrieve the color
+    Var< SQInt32 > r(vm, 2);
+    Var< SQInt32 > g(vm, 3);
+    Var< SQInt32 > b(vm, 4);
+    // Validate the player instance
+    if (!inst.value)
+    {
+        LogErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 5 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * msg = 0;
+        // Attempt to retrieve the specified message from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            LogErr("Unable to <retrieve the player message> from the stack");
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
+            // Failed to send the value
+            return 0;
+        }
+        // Pop any pushed values pushed to the stack
+        sq_settop(vm, top);
+        // Send the specified string
+        _Func->SendClientMessage(_SCI32(inst.value), PACK_RGBA(r.value, g.value, b.value, 0), "%s", msg);
+    }
+    else if (top > 5)
+    {
+        // Variables containing the resulted string
+        SQChar * msg = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 5, &len, &msg)))
+        {
+            LogErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
+            // Failed to send the value
+            return 0;
+        }
+        // Send the resulted string
+        _Func->SendClientMessage(_SCI32(inst.value), PACK_RGBA(r.value, g.value, b.value, 0), "%s", msg);
+    }
+    else
+    {
+        LogErr("Unable to <extract the player message> from the specified value");
+    }
+    // At this point everything went correctly
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::Message(HSQUIRRELVM vm)
+{
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        LogErr("Attempting to <send player message> without specifying a value");
+        // Failed to send the message
+        return 0;
+    }
+    // Attempt to retrieve the player instance
+    Var< CPlayer & > inst(vm, 1);
+    // Validate the player instance
+    if (!inst.value)
+    {
+        LogErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * msg = 0;
+        // Attempt to retrieve the specified message from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            LogErr("Unable to <retrieve the player message> from the stack");
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
+            // Failed to log the value
+            return 0;
+        }
+        // Pop any pushed values pushed to the stack
+        sq_settop(vm, top);
+        // Send the specified string
+        _Func->SendClientMessage(_SCI32(inst.value), 0x6599FFFF, "%s", msg);
+    }
+    else if (top > 2)
+    {
+        // Variables containing the resulted string
+        SQChar * msg = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 2, &len, &msg)))
+        {
+            LogErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
+            // Failed to log the value
+            return 0;
+        }
+        // Send the resulted string
+        _Func->SendClientMessage(_SCI32(inst.value), 0x6599FFFF, "%s", msg);
+    }
+    else
+    {
+        LogErr("Unable to <extract the player message> from the specified value");
+    }
+    // At this point everything went correctly
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::Announce(HSQUIRRELVM vm)
+{
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        LogErr("Attempting to <send player announcement> without specifying a value");
+        // Failed to send the message
+        return 0;
+    }
+    // Attempt to retrieve the player instance
+    Var< CPlayer & > inst(vm, 1);
+    // Validate the player instance
+    if (!inst.value)
+    {
+        LogErr("Attempting to <send player announcement> using an invalid reference: %d", _SCI32(inst.value));
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * msg = 0;
+        // Attempt to retrieve the specified message from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            LogErr("Unable to <retrieve the player announcement> from the stack");
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
+            // Failed to log the value
+            return 0;
+        }
+        // Pop any pushed values pushed to the stack
+        sq_settop(vm, top);
+        // Send the specified string
+        _Func->SendGameMessage(_SCI32(inst.value), 1, "%s", msg);
+    }
+    else if (top > 2)
+    {
+        // Variables containing the resulted string
+        SQChar * msg = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 2, &len, &msg)))
+        {
+            LogErr("Unable to <generate the player announcement> because : %s", Error::Message(vm).c_str());
+            // Failed to log the value
+            return 0;
+        }
+        // Send the resulted string
+        _Func->SendGameMessage(_SCI32(inst.value), 1, "%s", msg);
+    }
+    else
+    {
+        LogErr("Unable to <extract the player announcement> from the specified value");
+    }
+    // At this point everything went correctly
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
+{
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        LogErr("Attempting to <send player announcement> without specifying a type");
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a valid type on the stack?
+    else if (top == 2)
+    {
+        LogErr("Attempting to <send player announcement> without specifying a value");
+        // Failed to send the message
+        return 0;
+    }
+    // Attempt to retrieve the player instance
+    Var< CPlayer & > inst(vm, 1);
+    // Attempt to retrieve the type
+    Var< SQInt32 > type(vm, 2);
+    // Validate the player instance
+    if (!inst.value)
+    {
+        LogErr("Attempting to <send player announcement> using an invalid reference: %d", _SCI32(inst.value));
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 3 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * msg = 0;
+        // Attempt to retrieve the specified message from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            LogErr("Unable to <retrieve the player announcement> from the stack");
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
+            // Failed to log the value
+            return 0;
+        }
+        // Pop any pushed values pushed to the stack
+        sq_settop(vm, top);
+        // Send the specified string
+        _Func->SendGameMessage(_SCI32(inst.value), type.value, "%s", msg);
+    }
+    else if (top > 3)
+    {
+        // Variables containing the resulted string
+        SQChar * msg = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 3, &len, &msg)))
+        {
+            LogErr("Unable to <generate the player announcement> because : %s", Error::Message(vm).c_str());
+            // Failed to log the value
+            return 0;
+        }
+        // Send the resulted string
+        _Func->SendGameMessage(_SCI32(inst.value), type.value, "%s", msg);
+    }
+    else
+    {
+        LogErr("Unable to <extract the player announcement> from the specified value");
+    }
+    // At this point everything went correctly
+    return 0;
+}
+
 // ================================================================================================
 bool Register_CPlayer(HSQUIRRELVM vm)
 {
@@ -1826,6 +2168,14 @@ bool Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("spectate"), &CPlayer::Spectate)
         .Func(_SC("disembark"), &CPlayer::Disembark)
         .Func(_SC("redirect"), &CPlayer::Redirect)
+        /* Raw Functions */
+        .SquirrelFunc(_SC("msg"), &CPlayer::Msg)
+        .SquirrelFunc(_SC("emsg"), &CPlayer::MsgEx)
+        .SquirrelFunc(_SC("message"), &CPlayer::Message)
+        .SquirrelFunc(_SC("announce"), &CPlayer::Announce)
+        .SquirrelFunc(_SC("eannounce"), &CPlayer::AnnounceEx)
+        .SquirrelFunc(_SC("text"), &CPlayer::Announce)
+        .SquirrelFunc(_SC("etext"), &CPlayer::AnnounceEx)
         /* Overloads */
         .Overload< void (CPlayer::*)(const Vector3 &) const >
             (_SC("add_speed"), &CPlayer::AddSpeed)
