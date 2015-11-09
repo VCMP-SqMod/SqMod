@@ -178,7 +178,7 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
         inst.World = SQMOD_UNKNOWN;
         inst.Scale = SQMOD_UNKNOWN;
@@ -188,7 +188,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+    static void Init(Instance & inst, SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 scale, SQUint32 color, SQInt32 sprid)
     {
         inst.World = world;
@@ -202,7 +202,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.BlipCreated.Clear();
         inst.BlipDestroyed.Clear();
@@ -358,13 +358,13 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+    static void Init(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                         SQUint32 r, SQUint32 g, SQUint32 b, SQUint32 a, SQFloat radius)
     {
         SQMOD_UNUSED_VAR(inst);
@@ -381,7 +381,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.CheckpointCreated.Clear();
         inst.CheckpointDestroyed.Clear();
@@ -553,7 +553,7 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
         inst.Primary = SQMOD_UNKNOWN;
         inst.Secondary = SQMOD_UNKNOWN;
@@ -562,7 +562,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 slot, bool release, SQInt32 primary, SQInt32 secondary,
+    static void Init(Instance & inst, SQInt32 slot, bool release, SQInt32 primary, SQInt32 secondary,
                         SQInt32 alternative)
     {
         inst.Primary = primary;
@@ -573,7 +573,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.KeybindCreated.Clear();
         inst.KeybindDestroyed.Clear();
@@ -737,13 +737,13 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+    static void Init(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                         SQInt32 alpha)
     {
         SQMOD_UNUSED_VAR(inst);
@@ -756,7 +756,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.ObjectCreated.Clear();
         inst.ObjectDestroyed.Clear();
@@ -921,13 +921,13 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQInt32 quantity,
+    static void Init(Instance & inst, SQInt32 model, SQInt32 world, SQInt32 quantity,
                         SQFloat x,  SQFloat y,  SQFloat z, SQInt32 alpha, bool automatic)
     {
         SQMOD_UNUSED_VAR(inst);
@@ -942,7 +942,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.PickupCreated.Clear();
         inst.PickupDestroyed.Clear();
@@ -1036,6 +1036,15 @@ private:
     // --------------------------------------------------------------------------------------------
     typedef Reference< CPlayer >    RefType;
 
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * The container used to declare custom prexises for player messages.
+    */
+    typedef std::array< String, MAX_PLAYER_MESSAGE_PREFIXES > MsgPrefix;
+
+private:
+
     /* --------------------------------------------------------------------------------------------
      * Default destructor (disabled)
     */
@@ -1065,6 +1074,18 @@ private:
 
         // ----------------------------------------------------------------------------------------
         SQInt32                 Level;
+
+        // ----------------------------------------------------------------------------------------
+        MsgPrefix               Prefixes;
+
+        // ----------------------------------------------------------------------------------------
+        SQUint32                MessageColor;
+        SQInt32                 AnnounceStyle;
+
+        // ----------------------------------------------------------------------------------------
+        bool                    LocalPrefixes;
+        bool                    LocalMessageColor;
+        bool                    LocalAnnounceStyle;
 
         // ----------------------------------------------------------------------------------------
         SqTag                   Tag;
@@ -1169,13 +1190,23 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
-        SQMOD_UNUSED_VAR(inst);
+        // Reset the level of the previous instance
+        inst.Level = SQMOD_UNKNOWN;
+        // Reset the prefixes of the previous instance
+        inst.Prefixes.fill(MsgPrefix::value_type());
+        // Reset the message styles to the global ones
+        inst.MessageColor = MessageColor;
+        inst.AnnounceStyle = AnnounceStyle;
+        // Reset the message style options
+        inst.LocalPrefixes = false;
+        inst.LocalMessageColor = false;
+        inst.LocalAnnounceStyle = false;
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.PlayerCreated.Clear();
         inst.PlayerDestroyed.Clear();
@@ -1268,6 +1299,13 @@ public:
     static constexpr SQInt32 CreateEvID     = EVT_PLAYERCREATED;
     static constexpr SQInt32 DestroyEvID    = EVT_PLAYERDESTROYED;
     static constexpr SQInt32 CustomEvID     = EVT_PLAYERCUSTOM;
+
+    // --------------------------------------------------------------------------------------------
+    static MsgPrefix                        Prefixes;
+
+    // --------------------------------------------------------------------------------------------
+    static SQUint32                         MessageColor;
+    static SQInt32                          AnnounceStyle;
 
     // --------------------------------------------------------------------------------------------
     typedef std::array< Instance, Limit >   Instances;
@@ -1510,13 +1548,13 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+    static void Init(Instance & inst, SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                         SQUint32 r, SQUint32 g, SQUint32 b, SQFloat radius)
     {
         SQMOD_UNUSED_VAR(inst);
@@ -1532,7 +1570,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.SphereCreated.Clear();
         inst.SphereDestroyed.Clear();
@@ -1697,13 +1735,13 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
         inst.Path.clear();
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
+    static void Init(Instance & inst, SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
                         SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel)
     {
         inst.Path.assign(file);
@@ -1718,7 +1756,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.SpriteCreated.Clear();
         inst.SpriteDestroyed.Clear();
@@ -1876,13 +1914,13 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
         inst.Text.clear();
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
+    static void Init(Instance & inst, SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
                         SQUint32 color, bool rel)
     {
         inst.Text.assign(text);
@@ -1894,7 +1932,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.TextdrawCreated.Clear();
         inst.TextdrawDestroyed.Clear();
@@ -2056,13 +2094,13 @@ private:
     } Instance;
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst)
+    static void Init(Instance & inst)
     {
         SQMOD_UNUSED_VAR(inst);
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Store(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
+    static void Init(Instance & inst, SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
                         SQFloat angle, SQInt32 primary, SQInt32 secondary)
     {
         SQMOD_UNUSED_VAR(inst);
@@ -2077,7 +2115,7 @@ private:
     }
 
     // --------------------------------------------------------------------------------------------
-    static void Clear(Instance & inst)
+    static void Deinit(Instance & inst)
     {
         inst.VehicleCreated.Clear();
         inst.VehicleDestroyed.Clear();
@@ -2735,8 +2773,8 @@ private:
             // Disable this entity instance
             RefType::s_Instances[id].ID = SQMOD_UNKNOWN;
 
-            // Clear any events that are still listening
-            EntType::Clear(RefType::s_Instances[id]);
+            // Deinitialize the instance and clear any events that are still listening
+            EntType::Deinit(RefType::s_Instances[id]);
 
             // Successfully deactivated the instance
             return true;
@@ -2799,8 +2837,8 @@ private:
                 RefType::s_Instances[id].Data.Release();
             }
 
-            // Store any specified values on the instance
-            EntType::Store(RefType::s_Instances[id], std::forward< Args >(args)...);
+            // Initialize the instance and store any specified values/arguments
+            EntType::Init(RefType::s_Instances[id], std::forward< Args >(args)...);
 
             // Initialization successful
             return true;

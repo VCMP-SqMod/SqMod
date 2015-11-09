@@ -84,6 +84,11 @@ bool Core::Init()
         return false;
     }
 
+    // Initialize the player message prefixes
+    Ent< CPlayer >::Prefixes.fill(Ent< CPlayer >::MsgPrefix::value_type());
+    // Initialize the player message styles
+    Ent< CPlayer >::MessageColor = 0x6599FFFF;
+    Ent< CPlayer >::AnnounceStyle = 1;
     LogMsg("%s", CenterStr("SUCCESS", '*'));
 
     return true;

@@ -5,23 +5,13 @@
 #include "Entity.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <array>
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
-
-// ------------------------------------------------------------------------------------------------
-#define MAX_PLAYER_MESSAGE_PREFIXES 128
-#define MAX_PLAYER_TEMPORARY_BUFFER 128
 
 /* ------------------------------------------------------------------------------------------------
  * Class responsible for managing the referenced player instance.
 */
 class CPlayer : public Reference< CPlayer >
 {
-    // --------------------------------------------------------------------------------------------
-    typedef std::array< String, MAX_PLAYER_MESSAGE_PREFIXES > Prefixes;
-
     // --------------------------------------------------------------------------------------------
     static CSkin    s_Skin;
     static CWeapon  s_Weapon;
@@ -32,13 +22,6 @@ class CPlayer : public Reference< CPlayer >
 
     // --------------------------------------------------------------------------------------------
     static SQChar   s_Buffer[MAX_PLAYER_TEMPORARY_BUFFER];
-
-    // --------------------------------------------------------------------------------------------
-    static Prefixes s_MsgPrefixes;
-
-    // --------------------------------------------------------------------------------------------
-    static SQUint32 s_MessageColor;
-    static SQInt32  s_AnnounceStyle;
 
 public:
 
@@ -60,7 +43,67 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set whether the referenced player instance has administrator privileges.
     */
-    void SetLevel(SQInt32 val) const;
+    void SetLevel(SQInt32 toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Get whether referenced player instance uses the global or local message prefixes.
+    */
+    bool GetLocalPrefixes() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether referenced player instance uses the global or local message prefixes.
+    */
+    void SetLocalPrefixes(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     *  Get whether referenced player instance uses the global or local message color.
+    */
+    bool GetLocalMessageColor() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether referenced player instance uses the global or local message color.
+    */
+    void SetLocalMessageColor(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Get whether referenced player instance uses the global or local announcement style.
+    */
+    bool GetLocalAnnounceStyle() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether referenced player instance uses the global or local announcement style.
+    */
+    void SetLocalAnnounceStyle(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the local message prefix at the specified index for the referenced player instance.
+    */
+    const SQChar * GetMessagePrefix(SQUint32 index) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Change the local message prefix at the specified index for the referenced player instance.
+    */
+    void SetMessagePrefix(SQUint32 index, const SQChar * prefix) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the local message color for the referenced player instance.
+    */
+    SQUint32 GetMessageColor() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Change the local message color for the referenced player instance.
+    */
+    void SetMessageColor(SQUint32 color) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the local announcement style for the referenced player instance.
+    */
+    SQInt32 GetAnnounceStyle() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Change the local announcement style for the referenced player instance.
+    */
+    void SetAnnounceStyle(SQInt32 style) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the referenced player instance is streamed for the specified player.
@@ -629,32 +672,22 @@ public:
                     const SQChar * pass, const SQChar * user);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrive the current value of a predefined message prefix.
-    */
-    static const SQChar * GetMessagePrefix(SQUint32 index);
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the current value of a predefined message prefix.
-    */
-    static void SetMessagePrefix(SQUint32 index, const SQChar * prefix);
-
-    /* --------------------------------------------------------------------------------------------
-     * Send a chat message to the referenced player instance.
+     * Send a normal colored message to the referenced player instance.
     */
     static SQInteger Msg(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * Send a chat message to the referenced player instance.
+     * Send a normal prefixed message to the referenced player instance.
     */
     static SQInteger MsgP(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * Send a chat message to the referenced player instance.
+     * Send a normal colored message to the referenced player instance.
     */
     static SQInteger MsgEx(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * Send a chat message to the referenced player instance.
+     * Send a normal message to the referenced player instance.
     */
     static SQInteger Message(HSQUIRRELVM vm);
 
@@ -664,9 +697,26 @@ public:
     static SQInteger Announce(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * Send an announcement message to the referenced player instance.
+     * Send a styled announcement message to the referenced player instance.
     */
     static SQInteger AnnounceEx(HSQUIRRELVM vm);
+
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Fetch the message prefix that a certain player instance must use.
+    */
+    static const SQChar * FetchMessagePrefix(SQInt32 player, SQUint32 index);
+
+    /* --------------------------------------------------------------------------------------------
+     * Fetch the message color that a certain player instance must use.
+    */
+    static SQUint32 FetchMessageColor(SQInt32 player);
+
+    /* --------------------------------------------------------------------------------------------
+     * Fetch the announce type that a certain player instance must use.
+    */
+    static SQInteger FetchAnnounceStyle(SQInt32 player);
 };
 
 } // Namespace:: SqMod

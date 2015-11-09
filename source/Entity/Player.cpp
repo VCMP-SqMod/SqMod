@@ -22,13 +22,6 @@ Vector3  CPlayer::s_Vector3;
 SQChar   CPlayer::s_Buffer[MAX_PLAYER_TEMPORARY_BUFFER];
 
 // ------------------------------------------------------------------------------------------------
-CPlayer::Prefixes CPlayer::s_MsgPrefixes{{_SC("")}};
-
-// ------------------------------------------------------------------------------------------------
-SQUint32 CPlayer::s_MessageColor = 0x6599FFFF;
-SQInt32  CPlayer::s_AnnounceStyle = 1;
-
-// ------------------------------------------------------------------------------------------------
 CPlayer::CPlayer(const Reference< CPlayer > & o)
     : Reference(o)
 {
@@ -60,6 +53,196 @@ void CPlayer::SetLevel(SQInt32 val) const
     else
     {
         LogWrn(_SC("Attempting to <set player level> using an invalid reference: %d"), m_ID);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::GetLocalPrefixes() const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        return Get(m_ID).LocalPrefixes;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <see if player uses local message prefixes> using an invalid reference: %d"),
+                m_ID);
+    }
+
+    return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetLocalPrefixes(bool toggle) const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        Get(m_ID).LocalPrefixes = toggle;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <set whether player uses local message prefixes> using an invalid reference: %d"),
+                m_ID);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::GetLocalMessageColor() const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        return Get(m_ID).LocalMessageColor;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <see if player uses local message color> using an invalid reference: %d"),
+                m_ID);
+    }
+
+    return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetLocalMessageColor(bool toggle) const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        Get(m_ID).LocalMessageColor = toggle;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <set whether player uses local message color> using an invalid reference: %d"),
+                m_ID);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::GetLocalAnnounceStyle() const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        return Get(m_ID).LocalAnnounceStyle;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <see if player uses local announce style> using an invalid reference: %d"),
+                m_ID);
+    }
+
+    return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetLocalAnnounceStyle(bool toggle) const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        Get(m_ID).LocalAnnounceStyle = toggle;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <set whether player uses local announce style> using an invalid reference: %d"),
+                m_ID);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * CPlayer::GetMessagePrefix(SQUint32 index) const
+{
+    if (VALID_ENTITY(m_ID) && index < MAX_PLAYER_MESSAGE_PREFIXES)
+    {
+        return Get(m_ID).Prefixes[index].c_str();
+    }
+    else if (index >= MAX_PLAYER_MESSAGE_PREFIXES)
+    {
+        LogWrn(_SC("Attempting to <get player local message prefix> using an out of bounds index: %u"),
+            index);
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <get player local message prefix> using an invalid reference: %d"),
+                m_ID);
+    }
+
+    return _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetMessagePrefix(SQUint32 index, const SQChar * prefix) const
+{
+    if (VALID_ENTITY(m_ID) && index < MAX_PLAYER_MESSAGE_PREFIXES)
+    {
+        Get(m_ID).Prefixes[index].assign(prefix);
+    }
+    else if (index >= MAX_PLAYER_MESSAGE_PREFIXES)
+    {
+        LogWrn(_SC("Attempting to <set player local message prefix> using an out of bounds index: %u"),
+            index);
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <set player local message prefix> using an invalid reference: %d"),
+                m_ID);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+SQUint32 CPlayer::GetMessageColor() const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        return Get(m_ID).MessageColor;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <get player local message color> using an invalid reference: %d"),
+                m_ID);
+    }
+
+    return 0x0;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetMessageColor(SQUint32 color) const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        Get(m_ID).MessageColor = color;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <set player local message color> using an invalid reference: %d"),
+                m_ID);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInt32 CPlayer::GetAnnounceStyle() const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        return Get(m_ID).AnnounceStyle;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <get player local announce style> using an invalid reference: %d"),
+                m_ID);
+    }
+
+    return SQMOD_UNKNOWN;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetAnnounceStyle(SQInt32 style) const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        Get(m_ID).AnnounceStyle = style;
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <set player local announce style> using an invalid reference: %d"),
+                m_ID);
     }
 }
 
@@ -1736,34 +1919,6 @@ bool CPlayer::Redirect(const SQChar * ip, SQUint32 port, const SQChar * nick, \
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CPlayer::GetMessagePrefix(SQUint32 index)
-{
-    if (index < MAX_PLAYER_MESSAGE_PREFIXES)
-    {
-        return s_MsgPrefixes[index].c_str();
-    }
-    else
-    {
-        LogWrn(_SC("Attempting to <get player message prefix> using an out of bounds index: %u"), index);
-    }
-
-    return _SC("");
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetMessagePrefix(SQUint32 index, const SQChar * prefix)
-{
-    if (index < MAX_PLAYER_MESSAGE_PREFIXES)
-    {
-        s_MsgPrefixes[index].assign(prefix);
-    }
-    else
-    {
-        LogWrn(_SC("Attempting to <set player message prefix> using an out of bounds index: %u"), index);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 SQInteger CPlayer::Msg(HSQUIRRELVM vm)
 {
     const SQInteger top = sq_gettop(vm);
@@ -1886,8 +2041,8 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
         // Pop any pushed values pushed to the stack
         sq_settop(vm, top);
         // Send the specified string
-        _Func->SendClientMessage(_SCI32(inst.value), s_MessageColor, "%s%s",
-                                 s_MsgPrefixes[index.value].c_str(), msg);
+        _Func->SendClientMessage(_SCI32(inst.value), FetchMessageColor(_SCI32(inst.value)), "%s%s",
+                                 FetchMessagePrefix(_SCI32(inst.value), index.value), msg);
     }
     else if (top > 3)
     {
@@ -1902,8 +2057,8 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
             return 0;
         }
         // Send the resulted string
-        _Func->SendClientMessage(_SCI32(inst.value), s_MessageColor, "%s%s",
-                                 s_MsgPrefixes[index.value].c_str(), msg);
+        _Func->SendClientMessage(_SCI32(inst.value), FetchMessageColor(_SCI32(inst.value)), "%s%s",
+                                 FetchMessagePrefix(_SCI32(inst.value), index.value), msg);
     }
     else
     {
@@ -2023,7 +2178,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
         // Pop any pushed values pushed to the stack
         sq_settop(vm, top);
         // Send the specified string
-        _Func->SendClientMessage(_SCI32(inst.value), s_MessageColor, "%s", msg);
+        _Func->SendClientMessage(_SCI32(inst.value), FetchMessageColor(_SCI32(inst.value)), "%s", msg);
     }
     else if (top > 2)
     {
@@ -2038,7 +2193,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
             return 0;
         }
         // Send the resulted string
-        _Func->SendClientMessage(_SCI32(inst.value), s_MessageColor, "%s", msg);
+        _Func->SendClientMessage(_SCI32(inst.value), FetchMessageColor(_SCI32(inst.value)), "%s", msg);
     }
     else
     {
@@ -2085,7 +2240,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
         // Pop any pushed values pushed to the stack
         sq_settop(vm, top);
         // Send the specified string
-        _Func->SendGameMessage(_SCI32(inst.value), 1, "%s", msg);
+        _Func->SendGameMessage(_SCI32(inst.value), FetchAnnounceStyle(_SCI32(inst.value)), "%s", msg);
     }
     else if (top > 2)
     {
@@ -2100,7 +2255,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
             return 0;
         }
         // Send the resulted string
-        _Func->SendGameMessage(_SCI32(inst.value), 1, "%s", msg);
+        _Func->SendGameMessage(_SCI32(inst.value), FetchAnnounceStyle(_SCI32(inst.value)), "%s", msg);
     }
     else
     {
@@ -2181,6 +2336,94 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     return 0;
 }
 
+// ------------------------------------------------------------------------------------------------
+const SQChar * CPlayer::FetchMessagePrefix(SQInt32 player, SQUint32 index)
+{
+    /* Assuming that the caller verified if the player identifier and prefix index is in range! */
+    if (Get(player).LocalPrefixes)
+    {
+        return Get(player).Prefixes[index].c_str();
+    }
+    // Fallback to the global value
+    return Ent< CPlayer >::Prefixes[index].c_str();
+}
+
+// ------------------------------------------------------------------------------------------------
+SQUint32 CPlayer::FetchMessageColor(SQInt32 player)
+{
+    /* Assuming that the caller verified if the player identifier is in range! */
+    if (Get(player).LocalMessageColor)
+    {
+        return Get(player).MessageColor;
+    }
+    // Fallback to the global value
+    return Ent< CPlayer >::MessageColor;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::FetchAnnounceStyle(SQInt32 player)
+{
+    /* Assuming that the caller verified if the player identifier is in range! */
+    if (Get(player).LocalAnnounceStyle)
+    {
+        return Get(player).AnnounceStyle;
+    }
+    // Fallback to the global value
+    return Ent< CPlayer >::AnnounceStyle;
+}
+
+// ------------------------------------------------------------------------------------------------
+static const SQChar * GetPlayerMessagePrefix(SQUint32 index)
+{
+    if (index < MAX_PLAYER_MESSAGE_PREFIXES)
+    {
+        return Ent< CPlayer >::Prefixes[index].c_str();
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <get player global message prefix> using an out of bounds index: %u"), index);
+    }
+
+    return _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SetPlayerMessagePrefix(SQUint32 index, const SQChar * prefix)
+{
+    if (index < MAX_PLAYER_MESSAGE_PREFIXES)
+    {
+        Ent< CPlayer >::Prefixes[index].assign(prefix);
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <set player global message prefix> using an out of bounds index: %u"), index);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQUint32 GetPlayerMessageColor()
+{
+    return Ent< CPlayer >::MessageColor;
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SetPlayerMessageColor(SQUint32 color)
+{
+    Ent< CPlayer >::MessageColor = color;
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQUint32 GetPlayerAnnounceStyle()
+{
+    return Ent< CPlayer >::AnnounceStyle;
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SetPlayerAnnounceStyle(SQInt32 style)
+{
+    Ent< CPlayer >::AnnounceStyle = style;
+}
+
 // ================================================================================================
 bool Register_CPlayer(HSQUIRRELVM vm)
 {
@@ -2201,6 +2444,15 @@ bool Register_CPlayer(HSQUIRRELVM vm)
         .Ctor()
         .Ctor< SQInt32 >()
         /* Properties */
+        .Prop(_SC("level"), &CPlayer::GetLevel, &CPlayer::SetLevel)
+        .Prop(_SC("lprefix"), &CPlayer::GetLocalPrefixes, &CPlayer::SetLocalPrefixes)
+        .Prop(_SC("lmsg_color"), &CPlayer::GetLocalMessageColor, &CPlayer::SetLocalMessageColor)
+        .Prop(_SC("lmessage_color"), &CPlayer::GetLocalMessageColor, &CPlayer::SetLocalMessageColor)
+        .Prop(_SC("ltext_style"), &CPlayer::GetLocalAnnounceStyle, &CPlayer::SetLocalAnnounceStyle)
+        .Prop(_SC("lannounce_style"), &CPlayer::GetLocalAnnounceStyle, &CPlayer::SetLocalAnnounceStyle)
+        .Prop(_SC("message_color"), &CPlayer::GetMessageColor, &CPlayer::SetMessageColor)
+        .Prop(_SC("announce_style"), &CPlayer::GetAnnounceStyle, &CPlayer::SetAnnounceStyle)
+        .Prop(_SC("level"), &CPlayer::GetLevel, &CPlayer::SetLevel)
         .Prop(_SC("cls"), &CPlayer::GetClass)
         .Prop(_SC("admin"), &CPlayer::GetAdmin, &CPlayer::SetAdmin)
         .Prop(_SC("ip"), &CPlayer::GetIP)
@@ -2261,6 +2513,8 @@ bool Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("aim_dir"), &CPlayer::GetAimDir)
         .Prop(_SC("aim_direction"), &CPlayer::GetAimDir)
         /* Functions */
+        .Func(_SC("get_msg_prefix"), &CPlayer::GetMessagePrefix)
+        .Func(_SC("set_msg_prefix"), &CPlayer::SetMessagePrefix)
         .Func(_SC("streamed_for"), &CPlayer::IsStreamedFor)
         .Func(_SC("kick"), &CPlayer::Kick)
         .Func(_SC("ban"), &CPlayer::Ban)
@@ -2311,8 +2565,13 @@ bool Register_CPlayer(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Beginning registration of <Player functions> type");
     // Several global functions
-    Sqrat::RootTable(vm).Func(_SC("GetPlayerMsgPrefix"), &CPlayer::GetMessagePrefix);
-    Sqrat::RootTable(vm).Func(_SC("SetPlayerMsgPrefix"), &CPlayer::SetMessagePrefix);
+    Sqrat::RootTable root(vm);
+    root.Func(_SC("GetPlayerMessagePrefix"), &GetPlayerMessagePrefix);
+    root.Func(_SC("SetPlayerMessagePrefix"), &SetPlayerMessagePrefix);
+    root.Func(_SC("GetPlayerMessageColor"), &GetPlayerMessageColor);
+    root.Func(_SC("SetPlayerMessageColor"), &SetPlayerMessageColor);
+    root.Func(_SC("GetPlayerAnnounceStyle"), &GetPlayerAnnounceStyle);
+    root.Func(_SC("SetPlayerAnnounceStyle"), &SetPlayerAnnounceStyle);
     // Output debugging information
     LogDbg("Registration of <Player functions> type was successful");
     // Registration succeeded

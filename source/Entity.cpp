@@ -6,6 +6,13 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+Ent< CPlayer >::MsgPrefix Ent< CPlayer >::Prefixes;
+
+// ------------------------------------------------------------------------------------------------
+SQUint32 Ent< CPlayer >::MessageColor;
+SQInt32 Ent< CPlayer >::AnnounceStyle;
+
+// ------------------------------------------------------------------------------------------------
 EBlipCreated & GBlipCreated()
 {
     return _Core->BlipCreated;

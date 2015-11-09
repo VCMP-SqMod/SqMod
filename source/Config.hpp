@@ -371,6 +371,13 @@ class LocalEvent;
 #define SQMOD_CMDLENGTH     512
 
 /* ------------------------------------------------------------------------------------------------
+ * GENERIC LIMITS
+*/
+
+#define MAX_PLAYER_MESSAGE_PREFIXES 64
+#define MAX_PLAYER_TEMPORARY_BUFFER 128
+
+/* ------------------------------------------------------------------------------------------------
  * INITIAL ENTITY POOLS
 */
 
