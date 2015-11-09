@@ -1257,7 +1257,7 @@ bool Register_Cmd(HSQUIRRELVM vm)
     cmdns.Func(_SC("GetInvoker"), &Cmd_GetInvoker);
     cmdns.Func(_SC("GetInvokerID"), &Cmd_GetInvokerID);
     cmdns.Func(_SC("GetName"), &Cmd_GetName);
-    cmdns.Func(_SC("getText"), &Cmd_GetText);
+    cmdns.Func(_SC("GetText"), &Cmd_GetText);
     // Output debugging information
     LogDbg("Registration of <Cmd functions> type was successful");
 
