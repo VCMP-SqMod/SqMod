@@ -19,7 +19,14 @@ Color3   CPlayer::s_Color3;
 Vector3  CPlayer::s_Vector3;
 
 // ------------------------------------------------------------------------------------------------
-SQChar   CPlayer::s_Buffer[128];
+SQChar   CPlayer::s_Buffer[MAX_PLAYER_TEMPORARY_BUFFER];
+
+// ------------------------------------------------------------------------------------------------
+CPlayer::Prefixes CPlayer::s_MsgPrefixes{{_SC("")}};
+
+// ------------------------------------------------------------------------------------------------
+SQUint32 CPlayer::s_MessageColor = 0x6599FFFF;
+SQInt32  CPlayer::s_AnnounceStyle = 1;
 
 // ------------------------------------------------------------------------------------------------
 CPlayer::CPlayer(const Reference< CPlayer > & o)
@@ -194,7 +201,7 @@ bool CPlayer::IsSpawned() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUnsignedInteger CPlayer::GetKey() const
+SQUint32 CPlayer::GetKey() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1713,7 +1720,7 @@ void CPlayer::Disembark() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::Redirect(const SQChar * ip, SQUnsignedInteger port, const SQChar * nick, \
+bool CPlayer::Redirect(const SQChar * ip, SQUint32 port, const SQChar * nick, \
                 const SQChar * pass, const SQChar * user)
 {
     if (VALID_ENTITY(m_ID))
@@ -1726,6 +1733,34 @@ bool CPlayer::Redirect(const SQChar * ip, SQUnsignedInteger port, const SQChar *
     }
 
     return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+const SQChar * CPlayer::GetMessagePrefix(SQUint32 index)
+{
+    if (index < MAX_PLAYER_MESSAGE_PREFIXES)
+    {
+        return s_MsgPrefixes[index].c_str();
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <get player message prefix> using an out of bounds index: %u"), index);
+    }
+
+    return _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetMessagePrefix(SQUint32 index, const SQChar * prefix)
+{
+    if (index < MAX_PLAYER_MESSAGE_PREFIXES)
+    {
+        s_MsgPrefixes[index].assign(prefix);
+    }
+    else
+    {
+        LogWrn(_SC("Attempting to <set player message prefix> using an out of bounds index: %u"), index);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1790,6 +1825,85 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
         }
         // Send the resulted string
         _Func->SendClientMessage(_SCI32(inst.value), color.value.GetRGBA(), "%s", msg);
+    }
+    else
+    {
+        LogErr("Unable to <extract the player message> from the specified value");
+    }
+    // At this point everything went correctly
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
+{
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        LogErr("Attempting to <send player message> without specifying a prefix index");
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a valid prefix index on the stack?
+    else if (top == 2)
+    {
+        LogErr("Attempting to <send player message> without specifying a value");
+        // Failed to send the message
+        return 0;
+    }
+    // Attempt to retrieve the player instance
+    Var< CPlayer & > inst(vm, 1);
+    // Attempt to retrieve the prefix index
+    Var< SQUint32 > index(vm, 2);
+    // Validate the player instance
+    if (!inst.value)
+    {
+        LogErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
+        // Failed to send the message
+        return 0;
+    }
+    else if (index.value > MAX_PLAYER_MESSAGE_PREFIXES)
+    {
+        LogErr("Attempting to <send player message> using an out of range prefix: %u", index.value);
+        // Failed to send the message
+        return 0;
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 3 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * msg = 0;
+        // Attempt to retrieve the specified message from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            LogErr("Unable to <retrieve the player message> from the stack");
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
+            // Failed to send the value
+            return 0;
+        }
+        // Pop any pushed values pushed to the stack
+        sq_settop(vm, top);
+        // Send the specified string
+        _Func->SendClientMessage(_SCI32(inst.value), s_MessageColor, "%s%s",
+                                 s_MsgPrefixes[index.value].c_str(), msg);
+    }
+    else if (top > 3)
+    {
+        // Variables containing the resulted string
+        SQChar * msg = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 3, &len, &msg)))
+        {
+            LogErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
+            // Failed to send the value
+            return 0;
+        }
+        // Send the resulted string
+        _Func->SendClientMessage(_SCI32(inst.value), s_MessageColor, "%s%s",
+                                 s_MsgPrefixes[index.value].c_str(), msg);
     }
     else
     {
@@ -1909,7 +2023,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
         // Pop any pushed values pushed to the stack
         sq_settop(vm, top);
         // Send the specified string
-        _Func->SendClientMessage(_SCI32(inst.value), 0x6599FFFF, "%s", msg);
+        _Func->SendClientMessage(_SCI32(inst.value), s_MessageColor, "%s", msg);
     }
     else if (top > 2)
     {
@@ -1924,7 +2038,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
             return 0;
         }
         // Send the resulted string
-        _Func->SendClientMessage(_SCI32(inst.value), 0x6599FFFF, "%s", msg);
+        _Func->SendClientMessage(_SCI32(inst.value), s_MessageColor, "%s", msg);
     }
     else
     {
@@ -2170,6 +2284,7 @@ bool Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("redirect"), &CPlayer::Redirect)
         /* Raw Functions */
         .SquirrelFunc(_SC("msg"), &CPlayer::Msg)
+        .SquirrelFunc(_SC("msgp"), &CPlayer::MsgP)
         .SquirrelFunc(_SC("emsg"), &CPlayer::MsgEx)
         .SquirrelFunc(_SC("message"), &CPlayer::Message)
         .SquirrelFunc(_SC("announce"), &CPlayer::Announce)
@@ -2192,6 +2307,14 @@ bool Register_CPlayer(HSQUIRRELVM vm)
     );
     // Output debugging information
     LogDbg("Registration of <CPlayer> type was successful");
+
+    // Output debugging information
+    LogDbg("Beginning registration of <Player functions> type");
+    // Several global functions
+    Sqrat::RootTable(vm).Func(_SC("GetPlayerMsgPrefix"), &CPlayer::GetMessagePrefix);
+    Sqrat::RootTable(vm).Func(_SC("SetPlayerMsgPrefix"), &CPlayer::SetMessagePrefix);
+    // Output debugging information
+    LogDbg("Registration of <Player functions> type was successful");
     // Registration succeeded
     return true;
 }

@@ -5,13 +5,23 @@
 #include "Entity.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <array>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
+
+// ------------------------------------------------------------------------------------------------
+#define MAX_PLAYER_MESSAGE_PREFIXES 128
+#define MAX_PLAYER_TEMPORARY_BUFFER 128
 
 /* ------------------------------------------------------------------------------------------------
  * Class responsible for managing the referenced player instance.
 */
 class CPlayer : public Reference< CPlayer >
 {
+    // --------------------------------------------------------------------------------------------
+    typedef std::array< String, MAX_PLAYER_MESSAGE_PREFIXES > Prefixes;
+
     // --------------------------------------------------------------------------------------------
     static CSkin    s_Skin;
     static CWeapon  s_Weapon;
@@ -21,7 +31,14 @@ class CPlayer : public Reference< CPlayer >
     static Vector3  s_Vector3;
 
     // --------------------------------------------------------------------------------------------
-    static SQChar   s_Buffer[128];
+    static SQChar   s_Buffer[MAX_PLAYER_TEMPORARY_BUFFER];
+
+    // --------------------------------------------------------------------------------------------
+    static Prefixes s_MsgPrefixes;
+
+    // --------------------------------------------------------------------------------------------
+    static SQUint32 s_MessageColor;
+    static SQInt32  s_AnnounceStyle;
 
 public:
 
@@ -93,7 +110,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the key of the referenced player instance.
     */
-    SQUnsignedInteger GetKey() const;
+    SQUint32 GetKey() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the referenced player instance exists.
@@ -608,13 +625,28 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Redirect the referenced player instance to the specified server.
     */
-    bool Redirect(const SQChar * ip, SQUnsignedInteger port, const SQChar * nick, \
+    bool Redirect(const SQChar * ip, SQUint32 port, const SQChar * nick, \
                     const SQChar * pass, const SQChar * user);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrive the current value of a predefined message prefix.
+    */
+    static const SQChar * GetMessagePrefix(SQUint32 index);
+
+    /* --------------------------------------------------------------------------------------------
+     * Change the current value of a predefined message prefix.
+    */
+    static void SetMessagePrefix(SQUint32 index, const SQChar * prefix);
 
     /* --------------------------------------------------------------------------------------------
      * Send a chat message to the referenced player instance.
     */
     static SQInteger Msg(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a chat message to the referenced player instance.
+    */
+    static SQInteger MsgP(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Send a chat message to the referenced player instance.
@@ -635,7 +667,6 @@ public:
      * Send an announcement message to the referenced player instance.
     */
     static SQInteger AnnounceEx(HSQUIRRELVM vm);
-
 };
 
 } // Namespace:: SqMod
