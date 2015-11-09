@@ -2,6 +2,9 @@
 #include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <sqstdstring.h>
+
+// ------------------------------------------------------------------------------------------------
 #include <crc32.h>
 #include <keccak.h>
 #include <md5.h>
@@ -12,48 +15,78 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// ------------------------------------------------------------------------------------------------
-static CRC32        g_EncodeCRC32;
-static Keccak       g_EncodeKeccak;
-static MD5          g_EncodeMD5;
-static SHA1         g_EncodeSHA1;
-static SHA256       g_EncodeSHA256;
-static SHA3         g_EncodeSHA3;
+/* ------------------------------------------------------------------------------------------------
+ * ...
+*/
+template < class T > struct BaseHash
+{
+    static T Algo;
+};
 
 // ------------------------------------------------------------------------------------------------
-String HashCRC32(const String & str)
-{
-    return g_EncodeCRC32(str);
-}
+template < class T > T BaseHash< T >::Algo;
 
 // ------------------------------------------------------------------------------------------------
-String HashKeccak(const String & str)
+template < class T > static SQInteger HashF(HSQUIRRELVM vm)
 {
-    return g_EncodeKeccak(str);
-}
-
-// ------------------------------------------------------------------------------------------------
-String HashMD5(const String & str)
-{
-    return g_EncodeMD5(str);
-}
-
-// ------------------------------------------------------------------------------------------------
-String HashSHA1(const String & str)
-{
-    return g_EncodeSHA1(str);
-}
-
-// ------------------------------------------------------------------------------------------------
-String HashSHA256(const String & str)
-{
-    return g_EncodeSHA256(str);
-}
-
-// ------------------------------------------------------------------------------------------------
-String HashSHA3(const String & str)
-{
-    return g_EncodeSHA3(str);
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        LogErr("Attempting to <hash string> without specifying a value");
+        // Push a null value on the stack
+        sq_pushnull(vm);
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * msg = 0;
+        // Attempt to retrieve the specified string from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            LogErr("Unable to <hash string> because : the string cannot be retrieved from the stack");
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
+            // Push a null value on the stack
+            sq_pushnull(vm);
+        }
+        else
+        {
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
+            // Hash the specified string
+            sq_pushstring(vm, BaseHash< T >::Algo(msg).c_str(), -1);
+        }
+    }
+    else if (top > 2)
+    {
+        // Variables containing the resulted string
+        SQChar * msg = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 2, &len, &msg)))
+        {
+            LogErr("Unable to <hash string> because : %s", Error::Message(vm).c_str());
+            // Push a null value on the stack
+            sq_pushnull(vm);
+        }
+        else
+        {
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
+            // Hash the specified string
+            sq_pushstring(vm, BaseHash< T >::Algo(msg).c_str(), -1);
+        }
+    }
+    else
+    {
+        LogErr("Unable to <extract the log message> from the specified value");
+        // Push a null value on the stack
+        sq_pushnull(vm);
+    }
+    // At this point everything went correctly (probably)
+    return 1;
 }
 
 // ================================================================================================
@@ -102,12 +135,12 @@ bool Register_Hash(HSQUIRRELVM vm)
     LogDbg("Beginning registration of <Hashing functions> type");
     // Attempt to register the free functions
     Sqrat::RootTable(vm)
-    .Func(_SC("HashCRC32"), &HashCRC32)
-    .Func(_SC("HashKeccak"), &HashKeccak)
-    .Func(_SC("HashMD5"), &HashMD5)
-    .Func(_SC("HashSHA1"), &HashSHA1)
-    .Func(_SC("HashSHA256"), &HashSHA256)
-    .Func(_SC("HashSHA3"), &HashSHA3);
+    .SquirrelFunc(_SC("HashCRC32"), &HashF< CRC32 >)
+    .SquirrelFunc(_SC("HashKeccak"), &HashF< Keccak >)
+    .SquirrelFunc(_SC("HashMD5"), &HashF< MD5 >)
+    .SquirrelFunc(_SC("HashSHA1"), &HashF< SHA1 >)
+    .SquirrelFunc(_SC("HashSHA256"), &HashF< SHA256 >)
+    .SquirrelFunc(_SC("HashSHA3"), &HashF< SHA3 >);
     // Output debugging information
     LogDbg("Registration of <Hashing functions> type was successful");
     // Registration succeeded
