@@ -381,6 +381,16 @@ public:
     */
     Connection CopyToDatabase(const SQChar * path);
 
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to execute the specified query.
+    */
+    static SQInteger ExecF(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to queue the specified query.
+    */
+    static SQInteger QueueF(HSQUIRRELVM vm);
+
 protected:
 
     /* --------------------------------------------------------------------------------------------

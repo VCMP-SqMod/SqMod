@@ -1,6 +1,10 @@
 #include "Library/SQLite/Connection.hpp"
 #include "Library/SQLite/Statement.hpp"
 
+// ------------------------------------------------------------------------------------------------
+#include <sqstdstring.h>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 namespace SQLite {
 
@@ -825,6 +829,132 @@ SQInt32 Connection::GetInfo(int operation, bool highwater, bool reset) const
         LogWrn("Attempting to <get database runtime status information> using an invalid connection: null");
     }
     return SQMOD_UNKNOWN;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Connection::ExecF(HSQUIRRELVM vm)
+{
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        LogErr("Attempting to <execute database query> without specifying a value");
+        // Push a null value on the stack
+        sq_pushnull(vm);
+    }
+    // Attempt to retrieve the connection instance
+    Var< Connection & > inst(vm, 1);
+    // Validate the connection instance
+    if (!inst.value)
+    {
+        LogErr("Attempting to <execute database query> using an invalid connection: null");
+        // Push a null value on the stack
+        sq_pushnull(vm);
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * str = 0;
+        // Attempt to retrieve the specified message from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &str)))
+        {
+            LogErr("Unable to <fetch database query> because : the string cannot be retrieved from the stack");
+            // Push a null value on the stack
+            sq_pushnull(vm);
+        }
+        else
+        {
+            // Attempt to execute the specified query string and push the result on the stack
+            sq_pushinteger(vm, inst.value.Exec(str));
+        }
+        // Pop any pushed values pushed to the stack
+        sq_settop(vm, top);
+    }
+    else if (top > 2)
+    {
+        // Variables containing the resulted string
+        SQChar * str = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 2, &len, &str)))
+        {
+            LogErr("Unable to <generate database query> because : %s", Error::Message(vm).c_str());
+            // Push a null value on the stack
+            sq_pushnull(vm);
+        }
+        else
+        {
+            // Attempt to execute the resulted query string and push the result on the stack
+            sq_pushinteger(vm, inst.value.Exec(str));
+        }
+    }
+    else
+    {
+        LogErr("Unable to <extract database query> from the specified value");
+        // Push a null value on the stack
+        sq_pushnull(vm);
+    }
+    // At this point everything went correctly (probably)
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Connection::QueueF(HSQUIRRELVM vm)
+{
+    const SQInteger top = sq_gettop(vm);
+    // Are there any arguments on the stack?
+    if (top <= 1)
+    {
+        LogErr("Attempting to <queue database query> without specifying a value");
+    }
+    // Attempt to retrieve the connection instance
+    Var< Connection & > inst(vm, 1);
+    // Validate the connection instance
+    if (!inst.value)
+    {
+        LogErr("Attempting to <queue database query> using an invalid connection: null");
+    }
+    // Is there a single string or at least something that can convert to a string on the stack?
+    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        // Variable where the resulted string will be retrieved
+        const SQChar * str = 0;
+        // Attempt to retrieve the specified message from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &str)))
+        {
+            LogErr("Unable to <fetch database query> because : the string cannot be retrieved from the stack");
+        }
+        else
+        {
+            // Attempt to queue the specified query string
+            inst.value.Queue(str);
+        }
+        // Pop any pushed values pushed to the stack
+        sq_settop(vm, top);
+    }
+    else if (top > 2)
+    {
+        // Variables containing the resulted string
+        SQChar * str = NULL;
+        SQInteger len = 0;
+        // Attempt to call the format function with the passed arguments
+        if (SQ_FAILED(sqstd_format(vm, 2, &len, &str)))
+        {
+            LogErr("Unable to <generate database query> because : %s", Error::Message(vm).c_str());
+        }
+        else
+        {
+            // Attempt to queue the specified query string
+            inst.value.Queue(str);
+        }
+    }
+    else
+    {
+        LogErr("Unable to <extract database query> from the specified value");
+    }
+    // At this point everything went correctly (probably)
+    return 0;
 }
 
 } // Namespace:: SQLite

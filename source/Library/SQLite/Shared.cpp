@@ -229,6 +229,9 @@ bool Register_SQLite(HSQUIRRELVM vm)
         .Func(_SC("release_memory"), &Connection::ReleaseMemory)
         .Func(_SC("copy_to_memory"), &Connection::CopyToMemory)
         .Func(_SC("copy_to_database"), &Connection::CopyToDatabase)
+        /* Raw Functions */
+        .SquirrelFunc(_SC("execf"), &Connection::ExecF)
+        .SquirrelFunc(_SC("queuef"), &Connection::QueueF)
     );
     // Output debugging information
     LogDbg("Registration of <SQLite Connection> type was successful");
