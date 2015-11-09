@@ -410,9 +410,13 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
         if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
         {
             _Log->Err("Unable to <retrieve the log message> from the stack");
+            // Pop any pushed values pushed to the stack
+            sq_settop(vm, top);
             // Failed to log the value
             return 0;
         }
+        // Pop any pushed values pushed to the stack
+        sq_settop(vm, top);
         // Log the specified string
         _Log->Message(L, S, "%s", msg);
     }
