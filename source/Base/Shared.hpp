@@ -84,7 +84,7 @@ template<> inline Float64 Clamp(const Float64 val, const Float64 min, const Floa
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Simple functions to quickly forward logging messages without including the logging system
+ * Simple functions to quickly forward logging messages without including the logging system.
 */
 void LogDbg(const char * fmt, ...);
 void LogMsg(const char * fmt, ...);
@@ -93,6 +93,21 @@ void LogInf(const char * fmt, ...);
 void LogWrn(const char * fmt, ...);
 void LogErr(const char * fmt, ...);
 void LogFtl(const char * fmt, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Simple functions to quickly forward debugging messages without including the debugging system.
+*/
+void DbgWrn(const char * fmt, ...);
+void DbgErr(const char * fmt, ...);
+void DbgFtl(const char * fmt, ...);
+
+void DbgWrn(const char * func, const char * fmt, ...);
+void DbgErr(const char * func, const char * fmt, ...);
+void DbgFtl(const char * func, const char * fmt, ...);
+
+void DbgWrn(const char * type, const char * func, const char * fmt, ...);
+void DbgErr(const char * type, const char * func, const char * fmt, ...);
+void DbgFtl(const char * type, const char * func, const char * fmt, ...);
 
 /* ------------------------------------------------------------------------------------------------
  * ...

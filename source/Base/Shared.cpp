@@ -1,6 +1,7 @@
 #include "Base/Shared.hpp"
 #include "Register.hpp"
 #include "Logger.hpp"
+#include "Debug.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -251,6 +252,83 @@ void LogFtl(const char * fmt, ...)
     va_list args;
     va_start(args, fmt);
     _Log->Send(Logger::LEVEL_FTL, false, fmt, args);
+    va_end(args);
+}
+
+// ------------------------------------------------------------------------------------------------
+void DbgWrn(const char * fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    _Dbg->Wrn(NULL, NULL, fmt, args);
+    va_end(args);
+}
+
+void DbgErr(const char * fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    _Dbg->Wrn(NULL, NULL, fmt, args);
+    va_end(args);
+}
+
+void DbgFtl(const char * fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    _Dbg->Wrn(NULL, NULL, fmt, args);
+    va_end(args);
+}
+
+// ------------------------------------------------------------------------------------------------
+void DbgWrn(const char * func, const char * fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    _Dbg->Wrn(NULL, func, fmt, args);
+    va_end(args);
+}
+
+void DbgErr(const char * func, const char * fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    _Dbg->Wrn(NULL, func, fmt, args);
+    va_end(args);
+}
+
+void DbgFtl(const char * func, const char * fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    _Dbg->Wrn(NULL, func, fmt, args);
+    va_end(args);
+}
+
+// ------------------------------------------------------------------------------------------------
+void DbgWrn(const char * type, const char * func, const char * fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    _Dbg->Wrn(type, func, fmt, args);
+    va_end(args);
+}
+
+void DbgErr(const char * type, const char * func, const char * fmt, ...)
+{
+    _Dbg->SetInf(type, func);
+    va_list args;
+    va_start(args, fmt);
+    _Dbg->Wrn(type, func, fmt, args);
+    va_end(args);
+}
+
+void DbgFtl(const char * type, const char * func, const char * fmt, ...)
+{
+    _Dbg->SetInf(type, func);
+    va_list args;
+    va_start(args, fmt);
+    _Dbg->Wrn(type, func, fmt, args);
     va_end(args);
 }
 

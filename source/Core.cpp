@@ -1,4 +1,5 @@
 #include "Core.hpp"
+#include "Debug.hpp"
 #include "Logger.hpp"
 #include "Entity.hpp"
 #include "Register.hpp"
@@ -391,6 +392,7 @@ bool Core::CreateVM()
         DefaultVM::Set(m_VM);
         ErrorHandling::Enable(true);
         m_Scripts.clear();
+        _Dbg->SetVM(m_VM);
     }
 
     LogDbg("Registering the standard libraries");
@@ -439,6 +441,8 @@ void Core::DestroyVM()
         m_VM = nullptr;
         // Close the Virtual Machine
         sq_close(sq_vm);
+        // Remove it from the debugger as well
+        _Dbg->SetVM(NULL);
     }
 }
 
