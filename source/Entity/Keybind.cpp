@@ -1,3 +1,4 @@
+// ------------------------------------------------------------------------------------------------
 #include "Entity/Keybind.hpp"
 #include "Core.hpp"
 #include "Register.hpp"
@@ -21,7 +22,7 @@ SQInt32 CKeybind::GetPrimary() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get keybind primary keycode> using an invalid reference: %d"), m_ID);
+        BadRef("@primary", "get primary keycode");
     }
 
     return SQMOD_UNKNOWN;
@@ -36,7 +37,7 @@ SQInt32 CKeybind::GetSecondary() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get keybind secondary keycode> using an invalid reference: %d"), m_ID);
+        BadRef("@secondary", "get secondary keycode");
     }
 
     return SQMOD_UNKNOWN;
@@ -51,7 +52,7 @@ SQInt32 CKeybind::GetAlternative() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get keybind alternative keycode> using an invalid reference: %d"), m_ID);
+        BadRef("@alternative", "get alternative keycode");
     }
 
     return SQMOD_UNKNOWN;
@@ -66,7 +67,7 @@ bool CKeybind::IsRelease() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if keybind reacts on release> using an invalid reference: %d"), m_ID);
+        BadRef("@is_release", "see whether it reacts on release");
     }
 
     return false;
@@ -164,7 +165,7 @@ bool Register_CKeybind(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Registration of <CKeybind> type was successful");
     // Output debugging information
-    LogDbg("Beginning registration of <Keybind functions> type");
+    LogDbg("Beginning registration of <Keybind> functions");
     // Register global functions related to this entity type
     Sqrat::RootTable(vm)
     /* Create BaseKeybind [E]xtended [S]ubstitute */
@@ -188,7 +189,7 @@ bool Register_CKeybind(HSQUIRRELVM vm)
     .Overload< CKeybind (*)(SQInt32, bool, SQInt32, SQInt32, SQInt32, SQInt32, SqObj &) >
         (_SC("CreateKeybind_EF"), &CreateKeybind_EF);
     // Output debugging information
-    LogDbg("Registration of <Keybind functions> type was successful");
+    LogDbg("Registration of <Keybind> functions was successful");
     // Registration succeeded
     return true;
 }
