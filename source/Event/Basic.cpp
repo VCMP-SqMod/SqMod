@@ -34,7 +34,7 @@ BasicEvent::BasicEvent(SQInt32 type, bool suspended)
     , m_Suspended(suspended)
 {
     // Attach to the specified event signal
-    Attach();
+    Attach("constructor");
     // Receive notification when the VM is about to be closed to release object references
     _Core->VMClose.Connect< BasicEvent, &BasicEvent::VMClose >(this);
 }
@@ -43,7 +43,7 @@ BasicEvent::BasicEvent(SQInt32 type, bool suspended)
 BasicEvent::~BasicEvent()
 {
     // Detach from the specified event signal
-    Detach();
+    Detach("destructor");
     // Stop receiving notification when the VM is about to be closed
     _Core->VMClose.Disconnect< BasicEvent, &BasicEvent::VMClose >(this);
 }
@@ -149,16 +149,17 @@ void BasicEvent::SetType(SQInt32 type)
     // Make sure the newly specified event is valid
     if (type == EVT_UNKNOWN || type >= EVT_COUNT)
     {
-        LogErr("Cannot change the event to an incompatible type: %s", GetEventName(type));
+        DbgErr("BasicEvent", "@type", "Cannot change the event to an incompatible type: %s",
+                GetEventName(type));
     }
     else
     {
         // Detach from the current event type
-        Detach();
+        Detach("@type");
         // Set the new event type
         m_Type = type;
         // Attach to the new event type
-        Attach();
+        Attach("@type");
     }
 }
 
@@ -1289,7 +1290,7 @@ bool BasicEvent::Trigger()
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::Attach()
+void BasicEvent::Attach(const char * func)
 {
     switch (m_Type)
     {
@@ -1603,12 +1604,13 @@ void BasicEvent::Attach()
             _Core->ScriptReload.Connect< BasicEvent, &BasicEvent::ScriptReload >(this);
         break;
         default:
-            LogErr("Attempting to <attach> to an unknown event type: %d", _SCI32(m_Type));
+            DbgErr("BasicEvent", func, "Attempting to <attach event> to an unknown type: %d",
+                    _SCI32(m_Type));
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void BasicEvent::Detach()
+void BasicEvent::Detach(const char * func)
 {
     switch (m_Type)
     {
@@ -1922,7 +1924,8 @@ void BasicEvent::Detach()
             _Core->ScriptReload.Disconnect< BasicEvent, &BasicEvent::ScriptReload >(this);
         break;
         default:
-            LogErr("Attempting to <dettach> to an unknown event type: %d", _SCI32(m_Type));
+            DbgErr("BasicEvent", func, "Attempting to <dettach event> from an unknown type: %d",
+                    _SCI32(m_Type));
     }
 }
 
