@@ -935,7 +935,7 @@ void CVehicle::SetColors(SQInt32 primary, SQInt32 secondary) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::IsLocked() const
+bool CVehicle::GetLocked() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1047,7 +1047,7 @@ void CVehicle::SetDamageData(SQUint32 data) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::HasAlarm() const
+bool CVehicle::GetAlarm() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1075,7 +1075,7 @@ void CVehicle::SetAlarm(bool toggle) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::HasLights() const
+bool CVehicle::GetLights() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1135,7 +1135,7 @@ void CVehicle::SetRadio(SQInt32 radio) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::IsRadioLocked() const
+bool CVehicle::GetRadioLocked() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1163,7 +1163,7 @@ void CVehicle::SetRadioLocked(bool toggle) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::IsGhostState() const
+bool CVehicle::GetGhostState() const
 {
     if (VALID_ENTITY(m_ID))
     {
@@ -1447,13 +1447,96 @@ bool Register_CVehicle(HSQUIRRELVM vm)
     LogDbg("Beginning registration of <CVehicle> type");
     // Attempt to register the actual reference that implements all of the entity functionality
     Sqrat::RootTable(vm).Bind(_SC("CVehicle"), Sqrat::DerivedClass< CVehicle, RefType >(vm, _SC("CVehicle"))
+        /* Constructors */
         .Ctor()
         .Ctor< SQInt32 >()
+        /* Properties */
+        .Prop(_SC("sync_source"), &CVehicle::GetSyncSource)
+        .Prop(_SC("sync_type"), &CVehicle::GetSyncType)
+        .Prop(_SC("world"), &CVehicle::GetWorld, &CVehicle::SetWorld)
+        .Prop(_SC("model"), &CVehicle::GetModel)
+        .Prop(_SC("model_id"), &CVehicle::GetModelID)
+        .Prop(_SC("immunity"), &CVehicle::GetImmunity, &CVehicle::SetImmunity)
+        .Prop(_SC("wrecked"), &CVehicle::IsWrecked)
+        .Prop(_SC("position"), &CVehicle::GetPosition, &CVehicle::SetPosition)
+        .Prop(_SC("rotation"), &CVehicle::GetRotation, &CVehicle::SetRotation)
+        .Prop(_SC("rotation_euler"), &CVehicle::GetRotationEuler, &CVehicle::SetRotationEuler)
+        .Prop(_SC("speed"), &CVehicle::GetSpeed, &CVehicle::SetSpeed)
+        .Prop(_SC("rel_speed"), &CVehicle::GetRelSpeed, &CVehicle::SetRelSpeed)
+        .Prop(_SC("turn_speed"), &CVehicle::GetTurnSpeed, &CVehicle::SetTurnSpeed)
+        .Prop(_SC("rel_turn_speed"), &CVehicle::GetRelTurnSpeed, &CVehicle::SetRelTurnSpeed)
+        .Prop(_SC("spawn_position"), &CVehicle::GetSpawnPosition, &CVehicle::SetSpawnPosition)
+        .Prop(_SC("spawn_rotation"), &CVehicle::GetSpawnRotation, &CVehicle::SetSpawnRotation)
+        .Prop(_SC("spawn_rotation_euler"), &CVehicle::GetSpawnRotationEuler, &CVehicle::SetSpawnRotationEuler)
+        .Prop(_SC("respawn_timer"), &CVehicle::GetRespawnTimer, &CVehicle::SetRespawnTimer)
+        .Prop(_SC("health"), &CVehicle::GetHealth, &CVehicle::SetHealth)
+        .Prop(_SC("primary_color"), &CVehicle::GetPrimaryColor, &CVehicle::SetPrimaryColor)
+        .Prop(_SC("secondary_color"), &CVehicle::GetSecondaryColor, &CVehicle::SetSecondaryColor)
+        .Prop(_SC("locked"), &CVehicle::GetLocked, &CVehicle::SetLocked)
+        .Prop(_SC("damage_data"), &CVehicle::GetDamageData, &CVehicle::SetDamageData)
+        .Prop(_SC("alarm"), &CVehicle::GetAlarm, &CVehicle::SetAlarm)
+        .Prop(_SC("lights"), &CVehicle::GetLights, &CVehicle::SetLights)
+        .Prop(_SC("radio"), &CVehicle::GetRadio, &CVehicle::SetRadio)
+        .Prop(_SC("radio_locked"), &CVehicle::GetRadioLocked, &CVehicle::SetRadioLocked)
+        .Prop(_SC("ghost_state"), &CVehicle::GetGhostState, &CVehicle::SetGhostState)
+        /* Functions */
+        .Func(_SC("streamed_for"), &CVehicle::IsStreamedFor)
+        .Func(_SC("occupant"), &CVehicle::GetOccupant)
+        .Func(_SC("occupant_id"), &CVehicle::GetOccupantID)
+        .Func(_SC("respawn"), &CVehicle::Respawn)
+        .Func(_SC("set_rotation"), &CVehicle::SetRotationEx)
+        .Func(_SC("set_rotation_euler"), &CVehicle::SetRotationEulerEx)
+        .Func(_SC("set_speed"), &CVehicle::SetSpeedEx)
+        .Func(_SC("set_rel_speed"), &CVehicle::SetRelSpeedEx)
+        .Func(_SC("set_turn_speed"), &CVehicle::SetTurnSpeedEx)
+        .Func(_SC("set_rel_turn_speed"), &CVehicle::SetRelTurnSpeedEx)
+        .Func(_SC("set_spawn_position"), &CVehicle::SetSpawnPositionEx)
+        .Func(_SC("set_spawn_rotation"), &CVehicle::SetSpawnRotationEx)
+        .Func(_SC("set_spawn_rotation_euler"), &CVehicle::SetSpawnRotationEulerEx)
+        .Func(_SC("set_colors"), &CVehicle::SetColors)
+        .Func(_SC("get_part_status"), &CVehicle::GetPartStatus)
+        .Func(_SC("set_part_status"), &CVehicle::SetPartStatus)
+        .Func(_SC("get_tyre_status"), &CVehicle::GetTyreStatus)
+        .Func(_SC("set_tyre_status"), &CVehicle::SetTyreStatus)
+        .Func(_SC("exists_handling"), &CVehicle::ExistsHandling)
+        .Func(_SC("get_handling_data"), &CVehicle::GetHandlingData)
+        .Func(_SC("set_handling_data"), &CVehicle::SetHandlingData)
+        /* Overloads */
+        .Overload< void (CVehicle::*)(const Vector3 &, bool) const >
+            (_SC("set_position"), &CVehicle::SetPositionEx)
+        .Overload< void (CVehicle::*)(SQFloat, SQFloat, SQFloat) const >
+            (_SC("set_position"), &CVehicle::SetPositionEx)
+        .Overload< void (CVehicle::*)(SQFloat, SQFloat, SQFloat, bool) const >
+            (_SC("set_position"), &CVehicle::SetPositionEx)
+        .Overload< void (CVehicle::*)(const Vector3 &) const >
+            (_SC("add_speed"), &CVehicle::AddSpeed)
+        .Overload< void (CVehicle::*)(SQFloat, SQFloat, SQFloat) const >
+            (_SC("add_speed"), &CVehicle::AddSpeedEx)
+        .Overload< void (CVehicle::*)(const Vector3 &) const >
+            (_SC("add_rel_speed"), &CVehicle::AddRelSpeed)
+        .Overload< void (CVehicle::*)(SQFloat, SQFloat, SQFloat) const >
+            (_SC("add_rel_speed"), &CVehicle::AddRelSpeedEx)
+        .Overload< void (CVehicle::*)(const Vector3 &) const >
+            (_SC("add_turn_speed"), &CVehicle::AddTurnSpeed)
+        .Overload< void (CVehicle::*)(SQFloat, SQFloat, SQFloat) const >
+            (_SC("add_turn_speed"), &CVehicle::AddTurnSpeedEx)
+        .Overload< void (CVehicle::*)(const Vector3 &) const >
+            (_SC("add_rel_turn_speed"), &CVehicle::AddRelTurnSpeed)
+        .Overload< void (CVehicle::*)(SQFloat, SQFloat, SQFloat) const >
+            (_SC("add_rel_turn_speed"), &CVehicle::AddRelTurnSpeedEx)
+        .Overload< void (CVehicle::*)(void) const >
+            (_SC("reset_handling"), &CVehicle::ResetHandling)
+        .Overload< void (CVehicle::*)(SQInt32) const >
+            (_SC("reset_handling"), &CVehicle::ResetHandling)
+        .Overload< void (CVehicle::*)(const Reference< CPlayer > &) const >
+            (_SC("embark"), &CVehicle::Embark)
+        .Overload< void (CVehicle::*)(const Reference< CPlayer > &, SQInt32, bool, bool) const >
+            (_SC("embark"), &CVehicle::Embark)
     );
     // Output debugging information
     LogDbg("Registration of <CVehicle> type was successful");
     // Output debugging information
-    LogDbg("Beginning registration of <Vehicle functions> type");
+    LogDbg("Beginning registration of <Vehicle> functions");
     // Register global functions related to this entity type
     Sqrat::RootTable(vm)
     /* Create BaseVehicle [P]rimitive [E]xtended [F]Full */
@@ -1497,7 +1580,7 @@ bool Register_CVehicle(HSQUIRRELVM vm)
     .Overload< CVehicle (*)(const CAutomobile &, SQInt32, const Vector3 &, SQFloat, SQInt32, SQInt32, SQInt32, SqObj &) >
         (_SC("CreateVehicle_CF"), &CreateVehicle_CF);
     // Output debugging information
-    LogDbg("Registration of <Vehicle functions> type was successful");
+    LogDbg("Registration of <Vehicle> functions was successful");
     // Registration succeeded
     return true;
 }

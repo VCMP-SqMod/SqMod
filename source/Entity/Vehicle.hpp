@@ -345,7 +345,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the referenced vehicle instance is locked.
     */
-    bool IsLocked() const;
+    bool GetLocked() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the referenced vehicle instance is locked.
@@ -385,7 +385,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the referenced vehicle instance has alarm.
     */
-    bool HasAlarm() const;
+    bool GetAlarm() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the referenced vehicle instance has alarm.
@@ -395,7 +395,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the referenced vehicle instance has lights.
     */
-    bool HasLights() const;
+    bool GetLights() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the referenced vehicle instance has lights.
@@ -415,7 +415,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the referenced vehicle instance has radio locked.
     */
-    bool IsRadioLocked() const;
+    bool GetRadioLocked() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the referenced vehicle instance has radio locked.
@@ -425,7 +425,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the referenced vehicle instance is in ghost state.
     */
-    bool IsGhostState() const;
+    bool GetGhostState() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the referenced vehicle instance is in ghost state.
