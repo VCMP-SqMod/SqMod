@@ -1,3 +1,4 @@
+// ------------------------------------------------------------------------------------------------
 #include "Entity/Pickup.hpp"
 #include "Misc/Model.hpp"
 #include "Core.hpp"
@@ -28,11 +29,11 @@ bool CPickup::IsStreamedFor(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <see if pickup is streamed for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("streamed_for", "see whether is streamed for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if pickup is streamed for player> using an invalid reference: %d"), m_ID);
+        BadRef("streamed_for", "see whether is streamed for player");
     }
 
     return false;
@@ -50,7 +51,7 @@ const CModel & CPickup::GetModel() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get pickup model> using an invalid reference: %d"), m_ID);
+        BadRef("@model", "get model");
     }
     // Return the model that could be retrieved
     return s_Model;
@@ -65,7 +66,7 @@ SQInt32 CPickup::GetModelID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get pickup model id> using an invalid reference: %d"), m_ID);
+        BadRef("@model", "get model id");
     }
 
     return SQMOD_UNKNOWN;
@@ -80,7 +81,7 @@ SQInt32 CPickup::GetWorld() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get pickup world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "get world");
     }
 
     return SQMOD_UNKNOWN;
@@ -95,7 +96,7 @@ void CPickup::SetWorld(SQInt32 world) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set pickup world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "set world");
     }
 }
 
@@ -108,7 +109,7 @@ SQInt32 CPickup::GetAlpha() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get pickup alpha> using an invalid reference: %d"), m_ID);
+        BadRef("@alpha", "get alpha");
     }
 
     return SQMOD_UNKNOWN;
@@ -123,7 +124,7 @@ void CPickup::SetAlpha(SQInt32 alpha) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set pickup alpha> using an invalid reference: %d"), m_ID);
+        BadRef("@alpha", "set alpha");
     }
 }
 
@@ -136,7 +137,7 @@ bool CPickup::GetAutomatic() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if pickup is automatic> using an invalid argument: %d"), m_ID);
+        BadRef("@automatic", "see if is automatic");
     }
 
     return false;
@@ -151,7 +152,7 @@ void CPickup::SetAutomatic(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether pickup is automatic> using an invalid argument: %d"), m_ID);
+        BadRef("@automatic", "set whether is automatic");
     }
 }
 
@@ -164,7 +165,7 @@ SQInt32 CPickup::GetAutoTimer() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get pickup auto timer> using an invalid reference: %d"), m_ID);
+        BadRef("@auto_timer", "get auto timer");
     }
 
     return SQMOD_UNKNOWN;
@@ -179,7 +180,7 @@ void CPickup::SetAutoTimer(SQInt32 timer) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set pickup auto timer> using an invalid reference: %d"), m_ID);
+        BadRef("@auto_timer", "set auto timer");
     }
 }
 
@@ -192,7 +193,7 @@ void CPickup::Refresh() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <refresh pickup> using an invalid reference: %d"), m_ID);
+        BadRef("refresh", "refresh pickup");
     }
 }
 
@@ -208,7 +209,7 @@ const Vector3 & CPickup::GetPosition()
     }
     else
     {
-        LogWrn(_SC("Attempting to <get pickup position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "get position");
     }
     // Return the position that could be retrieved
     return s_Vector3;
@@ -223,7 +224,7 @@ void CPickup::SetPosition(const Vector3 & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set pickup position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "set position");
     }
 }
 
@@ -236,7 +237,7 @@ void CPickup::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set pickup position> using an invalid reference: %d"), m_ID);
+        BadRef("set_position", "set position");
     }
 }
 
@@ -249,7 +250,7 @@ SQInt32 CPickup::GetQuantity() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get pickup quantity> using an invalid reference: %d"), m_ID);
+        BadRef("@quantity", "get quantity");
     }
 
     return SQMOD_UNKNOWN;
@@ -427,7 +428,7 @@ bool Register_CPickup(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Registration of <CPickup> type was successful");
     // Output debugging information
-    LogDbg("Beginning registration of <Pickup functions> type");
+    LogDbg("Beginning registration of <Pickup> functions");
     // Register global functions related to this entity type
     Sqrat::RootTable(vm)
     /* Create BasePickup [P]rimitive [E]xtended [F]Full */
@@ -471,7 +472,7 @@ bool Register_CPickup(HSQUIRRELVM vm)
     .Overload< CPickup (*)(const CModel &, SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) >
         (_SC("CreatePickup_CF"), &CreatePickup_CF);
     // Output debugging information
-    LogDbg("Registration of <Pickup functions> type was successful");
+    LogDbg("Registration of <Pickup> functions was successful");
     // Registration succeeded
     return true;
 }
