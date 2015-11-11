@@ -32,11 +32,11 @@ bool CVehicle::IsStreamedFor(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <see if vehicle is streamed for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("streamed_for", "see whether is streamed for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if vehicle is streamed for player> using an invalid reference: %d"), m_ID);
+        BadRef("streamed_for", "see whether is streamed for player");
     }
 
     return false;
@@ -51,7 +51,7 @@ SQInt32 CVehicle::GetSyncSource() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle synchronization source> using an invalid reference: %d"), m_ID);
+        BadRef("@sync_source", "get synchronization source");
     }
 
     return SQMOD_UNKNOWN;
@@ -66,7 +66,7 @@ SQInt32 CVehicle::GetSyncType() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle synchronization type> using an invalid reference: %d"), m_ID);
+        BadRef("@sync_type", "get synchronization type");
     }
 
     return SQMOD_UNKNOWN;
@@ -81,7 +81,7 @@ SQInt32 CVehicle::GetWorld() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "get world");
     }
 
     return SQMOD_UNKNOWN;
@@ -96,7 +96,7 @@ void CVehicle::SetWorld(SQInt32 world) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "set world");
     }
 }
 
@@ -112,7 +112,7 @@ const CAutomobile & CVehicle::GetModel() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle model> using an invalid reference: %d"), m_ID);
+        BadRef("@model", "get model");
     }
     // Return the model that could be retrieved
     return s_Automobile;
@@ -127,7 +127,7 @@ SQInt32 CVehicle::GetModelID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle model id> using an invalid reference: %d"), m_ID);
+        BadRef("@model_id", "get model id");
     }
 
     return SQMOD_UNKNOWN;
@@ -142,7 +142,7 @@ Reference< CPlayer > CVehicle::GetOccupant(SQInt32 slot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle slot occupant> using an invalid reference: %d"), m_ID);
+        BadRef("occupant", "get slot occupant");
     }
 
     return Reference< CPlayer >();
@@ -157,7 +157,7 @@ SQInt32 CVehicle::GetOccupantID(SQInt32 slot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle slot occupant id> using an invalid reference: %d"), m_ID);
+        BadRef("occupant_id", "get slot occupant id");
     }
 
     return SQMOD_UNKNOWN;
@@ -172,7 +172,7 @@ void CVehicle::Respawn() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <respawn vehicle> using an invalid reference: %d"), m_ID);
+        BadRef("respawn", "respawn instance");
     }
 }
 
@@ -185,7 +185,7 @@ SQInt32 CVehicle::GetImmunity() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle immunity flags> using an invalid reference: %d"), m_ID);
+        BadRef("@immunity", "get immunity flags");
     }
 
     return SQMOD_UNKNOWN;
@@ -200,7 +200,7 @@ void CVehicle::SetImmunity(SQInt32 flags) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle immunity flags> using an invalid reference: %d"), m_ID);
+        BadRef("@immunity", "set immunity flags");
     }
 }
 
@@ -213,7 +213,7 @@ bool CVehicle::IsWrecked() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if vehicle is wrecked> using an invalid reference: %d"), m_ID);
+        BadRef("@wrecked", "see whether is wrecked");
     }
 
     return false;
@@ -231,7 +231,7 @@ const Vector3 & CVehicle::GetPosition() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "get position");
     }
     // Return the position that could be retrieved
     return s_Vector3;
@@ -246,7 +246,7 @@ void CVehicle::SetPosition(const Vector3 & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "set position");
     }
 }
 
@@ -259,7 +259,7 @@ void CVehicle::SetPositionEx(const Vector3 & pos, bool empty) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle position> using an invalid reference: %d"), m_ID);
+        BadRef("set_position", "set position");
     }
 }
 
@@ -272,7 +272,7 @@ void CVehicle::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle position> using an invalid reference: %d"), m_ID);
+        BadRef("set_position", "set position");
     }
 }
 
@@ -285,7 +285,7 @@ void CVehicle::SetPositionEx(SQFloat x, SQFloat y, SQFloat z, bool empty) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle position> using an invalid reference: %d"), m_ID);
+        BadRef("set_position", "set position");
     }
 }
 
@@ -301,7 +301,7 @@ const Quaternion & CVehicle::GetRotation() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@rotation", "get rotation");
     }
     // Return the rotation that could be retrieved
     return s_Quaternion;
@@ -316,7 +316,7 @@ void CVehicle::SetRotation(const Quaternion & rot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@rotation", "set rotation");
     }
 }
 
@@ -329,7 +329,7 @@ void CVehicle::SetRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle rotation> using an invalid reference: %d"), m_ID);
+        BadRef("set_rotation", "set rotation");
     }
 }
 
@@ -345,7 +345,7 @@ const Vector3 & CVehicle::GetRotationEuler() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle euler rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@rotation_euler", "get euler rotatio");
     }
     // Return the rotation that could be retrieved
     return s_Vector3;
@@ -360,7 +360,7 @@ void CVehicle::SetRotationEuler(const Vector3 & rot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle euler rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@rotation_euler", "set euler rotation");
     }
 }
 
@@ -373,7 +373,7 @@ void CVehicle::SetRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle euler rotation> using an invalid reference: %d"), m_ID);
+        BadRef("set_rotation_euler", "set euler rotation");
     }
 }
 
@@ -389,7 +389,7 @@ const Vector3 & CVehicle::GetSpeed() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle speed> using an invalid reference: %d"), m_ID);
+        BadRef("@speed", "get speed");
     }
     // Return the speed that could be retrieved
     return s_Vector3;
@@ -404,7 +404,7 @@ void CVehicle::SetSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle speed> using an invalid reference: %d"), m_ID);
+        BadRef("@speed", "set speed");
     }
 }
 
@@ -417,7 +417,7 @@ void CVehicle::SetSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle speed> using an invalid reference: %d"), m_ID);
+        BadRef("set_speed", "set speed");
     }
 }
 
@@ -430,7 +430,7 @@ void CVehicle::AddSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add vehicle speed> using an invalid reference: %d"), m_ID);
+        BadRef("add_speed", "add to speed");
     }
 }
 
@@ -443,7 +443,7 @@ void CVehicle::AddSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add vehicle speed> using an invalid reference: %d"), m_ID);
+        BadRef("add_speed", "add to speed");
     }
 }
 
@@ -459,7 +459,7 @@ const Vector3 & CVehicle::GetRelSpeed() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle relative speed> using an invalid reference: %d"), m_ID);
+        BadRef("@rel_speed", "get relative speed");
     }
     // Return the speed that could be retrieved
     return s_Vector3;
@@ -474,7 +474,7 @@ void CVehicle::SetRelSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle relative speed> using an invalid reference: %d"), m_ID);
+        BadRef("@rel_speed", "set relative speed");
     }
 }
 
@@ -487,7 +487,7 @@ void CVehicle::SetRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle relative speed> using an invalid reference: %d"), m_ID);
+        BadRef("set_rel_speed", "set relative speed");
     }
 }
 
@@ -500,7 +500,7 @@ void CVehicle::AddRelSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add vehicle relative speed> using an invalid reference: %d"), m_ID);
+        BadRef("add_rel_speed", "add to relative speed");
     }
 }
 
@@ -513,7 +513,7 @@ void CVehicle::AddRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add vehicle relative speed> using an invalid reference: %d"), m_ID);
+        BadRef("add_rel_speed", "add to relative speed");
     }
 }
 
@@ -529,7 +529,7 @@ const Vector3 & CVehicle::GetTurnSpeed() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("@turn_speed", "get turn speed");
     }
     // Return the speed that could be retrieved
     return s_Vector3;
@@ -544,7 +544,7 @@ void CVehicle::SetTurnSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("@turn_speed", "set turn speed");
     }
 }
 
@@ -557,7 +557,7 @@ void CVehicle::SetTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("set_turn_speed", "set turn speed");
     }
 }
 
@@ -570,7 +570,7 @@ void CVehicle::AddTurnSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add vehicle turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("add_turn_speed", "add to turn speed");
     }
 }
 
@@ -583,7 +583,7 @@ void CVehicle::AddTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add vehicle turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("add_turn_speed", "add to turn speed");
     }
 }
 
@@ -599,7 +599,7 @@ const Vector3 & CVehicle::GetRelTurnSpeed() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle relative turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("@rel_turn_speed", "get relative turn speed");
     }
     // Return the speed that could be retrieved
     return s_Vector3;
@@ -614,7 +614,7 @@ void CVehicle::SetRelTurnSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle relative turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("@rel_turn_speed", "set relative turn speed");
     }
 }
 
@@ -627,7 +627,7 @@ void CVehicle::SetRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle relative turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("set_rel_turn_speed", "set relative turn speed");
     }
 }
 
@@ -640,7 +640,7 @@ void CVehicle::AddRelTurnSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add vehicle relative turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("add_rel_turn_speed", "add to relative turn speed");
     }
 }
 
@@ -653,7 +653,7 @@ void CVehicle::AddRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add vehicle relative turn speed> using an invalid reference: %d"), m_ID);
+        BadRef("add_rel_turn_speed", "add to relative turn speed");
     }
 }
 
@@ -669,7 +669,7 @@ const Vector4 & CVehicle::GetSpawnPosition() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle spawn position> using an invalid reference: %d"), m_ID);
+        BadRef("@spawn_position", "get spawn position");
     }
     // Return the position that could be retrieved
     return s_Vector4;
@@ -684,7 +684,7 @@ void CVehicle::SetSpawnPosition(const Vector4 & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle spawn position> using an invalid reference: %d"), m_ID);
+        BadRef("@spawn_position", "set spawn position");
     }
 }
 
@@ -697,7 +697,7 @@ void CVehicle::SetSpawnPositionEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) co
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle spawn position> using an invalid reference: %d"), m_ID);
+        BadRef("set_spawn_position", "set spawn position");
     }
 }
 
@@ -713,7 +713,7 @@ const Quaternion & CVehicle::GetSpawnRotation() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle spawn rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@spawn_rotation", "get spawn rotation");
     }
     // Return the rotation that could be retrieved
     return s_Quaternion;
@@ -728,7 +728,7 @@ void CVehicle::SetSpawnRotation(const Quaternion & rot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle spawn rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@spawn_rotation", "set spawn rotation");
     }
 }
 
@@ -741,7 +741,7 @@ void CVehicle::SetSpawnRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) co
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle spawn rotation> using an invalid reference: %d"), m_ID);
+        BadRef("set_spawn_rotation", "set spawn rotation");
     }
 }
 
@@ -757,7 +757,7 @@ const Vector3 & CVehicle::GetSpawnRotationEuler() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle euler spawn rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@spawn_rotation_euler", "get spawn euler rotation");
     }
     // Return the rotation that could be retrieved
     return s_Vector3;
@@ -772,7 +772,7 @@ void CVehicle::SetSpawnRotationEuler(const Vector3 & rot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle euler spawn rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@spawn_rotation_euler", "set spawn euler rotation");
     }
 }
 
@@ -785,7 +785,7 @@ void CVehicle::SetSpawnRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle euler spawn rotation> using an invalid reference: %d"), m_ID);
+        BadRef("set_spawn_rotation_euler", "set spawn euler rotation");
     }
 }
 
@@ -798,7 +798,7 @@ SQUint32 CVehicle::GetRespawnTimer() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle respawn timer> using an invalid reference: %d"), m_ID);
+        BadRef("@respawn_timer", "get respawn timer");
     }
 
     return SQMOD_BLANK;
@@ -813,7 +813,7 @@ void CVehicle::SetRespawnTimer(SQUint32 timer) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle respawn timer> using an invalid reference: %d"), m_ID);
+        BadRef("@respawn_timer", "set respawn timer");
     }
 }
 
@@ -826,7 +826,7 @@ SQFloat CVehicle::GetHealth() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle health> using an invalid reference: %d"), m_ID);
+        BadRef("@health", "get health");
     }
 
     return SQMOD_UNKNOWN;
@@ -841,7 +841,7 @@ void CVehicle::SetHealth(SQFloat amount) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle health> using an invalid reference: %d"), m_ID);
+        BadRef("@health", "set health");
     }
 }
 
@@ -856,7 +856,7 @@ SQInt32 CVehicle::GetPrimaryColor() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle primary color> using an invalid reference: %d"), m_ID);
+        BadRef("@primary_color", "get primary color");
     }
 
     return SQMOD_UNKNOWN;
@@ -873,11 +873,11 @@ void CVehicle::SetPrimaryColor(SQInt32 col) const
     }
     else if (!VALID_VEHCOL(col))
     {
-        LogWrn(_SC("Attempting to <set vehicle primary color> using an invalid argument: %d"), col);
+        BadArg("@primary_color", "set primary color", col);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle primary color> using an invalid reference: %d"), m_ID);
+        BadRef("@primary_color", "set primary color");
     }
 }
 
@@ -892,7 +892,7 @@ SQInt32 CVehicle::GetSecondaryColor() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle secondary color> using an invalid reference: %d"), m_ID);
+        BadRef("@secondary_color", "get secondary color");
     }
 
     return SQMOD_UNKNOWN;
@@ -909,11 +909,11 @@ void CVehicle::SetSecondaryColor(SQInt32 col) const
     }
     else if (!VALID_VEHCOL(col))
     {
-        LogWrn(_SC("Attempting to <set vehicle secondary color> using an invalid argument: %d"), col);
+        BadArg("@secondary_color", "set secondary color", col);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle secondary color> using an invalid reference: %d"), m_ID);
+        BadRef("@secondary_color", "set secondary color");
     }
 }
 
@@ -926,11 +926,11 @@ void CVehicle::SetColors(SQInt32 primary, SQInt32 secondary) const
     }
     else if (!VALID_VEHCOL(primary) || !VALID_VEHCOL(secondary))
     {
-        LogWrn(_SC("Attempting to <set vehicle primary color> using an invalid argument: %d, %d"), primary, secondary);
+        BadArg("set_colors", "set vehicle colors", primary, secondary);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle primary color> using an invalid reference: %d"), m_ID);
+        BadRef("set_colors", "set vehicle colors");
     }
 }
 
@@ -943,7 +943,7 @@ bool CVehicle::GetLocked() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if vehicle is locked> using an invalid reference: %d"), m_ID);
+        BadRef("@locked", "see whether is locked");
     }
 
     return false;
@@ -958,7 +958,7 @@ void CVehicle::SetLocked(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether vehicle is locked> using an invalid reference: %d"), m_ID);
+        BadRef("@locked", "set whether is locked");
     }
 }
 
@@ -971,7 +971,7 @@ SQInt32 CVehicle::GetPartStatus(SQInt32 part) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle part status> using an invalid reference: %d"), m_ID);
+        BadRef("get_part_status", "get part status");
     }
 
     return SQMOD_UNKNOWN;
@@ -986,7 +986,7 @@ void CVehicle::SetPartStatus(SQInt32 part, SQInt32 status) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle part status> using an invalid reference: %d"), m_ID);
+        BadRef("set_part_status", "set part status");
     }
 }
 
@@ -999,7 +999,7 @@ SQInt32 CVehicle::GetTyreStatus(SQInt32 tyre) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle tyre status> using an invalid reference: %d"), m_ID);
+        BadRef("get_tyre_status", "get tyre status");
     }
 
     return SQMOD_UNKNOWN;
@@ -1014,7 +1014,7 @@ void CVehicle::SetTyreStatus(SQInt32 tyre, SQInt32 status) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle tyre status> using an invalid reference: %d"), m_ID);
+        BadRef("set_tyre_status", "set tyre status");
     }
 }
 
@@ -1027,7 +1027,7 @@ SQUint32 CVehicle::GetDamageData() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle damage data> using an invalid reference: %d"), m_ID);
+        BadRef("@damage_data", "get damage data");
     }
 
     return SQMOD_BLANK;
@@ -1042,7 +1042,7 @@ void CVehicle::SetDamageData(SQUint32 data) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle damage data> using an invalid reference: %d"), m_ID);
+        BadRef("@damage_data", "get damage data");
     }
 }
 
@@ -1055,7 +1055,7 @@ bool CVehicle::GetAlarm() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if vehicle has alarm> using an invalid reference: %d"), m_ID);
+        BadRef("@alarm", "see whether has alarm");
     }
 
     return false;
@@ -1070,7 +1070,7 @@ void CVehicle::SetAlarm(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether vehicle has alarm> using an invalid reference: %d"), m_ID);
+        BadRef("@alarm", "set whether has alarm");
     }
 }
 
@@ -1083,7 +1083,7 @@ bool CVehicle::GetLights() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if vehicle has lights> using an invalid reference: %d"), m_ID);
+        BadRef("@lights", "see whether has lights");
     }
 
     return false;
@@ -1098,7 +1098,7 @@ void CVehicle::SetLights(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether vehicle has lights> using an invalid reference: %d"), m_ID);
+        BadRef("@lights", "set whether has lights");
     }
 }
 
@@ -1111,7 +1111,7 @@ SQInt32 CVehicle::GetRadio() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle radio> using an invalid reference: %d"), m_ID);
+        BadRef("@radio", "get radio");
     }
 
     return SQMOD_UNKNOWN;
@@ -1126,11 +1126,11 @@ void CVehicle::SetRadio(SQInt32 radio) const
     }
     else if (INVALID_ENTITY(radio))
     {
-        LogWrn(_SC("Attempting to <set vehicle radio> using an invalid argument: %d"), radio);
+        BadArg("@radio", "set radio", radio);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle radio> using an invalid reference: %d"), m_ID);
+        BadRef("@radio", "set radio");
     }
 }
 
@@ -1143,7 +1143,7 @@ bool CVehicle::GetRadioLocked() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if vehicle has radio locked> using an invalid reference: %d"), m_ID);
+        BadRef("@radio_locked", "see whether radio is locked");
     }
 
     return false;
@@ -1158,7 +1158,7 @@ void CVehicle::SetRadioLocked(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether vehicle has radio locked> using an invalid reference: %d"), m_ID);
+        BadRef("@radio_locked", "set whether radio is locked");
     }
 }
 
@@ -1171,7 +1171,7 @@ bool CVehicle::GetGhostState() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if vehicle is in ghost state> using an invalid reference: %d"), m_ID);
+        BadRef("@ghost_state", "see whether is in ghost state");
     }
 
     return false;
@@ -1186,7 +1186,7 @@ void CVehicle::SetGhostState(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether vehicle is in ghost state> using an invalid reference: %d"), m_ID);
+        BadRef("@ghost_state", "set whether is in ghost state");
     }
 }
 
@@ -1199,7 +1199,7 @@ void CVehicle::ResetHandling() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <reset all vehicle handling rules> using an invalid reference: %d"), m_ID);
+        BadRef("reset_handling", "reset all handling rules");
     }
 }
 
@@ -1212,7 +1212,7 @@ void CVehicle::ResetHandling(SQInt32 rule) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <reset vehicle handling rules> using an invalid reference: %d"), m_ID);
+        BadRef("reset_handling", "reset a handling rule");
     }
 }
 
@@ -1225,7 +1225,7 @@ bool CVehicle::ExistsHandling(SQInt32 rule) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if vehicle handling rule exists> using an invalid reference: %d"), m_ID);
+        BadRef("exists_handling", "see whether handling rule exists");
     }
 
     return false;
@@ -1240,7 +1240,7 @@ SQFloat CVehicle::GetHandlingData(SQInt32 rule) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get vehicle handling data> using an invalid reference: %d"), m_ID);
+        BadRef("get_handling_data", "get handling data");
     }
 
     return SQMOD_UNKNOWN;
@@ -1255,7 +1255,7 @@ void CVehicle::SetHandlingData(SQInt32 rule, SQFloat data) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set vehicle handling data> using an invalid reference: %d"), m_ID);
+        BadRef("set_handling_data", "set handling data");
     }
 }
 
@@ -1268,11 +1268,11 @@ void CVehicle::Embark(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <embark player in vehicle> using an invalid argument: %d"), _SCI32(player));
+        BadArg("embark", "embark player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <embark player in vehicle> using an invalid reference: %d"), m_ID);
+        BadRef("embark", "embark player");
     }
 }
 
@@ -1285,11 +1285,11 @@ void CVehicle::Embark(const Reference< CPlayer > & player, SQInt32 slot, bool al
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <embark player in vehicle> using an invalid argument: %d"), _SCI32(player));
+        BadArg("embark", "embark player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <embark player in vehicle> using an invalid reference: %d"), m_ID);
+        BadRef("embark", "embark player");
     }
 }
 
