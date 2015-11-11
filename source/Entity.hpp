@@ -2473,7 +2473,7 @@ public:
     */
     const SQChar * ToString() const
     {
-        return ToStringF("%d", m_ID);
+        return ToStrF("%d", m_ID);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2524,7 +2524,7 @@ public:
         }
         else
         {
-            LogWrn(_SC("Attempting to <get global tag> using an invalid reference: %d"), m_ID);
+            BadRef("gtag", "get global tag");
         }
 
         return _SC("");
@@ -2541,7 +2541,7 @@ public:
         }
         else
         {
-            LogWrn(_SC("Attempting to <set global tag> using an invalid reference: %d"), m_ID);
+            BadRef("gtag", "set global tag");
         }
     }
 
@@ -2556,7 +2556,7 @@ public:
         }
         else
         {
-            LogWrn(_SC("Attempting to <get global data> using an invalid reference: %d"), m_ID);
+            BadRef("gdata", "get global data");
         }
 
         return NullData();
@@ -2573,7 +2573,7 @@ public:
         }
         else
         {
-            LogWrn(_SC("Attempting to <set global tag> using an invalid reference: %d"), m_ID);
+            BadRef("gdata", "set global data");
         }
     }
 
@@ -2699,12 +2699,37 @@ public:
         }
         else
         {
-            LogWrn(_SC("Attempting to <destroy %d entity> using an invalid reference: %d"), Ent< T >::Name, m_ID);
+            BadRef("destroy", "destroy entity instance");
         }
 
         return false;
     }
 
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Throw a bad reference error.
+    */
+    void BadRef(const char * loc, const char * act) const
+    {
+        DbgWrn(Ent< T >::CName, loc, "Attempting to <%s> using an invalid reference: %d", act, m_ID);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Throw a bad argument error.
+    */
+    void BadArg(const char * loc, const char * act, SQInt32 arg) const
+    {
+        DbgWrn(Ent< T >::CName, loc, "Attempting to <%s> using an invalid argument: %d", act, arg);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Throw a bad argument error.
+    */
+    void BadArg(const char * loc, const char * act, const char * msg, SQInt32 arg) const
+    {
+        DbgWrn(Ent< T >::CName, loc, "Attempting to <%s> %s: %d", act, msg, arg);
+    }
 };
 
 // ------------------------------------------------------------------------------------------------
