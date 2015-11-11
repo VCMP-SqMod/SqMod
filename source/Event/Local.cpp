@@ -57,7 +57,7 @@ LocalEvent::LocalEvent(SQInt32 type, bool suspended)
 LocalEvent::~LocalEvent()
 {
     // Detach from all attached signals
-    Detach();
+    Detach("LocalEvent", "destructor");
     // Stop receiving notification when the VM is about to be closed
     _Core->VMClose.Disconnect< LocalEvent, &LocalEvent::VMClose >(this);
     /* The entity filters should to unhook themselves from the destroy signal! */
@@ -169,18 +169,19 @@ void LocalEvent::SetType(SQInt32 type)
     // Make sure the newly specified event is compatible
     if (!Compatible(type))
     {
-        LogErr("Cannot change the event to an incompatible type: %s", GetEventName(type));
+        DbgErr("LocalEvent", "@type", "Cannot change the event to an incompatible type: %s",
+                GetEventName(type));
     }
     else
     {
         // Clear anything that cannot adapt to the new event type
         Adaptable(type, m_Inversed);
         // Detach from the current event type
-        Detach();
+        Detach("LocalEvent", "@type");
         // Set the new event type
         m_Type = type;
         // Attach to the new event type
-        Attach();
+        Attach("LocalEvent", "@type");
     }
 }
 
@@ -271,7 +272,7 @@ void LocalEvent::SetInversed(bool toggle)
         // Toggle the inversed option
         m_Inversed = toggle;
         // Attach back to the new event type
-        Attach();
+        Attach("LocalEvent", "@inversed");
     }
     // Just set the option to what was requested
     else
@@ -1363,14 +1364,14 @@ bool LocalEvent::Trigger()
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Attach()
+void LocalEvent::Attach(const char * type, const char * func)
 {
     // Filters take care of both attaching and hooking for local filters
-    Hook();
+    Hook(type, func);
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Attach(SQInt32 id)
+void LocalEvent::Attach(const char * type, const char * func, SQInt32 id)
 {
     switch (m_Type)
     {
@@ -1718,19 +1719,20 @@ void LocalEvent::Attach(SQInt32 id)
             }
         break;
         default:
-            LogErr("Attempting to <attach> to an unknown event type: %d", _SCI32(m_Type));
+            DbgErr(type, func, "Attempting to <attach event> to an unknown type: %d",
+                    _SCI32(m_Type));
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Detach()
+void LocalEvent::Detach(const char * type, const char * func)
 {
     // Filters take care of both detaching and unhooking for local filters
-    Unhook();
+    Unhook(type, func);
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Detach(SQInt32 id)
+void LocalEvent::Detach(const char * type, const char * func, SQInt32 id)
 {
     switch (m_Type)
     {
@@ -2078,115 +2080,116 @@ void LocalEvent::Detach(SQInt32 id)
             }
         break;
         default:
-            LogErr("Attempting to <detach> from an unknown event type: %d", _SCI32(m_Type));
+            DbgErr(type, func, "Attempting to <dettach event> from an unknown type: %d",
+                    _SCI32(m_Type));
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Hook()
+void LocalEvent::Hook(const char * type, const char * func)
 {
     if (Ent< CBlip >::InEvent(m_Type, m_Inversed))
     {
-        m_Blips.Hook();
+        m_Blips.Hook(type, func);
     }
 
     if (Ent< CCheckpoint >::InEvent(m_Type, m_Inversed))
     {
-        m_Checkpoints.Hook();
+        m_Checkpoints.Hook(type, func);
     }
 
     if (Ent< CKeybind >::InEvent(m_Type, m_Inversed))
     {
-        m_Keybinds.Hook();
+        m_Keybinds.Hook(type, func);
     }
 
     if (Ent< CObject >::InEvent(m_Type, m_Inversed))
     {
-        m_Objects.Hook();
+        m_Objects.Hook(type, func);
     }
 
     if (Ent< CPickup >::InEvent(m_Type, m_Inversed))
     {
-        m_Pickups.Hook();
+        m_Pickups.Hook(type, func);
     }
 
     if (Ent< CPlayer >::InEvent(m_Type, m_Inversed))
     {
-        m_Players.Hook();
+        m_Players.Hook(type, func);
     }
 
     if (Ent< CSphere >::InEvent(m_Type, m_Inversed))
     {
-        m_Spheres.Hook();
+        m_Spheres.Hook(type, func);
     }
 
     if (Ent< CSprite >::InEvent(m_Type, m_Inversed))
     {
-        m_Sprites.Hook();
+        m_Sprites.Hook(type, func);
     }
 
     if (Ent< CTextdraw >::InEvent(m_Type, m_Inversed))
     {
-        m_Textdraws.Hook();
+        m_Textdraws.Hook(type, func);
     }
 
     if (Ent< CVehicle >::InEvent(m_Type, m_Inversed))
     {
-        m_Vehicles.Hook();
+        m_Vehicles.Hook(type, func);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void LocalEvent::Unhook()
+void LocalEvent::Unhook(const char * type, const char * func)
 {
     if (Ent< CBlip >::InEvent(m_Type, m_Inversed))
     {
-        m_Blips.Unhook();
+        m_Blips.Unhook(type, func);
     }
 
     if (Ent< CCheckpoint >::InEvent(m_Type, m_Inversed))
     {
-        m_Checkpoints.Unhook();
+        m_Checkpoints.Unhook(type, func);
     }
 
     if (Ent< CKeybind >::InEvent(m_Type, m_Inversed))
     {
-        m_Keybinds.Unhook();
+        m_Keybinds.Unhook(type, func);
     }
 
     if (Ent< CObject >::InEvent(m_Type, m_Inversed))
     {
-        m_Objects.Unhook();
+        m_Objects.Unhook(type, func);
     }
 
     if (Ent< CPickup >::InEvent(m_Type, m_Inversed))
     {
-        m_Pickups.Unhook();
+        m_Pickups.Unhook(type, func);
     }
 
     if (Ent< CPlayer >::InEvent(m_Type, m_Inversed))
     {
-        m_Players.Unhook();
+        m_Players.Unhook(type, func);
     }
 
     if (Ent< CSphere >::InEvent(m_Type, m_Inversed))
     {
-        m_Spheres.Unhook();
+        m_Spheres.Unhook(type, func);
     }
 
     if (Ent< CSprite >::InEvent(m_Type, m_Inversed))
     {
-        m_Sprites.Unhook();
+        m_Sprites.Unhook(type, func);
     }
 
     if (Ent< CTextdraw >::InEvent(m_Type, m_Inversed))
     {
-        m_Textdraws.Unhook();
+        m_Textdraws.Unhook(type, func);
     }
 
     if (Ent< CVehicle >::InEvent(m_Type, m_Inversed))
     {
-        m_Vehicles.Unhook();
+        m_Vehicles.Unhook(type, func);
     }
 }
 

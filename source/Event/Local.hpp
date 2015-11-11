@@ -74,7 +74,8 @@ public:
     */
     ~LocalFilter()
     {
-        Unhook(); /* No need to listen listen to events from the specified entities anymore! */
+        /* No need to listen listen to events from the specified entities anymore! */
+        Unhook(ToStrF("%sLocalFilter", EntType::Name), "destructor");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -161,8 +162,9 @@ public:
         }
         else
         {
-            LogWrn("Cannot test whether a <%s> entity is filtered or not using an invalid instance: %d", \
-                    EntType::Name, _SCI32(ent));
+            DbgErr(ToStrF("%sLocalFilter", EntType::Name), "enabled",
+                    "Attempting to <see whether entity is filtered> using an invalid reference: %d", \
+                    _SCI32(ent));
         }
 
         return false;
@@ -228,12 +230,12 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Hook to the entity destroy signal that the parent didn't.
     */
-    void Hook();
+    void Hook(const char * type, const char * func);
 
     /* --------------------------------------------------------------------------------------------
      * Unhook from the entity destroy signal that the parent didn't.
     */
-    void Unhook();
+    void Unhook(const char * type, const char * func);
 
 private:
 
@@ -1045,32 +1047,32 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Attach();
+    void Attach(const char * type, const char * func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Attach(SQInt32 id);
+    void Attach(const char * type, const char * func, SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Detach();
+    void Detach(const char * type, const char * func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Detach(SQInt32 id);
+    void Detach(const char * type, const char * func, SQInt32 id);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Hook();
+    void Hook(const char * type, const char * func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Unhook();
+    void Unhook(const char * type, const char * func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -1128,11 +1130,11 @@ template < class T > LocalFilter< T > & LocalFilter< T >::operator = (const Loca
     if (this != &o && EntType::InEvent(m_Event->m_Type, m_Event->m_Inversed))
     {
         // Unhook from the currently filtered entities
-        Unhook();
+        Unhook(ToStrF("%sLocalFilter", EntType::Name), "copy");
         // Copy the internal filter from the other instance
         m_Filter = o.m_Filter;
         // Hook back to the newly filtered entities
-        Hook();
+        Hook(ToStrF("%sLocalFilter", EntType::Name), "copy");
         /* Parent is ignored intentionally as filters should not change parents! */
     }
 
@@ -1145,14 +1147,15 @@ template < class T > bool LocalFilter< T >::Include(const RefType & ent, SQInt32
     // Make sure the entity is valid before we proceed
     if (!ent)
     {
-        LogErr("Attempting to <filter %s events> using an invalid entity instance: %d", \
-                EntType::Name, _SCI32(ent));
+        DbgErr(ToStrF("%sLocalFilter", EntType::Name), "include",
+                "Attempting to <filter events> using an invalid reference: %d", _SCI32(ent));
     }
     // Make sure the entity type is allowed for this event type
     else if (!EntType::InEvent(m_Event->m_Type, m_Event->m_Inversed))
     {
-        LogErr("Attempting to <filter %s events> using an incompatible event type: %s", \
-                EntType::Name, GetEventName(m_Event->m_Type));
+        DbgErr(ToStrF("%sLocalFilter", EntType::Name), "include",
+                "Attempting to <filter events> for an incompatible event type: %s",
+                GetEventName(m_Event->m_Type));
     }
     // Make sure the entity is not already included in the filter
     else if (!m_Filter[_SCU32(ent)])
@@ -1176,7 +1179,7 @@ template < class T > bool LocalFilter< T >::Include(const RefType & ent, SQInt32
                 RefType::Get(_SCI32(ent)).Destroyed().template Connect< LocalFilter< T >, &LocalFilter< T >::Destroyed >(this);
             }
             // Just attach to the specified entity as normally
-            m_Event->Attach(_SCI32(ent));
+            m_Event->Attach(ToStrF("%sLocalFilter", EntType::Name), "include", _SCI32(ent));
             // Enable the specified entity instance in our filter
             m_Filter.set(_SCU32(ent), true);
         }
@@ -1193,14 +1196,15 @@ template < class T > bool LocalFilter< T >::Exclude(const RefType & ent, SQInt32
     // Make sure the entity is valid before we proceed
     if (!ent)
     {
-        LogErr("Attempting to <unfilter %s events> using an invalid entity instance: %d", \
-                EntType::Name, _SCI32(ent));
+        DbgErr(ToStrF("%sLocalFilter", EntType::Name), "exclude",
+                "Attempting to <unfilter events> using an invalid reference: %d", _SCI32(ent));
     }
     // Make sure the entity type is allowed for this event type
     else if (!EntType::InEvent(m_Event->m_Type, m_Event->m_Inversed))
     {
-        LogErr("Attempting to <unfilter %s events> using an incompatible event type: %s", \
-                EntType::Name, GetEventName(m_Event->m_Type));
+        DbgErr(ToStrF("%sLocalFilter", EntType::Name), "exclude",
+                "Attempting to <unfilter events> for an incompatible event type: %s",
+                GetEventName(m_Event->m_Type));
     }
     // Make sure the entity is not already excluded fom the filter
     else if (m_Filter[_SCU32(ent)])
@@ -1224,7 +1228,7 @@ template < class T > bool LocalFilter< T >::Exclude(const RefType & ent, SQInt32
                 RefType::Get(_SCI32(ent)).Destroyed().template Disconnect< LocalFilter< T >, &LocalFilter< T >::Destroyed >(this);
             }
             // Just detach from the specified entity as normally
-            m_Event->Detach(_SCI32(ent));
+            m_Event->Detach(ToStrF("%sLocalFilter", EntType::Name), "exclude", _SCI32(ent));
             // Disable the specified entity instance in our filter
             m_Filter.set(_SCU32(ent), false);
         }
@@ -1241,8 +1245,9 @@ template < class T > void LocalFilter< T >::Clear(SQInt32 header)
     // Make sure the filter is compatible with the specified event type
     if (!EntType::InEvent(m_Event->m_Type, m_Event->m_Inversed))
     {
-        LogWrn("Attempting to <clear %s filter> using an incompatible event type: %s", \
-                EntType::Name, GetEventName(m_Event->m_Type));
+        DbgErr(ToStrF("%sLocalFilter", EntType::Name), "clear",
+                "Attempting to <clear filter> for an incompatible event type: %s",
+                GetEventName(m_Event->m_Type));
     }
     // Don't even attempt to clear if there's nothing to be cleared
     else if (m_Filter.any())
@@ -1253,7 +1258,7 @@ template < class T > void LocalFilter< T >::Clear(SQInt32 header)
             m_Event->m_OnCleared.Execute< SQInt32 >(header);
         }
         // Unhook from the currently filtered entities
-        Unhook();
+        Unhook(ToStrF("%sLocalFilter", EntType::Name), "clear");
         // Now it's safe to reset the filter
         m_Filter.reset();
     }
@@ -1266,18 +1271,19 @@ template < class T > void LocalFilter< T >::Flip(SQInt32 header)
     // Make sure the filter is compatible with the parent event type
     if (!EntType::InEvent(m_Event->m_Type, m_Event->m_Inversed))
     {
-        LogWrn("Attempting to <flip %s filter> using an incompatible event type: %s", \
-                EntType::Name, GetEventName(m_Event->m_Type));
+        DbgErr(ToStrF("%sLocalFilter", EntType::Name), "flip",
+                "Attempting to <flip filter> for an incompatible event type: %s",
+                GetEventName(m_Event->m_Type));
     }
     // Now it's safe to proceed with reversing the filters
     else
     {
         // Unhook from the currently filtered entities
-        Unhook();
+        Unhook(ToStrF("%sLocalFilter", EntType::Name), "flip");
         // Reverse the values in the internal filter
         m_Filter.flip();
         // Hook from the newly filtered entities
-        Hook();
+        Hook(ToStrF("%sLocalFilter", EntType::Name), "flip");
     }
     SQMOD_UNUSED_VAR(header);
 }
@@ -1295,7 +1301,7 @@ template < class T > void LocalFilter< T >::Release(SQInt32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > void LocalFilter< T >::Hook()
+template < class T > void LocalFilter< T >::Hook(const char * type, const char * func)
 {
     // No iterators here because we're dealing with a bitset!
     unsigned i = 0;
@@ -1311,7 +1317,7 @@ template < class T > void LocalFilter< T >::Hook()
                 RefType::Get(i).Destroyed().template Connect< LocalFilter< T >, &LocalFilter< T >::Destroyed >(this);
             }
             // Just attach to the specified entity as normally
-            m_Event->Attach(i);
+            m_Event->Attach(type, func, i);
         }
         // If this entity is not active then disable it from the filter as well
         else if (!enabled)
@@ -1322,7 +1328,7 @@ template < class T > void LocalFilter< T >::Hook()
 }
 
 // ------------------------------------------------------------------------------------------------
-template < class T > void LocalFilter< T >::Unhook()
+template < class T > void LocalFilter< T >::Unhook(const char * type, const char * func)
 {
     // No iterators here because we're dealing with a bitset!
     unsigned i = 0;
@@ -1338,7 +1344,7 @@ template < class T > void LocalFilter< T >::Unhook()
                 RefType::Get(i).Destroyed().template Disconnect< LocalFilter< T >, &LocalFilter< T >::Destroyed >(this);
             }
             // Just detach from the specified entity as normally
-            m_Event->Detach(i);
+            m_Event->Detach(type, func, i);
         }
         // If this entity is not active then disable it from the filter as well
         else if (!enabled)
