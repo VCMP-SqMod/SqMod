@@ -251,19 +251,19 @@ void Debug::InternalTrace()
     {
         if (m_Func.at(0) == '@')
         {
-            _Log->SInf(" > 1 [ %s:%d > %s::%s ]", si.source ? si.source : _SC("unknown"),
+            _Log->SInf(" > 1 [ %s(%d) > %s::%s ]", si.source ? si.source : _SC("unknown"),
                         si.line, m_Type.c_str(), m_Func.c_str()+1);
         }
         else
         {
-            _Log->SInf(" > 1 [ %s:%d > %s::%s(...) ]", si.source ? si.source : _SC("unknown"),
+            _Log->SInf(" > 1 [ %s(%d) > %s::%s(...) ]", si.source ? si.source : _SC("unknown"),
                         si.line, m_Type.c_str(), m_Func.c_str());
         }
     }
     // Keep outputting traceback information for the rest of the function calls
     for (SQInt32 level = 2; SQ_SUCCEEDED(sq_stackinfos(m_VM, level, &si)); ++level)
     {
-        _Log->SInf(" > %d [ %s:%d > %s::%s(...) ]", level, si.source ? si.source : _SC("unknown"),
+        _Log->SInf(" > %d [ %s(%d) > %s::%s(...) ]", level, si.source ? si.source : _SC("unknown"),
                     si.line, EnvName(level).c_str(), si.funcname ? si.funcname : _SC("unknown"));
     }
 }
