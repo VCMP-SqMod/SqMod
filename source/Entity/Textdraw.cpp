@@ -22,7 +22,7 @@ void CTextdraw::ShowAll() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <show textdraw to all> using an invalid reference: %d"), m_ID);
+        BadRef("show_all", "show to all");
     }
 }
 
@@ -35,11 +35,11 @@ void CTextdraw::ShowFor(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <show textdraw to player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("show_for", "show to player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <show textdraw to player> using an invalid reference: %d"), m_ID);
+        BadRef("show_for", "show to player");
     }
 }
 
@@ -58,11 +58,11 @@ void CTextdraw::ShowRange(SQInt32 first, SQInt32 last) const
     }
     else if (first < last)
     {
-        LogWrn(_SC("Attempting to <show textdraw to range> using an invalid argument: %d > %d"), first, last);
+        BadArg("show_range", "show to range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <show textdraw to range> using an invalid reference: %d"), m_ID);
+        BadRef("show_range", "show to range");
     }
 }
 
@@ -75,7 +75,7 @@ void CTextdraw::HideAll() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <hide textdraw to all> using an invalid reference: %d"), m_ID);
+        BadRef("hide_all", "hide from all");
     }
 }
 
@@ -88,11 +88,11 @@ void CTextdraw::HideFor(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <hide textdraw to player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("hide_for", "hide from player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <hide textdraw to player> using an invalid reference: %d"), m_ID);
+        BadRef("hide_for", "hide from player");
     }
 }
 
@@ -111,11 +111,11 @@ void CTextdraw::HideRange(SQInt32 first, SQInt32 last) const
     }
     else if (first < last)
     {
-        LogWrn(_SC("Attempting to <hide textdraw to range> using an invalid argument: %d > %d"), first, last);
+        BadArg("hide_range", "hide from range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <hide textdraw to range> using an invalid reference: %d"), m_ID);
+        BadRef("hide_range", "hide from range");
     }
 }
 
@@ -128,7 +128,7 @@ void CTextdraw::SetPositionAll(const Vector2i & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw position for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_position_all", "set position for all");
     }
 }
 
@@ -141,7 +141,7 @@ void CTextdraw::SetPositionAllEx(SQInt32 x, SQInt32 y) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw position for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_position_all", "set position for all");
     }
 }
 
@@ -154,11 +154,11 @@ void CTextdraw::SetPositionFor(const Reference< CPlayer > & player, const Vector
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set textdraw position for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_position_for", "set position for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw position for player> using an invalid reference: %d"), m_ID);
+        BadRef("set_position_for", "set position for player");
     }
 }
 
@@ -171,11 +171,11 @@ void CTextdraw::SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x,
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set textdraw position for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_position_for", "set position for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw position for player> using an invalid reference: %d"), m_ID);
+        BadRef("set_position_for", "set position for player");
     }
 }
 
@@ -194,11 +194,11 @@ void CTextdraw::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & p
     }
     else if (first < last)
     {
-        LogWrn(_SC("Attempting to <set textdraw position for range> using an invalid argument: %d > %d"), first, last);
+        BadArg("set_position_range", "set position for range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw position for range> using an invalid reference: %d"), m_ID);
+        BadRef("set_position_range", "set position for range");
     }
 }
 
@@ -211,7 +211,7 @@ void CTextdraw::SetColorAll(const Color4 & col) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw color for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_color_all", "set color for all");
     }
 }
 
@@ -224,7 +224,7 @@ void CTextdraw::SetColorAllEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw color for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_color_all", "set color for all");
     }
 }
 
@@ -237,11 +237,11 @@ void CTextdraw::SetColorFor(const Reference< CPlayer > & player, const Color4 & 
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set textdraw color for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_color_for", "set color for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw color for player> using an invalid reference: %d"), m_ID);
+        BadRef("set_color_for", "set color for player");
     }
 }
 
@@ -254,11 +254,11 @@ void CTextdraw::SetColorForEx(const Reference< CPlayer > & player, Uint8 r, Uint
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set textdraw color for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_color_for", "set color for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw color for player> using an invalid reference: %d"), m_ID);
+        BadRef("set_color_for", "set color for player");
     }
 }
 
@@ -277,11 +277,11 @@ void CTextdraw::SetColorRange(SQInt32 first, SQInt32 last, const Color4 & col) c
     }
     else if (first < last)
     {
-        LogWrn(_SC("Attempting to <set textdraw color for range> using an invalid argument: %d > %d"), first, last);
+        BadArg("set_color_range", "set color for range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set textdraw color for range> using an invalid reference: %d"), m_ID);
+        BadRef("set_color_range", "set color for range");
     }
 }
 
@@ -294,7 +294,7 @@ const SQChar * CTextdraw::GetText() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get textdraw text> using an invalid reference: %d"), m_ID);
+        BadRef("@text", "get text");
     }
 
     return _SC("");
