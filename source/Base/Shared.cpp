@@ -333,6 +333,27 @@ void DbgFtl(const char * type, const char * func, const char * fmt, ...)
 }
 
 // ------------------------------------------------------------------------------------------------
+const SQChar * ToStrF(const char * fmt, ...)
+{
+    static char buf[128];
+    // Variable arguments structure
+    va_list args;
+    // Get the specified arguments
+    va_start (args, fmt);
+    // Run the specified format
+    int ret =  std::vsnprintf(buf, sizeof(buf), fmt, args);
+    // Check for formatting errors
+    if (ret < 0)
+    {
+        LogErr("Failed to run the specified string format");
+        // Return an empty string
+        buf[0] = 0;
+    }
+    // Return the buffer
+    return buf;
+}
+
+// ------------------------------------------------------------------------------------------------
 const SQChar * ToStringF(const char * fmt, ...)
 {
     // Acquire a buffer from the buffer pool
