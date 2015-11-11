@@ -1,3 +1,4 @@
+// ------------------------------------------------------------------------------------------------
 #include "Entity/Object.hpp"
 #include "Base/Quaternion.hpp"
 #include "Misc/Model.hpp"
@@ -30,11 +31,11 @@ bool CObject::IsStreamedFor(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <see if object is streamed for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("streamed_for", "see whether is streamed for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if object is streamed for player> using an invalid reference: %d"), m_ID);
+        BadRef("streamed_for", "see whether is streamed for player");
     }
 
     return false;
@@ -52,7 +53,7 @@ const CModel & CObject::GetModel() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get object model> using an invalid reference: %d"), m_ID);
+        BadRef("@model", "get model");
     }
     // Return the model that could be retrieved
     return s_Model;
@@ -67,7 +68,7 @@ SQInt32 CObject::GetModelID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get object model id> using an invalid reference: %d"), m_ID);
+        BadRef("@model_id", "get model id");
     }
 
     return SQMOD_UNKNOWN;
@@ -82,7 +83,7 @@ SQInt32 CObject::GetWorld() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get object world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "get world");
     }
 
     return SQMOD_UNKNOWN;
@@ -97,7 +98,7 @@ void CObject::SetWorld(SQInt32 world) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set object world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "set world");
     }
 }
 
@@ -110,7 +111,7 @@ SQInt32 CObject::GetAlpha() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get object alpha> using an invalid reference: %d"), m_ID);
+        BadRef("@alpha", "get alpha");
     }
 
     return SQMOD_UNKNOWN;
@@ -125,7 +126,7 @@ void CObject::SetAlpha(SQInt32 alpha) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set object alpha> using an invalid reference: %d"), m_ID);
+        BadRef("@alpha", "set alpha");
     }
 }
 
@@ -138,7 +139,7 @@ void CObject::SetAlphaEx(SQInt32 alpha, SQInt32 time) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set object alpha> using an invalid reference: %d"), m_ID);
+        BadRef("set_alpha", "set alpha");
     }
 }
 
@@ -151,7 +152,7 @@ void CObject::MoveToPr(const Vector3 & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <move object to> using an invalid reference: %d"), m_ID);
+        BadRef("@mov_to", "move to");
     }
 }
 
@@ -164,7 +165,7 @@ void CObject::MoveTo(const Vector3 & pos, SQInt32 time) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <move object to> using an invalid reference: %d"), m_ID);
+        BadRef("move_to", "move to");
     }
 }
 
@@ -177,7 +178,7 @@ void CObject::MoveToEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <move object to> using an invalid reference: %d"), m_ID);
+        BadRef("move_to", "move to");
     }
 }
 
@@ -190,7 +191,7 @@ void CObject::MoveToEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <move object to> using an invalid reference: %d"), m_ID);
+        BadRef("move_to", "move to");
     }
 }
 
@@ -203,7 +204,7 @@ void CObject::MoveByPr(const Vector3 & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <move object by> using an invalid reference: %d"), m_ID);
+        BadRef("@mov_by", "move by");
     }
 }
 
@@ -216,7 +217,7 @@ void CObject::MoveBy(const Vector3 & pos, SQInt32 time) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <move object by> using an invalid reference: %d"), m_ID);
+        BadRef("move_by", "move by");
     }
 }
 
@@ -229,7 +230,7 @@ void CObject::MoveByEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <move object by> using an invalid reference: %d"), m_ID);
+        BadRef("move_by", "move by");
     }
 }
 
@@ -242,7 +243,7 @@ void CObject::MoveByEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <move object by> using an invalid reference: %d"), m_ID);
+        BadRef("move_by", "move by");
     }
 }
 
@@ -258,7 +259,7 @@ const Vector3 & CObject::GetPosition()
     }
     else
     {
-        LogWrn(_SC("Attempting to <get object position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "get position");
     }
     // Return the position that could be retrieved
     return s_Vector3;
@@ -273,7 +274,7 @@ void CObject::SetPosition(const Vector3 & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set object position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "set position");
     }
 }
 
@@ -286,7 +287,7 @@ void CObject::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set object position> using an invalid reference: %d"), m_ID);
+        BadRef("set_position", "set position");
     }
 }
 
@@ -299,7 +300,7 @@ void CObject::RotateToPr(const Quaternion & rot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object to> using an invalid reference: %d"), m_ID);
+        BadRef("@rot_to", "rotate to quaternion");
     }
 }
 
@@ -312,7 +313,7 @@ void CObject::RotateTo(const Quaternion & rot, SQInt32 time) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object to> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_to", "rotate to quaternion");
     }
 }
 
@@ -325,7 +326,7 @@ void CObject::RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object to> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_to", "rotate to quaternion");
     }
 }
 
@@ -338,7 +339,7 @@ void CObject::RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 tim
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object to> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_to", "rotate to quaternion");
     }
 }
 
@@ -351,7 +352,7 @@ void CObject::RotateToEulerPr(const Vector3 & rot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object to euler> using an invalid reference: %d"), m_ID);
+        BadRef("@rot_to_euler", "rotate to euler");
     }
 }
 
@@ -364,7 +365,7 @@ void CObject::RotateToEuler(const Vector3 & rot, SQInt32 time) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object to euler> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_to_euler", "rotate to euler");
     }
 }
 
@@ -377,7 +378,7 @@ void CObject::RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object to euler> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_to_euler", "rotate to euler");
     }
 }
 
@@ -390,7 +391,7 @@ void CObject::RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) con
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object to euler> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_to_euler", "rotate to euler");
     }
 }
 
@@ -403,7 +404,7 @@ void CObject::RotateByPr(const Quaternion & rot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object by> using an invalid reference: %d"), m_ID);
+        BadRef("@rot_by", "rotate by quaternion");
     }
 }
 
@@ -416,7 +417,7 @@ void CObject::RotateBy(const Quaternion & rot, SQInt32 time) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object by> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_by", "rotate by quaternion");
     }
 }
 
@@ -429,7 +430,7 @@ void CObject::RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object by> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_by", "rotate by quaternion");
     }
 }
 
@@ -442,7 +443,7 @@ void CObject::RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 tim
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object by> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_by", "rotate by quaternion");
     }
 }
 
@@ -455,7 +456,7 @@ void CObject::RotateByEulerPr(const Vector3 & rot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object by euler> using an invalid reference: %d"), m_ID);
+        BadRef("@rot_by_euler", "rotate by euler");
     }
 }
 
@@ -468,7 +469,7 @@ void CObject::RotateByEuler(const Vector3 & rot, SQInt32 time) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object by euler> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_by_euler", "rotate by euler");
     }
 }
 
@@ -481,7 +482,7 @@ void CObject::RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object by euler> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_by_euler", "rotate by euler");
     }
 }
 
@@ -494,7 +495,7 @@ void CObject::RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) con
     }
     else
     {
-        LogWrn(_SC("Attempting to <rotate object by euler> using an invalid reference: %d"), m_ID);
+        BadRef("rotate_by_euler", "rotate by euler");
     }
 }
 
@@ -510,7 +511,7 @@ const Quaternion & CObject::GetRotation()
     }
     else
     {
-        LogWrn(_SC("Attempting to <get object rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@rotation", "get quaternion rotation");
     }
     // Return the rotation that could be retrieved
     return s_Quaternion;
@@ -528,7 +529,7 @@ const Vector3 & CObject::GetRotationEuler()
     }
     else
     {
-        LogWrn(_SC("Attempting to <get object euler rotation> using an invalid reference: %d"), m_ID);
+        BadRef("@rotation_euler", "get euler rotation");
     }
     // Return the rotation that could be retrieved
     return s_Vector3;
@@ -543,7 +544,7 @@ bool CObject::GetShotReport() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get object shot report> using an invalid reference: %d"), m_ID);
+        BadRef("@shot_report", "get whether shots are reported");
     }
 
     return false;
@@ -558,7 +559,7 @@ void CObject::SetShotReport(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set object shot report> using an invalid reference: %d"), m_ID);
+        BadRef("@shot_report", "set whether shots are reported");
     }
 }
 
@@ -571,7 +572,7 @@ bool CObject::GetBumpReport() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get object bump report> using an invalid reference: %d"), m_ID);
+        BadRef("@bump_report", "get whether bumps are reported");
     }
 
     return false;
@@ -586,7 +587,7 @@ void CObject::SetBumpReport(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set object bump report> using an invalid reference: %d"), m_ID);
+        BadRef("@bump_report", "set whether bumps are reported");
     }
 }
 
@@ -760,7 +761,7 @@ bool Register_CObject(HSQUIRRELVM vm)
         .Prop(_SC("rotation"), &CObject::GetRotation)
         .Prop(_SC("rotation_euler"), &CObject::GetRotationEuler)
         .Prop(_SC("shot_report"), &CObject::GetShotReport, &CObject::SetShotReport)
-        .Prop(_SC("bumb_report"), &CObject::GetBumpReport, &CObject::SetBumpReport)
+        .Prop(_SC("bump_report"), &CObject::GetBumpReport, &CObject::SetBumpReport)
         /* Functions */
         .Func(_SC("streamed_for"), &CObject::IsStreamedFor)
         .Func(_SC("set_alpha"), &CObject::SetAlphaEx)
@@ -806,7 +807,7 @@ bool Register_CObject(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Registration of <Object> type was successful");
     // Output debugging information
-    LogDbg("Beginning registration of <CObject functions> type");
+    LogDbg("Beginning registration of <CObject> functions");
     // Register global functions related to this entity type
     Sqrat::RootTable(vm)
     /* Create BaseObject [P]rimitive [E]xtended [F]Full */
@@ -850,7 +851,7 @@ bool Register_CObject(HSQUIRRELVM vm)
     .Overload< CObject (*)(const CModel &, SQInt32, const Vector3 &, SQInt32, SQInt32, SqObj &) >
         (_SC("CreateObject_CF"), &CreateObject_CF);
     // Output debugging information
-    LogDbg("Registration of <Object functions> type was successful");
+    LogDbg("Registration of <Object> functions was successful");
     // Registration succeeded
     return true;
 }
