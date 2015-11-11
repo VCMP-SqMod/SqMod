@@ -31,11 +31,11 @@ bool CSphere::IsStreamedFor(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <see if sphere is streamed for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("streamed_for", "see whether is streamed for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if sphere is streamed for player> using an invalid reference: %d"), m_ID);
+        BadRef("streamed_for", "see whether is streamed for player");
     }
 
     return false;
@@ -50,7 +50,7 @@ SQInt32 CSphere::GetWorld() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get sphere world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "get world");
     }
 
     return SQMOD_UNKNOWN;
@@ -65,7 +65,7 @@ void CSphere::SetWorld(SQInt32 world) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sphere world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "set world");
     }
 }
 
@@ -82,7 +82,7 @@ const Color3 & CSphere::GetColor() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get sphere color> using an invalid reference: %d"), m_ID);
+        BadRef("@color", "get color");
     }
     // Return the color that could be retrieved
     return s_Color3;
@@ -97,7 +97,7 @@ void CSphere::SetColor(const Color3 & col) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sphere color> using an invalid reference: %d"), m_ID);
+        BadRef("@color", "set color");
     }
 }
 
@@ -110,7 +110,7 @@ void CSphere::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sphere color> using an invalid reference: %d"), m_ID);
+        BadRef("set_color", "set color");
     }
 }
 
@@ -126,7 +126,7 @@ const Vector3 & CSphere::GetPosition() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get sphere position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "get position");
     }
     // Return the position that could be retrieved
     return s_Vector3;
@@ -141,7 +141,7 @@ void CSphere::SetPosition(const Vector3 & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sphere position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "set position");
     }
 }
 
@@ -154,7 +154,7 @@ void CSphere::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sphere position> using an invalid reference: %d"), m_ID);
+        BadRef("set_position", "set position");
     }
 }
 
@@ -167,7 +167,7 @@ SQFloat CSphere::GetRadius() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get sphere radius> using an invalid reference: %d"), m_ID);
+        BadRef("@radius", "get radius");
     }
 
     return 0.0;
@@ -182,7 +182,7 @@ void CSphere::SetRadius(SQFloat radius) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sphere radius> using an invalid reference: %d"), m_ID);
+        BadRef("@radius", "set radius");
     }
 }
 
@@ -195,7 +195,7 @@ Reference< CPlayer > CSphere::GetOwner() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get sphere owner> using an invalid reference: %d"), m_ID);
+        BadRef("@owner", "get owner");
     }
 
     return Reference< CPlayer >();
@@ -210,7 +210,7 @@ SQInt32 CSphere::GetOwnerID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get sphere owner id> using an invalid reference: %d"), m_ID);
+        BadRef("@owner_id", "get owner id");
     }
 
     return SQMOD_UNKNOWN;
@@ -394,7 +394,7 @@ bool Register_CSphere(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Registration of <CSphere> type was successful");
     // Output debugging information
-    LogDbg("Beginning registration of <Sphere functions> type");
+    LogDbg("Beginning registration of <Sphere> functions");
     // Register global functions related to this entity type
     Sqrat::RootTable(vm)
     /* Create BaseSphere [P]rimitive [E]xtended [F]Full */
@@ -438,7 +438,7 @@ bool Register_CSphere(HSQUIRRELVM vm)
     .Overload< CSphere (*)(const Reference< CPlayer > &, SQInt32, const Vector3 &, const Color3 &, SQFloat, SQInt32, SqObj &) >
         (_SC("CreateSphere_CF"), &CreateSphere_CF);
     // Output debugging information
-    LogDbg("Registration of <Sphere functions> type was successful");
+    LogDbg("Registration of <Sphere> functions was successful");
     // Registration succeeded
     return true;
 }
