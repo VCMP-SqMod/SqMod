@@ -581,10 +581,12 @@ bool Register_CSprite(HSQUIRRELVM vm)
         .Prop(_SC("path"), &CSprite::GetFilePath)
         /* Functions */
         .Func(_SC("show_all"), &CSprite::ShowAll)
+        .Func(_SC("show_to"), &CSprite::ShowFor)
         .Func(_SC("show_for"), &CSprite::ShowFor)
         .Func(_SC("show_range"), &CSprite::ShowRange)
         .Func(_SC("hide_all"), &CSprite::HideAll)
         .Func(_SC("hide_for"), &CSprite::HideFor)
+        .Func(_SC("hide_from"), &CSprite::HideFor)
         .Func(_SC("hide_range"), &CSprite::HideRange)
         /* Overloads */
         .Overload< void (CSprite::*)(const Vector2i &) const >
