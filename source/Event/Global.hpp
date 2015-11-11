@@ -1190,7 +1190,7 @@ template < class T > bool GlobalFilter< T >::Exclude(const RefType & ent, SQInt3
     else if (!EntType::InEvent(m_Event->m_Type))
     {
         DbgErr(ToStrF("%sGlobalFilter", EntType::Name), "exclude",
-                "Attempting to <filter events> for an incompatible event type: %s",
+                "Attempting to <unfilter events> for an incompatible event type: %s",
                 GetEventName(m_Event->m_Type));
     }
     // Make sure the entity is not already excluded fom the filter
