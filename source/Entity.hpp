@@ -2726,9 +2726,25 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Throw a bad argument error.
     */
+    void BadArg(const char * loc, const char * act, SQInt32 a, SQInt32 b) const
+    {
+        DbgWrn(Ent< T >::CName, loc, "Attempting to <%s> using an invalid argument: %d, %d", act, a, b);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Throw a bad argument error.
+    */
     void BadArg(const char * loc, const char * act, const char * msg, SQInt32 arg) const
     {
         DbgWrn(Ent< T >::CName, loc, "Attempting to <%s> %s: %d", act, msg, arg);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Throw a bad argument error.
+    */
+    void BadArg(const char * loc, const char * act, const char * msg, SQInt32 a, SQInt32 b) const
+    {
+        DbgWrn(Ent< T >::CName, loc, "Attempting to <%s> %s: %d, %d", act, msg, a, b);
     }
 };
 
