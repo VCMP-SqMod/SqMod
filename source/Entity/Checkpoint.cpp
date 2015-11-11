@@ -1,3 +1,4 @@
+// ------------------------------------------------------------------------------------------------
 #include "Entity/Checkpoint.hpp"
 #include "Core.hpp"
 #include "Register.hpp"
@@ -31,11 +32,11 @@ bool CCheckpoint::IsStreamedFor(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <see if checkpoint is streamed for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("streamed_for", "see whether is streamed for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if checkpoint is streamed for player> using an invalid reference: %d"), m_ID);
+        BadRef("streamed_for", "see whether is streamed for player");
     }
 
     return false;
@@ -50,7 +51,7 @@ SQInt32 CCheckpoint::GetWorld() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get checkpoint world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "get world");
     }
 
     return SQMOD_UNKNOWN;
@@ -65,7 +66,7 @@ void CCheckpoint::SetWorld(SQInt32 world) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set checkpoint world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "set world");
     }
 }
 
@@ -82,7 +83,7 @@ const Color4 & CCheckpoint::GetColor() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get checkpoint color> using an invalid reference: %d"), m_ID);
+        BadRef("@color", "get color");
     }
     // Return the color that could be retrieved
     return s_Color4;
@@ -97,7 +98,7 @@ void CCheckpoint::SetColor(const Color4 & col) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set checkpoint color> using an invalid reference: %d"), m_ID);
+        BadRef("@color", "set color");
     }
 }
 
@@ -110,7 +111,7 @@ void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set checkpoint color> using an invalid reference: %d"), m_ID);
+        BadRef("set_color", "set color");
     }
 }
 
@@ -126,7 +127,7 @@ const Vector3 & CCheckpoint::GetPosition() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get checkpoint position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "get position");
     }
     // Return the position that could be retrieved
     return s_Vector3;
@@ -141,7 +142,7 @@ void CCheckpoint::SetPosition(const Vector3 & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set checkpoint position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "set position");
     }
 }
 
@@ -154,7 +155,7 @@ void CCheckpoint::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set checkpoint position> using an invalid reference: %d"), m_ID);
+        BadRef("set_position", "set position");
     }
 }
 
@@ -167,7 +168,7 @@ SQFloat CCheckpoint::GetRadius() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get checkpoint radius> using an invalid reference: %d"), m_ID);
+        BadRef("@radius", "get radius");
     }
 
     return 0.0;
@@ -182,7 +183,7 @@ void CCheckpoint::SetRadius(SQFloat radius) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set checkpoint radius> using an invalid reference: %d"), m_ID);
+        BadRef("@radius", "set radius");
     }
 }
 
@@ -195,7 +196,7 @@ Reference< CPlayer > CCheckpoint::GetOwner() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get checkpoint owner> using an invalid reference: %d"), m_ID);
+        BadRef("@owner", "get owner");
     }
 
     return Reference< CPlayer >();
@@ -210,7 +211,7 @@ SQInt32 CCheckpoint::GetOwnerID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get checkpoint owner id> using an invalid reference: %d"), m_ID);
+        BadRef("@owner_id", "get owner id");
     }
 
     return SQMOD_UNKNOWN;
@@ -394,7 +395,7 @@ bool Register_CCheckpoint(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Registration of <CCheckpoint> type was successful");
     // Output debugging information
-    LogDbg("Beginning registration of <Checkpoint functions> type");
+    LogDbg("Beginning registration of <Checkpoint> functions");
     // Register global functions related to this entity type
     Sqrat::RootTable(vm)
     /* Create BaseCheckpoint [P]rimitive [E]xtended [F]Full */
@@ -438,7 +439,7 @@ bool Register_CCheckpoint(HSQUIRRELVM vm)
     .Overload< CCheckpoint (*)(const Reference< CPlayer > &, SQInt32, const Vector3 &, const Color4 &, SQFloat, SQInt32, SqObj &) >
         (_SC("CreateCheckpoint_CF"), &CreateCheckpoint_CF);
     // Output debugging information
-    LogDbg("Registration of <Checkpoint functions> type was successful");
+    LogDbg("Registration of <Checkpoint> functions was successful");
     // Registration succeeded
     return true;
 }
