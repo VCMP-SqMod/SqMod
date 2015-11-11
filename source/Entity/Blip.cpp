@@ -1,3 +1,4 @@
+// ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
 #include "Core.hpp"
 
@@ -20,8 +21,9 @@ SQInteger CBlip::GetWorld() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get blip world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "get world");
     }
+
     return SQMOD_UNKNOWN;
 }
 
@@ -34,8 +36,9 @@ SQInteger CBlip::GetScale() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get blip scale> using an invalid reference: %d"), m_ID);
+        BadRef("@scale", "get scale");
     }
+
     return SQMOD_UNKNOWN;
 }
 
@@ -48,7 +51,7 @@ const Vector3 & CBlip::GetPosition() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get blip position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "get position");
     }
 
     return Vector3::NIL;
@@ -63,7 +66,7 @@ SQFloat CBlip::GetPositionX() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get blip position> using an invalid reference: %d"), m_ID);
+        BadRef("@pos_x", "get x axis");
     }
 
     return 0.0;
@@ -78,7 +81,7 @@ SQFloat CBlip::GetPositionY() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get blip position> using an invalid reference: %d"), m_ID);
+        BadRef("@pos_y", "get y axis");
     }
 
     return 0.0;
@@ -93,7 +96,7 @@ SQFloat CBlip::GetPositionZ() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get blip position> using an invalid reference: %d"), m_ID);
+        BadRef("@pos_z", "get z axis");
     }
 
     return 0.0;
@@ -108,7 +111,7 @@ const Color4 & CBlip::GetColor() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get blip color> using an invalid reference: %d"), m_ID);
+        BadRef("@color", "get color");
     }
 
     return Color4::NIL;
@@ -123,7 +126,7 @@ SQInt32 CBlip::GetSprID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get blip sprite> using an invalid reference: %d"), m_ID);
+        BadRef("@spr_id", "get sprite id");
     }
 
     return SQMOD_UNKNOWN;
@@ -314,7 +317,7 @@ bool Register_CBlip(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Registration of <CBlip> type was successful");
     // Output debugging information
-    LogDbg("Beginning registration of <Blip functions> type");
+    LogDbg("Beginning registration of <Blip> functions");
     // Register global functions related to this entity type
     Sqrat::RootTable(vm)
     /* Create BaseBlip [E]xtended [S]ubstitute */
@@ -358,7 +361,7 @@ bool Register_CBlip(HSQUIRRELVM vm)
     .Overload< CBlip (*)(SQInt32, SQInt32, const Vector3 &, SQInt32, const Color4 &, SQInt32, SQInt32, SqObj &) >
         (_SC("CreateBlip_CF"), &CreateBlip_CF);
     // Output debugging information
-    LogDbg("Registration of <Blip functions> type was successful");
+    LogDbg("Registration of <Blip> functions was successful");
     // Registration succeeded
     return true;
 }
