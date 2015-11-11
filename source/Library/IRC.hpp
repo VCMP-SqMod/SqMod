@@ -784,6 +784,25 @@ public:
     */
     void ResetOption(SQUint32 option);
 
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Throw a bad reference error.
+    */
+    void BadRef(const char * loc, const char * act) const
+    {
+        DbgWrn("IRC.Session", loc, "Attempting to <%s> using an invalid session: null", act);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Throw a generic error.
+    */
+    void Error(const char * loc, const char * act, const char * msg) const
+    {
+        DbgWrn("IRC.Session", loc, "Attempting to <%s> %s", act, msg);
+    }
+
+
 private:
 
     /* --------------------------------------------------------------------------------------------

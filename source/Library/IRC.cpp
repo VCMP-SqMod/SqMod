@@ -34,7 +34,7 @@ Session::Session()
 {
     if (!m_Session)
     {
-        LogErr("Unable to create an IRC session");
+        DbgErr("IRC.Session", "constructor", "Unable to create an IRC session");
         // Explicitly make sure no further calls can be made to this session
         m_Session = nullptr;
     }
@@ -876,19 +876,19 @@ SQInt32 Session::Connect()
     }
     else if (irc_is_connected(m_Session))
     {
-        LogWrn("Attempting to <connect session to server> while already connected to server");
+        Error("connect", "connect to server", "while already connected to another server");
     }
     else if (m_Server.empty())
     {
-        LogWrn("Attempting to <connect session to server> without specifying a server first");
+        Error("connect", "connect to server", "without specifying a server first");
     }
     else if (m_Nick.empty())
     {
-        LogWrn("Attempting to <connect session to server> without specifying a nickname first");
+        Error("connect", "connect to server", "without specifying a nickname first");
     }
     else
     {
-        LogWrn("Attempting to <connect session to server> using an invalid session: null");
+        BadRef("connect", "connect to server");
     }
 
     return SQMOD_UNKNOWN;
@@ -937,11 +937,11 @@ SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * ni
     }
     else if (irc_is_connected(m_Session))
     {
-        LogWrn("Attempting to <connect session to server> while already connected to server");
+        Error("connect", "connect to server", "while already connected to another server");
     }
     else
     {
-        LogWrn("Attempting to <connect session to server> using an invalid session: null");
+        BadRef("connect", "connect to server");
     }
 
     return SQMOD_UNKNOWN;
@@ -968,19 +968,19 @@ SQInt32 Session::Connect6()
     }
     else if (irc_is_connected(m_Session))
     {
-        LogWrn("Attempting to <connect session to server> while already connected to server");
+        Error("connect6", "connect to server", "while already connected to another server");
     }
     else if (m_Server.empty())
     {
-        LogWrn("Attempting to <connect session to server> without specifying a server first");
+        Error("connect6", "connect to server", "without specifying a server first");
     }
     else if (m_Nick.empty())
     {
-        LogWrn("Attempting to <connect session to server> without specifying a nickname first");
+        Error("connect6", "connect to server", "without specifying a nickname first");
     }
     else
     {
-        LogWrn("Attempting to <connect session to server> using an invalid session: null");
+        BadRef("connect6", "connect to server");
     }
 
     return SQMOD_UNKNOWN;
@@ -1029,11 +1029,11 @@ SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * n
     }
     else if (irc_is_connected(m_Session))
     {
-        LogWrn("Attempting to <connect session to server> while already connected to server");
+        Error("connect6", "connect to server", "while already connected to another server");
     }
     else
     {
-        LogWrn("Attempting to <connect session to server> using an invalid session: null");
+        BadRef("connect6", "connect to server");
     }
 
     return SQMOD_UNKNOWN;
@@ -1051,7 +1051,7 @@ void Session::Disconnect()
     }
     else
     {
-        LogWrn("Attempting to <disconnect session to server> using an invalid session: null");
+        BadRef("disconnect", "disconnect from server");
     }
 }
 
@@ -1064,7 +1064,7 @@ bool Session::IsConnected()
     }
     else
     {
-        LogWrn("Attempting to <see if session is connected> using an invalid session: null");
+        BadRef("@connected", "see whether is connected");
     }
 
     return false;
@@ -1085,7 +1085,7 @@ SQInt32 Session::CmdJoin(const SQChar * channel, const SQChar * key)
     }
     else
     {
-        LogWrn("Attempting to <join channel> using an invalid session: null");
+        BadRef("cmd_join", "join channel");
     }
 
     return SQMOD_UNKNOWN;
@@ -1100,7 +1100,7 @@ SQInt32 Session::CmdPart(const SQChar * channel)
     }
     else
     {
-        LogWrn("Attempting to <part channel> using an invalid session: null");
+        BadRef("cmd_part", "part channel");
     }
 
     return SQMOD_UNKNOWN;
@@ -1115,7 +1115,7 @@ SQInt32 Session::CmdInvite(const SQChar * nick, const SQChar * channel)
     }
     else
     {
-        LogWrn("Attempting to <invite onto channel> using an invalid session: null");
+        BadRef("cmd_invite", "invite onto channel");
     }
 
     return SQMOD_UNKNOWN;
@@ -1130,7 +1130,7 @@ SQInt32 Session::CmdNames(const SQChar * channel)
     }
     else
     {
-        LogWrn("Attempting to <get channel names list> using an invalid session: null");
+        BadRef("cmd_names", "get channel names list");
     }
 
     return SQMOD_UNKNOWN;
@@ -1151,7 +1151,7 @@ SQInt32 Session::CmdList(const SQChar * channel)
     }
     else
     {
-        LogWrn("Attempting to <get active channel list> using an invalid session: null");
+        BadRef("cmd_list", "get active channel list");
     }
 
     return SQMOD_UNKNOWN;
@@ -1172,7 +1172,7 @@ SQInt32 Session::CmdTopic(const SQChar * channel, const SQChar * topic)
     }
     else
     {
-        LogWrn("Attempting to <set channel topic> using an invalid session: null");
+        BadRef("cmd_topic", "set channel topic");
     }
 
     return SQMOD_UNKNOWN;
@@ -1193,7 +1193,7 @@ SQInt32 Session::CmdChannelMode(const SQChar * channel, const SQChar * mode)
     }
     else
     {
-        LogWrn("Attempting to <set channel mode> using an invalid session: null");
+        BadRef("cmd_channel_mode", "set channel mode");
     }
 
     return SQMOD_UNKNOWN;
@@ -1214,7 +1214,7 @@ SQInt32 Session::CmdUserMode(const SQChar * mode)
     }
     else
     {
-        LogWrn("Attempting to <set user mode> using an invalid session: null");
+        BadRef("cmd_user_mode", "set user mode");
     }
 
     return SQMOD_UNKNOWN;
@@ -1235,7 +1235,7 @@ SQInt32 Session::CmdKick(const SQChar * nick, const SQChar * channel, const SQCh
     }
     else
     {
-        LogWrn("Attempting to <kick from channel> using an invalid session: null");
+        BadRef("cmd_kick", "kick from channel");
     }
 
     return SQMOD_UNKNOWN;
@@ -1250,7 +1250,7 @@ SQInt32 Session::CmdMsg(const SQChar * nch, const SQChar * text)
     }
     else
     {
-        LogWrn("Attempting to <send message> using an invalid session: null");
+        BadRef("cmd_msg", "send message");
     }
 
     return SQMOD_UNKNOWN;
@@ -1265,7 +1265,7 @@ SQInt32 Session::CmdMe(const SQChar * nch, const SQChar * text)
     }
     else
     {
-        LogWrn("Attempting to <send me message> using an invalid session: null");
+        BadRef("cmd_me", "send me message");
     }
 
     return SQMOD_UNKNOWN;
@@ -1280,7 +1280,7 @@ SQInt32 Session::CmdNotice(const SQChar * nch, const SQChar * text)
     }
     else
     {
-        LogWrn("Attempting to <send notice message> using an invalid session: null");
+        BadRef("cmd_notice", "send notice message");
     }
 
     return SQMOD_UNKNOWN;
@@ -1295,7 +1295,7 @@ SQInt32 Session::CmdCtcpRequest(const SQChar * nick, const SQChar * request)
     }
     else
     {
-        LogWrn("Attempting to <send ctcp request> using an invalid session: null");
+        BadRef("cmd_ctcp_request", "send ctcp request");
     }
 
     return SQMOD_UNKNOWN;
@@ -1310,7 +1310,7 @@ SQInt32 Session::CmdCtcpReply(const SQChar * nick, const SQChar * reply)
     }
     else
     {
-        LogWrn("Attempting to <send ctcp reply> using an invalid session: null");
+        BadRef("cmd_ctcp_reply", "send ctcp reply");
     }
 
     return SQMOD_UNKNOWN;
@@ -1325,7 +1325,7 @@ SQInt32 Session::CmdNick(const SQChar * nick)
     }
     else
     {
-        LogWrn("Attempting to <change nick> using an invalid session: null");
+        BadRef("cmd_nick", "change nick");
     }
 
     return SQMOD_UNKNOWN;
@@ -1340,7 +1340,7 @@ SQInt32 Session::CmdWhois(const SQChar * nick)
     }
     else
     {
-        LogWrn("Attempting to <request whois> using an invalid session: null");
+        BadRef("cmd_whois", "request whois");
     }
 
     return SQMOD_UNKNOWN;
@@ -1362,7 +1362,7 @@ SQInt32 Session::CmdQuit(const SQChar * reason)
     }
     else
     {
-        LogWrn("Attempting to <quit server> using an invalid session: null");
+        BadRef("cmd_quit", "quit server");
     }
 
     return SQMOD_UNKNOWN;
@@ -1377,7 +1377,7 @@ SQInt32 Session::SendRaw(const SQChar * str)
     }
     else
     {
-        LogWrn("Attempting to <send raw data> using an invalid session: null");
+        BadRef("send_raw", "send raw data");
     }
 
     return SQMOD_UNKNOWN;
@@ -1392,7 +1392,7 @@ SQInt32 Session::DestroyDcc(SQUint32 dccid)
     }
     else
     {
-        LogWrn("Attempting to <destroy dcc> using an invalid session: null");
+        BadRef("destroy_dcc", "destroy dcc");
     }
 
     return SQMOD_UNKNOWN;
@@ -1407,7 +1407,7 @@ void Session::SetCtcpVersion(const SQChar * version)
     }
     else
     {
-        LogWrn("Attempting to <set ctcp version> using an invalid session: null");
+        BadRef("set_ctcp_version", "set ctcp version");
     }
 }
 
@@ -1420,7 +1420,7 @@ SQInt32 Session::GetErrNo()
     }
     else
     {
-        LogWrn("Attempting to <get session error number> using an invalid session: null");
+        BadRef("@err_no", "get error number");
     }
     return SQMOD_UNKNOWN;
 }
@@ -1434,7 +1434,7 @@ const SQChar * Session::GetErrStr()
     }
     else
     {
-        LogWrn("Attempting to <get session error string> using an invalid session: null");
+        BadRef("@err_str", "get error string");
     }
     return _SC("");
 }
@@ -1448,7 +1448,7 @@ void Session::SetOption(SQUint32 option)
     }
     else
     {
-        LogWrn("Attempting to <set session option> using an invalid session: null");
+        BadRef("set_option", "set option");
     }
 }
 
@@ -1461,7 +1461,7 @@ void Session::ResetOption(SQUint32 option)
     }
     else
     {
-        LogWrn("Attempting to <reset session option> using an invalid session: null");
+        BadRef("reset_option", "reset option");
     }
 }
 
@@ -1916,7 +1916,7 @@ bool Register_IRC(HSQUIRRELVM vm)
         .Func(_SC("cmd_ctcp_reply"), &Session::CmdCtcpReply)
         .Func(_SC("cmd_nick"), &Session::CmdNick)
         .Func(_SC("cmd_whois"), &Session::CmdWhois)
-        .Func(_SC("cmd_send_raw"), &Session::SendRaw)
+        .Func(_SC("send_raw"), &Session::SendRaw)
         .Func(_SC("destroy_dcc"), &Session::DestroyDcc)
         .Func(_SC("set_ctcp_version"), &Session::SetCtcpVersion)
         .Func(_SC("set_option"), &Session::SetOption)
@@ -1976,19 +1976,19 @@ bool Register_IRC(HSQUIRRELVM vm)
     LogDbg("Registration of <IRC Session> type was successful");
 
     // Output debugging information
-    LogDbg("Beginning registration of <IRC functions> type");
+    LogDbg("Beginning registration of <IRC> functions");
     // Attempt to register the free functions
     ircns.Func(_SC("GetNick"), &GetNick);
     ircns.Func(_SC("GetHost"), &GetHost);
     ircns.Func(_SC("GetErrStr"), &irc_strerror);
     // Output debugging information
-    LogDbg("Registration of <IRC functions> type was successful");
+    LogDbg("Registration of <IRC> functions was successful");
 
     // Attempt to bind the namespace to the root table
     Sqrat::RootTable(vm).Bind(_SC("IRC"), ircns);
 
     // Output debugging information
-    LogDbg("Beginning registration of <IRC Constants> type");
+    LogDbg("Beginning registration of <IRC> constants");
     // Attempt to register the error codes enumeration
     Sqrat::ConstTable(vm).Enum(_SC("EIRCERR"), Sqrat::Enumeration(vm)
         .Const(_SC("OK"),                       LIBIRC_ERR_OK)
@@ -2160,7 +2160,7 @@ bool Register_IRC(HSQUIRRELVM vm)
         .Const(_SC("ERR_USERSDONTMATCH"),       LIBIRC_RFC_ERR_USERSDONTMATCH)
     );
     // Output debugging information
-    LogDbg("Registration of <IRC Constants> type was successful");
+    LogDbg("Registration of <IRC> constants was successful");
     // Registration succeeded
     return true;
 }
