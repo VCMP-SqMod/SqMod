@@ -58,7 +58,7 @@ void CSprite::ShowRange(SQInt32 first, SQInt32 last) const
     }
     else if (first > last)
     {
-        BadArg("show_range", "show to range", "using an out of range start", first);
+        BadArg("show_range", "show to range", "using an out of range start", first, last);
     }
     else
     {
@@ -111,7 +111,7 @@ void CSprite::HideRange(SQInt32 first, SQInt32 last) const
     }
     else if (first > last)
     {
-        BadArg("hide_range", "hide from range", "using an out of range start", first);
+        BadArg("hide_range", "hide from range", "using an out of range start", first, last);
     }
     else
     {
@@ -194,7 +194,7 @@ void CSprite::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos
     }
     else if (first > last)
     {
-        BadArg("set_position_range", "set position for range", "using an out of range start", first);
+        BadArg("set_position_range", "set position for range", "using an out of range start", first, last);
     }
     else
     {
@@ -277,7 +277,7 @@ void CSprite::SetCenterRange(SQInt32 first, SQInt32 last, const Vector2i & pos) 
     }
     else if (first > last)
     {
-        BadArg("set_center_range", "set center for range", "using an out of range start", first);
+        BadArg("set_center_range", "set center for range", "using an out of range start", first, last);
     }
     else
     {
@@ -330,7 +330,7 @@ void CSprite::SetRotationRange(SQInt32 first, SQInt32 last, SQFloat rot) const
     }
     else if (first > last)
     {
-        BadArg("set_rotation_range", "set rotation for range", "using an out of range start", first);
+        BadArg("set_rotation_range", "set rotation for range", "using an out of range start", first, last);
     }
     else
     {
@@ -383,7 +383,7 @@ void CSprite::SetAlphaRange(SQInt32 first, SQInt32 last, Uint8 alpha) const
     }
     else if (first > last)
     {
-        BadArg("set_alpha_range", "set alpha for range", "using an out of range start", first);
+        BadArg("set_alpha_range", "set alpha for range", "using an out of range start", first, last);
     }
     else
     {
