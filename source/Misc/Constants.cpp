@@ -308,6 +308,7 @@ bool Register_Constants(HSQUIRRELVM vm)
         .Const(_SC("FALL"),             SQMOD_WEAPON_FALL)
         .Const(_SC("EXPLOSION2"),       SQMOD_WEAPON_EXPLOSION2)
         .Const(_SC("SUICIDE"),          SQMOD_WEAPON_SUICIDE)
+        .Const(_SC("ROCKET"),           SQMOD_WEAPON_ROCKETLAUNCHER)
     );
 
     Sqrat::ConstTable(vm).Enum(_SC("EVEHICLE"), Sqrat::Enumeration(vm)
