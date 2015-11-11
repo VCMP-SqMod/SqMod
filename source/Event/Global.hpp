@@ -161,8 +161,9 @@ public:
         }
         else
         {
-            LogWrn("Cannot test whether a <%s> entity is filtered or not using an invalid instance: %d", \
-                    EntType::Name, _SCI32(ent));
+            DbgErr(ToStrF("%sGlobalFilter", EntType::Name), "enabled",
+                    "Attempting to <see whether entity is filtered> using an invalid reference: %d", \
+                    _SCI32(ent));
         }
 
         return false;
@@ -1045,12 +1046,12 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Attach();
+    void Attach(const char * func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void Detach();
+    void Detach(const char * func);
 
     /* --------------------------------------------------------------------------------------------
      * ...
@@ -1135,14 +1136,15 @@ template < class T > bool GlobalFilter< T >::Include(const RefType & ent, SQInt3
     // Make sure the entity is valid before we proceed
     if (!ent)
     {
-        LogErr("Attempting to <filter %s events> using an invalid entity instance: %d", \
-                EntType::Name, _SCI32(ent));
+        DbgErr(ToStrF("%sGlobalFilter", EntType::Name), "include",
+                "Attempting to <filter events> using an invalid reference: %d", _SCI32(ent));
     }
     // Make sure the entity type is allowed for this event type
     else if (!EntType::InEvent(m_Event->m_Type))
     {
-        LogErr("Attempting to <filter %s events> using an incompatible event type: %s", \
-                EntType::Name, GetEventName(m_Event->m_Type));
+        DbgErr(ToStrF("%sGlobalFilter", EntType::Name), "include",
+                "Attempting to <filter events> for an incompatible event type: %s",
+                GetEventName(m_Event->m_Type));
     }
     // Make sure the entity is not already included in the filter
     else if (!m_Filter[_SCU32(ent)])
@@ -1181,14 +1183,15 @@ template < class T > bool GlobalFilter< T >::Exclude(const RefType & ent, SQInt3
     // Make sure the entity is valid before we proceed
     if (!ent)
     {
-        LogErr("Attempting to <unfilter %s events> using an invalid entity instance: %d", \
-                EntType::Name, _SCI32(ent));
+        DbgErr(ToStrF("%sGlobalFilter", EntType::Name), "exclude",
+                "Attempting to <unfilter events> using an invalid reference: %d", _SCI32(ent));
     }
     // Make sure the entity type is allowed for this event type
     else if (!EntType::InEvent(m_Event->m_Type))
     {
-        LogErr("Attempting to <unfilter %s events> using an incompatible event type: %s", \
-                EntType::Name, GetEventName(m_Event->m_Type));
+        DbgErr(ToStrF("%sGlobalFilter", EntType::Name), "exclude",
+                "Attempting to <filter events> for an incompatible event type: %s",
+                GetEventName(m_Event->m_Type));
     }
     // Make sure the entity is not already excluded fom the filter
     else if (m_Filter[_SCU32(ent)])
@@ -1227,8 +1230,9 @@ template < class T > void GlobalFilter< T >::Clear(SQInt32 header)
     // Make sure the filter is compatible with the specified event type
     if (!EntType::InEvent(m_Event->m_Type))
     {
-        LogWrn("Attempting to <clear %s filter> using an incompatible event type: %s", \
-                EntType::Name, GetEventName(m_Event->m_Type));
+        DbgErr(ToStrF("%sGlobalFilter", EntType::Name), "clear",
+                "Attempting to <clear filter> for an incompatible event type: %s",
+                GetEventName(m_Event->m_Type));
     }
     // Don't even attempt to clear if there's nothing to be cleared
     else if (m_Filter.any())
@@ -1243,6 +1247,7 @@ template < class T > void GlobalFilter< T >::Clear(SQInt32 header)
         // Now it's safe to reset the filter
         m_Filter.reset();
     }
+
     SQMOD_UNUSED_VAR(header);
 }
 
@@ -1252,8 +1257,9 @@ template < class T > void GlobalFilter< T >::Flip(SQInt32 header)
     // Make sure the filter is compatible with the parent event type
     if (!EntType::InEvent(m_Event->m_Type))
     {
-        LogWrn("Attempting to <flip %s filter> using an incompatible event type: %s", \
-                EntType::Name, GetEventName(m_Event->m_Type));
+        DbgErr(ToStrF("%sGlobalFilter", EntType::Name), "flip",
+                "Attempting to <flip filter> for an incompatible event type: %s",
+                GetEventName(m_Event->m_Type));
     }
     // Now it's safe to proceed with reversing the filters
     else
@@ -1265,6 +1271,7 @@ template < class T > void GlobalFilter< T >::Flip(SQInt32 header)
         // Hook from the newly filtered entities
         Hook();
     }
+
     SQMOD_UNUSED_VAR(header);
 }
 

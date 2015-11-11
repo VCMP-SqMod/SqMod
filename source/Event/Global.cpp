@@ -49,7 +49,7 @@ GlobalEvent::GlobalEvent(SQInt32 type, bool suspended)
     , m_Vehicles(this)
 {
     // Attach to the specified event signal
-    Attach();
+    Attach("constructor");
     // Receive notification when the VM is about to be closed to release object references
     _Core->VMClose.Connect< GlobalEvent, &GlobalEvent::VMClose >(this);
     /* Entity filters are empty so there's nothing to hook to! */
@@ -59,7 +59,7 @@ GlobalEvent::GlobalEvent(SQInt32 type, bool suspended)
 GlobalEvent::~GlobalEvent()
 {
     // Detach from the specified event signal
-    Detach();
+    Detach("destructor");
     // Stop receiving notification when the VM is about to be closed
     _Core->VMClose.Disconnect< GlobalEvent, &GlobalEvent::VMClose >(this);
     /* We're expecting the entity filters to unhook themselves from the destroy signal! */
@@ -171,18 +171,19 @@ void GlobalEvent::SetType(SQInt32 type)
     // Make sure the newly specified event is compatible
     if (!Compatible(type))
     {
-        LogErr("Cannot change the event to an incompatible type: %s", GetEventName(type));
+        DbgErr("GlobalEvent", "@type", "Cannot change the event to an incompatible type: %s",
+                GetEventName(type));
     }
     else
     {
         // Clear anything that cannot adapt to the new event type
         Adaptable(type);
         // Detach from the current event type
-        Detach();
+        Detach("@type");
         // Set the new event type
         m_Type = type;
         // Attach to the new event type
-        Attach();
+        Attach("@type");
         /* We don't need to hook back filters that could adapt because they're already hooked! */
     }
 }
@@ -1416,7 +1417,7 @@ bool GlobalEvent::Trigger()
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::Attach()
+void GlobalEvent::Attach(const char * func)
 {
     switch (m_Type)
     {
@@ -1673,12 +1674,13 @@ void GlobalEvent::Attach()
             _Core->SphereExited.Connect< GlobalEvent, &GlobalEvent::SphereExited >(this);
         break;
         default:
-            LogErr("Attempting to <attach> to an unknown event type: %d", _SCI32(m_Type));
+            DbgErr("GlobalEvent", func, "Attempting to <attach event> to an unknown type: %d",
+                    _SCI32(m_Type));
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void GlobalEvent::Detach()
+void GlobalEvent::Detach(const char * func)
 {
     switch (m_Type)
     {
@@ -1935,7 +1937,8 @@ void GlobalEvent::Detach()
             _Core->SphereExited.Disconnect< GlobalEvent, &GlobalEvent::SphereExited >(this);
         break;
         default:
-            LogErr("Attempting to <detach> from an unknown event type: %d", _SCI32(m_Type));
+            DbgErr("GlobalEvent", func, "Attempting to <dettach event> from an unknown type: %d",
+                    _SCI32(m_Type));
     }
 }
 
