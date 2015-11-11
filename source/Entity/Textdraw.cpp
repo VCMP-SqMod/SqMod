@@ -467,10 +467,12 @@ bool Register_CTextdraw(HSQUIRRELVM vm)
         .Prop(_SC("text"), &CTextdraw::GetText)
         /* Functions */
         .Func(_SC("show_all"), &CTextdraw::ShowAll)
+        .Func(_SC("show_to"), &CTextdraw::ShowFor)
         .Func(_SC("show_for"), &CTextdraw::ShowFor)
         .Func(_SC("show_range"), &CTextdraw::ShowRange)
         .Func(_SC("hide_all"), &CTextdraw::HideAll)
         .Func(_SC("hide_for"), &CTextdraw::HideFor)
+        .Func(_SC("hide_from"), &CTextdraw::HideFor)
         .Func(_SC("hide_range"), &CTextdraw::HideRange)
         /* Overloads */
         .Overload< void (CTextdraw::*)(const Vector2i &) const >
@@ -497,7 +499,7 @@ bool Register_CTextdraw(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Registration of <CTextdraw> type was successful");
     // Output debugging information
-    LogDbg("Beginning registration of <Textdraw functions> type");
+    LogDbg("Beginning registration of <Textdraw> functions");
     // Register global functions related to this entity type
     Sqrat::RootTable(vm)
     /* Create BaseTextdraw [E]xtended [S]ubstitute */
@@ -541,7 +543,7 @@ bool Register_CTextdraw(HSQUIRRELVM vm)
     .Overload< CTextdraw (*)(SQInt32, const SQChar *, const Vector2i &, const Color4 &, bool, SQInt32, SqObj &) >
         (_SC("CreateTextdraw_CF"), &CreateTextdraw_CF);
     // Output debugging information
-    LogDbg("Registration of <Textdraw functions> type was successful");
+    LogDbg("Registration of <Textdraw> functions was successful");
     // Registration succeeded
     return true;
 }
