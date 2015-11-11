@@ -58,7 +58,7 @@ void CTextdraw::ShowRange(SQInt32 first, SQInt32 last) const
     }
     else if (first < last)
     {
-        BadArg("show_range", "show to range", "using an out of range start", first);
+        BadArg("show_range", "show to range", "using an out of range start", first, last);
     }
     else
     {
@@ -111,7 +111,7 @@ void CTextdraw::HideRange(SQInt32 first, SQInt32 last) const
     }
     else if (first < last)
     {
-        BadArg("hide_range", "hide from range", "using an out of range start", first);
+        BadArg("hide_range", "hide from range", "using an out of range start", first, last);
     }
     else
     {
@@ -194,7 +194,7 @@ void CTextdraw::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & p
     }
     else if (first < last)
     {
-        BadArg("set_position_range", "set position for range", "using an out of range start", first);
+        BadArg("set_position_range", "set position for range", "using an out of range start", first, last);
     }
     else
     {
@@ -277,7 +277,7 @@ void CTextdraw::SetColorRange(SQInt32 first, SQInt32 last, const Color4 & col) c
     }
     else if (first < last)
     {
-        BadArg("set_color_range", "set color for range", "using an out of range start", first);
+        BadArg("set_color_range", "set color for range", "using an out of range start", first, last);
     }
     else
     {
