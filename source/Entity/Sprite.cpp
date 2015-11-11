@@ -22,7 +22,7 @@ void CSprite::ShowAll() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <show sprite to all> using an invalid reference: %d"), m_ID);
+        BadRef("show_all", "show to all");
     }
 }
 
@@ -35,11 +35,11 @@ void CSprite::ShowFor(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <show sprite to player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("show_for", "show to player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <show sprite to player> using an invalid reference: %d"), m_ID);
+        BadRef("show_for", "show to player");
     }
 }
 
@@ -58,11 +58,11 @@ void CSprite::ShowRange(SQInt32 first, SQInt32 last) const
     }
     else if (first > last)
     {
-        LogWrn(_SC("Attempting to <show sprite to range> using an invalid argument: %d > %d"), first, last);
+        BadArg("show_range", "show to range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <show sprite to range> using an invalid reference: %d"), m_ID);
+        BadRef("show_range", "show to range");
     }
 }
 
@@ -75,7 +75,7 @@ void CSprite::HideAll() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <hide sprite from all> using an invalid reference: %d"), m_ID);
+        BadRef("hide_all", "hide from all");
     }
 }
 
@@ -88,11 +88,11 @@ void CSprite::HideFor(const Reference< CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <hide sprite from player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("hide_for", "hide from player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <hide sprite from player> using an invalid reference: %d"), m_ID);
+        BadRef("hide_for", "hide from player");
     }
 }
 
@@ -111,11 +111,11 @@ void CSprite::HideRange(SQInt32 first, SQInt32 last) const
     }
     else if (first > last)
     {
-        LogWrn(_SC("Attempting to <hide sprite from range> using an invalid argument: %d > %d"), first, last);
+        BadArg("hide_range", "hide from range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <hide sprite from range> using an invalid reference: %d"), m_ID);
+        BadRef("hide_range", "hide from range");
     }
 }
 
@@ -128,7 +128,7 @@ void CSprite::SetPositionAll(const Vector2i & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite position for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_position_all", "set position for all");
     }
 }
 
@@ -141,7 +141,7 @@ void CSprite::SetPositionAllEx(SQInt32 x, SQInt32 y) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite position for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_position_all", "set position for all");
     }
 }
 
@@ -154,12 +154,11 @@ void CSprite::SetPositionFor(const Reference< CPlayer > & player, const Vector2i
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set sprite position for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_position_for", "set position for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite position for player> using an invalid reference: %d"), m_ID);
-
+        BadRef("set_position_for", "set position for player");
     }
 }
 
@@ -172,11 +171,11 @@ void CSprite::SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, S
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set sprite position for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_position_for", "set position for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite position for player> using an invalid reference: %d"), m_ID);
+        BadRef("set_position_for", "set position for player");
     }
 }
 
@@ -195,11 +194,11 @@ void CSprite::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos
     }
     else if (first > last)
     {
-        LogWrn(_SC("Attempting to <set sprite position for range> using an invalid argument: %d > %d"), first, last);
+        BadArg("set_position_range", "set position for range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite position for range> using an invalid reference: %d"), m_ID);
+        BadRef("set_position_range", "set position for range");
     }
 }
 
@@ -212,7 +211,7 @@ void CSprite::SetCenterAll(const Vector2i & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite center for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_center_all", "set center for all");
     }
 }
 
@@ -225,7 +224,7 @@ void CSprite::SetCenterAllEx(SQInt32 x, SQInt32 y) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite center for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_center_all", "set center for all");
     }
 }
 
@@ -238,11 +237,11 @@ void CSprite::SetCenterFor(const Reference< CPlayer > & player, const Vector2i &
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set sprite center for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_center_for", "set center for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite center for player> using an invalid reference: %d"), m_ID);
+        BadRef("set_center_for", "set center for player");
     }
 }
 
@@ -255,11 +254,11 @@ void CSprite::SetCenterForEx(const Reference< CPlayer > & player, SQInt32 x, SQI
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set sprite center for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_center_for", "set center for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite center for player> using an invalid reference: %d"), m_ID);
+        BadRef("set_center_for", "set center for player");
     }
 }
 
@@ -278,11 +277,11 @@ void CSprite::SetCenterRange(SQInt32 first, SQInt32 last, const Vector2i & pos) 
     }
     else if (first > last)
     {
-        LogWrn(_SC("Attempting to <set sprite center for range> using an invalid argument: %d > %d"), first, last);
+        BadArg("set_center_range", "set center for range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite center for range> using an invalid reference: %d"), m_ID);
+        BadRef("set_center_range", "set center for range");
     }
 }
 
@@ -295,7 +294,7 @@ void CSprite::SetRotationAll(SQFloat rot) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite rotation for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_rotation_all", "set rotation for all");
     }
 }
 
@@ -308,11 +307,11 @@ void CSprite::SetRotationFor(const Reference< CPlayer > & player, SQFloat rot) c
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set sprite rotation for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_rotation_for", "set rotation for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite rotation for player> using an invalid reference: %d"), m_ID);
+        BadRef("set_rotation_for", "set rotation for player");
     }
 }
 
@@ -331,11 +330,11 @@ void CSprite::SetRotationRange(SQInt32 first, SQInt32 last, SQFloat rot) const
     }
     else if (first > last)
     {
-        LogWrn(_SC("Attempting to <set sprite rotation for range> using an invalid argument: %d > %d"), first, last);
+        BadArg("set_rotation_range", "set rotation for range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite rotation for range> using an invalid reference: %d"), m_ID);
+        BadRef("set_rotation_range", "set rotation for range");
     }
 }
 
@@ -348,7 +347,7 @@ void CSprite::SetAlphaAll(Uint8 alpha) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite alpha for all> using an invalid reference: %d"), m_ID);
+        BadRef("set_alpha_all", "set alpha for all");
     }
 }
 
@@ -361,11 +360,11 @@ void CSprite::SetAlphaFor(const Reference< CPlayer > & player, Uint8 alpha) cons
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <set sprite alpha for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("set_alpha_for", "set alpha for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite alpha for player> using an invalid reference: %d"), m_ID);
+        BadRef("set_alpha_for", "set alpha for player");
     }
 }
 
@@ -384,11 +383,11 @@ void CSprite::SetAlphaRange(SQInt32 first, SQInt32 last, Uint8 alpha) const
     }
     else if (first > last)
     {
-        LogWrn(_SC("Attempting to <set sprite alpha for range> using an invalid argument: %d > %d"), first, last);
+        BadArg("set_alpha_range", "set alpha for range", "using an out of range start", first);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set sprite alpha for range> using an invalid reference: %d"), m_ID);
+        BadRef("set_alpha_range", "set alpha for range");
     }
 }
 
@@ -401,7 +400,7 @@ const SQChar * CSprite::GetFilePath() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get sprite file path> using an invalid reference: %d"), m_ID);
+        BadRef("@path", "get file path");
     }
 
     return _SC("");
@@ -624,7 +623,7 @@ bool Register_CSprite(HSQUIRRELVM vm)
     // Output debugging information
     LogDbg("Registration of <CSprite> type was successful");
     // Output debugging information
-    LogDbg("Beginning registration of <Sprite functions> type");
+    LogDbg("Beginning registration of <Sprite> functions");
     // Register global functions related to this entity type
     Sqrat::RootTable(vm)
     /* Create BaseSprite [E]xtended [S]ubstitute */
@@ -668,7 +667,7 @@ bool Register_CSprite(HSQUIRRELVM vm)
     .Overload< CSprite (*)(SQInt32, const SQChar *, const Vector2i &, const Vector2i &, SQFloat, SQInt32, bool, SQInt32, SqObj &) >
         (_SC("CreateSprite_CF"), &CreateSprite_CF);
     // Output debugging information
-    LogDbg("Registration of <Sprite functions> type was successful");
+    LogDbg("Registration of <Sprite> functions was successful");
     // Registration succeeded
     return true;
 }
