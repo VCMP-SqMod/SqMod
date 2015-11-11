@@ -571,6 +571,11 @@ public:
     void SetCameraPosition(const Vector3 & pos, const Vector3 & aim) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Change the camera position of the referenced player instance.
+    */
+    void SetCameraPosition(SQFloat xp, SQFloat yp, SQFloat zp, SQFloat xa, SQFloat ya, SQFloat za) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Restore the camera position of the referenced player instance.
     */
     void RestoreCamera() const;
@@ -609,6 +614,16 @@ public:
      * See whether the referenced player instance is away.
     */
     bool IsAway() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the player that the referenced player instance is spectating.
+    */
+    Reference < CPlayer > GetSpectator() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set the referenced player instance to spectate the specified player instance.
+    */
+    void SetSpectator(const Reference < CPlayer > & target) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the player that the referenced player instance is spectating.

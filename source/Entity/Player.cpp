@@ -37,7 +37,7 @@ SQInt32 CPlayer::GetLevel() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player level> using an invalid reference: %d"), m_ID);
+        BadRef("@level", "get level");
     }
 
     return SQMOD_UNKNOWN;
@@ -52,7 +52,7 @@ void CPlayer::SetLevel(SQInt32 val) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player level> using an invalid reference: %d"), m_ID);
+        BadRef("@level", "set level");
     }
 }
 
@@ -65,8 +65,7 @@ bool CPlayer::GetLocalPrefixes() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player uses local message prefixes> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@lprefix", "see whether it uses local message prefixes");
     }
 
     return false;
@@ -81,8 +80,7 @@ void CPlayer::SetLocalPrefixes(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player uses local message prefixes> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@lprefix", "et whether it uses local message prefixes");
     }
 }
 
@@ -95,8 +93,7 @@ bool CPlayer::GetLocalMessageColor() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player uses local message color> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@lmesage_color", "see whether it uses local message color");
     }
 
     return false;
@@ -111,8 +108,7 @@ void CPlayer::SetLocalMessageColor(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player uses local message color> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@lmesage_color", "set whether it uses local message color");
     }
 }
 
@@ -125,8 +121,7 @@ bool CPlayer::GetLocalAnnounceStyle() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player uses local announce style> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@lannounce_style", "see whether it uses local announce style");
     }
 
     return false;
@@ -141,8 +136,7 @@ void CPlayer::SetLocalAnnounceStyle(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player uses local announce style> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@lannounce_style", "set whether it uses local announce style");
     }
 }
 
@@ -155,13 +149,11 @@ const SQChar * CPlayer::GetMessagePrefix(SQUint32 index) const
     }
     else if (index >= MAX_PLAYER_MESSAGE_PREFIXES)
     {
-        LogWrn(_SC("Attempting to <get player local message prefix> using an out of bounds index: %u"),
-            index);
+        BadArg("get_msg_prefix", "get local message prefix", "using an out of bounds index", index);
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player local message prefix> using an invalid reference: %d"),
-                m_ID);
+        BadRef("get_msg_prefix", "get local message prefix");
     }
 
     return _SC("");
@@ -176,13 +168,11 @@ void CPlayer::SetMessagePrefix(SQUint32 index, const SQChar * prefix) const
     }
     else if (index >= MAX_PLAYER_MESSAGE_PREFIXES)
     {
-        LogWrn(_SC("Attempting to <set player local message prefix> using an out of bounds index: %u"),
-            index);
+        BadArg("set_msg_prefix", "set local message prefix", "using an out of bounds index", index);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player local message prefix> using an invalid reference: %d"),
-                m_ID);
+        BadRef("set_msg_prefix", "set local message prefix");
     }
 }
 
@@ -195,8 +185,7 @@ SQUint32 CPlayer::GetMessageColor() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player local message color> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@message_color", "get local message color");
     }
 
     return 0x0;
@@ -211,8 +200,7 @@ void CPlayer::SetMessageColor(SQUint32 color) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player local message color> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@message_color", "set local message color");
     }
 }
 
@@ -225,8 +213,7 @@ SQInt32 CPlayer::GetAnnounceStyle() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player local announce style> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@announce_style", "get local announce style");
     }
 
     return SQMOD_UNKNOWN;
@@ -241,8 +228,7 @@ void CPlayer::SetAnnounceStyle(SQInt32 style) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player local announce style> using an invalid reference: %d"),
-                m_ID);
+        BadRef("@announce_style", "set local announce style");
     }
 }
 
@@ -255,11 +241,11 @@ bool CPlayer::IsStreamedFor(const Reference < CPlayer > & player) const
     }
     else if (!player)
     {
-        LogWrn(_SC("Attempting to <see if player is streamed for player> using an invalid argument: %d"), _SCI32(player));
+        BadArg("streamed_for", "see whether is streamed for player", _SCI32(player));
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is streamed for player> using an invalid reference: %d"), m_ID);
+        BadRef("streamed_for", "see whether is streamed for player");
     }
 
     return false;
@@ -274,7 +260,7 @@ SQInt32 CPlayer::GetClass() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player class> using an invalid reference: %d"), m_ID);
+        BadRef("@class_id", "get class");
     }
 
     return SQMOD_UNKNOWN;
@@ -289,7 +275,7 @@ bool CPlayer::GetAdmin() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is admin> using an invalid reference: %d"), m_ID);
+        BadRef("@admin", "see whether is admin");
     }
 
     return false;
@@ -304,7 +290,7 @@ void CPlayer::SetAdmin(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player is admin> using an invalid reference: %d"), m_ID);
+        BadRef("@admin", "set whether is admin");
     }
 }
 
@@ -321,7 +307,7 @@ const SQChar * CPlayer::GetIP() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player ip address> using an invalid reference: %d"), m_ID);
+        BadRef("@ip", "get ip address");
     }
     // Return the ip address that could be retrieved
     return s_Buffer;
@@ -336,7 +322,7 @@ void CPlayer::Kick() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <kick player> using an invalid reference: %d"), m_ID);
+        BadRef("kick", "kick client");
     }
 }
 
@@ -349,7 +335,7 @@ void CPlayer::Ban() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <ban player> using an invalid reference: %d"), m_ID);
+        BadRef("ban", "ban client");
     }
 }
 
@@ -362,7 +348,7 @@ bool CPlayer::IsConnected() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is connected> using an invalid reference: %d"), m_ID);
+        BadRef("@connected", "see whether is connected");
     }
 
     return false;
@@ -377,7 +363,7 @@ bool CPlayer::IsSpawned() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is spawned> using an invalid reference: %d"), m_ID);
+        BadRef("@spawned", "see whether is spawned");
     }
 
     return false;
@@ -392,7 +378,7 @@ SQUint32 CPlayer::GetKey() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player key> using an invalid reference: %d"), m_ID);
+        BadRef("@key", "get key");
     }
 
     return SQMOD_BLANK;
@@ -407,7 +393,7 @@ SQInt32 CPlayer::GetWorld() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "get world");
     }
 
     return SQMOD_UNKNOWN;
@@ -422,7 +408,7 @@ void CPlayer::SetWorld(SQInt32 world) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player world> using an invalid reference: %d"), m_ID);
+        BadRef("@world", "set world");
     }
 }
 
@@ -435,7 +421,7 @@ SQInt32 CPlayer::GetSecWorld() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player secondary world> using an invalid reference: %d"), m_ID);
+        BadRef("@sec_world", "<get secondary world");
     }
 
     return SQMOD_UNKNOWN;
@@ -450,7 +436,7 @@ void CPlayer::SetSecWorld(SQInt32 world) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player secondary world> using an invalid reference: %d"), m_ID);
+        BadRef("@sec_world", "set secondary world");
     }
 }
 
@@ -463,7 +449,7 @@ SQInt32 CPlayer::GetUniqueWorld() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player unique world> using an invalid reference: %d"), m_ID);
+        BadRef("@unique_world", "get unique world");
     }
 
     return SQMOD_UNKNOWN;
@@ -478,7 +464,7 @@ bool CPlayer::IsWorldCompatible(SQInt32 world) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is compatible with world> using an invalid reference: %d"), m_ID);
+        BadRef("world_compatible", "see whether is compatible with world");
     }
 
     return false;
@@ -493,7 +479,7 @@ SQInt32 CPlayer::GetState() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player state> using an invalid reference: %d"), m_ID);
+        BadRef("@state", "get current state");
     }
 
     return SQMOD_UNKNOWN;
@@ -512,7 +498,7 @@ const SQChar * CPlayer::GetName() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player name> using an invalid reference: %d"), m_ID);
+        BadRef("@name", "get name");
     }
     // Return the ip address that could be retrieved
     return s_Buffer;
@@ -527,7 +513,7 @@ void CPlayer::SetName(const SQChar * name) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player name> using an invalid reference: %d"), m_ID);
+        BadRef("@name", "set name");
     }
 }
 
@@ -540,7 +526,7 @@ SQInt32 CPlayer::GetTeam() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player team> using an invalid reference: %d"), m_ID);
+        BadRef("@team", "get team");
     }
 
     return SQMOD_UNKNOWN;
@@ -555,7 +541,7 @@ void CPlayer::SetTeam(SQInt32 team) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player team> using an invalid reference: %d"), m_ID);
+        BadRef("@team", "set team");
     }
 }
 
@@ -571,7 +557,7 @@ const CSkin & CPlayer::GetSkin() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player skin> using an invalid reference: %d"), m_ID);
+        BadRef("@skin", "get skin");
     }
     // Return the skin that could be retrieved
     return s_Skin;
@@ -586,11 +572,11 @@ void CPlayer::SetSkin(const CSkin & skin) const
     }
     else if (!skin)
     {
-        LogWrn(_SC("Attempting to <set player skin> using an invalid argument: %d"), _SCI32(skin));
+        BadArg("@skin", "set skin", _SCI32(skin));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player skin> using an invalid reference: %d"), m_ID);
+        BadRef("@skin", "set skin");
     }
 }
 
@@ -603,7 +589,7 @@ SQInt32 CPlayer::GetSkinID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player skin id> using an invalid reference: %d"), m_ID);
+        BadRef("@skin_id", "get skin id");
     }
 
     return SQMOD_UNKNOWN;
@@ -618,7 +604,7 @@ void CPlayer::SetSkinID(SQInt32 skin) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player skin id> using an invalid reference: %d"), m_ID);
+        BadRef("@skin_id", "set skin id");
     }
 }
 
@@ -634,7 +620,7 @@ const Color3 & CPlayer::GetColor() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player color> using an invalid reference: %d"), m_ID);
+        BadRef("@color", "get color");
     }
     // Return the color that could be retrieved
     return s_Color3;
@@ -649,7 +635,7 @@ void CPlayer::SetColor(const Color3 & color) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player color> using an invalid reference: %d"), m_ID);
+        BadRef("@color", "set color");
     }
 }
 
@@ -662,7 +648,7 @@ void CPlayer::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player color> using an invalid reference: %d"), m_ID);
+        BadRef("set_color", "set color");
     }
 }
 
@@ -675,7 +661,7 @@ void CPlayer::ForceSpawn() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <force player to spawn> using an invalid reference: %d"), m_ID);
+        BadRef("spawn", "force to spawn");
     }
 }
 
@@ -688,7 +674,7 @@ void CPlayer::ForceSelect() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <force player to select> using an invalid reference: %d"), m_ID);
+        BadRef("@select", "force to select");
     }
 }
 
@@ -701,7 +687,7 @@ SQInt32 CPlayer::GetMoney() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player money> using an invalid reference: %d"), m_ID);
+        BadRef("@money", "get money");
     }
 
     return SQMOD_UNKNOWN;
@@ -716,7 +702,7 @@ void CPlayer::SetMoney(SQInt32 amount) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player money> using an invalid reference: %d"), m_ID);
+        BadRef("@money", "set money");
     }
 }
 
@@ -729,7 +715,7 @@ void CPlayer::GiveMoney(SQInt32 amount) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <give player money> using an invalid reference: %d"), m_ID);
+        BadRef("give_money", "give money");
     }
 }
 
@@ -742,7 +728,7 @@ SQInt32 CPlayer::GetScore() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player score> using an invalid reference: %d"), m_ID);
+        BadRef("@score", "get score");
     }
 
     return SQMOD_UNKNOWN;
@@ -757,7 +743,7 @@ void CPlayer::SetScore(SQInt32 score) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player score> using an invalid reference: %d"), m_ID);
+        BadRef("@score", "set score");
     }
 }
 
@@ -770,7 +756,7 @@ SQInt32 CPlayer::GetPing() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player ping> using an invalid reference: %d"), m_ID);
+        BadRef("@ping", "get ping");
     }
 
     return SQMOD_UNKNOWN;
@@ -785,7 +771,7 @@ SQFloat CPlayer::GetFPS() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player fps> using an invalid reference: %d"), m_ID);
+        BadRef("@fps", "get fps");
     }
 
     return 0.0;
@@ -800,7 +786,7 @@ bool CPlayer::IsTyping() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is typing> using an invalid reference: %d"), m_ID);
+        BadRef("@typing", "see whether is typing");
     }
 
     return false;
@@ -819,7 +805,7 @@ const SQChar * CPlayer::GetUID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player unique identifier> using an invalid reference: %d"), m_ID);
+        BadRef("@uid", "get unique identifier");
     }
     // Return the uid that could be retrieved
     return s_Buffer;
@@ -838,7 +824,7 @@ const SQChar * CPlayer::GetUID2() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player unique identifier version 2> using an invalid reference: %d"), m_ID);
+        BadRef("@uid2", "get unique identifier version 2");
     }
     // Return the uid2 that could be retrieved
     return s_Buffer;
@@ -853,7 +839,7 @@ SQFloat CPlayer::GetHealth() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player health> using an invalid reference: %d"), m_ID);
+        BadRef("@health", "get health");
     }
 
     return 0.0;
@@ -868,7 +854,7 @@ void CPlayer::SetHealth(SQFloat amount) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player health> using an invalid reference: %d"), m_ID);
+        BadRef("@health", "set health");
     }
 }
 
@@ -881,7 +867,7 @@ SQFloat CPlayer::GetArmour() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player armour> using an invalid reference: %d"), m_ID);
+        BadRef("@armour", "get armour");
     }
 
     return SQMOD_UNKNOWN;
@@ -896,7 +882,7 @@ void CPlayer::SetArmour(SQFloat amount) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player armour> using an invalid reference: %d"), m_ID);
+        BadRef("@armour", "set armour");
     }
 }
 
@@ -909,7 +895,7 @@ SQInt32 CPlayer::GetImmunity() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player immunity flags> using an invalid reference: %d"), m_ID);
+        BadRef("@immunity", "get immunity flags");
     }
 
     return SQMOD_UNKNOWN;
@@ -924,7 +910,7 @@ void CPlayer::SetImmunity(SQInt32 flags) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player immunity flags> using an invalid reference: %d"), m_ID);
+        BadRef("@immunity", "set player flags");
     }
 }
 
@@ -940,7 +926,7 @@ const Vector3 & CPlayer::GetPosition() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "get position");
     }
     // Return the position that could be retrieved
     return s_Vector3;
@@ -955,7 +941,7 @@ void CPlayer::SetPosition(const Vector3 & pos) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player position> using an invalid reference: %d"), m_ID);
+        BadRef("@position", "set position");
     }
 }
 
@@ -968,7 +954,7 @@ void CPlayer::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player position> using an invalid reference: %d"), m_ID);
+        BadRef("set_position", "set position");
     }
 }
 
@@ -984,7 +970,7 @@ const Vector3 & CPlayer::GetSpeed() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player speed> using an invalid reference: %d"), m_ID);
+        BadRef("@speed", "get speed");
     }
     // Return the speed that could be retrieved
     return s_Vector3;
@@ -999,7 +985,7 @@ void CPlayer::SetSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player speed> using an invalid reference: %d"), m_ID);
+        BadRef("@speed", "set speed");
     }
 }
 
@@ -1012,7 +998,7 @@ void CPlayer::SetSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player speed> using an invalid reference: %d"), m_ID);
+        BadRef("set_speed", "set speed");
     }
 }
 
@@ -1025,7 +1011,7 @@ void CPlayer::AddSpeed(const Vector3 & vel) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add player speed> using an invalid reference: %d"), m_ID);
+        BadRef("add_speed", "add speed");
     }
 }
 
@@ -1038,7 +1024,7 @@ void CPlayer::AddSpeedEx(SQFloat x, SQFloat y, SQFloat z) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <add player speed> using an invalid reference: %d"), m_ID);
+        BadRef("@add_speed", "add speed");
     }
 }
 
@@ -1051,7 +1037,7 @@ SQFloat CPlayer::GetHeading() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player heading> using an invalid reference: %d"), m_ID);
+        BadRef("@heading", "get heading");
     }
     return SQMOD_UNKNOWN;
 }
@@ -1065,7 +1051,7 @@ void CPlayer::SetHeading(SQFloat angle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <st player heading> using an invalid reference: %d"), m_ID);
+        BadRef("@heading", "set heading");
     }
 }
 
@@ -1078,7 +1064,7 @@ SQInt32 CPlayer::GetAlpha() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player alpha> using an invalid reference: %d"), m_ID);
+        BadRef("@alpha", "get alpha");
     }
 
     return SQMOD_UNKNOWN;
@@ -1093,7 +1079,7 @@ void CPlayer::SetAlpha(SQInt32 alpha, SQInt32 fade) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player alpha> using an invalid reference: %d"), m_ID);
+        BadRef("@alpha", "set alpha");
     }
 }
 
@@ -1106,7 +1092,7 @@ SQInt32 CPlayer::GetVehicleStatus() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player vehicle status> using an invalid reference: %d"), m_ID);
+        BadRef("@vehicle_status", "get vehicle status");
     }
 
     return SQMOD_UNKNOWN;
@@ -1121,7 +1107,8 @@ SQInt32 CPlayer::GetOccupiedSlot() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player occupied slot> using an invalid reference: %d"), m_ID);
+        BadRef("@slot", "get occupied slot");
+        DbgWrn("Attempting to <> using an invalid reference: %d", m_ID);
     }
 
     return SQMOD_UNKNOWN;
@@ -1136,7 +1123,7 @@ Reference < CVehicle > CPlayer::GetVehicle() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player embarked vehicle> using an invalid reference: %d"), m_ID);
+        BadRef("@vehicle", "get embarked vehicle");
     }
 
     return Reference < CVehicle >();
@@ -1151,7 +1138,7 @@ SQInt32 CPlayer::GetVehicleID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player embarked vehicle id> using an invalid reference: %d"), m_ID);
+        BadRef("@vehicle_id", "get embarked vehicle id");
     }
 
     return SQMOD_UNKNOWN;
@@ -1166,7 +1153,7 @@ bool CPlayer::GetControllable() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is controllable> using an invalid reference: %d"), m_ID);
+        BadRef("@controllable", "see whether is controllable");
     }
 
     return false;
@@ -1181,7 +1168,7 @@ void CPlayer::SetControllable(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player is controllable> using an invalid reference: %d"), m_ID);
+        BadRef("@controllable", "set whether is controllable");
     }
 }
 
@@ -1194,7 +1181,7 @@ bool CPlayer::GetDriveby() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player can driveby> using an invalid reference: %d"), m_ID);
+        BadRef("@driveby", "see whether can driveby");
     }
 
     return false;
@@ -1209,7 +1196,7 @@ void CPlayer::SetDriveby(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player can driveby> using an invalid reference: %d"), m_ID);
+        BadRef("@driveby", "set whether can driveby");
     }
 }
 
@@ -1222,7 +1209,7 @@ bool CPlayer::GetWhiteScanlines() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player has white scanlines> using an invalid reference: %d"), m_ID);
+        BadRef("@white_scanlines", "see whether has white scanlines");
     }
 
     return false;
@@ -1237,7 +1224,7 @@ void CPlayer::SetWhiteScanlines(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player has white scanlines> using an invalid reference: %d"), m_ID);
+        BadRef("@white_scanlines", "set whether has white scanlines");
     }
 }
 
@@ -1250,7 +1237,7 @@ bool CPlayer::GetGreenScanlines() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player has green scanlines> using an invalid reference: %d"), m_ID);
+        BadRef("@green_scanlines", "see whether has green scanlines");
     }
 
     return false;
@@ -1265,7 +1252,7 @@ void CPlayer::SetGreenScanlines(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player has green scanlines> using an invalid reference: %d"), m_ID);
+        BadRef("@green_scanlines", "set whether has green scanlines");
     }
 }
 
@@ -1278,7 +1265,7 @@ bool CPlayer::GetWidescreen() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player has widescreen> using an invalid reference: %d"), m_ID);
+        BadRef("@widescreen", "see whether has widescreen");
     }
 
     return false;
@@ -1293,7 +1280,7 @@ void CPlayer::SetWidescreen(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player has widescreen> using an invalid reference: %d"), m_ID);
+        BadRef("@widescreen", "set whether has widescreen");
     }
 }
 
@@ -1306,7 +1293,7 @@ bool CPlayer::GetShowMarkers() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player displays markers> using an invalid reference: %d"), m_ID);
+        BadRef("@show_markers", "see whether displays markers");
     }
     return false;
 }
@@ -1320,7 +1307,7 @@ void CPlayer::SetShowMarkers(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player displays markers> using an invalid reference: %d"), m_ID);
+        BadRef("@show_markers", "set whether displays markers");
     }
 }
 
@@ -1333,7 +1320,7 @@ bool CPlayer::GetAttackPriv() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player has attack privilege> using an invalid reference: %d"), m_ID);
+        BadRef("@attack_priv", "see whether has attack privilege");
     }
 
     return false;
@@ -1348,7 +1335,7 @@ void CPlayer::SetAttackPriv(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player has attack privilege> using an invalid reference: %d"), m_ID);
+        BadRef("@attack_priv", "set whether has attack privilege");
     }
 }
 
@@ -1361,7 +1348,7 @@ bool CPlayer::GetHasMarker() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player has marker> using an invalid reference: %d"), m_ID);
+        BadRef("@has_marker", "see whether has marker");
     }
 
     return false;
@@ -1376,7 +1363,7 @@ void CPlayer::SetHasMarker(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player has marker> using an invalid reference: %d"), m_ID);
+        BadRef("@has_marker", "set whether has marker");
     }
 }
 
@@ -1389,7 +1376,7 @@ bool CPlayer::GetChatTags() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player has chat tags> using an invalid reference: %d"), m_ID);
+        BadRef("@chat_tags", "see whether has chat tags");
     }
 
     return false;
@@ -1404,7 +1391,7 @@ void CPlayer::SetChatTags(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player has chat tags> using an invalid reference: %d"), m_ID);
+        BadRef("@chat_tags", "set whether has chat tags");
     }
 }
 
@@ -1417,7 +1404,7 @@ bool CPlayer::GetDrunkEffects() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is under drunk effects> using an invalid reference: %d"), m_ID);
+        BadRef("@drunk_effects", "see whether is under drunk effects");
     }
 
     return false;
@@ -1432,7 +1419,7 @@ void CPlayer::SetDrunkEffects(bool toggle) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set whether player is under drunk effects> using an invalid reference: %d"), m_ID);
+        BadRef("@drunk_effects", "set whether is under drunk effects");
     }
 }
 
@@ -1448,7 +1435,7 @@ const CWeapon & CPlayer::GetWeapon() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player weapon> using an invalid reference: %d"), m_ID);
+        BadRef("@weapon", "get weapon");
     }
     // Return the model that could be weapon
     return s_Weapon;
@@ -1463,11 +1450,11 @@ void CPlayer::SetWeapon(const CWeapon & wep) const
     }
     else if (!wep)
     {
-        LogWrn(_SC("Attempting to <set player weapon> using an invalid argument: %d"), _SCI32(wep));
+        BadArg("@weapon", "set weapon", _SCI32(wep));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player weapon> using an invalid reference: %d"), m_ID);
+        BadRef("@weapon", "set weapon");
     }
 }
 
@@ -1480,11 +1467,11 @@ void CPlayer::SetWeaponEx(const CWeapon & wep, SQInt32 ammo) const
     }
     else if (!wep)
     {
-        LogWrn(_SC("Attempting to <set player weapon> using an invalid argument: %d"), _SCI32(wep));
+        BadArg("set_weapon", "set weapon", _SCI32(wep));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player weapon> using an invalid reference: %d"), m_ID);
+        BadRef("set_weapon", "set weapon");
     }
 }
 
@@ -1497,7 +1484,7 @@ SQInt32 CPlayer::GetWeaponID() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player weapon id> using an invalid reference: %d"), m_ID);
+        BadRef("@weapon_id", "get weapon id");
     }
     return SQMOD_UNKNOWN;
 }
@@ -1511,11 +1498,11 @@ void CPlayer::SetWeaponID(SQInt32 wep) const
     }
     else if (!VALID_ENTITY(wep))
     {
-        LogWrn(_SC("Attempting to <set player weapon> using an invalid argument: %d"), wep);
+        BadArg("@weapon_id", "set weapon", wep);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player weapon> using an invalid reference: %d"), m_ID);
+        BadRef("@weapon_id", "set weapon");
     }
 }
 
@@ -1528,11 +1515,11 @@ void CPlayer::SetWeaponIDEx(SQInt32 wep, SQInt32 ammo) const
     }
     else if (!VALID_ENTITY(wep))
     {
-        LogWrn(_SC("Attempting to <set player weapon> using an invalid argument: %d"), wep);
+        BadArg("set_weapon_id", "set weapon", wep);
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player weapon> using an invalid reference: %d"), m_ID);
+        BadRef("set_weapon_id", "set weapon");
     }
 }
 
@@ -1545,11 +1532,11 @@ void CPlayer::GiveWeapon(const CWeapon & wep) const
     }
     else if (!wep)
     {
-        LogWrn(_SC("Attempting to <give player weapon> using an invalid argument: %d"), _SCI32(wep));
+        BadArg("give_weapon", "give weapon", _SCI32(wep));
     }
     else
     {
-        LogWrn(_SC("Attempting to <give player weapon> using an invalid reference: %d"), m_ID);
+        BadRef("give_weapon", "give weapon");
     }
 }
 
@@ -1562,11 +1549,11 @@ void CPlayer::GiveWeaponEx(const CWeapon & wep, SQInt32 ammo) const
     }
     else if (!wep)
     {
-        LogWrn(_SC("Attempting to <give player weapon> using an invalid argument: %d"), _SCI32(wep));
+        BadArg("give_weapon", "give weapon", _SCI32(wep));
     }
     else
     {
-        LogWrn(_SC("Attempting to <give player weapon> using an invalid reference: %d"), m_ID);
+        BadRef("give_weapon", "give weapon");
     }
 }
 
@@ -1579,11 +1566,11 @@ void CPlayer::GiveWeaponIDEx(SQInt32 wep, SQInt32 ammo) const
     }
     else if (!VALID_ENTITY(wep))
     {
-        LogWrn(_SC("Attempting to <give player weapon> using an invalid argument: %d"), wep);
+        BadArg("give_weapon_id", "give weapon", wep);
     }
     else
     {
-        LogWrn(_SC("Attempting to <give player weapon> using an invalid reference: %d"), m_ID);
+        BadRef("give_weapon_id", "give weapon");
     }
 }
 
@@ -1596,7 +1583,7 @@ void CPlayer::StripWeapons() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <strip player of weapons> using an invalid reference: %d"), m_ID);
+        BadRef("strip_weapons", "strip of weapons");
     }
 }
 
@@ -1609,7 +1596,20 @@ void CPlayer::SetCameraPosition(const Vector3 & pos, const Vector3 & aim) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player camera position> using an invalid reference: %d"), m_ID);
+        BadRef("camera_position", "set camera position");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetCameraPosition(SQFloat xp, SQFloat yp, SQFloat zp, SQFloat xa, SQFloat ya, SQFloat za) const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        _Func->SetCameraPosition(m_ID, xp, yp, zp, xa, ya, za);
+    }
+    else
+    {
+        BadRef("camera_position", "set camera position");
     }
 }
 
@@ -1622,7 +1622,7 @@ void CPlayer::RestoreCamera() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <restore player camera position> using an invalid reference: %d"), m_ID);
+        BadRef("restore_camera", "restore camera position");
     }
 }
 
@@ -1635,7 +1635,7 @@ bool CPlayer::IsCameraLocked() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player has camera locked> using an invalid reference: %d"), m_ID);
+        BadRef("@camera_locked", "see whether has camera locked");
     }
 
     return false;
@@ -1650,7 +1650,7 @@ void CPlayer::SetAnimation(SQInt32 group, SQInt32 anim) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player animation> using an invalid reference: %d"), m_ID);
+        BadRef("animation", "set animation");
     }
 }
 
@@ -1663,7 +1663,7 @@ SQInt32 CPlayer::GetWantedLevel() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player wanted level> using an invalid reference: %d"), m_ID);
+        BadRef("@wanted_level", "get wanted level");
     }
 
     return SQMOD_UNKNOWN;
@@ -1678,7 +1678,7 @@ void CPlayer::SetWantedLevel(SQInt32 level) const
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player wanted level> using an invalid reference: %d"), m_ID);
+        BadRef("@wanted_level", "set wanted level");
     }
 }
 
@@ -1691,7 +1691,7 @@ Reference < CVehicle > CPlayer::StandingOnVehicle() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get the vehicle on which the player is standing> using an invalid reference: %d"), m_ID);
+        BadRef("@touched_vehicle", "get the vehicle on which the is standing");
     }
 
     return Reference < CVehicle >();
@@ -1706,7 +1706,7 @@ Reference < CObject > CPlayer::StandingOnObject() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get the object on which the player is standing> using an invalid reference: %d"), m_ID);
+        BadRef("@touched_object", "get the object on which the is standing");
     }
 
     return Reference < CObject >();
@@ -1721,10 +1721,42 @@ bool CPlayer::IsAway() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is away> using an invalid reference: %d"), m_ID);
+        BadRef("@away", "see whether is away");
     }
 
     return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+Reference < CPlayer > CPlayer::GetSpectator() const
+{
+    if (VALID_ENTITY(m_ID))
+    {
+        return Reference < CPlayer >(_Func->GetPlayerSpectateTarget(m_ID));
+    }
+    else
+    {
+        BadRef("@spec", "get spectated player");
+    }
+
+    return Reference < CPlayer >();
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetSpectator(const Reference < CPlayer > & target) const
+{
+    if (VALID_ENTITY(m_ID) && target)
+    {
+        _Func->SetPlayerSpectateTarget(m_ID, target);
+    }
+    else if (!target)
+    {
+        BadArg("@spec", "set spectated player", _SCI32(target));
+    }
+    else
+    {
+        BadRef("@spec", "set spectated player");
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1736,7 +1768,7 @@ Reference < CPlayer > CPlayer::Spectating() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get spectated player> using an invalid reference: %d"), m_ID);
+        BadRef("@spectating", "get spectated player");
     }
 
     return Reference < CPlayer >();
@@ -1751,11 +1783,11 @@ void CPlayer::Spectate(const Reference < CPlayer > & target) const
     }
     else if (!target)
     {
-        LogWrn(_SC("Attempting to <set spectated player> using an invalid argument: %d"), _SCI32(target));
+        BadArg("spectate", "set spectated player", _SCI32(target));
     }
     else
     {
-        LogWrn(_SC("Attempting to <set spectated player> using an invalid reference: %d"), m_ID);
+        BadRef("spectate", "set spectated player");
     }
 }
 
@@ -1768,7 +1800,7 @@ bool CPlayer::IsBurning() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is burning> using an invalid reference: %d"), m_ID);
+        BadRef("@burning", "see whether is burning");
     }
 
     return false;
@@ -1783,7 +1815,7 @@ bool CPlayer::IsCrouched() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <see if player is crouched> using an invalid reference: %d"), m_ID);
+        BadRef("@crouched", "see whether is crouched");
     }
 
     return false;
@@ -1798,7 +1830,7 @@ SQInt32 CPlayer::GetAction() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player action> using an invalid reference: %d"), m_ID);
+        BadRef("@action", "get current action");
     }
 
     return SQMOD_UNKNOWN;
@@ -1813,7 +1845,7 @@ SQInt32 CPlayer::GetGameKeys() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player game keys> using an invalid reference: %d"), m_ID);
+        BadRef("@game_keys", "get game keys");
     }
 
     return SQMOD_UNKNOWN;
@@ -1831,7 +1863,7 @@ const Vector3 & CPlayer::GetAimPos() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player aim position> using an invalid reference: %d"), m_ID);
+        BadRef("@aim_position", "get aim position");
     }
     // Return the aim position that could be retrieved
     return s_Vector3;
@@ -1849,7 +1881,7 @@ const Vector3 & CPlayer::GetAimDir() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player aim direction> using an invalid reference: %d"), m_ID);
+        BadRef("@aim_direction", "get aim direction");
     }
     // Return the aim direction that could be retrieved
     return s_Vector3;
@@ -1864,11 +1896,11 @@ void CPlayer::Embark(const Reference < CVehicle > & vehicle) const
     }
     else if (!vehicle)
     {
-        LogWrn(_SC("Attempting to <embark player in vehicle> using an invalid argument: %d"), _SCI32(vehicle));
+        BadArg("embark", "embark in vehicle", _SCI32(vehicle));
     }
     else
     {
-        LogWrn(_SC("Attempting to <embark player in vehicle> using an invalid reference: %d"), m_ID);
+        BadRef("embark", "embark in vehicle");
     }
 }
 
@@ -1881,11 +1913,11 @@ void CPlayer::Embark(const Reference < CVehicle > & vehicle, SQInt32 slot, bool 
     }
     else if (!vehicle)
     {
-        LogWrn(_SC("Attempting to <embark player in vehicle> using an invalid argument: %d"), _SCI32(vehicle));
+        BadArg("embark", "embark in vehicle", _SCI32(vehicle));
     }
     else
     {
-        LogWrn(_SC("Attempting to <embark player in vehicle> using an invalid reference: %d"), m_ID);
+        BadRef("embark", "embark in vehicle");
     }
 }
 
@@ -1898,7 +1930,7 @@ void CPlayer::Disembark() const
     }
     else
     {
-        LogWrn(_SC("Attempting to <disembark player from vehicle> using an invalid reference: %d"), m_ID);
+        BadRef("disembark", "disembark from vehicle");
     }
 }
 
@@ -1912,7 +1944,7 @@ bool CPlayer::Redirect(const SQChar * ip, SQUint32 port, const SQChar * nick, \
     }
     else
     {
-        LogWrn(_SC("Attempting to <redirect player to server> using an invalid reference: %d"), m_ID);
+        BadRef("redirect", "redirect to server");
     }
 
     return false;
@@ -1925,14 +1957,14 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     // Are there any arguments on the stack?
     if (top <= 1)
     {
-        LogErr("Attempting to <send player message> without specifying a color");
+        DbgErr("Attempting to <send player message> without specifying a color");
         // Failed to send the message
         return 0;
     }
     // Is there a valid color on the stack?
     else if (top == 2)
     {
-        LogErr("Attempting to <send player message> without specifying a value");
+        DbgErr("Attempting to <send player message> without specifying a value");
         // Failed to send the message
         return 0;
     }
@@ -1943,7 +1975,7 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     // Validate the player instance
     if (!inst.value)
     {
-        LogErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
+        DbgErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
         // Failed to send the message
         return 0;
     }
@@ -1955,7 +1987,7 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
         // Attempt to retrieve the specified message from the stack
         if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
         {
-            LogErr("Unable to <retrieve the player message> from the stack");
+            DbgErr("Unable to <retrieve the player message> from the stack");
             // Pop any pushed values pushed to the stack
             sq_settop(vm, top);
             // Failed to send the value
@@ -1974,7 +2006,7 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
         // Attempt to call the format function with the passed arguments
         if (SQ_FAILED(sqstd_format(vm, 3, &len, &msg)))
         {
-            LogErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
+            DbgErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
             // Failed to send the value
             return 0;
         }
@@ -1983,7 +2015,7 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     }
     else
     {
-        LogErr("Unable to <extract the player message> from the specified value");
+        DbgErr("Unable to <extract the player message> from the specified value");
     }
     // At this point everything went correctly
     return 0;
@@ -1996,14 +2028,14 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     // Are there any arguments on the stack?
     if (top <= 1)
     {
-        LogErr("Attempting to <send player message> without specifying a prefix index");
+        DbgErr("Attempting to <send player message> without specifying a prefix index");
         // Failed to send the message
         return 0;
     }
     // Is there a valid prefix index on the stack?
     else if (top == 2)
     {
-        LogErr("Attempting to <send player message> without specifying a value");
+        DbgErr("Attempting to <send player message> without specifying a value");
         // Failed to send the message
         return 0;
     }
@@ -2014,13 +2046,13 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     // Validate the player instance
     if (!inst.value)
     {
-        LogErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
+        DbgErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
         // Failed to send the message
         return 0;
     }
     else if (index.value > MAX_PLAYER_MESSAGE_PREFIXES)
     {
-        LogErr("Attempting to <send player message> using an out of range prefix: %u", index.value);
+        DbgErr("Attempting to <send player message> using an out of range prefix: %u", index.value);
         // Failed to send the message
         return 0;
     }
@@ -2032,7 +2064,7 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
         // Attempt to retrieve the specified message from the stack
         if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
         {
-            LogErr("Unable to <retrieve the player message> from the stack");
+            DbgErr("Unable to <retrieve the player message> from the stack");
             // Pop any pushed values pushed to the stack
             sq_settop(vm, top);
             // Failed to send the value
@@ -2052,7 +2084,7 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
         // Attempt to call the format function with the passed arguments
         if (SQ_FAILED(sqstd_format(vm, 3, &len, &msg)))
         {
-            LogErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
+            DbgErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
             // Failed to send the value
             return 0;
         }
@@ -2062,7 +2094,7 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     }
     else
     {
-        LogErr("Unable to <extract the player message> from the specified value");
+        DbgErr("Unable to <extract the player message> from the specified value");
     }
     // At this point everything went correctly
     return 0;
@@ -2075,14 +2107,14 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     // Are there any arguments on the stack?
     if (top <= 1)
     {
-        LogErr("Attempting to <send player message> without specifying a color");
+        DbgErr("Attempting to <send player message> without specifying a color");
         // Failed to send the message
         return 0;
     }
     // Is there a valid color on the stack?
     else if (top <= 4)
     {
-        LogErr("Attempting to <send player message> without specifying a value");
+        DbgErr("Attempting to <send player message> without specifying a value");
         // Failed to send the message
         return 0;
     }
@@ -2095,7 +2127,7 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     // Validate the player instance
     if (!inst.value)
     {
-        LogErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
+        DbgErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
         // Failed to send the message
         return 0;
     }
@@ -2107,7 +2139,7 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
         // Attempt to retrieve the specified message from the stack
         if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
         {
-            LogErr("Unable to <retrieve the player message> from the stack");
+            DbgErr("Unable to <retrieve the player message> from the stack");
             // Pop any pushed values pushed to the stack
             sq_settop(vm, top);
             // Failed to send the value
@@ -2126,7 +2158,7 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
         // Attempt to call the format function with the passed arguments
         if (SQ_FAILED(sqstd_format(vm, 5, &len, &msg)))
         {
-            LogErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
+            DbgErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
             // Failed to send the value
             return 0;
         }
@@ -2135,7 +2167,7 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     }
     else
     {
-        LogErr("Unable to <extract the player message> from the specified value");
+        DbgErr("Unable to <extract the player message> from the specified value");
     }
     // At this point everything went correctly
     return 0;
@@ -2148,7 +2180,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     // Are there any arguments on the stack?
     if (top <= 1)
     {
-        LogErr("Attempting to <send player message> without specifying a value");
+        DbgErr("Attempting to <send player message> without specifying a value");
         // Failed to send the message
         return 0;
     }
@@ -2157,7 +2189,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     // Validate the player instance
     if (!inst.value)
     {
-        LogErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
+        DbgErr("Attempting to <send player message> using an invalid reference: %d", _SCI32(inst.value));
         // Failed to send the message
         return 0;
     }
@@ -2169,7 +2201,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
         // Attempt to retrieve the specified message from the stack
         if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
         {
-            LogErr("Unable to <retrieve the player message> from the stack");
+            DbgErr("Unable to <retrieve the player message> from the stack");
             // Pop any pushed values pushed to the stack
             sq_settop(vm, top);
             // Failed to log the value
@@ -2188,7 +2220,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
         // Attempt to call the format function with the passed arguments
         if (SQ_FAILED(sqstd_format(vm, 2, &len, &msg)))
         {
-            LogErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
+            DbgErr("Unable to <generate the player message> because : %s", Error::Message(vm).c_str());
             // Failed to log the value
             return 0;
         }
@@ -2197,7 +2229,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     }
     else
     {
-        LogErr("Unable to <extract the player message> from the specified value");
+        DbgErr("Unable to <extract the player message> from the specified value");
     }
     // At this point everything went correctly
     return 0;
@@ -2210,7 +2242,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     // Are there any arguments on the stack?
     if (top <= 1)
     {
-        LogErr("Attempting to <send player announcement> without specifying a value");
+        DbgErr("Attempting to <send player announcement> without specifying a value");
         // Failed to send the message
         return 0;
     }
@@ -2219,7 +2251,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     // Validate the player instance
     if (!inst.value)
     {
-        LogErr("Attempting to <send player announcement> using an invalid reference: %d", _SCI32(inst.value));
+        DbgErr("Attempting to <send player announcement> using an invalid reference: %d", _SCI32(inst.value));
         // Failed to send the message
         return 0;
     }
@@ -2231,7 +2263,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
         // Attempt to retrieve the specified message from the stack
         if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
         {
-            LogErr("Unable to <retrieve the player announcement> from the stack");
+            DbgErr("Unable to <retrieve the player announcement> from the stack");
             // Pop any pushed values pushed to the stack
             sq_settop(vm, top);
             // Failed to log the value
@@ -2250,7 +2282,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
         // Attempt to call the format function with the passed arguments
         if (SQ_FAILED(sqstd_format(vm, 2, &len, &msg)))
         {
-            LogErr("Unable to <generate the player announcement> because : %s", Error::Message(vm).c_str());
+            DbgErr("Unable to <generate the player announcement> because : %s", Error::Message(vm).c_str());
             // Failed to log the value
             return 0;
         }
@@ -2259,7 +2291,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     }
     else
     {
-        LogErr("Unable to <extract the player announcement> from the specified value");
+        DbgErr("Unable to <extract the player announcement> from the specified value");
     }
     // At this point everything went correctly
     return 0;
@@ -2272,14 +2304,14 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     // Are there any arguments on the stack?
     if (top <= 1)
     {
-        LogErr("Attempting to <send player announcement> without specifying a type");
+        DbgErr("Attempting to <send player announcement> without specifying a type");
         // Failed to send the message
         return 0;
     }
     // Is there a valid type on the stack?
     else if (top == 2)
     {
-        LogErr("Attempting to <send player announcement> without specifying a value");
+        DbgErr("Attempting to <send player announcement> without specifying a value");
         // Failed to send the message
         return 0;
     }
@@ -2290,7 +2322,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     // Validate the player instance
     if (!inst.value)
     {
-        LogErr("Attempting to <send player announcement> using an invalid reference: %d", _SCI32(inst.value));
+        DbgErr("Attempting to <send player announcement> using an invalid reference: %d", _SCI32(inst.value));
         // Failed to send the message
         return 0;
     }
@@ -2302,7 +2334,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
         // Attempt to retrieve the specified message from the stack
         if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
         {
-            LogErr("Unable to <retrieve the player announcement> from the stack");
+            DbgErr("Unable to <retrieve the player announcement> from the stack");
             // Pop any pushed values pushed to the stack
             sq_settop(vm, top);
             // Failed to log the value
@@ -2321,7 +2353,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
         // Attempt to call the format function with the passed arguments
         if (SQ_FAILED(sqstd_format(vm, 3, &len, &msg)))
         {
-            LogErr("Unable to <generate the player announcement> because : %s", Error::Message(vm).c_str());
+            DbgErr("Unable to <generate the player announcement> because : %s", Error::Message(vm).c_str());
             // Failed to log the value
             return 0;
         }
@@ -2330,7 +2362,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     }
     else
     {
-        LogErr("Unable to <extract the player announcement> from the specified value");
+        DbgErr("Unable to <extract the player announcement> from the specified value");
     }
     // At this point everything went correctly
     return 0;
@@ -2381,7 +2413,7 @@ static const SQChar * GetPlayerMessagePrefix(SQUint32 index)
     }
     else
     {
-        LogWrn(_SC("Attempting to <get player global message prefix> using an out of bounds index: %u"), index);
+        DbgWrn("Attempting to <get player global message prefix> using an out of bounds index: %u", index);
     }
 
     return _SC("");
@@ -2396,7 +2428,7 @@ static void SetPlayerMessagePrefix(SQUint32 index, const SQChar * prefix)
     }
     else
     {
-        LogWrn(_SC("Attempting to <set player global message prefix> using an out of bounds index: %u"), index);
+        DbgWrn("Attempting to <set player global message prefix> using an out of bounds index: %u", index);
     }
 }
 
@@ -2450,10 +2482,12 @@ bool Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("lmessage_color"), &CPlayer::GetLocalMessageColor, &CPlayer::SetLocalMessageColor)
         .Prop(_SC("ltext_style"), &CPlayer::GetLocalAnnounceStyle, &CPlayer::SetLocalAnnounceStyle)
         .Prop(_SC("lannounce_style"), &CPlayer::GetLocalAnnounceStyle, &CPlayer::SetLocalAnnounceStyle)
+        .Prop(_SC("msg_color"), &CPlayer::GetMessageColor, &CPlayer::SetMessageColor)
         .Prop(_SC("message_color"), &CPlayer::GetMessageColor, &CPlayer::SetMessageColor)
         .Prop(_SC("announce_style"), &CPlayer::GetAnnounceStyle, &CPlayer::SetAnnounceStyle)
         .Prop(_SC("level"), &CPlayer::GetLevel, &CPlayer::SetLevel)
         .Prop(_SC("cls"), &CPlayer::GetClass)
+        .Prop(_SC("class_id"), &CPlayer::GetClass)
         .Prop(_SC("admin"), &CPlayer::GetAdmin, &CPlayer::SetAdmin)
         .Prop(_SC("ip"), &CPlayer::GetIP)
         .Prop(_SC("connected"), &CPlayer::IsConnected)
@@ -2503,9 +2537,10 @@ bool Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("camera_locked"), &CPlayer::IsCameraLocked)
         .Prop(_SC("wanted_level"), &CPlayer::GetWantedLevel, &CPlayer::SetWantedLevel)
         .Prop(_SC("touched_vehicle"), &CPlayer::StandingOnVehicle)
-        .Prop(_SC("touched_object"), &CPlayer::StandingOnObject, &CPlayer::Spectate)
+        .Prop(_SC("touched_object"), &CPlayer::StandingOnObject)
         .Prop(_SC("away"), &CPlayer::IsAway)
         .Prop(_SC("spectating"), &CPlayer::Spectating)
+        .Prop(_SC("spec"), &CPlayer::GetSpectator, &CPlayer::SetSpectator)
         .Prop(_SC("crouched"), &CPlayer::IsCrouched)
         .Prop(_SC("game_keys"), &CPlayer::GetGameKeys)
         .Prop(_SC("aim_pos"), &CPlayer::GetAimPos)
@@ -2530,8 +2565,8 @@ bool Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("set_weapon_id"), &CPlayer::SetWeaponIDEx)
         .Func(_SC("give_weapon_id"), &CPlayer::GiveWeaponIDEx)
         .Func(_SC("strip_weapons"), &CPlayer::StripWeapons)
-        .Func(_SC("camera_position"), &CPlayer::SetCameraPosition)
         .Func(_SC("restore_camera"), &CPlayer::RestoreCamera)
+        .Func(_SC("set_anim"), &CPlayer::SetAnimation)
         .Func(_SC("animation"), &CPlayer::SetAnimation)
         .Func(_SC("spectate"), &CPlayer::Spectate)
         .Func(_SC("disembark"), &CPlayer::Disembark)
@@ -2554,6 +2589,10 @@ bool Register_CPlayer(HSQUIRRELVM vm)
             (_SC("give_weapon"), &CPlayer::GiveWeapon)
         .Overload< void (CPlayer::*)(const CWeapon &, SQInt32) const >
             (_SC("give_weapon"), &CPlayer::GiveWeaponEx)
+        .Overload< void (CPlayer::*)(const Vector3 &, const Vector3 &) const >
+            (_SC("camera_position"), &CPlayer::SetCameraPosition)
+        .Overload< void (CPlayer::*)(SQFloat, SQFloat, SQFloat, SQFloat, SQFloat, SQFloat) const >
+            (_SC("camera_position"), &CPlayer::SetCameraPosition)
         .Overload< void (CPlayer::*)(const Reference < CVehicle > &) const >
             (_SC("embark"), &CPlayer::Embark)
         .Overload< void (CPlayer::*)(const Reference < CVehicle > &, SQInt32, bool, bool) const >
@@ -2563,7 +2602,7 @@ bool Register_CPlayer(HSQUIRRELVM vm)
     LogDbg("Registration of <CPlayer> type was successful");
 
     // Output debugging information
-    LogDbg("Beginning registration of <Player functions> type");
+    LogDbg("Beginning registration of <Player> functions type");
     // Several global functions
     Sqrat::RootTable root(vm);
     root.Func(_SC("GetPlayerMessagePrefix"), &GetPlayerMessagePrefix);
@@ -2573,7 +2612,7 @@ bool Register_CPlayer(HSQUIRRELVM vm)
     root.Func(_SC("GetPlayerAnnounceStyle"), &GetPlayerAnnounceStyle);
     root.Func(_SC("SetPlayerAnnounceStyle"), &SetPlayerAnnounceStyle);
     // Output debugging information
-    LogDbg("Registration of <Player functions> type was successful");
+    LogDbg("Registration of <Player> functions type was successful");
     // Registration succeeded
     return true;
 }
