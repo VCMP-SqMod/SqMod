@@ -876,19 +876,19 @@ SQInt32 Session::Connect()
     }
     else if (irc_is_connected(m_Session))
     {
-        Error("connect", "connect to server", "while already connected to another server");
+        _Issue("connect", "connect to server", "while session is already connected");
     }
     else if (m_Server.empty())
     {
-        Error("connect", "connect to server", "without specifying a server first");
+        _Error("connect", "connect to server", "without specifying a server");
     }
     else if (m_Nick.empty())
     {
-        Error("connect", "connect to server", "without specifying a nickname first");
+        _Error("connect", "connect to server", "without specifying a nickname");
     }
     else
     {
-        BadRef("connect", "connect to server");
+        _Handle("connect", "connect to server");
     }
 
     return SQMOD_UNKNOWN;
@@ -937,11 +937,11 @@ SQInt32 Session::Connect(const SQChar * server, SQUint32 port, const SQChar * ni
     }
     else if (irc_is_connected(m_Session))
     {
-        Error("connect", "connect to server", "while already connected to another server");
+        _Issue("connect", "connect to server", "while session is already connected");
     }
     else
     {
-        BadRef("connect", "connect to server");
+        _Handle("connect", "connect to server");
     }
 
     return SQMOD_UNKNOWN;
@@ -968,19 +968,19 @@ SQInt32 Session::Connect6()
     }
     else if (irc_is_connected(m_Session))
     {
-        Error("connect6", "connect to server", "while already connected to another server");
+        _Issue("connect6", "connect to server", "while session is already connected");
     }
     else if (m_Server.empty())
     {
-        Error("connect6", "connect to server", "without specifying a server first");
+        _Issue("connect6", "connect to server", "without specifying a server");
     }
     else if (m_Nick.empty())
     {
-        Error("connect6", "connect to server", "without specifying a nickname first");
+        _Issue("connect6", "connect to server", "without specifying a nickname");
     }
     else
     {
-        BadRef("connect6", "connect to server");
+        _Handle("connect6", "connect to server");
     }
 
     return SQMOD_UNKNOWN;
@@ -1029,11 +1029,11 @@ SQInt32 Session::Connect6(const SQChar * server, SQUint32 port, const SQChar * n
     }
     else if (irc_is_connected(m_Session))
     {
-        Error("connect6", "connect to server", "while already connected to another server");
+        _Issue("connect6", "connect to server", "while session is already connected");
     }
     else
     {
-        BadRef("connect6", "connect to server");
+        _Handle("connect6", "connect to server");
     }
 
     return SQMOD_UNKNOWN;
@@ -1051,7 +1051,7 @@ void Session::Disconnect()
     }
     else
     {
-        BadRef("disconnect", "disconnect from server");
+        _Handle("disconnect", "disconnect from server");
     }
 }
 
@@ -1064,7 +1064,7 @@ bool Session::IsConnected()
     }
     else
     {
-        BadRef("@connected", "see whether is connected");
+        _Handle("@connected", "see whether is connected");
     }
 
     return false;
@@ -1085,7 +1085,7 @@ SQInt32 Session::CmdJoin(const SQChar * channel, const SQChar * key)
     }
     else
     {
-        BadRef("cmd_join", "join channel");
+        _Handle("cmd_join", "join channel");
     }
 
     return SQMOD_UNKNOWN;
@@ -1100,7 +1100,7 @@ SQInt32 Session::CmdPart(const SQChar * channel)
     }
     else
     {
-        BadRef("cmd_part", "part channel");
+        _Handle("cmd_part", "part channel");
     }
 
     return SQMOD_UNKNOWN;
@@ -1115,7 +1115,7 @@ SQInt32 Session::CmdInvite(const SQChar * nick, const SQChar * channel)
     }
     else
     {
-        BadRef("cmd_invite", "invite onto channel");
+        _Handle("cmd_invite", "invite onto channel");
     }
 
     return SQMOD_UNKNOWN;
@@ -1130,7 +1130,7 @@ SQInt32 Session::CmdNames(const SQChar * channel)
     }
     else
     {
-        BadRef("cmd_names", "get channel names list");
+        _Handle("cmd_names", "get channel names list");
     }
 
     return SQMOD_UNKNOWN;
@@ -1151,7 +1151,7 @@ SQInt32 Session::CmdList(const SQChar * channel)
     }
     else
     {
-        BadRef("cmd_list", "get active channel list");
+        _Handle("cmd_list", "get active channel list");
     }
 
     return SQMOD_UNKNOWN;
@@ -1172,7 +1172,7 @@ SQInt32 Session::CmdTopic(const SQChar * channel, const SQChar * topic)
     }
     else
     {
-        BadRef("cmd_topic", "set channel topic");
+        _Handle("cmd_topic", "set channel topic");
     }
 
     return SQMOD_UNKNOWN;
@@ -1193,7 +1193,7 @@ SQInt32 Session::CmdChannelMode(const SQChar * channel, const SQChar * mode)
     }
     else
     {
-        BadRef("cmd_channel_mode", "set channel mode");
+        _Handle("cmd_channel_mode", "set channel mode");
     }
 
     return SQMOD_UNKNOWN;
@@ -1214,7 +1214,7 @@ SQInt32 Session::CmdUserMode(const SQChar * mode)
     }
     else
     {
-        BadRef("cmd_user_mode", "set user mode");
+        _Handle("cmd_user_mode", "set user mode");
     }
 
     return SQMOD_UNKNOWN;
@@ -1235,7 +1235,7 @@ SQInt32 Session::CmdKick(const SQChar * nick, const SQChar * channel, const SQCh
     }
     else
     {
-        BadRef("cmd_kick", "kick from channel");
+        _Handle("cmd_kick", "kick from channel");
     }
 
     return SQMOD_UNKNOWN;
@@ -1250,7 +1250,7 @@ SQInt32 Session::CmdMsg(const SQChar * nch, const SQChar * text)
     }
     else
     {
-        BadRef("cmd_msg", "send message");
+        _Handle("cmd_msg", "send message");
     }
 
     return SQMOD_UNKNOWN;
@@ -1265,7 +1265,7 @@ SQInt32 Session::CmdMe(const SQChar * nch, const SQChar * text)
     }
     else
     {
-        BadRef("cmd_me", "send me message");
+        _Handle("cmd_me", "send me message");
     }
 
     return SQMOD_UNKNOWN;
@@ -1280,7 +1280,7 @@ SQInt32 Session::CmdNotice(const SQChar * nch, const SQChar * text)
     }
     else
     {
-        BadRef("cmd_notice", "send notice message");
+        _Handle("cmd_notice", "send notice message");
     }
 
     return SQMOD_UNKNOWN;
@@ -1295,7 +1295,7 @@ SQInt32 Session::CmdCtcpRequest(const SQChar * nick, const SQChar * request)
     }
     else
     {
-        BadRef("cmd_ctcp_request", "send ctcp request");
+        _Handle("cmd_ctcp_request", "send ctcp request");
     }
 
     return SQMOD_UNKNOWN;
@@ -1310,7 +1310,7 @@ SQInt32 Session::CmdCtcpReply(const SQChar * nick, const SQChar * reply)
     }
     else
     {
-        BadRef("cmd_ctcp_reply", "send ctcp reply");
+        _Handle("cmd_ctcp_reply", "send ctcp reply");
     }
 
     return SQMOD_UNKNOWN;
@@ -1325,7 +1325,7 @@ SQInt32 Session::CmdNick(const SQChar * nick)
     }
     else
     {
-        BadRef("cmd_nick", "change nick");
+        _Handle("cmd_nick", "change nick");
     }
 
     return SQMOD_UNKNOWN;
@@ -1340,7 +1340,7 @@ SQInt32 Session::CmdWhois(const SQChar * nick)
     }
     else
     {
-        BadRef("cmd_whois", "request whois");
+        _Handle("cmd_whois", "request whois");
     }
 
     return SQMOD_UNKNOWN;
@@ -1362,7 +1362,7 @@ SQInt32 Session::CmdQuit(const SQChar * reason)
     }
     else
     {
-        BadRef("cmd_quit", "quit server");
+        _Handle("cmd_quit", "quit server");
     }
 
     return SQMOD_UNKNOWN;
@@ -1377,7 +1377,7 @@ SQInt32 Session::SendRaw(const SQChar * str)
     }
     else
     {
-        BadRef("send_raw", "send raw data");
+        _Handle("send_raw", "send raw data");
     }
 
     return SQMOD_UNKNOWN;
@@ -1392,7 +1392,7 @@ SQInt32 Session::DestroyDcc(SQUint32 dccid)
     }
     else
     {
-        BadRef("destroy_dcc", "destroy dcc");
+        _Handle("destroy_dcc", "destroy dcc");
     }
 
     return SQMOD_UNKNOWN;
@@ -1407,7 +1407,7 @@ void Session::SetCtcpVersion(const SQChar * version)
     }
     else
     {
-        BadRef("set_ctcp_version", "set ctcp version");
+        _Handle("set_ctcp_version", "set ctcp version");
     }
 }
 
@@ -1420,7 +1420,7 @@ SQInt32 Session::GetErrNo()
     }
     else
     {
-        BadRef("@err_no", "get error number");
+        _Handle("@err_no", "get error number");
     }
     return SQMOD_UNKNOWN;
 }
@@ -1434,7 +1434,7 @@ const SQChar * Session::GetErrStr()
     }
     else
     {
-        BadRef("@err_str", "get error string");
+        _Handle("@err_str", "get error string");
     }
     return _SC("");
 }
@@ -1448,7 +1448,7 @@ void Session::SetOption(SQUint32 option)
     }
     else
     {
-        BadRef("set_option", "set option");
+        _Handle("set_option", "set option");
     }
 }
 
@@ -1461,7 +1461,7 @@ void Session::ResetOption(SQUint32 option)
     }
     else
     {
-        BadRef("reset_option", "reset option");
+        _Handle("reset_option", "reset option");
     }
 }
 

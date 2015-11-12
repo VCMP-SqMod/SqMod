@@ -789,19 +789,26 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Throw a bad reference error.
     */
-    void BadRef(const char * loc, const char * act) const
+    void _Handle(const char * loc, const char * act) const
     {
         DbgWrn("IRC.Session", loc, "Attempting to <%s> using an invalid session: null", act);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Throw a generic error.
+     * Throw a bad action error.
     */
-    void Error(const char * loc, const char * act, const char * msg) const
+    void _Issue(const char * loc, const char * act, const char * msg) const
     {
-        DbgWrn("IRC.Session", loc, "Attempting to <%s> %s", act, msg);
+        DbgErr("IRC.Session", loc, "Attempting to <%s> %s", act, msg);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Throw a bad result error.
+    */
+    void _Error(const char * loc, const char * act, const char * inf) const
+    {
+        DbgErr("IRC.Session", loc, "Unable to <%s> because: %s", act, inf);
+    }
 
 private:
 
