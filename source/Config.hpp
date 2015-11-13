@@ -169,14 +169,20 @@ typedef long double                 Float128, Real128, F128, float128, real128, 
 /* ------------------------------------------------------------------------------------------------
  * SHORT SQUIRREL TYPENAMES
 */
-typedef SQUnsignedInteger32 SQUint32;
-typedef SQUnsignedInteger SQUint;
-typedef SQInteger SQInt;
+typedef SQUnsignedInteger32         SQUint32;
+typedef SQUnsignedInteger           SQUint;
+typedef SQInteger                   SQInt;
 
 /* ------------------------------------------------------------------------------------------------
  * STRING TYPE
 */
-typedef std::basic_string<SQChar> String;
+typedef std::basic_string<SQChar>   String;
+
+typedef char *                      CStr;
+typedef const char *                CCStr;
+
+typedef SQChar *                    SStr;
+typedef SQChar char *               CSStr;
 
 /* ------------------------------------------------------------------------------------------------
  * FORWARD DECLARATIONS
