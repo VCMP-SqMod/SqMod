@@ -2,75 +2,42 @@
 #define _COMMAND_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Common.hpp"
-#include "Entity/Player.hpp"
+#include "Base/Shared.hpp"
+#include "Base/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <unordered_map>
+#include <map>
+#include <vector>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-/* ------------------------------------------------------------------------------------------------
- * Flags of the types of values supported by the command arguments.
-*/
-enum CmdArgType
-{
-    CMDARG_ANY         = 0,
-    CMDARG_INTEGER     = (1 << 1),
-    CMDARG_FLOAT       = (1 << 2),
-    CMDARG_BOOLEAN     = (1 << 3),
-    CMDARG_STRING      = (1 << 4),
-};
-
-/* ------------------------------------------------------------------------------------------------
- * Convert a command type specifier to a name string.
-*/
-const SQChar * CmdArgSpecToStr(Uint8 spec);
-
-/* ------------------------------------------------------------------------------------------------
- * The type of error that's being reported by the command manager.
-*/
-enum CmdError
-{
-    CMDERR_UNKNOWN = 0,
-    CMDERR_SYNTAX_ERROR,
-    CMDERR_UNKNOWN_COMMAND,
-    CMDERR_MISSING_EXECUTER,
-    CMDERR_INSUFFICIENT_AUTH,
-    CMDERR_INCOMPLETE_ARGS,
-    CMDERR_EXTRANEOUS_ARGS,
-    CMDERR_UNSUPPORTED_ARG,
-    CMDERR_EXECUTION_FAILED,
-};
-
 // ------------------------------------------------------------------------------------------------
 class CmdListener;
 
+/* ------------------------------------------------------------------------------------------------
+ * Converts a command specifier to a string.
+*/
+CSStr CmdArgSpecToStr(Uint8 spec);
+
 // ------------------------------------------------------------------------------------------------
-#define MAX_CMD_ARGS 12
+extern CmdManager * _Cmd;
 
 /* ------------------------------------------------------------------------------------------------
- * Helper class used to simplify the code for creating and managing commands.
+ * Manages command instances and processes executed commands.
 */
 class CmdManager
 {
-    /* --------------------------------------------------------------------------------------------
-     * Allow only the smart pointer to delete this class instance as soon as it's not needed.
-    */
-    friend class std::unique_ptr< CmdManager, void(*)(CmdManager *) >;
+    // --------------------------------------------------------------------------------------------
+    friend class CmdListener;
 
-protected:
+private:
 
-    /* --------------------------------------------------------------------------------------------
-     * The type of container for storing command listeners.
-    */
-    typedef std::unordered_map< String, CmdListener * >             CmdPool;
+    // --------------------------------------------------------------------------------------------
+    typedef std::map< String, CmdListener * > CmdList;
 
-    /* --------------------------------------------------------------------------------------------
-     * The type of container for storing command arguments.
-    */
-    typedef std::array< std::pair< Uint8, SqObj >, MAX_CMD_ARGS >   CmdArgs;
+    // --------------------------------------------------------------------------------------------
+    typedef std::vector< std::pair< Uint8, Object > > CmdArgs;
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
@@ -78,14 +45,24 @@ protected:
     CmdManager();
 
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor (disabled).
+     * Copy constructor. (disabled)
     */
-    CmdManager(const CmdManager &) = delete;
+    CmdManager(const CmdManager &);
 
     /* --------------------------------------------------------------------------------------------
-     * Move constructor (disabled).
+     * Copy assignment operator. (disabled)
     */
-    CmdManager(CmdManager &&) = delete;
+    CmdManager & operator = (const CmdManager &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attach a command listener to a certain name.
+    */
+    void Attach(const String & name, CmdListener * cmd)
+    {
+        m_Commands[name] = cmd;
+    }
+
+public:
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -93,234 +70,171 @@ protected:
     ~CmdManager();
 
     /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator (disabled).
+     * Singleton retriever.
     */
-    CmdManager & operator = (const CmdManager &) = delete;
+    static CmdManager * Get()
+    {
+        if (!_Cmd)
+        {
+            _Cmd = new CmdManager();
+        }
+
+        return _Cmd;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Move assignment operator (disabled).
-    */
-    CmdManager & operator = (CmdManager &&) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Called by the smart pointer to delete the instance of this class.
-    */
-    static void _Finalizer(CmdManager * ptr);
-
-public:
-
-    // --------------------------------------------------------------------------------------------
-    typedef std::unique_ptr< CmdManager, void(*)(CmdManager *) >  Pointer;
-
-    /* --------------------------------------------------------------------------------------------
-     * Creates an instance of this type if one doesn't already exist and returns it.
-    */
-    static Pointer Inst();
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    bool Init();
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    bool Load();
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void Deinit();
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void Unload();
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
+     * Terminate current session.
     */
     void Terminate();
 
     /* --------------------------------------------------------------------------------------------
-      * Called by the core class before the VM is closed to release all resources.
+     * Dettach a command listener from a certain name.
     */
-    void VMClose();
+    void Detach(const String & name)
+    {
+        m_Commands.erase(name);
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Bind a command listener to a certain command name.
+     * Retrieve the error callback.
     */
-    void Bind(const String & name, CmdListener * cmd);
+    Function & GetOnError()
+    {
+        return m_OnError;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Unbind a command listener from a certain command name.
+     * Modify the error callback.
     */
-    void Unbind(const String & name);
+    void SetOnError(Object & env, Function & func)
+    {
+        m_OnError = Function(env.GetVM(), env, func.GetFunc());
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the currently used error handler.
+     * Retrieve the authentication callback.
     */
-    Function & GetOnError();
+    Function & GetOnAuth()
+    {
+        return m_OnAuth;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Change the error handler.
+     * Modify the authentication callback.
     */
-    void SetOnError(Function & func);
+    void SetOnAuth(Object & env, Function & func)
+    {
+        m_OnAuth = Function(env.GetVM(), env, func.GetFunc());
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the default authority inspector.
+     * Retrieve the identifier of the last invoker.
     */
-    Function & GetOnAuth();
+    Int32 GetInvoker() const
+    {
+        return m_Invoker;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Change the default authority inspector.
+     * Retrieve the last executed command.
     */
-    void SetOnAuth(Function & func);
+    CSStr GetCommand() const
+    {
+        return m_Command.c_str();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the default authority inspector.
+     * Retrieve the argument of the last executed coommand.
     */
-    const CPlayer & GetInvoker() const;
+    CSStr GetArgument() const
+    {
+        return m_Argument.c_str();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the default authority inspector.
+     * Run a command under a speciffic player.
     */
-    SQInt32 GetInvokerID() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the name of the currently executed command.
-    */
-    const SQChar * GetName();
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the argument text of the currently executed command.
-    */
-    const SQChar * GetText();
-
-    /* --------------------------------------------------------------------------------------------
-     * Execute the specified command for the specified player.
-    */
-    void Execute(SQInt32 invoker, const String & str);
+    Int32 Run(Int32 invoker, CSStr command);
 
 protected:
 
-    /* --------------------------------------------------------------------------------------------
-     * Execute the specified command.
-    */
-    void Exec(CmdListener & cmd);
+    // --------------------------------------------------------------------------------------------
 
     /* --------------------------------------------------------------------------------------------
-     * Forward the error message to the error handler.
+     * Forward error message to the error callback.
     */
-    template < typename... Args> void Error(SQInt32 type, const SQChar * msg, Args&&... args)
+    template < typename T > void SqError(Int32 type, CSStr msg, T data)
     {
-        // Skip if there's no error handler
         if (!m_OnError.IsNull())
         {
-            m_OnError.Execute< SQInt32, const SQChar * >(type, ToStringF(msg, std::forward< Args >(args)...));
+            m_OnError.Execute< Int32, CSStr, T >(type, msg, data);
         }
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Parse the specified argument text and extract the arguments from it.
+     * Attempt to execute the specified command.
     */
-    bool Parse(SQUint32 max);
+    Int32 Exec();
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to parse the specified argument.
+    */
+    bool Parse();
 
 private:
 
-    /* --------------------------------------------------------------------------------------------
-     * List of command listeners and their associated names.
-    */
-    CmdPool         m_Commands;
+    // --------------------------------------------------------------------------------------------
+    Buffer          m_Buffer; /* Internal buffer used for parsing commands. */
+    CmdList         m_Commands; /* List of attached commands. */
 
-    /* --------------------------------------------------------------------------------------------
-     * Currently and last command invoker.
-    */
-    CPlayer         m_Invoker;
+    // --------------------------------------------------------------------------------------------
+    Int32           m_Invoker; /* Current command invoker. */
+    String          m_Command; /* Current command name. */
+    String          m_Argument; /* Current command argument. */
+    CmdListener*    m_Instance; /* Current command instance. */
 
-    /* --------------------------------------------------------------------------------------------
-     * Currently and last used command name.
-    */
-    String          m_Name;
+    // --------------------------------------------------------------------------------------------
+    CmdArgs         m_Argv; /* Extracted command arguments. */
+    Uint32          m_Argc; /* Extracted arguments count. */
 
-    /* --------------------------------------------------------------------------------------------
-     * Currently and last used command argument text.
-    */
-    String          m_Text;
-
-    /* --------------------------------------------------------------------------------------------
-     * Extracted values from the argument text.
-    */
-    CmdArgs         m_Argv;
-
-    /* --------------------------------------------------------------------------------------------
-     * Number of values extracted from the argument text.
-    */
-    SQUint32        m_Argc;
-
-    /* --------------------------------------------------------------------------------------------
-     * Custom error handler.
-    */
-    Function        m_OnError;
-
-    /* --------------------------------------------------------------------------------------------
-     * Default authority inspector for newly created commands.
-    */
-    Function        m_OnAuth;
+    // --------------------------------------------------------------------------------------------
+    Function        m_OnError; /* Error handler. */
+    Function        m_OnAuth; /* Authentication handler. */
 };
 
-// ------------------------------------------------------------------------------------------------
-extern const CmdManager::Pointer _Cmd;
-
 /* ------------------------------------------------------------------------------------------------
- * Class used to bind to certain commands.
+ * Attaches to a command name and listens for invocations.
 */
 class CmdListener
 {
-public:
-
     // --------------------------------------------------------------------------------------------
     friend class CmdManager;
 
     /* --------------------------------------------------------------------------------------------
-     * Default constructor.
+     * Copy constructor. (disabled)
     */
-    CmdListener();
+    CmdListener(const CmdListener &);
 
     /* --------------------------------------------------------------------------------------------
-     * Construct and instance and attach it to the specified name.
+     * Copy assignment operator. (disabled)
     */
-    CmdListener(const SQChar * name);
+    CmdListener & operator = (const CmdListener &);
 
     /* --------------------------------------------------------------------------------------------
-     * Construct and instance and attach it to the specified name.
+     * Initialize the instance for the first time.
     */
-    CmdListener(const SQChar * name, const SQChar * spec);
+    void Init(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max);
+
+public:
 
     /* --------------------------------------------------------------------------------------------
-     * Construct and instance and attach it to the specified name.
+     * Base constructors.
     */
-    CmdListener(const SQChar * name, const SQChar * spec, Array & tags);
-
-    /* --------------------------------------------------------------------------------------------
-     * Construct and instance and attach it to the specified name.
-    */
-    CmdListener(const SQChar * name, const SQChar * spec, Uint8 min, Uint8 max);
-
-    /* --------------------------------------------------------------------------------------------
-     * Construct and instance and attach it to the specified name.
-    */
-    CmdListener(const SQChar * name, const SQChar * spec, Array & tags, Uint8 min, Uint8 max);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor (disabled).
-    */
-    CmdListener(const CmdListener & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor (disabled).
-    */
-    CmdListener(CmdListener && o) = delete;
+    CmdListener(CSStr name);
+    CmdListener(CSStr name, CSStr spec);
+    CmdListener(CSStr name, CSStr spec, Array & tags);
+    CmdListener(CSStr name, CSStr spec, Uint8 min, Uint8 max);
+    CmdListener(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max);
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -328,310 +242,148 @@ public:
     ~CmdListener();
 
     /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator (disabled).
+     * Used by the script engine to compare two instances of this type.
     */
-    CmdListener & operator = (const CmdListener & o) = delete;
+    Int32 Cmp(const CmdListener & o) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Move assignment operator (disabled).
+     * Used by the script engine to convert this instance to a string.
     */
-    CmdListener & operator = (CmdListener && o) = delete;
+    CSStr ToString() const;
 
-    /* --------------------------------------------------------------------------------------------
-      * Used to released stored resources before the VM is closed.
-    */
-    void VMClose();
+    // --------------------------------------------------------------------------------------------
+    Uint8 GetArgFlags(Uint32 idx) const;
 
-    /* --------------------------------------------------------------------------------------------
-     * Compare two instances of this type.
-    */
-    SQInt32 Cmp(const CmdListener & o) const;
+    // --------------------------------------------------------------------------------------------
+    CSStr GetName() const;
+    void SetName(CSStr name);
 
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to convert this instance to a string.
-    */
-    const SQChar * ToString() const;
+    // --------------------------------------------------------------------------------------------
+    CSStr GetSpec() const;
+    void SetSpec(CSStr spec);
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the local tag.
-    */
-    const SQChar * GetTag() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the local tag.
-    */
-    void SetTag(const SQChar * tag);
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the local data.
-    */
-    SqObj & GetData();
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the local data.
-    */
-    void SetData(SqObj & data);
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the name of the command.
-    */
-    const SQChar * GetName() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the name of the command.
-    */
-    void SetName(const SQChar * name);
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the argument type specifiers for this command as a string.
-    */
-    const SQChar * GetSpec() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the argument type specifiers for this command by extracting them from a string.
-    */
-    void SetSpec(const SQChar * spec);
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the tag/name of a command argument.
-    */
-    const SQChar * GetArgTag(SQUint32 arg) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the tag/name of a command argument.
-    */
-    void SetArgTag(SQUint32 arg, const SQChar * name);
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the tag/name of multiple command arguments.
-    */
+    // --------------------------------------------------------------------------------------------
     Array GetArgTags() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the tag/name of multiple command arguments.
-    */
     void SetArgTags(Array & tags);
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the help text associated with this command.
-    */
-    const SQChar * GetHelp() const;
+    // --------------------------------------------------------------------------------------------
+    CSStr GetHelp() const;
+    void SetHelp(CSStr help);
 
-    /* --------------------------------------------------------------------------------------------
-     * Change the help text associated with this command.
-    */
-    void SetHelp(const SQChar * help);
+    // --------------------------------------------------------------------------------------------
+    CSStr GetInfo() const;
+    void SetInfo(CSStr info);
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the informational text associated with this command.
-    */
-    const SQChar * GetInfo() const;
+    // --------------------------------------------------------------------------------------------
+    Int32 GetAuthority() const;
+    void SetAuthority(Int32 level);
 
-    /* --------------------------------------------------------------------------------------------
-     * Change the informational text associated with this command.
-    */
-    void SetInfo(const SQChar * info);
+    // --------------------------------------------------------------------------------------------
+    bool GetProtected() const;
+    void SetProtected(bool toggle);
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function responsible for processing the command.
-    */
-    Function & GetOnExec();
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the function responsible for processing the command.
-    */
-    void SetOnExec(Function & func);
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the function responsible for processing the command.
-    */
-    void SetOnExec_Env(SqObj & env, Function & func);
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function responsible for testing the invoker authority.
-    */
-    Function & GetOnAuth();
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the function responsible for testing the invoker authority.
-    */
-    void SetOnAuth(Function & func);
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the function responsible for testing the invoker authority.
-    */
-    void SetOnAuth_Env(SqObj & env, Function & func);
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal level required to execute this command.
-    */
-    SQInt32 GetLevel() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the internal level required to execute this command.
-    */
-    void SetLevel(SQInt32 level);
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether this command needs explicit authority clearance to execute.
-    */
-    bool GetAuthority() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether this command needs explicit authority clearance to execute.
-    */
-    void SetAuthority(bool toggle);
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether this command listener is allowed to execute or not.
-    */
+    // --------------------------------------------------------------------------------------------
     bool GetSuspended() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether this command listener is allowed to execute or not.
-    */
     void SetSuspended(bool toggle);
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the minimum arguments allowed required to execute this command.
-    */
-    Uint8 GetMinArgC() const;
+    // --------------------------------------------------------------------------------------------
+    bool GetAssociate() const;
+    void SetAssociate(bool toggle);
 
-    /* --------------------------------------------------------------------------------------------
-     * Change the minimum arguments allowed required to execute this command.
-    */
+    // --------------------------------------------------------------------------------------------
+    Uint8 GetMinArgC() const;
     void SetMinArgC(Uint8 val);
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the maximum arguments allowed required to execute this command.
-    */
+    // --------------------------------------------------------------------------------------------
     Uint8 GetMaxArgC() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the maximum arguments allowed required to execute this command.
-    */
     void SetMaxArgC(Uint8 val);
 
-    /* --------------------------------------------------------------------------------------------
-     * Makes use of the specified argument type specifiers and tags/names to generate an
-     * informational string with the allowed command syntax.
-    */
+    // --------------------------------------------------------------------------------------------
+    bool GetLocked() const;
+
+    // --------------------------------------------------------------------------------------------
+    Function & GetOnExec();
+    void SetOnExec(Object & env, Function & func);
+
+    // --------------------------------------------------------------------------------------------
+    Function & GetOnAuth();
+    void SetOnAuth(Object & env, Function & func);
+
+    // --------------------------------------------------------------------------------------------
+    Function & GetOnPost();
+    void SetOnPost(Object & env, Function & func);
+
+    // --------------------------------------------------------------------------------------------
+    Function & GetOnFail();
+    void SetOnFail(Object & env, Function & func);
+
+    // --------------------------------------------------------------------------------------------
+    CSStr GetArgTag(Uint32 arg) const;
+    void SetArgTag(Uint32 arg, CSStr name);
+
+    // --------------------------------------------------------------------------------------------
     void GenerateInfo(bool full);
 
-    /* --------------------------------------------------------------------------------------------
-     * Check whether the specified argument is compatible with the specified type.
-    */
-    bool ArgCheck(SQUint32 arg, Uint8 mask) const;
+    // --------------------------------------------------------------------------------------------
+    bool ArgCheck(Uint32 arg, Uint8 flag) const;
 
-    /* --------------------------------------------------------------------------------------------
-     * Check whether the specified player is allowed to execute this command.
-    */
-    bool AuthCheck(Reference< CPlayer > & player);
-
-    /* --------------------------------------------------------------------------------------------
-     * Check whether the specified player is allowed to execute this command.
-    */
-    bool AuthCheckID(SQInt32 id);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to execute this command.
-    */
-    bool Execute(CPlayer & invoker, Array & args);
+    // --------------------------------------------------------------------------------------------
+    bool AuthCheck(CPlayer & player);
+    bool AuthCheckID(Int32 id);
 
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef std::array< Uint8 , MAX_CMD_ARGS > Args;
-
-    // --------------------------------------------------------------------------------------------
-    typedef std::array< String , MAX_CMD_ARGS > Argt;
+    typedef Uint8   ArgSpec[SQMOD_MAX_CMD_ARGS];
+    typedef String  ArgTags[SQMOD_MAX_CMD_ARGS];
 
     /* --------------------------------------------------------------------------------------------
-     * Process the specifiers string.
+     *
     */
-    bool ProcSpec(const SQChar * spec);
+    SQInteger Execute(Object & invoker, Array & args);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    SQInteger Execute(Object & invoker, Table & args);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    bool ProcSpec(CSStr spec);
 
 private:
 
-    /* --------------------------------------------------------------------------------------------
-     * Array of type specifiers for each of the command arguments.
-    */
-    Args        m_Args;
-
-    /* --------------------------------------------------------------------------------------------
-     * Array of strings to be used as the tag/name for each argument.
-    */
-    Argt        m_Argt;
-
-    /* --------------------------------------------------------------------------------------------
-     * Minimum arguments allowed to execute this command.
-    */
-    Uint8       m_MinArgc;
-
-    /* --------------------------------------------------------------------------------------------
-     * Maximum arguments allowed to execute this command.
-    */
-    Uint8       m_MaxArgc;
-
-    /* --------------------------------------------------------------------------------------------
-     * The name of the command.
-    */
+    // --------------------------------------------------------------------------------------------
     String      m_Name;
 
-    /* --------------------------------------------------------------------------------------------
-     * The specifiers for each of the command arguments represented as a string.
-    */
+    // --------------------------------------------------------------------------------------------
+    ArgSpec     m_ArgSpec;
+    ArgTags     m_ArgTags;
+
+    // --------------------------------------------------------------------------------------------
+    Uint8       m_MinArgc;
+    Uint8       m_MaxArgc;
+
+    // --------------------------------------------------------------------------------------------
     String      m_Spec;
-
-    /* --------------------------------------------------------------------------------------------
-     * Help about the purpose and requirements of the command.
-    */
     String      m_Help;
-
-    /* --------------------------------------------------------------------------------------------
-     * Information for when the command execution failed.
-    */
     String      m_Info;
 
-    /* --------------------------------------------------------------------------------------------
-     * Function responsible for processing the received command arguments.
-    */
+    // --------------------------------------------------------------------------------------------
     Function    m_OnExec;
-
-    /* --------------------------------------------------------------------------------------------
-     * Function responsible for deciding whether the invoker is allowed to execute.
-    */
     Function    m_OnAuth;
+    Function    m_OnPost;
+    Function    m_OnFail;
 
-    /* --------------------------------------------------------------------------------------------
-     * Arbitrary tag associated with this instance.
-    */
-    String      m_Tag;
+    // --------------------------------------------------------------------------------------------
+    Int32       m_Authority;
 
-    /* --------------------------------------------------------------------------------------------
-     * Arbitrary data associated with this instance.
-    */
-    SqObj       m_Data;
-
-    /* --------------------------------------------------------------------------------------------
-     * The level required to execute this command.
-    */
-    SQInt32     m_Level;
-
-    /* --------------------------------------------------------------------------------------------
-     * Whether this command needs an explicit authority verification in order to execute.
-    */
-    bool        m_Authority;
-
-    /* --------------------------------------------------------------------------------------------
-     * Whether the command is allowed to execute or not.
-    */
+    // --------------------------------------------------------------------------------------------
+    bool        m_Protected;
     bool        m_Suspended;
-
-    /* --------------------------------------------------------------------------------------------
-     * Whether the command is allowed to change name.
-    */
-    bool        m_Lock;
+    bool        m_Associate;
+    bool        m_Locked;
 };
 
 } // Namespace:: SqMod

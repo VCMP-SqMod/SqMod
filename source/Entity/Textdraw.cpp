@@ -1,551 +1,363 @@
+// ------------------------------------------------------------------------------------------------
 #include "Entity/Textdraw.hpp"
+#include "Entity/Player.hpp"
 #include "Base/Vector2i.hpp"
 #include "Core.hpp"
-#include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CTextdraw::CTextdraw(const Reference< CTextdraw > & o)
-    : Reference(o)
+SQChar CTextdraw::s_StrID[SQMOD_TEXTDRAW_POOL][8];
+
+// ------------------------------------------------------------------------------------------------
+const Int32 CTextdraw::Max = SQMOD_TEXTDRAW_POOL;
+
+// ------------------------------------------------------------------------------------------------
+CTextdraw::CTextdraw(Int32 id)
+    : m_ID(VALID_ENTITYGETEX(id, SQMOD_TEXTDRAW_POOL))
+    , m_Tag(VALID_ENTITY(m_ID) ? s_StrID[m_ID] : _SC("-1"))
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
+CTextdraw::~CTextdraw()
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CTextdraw::Cmp(const CTextdraw & o) const
+{
+    if (m_ID == o.m_ID)
+        return 0;
+    else if (m_ID > o.m_ID)
+        return 1;
+    else
+        return -1;
+}
+
+CSStr CTextdraw::ToString() const
+{
+    return VALID_ENTITYEX(m_ID, SQMOD_TEXTDRAW_POOL) ? s_StrID[m_ID] : _SC("-1");
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr CTextdraw::GetTag() const
+{
+    return m_Tag.c_str();
+}
+
+void CTextdraw::SetTag(CSStr tag)
+{
+    m_Tag.assign(tag);
+}
+
+Object & CTextdraw::GetData()
+{
+    if (Validate())
+        return m_Data;
+    return NullObject();
+}
+
+void CTextdraw::SetData(Object & data)
+{
+    if (Validate())
+        m_Data = data;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CTextdraw::Destroy(Int32 header, Object & payload)
+{
+    return _Core->DelTextdraw(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CTextdraw::BindEvent(Int32 evid, Object & env, Function & func) const
+{
+    if (!Validate())
+        return false;
+
+    Function & event = _Core->GetTextdrawEvent(m_ID, evid);
+
+    if (func.IsNull())
+        event.Release();
+    else
+        event = Function(env.GetVM(), env, func.GetFunc());
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
 void CTextdraw::ShowAll() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        _Func->ShowTextdraw(m_ID, SQMOD_UNKNOWN);
-    }
-    else
-    {
-        BadRef("show_all", "show to all");
-    }
+    if (Validate())
+        _Func->ShowTextdraw(m_ID, -1);
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::ShowFor(const Reference< CPlayer > & player) const
+void CTextdraw::ShowFor(CPlayer & player) const
 {
-    if (VALID_ENTITY(m_ID) && player)
-    {
-        return _Func->ShowTextdraw(m_ID, player);
-    }
-    else if (!player)
-    {
-        BadArg("show_for", "show to player", _SCI32(player));
-    }
-    else
-    {
-        BadRef("show_for", "show to player");
-    }
+    if (!player.IsActive())
+        SqThrow("Invalid player argument: null");
+    else if (Validate())
+        _Func->ShowTextdraw(m_ID, player.GetID());
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::ShowRange(SQInt32 first, SQInt32 last) const
+void CTextdraw::ShowRange(Int32 first, Int32 last) const
 {
-    if (VALID_ENTITY(m_ID) && (last >= first))
-    {
+    if (first > last)
+        SqThrow("Invalid player range: %d > %d", first, last);
+    else if (Validate())
         for (; first <= last; ++first)
         {
-            if (Reference< CPlayer >::Verify(first))
-            {
+            if (_Func->IsPlayerConnected(first))
                 _Func->ShowTextdraw(m_ID, first);
-            }
         }
-    }
-    else if (first < last)
-    {
-        BadArg("show_range", "show to range", "using an out of range start", first, last);
-    }
-    else
-    {
-        BadRef("show_range", "show to range");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
 void CTextdraw::HideAll() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        _Func->HideTextdraw(m_ID, SQMOD_UNKNOWN);
-    }
-    else
-    {
-        BadRef("hide_all", "hide from all");
-    }
+    if (Validate())
+        _Func->HideTextdraw(m_ID, -1);
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::HideFor(const Reference< CPlayer > & player) const
+void CTextdraw::HideFor(CPlayer & player) const
 {
-    if (VALID_ENTITY(m_ID) && player)
-    {
-        return _Func->HideTextdraw(m_ID, player);
-    }
-    else if (!player)
-    {
-        BadArg("hide_for", "hide from player", _SCI32(player));
-    }
-    else
-    {
-        BadRef("hide_for", "hide from player");
-    }
+    if (!player.IsActive())
+        SqThrow("Invalid player argument: null");
+    else if (Validate())
+        _Func->HideTextdraw(m_ID, player.GetID());
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::HideRange(SQInt32 first, SQInt32 last) const
+void CTextdraw::HideRange(Int32 first, Int32 last) const
 {
-    if (VALID_ENTITY(m_ID) && (last >= first))
-    {
+    if (first > last)
+        SqThrow("Invalid player range: %d > %d", first, last);
+    else if (Validate())
         for (; first <= last; ++first)
         {
-            if (Reference< CPlayer >::Verify(first))
-            {
+            if (_Func->IsPlayerConnected(first))
                 _Func->HideTextdraw(m_ID, first);
-            }
         }
-    }
-    else if (first < last)
-    {
-        BadArg("hide_range", "hide from range", "using an out of range start", first, last);
-    }
-    else
-    {
-        BadRef("hide_range", "hide from range");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
 void CTextdraw::SetPositionAll(const Vector2i & pos) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        _Func->MoveTextdraw(m_ID, SQMOD_UNKNOWN, pos.x, pos.y);
-    }
-    else
-    {
-        BadRef("set_position_all", "set position for all");
-    }
+    if (Validate())
+        _Func->MoveTextdraw(m_ID, -1, pos.x, pos.y);
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::SetPositionAllEx(SQInt32 x, SQInt32 y) const
+void CTextdraw::SetPositionAllEx(Int32 x, Int32 y) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        _Func->MoveTextdraw(m_ID, SQMOD_UNKNOWN, x, y);
-    }
-    else
-    {
-        BadRef("set_position_all", "set position for all");
-    }
+    if (Validate())
+        _Func->MoveTextdraw(m_ID, -1, x, y);
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::SetPositionFor(const Reference< CPlayer > & player, const Vector2i & pos) const
+void CTextdraw::SetPositionFor(CPlayer & player, const Vector2i & pos) const
 {
-    if (VALID_ENTITY(m_ID) && player)
-    {
-        _Func->MoveTextdraw(m_ID, player, pos.x, pos.y);
-    }
-    else if (!player)
-    {
-        BadArg("set_position_for", "set position for player", _SCI32(player));
-    }
-    else
-    {
-        BadRef("set_position_for", "set position for player");
-    }
+    if (!player.IsActive())
+        SqThrow("Invalid player argument: null");
+    else if (Validate())
+        _Func->MoveTextdraw(m_ID, player.GetID(), pos.x, pos.y);
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const
+void CTextdraw::SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const
 {
-    if (VALID_ENTITY(m_ID) && player)
-    {
-        _Func->MoveTextdraw(m_ID, player, x, y);
-    }
-    else if (!player)
-    {
-        BadArg("set_position_for", "set position for player", _SCI32(player));
-    }
-    else
-    {
-        BadRef("set_position_for", "set position for player");
-    }
+    if (!player.IsActive())
+        SqThrow("Invalid player argument: null");
+    else if (Validate())
+        _Func->MoveTextdraw(m_ID, player.GetID(), x, y);
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const
+void CTextdraw::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) const
 {
-    if (VALID_ENTITY(m_ID) && (last >= first))
-    {
+    if (first > last)
+        SqThrow("Invalid player range: %d > %d", first, last);
+    else if (Validate())
         for (; first <= last; ++first)
         {
-            if (Reference< CPlayer >::Verify(first))
-            {
+            if (_Func->IsPlayerConnected(first))
                 _Func->MoveTextdraw(m_ID, first, pos.x, pos.y);
-            }
         }
-    }
-    else if (first < last)
-    {
-        BadArg("set_position_range", "set position for range", "using an out of range start", first, last);
-    }
-    else
-    {
-        BadRef("set_position_range", "set position for range");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
 void CTextdraw::SetColorAll(const Color4 & col) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        _Func->SetTextdrawColour(m_ID, SQMOD_UNKNOWN, col.GetRGBA());
-    }
-    else
-    {
-        BadRef("set_color_all", "set color for all");
-    }
+    if (Validate())
+        _Func->SetTextdrawColour(m_ID, -1, col.GetRGBA());
 }
 
-// ------------------------------------------------------------------------------------------------
 void CTextdraw::SetColorAllEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        _Func->SetTextdrawColour(m_ID, SQMOD_UNKNOWN, PACK_RGBA(r, g, b, a));
-    }
-    else
-    {
-        BadRef("set_color_all", "set color for all");
-    }
+    if (Validate())
+        _Func->SetTextdrawColour(m_ID, -1, SQMOD_PACK_RGBA(r, g, b, a));
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::SetColorFor(const Reference< CPlayer > & player, const Color4 & col) const
+void CTextdraw::SetColorFor(CPlayer & player, const Color4 & col) const
 {
-    if (VALID_ENTITY(m_ID) && player)
-    {
-        _Func->SetTextdrawColour(m_ID, player, col.GetRGBA());
-    }
-    else if (!player)
-    {
-        BadArg("set_color_for", "set color for player", _SCI32(player));
-    }
-    else
-    {
-        BadRef("set_color_for", "set color for player");
-    }
+    if (!player.IsActive())
+        SqThrow("Invalid player argument: null");
+    else if (Validate())
+        _Func->SetTextdrawColour(m_ID, player.GetID(), col.GetRGBA());
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::SetColorForEx(const Reference< CPlayer > & player, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
+void CTextdraw::SetColorForEx(CPlayer & player, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
 {
-    if (VALID_ENTITY(m_ID) && player)
-    {
-        _Func->SetTextdrawColour(m_ID, player, PACK_RGBA(r, g, b, a));
-    }
-    else if (!player)
-    {
-        BadArg("set_color_for", "set color for player", _SCI32(player));
-    }
-    else
-    {
-        BadRef("set_color_for", "set color for player");
-    }
+    if (!player.IsActive())
+        SqThrow("Invalid player argument: null");
+    else if (Validate())
+        _Func->SetTextdrawColour(m_ID, player.GetID(), SQMOD_PACK_RGBA(r, g, b, a));
 }
 
-// ------------------------------------------------------------------------------------------------
-void CTextdraw::SetColorRange(SQInt32 first, SQInt32 last, const Color4 & col) const
+void CTextdraw::SetColorRange(Int32 first, Int32 last, const Color4 & col) const
 {
-    if (VALID_ENTITY(m_ID) && (last >= first))
-    {
-        for (const SQUint32 color = col.GetRGBA(); first <= last; ++first)
+    if (first > last)
+        SqThrow("Invalid player range: %d > %d", first, last);
+    else if (Validate())
+        for (const Uint32 color = col.GetRGBA(); first <= last; ++first)
         {
-            if (Reference< CPlayer >::Verify(first))
-            {
+            if (_Func->IsPlayerConnected(first))
                 _Func->SetTextdrawColour(m_ID, first, color);
-            }
         }
-    }
-    else if (first < last)
-    {
-        BadArg("set_color_range", "set color for range", "using an out of range start", first, last);
-    }
-    else
-    {
-        BadRef("set_color_range", "set color for range");
-    }
+}
+
+CSStr CTextdraw::GetText() const
+{
+    if (Validate())
+        _Core->GetTextdraw(m_ID).mText.c_str();
+    return g_EmptyStr;
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CTextdraw::GetText() const
+static Object & CreateTextdrawEx(CSStr text, Int32 xp, Int32 yp,
+                                Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool rel)
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Text.c_str();
-    }
-    else
-    {
-        BadRef("@text", "get text");
-    }
-
-    return _SC("");
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, SQMOD_PACK_ARGB(a, r, g, b), rel,
+                                SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-// ------------------------------------------------------------------------------------------------
-Reference< CTextdraw > CreateBaseTextdraw_ES(const SQChar * text,
-                        SQInt32 xp, SQInt32 yp,
-                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel)
+static Object & CreateTextdrawEx(CSStr text, Int32 xp, Int32 yp,
+                                Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool rel,
+                                Int32 header, Object & payload)
 {
-    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
-                                SQMOD_CREATE_DEFAULT, NullData());
-}
-
-Reference< CTextdraw > CreateBaseTextdraw_ES(const SQChar * text,
-                        SQInt32 xp, SQInt32 yp,
-                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, SQMOD_PACK_ARGB(a, r, g, b), rel,
                                 header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CTextdraw > CreateBaseTextdraw_EF(SQInt32 index, const SQChar * text,
-                        SQInt32 xp, SQInt32 yp,
-                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel)
+static Object & CreateTextdrawEx(Int32 index, CSStr text, Int32 xp, Int32 yp,
+                                Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool rel)
 {
-    return _Core->NewTextdraw(index,text, xp, yp, PACK_ARGB(a, r, g, b), rel,
-                                SQMOD_CREATE_DEFAULT, NullData());
+    return _Core->NewTextdraw(index,text, xp, yp, SQMOD_PACK_ARGB(a, r, g, b), rel,
+                                SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CTextdraw > CreateBaseTextdraw_EF(SQInt32 index, const SQChar * text,
-                        SQInt32 xp, SQInt32 yp,
-                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel,
-                        SQInt32 header, SqObj & payload)
+static Object & CreateTextdrawEx(Int32 index, CSStr text, Int32 xp, Int32 yp,
+                                Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool rel,
+                                Int32 header, Object & payload)
 {
-    return _Core->NewTextdraw(index, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
+    return _Core->NewTextdraw(index, text, xp, yp, SQMOD_PACK_ARGB(a, r, g, b), rel,
                                 header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CTextdraw > CreateBaseTextdraw_CS(const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel)
+static Object & CreateTextdraw(CSStr text, const Vector2i & pos, const Color4 & color, bool rel)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
-                                SQMOD_CREATE_DEFAULT, NullData());
+                                SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CTextdraw > CreateBaseTextdraw_CS(const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel,
-                        SQInt32 header, SqObj & payload)
+static Object & CreateTextdraw(CSStr text, const Vector2i & pos, const Color4 & color, bool rel,
+                                Int32 header, Object & payload)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
                                 header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CTextdraw > CreateBaseTextdraw_CF(SQInt32 index, const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel)
+static Object & CreateTextdraw(Int32 index, CSStr text, const Vector2i & pos, const Color4 & color,
+                                bool rel)
 {
     return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
-                                SQMOD_CREATE_DEFAULT, NullData());
+                                SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CTextdraw > CreateBaseTextdraw_CF(SQInt32 index, const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel,
-                        SQInt32 header, SqObj & payload)
+static Object & CreateTextdraw(Int32 index, CSStr text, const Vector2i & pos, const Color4 & color,
+                                bool rel, Int32 header, Object & payload)
 {
-    return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
-                                header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CTextdraw CreateTextdraw_ES(const SQChar * text,
-                        SQInt32 xp, SQInt32 yp,
-                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel)
-{
-    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
-                                SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CTextdraw CreateTextdraw_ES(const SQChar * text,
-                        SQInt32 xp, SQInt32 yp,
-                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
-                                header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CTextdraw CreateTextdraw_EF(SQInt32 index, const SQChar * text,
-                        SQInt32 xp, SQInt32 yp,
-                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel)
-{
-    return _Core->NewTextdraw(index,text, xp, yp, PACK_ARGB(a, r, g, b), rel,
-                                SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CTextdraw CreateTextdraw_EF(SQInt32 index, const SQChar * text,
-                        SQInt32 xp, SQInt32 yp,
-                        Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                        bool rel,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewTextdraw(index, text, xp, yp, PACK_ARGB(a, r, g, b), rel,
-                                header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CTextdraw CreateTextdraw_CS(const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel)
-{
-    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
-                                SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CTextdraw CreateTextdraw_CS(const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
-                                header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CTextdraw CreateTextdraw_CF(SQInt32 index, const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel)
-{
-    return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
-                                SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CTextdraw CreateTextdraw_CF(SQInt32 index, const SQChar * text,
-                        const Vector2i & pos, const Color4 & color, bool rel,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
-                                header, payload);
+    return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel, header, payload);
 }
 
 // ================================================================================================
-bool Register_CTextdraw(HSQUIRRELVM vm)
+void Register_CTextdraw(HSQUIRRELVM vm)
 {
-    // Attempt to register the base reference type before the actual implementation
-    if (!Register_Reference< CTextdraw >(vm, _SC("BaseTextdraw")))
-    {
-        LogFtl("Unable to register the base class <BaseTextdraw> for <CTextdraw> type");
-        // Registration failed
-        return false;
-    }
-    // Typedef the base reference type for simplicity
-    typedef Reference< CTextdraw > RefType;
-    // Output debugging information
-    LogDbg("Beginning registration of <CTextdraw> type");
-    // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CTextdraw"), Sqrat::DerivedClass< CTextdraw, RefType >(vm, _SC("CTextdraw"))
-        /* Constructors */
-        .Ctor()
-        .Ctor< SQInt32 >()
+    RootTable(vm).Bind(_SC("SqTextdraw"),
+        Class< CTextdraw, NoConstructor< CTextdraw > >(vm, _SC("SqTextdraw"))
+        /* Metamethods */
+        .Func(_SC("_cmp"), &CTextdraw::Cmp)
+        .Func(_SC("_tostring"), &CTextdraw::ToString)
+        /* Core Properties */
+        .Prop(_SC("ID"), &CTextdraw::GetID)
+        .Prop(_SC("Tag"), &CTextdraw::GetTag, &CTextdraw::SetTag)
+        .Prop(_SC("Data"), &CTextdraw::GetData, &CTextdraw::SetData)
+        .Prop(_SC("MaxID"), &CTextdraw::GetMaxID)
+        .Prop(_SC("Active"), &CTextdraw::IsActive)
+        /* Core Functions */
+        .Func(_SC("Bind"), &CTextdraw::BindEvent)
+        /* Core Overloads */
+        .Overload< bool (CTextdraw::*)(void) >(_SC("Destroy"), &CTextdraw::Destroy)
+        .Overload< bool (CTextdraw::*)(Int32) >(_SC("Destroy"), &CTextdraw::Destroy)
+        .Overload< bool (CTextdraw::*)(Int32, Object &) >(_SC("Destroy"), &CTextdraw::Destroy)
         /* Properties */
-        .Prop(_SC("text"), &CTextdraw::GetText)
+        .Prop(_SC("Text"), &CTextdraw::GetText)
         /* Functions */
-        .Func(_SC("show_all"), &CTextdraw::ShowAll)
-        .Func(_SC("show_to"), &CTextdraw::ShowFor)
-        .Func(_SC("show_for"), &CTextdraw::ShowFor)
-        .Func(_SC("show_range"), &CTextdraw::ShowRange)
-        .Func(_SC("hide_all"), &CTextdraw::HideAll)
-        .Func(_SC("hide_for"), &CTextdraw::HideFor)
-        .Func(_SC("hide_from"), &CTextdraw::HideFor)
-        .Func(_SC("hide_range"), &CTextdraw::HideRange)
+        .Func(_SC("ShowAll"), &CTextdraw::ShowAll)
+        .Func(_SC("ShowTo"), &CTextdraw::ShowFor)
+        .Func(_SC("ShowFor"), &CTextdraw::ShowFor)
+        .Func(_SC("ShowRange"), &CTextdraw::ShowRange)
+        .Func(_SC("HideAll"), &CTextdraw::HideAll)
+        .Func(_SC("HideFor"), &CTextdraw::HideFor)
+        .Func(_SC("HideFrom"), &CTextdraw::HideFor)
+        .Func(_SC("HideRange"), &CTextdraw::HideRange)
+        .Func(_SC("SetPositionRange"), &CTextdraw::SetPositionRange)
+        .Func(_SC("SetColorRange"), &CTextdraw::SetColorRange)
         /* Overloads */
         .Overload< void (CTextdraw::*)(const Vector2i &) const >
-            (_SC("set_position_all"), &CTextdraw::SetPositionAll)
-        .Overload< void (CTextdraw::*)(SQInt32, SQInt32) const >
-            (_SC("set_position_all"), &CTextdraw::SetPositionAllEx)
-        .Overload< void (CTextdraw::*)(const Reference< CPlayer > &, const Vector2i &) const >
-            (_SC("set_position_for"), &CTextdraw::SetPositionFor)
-        .Overload< void (CTextdraw::*)(const Reference< CPlayer > &, SQInt32, SQInt32) const >
-            (_SC("set_position_for"), &CTextdraw::SetPositionForEx)
-        .Overload< void (CTextdraw::*)(SQInt32, SQInt32, const Vector2i &) const >
-            (_SC("set_position_range"), &CTextdraw::SetPositionRange)
+            (_SC("SetPositionAll"), &CTextdraw::SetPositionAll)
+        .Overload< void (CTextdraw::*)(Int32, Int32) const >
+            (_SC("SetPositionAll"), &CTextdraw::SetPositionAllEx)
+        .Overload< void (CTextdraw::*)(CPlayer &, const Vector2i &) const >
+            (_SC("SetPositionFor"), &CTextdraw::SetPositionFor)
+        .Overload< void (CTextdraw::*)(CPlayer &, Int32, Int32) const >
+            (_SC("SetPositionFor"), &CTextdraw::SetPositionForEx)
         .Overload< void (CTextdraw::*)(const Color4 &) const >
-            (_SC("set_color_all"), &CTextdraw::SetColorAll)
+            (_SC("SetColorAll"), &CTextdraw::SetColorAll)
         .Overload< void (CTextdraw::*)(Uint8, Uint8, Uint8, Uint8) const >
-            (_SC("set_color_all"), &CTextdraw::SetColorAllEx)
-        .Overload< void (CTextdraw::*)(const Reference< CPlayer > &, const Color4 &) const >
-            (_SC("set_color_for"), &CTextdraw::SetColorFor)
-        .Overload< void (CTextdraw::*)(const Reference< CPlayer > &, Uint8, Uint8, Uint8, Uint8) const >
-            (_SC("set_color_for"), &CTextdraw::SetColorForEx)
-        .Overload< void (CTextdraw::*)(SQInt32, SQInt32, const Color4 &) const >
-            (_SC("set_color_range"), &CTextdraw::SetColorRange)
+            (_SC("SetColorAll"), &CTextdraw::SetColorAllEx)
+        .Overload< void (CTextdraw::*)(CPlayer &, const Color4 &) const >
+            (_SC("SetColorFor"), &CTextdraw::SetColorFor)
+        .Overload< void (CTextdraw::*)(CPlayer &, Uint8, Uint8, Uint8, Uint8) const >
+            (_SC("SetColorFor"), &CTextdraw::SetColorForEx)
     );
-    // Output debugging information
-    LogDbg("Registration of <CTextdraw> type was successful");
-    // Output debugging information
-    LogDbg("Beginning registration of <Textdraw> functions");
-    // Register global functions related to this entity type
-    Sqrat::RootTable(vm)
-    /* Create BaseTextdraw [E]xtended [S]ubstitute */
-    .Overload< RefType (*)(const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool) >
-        (_SC("CreateBaseTextdraw_ES"), &CreateBaseTextdraw_ES)
-    .Overload< RefType (*)(const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool, SQInt32, SqObj &) >
-        (_SC("CreateBaseTextdraw_ES"), &CreateBaseTextdraw_ES)
-    /* Create BaseTextdraw [E]xtended [F]Full */
-    .Overload< RefType (*)(SQInt32, const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool) >
-        (_SC("CreateBaseTextdraw_EF"), &CreateBaseTextdraw_EF)
-    .Overload< RefType (*)(SQInt32, const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool, SQInt32, SqObj &) >
-        (_SC("CreateBaseTextdraw_EF"), &CreateBaseTextdraw_EF)
-    /* Create BaseTextdraw [C]ompact [S]ubstitute */
-    .Overload< RefType (*)(const SQChar *, const Vector2i &, const Color4 &, bool) >
-        (_SC("CreateBaseTextdraw_CS"), &CreateBaseTextdraw_CS)
-    .Overload< RefType (*)(const SQChar *, const Vector2i &, const Color4 &, bool, SQInt32, SqObj &) >
-        (_SC("CreateBaseTextdraw_CS"), &CreateBaseTextdraw_CS)
-    /* Create BaseTextdraw [C]ompact [F]ull */
-    .Overload< RefType (*)(SQInt32, const SQChar *, const Vector2i &, const Color4 &, bool) >
-        (_SC("CreateBaseTextdraw_CF"), &CreateBaseTextdraw_CF)
-    .Overload< RefType (*)(SQInt32, const SQChar *, const Vector2i &, const Color4 &, bool, SQInt32, SqObj &) >
-        (_SC("CreateBaseTextdraw_CF"), &CreateBaseTextdraw_CF)
-    /* Create CTextdraw [E]xtended [S]ubstitute */
-    .Overload< CTextdraw (*)(const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool) >
-        (_SC("CreateTextdraw_ES"), &CreateTextdraw_ES)
-    .Overload< CTextdraw (*)(const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool, SQInt32, SqObj &) >
-        (_SC("CreateTextdraw_ES"), &CreateTextdraw_ES)
-    /* Create CTextdraw [E]xtended [F]Full */
-    .Overload< CTextdraw (*)(SQInt32, const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool) >
-        (_SC("CreateTextdraw_EF"), &CreateTextdraw_EF)
-    .Overload< CTextdraw (*)(SQInt32, const SQChar *, SQInt32, SQInt32, Uint8, Uint8, Uint8, Uint8, bool, SQInt32, SqObj &) >
-        (_SC("CreateTextdraw_EF"), &CreateTextdraw_EF)
-    /* Create CTextdraw [C]ompact [S]ubstitute */
-    .Overload< CTextdraw (*)(const SQChar *, const Vector2i &, const Color4 &, bool) >
-        (_SC("CreateTextdraw_CS"), &CreateTextdraw_CS)
-    .Overload< CTextdraw (*)(const SQChar *, const Vector2i &, const Color4 &, bool, SQInt32, SqObj &) >
-        (_SC("CreateTextdraw_CS"), &CreateTextdraw_CS)
-    /* Create CTextdraw [C]ompact [F]ull */
-    .Overload< CTextdraw (*)(SQInt32, const SQChar *, const Vector2i &, const Color4 &, bool) >
-        (_SC("CreateTextdraw_CF"), &CreateTextdraw_CF)
-    .Overload< CTextdraw (*)(SQInt32, const SQChar *, const Vector2i &, const Color4 &, bool, SQInt32, SqObj &) >
-        (_SC("CreateTextdraw_CF"), &CreateTextdraw_CF);
-    // Output debugging information
-    LogDbg("Registration of <Textdraw> functions was successful");
-    // Registration succeeded
-    return true;
+
+    RootTable(vm)
+    .Overload< Object & (*)(CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool) >
+        (_SC("CreateTextdrawEx"), &CreateTextdrawEx)
+    .Overload< Object & (*)(CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool, Int32, Object &) >
+        (_SC("CreateTextdrawEx"), &CreateTextdrawEx)
+    .Overload< Object & (*)(Int32, CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool) >
+        (_SC("CreateTextdrawEx"), &CreateTextdrawEx)
+    .Overload< Object & (*)(Int32, CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool, Int32, Object &) >
+        (_SC("CreateTextdrawEx"), &CreateTextdrawEx)
+    .Overload< Object & (*)(CSStr, const Vector2i &, const Color4 &, bool) >
+        (_SC("CreateTextdraw"), &CreateTextdraw)
+    .Overload< Object & (*)(CSStr, const Vector2i &, const Color4 &, bool, Int32, Object &) >
+        (_SC("CreateTextdraw"), &CreateTextdraw)
+    .Overload< Object & (*)(Int32, CSStr, const Vector2i &, const Color4 &, bool) >
+        (_SC("CreateTextdraw"), &CreateTextdraw)
+    .Overload< Object & (*)(Int32, CSStr, const Vector2i &, const Color4 &, bool, Int32, Object &) >
+        (_SC("CreateTextdraw"), &CreateTextdraw);
 }
 
 } // Namespace:: SqMod

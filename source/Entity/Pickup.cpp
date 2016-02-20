@@ -1,480 +1,332 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Pickup.hpp"
-#include "Misc/Model.hpp"
+#include "Entity/Player.hpp"
+#include "Base/Vector3.hpp"
 #include "Core.hpp"
-#include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CModel CPickup::s_Model;
+Vector3     CPickup::s_Vector3;
 
 // ------------------------------------------------------------------------------------------------
-Vector3 CPickup::s_Vector3;
+SQChar CPickup::s_StrID[SQMOD_PICKUP_POOL][8];
 
 // ------------------------------------------------------------------------------------------------
-CPickup::CPickup(const Reference< CPickup > & o)
-    : Reference(o)
+const Int32 CPickup::Max = SQMOD_PICKUP_POOL;
+
+// ------------------------------------------------------------------------------------------------
+CPickup::CPickup(Int32 id)
+    : m_ID(VALID_ENTITYGETEX(id, SQMOD_PICKUP_POOL))
+    , m_Tag(VALID_ENTITY(m_ID) ? s_StrID[m_ID] : _SC("-1"))
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPickup::IsStreamedFor(const Reference< CPlayer > & player) const
+CPickup::~CPickup()
 {
-    if (VALID_ENTITY(m_ID) && player)
-    {
-        return _Func->IsPickupStreamedForPlayer(m_ID, player);
-    }
-    else if (!player)
-    {
-        BadArg("streamed_for", "see whether is streamed for player", _SCI32(player));
-    }
-    else
-    {
-        BadRef("streamed_for", "see whether is streamed for player");
-    }
+    /* ... */
+}
 
+// ------------------------------------------------------------------------------------------------
+Int32 CPickup::Cmp(const CPickup & o) const
+{
+    if (m_ID == o.m_ID)
+        return 0;
+    else if (m_ID > o.m_ID)
+        return 1;
+    else
+        return -1;
+}
+
+CSStr CPickup::ToString() const
+{
+    return VALID_ENTITYEX(m_ID, SQMOD_PICKUP_POOL) ? s_StrID[m_ID] : _SC("-1");
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr CPickup::GetTag() const
+{
+    return m_Tag.c_str();
+}
+
+void CPickup::SetTag(CSStr tag)
+{
+    m_Tag.assign(tag);
+}
+
+Object & CPickup::GetData()
+{
+    if (Validate())
+        return m_Data;
+    return NullObject();
+}
+
+void CPickup::SetData(Object & data)
+{
+    if (Validate())
+        m_Data = data;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPickup::Destroy(Int32 header, Object & payload)
+{
+    return _Core->DelPickup(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPickup::BindEvent(Int32 evid, Object & env, Function & func) const
+{
+    if (!Validate())
+        return false;
+
+    Function & event = _Core->GetPickupEvent(m_ID, evid);
+
+    if (func.IsNull())
+        event.Release();
+    else
+        event = Function(env.GetVM(), env, func.GetFunc());
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPickup::IsStreamedFor(CPlayer & player) const
+{
+    if (!player.IsActive())
+        SqThrow("Invalid player argument: null");
+    else if (Validate())
+        return _Func->IsPickupStreamedForPlayer(m_ID, player.GetID());
     return false;
 }
 
-// ------------------------------------------------------------------------------------------------
-const CModel & CPickup::GetModel() const
+Int32 CPickup::GetModel() const
 {
-    // Clear any previous model
-    s_Model.SetID(SQMOD_UNKNOWN);
-    // Attempt to retrieve the model
-    if (VALID_ENTITY(m_ID))
-    {
-        s_Model.SetID(_Func->PickupGetModel(m_ID));
-    }
-    else
-    {
-        BadRef("@model", "get model");
-    }
-    // Return the model that could be retrieved
-    return s_Model;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetModelID() const
-{
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         return _Func->PickupGetModel(m_ID);
-    }
-    else
-    {
-        BadRef("@model", "get model id");
-    }
-
-    return SQMOD_UNKNOWN;
+    return -1;
 }
 
-// ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetWorld() const
+Int32 CPickup::GetWorld() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         return _Func->GetPickupWorld(m_ID);
-    }
-    else
-    {
-        BadRef("@world", "get world");
-    }
-
-    return SQMOD_UNKNOWN;
+    return -1;
 }
 
-// ------------------------------------------------------------------------------------------------
-void CPickup::SetWorld(SQInt32 world) const
+void CPickup::SetWorld(Int32 world) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         _Func->SetPickupWorld(m_ID, world);
-    }
-    else
-    {
-        BadRef("@world", "set world");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetAlpha() const
+Int32 CPickup::GetAlpha() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        return _Func->PickupGetAlpha(m_ID);
-    }
-    else
-    {
-        BadRef("@alpha", "get alpha");
-    }
-
-    return SQMOD_UNKNOWN;
+    if (Validate())
+        return _Func->GetVehicleModel(m_ID);
+    return -1;
 }
 
-// ------------------------------------------------------------------------------------------------
-void CPickup::SetAlpha(SQInt32 alpha) const
+void CPickup::SetAlpha(Int32 alpha) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         _Func->PickupSetAlpha(m_ID, alpha);
-    }
-    else
-    {
-        BadRef("@alpha", "set alpha");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
 bool CPickup::GetAutomatic() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         return _Func->PickupIsAutomatic(m_ID);
-    }
-    else
-    {
-        BadRef("@automatic", "see if is automatic");
-    }
-
     return false;
 }
 
-// ------------------------------------------------------------------------------------------------
 void CPickup::SetAutomatic(bool toggle) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         _Func->PickupSetAutomatic(m_ID, toggle);
-    }
-    else
-    {
-        BadRef("@automatic", "set whether is automatic");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetAutoTimer() const
+Int32 CPickup::GetAutoTimer() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         return _Func->GetPickupAutoTimer(m_ID);
-    }
-    else
-    {
-        BadRef("@auto_timer", "get auto timer");
-    }
-
-    return SQMOD_UNKNOWN;
+    return -1;
 }
 
-// ------------------------------------------------------------------------------------------------
-void CPickup::SetAutoTimer(SQInt32 timer) const
+void CPickup::SetAutoTimer(Int32 timer) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         _Func->SetPickupAutoTimer(m_ID, timer);
-    }
-    else
-    {
-        BadRef("@auto_timer", "set auto timer");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
 void CPickup::Refresh() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         _Func->PickupRefresh(m_ID);
-    }
-    else
-    {
-        BadRef("refresh", "refresh pickup");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
 const Vector3 & CPickup::GetPosition()
 {
-    // Clear any previous position
     s_Vector3.Clear();
-    // Attempt to retrieve the position
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         _Func->PickupGetPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
-    }
-    else
-    {
-        BadRef("@position", "get position");
-    }
-    // Return the position that could be retrieved
     return s_Vector3;
 }
 
-// ------------------------------------------------------------------------------------------------
 void CPickup::SetPosition(const Vector3 & pos) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         _Func->PickupSetPos(m_ID, pos.x, pos.y, pos.z);
-    }
-    else
-    {
-        BadRef("@position", "set position");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
-void CPickup::SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const
+void CPickup::SetPositionEx(Float32 x, Float32 y, Float32 z) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         _Func->PickupSetPos(m_ID, x, y, z);
-    }
-    else
-    {
-        BadRef("set_position", "set position");
-    }
 }
 
-// ------------------------------------------------------------------------------------------------
-SQInt32 CPickup::GetQuantity() const
+Int32 CPickup::GetQuantity() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
+    if (Validate())
         return _Func->PickupGetQuantity(m_ID);
-    }
-    else
+    return -1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CPickup::GetPosX() const
+{
+    s_Vector3.x = 0;
+    if (Validate())
+        _Func->PickupGetPos(m_ID, &s_Vector3.x, NULL, NULL);
+    return s_Vector3.x;
+}
+
+Float32 CPickup::GetPosY() const
+{
+    s_Vector3.y = 0;
+    if (Validate())
+        _Func->PickupGetPos(m_ID, NULL, &s_Vector3.y, NULL);
+    return s_Vector3.y;
+}
+
+Float32 CPickup::GetPosZ() const
+{
+    s_Vector3.z = 0;
+    if (Validate())
+        _Func->PickupGetPos(m_ID, NULL, NULL, &s_Vector3.z);
+    return s_Vector3.z;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPickup::SetPosX(Float32 x) const
+{
+    if (Validate())
     {
-        BadRef("@quantity", "get quantity");
+        _Func->PickupGetPos(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
+        _Func->PickupSetPos(m_ID, x, s_Vector3.y, s_Vector3.z);
     }
+}
 
-    return SQMOD_UNKNOWN;
+void CPickup::SetPosY(Float32 y) const
+{
+    if (Validate())
+    {
+        _Func->PickupGetPos(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
+        _Func->PickupSetPos(m_ID, s_Vector3.x, y, s_Vector3.z);
+    }
+}
+
+void CPickup::SetPosZ(Float32 z) const
+{
+    if (Validate())
+    {
+        _Func->PickupGetPos(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
+        _Func->PickupSetPos(m_ID, s_Vector3.z, s_Vector3.y, z);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CPickup > CreateBasePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic)
+static Object & CreatePickupEx(Int32 model, Int32 world, Int32 quantity,
+                        Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullData());
+                            SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CPickup > CreateBasePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload)
+static Object & CreatePickupEx(Int32 model, Int32 world, Int32 quantity,
+                        Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic,
+                        Int32 header, Object & payload)
 {
-    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            header, payload);
+    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CPickup > CreateBasePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic)
+static Object & CreatePickup(Int32 model, Int32 world, Int32 quantity, const Vector3 & pos,
+                            Int32 alpha, bool automatic)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullData());
+                            SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CPickup > CreateBasePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-Reference< CPickup > CreateBasePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic)
-{
-    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-Reference< CPickup > CreateBasePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-Reference< CPickup > CreateBasePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic)
-{
-    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-Reference< CPickup > CreateBasePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CPickup CreatePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic)
-{
-    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CPickup CreatePickup_PEF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CPickup CreatePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic)
-{
-    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CPickup CreatePickup_PCF(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CPickup CreatePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic)
-{
-    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CPickup CreatePickup_EF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        SQFloat x, SQFloat y, SQFloat z,
-                        SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CPickup CreatePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic)
-{
-    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CPickup CreatePickup_CF(const CModel & model, SQInt32 world, SQInt32 quantity,
-                        const Vector3 & pos, SQInt32 alpha, bool automatic,
-                        SQInt32 header, SqObj & payload)
+static Object & CreatePickup(Int32 model, Int32 world, Int32 quantity, const Vector3 & pos,
+                            Int32 alpha, bool automatic, Int32 header, Object & payload)
 {
     return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             header, payload);
 }
 
 // ================================================================================================
-bool Register_CPickup(HSQUIRRELVM vm)
+void Register_CPickup(HSQUIRRELVM vm)
 {
-    // Attempt to register the base reference type before the actual implementation
-    if (!Register_Reference< CPickup >(vm, _SC("BasePickup")))
-    {
-        LogFtl("Unable to register the base class <BasePickup> for <CPickup> type");
-        // Registration failed
-        return false;
-    }
-    // Typedef the base reference type for simplicity
-    typedef Reference< CPickup > RefType;
-    // Output debugging information
-    LogDbg("Beginning registration of <CPickup> type");
-    // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CPickup"), Sqrat::DerivedClass< CPickup, RefType >(vm, _SC("CPickup"))
-        /* Constructors */
-        .Ctor()
-        .Ctor< SQInt32 >()
+    RootTable(vm).Bind(_SC("SqPickup"),
+        Class< CPickup, NoConstructor< CPickup > >(vm, _SC("SqPickup"))
+        /* Metamethods */
+        .Func(_SC("_cmp"), &CPickup::Cmp)
+        .Func(_SC("_tostring"), &CPickup::ToString)
+        /* Core Properties */
+        .Prop(_SC("ID"), &CPickup::GetID)
+        .Prop(_SC("Tag"), &CPickup::GetTag, &CPickup::SetTag)
+        .Prop(_SC("Data"), &CPickup::GetData, &CPickup::SetData)
+        .Prop(_SC("MaxID"), &CPickup::GetMaxID)
+        .Prop(_SC("Active"), &CPickup::IsActive)
+        /* Core Functions */
+        .Func(_SC("Bind"), &CPickup::BindEvent)
+        /* Core Overloads */
+        .Overload< bool (CPickup::*)(void) >(_SC("Destroy"), &CPickup::Destroy)
+        .Overload< bool (CPickup::*)(Int32) >(_SC("Destroy"), &CPickup::Destroy)
+        .Overload< bool (CPickup::*)(Int32, Object &) >(_SC("Destroy"), &CPickup::Destroy)
         /* Properties */
-        .Prop(_SC("model"), &CPickup::GetModel)
-        .Prop(_SC("model_id"), &CPickup::GetModelID)
-        .Prop(_SC("world"), &CPickup::GetWorld, &CPickup::SetWorld)
-        .Prop(_SC("alpha"), &CPickup::GetAlpha, &CPickup::SetAlpha)
-        .Prop(_SC("automatic"), &CPickup::GetAutomatic, &CPickup::SetAutomatic)
-        .Prop(_SC("auto_timer"), &CPickup::GetAutoTimer, &CPickup::SetAutoTimer)
-        .Prop(_SC("position"), &CPickup::GetPosition, &CPickup::SetPosition)
-        .Prop(_SC("quantity"), &CPickup::GetQuantity)
+        .Prop(_SC("Model"), &CPickup::GetModel)
+        .Prop(_SC("World"), &CPickup::GetWorld, &CPickup::SetWorld)
+        .Prop(_SC("Alpha"), &CPickup::GetAlpha, &CPickup::SetAlpha)
+        .Prop(_SC("Auto"), &CPickup::GetAutomatic, &CPickup::SetAutomatic)
+        .Prop(_SC("Automatic"), &CPickup::GetAutomatic, &CPickup::SetAutomatic)
+        .Prop(_SC("Timer"), &CPickup::GetAutoTimer, &CPickup::SetAutoTimer)
+        .Prop(_SC("Autotimer"), &CPickup::GetAutoTimer, &CPickup::SetAutoTimer)
+        .Prop(_SC("Pos"), &CPickup::GetPosition, &CPickup::SetPosition)
+        .Prop(_SC("Position"), &CPickup::GetPosition, &CPickup::SetPosition)
+        .Prop(_SC("Quantity"), &CPickup::GetQuantity)
+        .Prop(_SC("X"), &CPickup::GetPosX, &CPickup::SetPosX)
+        .Prop(_SC("Y"), &CPickup::GetPosY, &CPickup::SetPosY)
+        .Prop(_SC("Z"), &CPickup::GetPosZ, &CPickup::SetPosZ)
         /* Functions */
-        .Func(_SC("streamed_for"), &CPickup::IsStreamedFor)
-        .Func(_SC("refresh"), &CPickup::Refresh)
-        .Func(_SC("set_position"), &CPickup::SetPositionEx)
+        .Func(_SC("StreamedFor"), &CPickup::IsStreamedFor)
+        .Func(_SC("Refresh"), &CPickup::Refresh)
+        .Func(_SC("SetPos"), &CPickup::SetPositionEx)
+        .Func(_SC("SetPosition"), &CPickup::SetPositionEx)
     );
-    // Output debugging information
-    LogDbg("Registration of <CPickup> type was successful");
-    // Output debugging information
-    LogDbg("Beginning registration of <Pickup> functions");
-    // Register global functions related to this entity type
-    Sqrat::RootTable(vm)
-    /* Create BasePickup [P]rimitive [E]xtended [F]Full */
-    .Overload< RefType (*)(SQInt32, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool) >
-        (_SC("CreateBasePickup_PEF"), &CreateBasePickup_PEF)
-    .Overload< RefType (*)(SQInt32, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, SqObj &) >
-        (_SC("CreateBasePickup_PEF"), &CreateBasePickup_PEF)
-    /* Create BasePickup [P]rimitive [C]ompact [F]ull */
-    .Overload< RefType (*)(SQInt32, SQInt32, SQInt32, const Vector3 &, SQInt32, bool) >
-        (_SC("CreateBasePickup_PCF"), &CreateBasePickup_PCF)
-    .Overload< RefType (*)(SQInt32, SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) >
-        (_SC("CreateBasePickup_PCF"), &CreateBasePickup_PCF)
-    /* Create BasePickup [E]xtended [F]Full */
-    .Overload< RefType (*)(const CModel &, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool) >
-        (_SC("CreateBasePickup_EF"), &CreateBasePickup_EF)
-    .Overload< RefType (*)(const CModel &, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, SqObj &) >
-        (_SC("CreateBasePickup_EF"), &CreateBasePickup_EF)
-    /* Create BasePickup [C]ompact [F]ull */
-    .Overload< RefType (*)(const CModel &, SQInt32, SQInt32, const Vector3 &, SQInt32, bool) >
-        (_SC("CreateBasePickup_CF"), &CreateBasePickup_CF)
-    .Overload< RefType (*)(const CModel &, SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) >
-        (_SC("CreateBasePickup_CF"), &CreateBasePickup_CF)
-    /* Create CPickup [P]rimitive [E]xtended [F]Full */
-    .Overload< CPickup (*)(SQInt32, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool) >
-        (_SC("CreatePickup_PEF"), &CreatePickup_PEF)
-    .Overload< CPickup (*)(SQInt32, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, SqObj &) >
-        (_SC("CreatePickup_PEF"), &CreatePickup_PEF)
-    /* Create CPickup [P]rimitive [C]ompact [F]ull */
-    .Overload< CPickup (*)(SQInt32, SQInt32, SQInt32, const Vector3 &, SQInt32, bool) >
-        (_SC("CreatePickup_PCF"), &CreatePickup_PCF)
-    .Overload< CPickup (*)(SQInt32, SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) >
-        (_SC("CreatePickup_PCF"), &CreatePickup_PCF)
-    /* Create CPickup [E]xtended [F]Full */
-    .Overload< CPickup (*)(const CModel &, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool) >
-        (_SC("CreatePickup_EF"), &CreatePickup_EF)
-    .Overload< CPickup (*)(const CModel &, SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, bool, SQInt32, SqObj &) >
-        (_SC("CreatePickup_EF"), &CreatePickup_EF)
-    /* Create CPickup [C]ompact [F]ull */
-    .Overload< CPickup (*)(const CModel &, SQInt32, SQInt32, const Vector3 &, SQInt32, bool) >
-        (_SC("CreatePickup_CF"), &CreatePickup_CF)
-    .Overload< CPickup (*)(const CModel &, SQInt32, SQInt32, const Vector3 &, SQInt32, bool, SQInt32, SqObj &) >
-        (_SC("CreatePickup_CF"), &CreatePickup_CF);
-    // Output debugging information
-    LogDbg("Registration of <Pickup> functions was successful");
-    // Registration succeeded
-    return true;
+
+    RootTable(vm)
+    .Overload< Object & (*)(Int32, Int32, Int32, Float32, Float32, Float32, Int32, bool) >
+        (_SC("CreatePickupEx"), &CreatePickupEx)
+    .Overload< Object & (*)(Int32, Int32, Int32, Float32, Float32, Float32, Int32, bool, Int32, Object &) >
+        (_SC("CreatePickupEx"), &CreatePickupEx)
+    .Overload< Object & (*)(Int32, Int32, Int32, const Vector3 &, Int32, bool) >
+        (_SC("CreatePickup"), &CreatePickup)
+    .Overload< Object & (*)(Int32, Int32, Int32, const Vector3 &, Int32, bool, Int32, Object &) >
+        (_SC("CreatePickup"), &CreatePickup);
 }
 
 } // Namespace:: SqMod

@@ -29,7 +29,7 @@ void SQLexer::Init(SQSharedState *ss, SQLEXREADFUNC rg, SQUserPointer up,Compile
 	_errfunc = efunc;
 	_errtarget = ed;
 	_sharedstate = ss;
-	_keywords = SQTable::Create(ss, 26);
+	_keywords = SQTable::Create(ss, 37);
 	ADD_KEYWORD(while, TK_WHILE);
 	ADD_KEYWORD(do, TK_DO);
 	ADD_KEYWORD(if, TK_IF);

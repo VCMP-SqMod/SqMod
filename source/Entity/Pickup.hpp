@@ -2,113 +2,153 @@
 #define _ENTITY_PICKUP_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Entity.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class responsible for managing the referenced pickup instance.
+ * Manages Pickup instances.
 */
-class CPickup : public Reference< CPickup >
+class CPickup
 {
     // --------------------------------------------------------------------------------------------
-    static CModel       s_Model;
+    friend class Core;
+
+private:
 
     // --------------------------------------------------------------------------------------------
     static Vector3      s_Vector3;
 
+    /* --------------------------------------------------------------------------------------------
+     * Cached identifiers for fast integer to string conversion.
+    */
+    static SQChar s_StrID[SQMOD_PICKUP_POOL][8];
+
+    /* --------------------------------------------------------------------------------------------
+     * Identifier of the managed entity.
+    */
+    Int32   m_ID;
+
+    /* --------------------------------------------------------------------------------------------
+     * User tag and data associated with this instance.
+    */
+    String  m_Tag;
+    Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CPickup(Int32 id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    CPickup(const CPickup &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    CPickup & operator = (const CPickup &);
+
 public:
 
-    /* --------------------------------------------------------------------------------------------
-     * Import the constructors, destructors and assignment operators from the base class.
-    */
-    using RefType::Reference;
+    // --------------------------------------------------------------------------------------------
+    static const Int32 Max;
 
     /* --------------------------------------------------------------------------------------------
-     * Construct a reference from a base reference.
+     * Destructor.
     */
-    CPickup(const Reference< CPickup > & o);
+    ~CPickup();
 
     /* --------------------------------------------------------------------------------------------
-     * See if the referenced pickup instance is streamed for the specified player.
+     * See whether this instance manages a valid entity.
     */
-    bool IsStreamedFor(const Reference< CPlayer > & player) const;
+    bool Validate() const
+    {
+        if (VALID_ENTITY(m_ID))
+            return true;
+        SqThrow("Invalid pickup reference [%s]", m_Tag.c_str());
+        return false;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the model of the referenced pickup instance.
+     * Used by the script engine to compare two instances of this type.
     */
-    const CModel & GetModel() const;
+    Int32 Cmp(const CPickup & o) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the model identifier of the referenced pickup instance.
+     * Used by the script engine to convert an instance of this type to a string.
     */
-    SQInt32 GetModelID() const;
+    CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the world in which the referenced pickup instance exists.
+     * Retrieve the identifier of the entity managed by this instance.
     */
-    SQInt32 GetWorld() const;
+    Int32 GetID() const { return m_ID; }
 
     /* --------------------------------------------------------------------------------------------
-     * Change the world in which the referenced pickup instance exists.
+     * Retrieve the maximum possible identifier to an entity of this type.
     */
-    void SetWorld(SQInt32 world) const;
+    Int32 GetMaxID() const { return SQMOD_PICKUP_POOL; }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the alpha of the referenced pickup instance.
+     * Check whether this instance manages a valid entity.
     */
-    SQInt32 GetAlpha() const;
+    bool IsActive() const { return VALID_ENTITY(m_ID); }
 
     /* --------------------------------------------------------------------------------------------
-     * Change the alpha of the referenced pickup instance.
+     * Retrieve the associated user tag.
     */
-    void SetAlpha(SQInt32 alpha) const;
+    CSStr GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
-     * See whether the referenced pickup instance is automatic.
+     * Modify the associated user tag.
     */
+    void SetTag(CSStr tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    Object & GetData();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(Object & data);
+
+    // --------------------------------------------------------------------------------------------
+    bool Destroy(Int32 header, Object & payload);
+    bool Destroy() { return Destroy(0, NullObject()); }
+    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
+
+    // --------------------------------------------------------------------------------------------
+    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+
+    // --------------------------------------------------------------------------------------------
+    bool IsStreamedFor(CPlayer & player) const;
+    Int32 GetModel() const;
+    Int32 GetWorld() const;
+    void SetWorld(Int32 world) const;
+    Int32 GetAlpha() const;
+    void SetAlpha(Int32 alpha) const;
     bool GetAutomatic() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the referenced pickup instance is automatic.
-    */
     void SetAutomatic(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the automatic timer of the referenced pickup instance.
-    */
-    SQInt32 GetAutoTimer() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the automatic timer of the referenced pickup instance.
-    */
-    void SetAutoTimer(SQInt32 timer) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Refresh the referenced pickup instance.
-    */
+    Int32 GetAutoTimer() const;
+    void SetAutoTimer(Int32 timer) const;
     void Refresh() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the position of the referenced pickup instance.
-    */
     const Vector3 & GetPosition();
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced pickup instance.
-    */
     void SetPosition(const Vector3 & pos) const;
+    void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+    Int32 GetQuantity() const;
 
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced pickup instance.
-    */
-    void SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the quantity of the referenced pickup instance.
-    */
-    SQInt32 GetQuantity() const;
+    // --------------------------------------------------------------------------------------------
+    Float32 GetPosX() const;
+    Float32 GetPosY() const;
+    Float32 GetPosZ() const;
+    void SetPosX(Float32 x) const;
+    void SetPosY(Float32 y) const;
+    void SetPosZ(Float32 z) const;
 };
 
 } // Namespace:: SqMod

@@ -60,7 +60,11 @@ typedef wchar_t SQChar;
 
 
 #define	scstrcmp	wcscmp
-#define scsprintf	swprintf
+#ifdef _MSC_VER
+#define scsprintf	_snwprintf
+#else
+#define scsprintf	snwprintf
+#endif
 #define scstrlen	wcslen
 #define scstrtod	wcstod
 #ifdef _SQ64
@@ -95,7 +99,7 @@ typedef wchar_t SQChar;
 #define scisalnum	iswalnum
 
 
-
+#define sq_rsl(l) ((l)<<WCHAR_SHIFT_MUL)
 
 #else
 typedef char SQChar;
@@ -129,6 +133,9 @@ typedef char SQChar;
 #define scisalnum	isalnum
 #define scprintf	printf
 #define MAX_CHAR 0xFF
+
+#define sq_rsl(l) (l)
+
 #endif
 
 #ifdef _SQ64

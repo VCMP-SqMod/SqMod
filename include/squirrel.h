@@ -61,7 +61,7 @@ struct SQOuter;
 
 #include "sqconfig.h"
 
-#define SQUIRREL_VERSION	_SC("Squirrel 3.1 RC1")
+#define SQUIRREL_VERSION	_SC("Squirrel 3.1 stable")
 #define SQUIRREL_COPYRIGHT	_SC("Copyright (C) 2003-2015 Alberto Demichelis")
 #define SQUIRREL_AUTHOR		_SC("Alberto Demichelis")
 #define SQUIRREL_VERSION_NUMBER	310
@@ -249,6 +249,7 @@ SQUIRREL_API void sq_pushinteger(HSQUIRRELVM v,SQInteger n);
 SQUIRREL_API void sq_pushbool(HSQUIRRELVM v,SQBool b);
 SQUIRREL_API void sq_pushuserpointer(HSQUIRRELVM v,SQUserPointer p);
 SQUIRREL_API void sq_pushnull(HSQUIRRELVM v);
+SQUIRREL_API void sq_pushthread(HSQUIRRELVM v, HSQUIRRELVM thread);
 SQUIRREL_API SQObjectType sq_gettype(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQRESULT sq_typeof(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQInteger sq_getsize(HSQUIRRELVM v,SQInteger idx);
@@ -267,6 +268,7 @@ SQUIRREL_API SQRESULT sq_getuserdata(HSQUIRRELVM v,SQInteger idx,SQUserPointer *
 SQUIRREL_API SQRESULT sq_settypetag(HSQUIRRELVM v,SQInteger idx,SQUserPointer typetag);
 SQUIRREL_API SQRESULT sq_gettypetag(HSQUIRRELVM v,SQInteger idx,SQUserPointer *typetag);
 SQUIRREL_API void sq_setreleasehook(HSQUIRRELVM v,SQInteger idx,SQRELEASEHOOK hook);
+SQUIRREL_API SQRELEASEHOOK sq_getreleasehook(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQChar *sq_getscratchpad(HSQUIRRELVM v,SQInteger minsize);
 SQUIRREL_API SQRESULT sq_getfunctioninfo(HSQUIRRELVM v,SQInteger level,SQFunctionInfo *fi);
 SQUIRREL_API SQRESULT sq_getclosureinfo(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger *nparams,SQUnsignedInteger *nfreevars);
@@ -339,6 +341,8 @@ SQUIRREL_API SQInteger sq_objtointeger(const HSQOBJECT *o);
 SQUIRREL_API SQFloat sq_objtofloat(const HSQOBJECT *o);
 SQUIRREL_API SQUserPointer sq_objtouserpointer(const HSQOBJECT *o);
 SQUIRREL_API SQRESULT sq_getobjtypetag(const HSQOBJECT *o,SQUserPointer * typetag);
+SQUIRREL_API SQUnsignedInteger sq_getvmrefcount(HSQUIRRELVM v, const HSQOBJECT *po);
+
 
 /*GC*/
 SQUIRREL_API SQInteger sq_collectgarbage(HSQUIRRELVM v);

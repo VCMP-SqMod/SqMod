@@ -7,124 +7,195 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Win32 Debug Dynamic">
-				<Option output="../bin/win32-d/sqmod" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin/win32-d/sqmod32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32-d/" />
-				<Option object_output="../obj/win32-d/" />
+				<Option object_output="../obj/mingw32-d/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-m32" />
 					<Add option="-g" />
-					<Add option="-static-libgcc" />
-					<Add option="-static-libstdc++" />
-					<Add option="-enable-static" />
 					<Add option="-D_DEBUG" />
-					<Add option="-DWIN32" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
+					<Add option="-m32" />
 					<Add option="-static" />
-					<Add library="common-d" />
-					<Add library="squirrel-d" />
-					<Add library="sqlite-d" />
 					<Add library="Ws2_32" />
-					<Add directory="../lib/mingw32" />
+					<Add directory="../lib/mingw32-d" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /c copy /Y &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\bin\plugins\$(TARGET_OUTPUT_BASENAME).dll&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Win32 Release Dynamic">
-				<Option output="../bin/win32/sqmod" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin/win32/sqmod32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32/" />
-				<Option object_output="../obj/win32/" />
+				<Option object_output="../obj/mingw32/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-static-libgcc" />
-					<Add option="-static-libstdc++" />
-					<Add option="-enable-static" />
+					<Add option="-m32" />
 					<Add option="-DNDEBUG" />
-					<Add option="-DWIN32" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-m32" />
 					<Add option="-static" />
-					<Add library="common" />
-					<Add library="squirrel" />
-					<Add library="sqlite" />
 					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw32" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /c copy /Y &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\bin\plugins\$(TARGET_OUTPUT_BASENAME).dll&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Debug Dynamic">
-				<Option output="../bin/win64-d/sqmod" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin/win64-d/sqmod64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64-d/" />
-				<Option object_output="../obj/win64-d/" />
+				<Option object_output="../obj/mingw64-d/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-m64" />
 					<Add option="-g" />
-					<Add option="-static-libgcc" />
-					<Add option="-static-libstdc++" />
-					<Add option="-enable-static" />
 					<Add option="-D_DEBUG" />
-					<Add option="-DWIN32" />
-					<Add option="-DWIN64" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
 				<Linker>
+					<Add option="-m64" />
 					<Add option="-static" />
-					<Add library="common-d" />
-					<Add library="squirrel-d" />
-					<Add library="sqlite-d" />
 					<Add library="Ws2_32" />
-					<Add directory="../lib/mingw64" />
+					<Add directory="../lib/mingw64-d" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /c copy /Y &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\bin\plugins\$(TARGET_OUTPUT_BASENAME).dll&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Release Dynamic">
-				<Option output="../bin/win64/sqmod" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin/win64/sqmod64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64/" />
-				<Option object_output="../obj/win64/" />
+				<Option object_output="../obj/mingw64/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-static-libgcc" />
-					<Add option="-static-libstdc++" />
-					<Add option="-enable-static" />
+					<Add option="-m64" />
 					<Add option="-DNDEBUG" />
-					<Add option="-DWIN32" />
-					<Add option="-DWIN64" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-m64" />
 					<Add option="-static" />
-					<Add library="common" />
-					<Add library="squirrel" />
-					<Add library="sqlite" />
 					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw64" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /c copy /Y &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\bin\plugins\$(TARGET_OUTPUT_BASENAME).dll&quot;' />
+				</ExtraCommands>
+			</Target>
+			<Target title="Linux32 Debug Dynamic">
+				<Option output="../bin/linux32-d/sqmod32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="../bin/linux32-d/" />
+				<Option object_output="../obj/gcc32-d/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-m32" />
+					<Add option="-g" />
+					<Add option="-fPIC" />
+					<Add option="-D_DEBUG" />
+					<Add directory="../config/gcc32" />
+				</Compiler>
+				<Linker>
+					<Add option="-m32" />
+					<Add option="-Bstatic" />
+					<Add directory="../lib/gcc32-d" />
+				</Linker>
+			</Target>
+			<Target title="Linux32 Release Dynamic">
+				<Option output="../bin/linux32/sqmod32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="../bin/linux32/" />
+				<Option object_output="../obj/gcc32/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-m32" />
+					<Add option="-fPIC" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../config/gcc32" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m32" />
+					<Add option="-Bstatic" />
+					<Add directory="../lib/gcc32" />
+				</Linker>
+			</Target>
+			<Target title="Linux64 Debug Dynamic">
+				<Option output="../bin/linux64-d/sqmod64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="../bin/linux64-d/" />
+				<Option object_output="../obj/gcc64-d/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-m64" />
+					<Add option="-g" />
+					<Add option="-fPIC" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_SQ64" />
+					<Add directory="../config/gcc64" />
+				</Compiler>
+				<Linker>
+					<Add option="-m64" />
+					<Add option="-Bstatic" />
+					<Add directory="../lib/gcc64-d" />
+				</Linker>
+			</Target>
+			<Target title="Linux64 Release Dynamic">
+				<Option output="../bin/linux64/sqmod64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="../bin/linux64/" />
+				<Option object_output="../obj/gcc64/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-m64" />
+					<Add option="-fPIC" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_SQ64" />
+					<Add directory="../config/gcc64" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m64" />
+					<Add option="-Bstatic" />
+					<Add directory="../lib/gcc64" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add option="-std=c++11" />
-			<Add option="-DFMT_USE_VARIADIC_TEMPLATES" />
-			<Add option="-DFMT_USE_RVALUE_REFERENCES" />
-			<Add option="-DSCRAT_USE_CXX11_OPTIMIZATIONS" />
-			<Add directory="../include" />
+			<Add option="-static-libgcc" />
+			<Add option="-static-libstdc++" />
+			<Add option="-enable-static" />
 			<Add directory="../source" />
 			<Add directory="../shared" />
+			<Add directory="../include" />
 			<Add directory="../config/common" />
 			<Add directory="../external/Common" />
+			<Add directory="../external/Hash" />
 		</Compiler>
-		<ExtraCommands>
-			<Add after='cmd /c copy /Y &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;H:\VCMP\plugins&quot;' />
-		</ExtraCommands>
+		<Linker>
+			<Add library="squirrel" />
+			<Add library="sqlite" />
+			<Add library="hash" />
+		</Linker>
 		<Unit filename="../source/Base/AABB.cpp" />
 		<Unit filename="../source/Base/AABB.hpp" />
 		<Unit filename="../source/Base/Buffer.cpp" />
@@ -137,35 +208,30 @@
 		<Unit filename="../source/Base/Color4.hpp" />
 		<Unit filename="../source/Base/Quaternion.cpp" />
 		<Unit filename="../source/Base/Quaternion.hpp" />
+		<Unit filename="../source/Base/Random.cpp" />
 		<Unit filename="../source/Base/Shared.cpp" />
 		<Unit filename="../source/Base/Shared.hpp" />
 		<Unit filename="../source/Base/Sphere.cpp" />
 		<Unit filename="../source/Base/Sphere.hpp" />
-		<Unit filename="../source/Base/Vector2f.cpp" />
-		<Unit filename="../source/Base/Vector2f.hpp" />
+		<Unit filename="../source/Base/Vector2.cpp" />
+		<Unit filename="../source/Base/Vector2.hpp" />
 		<Unit filename="../source/Base/Vector2i.cpp" />
 		<Unit filename="../source/Base/Vector2i.hpp" />
-		<Unit filename="../source/Base/Vector2u.cpp" />
-		<Unit filename="../source/Base/Vector2u.hpp" />
 		<Unit filename="../source/Base/Vector3.cpp" />
 		<Unit filename="../source/Base/Vector3.hpp" />
 		<Unit filename="../source/Base/Vector4.cpp" />
 		<Unit filename="../source/Base/Vector4.hpp" />
 		<Unit filename="../source/Command.cpp" />
 		<Unit filename="../source/Command.hpp" />
-		<Unit filename="../source/Common.cpp" />
-		<Unit filename="../source/Common.hpp" />
-		<Unit filename="../source/Config.hpp" />
+		<Unit filename="../source/Constants.cpp" />
 		<Unit filename="../source/Core.cpp" />
 		<Unit filename="../source/Core.hpp" />
-		<Unit filename="../source/Debug.cpp" />
-		<Unit filename="../source/Debug.hpp" />
-		<Unit filename="../source/Entity.cpp" />
-		<Unit filename="../source/Entity.hpp" />
 		<Unit filename="../source/Entity/Blip.cpp" />
 		<Unit filename="../source/Entity/Blip.hpp" />
 		<Unit filename="../source/Entity/Checkpoint.cpp" />
 		<Unit filename="../source/Entity/Checkpoint.hpp" />
+		<Unit filename="../source/Entity/Forcefield.cpp" />
+		<Unit filename="../source/Entity/Forcefield.hpp" />
 		<Unit filename="../source/Entity/Keybind.cpp" />
 		<Unit filename="../source/Entity/Keybind.hpp" />
 		<Unit filename="../source/Entity/Object.cpp" />
@@ -174,26 +240,12 @@
 		<Unit filename="../source/Entity/Pickup.hpp" />
 		<Unit filename="../source/Entity/Player.cpp" />
 		<Unit filename="../source/Entity/Player.hpp" />
-		<Unit filename="../source/Entity/Sphere.cpp" />
-		<Unit filename="../source/Entity/Sphere.hpp" />
 		<Unit filename="../source/Entity/Sprite.cpp" />
 		<Unit filename="../source/Entity/Sprite.hpp" />
 		<Unit filename="../source/Entity/Textdraw.cpp" />
 		<Unit filename="../source/Entity/Textdraw.hpp" />
 		<Unit filename="../source/Entity/Vehicle.cpp" />
 		<Unit filename="../source/Entity/Vehicle.hpp" />
-		<Unit filename="../source/Event/Basic.cpp" />
-		<Unit filename="../source/Event/Basic.hpp" />
-		<Unit filename="../source/Event/Global.cpp" />
-		<Unit filename="../source/Event/Global.hpp" />
-		<Unit filename="../source/Event/Local.cpp" />
-		<Unit filename="../source/Event/Local.hpp" />
-		<Unit filename="../source/Event/Routine.cpp" />
-		<Unit filename="../source/Event/Routine.hpp" />
-		<Unit filename="../source/Event/Shared.cpp" />
-		<Unit filename="../source/Event/Shared.hpp" />
-		<Unit filename="../source/Iterators.cpp" />
-		<Unit filename="../source/Iterators.hpp" />
 		<Unit filename="../source/Library/Datetime.cpp" />
 		<Unit filename="../source/Library/Datetime.hpp" />
 		<Unit filename="../source/Library/FileIO.cpp" />
@@ -202,24 +254,12 @@
 		<Unit filename="../source/Library/Format.hpp" />
 		<Unit filename="../source/Library/Hashing.cpp" />
 		<Unit filename="../source/Library/Hashing.hpp" />
-		<Unit filename="../source/Library/INI.cpp" />
-		<Unit filename="../source/Library/INI.hpp" />
-		<Unit filename="../source/Library/IRC.cpp" />
-		<Unit filename="../source/Library/IRC.hpp" />
-		<Unit filename="../source/Library/JSON.cpp" />
-		<Unit filename="../source/Library/JSON.hpp" />
-		<Unit filename="../source/Library/LongInt.cpp" />
-		<Unit filename="../source/Library/LongInt.hpp" />
 		<Unit filename="../source/Library/Math.cpp" />
 		<Unit filename="../source/Library/Math.hpp" />
 		<Unit filename="../source/Library/Numeric.cpp" />
 		<Unit filename="../source/Library/Numeric.hpp" />
-		<Unit filename="../source/Library/SQLite/Connection.cpp" />
-		<Unit filename="../source/Library/SQLite/Connection.hpp" />
-		<Unit filename="../source/Library/SQLite/Shared.cpp" />
-		<Unit filename="../source/Library/SQLite/Shared.hpp" />
-		<Unit filename="../source/Library/SQLite/Statement.cpp" />
-		<Unit filename="../source/Library/SQLite/Statement.hpp" />
+		<Unit filename="../source/Library/Random.cpp" />
+		<Unit filename="../source/Library/Random.hpp" />
 		<Unit filename="../source/Library/Shared.cpp" />
 		<Unit filename="../source/Library/Shared.hpp" />
 		<Unit filename="../source/Library/String.cpp" />
@@ -232,39 +272,25 @@
 		<Unit filename="../source/Library/Timer.hpp" />
 		<Unit filename="../source/Library/Utils.cpp" />
 		<Unit filename="../source/Library/Utils.hpp" />
-		<Unit filename="../source/Library/XML.cpp" />
-		<Unit filename="../source/Library/XML.hpp" />
 		<Unit filename="../source/Logger.cpp" />
 		<Unit filename="../source/Logger.hpp" />
-		<Unit filename="../source/Misc/Automobile.cpp" />
-		<Unit filename="../source/Misc/Automobile.hpp" />
-		<Unit filename="../source/Misc/Constants.cpp" />
-		<Unit filename="../source/Misc/Constants.hpp" />
+		<Unit filename="../source/Main.cpp" />
+		<Unit filename="../source/Misc.cpp" />
 		<Unit filename="../source/Misc/Functions.cpp" />
 		<Unit filename="../source/Misc/Functions.hpp" />
 		<Unit filename="../source/Misc/Model.cpp" />
 		<Unit filename="../source/Misc/Model.hpp" />
-		<Unit filename="../source/Misc/PlayerImmunity.cpp" />
-		<Unit filename="../source/Misc/PlayerImmunity.hpp" />
-		<Unit filename="../source/Misc/Radio.cpp" />
-		<Unit filename="../source/Misc/Radio.hpp" />
-		<Unit filename="../source/Misc/Shared.cpp" />
-		<Unit filename="../source/Misc/Shared.hpp" />
-		<Unit filename="../source/Misc/Skin.cpp" />
-		<Unit filename="../source/Misc/Skin.hpp" />
-		<Unit filename="../source/Misc/Sound.cpp" />
-		<Unit filename="../source/Misc/Sound.hpp" />
-		<Unit filename="../source/Misc/VehicleImmunity.cpp" />
-		<Unit filename="../source/Misc/VehicleImmunity.hpp" />
-		<Unit filename="../source/Misc/WastedSettings.cpp" />
-		<Unit filename="../source/Misc/WastedSettings.hpp" />
+		<Unit filename="../source/Misc/Player.cpp" />
+		<Unit filename="../source/Misc/Player.hpp" />
+		<Unit filename="../source/Misc/Register.cpp" />
+		<Unit filename="../source/Misc/Vehicle.cpp" />
+		<Unit filename="../source/Misc/Vehicle.hpp" />
 		<Unit filename="../source/Misc/Weapon.cpp" />
 		<Unit filename="../source/Misc/Weapon.hpp" />
-		<Unit filename="../source/Misc/WorldBounds.cpp" />
-		<Unit filename="../source/Misc/WorldBounds.hpp" />
+		<Unit filename="../source/Misc/World.cpp" />
+		<Unit filename="../source/Misc/World.hpp" />
 		<Unit filename="../source/Register.cpp" />
-		<Unit filename="../source/Register.hpp" />
-		<Unit filename="../source/Signal.hpp" />
+		<Unit filename="../source/SqBase.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

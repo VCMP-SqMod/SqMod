@@ -2,142 +2,150 @@
 #define _ENTITY_SPRITE_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Entity.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class responsible for managing the referenced sprite instance.
+ * Manages Sprite instances.
 */
-class CSprite : public Reference< CSprite >
+class CSprite
 {
+    // --------------------------------------------------------------------------------------------
+    friend class Core;
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Cached identifiers for fast integer to string conversion.
+    */
+    static SQChar s_StrID[SQMOD_SPRITE_POOL][8];
+
+    /* --------------------------------------------------------------------------------------------
+     * Identifier of the managed entity.
+    */
+    Int32   m_ID;
+
+    /* --------------------------------------------------------------------------------------------
+     * User tag and data associated with this instance.
+    */
+    String  m_Tag;
+    Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CSprite(Int32 id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    CSprite(const CSprite &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    CSprite & operator = (const CSprite &);
+
 public:
 
-    /* --------------------------------------------------------------------------------------------
-     * Import the constructors, destructors and assignment operators from the base class.
-    */
-    using RefType::Reference;
+    // --------------------------------------------------------------------------------------------
+    static const Int32 Max;
 
     /* --------------------------------------------------------------------------------------------
-     * Construct a reference from a base reference.
+     * Destructor.
     */
-    CSprite(const Reference< CSprite > & o);
+    ~CSprite();
 
     /* --------------------------------------------------------------------------------------------
-     * Show the referenced sprite instance to all players on the server.
+     * See whether this instance manages a valid entity.
     */
+    bool Validate() const
+    {
+        if (VALID_ENTITY(m_ID))
+            return true;
+        SqThrow("Invalid sprite reference [%s]", m_Tag.c_str());
+        return false;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare two instances of this type.
+    */
+    Int32 Cmp(const CSprite & o) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to convert an instance of this type to a string.
+    */
+    CSStr ToString() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the identifier of the entity managed by this instance.
+    */
+    Int32 GetID() const { return m_ID; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the maximum possible identifier to an entity of this type.
+    */
+    Int32 GetMaxID() const { return SQMOD_SPRITE_POOL; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether this instance manages a valid entity.
+    */
+    bool IsActive() const { return VALID_ENTITY(m_ID); }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user tag.
+    */
+    CSStr GetTag() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    void SetTag(CSStr tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    Object & GetData();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(Object & data);
+
+    // --------------------------------------------------------------------------------------------
+    bool Destroy(Int32 header, Object & payload);
+    bool Destroy() { return Destroy(0, NullObject()); }
+    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
+
+    // --------------------------------------------------------------------------------------------
+    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+
+    // --------------------------------------------------------------------------------------------
     void ShowAll() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Show the referenced sprite instance to the specified player instance.
-    */
-    void ShowFor(const Reference< CPlayer > & player) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Show the referenced sprite instance to all players in the specified range.
-    */
-    void ShowRange(SQInt32 first, SQInt32 last) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Hide the referenced sprite instance from all players on the server.
-    */
+    void ShowFor(CPlayer & player) const;
+    void ShowRange(Int32 first, Int32 last) const;
     void HideAll() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Hide the referenced sprite instance from the specified player instance.
-    */
-    void HideFor(const Reference< CPlayer > & player) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Hide the referenced sprite instance from all players in the specified range.
-    */
-    void HideRange(SQInt32 first, SQInt32 last) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced sprite instance for all players on the server.
-    */
+    void HideFor(CPlayer & player) const;
+    void HideRange(Int32 first, Int32 last) const;
     void SetPositionAll(const Vector2i & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced sprite instance for all players on the server.
-    */
-    void SetPositionAllEx(SQInt32 x, SQInt32 y) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced sprite instance for the specified player instance.
-    */
-    void SetPositionFor(const Reference< CPlayer > & player, const Vector2i & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced sprite instance for the specified player instance.
-    */
-    void SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced sprite instance for all players in the specified range.
-    */
-    void SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the center of the referenced sprite instance for all players on the server.
-    */
+    void SetPositionAllEx(Int32 x, Int32 y) const;
+    void SetPositionFor(CPlayer & player, const Vector2i & pos) const;
+    void SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const;
+    void SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) const;
     void SetCenterAll(const Vector2i & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the center of the referenced sprite instance for all players on the server.
-    */
-    void SetCenterAllEx(SQInt32 x, SQInt32 y) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the center of the referenced sprite instance for the specified player instance.
-    */
-    void SetCenterFor(const Reference< CPlayer > & player, const Vector2i & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the center of the referenced sprite instance for the specified player instance.
-    */
-    void SetCenterForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the center of the referenced sprite instance for all players in the specified range.
-    */
-    void SetCenterRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the rotation of the referenced sprite instance for all players on the server.
-    */
+    void SetCenterAllEx(Int32 x, Int32 y) const;
+    void SetCenterFor(CPlayer & player, const Vector2i & pos) const;
+    void SetCenterForEx(CPlayer & player, Int32 x, Int32 y) const;
+    void SetCenterRange(Int32 first, Int32 last, const Vector2i & pos) const;
     void SetRotationAll(SQFloat rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the rotation of the referenced sprite instance for the specified player instance.
-    */
-    void SetRotationFor(const Reference< CPlayer > & player, SQFloat rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the rotation of the referenced sprite instance for all players in the specified range.
-    */
-    void SetRotationRange(SQInt32 first, SQInt32 last, SQFloat rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the rotation of the referenced sprite instance for all players on the server.
-    */
+    void SetRotationFor(CPlayer & player, SQFloat rot) const;
+    void SetRotationRange(Int32 first, Int32 last, SQFloat rot) const;
     void SetAlphaAll(Uint8 alpha) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the rotation of the referenced sprite instance for the specified player instance.
-    */
-    void SetAlphaFor(const Reference< CPlayer > & player, Uint8 alpha) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the rotation of the referenced sprite instance for all players in the specified range.
-    */
-    void SetAlphaRange(SQInt32 first, SQInt32 last, Uint8 alpha) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the file path of the texture used by the referenced sprite instance.
-    */
-    const SQChar * GetFilePath() const;
+    void SetAlphaFor(CPlayer & player, Uint8 alpha) const;
+    void SetAlphaRange(Int32 first, Int32 last, Uint8 alpha) const;
+    CSStr GetFilePath() const;
 };
 
 } // Namespace:: SqMod

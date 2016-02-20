@@ -1,383 +1,319 @@
+// ------------------------------------------------------------------------------------------------
 #include "Misc/Weapon.hpp"
-#include "Entity.hpp"
-#include "Register.hpp"
-#include "Core.hpp"
+
+// ------------------------------------------------------------------------------------------------
+#include <cstring>
+#include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-const CWeapon CWeapon::NIL = CWeapon();
+static String CS_Weapon_Names[] = {
+"Unarmed",                   "Brass Knuckles",            "Screwdriver",               "Golf Club",
+"Nightstick",                "Knife",                     "Baseball Bat",              "Hammer",
+"Meat Cleaver",              "Machete",                   "Katana",                    "Chainsaw",
+"Grenade",                   "Remote Detonation Grenade", "Tear Gas",                  "Molotov Cocktails",
+"Rocket",                    "Colt .45",                  "Python",                    "Pump-Action Shotgun",
+"SPAS-12 Shotgun",           "Stubby Shotgun",            "TEC-9",                     "Uzi",
+"Silenced Ingram",           "MP5",                       "M4",                        "Ruger",
+"Sniper Rifle",              "Laserscope Sniper Rifle",   "Rocket Launcher",           "Flamethrower",
+"M60",                       "Minigun",                   "Bomb",                      "Helicannon",
+"Camera",                    "",                          "",                          "Vehicle",
+"",                          "Explosion",                 "Driveby",                   "Drowned",
+"Fall",                      "",                          "",                          "",
+"",                          "",                          "",                          "Explosion",
+"",                          "",                          "",                          "",
+"",                          "",                          "",                          "",
+"",                          "",                          "",                          "",
+"",                          "",                          "",                          "",
+"",                          "",                          "Suicide",                   ""
+};
 
 // ------------------------------------------------------------------------------------------------
-CWeapon::CWeapon()
-    : m_ID(SQMOD_UNKNOWN), m_Ammo(0)
+CCStr GetWeaponName(Uint32 id)
 {
-
+    return (id > 70) ? _SC("") : CS_Weapon_Names[id].c_str();
 }
 
-CWeapon::CWeapon(SQInt32 id)
-    : CWeapon(id, 0)
+// ------------------------------------------------------------------------------------------------
+void SetWeaponName(Uint32 id, CCStr name)
 {
-
+    if (id <= 70)
+        CS_Weapon_Names[id].assign(name);
 }
 
-CWeapon::CWeapon(SQInt32 id, SQInt32 ammo)
-    : m_ID(VALID_ENTITYGETEX(id, Max)), m_Ammo(ammo)
+// ------------------------------------------------------------------------------------------------
+Int32 GetWeaponID(CCStr name)
 {
-
-}
-
-CWeapon::CWeapon(const SQChar * name, SQInt32 id, SQInt32 ammo)
-    : m_ID(GetWeaponID(name)), m_Ammo(ammo)
-{
-    if (VALID_ENTITYEX(m_ID, Max))
+    // Clone the string into an editable version
+    String str(name);
+    // Strip non alphanumeric characters from the name
+    str.erase(std::remove_if(str.begin(), str.end(), std::not1(std::ptr_fun(::isalnum))), str.end());
+    // Convert the string to lowercase
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    // See if we still have a valid name after the cleanup
+    if(str.length() < 1)
+        return SQMOD_UNKNOWN;
+    // Grab the actual length of the string
+    Uint32 len = static_cast< Uint32 >(str.length());
+    // Get the most significant characters used to identify a weapon
+    CharT a = str[0], b = 0, c = 0, d = str[len-1];
+    // Look for deeper specifiers
+    if(str.length() >= 3)
     {
-        m_ID = id;
+        c = str[2];
+        b = str[1];
+    }
+    else if(str.length() >= 2)
+        b = str[1];
+    // Search for a pattern in the name
+    switch(a)
+    {
+        // [B]aseball Bat
+        // [B]omb
+        // [B]rass Knuckles
+        case 'b':
+            // [Ba]seball Bat
+            if (b == 'a') return SQMOD_WEAPON_BASEBALLBAT;
+            // [Bo]mb
+            else if (b == 'o') return SQMOD_WEAPON_BOMB;
+            // [Br]ass Knuckles
+            else if (b == 'r') return SQMOD_WEAPON_BRASSKNUCKLES;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [C]amera
+        // [C]hainsaw
+        // [C]olt .45
+        case 'c':
+            // [Ca]mera
+            if (b == 'a') return SQMOD_WEAPON_CAMERA;
+            // [Ch]ainsaw
+            else if (b == 'h') return SQMOD_WEAPON_CHAINSAW;
+            // [Co]lt .45
+            else if (b == 'o') return SQMOD_WEAPON_COLT45;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [D]riveby
+        // [D]rowned
+        case 'd':
+            // [Dr]iveby
+            if (b == 'r' && (c == 'i' || d == 'y')) return SQMOD_WEAPON_DRIVEBY;
+            // [Dr]owned
+            else if (b == 'r' && (c == 'o' || d == 'd')) return SQMOD_WEAPON_DROWNED;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [E]xplosion
+        case 'e': return SQMOD_WEAPON_EXPLOSION2;
+        // [F]all
+        // [F]lamethrower
+        case 'f':
+            // [Fa]ll
+            if (b == 'a') return SQMOD_WEAPON_FALL;
+            // [Fl]amethrower
+            else if (b == 'l') return SQMOD_WEAPON_FLAMETHROWER;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [G]olf Club
+        // [G]renade
+        case 'g':
+            // [Go]lf Club
+            if (b == 'o') return SQMOD_WEAPON_GOLFCLUB;
+            // [Gr]enade
+            else if (b == 'r') return SQMOD_WEAPON_GRENADE;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [H]ammer
+        // [H]elicannon
+        case 'h':
+            // [Ha]mmer
+            if (b == 'a') return SQMOD_WEAPON_HAMMER;
+            // [He]licannon
+            else if (b == 'e') return SQMOD_WEAPON_HELICANNON;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [K]atana
+        // [K]nife
+        case 'k':
+            // [Ka]tana
+            if (b == 'a') return SQMOD_WEAPON_KATANA;
+            // [Kn]ife
+            else if (b == 'n') return SQMOD_WEAPON_KNIFE;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [L]aserscope Sniper Rifle
+        case 'l': return SQMOD_WEAPON_LASERSCOPE;
+        // [M]4
+        // [M]60
+        // [M]achete
+        // [M]eat Cleaver
+        // [M]inigun
+        // [M]olotov Cocktails
+        // [M]P5
+        case 'm':
+            // [M4]
+            if (b == '4') return SQMOD_WEAPON_M4;
+            // [M6]0
+            else if (b == '6') return SQMOD_WEAPON_M60;
+            // [Ma]chete
+            else if (b == 'a') return SQMOD_WEAPON_MACHETE;
+            // [Me]at Cleaver
+            else if (b == 'e') return SQMOD_WEAPON_MEATCLEAVER;
+            // [Mi]nigun
+            else if (b == 'i') return SQMOD_WEAPON_MINIGUN;
+            // [Mo]lotov Cocktails
+            else if (b == 'o') return SQMOD_WEAPON_MOLOTOV;
+            // [MP]5
+            else if (b == 'p') return SQMOD_WEAPON_MP5;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [N]ightstick
+        case 'n': return SQMOD_WEAPON_NIGHTSTICK;
+        // [P]ump-Action Shotgun
+        // [P]ython
+        case 'p':
+            // [Pu]mp-Action Shotgun
+            if (b == 'u') return SQMOD_WEAPON_SHOTGUN;
+            // [Py]thon
+            else if (b == 'y') return SQMOD_WEAPON_PYTHON;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [R]emote Detonation Grenade
+        // [R]ocket
+        // [R]ocket Launcher
+        // [R]uger
+        case 'r':
+            // [Re]mote Detonation Grenade
+            if (b == 'e') return SQMOD_WEAPON_REMOTE;
+            // [Ro]cke[t]
+            else if (b == 'o' && d == 't') return SQMOD_WEAPON_ROCKET;
+            // [Ro]cket [L]aunche[r]
+            else if (b == 'o' && (d == 'r' || d == 'l' || (len > 5 && str[6] == 'l'))) return SQMOD_WEAPON_ROCKETLAUNCHER;
+            // [Ru]ger
+            else if (b == 'u') return SQMOD_WEAPON_RUGER;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [S]crewdriver
+        // [S]ilenced Ingram
+        // [S]niper Rifle
+        // [S]PAS-12 Shotgun
+        // [S]tubby Shotgun
+        // [S]uicide
+        case 's':
+            // [Sc]rewdriver
+            if (b == 'c') return SQMOD_WEAPON_SCREWDRIVER;
+            // [Si]lenced Ingram
+            else if (b == 'i') return SQMOD_WEAPON_INGRAM;
+            // [Sn]iper Rifle
+            else if (b == 'n') return SQMOD_WEAPON_SNIPER;
+            // [SP]AS-12 Shotgun
+            else if (b == 'p') return SQMOD_WEAPON_SPAS12;
+            // [St]ubby Shotgun
+            else if (b == 't') return SQMOD_WEAPON_STUBBY;
+            // [Su]icide
+            else if (b == 'u') return SQMOD_WEAPON_SUICIDE;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [T]ear Gas
+        // [T]EC-9
+        case 't':
+            // [Tea]r Ga[s]
+            if (b == 'e' && (c == 'a' || d == 's')) return SQMOD_WEAPON_TEARGAS;
+            // [TEC]-[9]
+            else if (b == 'e' && (c == 'c' || d == '9')) return SQMOD_WEAPON_TEC9;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [U]narmed
+        // [U]zi
+        case 'u':
+            // [Un]armed
+            if (b == 'n') return SQMOD_WEAPON_UNARMED;
+            // [Uz]i
+            else if (b == 'z') return SQMOD_WEAPON_UZI;
+            // Default to unknwon
+            else return SQMOD_UNKNOWN;
+        // [V]ehicle
+        case 'v': return SQMOD_WEAPON_VEHICLE;
+        // Default to unknwon
+        default: return SQMOD_UNKNOWN;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-CWeapon::CWeapon(const CWeapon & w)
-    : m_ID(w.m_ID)
-    , m_Ammo(w.m_Ammo)
-    , m_Tag(w.m_Tag)
-    , m_Data(w.m_Data)
+bool IsWeaponValid(Int32 id)
 {
-
-}
-
-CWeapon::CWeapon(CWeapon && w)
-    : m_ID(w.m_ID)
-    , m_Ammo(w.m_Ammo)
-    , m_Tag(w.m_Tag)
-    , m_Data(w.m_Data)
-{
-
+    return (strlen(GetWeaponName(id)) > 0);
 }
 
 // ------------------------------------------------------------------------------------------------
-CWeapon::~CWeapon()
+bool IsWeaponNatural(Int32 id)
 {
-
-}
-
-// ------------------------------------------------------------------------------------------------
-CWeapon & CWeapon::operator = (const CWeapon & w)
-{
-    m_ID = w.m_ID;
-    m_Ammo = w.m_Ammo;
-    m_Tag = w.m_Tag;
-    m_Data = w.m_Data;
-
-    return *this;
-}
-
-CWeapon & CWeapon::operator = (CWeapon && w)
-{
-    m_ID = w.m_ID;
-    m_Ammo = w.m_Ammo;
-    m_Tag = w.m_Tag;
-    m_Data = w.m_Data;
-
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-CWeapon & CWeapon::operator = (SQInt32 id)
-{
-    m_ID = VALID_ENTITYGETEX(id, Max);
-
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CWeapon::operator == (const CWeapon & w) const
-{
-    return (m_ID == w.m_ID);
-}
-
-bool CWeapon::operator != (const CWeapon & w) const
-{
-    return (m_ID != w.m_ID);
-}
-
-bool CWeapon::operator < (const CWeapon & w) const
-{
-    return (m_ID < w.m_ID);
-}
-
-bool CWeapon::operator > (const CWeapon & w) const
-{
-    return (m_ID < w.m_ID);
-}
-
-bool CWeapon::operator <= (const CWeapon & w) const
-{
-    return (m_ID <= w.m_ID);
-}
-
-bool CWeapon::operator >= (const CWeapon & w) const
-{
-    return (m_ID >= w.m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger CWeapon::Cmp(const CWeapon & w) const
-{
-    if (m_ID == w.m_ID)
+    switch (id)
     {
-        return 0;
-    }
-    else if (m_ID > w.m_ID)
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
+        case SQMOD_WEAPON_VEHICLE:
+        case SQMOD_WEAPON_DRIVEBY:
+        case SQMOD_WEAPON_DROWNED:
+        case SQMOD_WEAPON_FALL:
+        case SQMOD_WEAPON_EXPLOSION2:
+        case SQMOD_WEAPON_SUICIDE:  return true;
+        default:                    return false;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * CWeapon::ToString() const
+Int32 WeaponToModel(Int32 id)
 {
-    return GetWeaponName(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger CWeapon::GetID() const
-{
-    return m_ID;
-}
-
-void CWeapon::SetID(SQInt32 id)
-{
-    m_ID = VALID_ENTITYGETEX(id, Max);
-}
-
-// ------------------------------------------------------------------------------------------------
-CWeapon & CWeapon::SetnGet(SQInt32 id)
-{
-    m_ID = VALID_ENTITYGETEX(id, Max);
-
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-const SQChar * CWeapon::GetGlobalTag() const
-{
-    return GlobalTag(m_ID);
-}
-
-void CWeapon::SetGlobalTag(const SQChar * tag) const
-{
-    GlobalTag(m_ID, tag);
-}
-
-// ------------------------------------------------------------------------------------------------
-SqObj & CWeapon::GetGlobalData() const
-{
-    return GlobalData(m_ID);
-}
-
-void CWeapon::SetGlobalData(SqObj & data) const
-{
-    GlobalData(m_ID, data);
-}
-
-// ------------------------------------------------------------------------------------------------
-const SQChar * CWeapon::GetLocalTag() const
-{
-    return m_Tag.c_str();
-}
-
-void CWeapon::SetLocalTag(const SQChar * tag)
-{
-    m_Tag = tag;
-}
-
-// ------------------------------------------------------------------------------------------------
-SqObj & CWeapon::GetLocalData()
-{
-    return m_Data;
-}
-
-void CWeapon::SetLocalData(SqObj & data)
-{
-    m_Data = data;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CWeapon::IsValid() const
-{
-    return (VALID_ENTITYEX(m_ID, Max));
-}
-
-// ------------------------------------------------------------------------------------------------
-const SQChar * CWeapon::GetName() const
-{
-    return GetWeaponName(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CWeapon::SetName(const SQChar * name)
-{
-    m_ID = GetWeaponID(name);
-    m_ID = VALID_ENTITYGETEX(m_ID, Max);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger CWeapon::GetAmmo() const
-{
-    return m_Ammo;
-}
-
-void CWeapon::SetAmmo(SQInt32 amount)
-{
-    m_Ammo = amount;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CWeapon::IsNatural() const
-{
-    return IsWeaponNatural(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQFloat CWeapon::GetDataValue(SQInt32 field) const
-{
-    return _Func->GetWeaponDataValue(m_ID, field);
-}
-
-void CWeapon::SetDataValue(SQInt32 field, SQFloat value) const
-{
-    _Func->SetWeaponDataValue(m_ID, field, value);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CWeapon::ResetData() const
-{
-    _Func->ResetWeaponData(m_ID);
-}
-
-void CWeapon::ResetData(SQInt32 field) const
-{
-    _Func->ResetWeaponDataValue(m_ID, field);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CWeapon::IsDataModified(SQInt32 field) const
-{
-    return _Func->IsWeaponDataValueModified(m_ID, field);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CWeapon::SetOn(const Reference< CPlayer > & player) const
-{
-    if (*this && player)
+    switch (id)
     {
-        _Func->SetPlayerWeapon(player, m_ID, m_Ammo);
-    }
-    else if (!player)
-    {
-        LogErr(_SC("Attempting to <set player weapon> using an invalid argument: %d"), _SCI32(player));
-    }
-    else
-    {
-        LogErr(_SC("Attempting to <set player weapon> using an invalid instance: %d"), m_ID);
+        case SQMOD_WEAPON_UNARMED:          return 293;
+        case SQMOD_WEAPON_BRASSKNUCKLES:    return 259;
+        case SQMOD_WEAPON_SCREWDRIVER:      return 260;
+        case SQMOD_WEAPON_GOLFCLUB:         return 261;
+        case SQMOD_WEAPON_NIGHTSTICK:       return 262;
+        case SQMOD_WEAPON_KNIFE:            return 263;
+        case SQMOD_WEAPON_BASEBALLBAT:      return 264;
+        case SQMOD_WEAPON_HAMMER:           return 265;
+        case SQMOD_WEAPON_MEATCLEAVER:      return 266;
+        case SQMOD_WEAPON_MACHETE:          return 267;
+        case SQMOD_WEAPON_KATANA:           return 268;
+        case SQMOD_WEAPON_CHAINSAW:         return 269;
+        case SQMOD_WEAPON_GRENADE:          return 270;
+        case SQMOD_WEAPON_REMOTE:           return 291;
+        case SQMOD_WEAPON_TEARGAS:          return 271;
+        case SQMOD_WEAPON_MOLOTOV:          return 272;
+        case SQMOD_WEAPON_ROCKET:           return 273;
+        case SQMOD_WEAPON_COLT45:           return 274;
+        case SQMOD_WEAPON_PYTHON:           return 275;
+        case SQMOD_WEAPON_SHOTGUN:          return 277;
+        case SQMOD_WEAPON_SPAS12:           return 278;
+        case SQMOD_WEAPON_STUBBY:           return 279;
+        case SQMOD_WEAPON_TEC9:             return 281;
+        case SQMOD_WEAPON_UZI:              return 282;
+        case SQMOD_WEAPON_INGRAM:           return 283;
+        case SQMOD_WEAPON_MP5:              return 284;
+        case SQMOD_WEAPON_M4:               return 280;
+        case SQMOD_WEAPON_RUGER:            return 276;
+        case SQMOD_WEAPON_SNIPER:           return 285;
+        case SQMOD_WEAPON_LASERSCOPE:       return 286;
+        case SQMOD_WEAPON_ROCKETLAUNCHER:   return 287;
+        case SQMOD_WEAPON_FLAMETHROWER:     return 288;
+        case SQMOD_WEAPON_M60:              return 289;
+        case SQMOD_WEAPON_MINIGUN:          return 290;
+        case SQMOD_WEAPON_BOMB:             return SQMOD_UNKNOWN;
+        case SQMOD_WEAPON_HELICANNON:       return 294;
+        case SQMOD_WEAPON_CAMERA:           return 292;
+        case SQMOD_WEAPON_VEHICLE:          return SQMOD_UNKNOWN;
+        case SQMOD_WEAPON_EXPLOSION1:       return SQMOD_UNKNOWN;
+        case SQMOD_WEAPON_DRIVEBY:          return SQMOD_UNKNOWN;
+        case SQMOD_WEAPON_DROWNED:          return SQMOD_UNKNOWN;
+        case SQMOD_WEAPON_FALL:             return SQMOD_UNKNOWN;
+        case SQMOD_WEAPON_EXPLOSION2:       return SQMOD_UNKNOWN;
+        case SQMOD_WEAPON_SUICIDE:          return SQMOD_UNKNOWN;
+        default:                            return SQMOD_UNKNOWN;
     }
 }
 
-void CWeapon::GiveTo(const Reference< CPlayer > & player) const
-{
-    if (*this && player)
-    {
-        _Func->GivePlayerWeapon(player, m_ID, m_Ammo);
-    }
-    else if (!player)
-    {
-        LogErr(_SC("Attempting to <give player weapon> using an invalid argument: %d"), _SCI32(player));
-    }
-    else
-    {
-        LogErr(_SC("Attempting to <give player weapon> using an invalid instance: %d"), m_ID);
-    }
-}
+// ------------------------------------------------------------------------------------------------
 
-void CWeapon::SetOn(const Reference< CPlayer > & player, SQInt32 ammo) const
-{
-    if (*this && player)
-    {
-        _Func->SetPlayerWeapon(player, m_ID, ammo);
-    }
-    else if (!player)
-    {
-        LogErr(_SC("Attempting to <set player weapon> using an invalid argument: %d"), _SCI32(player));
-    }
-    else
-    {
-        LogErr(_SC("Attempting to <set player weapon> using an invalid instance: %d"), m_ID);
-    }
-}
-
-void CWeapon::GiveTo(const Reference< CPlayer > & player, SQInt32 ammo) const
-{
-    if (*this && player)
-    {
-        _Func->GivePlayerWeapon(player, m_ID, ammo);
-    }
-    else if (!player)
-    {
-        LogErr(_SC("Attempting to <give player weapon> using an invalid argument: %d"), _SCI32(player));
-    }
-    else
-    {
-        LogErr(_SC("Attempting to <give player weapon> using an invalid instance: %d"), m_ID);
-    }
-}
-
-// ================================================================================================
-bool Register_CWeapon(HSQUIRRELVM vm)
-{
-    // Output debugging information
-    LogDbg("Beginning registration of <CWeapon> type");
-    // Attempt to register the specified type
-    Sqrat::RootTable(vm).Bind(_SC("CWeapon"), Sqrat::Class< CWeapon >(vm, _SC("CWeapon"))
-        /* Constructors */
-        .Ctor()
-        .Ctor< SQInt32 >()
-        .Ctor< SQInt32, SQInt32 >()
-        .Ctor< const SQChar *, SQInt32, SQInt32 >()
-        /* Metamethods */
-        .Func(_SC("_cmp"), &CWeapon::Cmp)
-        /* Properties */
-        .Prop(_SC("id"), &CWeapon::GetID, &CWeapon::SetID)
-        .Prop(_SC("gtag"), &CWeapon::GetGlobalTag, &CWeapon::SetGlobalTag)
-        .Prop(_SC("gdata"), &CWeapon::GetGlobalData, &CWeapon::SetGlobalData)
-        .Prop(_SC("ltag"), &CWeapon::GetLocalTag, &CWeapon::SetLocalTag)
-        .Prop(_SC("ldata"), &CWeapon::GetLocalData, &CWeapon::SetLocalData)
-        .Prop(_SC("name"), &CWeapon::GetName, &CWeapon::SetName)
-        .Prop(_SC("valid"), &CWeapon::IsValid)
-        .Prop(_SC("ammo"), &CWeapon::GetAmmo, &CWeapon::SetAmmo)
-        .Prop(_SC("natural"), &CWeapon::IsNatural)
-        /* Functions */
-        .Func(_SC("setng"), &CWeapon::SetnGet)
-        .Func(_SC("get_value"), &CWeapon::GetDataValue)
-        .Func(_SC("set_value"), &CWeapon::SetDataValue)
-        .Func(_SC("is_modified"), &CWeapon::IsDataModified)
-        /* Overloads */
-        .Overload< void (CWeapon::*)(void) const >(_SC("reset_data"), &CWeapon::ResetData)
-        .Overload< void (CWeapon::*)(SQInt32) const >(_SC("reset_data"), &CWeapon::ResetData)
-        .Overload< void (CWeapon::*)(const Reference< CPlayer > &) const >(_SC("set_on"), &CWeapon::SetOn)
-        .Overload< void (CWeapon::*)(const Reference< CPlayer > &, SQInt32) const >(_SC("set_on"), &CWeapon::SetOn)
-        .Overload< void (CWeapon::*)(const Reference< CPlayer > &) const >(_SC("give_to"), &CWeapon::GiveTo)
-        .Overload< void (CWeapon::*)(const Reference< CPlayer > &, SQInt32) const >(_SC("give_to"), &CWeapon::GiveTo)
-    );
-    // Output debugging information
-    LogDbg("Registration of <CWeapon> type was successful");
-    // Registration succeeded
-    return true;
-}
 
 } // Namespace:: SqMod

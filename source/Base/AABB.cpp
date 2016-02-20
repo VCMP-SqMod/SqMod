@@ -1,7 +1,7 @@
+// ------------------------------------------------------------------------------------------------
 #include "Base/AABB.hpp"
 #include "Base/Vector4.hpp"
 #include "Base/Shared.hpp"
-#include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -16,79 +16,50 @@ SQChar AABB::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
 AABB::AABB()
-    : min(-1), max(1)
+    : min(-1.0), max(1.0)
 {
-
+    /* ... */
 }
 
-AABB::AABB(Value s)
-    : min(-s), max(std::fabs(s))
+// ------------------------------------------------------------------------------------------------
+AABB::AABB(Value sv)
+    : min(-sv), max(fabs(sv))
 {
-
+    /* ... */
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB::AABB(Value xv, Value yv, Value zv)
-    : min(-xv, -yv, -zv), max(std::fabs(xv), std::fabs(yv), std::fabs(zv))
+    : min(-xv, -yv, -zv), max(fabs(xv), fabs(yv), fabs(zv))
 {
-
+    /* ... */
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB::AABB(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
     : min(xmin, ymin, zmin), max(xmax, ymax, zmax)
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(const Vector3 & v)
-    : min(-v), max(v.Abs())
-{
-
-}
-
 AABB::AABB(const Vector3 & vmin, const Vector3 & vmax)
     : min(vmin), max(vmax)
 {
-
-}
-
-// ------------------------------------------------------------------------------------------------
-AABB::AABB(const Vector4 & v)
-    : min(-v), max(v.Abs())
-{
-
-}
-
-AABB::AABB(const Vector4 & vmin, const Vector4 & vmax)
-    : min(vmin), max(vmax)
-{
-
-}
-
-// ------------------------------------------------------------------------------------------------
-AABB::AABB(const SQChar * values, SQChar delim)
-    : AABB(GetAABB(values, delim))
-{
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB::AABB(const AABB & b)
     : min(b.min), max(b.max)
 {
-
-}
-
-AABB::AABB(AABB && b)
-    : min(b.min), max(b.max)
-{
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB::~AABB()
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -99,18 +70,11 @@ AABB & AABB::operator = (const AABB & b)
     return *this;
 }
 
-AABB & AABB::operator = (AABB && b)
-{
-    min = b.min;
-    max = b.max;
-    return *this;
-}
-
 // ------------------------------------------------------------------------------------------------
 AABB & AABB::operator = (Value s)
 {
     min.Set(-s);
-    max.Set(std::fabs(s));
+    max.Set(fabs(s));
     return *this;
 }
 
@@ -327,13 +291,18 @@ bool AABB::operator >= (const AABB & b) const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger AABB::Cmp(const AABB & b) const
+Int32 AABB::Cmp(const AABB & b) const
 {
-    return *this == b ? 0 : (*this > b ? 1 : -1);
+    if (*this == b)
+        return 0;
+    else if (*this > b)
+        return 1;
+    else
+        return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * AABB::ToString() const
+CSStr AABB::ToString() const
 {
     return ToStringF("%f,%f,%f,%f,%f,%f", min.x, min.y, min.z, max.x, max.y, max.z);
 }
@@ -342,13 +311,13 @@ const SQChar * AABB::ToString() const
 void AABB::Set(Value ns)
 {
     min = -ns;
-    max = std::fabs(ns);
+    max = fabs(ns);
 }
 
 void AABB::Set(Value nx, Value ny, Value nz)
 {
     min.Set(-nx, -ny, -nz);
-    max.Set(std::fabs(nx), std::fabs(ny), std::fabs(nz));
+    max.Set(fabs(nx), fabs(ny), fabs(nz));
 }
 
 void AABB::Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
@@ -391,7 +360,7 @@ void AABB::Set(const Vector4 & nmin, const Vector4 & nmax)
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(const SQChar * values, SQChar delim)
+void AABB::Set(CSStr values, SQChar delim)
 {
     Set(GetAABB(values, delim));
 }
@@ -403,48 +372,47 @@ AABB AABB::Abs() const
 }
 
 // ================================================================================================
-bool Register_AABB(HSQUIRRELVM vm)
+void Register_AABB(HSQUIRRELVM vm)
 {
-    LogDbg("Beginning registration of <AABB> type");
-
     typedef AABB::Value Val;
 
-    Sqrat::RootTable(vm).Bind(_SC("AABB"), Sqrat::Class<AABB>(vm, _SC("AABB"))
+    RootTable(vm).Bind(_SC("AABB"), Class< AABB >(vm, _SC("AABB"))
+        /* Constructors */
         .Ctor()
-        .Ctor<Val>()
-        .Ctor<Val, Val, Val>()
-        .Ctor<Val, Val, Val, Val, Val, Val>()
-        .Ctor<const Vector3 &, const Vector3 &>()
-
+        .Ctor< Val >()
+        .Ctor< Val, Val, Val >()
+        .Ctor< Val, Val, Val, Val, Val, Val >()
+        .Ctor< const Vector3 &, const Vector3 & >()
+        /* Static Members */
         .SetStaticValue(_SC("delim"), &AABB::Delim)
-
+        /* Member Variables */
         .Var(_SC("min"), &AABB::min)
         .Var(_SC("max"), &AABB::max)
-
+        /* Properties */
         .Prop(_SC("abs"), &AABB::Abs)
-
+        /* Core Metamethods */
         .Func(_SC("_tostring"), &AABB::ToString)
         .Func(_SC("_cmp"), &AABB::Cmp)
-
+        /* Metamethods */
         .Func<AABB (AABB::*)(const AABB &) const>(_SC("_add"), &AABB::operator +)
         .Func<AABB (AABB::*)(const AABB &) const>(_SC("_sub"), &AABB::operator -)
         .Func<AABB (AABB::*)(const AABB &) const>(_SC("_mul"), &AABB::operator *)
         .Func<AABB (AABB::*)(const AABB &) const>(_SC("_div"), &AABB::operator /)
         .Func<AABB (AABB::*)(const AABB &) const>(_SC("_modulo"), &AABB::operator %)
         .Func<AABB (AABB::*)(void) const>(_SC("_unm"), &AABB::operator -)
-
-        .Overload<void (AABB::*)(Val)>(_SC("set"), &AABB::Set)
-        .Overload<void (AABB::*)(Val, Val, Val)>(_SC("set"), &AABB::Set)
-        .Overload<void (AABB::*)(Val, Val, Val, Val, Val, Val)>(_SC("set"), &AABB::Set)
-        .Overload<void (AABB::*)(const AABB &)>(_SC("set_box"), &AABB::Set)
-        .Overload<void (AABB::*)(const Vector3 &)>(_SC("set_vec3"), &AABB::Set)
-        .Overload<void (AABB::*)(const Vector3 &, const Vector3 &)>(_SC("set_vec3"), &AABB::Set)
-        .Overload<void (AABB::*)(const Vector4 &)>(_SC("set_vec4"), &AABB::Set)
-        .Overload<void (AABB::*)(const Vector4 &, const Vector4 &)>(_SC("set_vec4"), &AABB::Set)
-        .Overload<void (AABB::*)(const SQChar *, SQChar)>(_SC("set_str"), &AABB::Set)
-
-        .Func(_SC("clear"), &AABB::Clear)
-
+        /* Setters */
+        .Overload<void (AABB::*)(Val)>(_SC("Set"), &AABB::Set)
+        .Overload<void (AABB::*)(Val, Val, Val)>(_SC("Set"), &AABB::Set)
+        .Overload<void (AABB::*)(Val, Val, Val, Val, Val, Val)>(_SC("Set"), &AABB::Set)
+        .Overload<void (AABB::*)(const AABB &)>(_SC("SetBox"), &AABB::Set)
+        .Overload<void (AABB::*)(const Vector3 &)>(_SC("SetVec3"), &AABB::Set)
+        .Overload<void (AABB::*)(const Vector3 &, const Vector3 &)>(_SC("SetVec3"), &AABB::Set)
+        .Overload<void (AABB::*)(const Vector4 &)>(_SC("SetVec4"), &AABB::Set)
+        .Overload<void (AABB::*)(const Vector4 &, const Vector4 &)>(_SC("SetVec4"), &AABB::Set)
+        .Overload<void (AABB::*)(CSStr, SQChar)>(_SC("SetStr"), &AABB::Set)
+        /* Utility Methods */
+        .Func(_SC("Clear"), &AABB::Clear)
+        /* Operator Exposure */
         .Func<AABB & (AABB::*)(const AABB &)>(_SC("opAddAssign"), &AABB::operator +=)
         .Func<AABB & (AABB::*)(const AABB &)>(_SC("opSubAssign"), &AABB::operator -=)
         .Func<AABB & (AABB::*)(const AABB &)>(_SC("opMulAssign"), &AABB::operator *=)
@@ -483,10 +451,6 @@ bool Register_AABB(HSQUIRRELVM vm)
         .Func<bool (AABB::*)(const AABB &) const>(_SC("opLessEqual"), &AABB::operator <=)
         .Func<bool (AABB::*)(const AABB &) const>(_SC("opGreaterEqual"), &AABB::operator >=)
     );
-
-    LogDbg("Registration of <AABB> type was successful");
-
-    return true;
 }
 
 } // Namespace:: SqMod

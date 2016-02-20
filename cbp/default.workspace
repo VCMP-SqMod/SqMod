@@ -3,8 +3,8 @@
 	<Workspace title="SqMod">
 		<Project filename="Module.cbp" />
 		<Project filename="Sandbox.cbp" />
-		<Project filename="Common.cbp" />
 		<Project filename="Squirrel.cbp" />
 		<Project filename="SQLite.cbp" />
+		<Project filename="Hash.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

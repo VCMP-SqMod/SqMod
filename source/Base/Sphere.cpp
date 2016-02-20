@@ -1,6 +1,7 @@
+// ------------------------------------------------------------------------------------------------
 #include "Base/Sphere.hpp"
 #include "Base/Shared.hpp"
-#include "Register.hpp"
+#include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -8,73 +9,57 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 const Sphere Sphere::NIL = Sphere();
 const Sphere Sphere::MIN = Sphere(0.0);
-const Sphere Sphere::MAX = Sphere(std::numeric_limits<Sphere::Value>::max());
+const Sphere Sphere::MAX = Sphere(NumLimit< Sphere::Value >::Max);
 
 // ------------------------------------------------------------------------------------------------
 SQChar Sphere::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
 Sphere::Sphere()
-    : pos(0.0, 0.0, 0.0), rad(0.0)
+    : pos(0.0), rad(0.0)
 {
-
-}
-
-Sphere::Sphere(Value r)
-    : pos(0.0, 0.0, 0.0), rad(r)
-{
-
-}
-
-Sphere::Sphere(const Vector3 & p)
-    : pos(p), rad(0.0)
-{
-
-}
-
-Sphere::Sphere(const Vector3 & p, Value r)
-    : pos(p), rad(r)
-{
-
-}
-
-Sphere::Sphere(Value x, Value y, Value z, Value r)
-    : pos(x, y, z), rad(r)
-{
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere::Sphere(const Sphere & s)
-    : pos(s.pos), rad(s.rad)
+Sphere::Sphere(Value rv)
+    : pos(0.0), rad(rv)
 {
-
+    /* ... */
 }
 
-Sphere::Sphere(Sphere && s)
-    : pos(s.pos), rad(s.rad)
+// ------------------------------------------------------------------------------------------------
+Sphere::Sphere(const Vector3 & pv, Value rv)
+    : pos(pv), rad(rv)
 {
+    /* ... */
+}
 
+// ------------------------------------------------------------------------------------------------
+Sphere::Sphere(Value xv, Value yv, Value zv, Value rv)
+    : pos(xv, yv, zv), rad(rv)
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+Sphere::Sphere(const Sphere & o)
+    : pos(o.pos), rad(o.rad)
+{
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere::~Sphere()
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere & Sphere::operator = (const Sphere & s)
+Sphere & Sphere::operator = (const Sphere & o)
 {
-    pos = s.pos;
-    rad = s.rad;
-    return *this;
-}
-
-Sphere & Sphere::operator = (Sphere && s)
-{
-    pos = s.pos;
-    rad = s.rad;
+    pos = o.pos;
+    rad = o.rad;
     return *this;
 }
 
@@ -123,7 +108,7 @@ Sphere & Sphere::operator /= (const Sphere & s)
 Sphere & Sphere::operator %= (const Sphere & s)
 {
     pos %= s.pos;
-    rad = std::fmod(rad, s.rad);
+    rad = fmod(rad, s.rad);
 
     return *this;
 }
@@ -155,7 +140,7 @@ Sphere & Sphere::operator /= (Value r)
 
 Sphere & Sphere::operator %= (Value r)
 {
-    rad = std::fmod(rad, r);
+    rad = fmod(rad, r);
     return *this;
 }
 
@@ -245,7 +230,7 @@ Sphere Sphere::operator / (const Sphere & s) const
 
 Sphere Sphere::operator % (const Sphere & s) const
 {
-    return Sphere(pos % s.pos, std::fmod(rad, s.rad));
+    return Sphere(pos % s.pos, fmod(rad, s.rad));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -271,39 +256,39 @@ Sphere Sphere::operator / (Value r) const
 
 Sphere Sphere::operator % (Value r) const
 {
-    return Sphere(std::fmod(rad, r));
+    return Sphere(fmod(rad, r));
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator + (const Vector3 & p) const
 {
-    return Sphere(pos + p);
+    return Sphere(pos + p, rad);
 }
 
 Sphere Sphere::operator - (const Vector3 & p) const
 {
-    return Sphere(pos - p);
+    return Sphere(pos - p, rad);
 }
 
 Sphere Sphere::operator * (const Vector3 & p) const
 {
-    return Sphere(pos * p);
+    return Sphere(pos * p, rad);
 }
 
 Sphere Sphere::operator / (const Vector3 & p) const
 {
-    return Sphere(pos / p);
+    return Sphere(pos / p, rad);
 }
 
 Sphere Sphere::operator % (const Vector3 & p) const
 {
-    return Sphere(pos % p);
+    return Sphere(pos % p, rad);
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator + () const
 {
-    return Sphere(pos.Abs(), std::fabs(rad));
+    return Sphere(pos.Abs(), fabs(rad));
 }
 
 Sphere Sphere::operator - () const
@@ -314,42 +299,47 @@ Sphere Sphere::operator - () const
 // ------------------------------------------------------------------------------------------------
 bool Sphere::operator == (const Sphere & s) const
 {
-    return (rad == s.rad) && (pos == s.pos);
+    return EpsEq(rad, s.rad) && (pos == s.pos);
 }
 
 bool Sphere::operator != (const Sphere & s) const
 {
-    return (rad != s.rad) && (pos != s.pos);
+    return !EpsEq(rad, s.rad) && (pos != s.pos);
 }
 
 bool Sphere::operator < (const Sphere & s) const
 {
-    return (rad < s.rad) && (pos < s.pos);
+    return EpsLt(rad, s.rad) && (pos < s.pos);
 }
 
 bool Sphere::operator > (const Sphere & s) const
 {
-    return (rad > s.rad) && (pos > s.pos);
+    return EpsGt(rad, s.rad) && (pos > s.pos);
 }
 
 bool Sphere::operator <= (const Sphere & s) const
 {
-    return (rad <= s.rad) && (pos <= s.pos);
+    return EpsLtEq(rad, s.rad) && (pos <= s.pos);
 }
 
 bool Sphere::operator >= (const Sphere & s) const
 {
-    return (rad >= s.rad) && (pos >= s.pos);
+    return EpsGtEq(rad, s.rad) && (pos >= s.pos);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Sphere::Cmp(const Sphere & s) const
+Int32 Sphere::Cmp(const Sphere & o) const
 {
-    return *this == s ? 0 : (*this > s ? 1 : -1);
+    if (*this == o)
+        return 0;
+    else if (*this > o)
+        return 1;
+    else
+        return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Sphere::ToString() const
+CSStr Sphere::ToString() const
 {
     return ToStringF("%f,%f,%f,%f", pos.x, pos.y, pos.z, rad);
 }
@@ -390,7 +380,7 @@ void Sphere::Set(Value nx, Value ny, Value nz, Value nr)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Set(const SQChar * values, SQChar delim)
+void Sphere::Set(CSStr values, SQChar delim)
 {
     Set(GetSphere(values, delim));
 }
@@ -399,18 +389,18 @@ void Sphere::Set(const SQChar * values, SQChar delim)
 void Sphere::Generate()
 {
     pos.Generate();
-    rad = RandomVal<Value>::Get();
+    rad = GetRandomFloat32();
 }
 
 void Sphere::Generate(Value min, Value max, bool r)
 {
-    if (max < min)
+    if (EpsLt(max, min))
     {
-        LogErr("max value is lower than min value");
+        SqThrow("max value is lower than min value");
     }
     else if (r)
     {
-        rad = RandomVal<Value>::Get(min, max);
+        rad = GetRandomFloat32(min, max);
     }
     else
     {
@@ -425,63 +415,62 @@ void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin
 
 void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax)
 {
-    if (std::isless(rmax, rmin))
+    if (EpsLt(rmax, rmin))
     {
-        LogErr("max value is lower than min value");
+        SqThrow("max value is lower than min value");
     }
     else
     {
         pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
-        rad = RandomVal<Value>::Get(rmin, rmax);
+        rad = GetRandomFloat32(rmin, rmax);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::Abs() const
 {
-    return Sphere(pos.Abs(), std::fabs(rad));
+    return Sphere(pos.Abs(), fabs(rad));
 }
 
-// ------------------------------------------------------------------------------------------------
-bool Register_Sphere(HSQUIRRELVM vm)
+// ================================================================================================
+void Register_Sphere(HSQUIRRELVM vm)
 {
-    LogDbg("Beginning registration of <Sphere> type");
-
     typedef Sphere::Value Val;
 
-    Sqrat::RootTable(vm).Bind(_SC("Sphere"), Sqrat::Class<Sphere>(vm, _SC("Sphere"))
+    RootTable(vm).Bind(_SC("Sphere"), Class< Sphere >(vm, _SC("Sphere"))
+        /* Constructors */
         .Ctor()
-        .Ctor<Val>()
-        .Ctor<const Vector3 &, Val>()
-        .Ctor<Val, Val, Val, Val>()
-
-        .SetStaticValue(_SC("delim"), &Sphere::Delim)
-
+        .Ctor< Val >()
+        .Ctor< const Vector3 &, Val >()
+        .Ctor< Val, Val, Val, Val >()
+        /* Static Members */
+        .SetStaticValue(_SC("Delim"), &Sphere::Delim)
+        /* Member Variables */
         .Var(_SC("pos"), &Sphere::pos)
         .Var(_SC("rad"), &Sphere::rad)
-
+        /* Properties */
         .Prop(_SC("abs"), &Sphere::Abs)
-
+        /* Core Metamethods */
         .Func(_SC("_tostring"), &Sphere::ToString)
         .Func(_SC("_cmp"), &Sphere::Cmp)
-
+        /* Metamethods */
         .Func<Sphere (Sphere::*)(const Sphere &) const>(_SC("_add"), &Sphere::operator +)
         .Func<Sphere (Sphere::*)(const Sphere &) const>(_SC("_sub"), &Sphere::operator -)
         .Func<Sphere (Sphere::*)(const Sphere &) const>(_SC("_mul"), &Sphere::operator *)
         .Func<Sphere (Sphere::*)(const Sphere &) const>(_SC("_div"), &Sphere::operator /)
         .Func<Sphere (Sphere::*)(const Sphere &) const>(_SC("_modulo"), &Sphere::operator %)
         .Func<Sphere (Sphere::*)(void) const>(_SC("_unm"), &Sphere::operator -)
-
-        .Overload<void (Sphere::*)(const Sphere &)>(_SC("set"), &Sphere::Set)
-        .Overload<void (Sphere::*)(const Vector3 &, Val)>(_SC("set"), &Sphere::Set)
-        .Overload<void (Sphere::*)(Val, Val, Val, Val)>(_SC("set"), &Sphere::Set)
-        .Overload<void (Sphere::*)(Val)>(_SC("set_rad"), &Sphere::Set)
-        .Overload<void (Sphere::*)(const Vector3 &)>(_SC("set_vec3"), &Sphere::Set)
-        .Overload<void (Sphere::*)(Val, Val, Val)>(_SC("set_vec3"), &Sphere::Set)
-        .Overload<void (Sphere::*)(const SQChar *, SQChar)>(_SC("set_str"), &Sphere::Set)
-
-        .Func(_SC("clear"), &Sphere::Clear)
-
+        /* Setters */
+        .Overload<void (Sphere::*)(const Sphere &)>(_SC("Set"), &Sphere::Set)
+        .Overload<void (Sphere::*)(const Vector3 &, Val)>(_SC("Set"), &Sphere::Set)
+        .Overload<void (Sphere::*)(Val, Val, Val, Val)>(_SC("Set"), &Sphere::Set)
+        .Overload<void (Sphere::*)(Val)>(_SC("SetRad"), &Sphere::Set)
+        .Overload<void (Sphere::*)(const Vector3 &)>(_SC("SetVec3"), &Sphere::Set)
+        .Overload<void (Sphere::*)(Val, Val, Val)>(_SC("SetVec3"), &Sphere::Set)
+        .Overload<void (Sphere::*)(CSStr, SQChar)>(_SC("SetStr"), &Sphere::Set)
+        /* Utility Methods */
+        .Func(_SC("Clear"), &Sphere::Clear)
+        /* Operator Exposure */
         .Func<Sphere & (Sphere::*)(const Sphere &)>(_SC("opAddAssign"), &Sphere::operator +=)
         .Func<Sphere & (Sphere::*)(const Sphere &)>(_SC("opSubAssign"), &Sphere::operator -=)
         .Func<Sphere & (Sphere::*)(const Sphere &)>(_SC("opMulAssign"), &Sphere::operator *=)
@@ -533,10 +522,6 @@ bool Register_Sphere(HSQUIRRELVM vm)
         .Func<bool (Sphere::*)(const Sphere &) const>(_SC("opLessEqual"), &Sphere::operator <=)
         .Func<bool (Sphere::*)(const Sphere &) const>(_SC("opGreaterEqual"), &Sphere::operator >=)
     );
-
-    LogDbg("Registration of <Sphere> type was successful");
-
-    return true;
 }
 
 } // Namespace:: SqMod

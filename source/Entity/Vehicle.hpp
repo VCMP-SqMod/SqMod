@@ -2,470 +2,244 @@
 #define _ENTITY_VEHICLE_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Entity.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class responsible for managing the referenced vehicle instance.
+ * Manages Vehicle instances.
 */
-class CVehicle : public Reference< CVehicle >
+class CVehicle
 {
     // --------------------------------------------------------------------------------------------
-    static CAutomobile  s_Automobile;
+    friend class Core;
+
+private:
 
     // --------------------------------------------------------------------------------------------
     static Vector3      s_Vector3;
     static Vector4      s_Vector4;
     static Quaternion   s_Quaternion;
 
+    /* --------------------------------------------------------------------------------------------
+     * Cached identifiers for fast integer to string conversion.
+    */
+    static SQChar s_StrID[SQMOD_VEHICLE_POOL][8];
+
+    /* --------------------------------------------------------------------------------------------
+     * Identifier of the managed entity.
+    */
+    Int32   m_ID;
+
+    /* --------------------------------------------------------------------------------------------
+     * User tag and data associated with this instance.
+    */
+    String  m_Tag;
+    Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CVehicle(Int32 id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    CVehicle(const CVehicle &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    CVehicle & operator = (const CVehicle &);
+
 public:
 
-    /* --------------------------------------------------------------------------------------------
-     * Import the constructors, destructors and assignment operators from the base class.
-    */
-    using RefType::Reference;
+    // --------------------------------------------------------------------------------------------
+    static const Int32 Max;
 
     /* --------------------------------------------------------------------------------------------
-     * Construct a reference from a base reference.
+     * Destructor.
     */
-    CVehicle(const Reference< CVehicle > & o);
+    ~CVehicle();
 
     /* --------------------------------------------------------------------------------------------
-     * See if the referenced vehicle instance is streamed for the specified player.
+     * See whether this instance manages a valid entity.
     */
-    bool IsStreamedFor(const Reference< CPlayer > & player) const;
+    bool Validate() const
+    {
+        if (VALID_ENTITY(m_ID))
+            return true;
+        SqThrow("Invalid vehicle reference [%s]", m_Tag.c_str());
+        return false;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the synchronization source of the referenced vehicle instance.
+     * Used by the script engine to compare two instances of this type.
     */
-    SQInt32 GetSyncSource() const;
+    Int32 Cmp(const CVehicle & o) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the synchronization type of the referenced vehicle instance.
+     * Used by the script engine to convert an instance of this type to a string.
     */
-    SQInt32 GetSyncType() const;
+    CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the world in which the referenced vehicle instance exists.
+     * Retrieve the identifier of the entity managed by this instance.
     */
-    SQInt32 GetWorld() const;
+    Int32 GetID() const { return m_ID; }
 
     /* --------------------------------------------------------------------------------------------
-     * Change the world in which the referenced vehicle instance exists.
+     * Retrieve the maximum possible identifier to an entity of this type.
     */
-    void SetWorld(SQInt32 world) const;
+    Int32 GetMaxID() const { return SQMOD_VEHICLE_POOL; }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the vehicle model of the referenced vehicle instance.
+     * Check whether this instance manages a valid entity.
     */
-    const CAutomobile & GetModel() const;
+    bool IsActive() const { return VALID_ENTITY(m_ID); }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the vehicle model id of the referenced vehicle instance.
+     * Retrieve the associated user tag.
     */
-    SQInt32 GetModelID() const;
+    CSStr GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the slot occupant from the referenced vehicle instance.
+     * Modify the associated user tag.
     */
-    Reference< CPlayer > GetOccupant(SQInt32 slot) const;
+    void SetTag(CSStr tag);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the slot occupant identifier from the referenced vehicle instance.
+     * Retrieve the associated user data.
     */
-    SQInt32 GetOccupantID(SQInt32 slot) const;
+    Object & GetData();
 
     /* --------------------------------------------------------------------------------------------
-     * Respawn the referenced vehicle instance.
+     * Modify the associated user data.
     */
+    void SetData(Object & data);
+
+    // --------------------------------------------------------------------------------------------
+    bool Destroy(Int32 header, Object & payload);
+    bool Destroy() { return Destroy(0, NullObject()); }
+    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
+
+    // --------------------------------------------------------------------------------------------
+    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+
+    // --------------------------------------------------------------------------------------------
+    bool IsStreamedFor(CPlayer & player) const;
+    Int32 GetSyncSource() const;
+    Int32 GetSyncType() const;
+    Int32 GetWorld() const;
+    void SetWorld(Int32 world) const;
+    Int32 GetModel() const;
+    Object & GetOccupant(Int32 slot) const;
+    Int32 GetOccupantID(Int32 slot) const;
     void Respawn() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the immunity flags of the referenced vehicle instance.
-    */
-    SQInt32 GetImmunity() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the immunity flags of the referenced vehicle instance.
-    */
-    void SetImmunity(SQInt32 flags) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the referenced vehicle instance is wrecked.
-    */
+    Int32 GetImmunity() const;
+    void SetImmunity(Int32 flags) const;
     bool IsWrecked() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the position of the referenced vehicle instance.
-    */
     const Vector3 & GetPosition() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced vehicle instance.
-    */
     void SetPosition(const Vector3 & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced vehicle instance.
-    */
     void SetPositionEx(const Vector3 & pos, bool empty) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced vehicle instance.
-    */
-    void SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced vehicle instance.
-    */
-    void SetPositionEx(SQFloat x, SQFloat y, SQFloat z, bool empty) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the rotation of the referenced vehicle instance.
-    */
+    void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+    void SetPositionEx(Float32 x, Float32 y, Float32 z, bool empty) const;
     const Quaternion & GetRotation() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the rotation of the referenced vehicle instance.
-    */
     void SetRotation(const Quaternion & rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the rotation of the referenced vehicle instance.
-    */
-    void SetRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the euler rotation of the referenced vehicle instance.
-    */
+    void SetRotationEx(Float32 x, Float32 y, Float32 z, Float32 w) const;
     const Vector3 & GetRotationEuler() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the euler rotation of the referenced vehicle instance.
-    */
     void SetRotationEuler(const Vector3 & rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the euler rotation of the referenced vehicle instance.
-    */
-    void SetRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the speed of the referenced vehicle instance.
-    */
+    void SetRotationEulerEx(Float32 x, Float32 y, Float32 z) const;
     const Vector3 & GetSpeed() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the speed of the referenced vehicle instance.
-    */
     void SetSpeed(const Vector3 & vel) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the speed of the referenced vehicle instance.
-    */
-    void SetSpeedEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the speed of the referenced vehicle instance.
-    */
+    void SetSpeedEx(Float32 x, Float32 y, Float32 z) const;
     void AddSpeed(const Vector3 & vel) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the speed of the referenced vehicle instance.
-    */
-    void AddSpeedEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the relative speed of the referenced vehicle instance.
-    */
+    void AddSpeedEx(Float32 x, Float32 y, Float32 z) const;
     const Vector3 & GetRelSpeed() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the relative speed of the referenced vehicle instance.
-    */
     void SetRelSpeed(const Vector3 & vel) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the relative speed of the referenced vehicle instance.
-    */
-    void SetRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the relative speed of the referenced vehicle instance.
-    */
+    void SetRelSpeedEx(Float32 x, Float32 y, Float32 z) const;
     void AddRelSpeed(const Vector3 & vel) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the relative speed of the referenced vehicle instance.
-    */
-    void AddRelSpeedEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the turn speed of the referenced vehicle instance.
-    */
+    void AddRelSpeedEx(Float32 x, Float32 y, Float32 z) const;
     const Vector3 & GetTurnSpeed() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the turn speed of the referenced vehicle instance.
-    */
     void SetTurnSpeed(const Vector3 & vel) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the turn speed of the referenced vehicle instance.
-    */
-    void SetTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the turn speed of the referenced vehicle instance.
-    */
+    void SetTurnSpeedEx(Float32 x, Float32 y, Float32 z) const;
     void AddTurnSpeed(const Vector3 & vel) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the turn speed of the referenced vehicle instance.
-    */
-    void AddTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the relative turn speed of the referenced vehicle instance.
-    */
+    void AddTurnSpeedEx(Float32 x, Float32 y, Float32 z) const;
     const Vector3 & GetRelTurnSpeed() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the relative turn speed of the referenced vehicle instance.
-    */
     void SetRelTurnSpeed(const Vector3 & vel) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the relative turn speed of the referenced vehicle instance.
-    */
-    void SetRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the relative turn speed of the referenced vehicle instance.
-    */
+    void SetRelTurnSpeedEx(Float32 x, Float32 y, Float32 z) const;
     void AddRelTurnSpeed(const Vector3 & vel) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the relative turn speed of the referenced vehicle instance.
-    */
-    void AddRelTurnSpeedEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the spawn position of the referenced vehicle instance.
-    */
+    void AddRelTurnSpeedEx(Float32 x, Float32 y, Float32 z) const;
     const Vector4 & GetSpawnPosition() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the spawn position of the referenced vehicle instance.
-    */
     void SetSpawnPosition(const Vector4 & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the spawn position of the referenced vehicle instance.
-    */
-    void SetSpawnPositionEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the spawn rotation of the referenced vehicle instance.
-    */
+    void SetSpawnPositionEx(Float32 x, Float32 y, Float32 z, Float32 w) const;
     const Quaternion & GetSpawnRotation() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the spawn rotation of the referenced vehicle instance.
-    */
     void SetSpawnRotation(const Quaternion & rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the spawn rotation of the referenced vehicle instance.
-    */
-    void SetSpawnRotationEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the euler spawn rotation of the referenced vehicle instance.
-    */
+    void SetSpawnRotationEx(Float32 x, Float32 y, Float32 z, Float32 w) const;
     const Vector3 & GetSpawnRotationEuler() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the euler spawn rotation of the referenced vehicle instance.
-    */
     void SetSpawnRotationEuler(const Vector3 & rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the euler spawn rotation of the referenced vehicle instance.
-    */
-    void SetSpawnRotationEulerEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the respawn timer of the referenced vehicle instance.
-    */
-    SQUint32 GetRespawnTimer() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the respawn timer of the referenced vehicle instance.
-    */
-    void SetRespawnTimer(SQUint32 timer) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the health of the referenced vehicle instance.
-    */
-    SQFloat GetHealth() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the health of the referenced vehicle instance.
-    */
-    void SetHealth(SQFloat amount) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the primary color of the referenced vehicle instance.
-    */
-    SQInt32 GetPrimaryColor() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the primary color of the referenced vehicle instance.
-    */
-    void SetPrimaryColor(SQInt32 col) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the secondary color of the referenced vehicle instance.
-    */
-    SQInt32 GetSecondaryColor() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the secondary color of the referenced vehicle instance.
-    */
-    void SetSecondaryColor(SQInt32 col) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the primary and secondary colors of the referenced vehicle instance.
-    */
-    void SetColors(SQInt32 primary, SQInt32 secondary) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the referenced vehicle instance is locked.
-    */
+    void SetSpawnRotationEulerEx(Float32 x, Float32 y, Float32 z) const;
+    Uint32 GetRespawnTimer() const;
+    void SetRespawnTimer(Uint32 timer) const;
+    Float32 GetHealth() const;
+    void SetHealth(Float32 amount) const;
+    Int32 GetPrimaryColor() const;
+    void SetPrimaryColor(Int32 col) const;
+    Int32 GetSecondaryColor() const;
+    void SetSecondaryColor(Int32 col) const;
+    void SetColors(Int32 primary, Int32 secondary) const;
     bool GetLocked() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the referenced vehicle instance is locked.
-    */
     void SetLocked(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the part status of the referenced vehicle instance.
-    */
-    SQInt32 GetPartStatus(SQInt32 part) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the part status of the referenced vehicle instance.
-    */
-    void SetPartStatus(SQInt32 part, SQInt32 status) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the tyre status of the referenced vehicle instance.
-    */
-    SQInt32 GetTyreStatus(SQInt32 tyre) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the tyre status of the referenced vehicle instance.
-    */
-    void SetTyreStatus(SQInt32 tyre, SQInt32 status) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the damage data of the referenced vehicle instance.
-    */
-    SQUint32 GetDamageData() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the damage data of the referenced vehicle instance.
-    */
-    void SetDamageData(SQUint32 data) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the referenced vehicle instance has alarm.
-    */
+    Int32 GetPartStatus(Int32 part) const;
+    void SetPartStatus(Int32 part, Int32 status) const;
+    Int32 GetTyreStatus(Int32 tyre) const;
+    void SetTyreStatus(Int32 tyre, Int32 status) const;
+    Uint32 GetDamageData() const;
+    void SetDamageData(Uint32 data) const;
     bool GetAlarm() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the referenced vehicle instance has alarm.
-    */
     void SetAlarm(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the referenced vehicle instance has lights.
-    */
     bool GetLights() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the referenced vehicle instance has lights.
-    */
     void SetLights(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the radio of the referenced vehicle instance.
-    */
-    SQInt32 GetRadio() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the radio of the referenced vehicle instance.
-    */
-    void SetRadio(SQInt32 radio) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the referenced vehicle instance has radio locked.
-    */
+    Int32 GetRadio() const;
+    void SetRadio(Int32 radio) const;
     bool GetRadioLocked() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the referenced vehicle instance has radio locked.
-    */
     void SetRadioLocked(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the referenced vehicle instance is in ghost state.
-    */
     bool GetGhostState() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the referenced vehicle instance is in ghost state.
-    */
     void SetGhostState(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Reset all the handling rules for the referenced vehicle instance.
-    */
     void ResetHandling() const;
+    void ResetHandling(Int32 rule) const;
+    bool ExistsHandling(Int32 rule) const;
+    Float32 GetHandlingData(Int32 rule) const;
+    void SetHandlingData(Int32 rule, Float32 data) const;
+    void Embark(CPlayer & player) const;
+    void Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) const;
 
-    /* --------------------------------------------------------------------------------------------
-     * Reset the specified handling rule for the referenced vehicle instance.
-    */
-    void ResetHandling(SQInt32 rule) const;
+    // --------------------------------------------------------------------------------------------
+    Float32 GetPosX() const;
+    Float32 GetPosY() const;
+    Float32 GetPosZ() const;
+    void SetPosX(Float32 x) const;
+    void SetPosY(Float32 y) const;
+    void SetPosZ(Float32 z) const;
 
-    /* --------------------------------------------------------------------------------------------
-     * See whether the specified handling ruleexists in the referenced vehicle instance.
-    */
-    bool ExistsHandling(SQInt32 rule) const;
+    // --------------------------------------------------------------------------------------------
+    Float32 GetRotX() const;
+    Float32 GetRotY() const;
+    Float32 GetRotZ() const;
+    Float32 GetRotW() const;
+    void SetRotX(Float32 x) const;
+    void SetRotY(Float32 y) const;
+    void SetRotZ(Float32 z) const;
+    void SetRotW(Float32 w) const;
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the handling data of the referenced vehicle instance.
-    */
-    SQFloat GetHandlingData(SQInt32 rule) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the handling data of the referenced vehicle instance.
-    */
-    void SetHandlingData(SQInt32 rule, SQFloat data) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Embark the specified player instance into the referenced vehicle instance.
-    */
-    void Embark(const Reference< CPlayer > & player) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Embark the specified player instance into the referenced vehicle instance.
-    */
-    void Embark(const Reference< CPlayer > & player, SQInt32 slot, bool allocate, bool warp) const;
+    // --------------------------------------------------------------------------------------------
+    Float32 GetERotX() const;
+    Float32 GetERotY() const;
+    Float32 GetERotZ() const;
+    void SetERotX(Float32 x) const;
+    void SetERotY(Float32 y) const;
+    void SetERotZ(Float32 z) const;
 };
 
 } // Namespace:: SqMod

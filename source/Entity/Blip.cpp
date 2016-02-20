@@ -6,364 +6,289 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CBlip::CBlip(const Reference< CBlip > & o)
-    : Reference(o)
+SQChar CBlip::s_StrID[SQMOD_BLIP_POOL][8];
+
+// ------------------------------------------------------------------------------------------------
+const Int32 CBlip::Max = SQMOD_BLIP_POOL;
+
+// ------------------------------------------------------------------------------------------------
+CBlip::CBlip(Int32 id)
+    : m_ID(VALID_ENTITYGETEX(id, SQMOD_BLIP_POOL))
+    , m_Tag(VALID_ENTITY(m_ID) ? s_StrID[m_ID] : _SC("-1"))
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CBlip::GetWorld() const
+CBlip::~CBlip()
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).World;
-    }
-    else
-    {
-        BadRef("@world", "get world");
-    }
-
-    return SQMOD_UNKNOWN;
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CBlip::GetScale() const
+Int32 CBlip::Cmp(const CBlip & o) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Scale;
-    }
+    if (m_ID == o.m_ID)
+        return 0;
+    else if (m_ID > o.m_ID)
+        return 1;
     else
-    {
-        BadRef("@scale", "get scale");
-    }
+        return -1;
+}
 
-    return SQMOD_UNKNOWN;
+CSStr CBlip::ToString() const
+{
+    return VALID_ENTITYEX(m_ID, SQMOD_BLIP_POOL) ? s_StrID[m_ID] : _SC("-1");
 }
 
 // ------------------------------------------------------------------------------------------------
+CSStr CBlip::GetTag() const
+{
+    return m_Tag.c_str();
+}
+
+void CBlip::SetTag(CSStr tag)
+{
+    m_Tag.assign(tag);
+}
+
+Object & CBlip::GetData()
+{
+    if (Validate())
+        return m_Data;
+    return NullObject();
+}
+
+void CBlip::SetData(Object & data)
+{
+    if (Validate())
+        m_Data = data;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CBlip::Destroy(Int32 header, Object & payload)
+{
+    return _Core->DelBlip(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CBlip::BindEvent(Int32 evid, Object & env, Function & func) const
+{
+    if (!Validate())
+        return false;
+
+    Function & event = _Core->GetBlipEvent(m_ID, evid);
+
+    if (func.IsNull())
+        event.Release();
+    else
+        event = Function(env.GetVM(), env, func.GetFunc());
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CBlip::GetWorld() const
+{
+    if (Validate())
+        return _Core->GetBlip(m_ID).mWorld;
+    return -1;
+}
+
+Int32 CBlip::GetScale() const
+{
+    if (Validate())
+        return _Core->GetBlip(m_ID).mScale;
+    return -1;
+}
+
 const Vector3 & CBlip::GetPosition() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Position;
-    }
-    else
-    {
-        BadRef("@position", "get position");
-    }
-
+    if (Validate())
+        return _Core->GetBlip(m_ID).mPosition;
     return Vector3::NIL;
 }
 
-// ------------------------------------------------------------------------------------------------
-SQFloat CBlip::GetPositionX() const
-{
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Position.x;
-    }
-    else
-    {
-        BadRef("@pos_x", "get x axis");
-    }
-
-    return 0.0;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQFloat CBlip::GetPositionY() const
-{
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Position.y;
-    }
-    else
-    {
-        BadRef("@pos_y", "get y axis");
-    }
-
-    return 0.0;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQFloat CBlip::GetPositionZ() const
-{
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Position.z;
-    }
-    else
-    {
-        BadRef("@pos_z", "get z axis");
-    }
-
-    return 0.0;
-}
-
-// ------------------------------------------------------------------------------------------------
 const Color4 & CBlip::GetColor() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Color;
-    }
-    else
-    {
-        BadRef("@color", "get color");
-    }
-
+    if (Validate())
+        return _Core->GetBlip(m_ID).mColor;
     return Color4::NIL;
 }
 
-// ------------------------------------------------------------------------------------------------
-SQInt32 CBlip::GetSprID() const
+Int32 CBlip::GetSprID() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).SprID;
-    }
-    else
-    {
-        BadRef("@spr_id", "get sprite id");
-    }
-
-    return SQMOD_UNKNOWN;
+    if (Validate())
+        return _Core->GetBlip(m_ID).mSprID;
+    return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CBlip > CreateBaseBlip_ES(SQInt32 world,
-                    SQFloat x, SQFloat y, SQFloat z,
-                    SQInt32 scale,
-                    Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid)
+Float32 CBlip::GetPosX() const
 {
-    return _Core->NewBlip(SQMOD_UNKNOWN, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
-                            SQMOD_CREATE_DEFAULT, NullData());
+    if (Validate())
+        return _Core->GetBlip(m_ID).mPosition.x;
+    return 0;
 }
 
-Reference< CBlip > CreateBaseBlip_ES(SQInt32 world,
-                    SQFloat x, SQFloat y, SQFloat z,
-                    SQInt32 scale,
-                    Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid,
-                    SQInt32 header, SqObj & payload)
+Float32 CBlip::GetPosY() const
 {
-    return _Core->NewBlip(SQMOD_UNKNOWN, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
+    if (Validate())
+        return _Core->GetBlip(m_ID).mPosition.y;
+    return 0;
+}
+
+Float32 CBlip::GetPosZ() const
+{
+    if (Validate())
+        return _Core->GetBlip(m_ID).mPosition.z;
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CBlip::GetColorR() const
+{
+    if (Validate())
+        return _Core->GetBlip(m_ID).mColor.r;
+    return 0;
+}
+
+Int32 CBlip::GetColorG() const
+{
+    if (Validate())
+        return _Core->GetBlip(m_ID).mColor.g;
+    return 0;
+}
+
+Int32 CBlip::GetColorB() const
+{
+    if (Validate())
+        return _Core->GetBlip(m_ID).mColor.b;
+    return 0;
+}
+
+Int32 CBlip::GetColorA() const
+{
+    if (Validate())
+        return _Core->GetBlip(m_ID).mColor.a;
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+static Object & CreateBlipEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid)
+{
+    return _Core->NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
+                            SQMOD_CREATE_DEFAULT, NullObject());
+}
+
+static Object & CreateBlipEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid,
+                            Int32 header, Object & payload)
+{
+    return _Core->NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
                             header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CBlip > CreateBaseBlip_EF(SQInt32 index, SQInt32 world,
-                    SQFloat x, SQFloat y, SQFloat z,
-                    SQInt32 scale,
-                    Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid)
+static Object & CreateBlipEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
+                            Int32 scale, Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid)
 {
-    return _Core->NewBlip(index, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
-                            SQMOD_CREATE_DEFAULT, NullData());
+    return _Core->NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
+                            SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CBlip > CreateBaseBlip_EF(SQInt32 index, SQInt32 world,
-                    SQFloat x, SQFloat y, SQFloat z,
-                    SQInt32 scale,
-                    Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid,
-                    SQInt32 header, SqObj & payload)
+static Object & CreateBlipEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid,
+                            Int32 header, Object & payload)
 {
-    return _Core->NewBlip(index, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
+    return _Core->NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
                             header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CBlip > CreateBaseBlip_CS(SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid)
+static Object & CreateBlip(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
+                            Int32 sprid)
 {
-    return _Core->NewBlip(SQMOD_UNKNOWN, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
-                            SQMOD_CREATE_DEFAULT, NullData());
+    return _Core->NewBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
+                            SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CBlip > CreateBaseBlip_CS(SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid,
-                    SQInt32 header, SqObj & payload)
+static Object & CreateBlip(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
+                            Int32 sprid, Int32 header, Object & payload)
 {
-    return _Core->NewBlip(SQMOD_UNKNOWN, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
+    return _Core->NewBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CBlip > CreateBaseBlip_CF(SQInt32 index, SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid)
+static Object & CreateBlip(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
+                            const Color4 & color, Int32 sprid)
 {
     return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
-                            SQMOD_CREATE_DEFAULT, NullData());
+                            SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CBlip > CreateBaseBlip_CF(SQInt32 index, SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid,
-                    SQInt32 header, SqObj & payload)
-{
-    return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CBlip CreateBlip_ES(SQInt32 world,
-                    SQFloat x, SQFloat y, SQFloat z,
-                    SQInt32 scale,
-                    Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid)
-{
-    return _Core->NewBlip(SQMOD_UNKNOWN, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CBlip CreateBlip_ES(SQInt32 world,
-                    SQFloat x, SQFloat y, SQFloat z,
-                    SQInt32 scale,
-                    Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid,
-                    SQInt32 header, SqObj & payload)
-{
-    return _Core->NewBlip(SQMOD_UNKNOWN, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CBlip CreateBlip_EF(SQInt32 index, SQInt32 world,
-                    SQFloat x, SQFloat y, SQFloat z,
-                    SQInt32 scale,
-                    Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid)
-{
-    return _Core->NewBlip(index, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CBlip CreateBlip_EF(SQInt32 index, SQInt32 world,
-                    SQFloat x, SQFloat y, SQFloat z,
-                    SQInt32 scale,
-                    Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-                    SQInt32 sprid,
-                    SQInt32 header, SqObj & payload)
-{
-    return _Core->NewBlip(index, world, x, y, z, scale, PACK_RGBA(r, g, b, a), sprid,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CBlip CreateBlip_CS(SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid)
-{
-    return _Core->NewBlip(SQMOD_UNKNOWN, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CBlip CreateBlip_CS(SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid,
-                    SQInt32 header, SqObj & payload)
-{
-    return _Core->NewBlip(SQMOD_UNKNOWN, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CBlip CreateBlip_CF(SQInt32 index, SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid)
-{
-    return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CBlip CreateBlip_CF(SQInt32 index, SQInt32 world, const Vector3 & pos,
-                    SQInt32 scale, const Color4 & color, SQInt32 sprid,
-                    SQInt32 header, SqObj & payload)
+static Object & CreateBlip(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
+                            const Color4 & color, Int32 sprid, Int32 header, Object & payload)
 {
     return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             header, payload);
 }
 
 // ================================================================================================
-bool Register_CBlip(HSQUIRRELVM vm)
+void Register_CBlip(HSQUIRRELVM vm)
 {
-    // Attempt to register the base reference type before the actual implementation
-    if (!Register_Reference< CBlip >(vm, _SC("BaseBlip")))
-    {
-        LogFtl("Unable to register the base class <BaseBlip> for <CBlip> type");
-        // Registration failed
-        return false;
-    }
-    // Typedef the base reference type for simplicity
-    typedef Reference< CBlip > RefType;
-    // Output debugging information
-    LogDbg("Beginning registration of <CBlip> type");
-    // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CBlip"), Sqrat::DerivedClass< CBlip, RefType >(vm, _SC("CBlip"))
-        /* Constructors */
-        .Ctor()
-        .Ctor< SQInt32 >()
+    RootTable(vm).Bind(_SC("SqBlip"),
+        Class< CBlip, NoConstructor< CBlip > >(vm, _SC("SqBlip"))
+        /* Metamethods */
+        .Func(_SC("_cmp"), &CBlip::Cmp)
+        .Func(_SC("_tostring"), &CBlip::ToString)
+        /* Core Properties */
+        .Prop(_SC("ID"), &CBlip::GetID)
+        .Prop(_SC("Tag"), &CBlip::GetTag, &CBlip::SetTag)
+        .Prop(_SC("Data"), &CBlip::GetData, &CBlip::SetData)
+        .Prop(_SC("MaxID"), &CBlip::GetMaxID)
+        .Prop(_SC("Active"), &CBlip::IsActive)
+        /* Core Functions */
+        .Func(_SC("Bind"), &CBlip::BindEvent)
+        /* Core Overloads */
+        .Overload< bool (CBlip::*)(void) >(_SC("Destroy"), &CBlip::Destroy)
+        .Overload< bool (CBlip::*)(Int32) >(_SC("Destroy"), &CBlip::Destroy)
+        .Overload< bool (CBlip::*)(Int32, Object &) >(_SC("Destroy"), &CBlip::Destroy)
         /* Properties */
-        .Prop(_SC("world"), &CBlip::GetWorld)
-        .Prop(_SC("scale"), &CBlip::GetScale)
-        .Prop(_SC("pos"), &CBlip::GetPosition)
-        .Prop(_SC("position"), &CBlip::GetPosition)
-        .Prop(_SC("color"), &CBlip::GetColor)
-        .Prop(_SC("spr_id"), &CBlip::GetSprID)
-        .Prop(_SC("pos_x"), &CBlip::GetPositionX)
-        .Prop(_SC("pos_y"), &CBlip::GetPositionY)
-        .Prop(_SC("pos_z"), &CBlip::GetPositionZ)
+        .Prop(_SC("World"), &CBlip::GetWorld)
+        .Prop(_SC("Scale"), &CBlip::GetScale)
+        .Prop(_SC("Pos"), &CBlip::GetPosition)
+        .Prop(_SC("Position"), &CBlip::GetPosition)
+        .Prop(_SC("Color"), &CBlip::GetColor)
+        .Prop(_SC("SprID"), &CBlip::GetSprID)
+        .Prop(_SC("X"), &CBlip::GetPosX)
+        .Prop(_SC("Y"), &CBlip::GetPosY)
+        .Prop(_SC("Z"), &CBlip::GetPosZ)
+        .Prop(_SC("R"), &CBlip::GetColorR)
+        .Prop(_SC("G"), &CBlip::GetColorG)
+        .Prop(_SC("B"), &CBlip::GetColorB)
+        .Prop(_SC("A"), &CBlip::GetColorA)
     );
-    // Output debugging information
-    LogDbg("Registration of <CBlip> type was successful");
-    // Output debugging information
-    LogDbg("Beginning registration of <Blip> functions");
-    // Register global functions related to this entity type
-    Sqrat::RootTable(vm)
-    /* Create BaseBlip [E]xtended [S]ubstitute */
-    .Overload< RefType (*)(SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, Uint8, Uint8, Uint8, Uint8, SQInt32) >
-        (_SC("CreateBaseBlip_ES"), &CreateBaseBlip_ES)
-    .Overload< RefType (*)(SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, Uint8, Uint8, Uint8, Uint8, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBaseBlip_ES"), &CreateBaseBlip_ES)
-    /* Create BaseBlip [E]xtended [F]Full */
-    .Overload< RefType (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, Uint8, Uint8, Uint8, Uint8, SQInt32) >
-        (_SC("CreateBaseBlip_EF"), &CreateBaseBlip_EF)
-    .Overload< RefType (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, Uint8, Uint8, Uint8, Uint8, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBaseBlip_EF"), &CreateBaseBlip_EF)
-    /* Create BaseBlip [C]ompact [S]ubstitute */
-    .Overload< RefType (*)(SQInt32, const Vector3 &, SQInt32, const Color4 &, SQInt32) >
-        (_SC("CreateBaseBlip_CS"), &CreateBaseBlip_CS)
-    .Overload< RefType (*)(SQInt32, const Vector3 &, SQInt32, const Color4 &, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBaseBlip_CS"), &CreateBaseBlip_CS)
-    /* Create BaseBlip [C]ompact [F]ull */
-    .Overload< RefType (*)(SQInt32, SQInt32, const Vector3 &, SQInt32, const Color4 &, SQInt32) >
-        (_SC("CreateBaseBlip_CF"), &CreateBaseBlip_CF)
-    .Overload< RefType (*)(SQInt32, SQInt32, const Vector3 &, SQInt32, const Color4 &, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBaseBlip_CF"), &CreateBaseBlip_CF)
-    /* Create CBlip [E]xtended [S]ubstitute */
-    .Overload< CBlip (*)(SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, Uint8, Uint8, Uint8, Uint8, SQInt32) >
-        (_SC("CreateBlip_ES"), &CreateBlip_ES)
-    .Overload< CBlip (*)(SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, Uint8, Uint8, Uint8, Uint8, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBlip_ES"), &CreateBlip_ES)
-    /* Create CBlip [E]xtended [F]Full */
-    .Overload< CBlip (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, Uint8, Uint8, Uint8, Uint8, SQInt32) >
-        (_SC("CreateBlip_EF"), &CreateBlip_EF)
-    .Overload< CBlip (*)(SQInt32, SQInt32, SQFloat, SQFloat, SQFloat, SQInt32, Uint8, Uint8, Uint8, Uint8, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBlip_EF"), &CreateBlip_EF)
-    /* Create CBlip [C]ompact [S]ubstitute */
-    .Overload< CBlip (*)(SQInt32, const Vector3 &, SQInt32, const Color4 &, SQInt32) >
-        (_SC("CreateBlip_CS"), &CreateBlip_CS)
-    .Overload< CBlip (*)(SQInt32, const Vector3 &, SQInt32, const Color4 &, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBlip_CS"), &CreateBlip_CS)
-    /* Create CBlip [C]ompact [F]ull */
-    .Overload< CBlip (*)(SQInt32, SQInt32, const Vector3 &, SQInt32, const Color4 &, SQInt32) >
-        (_SC("CreateBlip_CF"), &CreateBlip_CF)
-    .Overload< CBlip (*)(SQInt32, SQInt32, const Vector3 &, SQInt32, const Color4 &, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBlip_CF"), &CreateBlip_CF);
-    // Output debugging information
-    LogDbg("Registration of <Blip> functions was successful");
-    // Registration succeeded
-    return true;
+
+    RootTable(vm)
+    .Overload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
+        (_SC("CreateBlipEx"), &CreateBlipEx)
+    .Overload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, Object &) >
+        (_SC("CreateBlipEx"), &CreateBlipEx)
+    .Overload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
+        (_SC("CreateBlipEx"), &CreateBlipEx)
+    .Overload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, Object &) >
+        (_SC("CreateBlipEx"), &CreateBlipEx)
+    .Overload< Object & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32) >
+        (_SC("CreateBlip"), &CreateBlip)
+    .Overload< Object & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, Object &) >
+        (_SC("CreateBlip"), &CreateBlip)
+    .Overload< Object & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32) >
+        (_SC("CreateBlip"), &CreateBlip)
+    .Overload< Object & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, Object &) >
+        (_SC("CreateBlip"), &CreateBlip);
 }
 
 } // Namespace:: SqMod

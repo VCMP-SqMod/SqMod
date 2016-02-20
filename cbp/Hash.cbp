@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Hash" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Win32 Debug Static">
+				<Option output="../lib/mingw32-d/hash" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/mingw32-d/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-m32" />
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+					<Add directory="../config/mingw32" />
+				</Compiler>
+				<Linker>
+					<Add option="-m32" />
+				</Linker>
+			</Target>
+			<Target title="Win32 Release Static">
+				<Option output="../lib/mingw32/hash" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/mingw32/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-m32" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../config/mingw32" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m32" />
+				</Linker>
+			</Target>
+			<Target title="Win64 Debug Static">
+				<Option output="../lib/mingw64-d/hash" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/mingw64-d/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-m64" />
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+					<Add directory="../config/mingw64" />
+				</Compiler>
+				<Linker>
+					<Add option="-m64" />
+				</Linker>
+			</Target>
+			<Target title="Win64 Release Static">
+				<Option output="../lib/mingw64/hash" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/mingw64/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-m64" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../config/mingw64" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m64" />
+				</Linker>
+			</Target>
+			<Target title="Linux32 Debug Static">
+				<Option output="../lib/gcc32-d/hash" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/gcc32-d/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-m32" />
+					<Add option="-g" />
+					<Add option="-fPIC" />
+					<Add option="-D_DEBUG" />
+					<Add directory="../config/gcc32" />
+				</Compiler>
+				<Linker>
+					<Add option="-m32" />
+				</Linker>
+			</Target>
+			<Target title="Linux32 Release Static">
+				<Option output="../lib/gcc32/hash" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/gcc32/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-m32" />
+					<Add option="-fPIC" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../config/gcc32" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m32" />
+				</Linker>
+			</Target>
+			<Target title="Linux64 Debug Static">
+				<Option output="../lib/gcc64-d/hash" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/gcc64-d/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-m64" />
+					<Add option="-g" />
+					<Add option="-fPIC" />
+					<Add option="-D_DEBUG" />
+					<Add directory="../config/gcc64" />
+				</Compiler>
+				<Linker>
+					<Add option="-m64" />
+				</Linker>
+			</Target>
+			<Target title="Linux64 Release Static">
+				<Option output="../lib/gcc64/hash" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../obj/gcc64/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-m64" />
+					<Add option="-fPIC" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../config/gcc64" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-m64" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add directory="../include" />
+			<Add directory="../config/common" />
+			<Add directory="../external/Hash" />
+		</Compiler>
+		<Unit filename="../external/Hash/crc32.cpp" />
+		<Unit filename="../external/Hash/crc32.h" />
+		<Unit filename="../external/Hash/digest.cpp" />
+		<Unit filename="../external/Hash/endian.h" />
+		<Unit filename="../external/Hash/hash.h" />
+		<Unit filename="../external/Hash/hmac.h" />
+		<Unit filename="../external/Hash/keccak.cpp" />
+		<Unit filename="../external/Hash/keccak.h" />
+		<Unit filename="../external/Hash/md5.cpp" />
+		<Unit filename="../external/Hash/md5.h" />
+		<Unit filename="../external/Hash/sha1.cpp" />
+		<Unit filename="../external/Hash/sha1.h" />
+		<Unit filename="../external/Hash/sha256.cpp" />
+		<Unit filename="../external/Hash/sha256.h" />
+		<Unit filename="../external/Hash/sha3.cpp" />
+		<Unit filename="../external/Hash/sha3.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

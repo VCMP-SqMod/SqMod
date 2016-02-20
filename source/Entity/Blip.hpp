@@ -2,67 +2,143 @@
 #define _ENTITY_BLIP_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Entity.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class responsible for managing the referenced blip instance.
+ * Manages Blip instances.
 */
-class CBlip : public Reference< CBlip >
+class CBlip
 {
+    // --------------------------------------------------------------------------------------------
+    friend class Core;
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Cached identifiers for fast integer to string conversion.
+    */
+    static SQChar s_StrID[SQMOD_BLIP_POOL][8];
+
+    /* --------------------------------------------------------------------------------------------
+     * Identifier of the managed entity.
+    */
+    Int32   m_ID;
+
+    /* --------------------------------------------------------------------------------------------
+     * User tag and data associated with this instance.
+    */
+    String  m_Tag;
+    Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CBlip(Int32 id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    CBlip(const CBlip &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    CBlip & operator = (const CBlip &);
+
 public:
 
-    /* --------------------------------------------------------------------------------------------
-     * Import the constructors, destructors and assignment operators from the base class.
-    */
-    using RefType::Reference;
+    // --------------------------------------------------------------------------------------------
+    static const Int32 Max;
 
     /* --------------------------------------------------------------------------------------------
-     * Construct a reference from a base reference.
+     * Destructor.
     */
-    CBlip(const Reference< CBlip > & o);
+    ~CBlip();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the world in which the referenced blip instance exists.
+     * See whether this instance manages a valid entity.
     */
-    SQInteger GetWorld() const;
+    bool Validate() const
+    {
+        if (VALID_ENTITY(m_ID))
+            return true;
+        SqThrow("Invalid blip reference [%s]", m_Tag.c_str());
+        return false;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the scale of the referenced blip instance.
+     * Used by the script engine to compare two instances of this type.
     */
-    SQInteger GetScale() const;
+    Int32 Cmp(const CBlip & o) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the position of the referenced blip instance.
+     * Used by the script engine to convert an instance of this type to a string.
     */
+    CSStr ToString() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the identifier of the entity managed by this instance.
+    */
+    Int32 GetID() const { return m_ID; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the maximum possible identifier to an entity of this type.
+    */
+    Int32 GetMaxID() const { return SQMOD_BLIP_POOL; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether this instance manages a valid entity.
+    */
+    bool IsActive() const { return VALID_ENTITY(m_ID); }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user tag.
+    */
+    CSStr GetTag() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    void SetTag(CSStr tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    Object & GetData();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(Object & data);
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed entity instance.
+    */
+    bool Destroy(Int32 header, Object & payload);
+    bool Destroy() { return Destroy(0, NullObject()); }
+    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
+
+    // --------------------------------------------------------------------------------------------
+    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+
+    // --------------------------------------------------------------------------------------------
+    Int32 GetWorld() const;
+    Int32 GetScale() const;
     const Vector3 & GetPosition() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the x axis position of the referenced blip instance.
-    */
-    SQFloat GetPositionX() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the y axis position of the referenced blip instance.
-    */
-    SQFloat GetPositionY() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the z axis position of the referenced blip instance.
-    */
-    SQFloat GetPositionZ() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the color of the referenced blip instance.
-    */
     const Color4 & GetColor() const;
+    Int32 GetSprID() const;
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the sprite identifier of the referenced blip instance.
-    */
-    SQInt32 GetSprID() const;
+    // --------------------------------------------------------------------------------------------
+    Float32 GetPosX() const;
+    Float32 GetPosY() const;
+    Float32 GetPosZ() const;
+    Int32 GetColorR() const;
+    Int32 GetColorG() const;
+    Int32 GetColorB() const;
+    Int32 GetColorA() const;
 };
 
 } // Namespace:: SqMod

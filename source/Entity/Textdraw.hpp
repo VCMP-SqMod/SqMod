@@ -2,112 +2,144 @@
 #define _ENTITY_TEXTDRAW_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Entity.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class responsible for managing the referenced textdraw instance.
+ * Manages Textdraw instances.
 */
-class CTextdraw : public Reference< CTextdraw >
+class CTextdraw
 {
+    // --------------------------------------------------------------------------------------------
+    friend class Core;
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Cached identifiers for fast integer to string conversion.
+    */
+    static SQChar s_StrID[SQMOD_TEXTDRAW_POOL][8];
+
+    /* --------------------------------------------------------------------------------------------
+     * Identifier of the managed entity.
+    */
+    Int32   m_ID;
+
+    /* --------------------------------------------------------------------------------------------
+     * User tag and data associated with this instance.
+    */
+    String  m_Tag;
+    Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CTextdraw(Int32 id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    CTextdraw(const CTextdraw &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    CTextdraw & operator = (const CTextdraw &);
+
 public:
 
-    /* --------------------------------------------------------------------------------------------
-     * Import the constructors, destructors and assignment operators from the base class.
-    */
-    using RefType::Reference;
+    // --------------------------------------------------------------------------------------------
+    static const Int32 Max;
 
     /* --------------------------------------------------------------------------------------------
-     * Construct a reference from a base reference.
+     * Destructor.
     */
-    CTextdraw(const Reference< CTextdraw > & o);
+    ~CTextdraw();
 
     /* --------------------------------------------------------------------------------------------
-     * Show the referenced textdraw instance to all players on the server.
+     * See whether this instance manages a valid entity.
     */
+    bool Validate() const
+    {
+        if (VALID_ENTITY(m_ID))
+            return true;
+        SqThrow("Invalid textdraw reference [%s]", m_Tag.c_str());
+        return false;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare two instances of this type.
+    */
+    Int32 Cmp(const CTextdraw & o) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to convert an instance of this type to a string.
+    */
+    CSStr ToString() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the identifier of the entity managed by this instance.
+    */
+    Int32 GetID() const { return m_ID; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the maximum possible identifier to an entity of this type.
+    */
+    Int32 GetMaxID() const { return SQMOD_TEXTDRAW_POOL; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether this instance manages a valid entity.
+    */
+    bool IsActive() const { return VALID_ENTITY(m_ID); }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user tag.
+    */
+    CSStr GetTag() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    void SetTag(CSStr tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    Object & GetData();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(Object & data);
+
+    // --------------------------------------------------------------------------------------------
+    bool Destroy(Int32 header, Object & payload);
+    bool Destroy() { return Destroy(0, NullObject()); }
+    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
+
+    // --------------------------------------------------------------------------------------------
+    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+
+    // --------------------------------------------------------------------------------------------
     void ShowAll() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Show the referenced textdraw instance to the specified player instance.
-    */
-    void ShowFor(const Reference< CPlayer > & player) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Show the referenced textdraw instance to all players in the specified range.
-    */
-    void ShowRange(SQInt32 first, SQInt32 last) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Hide the referenced textdraw instance from all players on the server.
-    */
+    void ShowFor(CPlayer & player) const;
+    void ShowRange(Int32 first, Int32 last) const;
     void HideAll() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Hide the referenced textdraw instance from the specified player instance.
-    */
-    void HideFor(const Reference< CPlayer > & player) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Hide the referenced textdraw instance from all players in the specified range.
-    */
-    void HideRange(SQInt32 first, SQInt32 last) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced textdraw instance for all players on the server.
-    */
+    void HideFor(CPlayer & player) const;
+    void HideRange(Int32 first, Int32 last) const;
     void SetPositionAll(const Vector2i & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced textdraw instance for all players on the server.
-    */
-    void SetPositionAllEx(SQInt32 x, SQInt32 y) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced textdraw instance for the specified player instance.
-    */
-    void SetPositionFor(const Reference< CPlayer > & player, const Vector2i & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced textdraw instance for the specified player instance.
-    */
-    void SetPositionForEx(const Reference< CPlayer > & player, SQInt32 x, SQInt32 y) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the position of the referenced textdraw instance for all players in the specified range.
-    */
-    void SetPositionRange(SQInt32 first, SQInt32 last, const Vector2i & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the center of the referenced textdraw instance for all players on the server.
-    */
+    void SetPositionAllEx(Int32 x, Int32 y) const;
+    void SetPositionFor(CPlayer & player, const Vector2i & pos) const;
+    void SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const;
+    void SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) const;
     void SetColorAll(const Color4 & col) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the color of the referenced textdraw instance for all players on the server.
-    */
     void SetColorAllEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the color of the referenced textdraw instance for the specified player instance.
-    */
-    void SetColorFor(const Reference< CPlayer > & player, const Color4 & col) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the color of the referenced textdraw instance for the specified player instance.
-    */
-    void SetColorForEx(const Reference< CPlayer > & player, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the color of the referenced textdraw instance for all players in the specified range.
-    */
-    void SetColorRange(SQInt32 first, SQInt32 last, const Color4 & col) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the text string used by the referenced textdraw instance.
-    */
-    const SQChar * GetText() const;
+    void SetColorFor(CPlayer & player, const Color4 & col) const;
+    void SetColorForEx(CPlayer & player, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const;
+    void SetColorRange(Int32 first, Int32 last, const Color4 & col) const;
+    CSStr GetText() const;
 };
 
 } // Namespace:: SqMod

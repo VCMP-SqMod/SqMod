@@ -2,99 +2,164 @@
 #define _ENTITY_CHECKPOINT_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Entity.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class responsible for managing the referenced checkpoint instance.
+ * Manages Checkpoint instances.
 */
-class CCheckpoint : public Reference< CCheckpoint >
+class CCheckpoint
 {
     // --------------------------------------------------------------------------------------------
-    static Color4   s_Color4;
-    static Vector3  s_Vector3;
+    friend class Core;
+
+private:
 
     // --------------------------------------------------------------------------------------------
-    static SQUint32 s_ColorR, s_ColorG, s_ColorB, s_ColorA;
+    static Color4       s_Color4;
+    static Vector3      s_Vector3;
+
+    // --------------------------------------------------------------------------------------------
+    static Uint32       s_ColorR, s_ColorG, s_ColorB, s_ColorA;
+
+    /* --------------------------------------------------------------------------------------------
+     * Cached identifiers for fast integer to string conversion.
+    */
+    static SQChar s_StrID[SQMOD_CHECKPOINT_POOL][8];
+
+    /* --------------------------------------------------------------------------------------------
+     * Identifier of the managed entity.
+    */
+    Int32   m_ID;
+
+    /* --------------------------------------------------------------------------------------------
+     * User tag and data associated with this instance.
+    */
+    String  m_Tag;
+    Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CCheckpoint(Int32 id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    CCheckpoint(const CCheckpoint &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    CCheckpoint & operator = (const CCheckpoint &);
 
 public:
 
-    /* --------------------------------------------------------------------------------------------
-     * Import the constructors, destructors and assignment operators from the base class.
-    */
-    using RefType::Reference;
+    // --------------------------------------------------------------------------------------------
+    static const Int32 Max;
 
     /* --------------------------------------------------------------------------------------------
-     * Construct a reference from a base reference.
+     * Destructor.
     */
-    CCheckpoint(const Reference< CCheckpoint > & o);
+    ~CCheckpoint();
 
     /* --------------------------------------------------------------------------------------------
-     * See if the referenced checkpoint instance is streamed for the specified player.
+     * See whether this instance manages a valid entity.
     */
-    bool IsStreamedFor(const Reference< CPlayer > & player) const;
+    bool Validate() const
+    {
+        if (VALID_ENTITY(m_ID))
+            return true;
+        SqThrow("Invalid checkpoint reference [%s]", m_Tag.c_str());
+        return false;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the world in which the referenced checkpoint instance exists.
+     * Used by the script engine to compare two instances of this type.
     */
-    SQInt32 GetWorld() const;
+    Int32 Cmp(const CCheckpoint & o) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Change the world in which the referenced checkpoint instance exists.
+     * Used by the script engine to convert an instance of this type to a string.
     */
-    void SetWorld(SQInt32 world) const;
+    CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the color of the referenced checkpoint instance.
+     * Retrieve the identifier of the entity managed by this instance.
     */
+    Int32 GetID() const { return m_ID; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the maximum possible identifier to an entity of this type.
+    */
+    Int32 GetMaxID() const { return SQMOD_CHECKPOINT_POOL; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether this instance manages a valid entity.
+    */
+    bool IsActive() const { return VALID_ENTITY(m_ID); }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user tag.
+    */
+    CSStr GetTag() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    void SetTag(CSStr tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    Object & GetData();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(Object & data);
+    // --------------------------------------------------------------------------------------------
+    bool Destroy(Int32 header, Object & payload);
+    bool Destroy() { return Destroy(0, NullObject()); }
+    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
+
+    // --------------------------------------------------------------------------------------------
+    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+
+    // --------------------------------------------------------------------------------------------
+    bool IsStreamedFor(CPlayer & player) const;
+    Int32 GetWorld() const;
+    void SetWorld(Int32 world) const;
     const Color4 & GetColor() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the color of the referenced checkpoint instance.
-    */
     void SetColor(const Color4 & col) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the color of the referenced checkpoint instance.
-    */
     void SetColorEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the position of the referenced checkpoint instance.
-    */
     const Vector3 & GetPosition() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced checkpoint instance.
-    */
     void SetPosition(const Vector3 & pos) const;
+    void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+    Float32 GetRadius() const;
+    void SetRadius(Float32 radius) const;
+    Object & GetOwner() const;
+    Int32 GetOwnerID() const;
 
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced checkpoint instance.
-    */
-    void SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const;
+    // --------------------------------------------------------------------------------------------
+    Float32 GetPosX() const;
+    Float32 GetPosY() const;
+    Float32 GetPosZ() const;
+    void SetPosX(Float32 x) const;
+    void SetPosY(Float32 y) const;
+    void SetPosZ(Float32 z) const;
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the radius of the referenced checkpoint instance.
-    */
-    SQFloat GetRadius() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the radius of the referenced checkpoint instance.
-    */
-    void SetRadius(SQFloat radius) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the owner of the referenced checkpoint instance.
-    */
-    Reference< CPlayer > GetOwner() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the owner identifier of the referenced checkpoint instance.
-    */
-    SQInt32 GetOwnerID() const;
+    // --------------------------------------------------------------------------------------------
+    Uint32 GetColR() const;
+    Uint32 GetColG() const;
+    Uint32 GetColB() const;
+    Uint32 GetColA() const;
+    void SetColR(Uint32 r) const;
+    void SetColG(Uint32 g) const;
+    void SetColB(Uint32 b) const;
+    void SetColA(Uint32 a) const;
 };
 
 } // Namespace:: SqMod

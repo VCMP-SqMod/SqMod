@@ -1,8 +1,8 @@
+// ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
-#include "Register.hpp"
-#include "Logger.hpp"
-#include "Debug.hpp"
-#include "Core.hpp"
+#include "Base/Buffer.hpp"
+#include "Library/Random.hpp"
+#include "Library/String.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/AABB.hpp"
@@ -11,50 +11,123 @@
 #include "Base/Color4.hpp"
 #include "Base/Quaternion.hpp"
 #include "Base/Sphere.hpp"
+#include "Base/Vector2.hpp"
 #include "Base/Vector2i.hpp"
-#include "Base/Vector2u.hpp"
-#include "Base/Vector2f.hpp"
 #include "Base/Vector3.hpp"
 #include "Base/Vector4.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <ctime>
-#include <memory>
-#include <random>
-#include <cstdarg>
+#include <time.h>
+#include <float.h>
+#include <limits.h>
+#include <stdarg.h>
 #include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static std::unique_ptr<std::mt19937>       RG32_MT19937 = std::unique_ptr<std::mt19937>( \
-                                            new std::mt19937(_SCU32(std::time(0))));
+static const SQChar EMPTY_STR_CHAR = 0;
+const SQChar * g_EmptyStr = &EMPTY_STR_CHAR;
 
-static std::unique_ptr<std::mt19937_64>    RG64_MT19937 = std::unique_ptr<std::mt19937_64>( \
-                                            new std::mt19937_64(_SCU32(std::time(0))));
-
-// ------------------------------------------------------------------------------------------------
-static std::uniform_int_distribution<Int8>      Int8_Dist(std::numeric_limits<Int8>::min(), std::numeric_limits<Int8>::max());
-static std::uniform_int_distribution<Uint8>     UInt8_Dist(std::numeric_limits<Uint8>::min(), std::numeric_limits<Uint8>::max());
-
-static std::uniform_int_distribution<Int16>     Int16_Dist(std::numeric_limits<Int16>::min(), std::numeric_limits<Int16>::max());
-static std::uniform_int_distribution<Uint16>    UInt16_Dist(std::numeric_limits<Uint16>::min(), std::numeric_limits<Uint16>::max());
-
-static std::uniform_int_distribution<Int32>     Int32_Dist(std::numeric_limits<Int32>::min(), std::numeric_limits<Int32>::max());
-static std::uniform_int_distribution<Uint32>    UInt32_Dist(std::numeric_limits<Uint32>::min(), std::numeric_limits<Uint32>::max());
-
-static std::uniform_int_distribution<Int64>     Int64_Dist(std::numeric_limits<Int64>::min(), std::numeric_limits<Int64>::max());
-static std::uniform_int_distribution<Uint64>    UInt64_Dist(std::numeric_limits<Uint64>::min(), std::numeric_limits<Uint64>::max());
-
-static std::uniform_real_distribution<Float32>  Float32_Dist(std::numeric_limits<Float32>::min(), std::numeric_limits<Float32>::max());
-static std::uniform_real_distribution<Float64>  Float64_Dist(std::numeric_limits<Float64>::min(), std::numeric_limits<Float64>::max());
+// --------------------------------------------------------------------------------------------
+PluginFuncs*        _Func = NULL;
+PluginCallbacks*    _Clbk = NULL;
+PluginInfo*         _Info = NULL;
 
 // ------------------------------------------------------------------------------------------------
-static std::uniform_int_distribution<String::size_type> String_Dist(std::numeric_limits<String::value_type>::min(), std::numeric_limits<String::value_type>::max());
+const char NumLimit< char >::Min = CHAR_MIN;
+const signed char NumLimit< signed char >::Min = SCHAR_MIN;
+const unsigned char NumLimit< unsigned char >::Min = 0;
+const signed short NumLimit< signed short >::Min = SHRT_MIN;
+const unsigned short NumLimit< unsigned short >::Min = 0;
+const signed int NumLimit< signed int >::Min = INT_MIN;
+const unsigned int NumLimit< unsigned int >::Min = 0;
+const signed long NumLimit< signed long >::Min = LONG_MIN;
+const unsigned long NumLimit< unsigned long >::Min = 0;
+const signed long long NumLimit< signed long long >::Min = LLONG_MIN;
+const unsigned long long NumLimit< unsigned long long >::Min = 0;
+const float NumLimit< float >::Min = FLT_MIN;
+const double NumLimit< double >::Min = DBL_MIN;
+const long double NumLimit< long double >::Min = LDBL_MIN;
 
 // ------------------------------------------------------------------------------------------------
-static const std::vector<Color3> SQ_Color_List
+const char NumLimit< char >::Max = CHAR_MAX;
+const signed char NumLimit< signed char >::Max = SCHAR_MAX;
+const unsigned char NumLimit< unsigned char >::Max = UCHAR_MAX;
+const signed short NumLimit< signed short >::Max = SHRT_MAX;
+const unsigned short NumLimit< unsigned short >::Max = USHRT_MAX;
+const signed int NumLimit< signed int >::Max = INT_MAX;
+const unsigned int NumLimit< unsigned int >::Max = UINT_MAX;
+const signed long NumLimit< signed long >::Max = LONG_MAX;
+const unsigned long NumLimit< unsigned long >::Max = ULONG_MAX;
+const signed long long NumLimit< signed long long >::Max = LLONG_MAX;
+const unsigned long long NumLimit< unsigned long long >::Max = ULLONG_MAX;
+const float NumLimit< float >::Max = FLT_MAX;
+const double NumLimit< double >::Max = DBL_MAX;
+const long double NumLimit< long double >::Max = LDBL_MAX;
+
+// ------------------------------------------------------------------------------------------------
+Object & NullObject()
+{
+    static Object o;
+    o.Release();
+    return o;
+}
+
+// ------------------------------------------------------------------------------------------------
+Array & NullArray()
+{
+    static Array a;
+    a.Release();
+    return a;
+}
+
+// ------------------------------------------------------------------------------------------------
+Function & NullFunction()
+{
+    static Function f;
+    f.Release();
+    return f;
+}
+
+// --------------------------------------------------------------------------------------------
+bool SToB(CSStr str)
+{
+    return (strcmp(str, "true") == 0 || strcmp(str, "yes") == 0 ||
+            strcmp(str, "on") == 0 || strcmp(str, "1") == 0) ? true : false;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ToStrF(CCStr fmt, ...)
+{
+    static char buf[128];
+    va_list args;
+    va_start (args, fmt);
+    int ret =  vsnprintf(buf, sizeof(buf), fmt, args);
+    if (ret < 0)
+    {
+        SqThrow("Failed to run the specified string format");
+        buf[0] = 0;
+    }
+    va_end(args);
+    return buf;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ToStringF(CCStr fmt, ...)
+{
+    Buffer b(128);
+    va_list args;
+    va_start (args, fmt);
+    if (b.WriteF(0, fmt, args) == 0)
+        b.At< SQChar >(0) = 0;
+    va_end(args);
+    return b.Get< SQChar >();
+}
+
+// ------------------------------------------------------------------------------------------------
+static const Color3 SQ_Color_List[] =
 {
     Color3(240, 248, 255),
     Color3(250, 235, 215),
@@ -199,681 +272,39 @@ static const std::vector<Color3> SQ_Color_List
 };
 
 // ------------------------------------------------------------------------------------------------
-void LogDbg(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Log->Send(Logger::LEVEL_DBG, false, fmt, args);
-    va_end(args);
-}
-
-void LogMsg(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Log->Send(Logger::LEVEL_MSG, false, fmt, args);
-    va_end(args);
-}
-
-void LogScs(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Log->Send(Logger::LEVEL_SCS, false, fmt, args);
-    va_end(args);
-}
-
-void LogInf(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Log->Send(Logger::LEVEL_INF, false, fmt, args);
-    va_end(args);
-}
-
-void LogWrn(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Log->Send(Logger::LEVEL_WRN, false, fmt, args);
-    va_end(args);
-}
-
-void LogErr(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Log->Send(Logger::LEVEL_ERR, false, fmt, args);
-    va_end(args);
-}
-
-void LogFtl(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Log->Send(Logger::LEVEL_FTL, false, fmt, args);
-    va_end(args);
-}
-
-// ------------------------------------------------------------------------------------------------
-void DbgWrn(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Dbg->Wrn(NULL, NULL, fmt, args);
-    va_end(args);
-}
-
-void DbgErr(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Dbg->Wrn(NULL, NULL, fmt, args);
-    va_end(args);
-}
-
-void DbgFtl(const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Dbg->Wrn(NULL, NULL, fmt, args);
-    va_end(args);
-}
-
-// ------------------------------------------------------------------------------------------------
-void DbgWrn(const char * func, const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Dbg->Wrn(NULL, func, fmt, args);
-    va_end(args);
-}
-
-void DbgErr(const char * func, const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Dbg->Wrn(NULL, func, fmt, args);
-    va_end(args);
-}
-
-void DbgFtl(const char * func, const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Dbg->Wrn(NULL, func, fmt, args);
-    va_end(args);
-}
-
-// ------------------------------------------------------------------------------------------------
-void DbgWrn(const char * type, const char * func, const char * fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _Dbg->Wrn(type, func, fmt, args);
-    va_end(args);
-}
-
-void DbgErr(const char * type, const char * func, const char * fmt, ...)
-{
-    _Dbg->SetInf(type, func);
-    va_list args;
-    va_start(args, fmt);
-    _Dbg->Wrn(type, func, fmt, args);
-    va_end(args);
-}
-
-void DbgFtl(const char * type, const char * func, const char * fmt, ...)
-{
-    _Dbg->SetInf(type, func);
-    va_list args;
-    va_start(args, fmt);
-    _Dbg->Wrn(type, func, fmt, args);
-    va_end(args);
-}
-
-// ------------------------------------------------------------------------------------------------
-const SQChar * ToStrF(const char * fmt, ...)
-{
-    static char buf[128];
-    // Variable arguments structure
-    va_list args;
-    // Get the specified arguments
-    va_start (args, fmt);
-    // Run the specified format
-    int ret =  std::vsnprintf(buf, sizeof(buf), fmt, args);
-    // Check for formatting errors
-    if (ret < 0)
-    {
-        LogErr("Failed to run the specified string format");
-        // Return an empty string
-        buf[0] = 0;
-    }
-    // Return the buffer
-    return buf;
-}
-
-// ------------------------------------------------------------------------------------------------
-const SQChar * ToStringF(const char * fmt, ...)
-{
-    // Acquire a buffer from the buffer pool
-    Buffer vbuf = _Core->PullBuffer(128);
-    // Get direct access to the buffer data
-    Buffer::Pointer buf = vbuf.Data();
-    // Variable arguments structure
-    va_list args;
-    // Get the specified arguments
-    va_start (args, fmt);
-    // Run the specified format
-    int ret =  std::vsnprintf(buf, vbuf.Size() * sizeof(Buffer::Value), fmt, args);
-    // Check for buffer overflows
-    if (_SCU32(ret) >= vbuf.Size())
-    {
-        // Scale buffer
-        vbuf.Reserve(ret);
-        // Run the specified format
-        ret =  std::vsnprintf(buf, vbuf.Size() * sizeof(Buffer::Value), fmt, args);
-    }
-    // Check for formatting errors
-    if (ret < 0)
-    {
-        // Throw error
-        LogErr("Failed to run the specified string format");
-        // Return an empty string
-        buf[0] = 0;
-    }
-    // Return the buffer back to the buffer pool
-    _Core->PushBuffer(std::move(vbuf));
-    // The buffer data wasn't destroyed and Squirrel should have time to copy it
-    return buf;
-}
-
-// ------------------------------------------------------------------------------------------------
-const SQChar * InsertStr(const SQChar * f, const std::vector< const SQChar * > & a)
-{
-    // Acquire a buffer from the buffer pool
-    Buffer vbuf = _Core->PullBuffer(128);
-    // Get direct access to the buffer data
-    Buffer::Pointer buf = vbuf.Data();
-    // Get the size of the buffer
-    const Buffer::SzType sz = vbuf.Size();
-    // Size of the resulted string and the number of specified arguments
-    unsigned n = 0, s = a.size();
-    // See if the format string is valid
-    if (f)
-    {
-        // Temporary variables used for processing characters
-        SQChar c = 0, p = 0;
-        // Process each character in the format string
-        while ((c = *(f++)) && (n < sz))
-        {
-            // Peek at the next character
-            p = *f;
-            // Check for argument character
-            if (c != '%')
-            {
-                // Add this character to the buffer
-                buf[n++] = c;
-            }
-            // See if the argument character is escaped
-            else if (p == '%')
-            {
-                // Skip the escaping character
-                ++f;
-                // Add this character to the buffer
-                buf[n++] = '%';
-            }
-            // See if there's a number to extract
-            else if (p >= 48 && p <= 57)
-            {
-                // Attempt to extract a numeric value
-                long int i = strtol(f, nullptr, 10);
-                // Skip until the first non digit character
-                while (*f >= 48 && *f <= 57)
-                {
-                    ++f;
-                }
-                // Force the index to be in range
-                i = i <= 0 ? 0 : (i >= (long int)s ? s : i);
-                // Don't even bother if the argument isn't valid
-                if (a[i])
-                {
-                    // Get the specified argument
-                    const SQChar * v = a[i];
-                    // Add the specified argument to the buffer
-                    while ((c = *(v++)) && (n < sz))
-                    {
-                        buf[n++] = c;
-                    }
-                }
-            }
-            // Fallback to regular replication
-            else
-            {
-                // Add this character to the buffer
-                buf[n++] = c;
-            }
-        }
-
-    }
-    // Insert the null character
-    buf[n] = '\0';
-    // Return the buffer back to the buffer pool
-    _Core->PushBuffer(std::move(vbuf));
-    // The buffer data wasn't destroyed and Squirrel should have time to copy it
-    return buf;
-}
-
-// Utility for the <InsertStr> function
-const SQChar * InsStr(const SQChar * f)
-{
-    return InsertStr(f, std::vector< const SQChar * >());
-}
-
-// ------------------------------------------------------------------------------------------------
-const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w)
-{
-    // Acquire a buffer from the buffer pool
-    Buffer vbuf = _Core->PullBuffer(w);
-    // Get direct access to the buffer data
-    Buffer::Pointer buf = vbuf.Data();
-    // Get the length of the string
-    SQUint32 n = strlen(t);
-    // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Buffer::Value));
-    // Is the width in bounds?
-    if (w >= vbuf.Size())
-    {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
-        // Invalidate the width
-        w = 0;
-    }
-    // Is the string empty?
-    else if (n == 0)
-    {
-        LogWrn("Invalid string length: %d < 0", n);
-    }
-    // Is the string in bounds?
-    else if (n > w)
-    {
-        LogWrn("String is out of bounds: %d > %d", n, w);
-    }
-    // Insert the string
-    else
-    {
-        strncpy(buf, t, n);
-    }
-    // Add the terminating character
-    buf[w] = '\0';
-    // Return the buffer back to the buffer pool
-    _Core->PushBuffer(std::move(vbuf));
-    // The buffer data wasn't destroyed and Squirrel should have time to copy it
-    return buf;
-}
-
-const SQChar * LeftStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o)
-{
-    // Acquire a buffer from the buffer pool
-    Buffer vbuf = _Core->PullBuffer(w);
-    // Get direct access to the buffer data
-    Buffer::Pointer buf = vbuf.Data();
-    // Get the length of the string
-    SQUint32 n = strlen(t);
-    // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Buffer::Value));
-    // Is the width in bounds?
-    if (w >= vbuf.Size())
-    {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
-        // Invalidate the width
-        w = 0;
-    }
-    // Is the string empty?
-    else if (n == 0)
-    {
-        LogWrn("Invalid string length: %d < 0", n);
-    }
-    // Is the string in bounds?
-    else if ((o+n) > w)
-    {
-        LogWrn("String is out of bounds: (%d+%d) > %d", o, n, w);
-    }
-    // Insert the string
-    else
-    {
-        strncpy(buf + o, t, n);
-    }
-    // Add the terminating character
-    buf[w] = '\0';
-    // Return the buffer back to the buffer pool
-    _Core->PushBuffer(std::move(vbuf));
-    // The buffer data wasn't destroyed and Squirrel should have time to copy it
-    return buf;
-}
-
-// ------------------------------------------------------------------------------------------------
-const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w)
-{
-    // Acquire a buffer from the buffer pool
-    Buffer vbuf = _Core->PullBuffer(w);
-    // Get direct access to the buffer data
-    Buffer::Pointer buf = vbuf.Data();
-    // Get the length of the string
-    SQUint32 n = strlen(t);
-    // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Buffer::Value));
-    // Is the width in bounds?
-    if (w >= vbuf.Size())
-    {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
-        // Invalidate the width
-        w = 0;
-    }
-    // Is the string empty?
-    else if (n == 0)
-    {
-        LogWrn("Invalid string length: %d < 0", n);
-    }
-    // Is the string in bounds?
-    else if (n > w)
-    {
-        LogWrn("String is out of bounds: %d > %d", n, w);
-    }
-    // Insert the string
-    else
-    {
-        strncpy(buf + (w-n), t, n);
-    }
-    // Add the terminating character
-    buf[w] = '\0';
-    // Return the buffer back to the buffer pool
-    _Core->PushBuffer(std::move(vbuf));
-    // The buffer data wasn't destroyed and Squirrel should have time to copy it
-    return buf;
-}
-
-const SQChar * RightStr(const SQChar * t, SQChar f, SQUint32 w, SQUint32 o)
-{
-    // Acquire a buffer from the buffer pool
-    Buffer vbuf = _Core->PullBuffer(w);
-    // Get direct access to the buffer data
-    Buffer::Pointer buf = vbuf.Data();
-    // Get the length of the string
-    SQUint32 n = strlen(t);
-    // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Buffer::Value));
-    // Is the width in bounds?
-    if (w >= vbuf.Size())
-    {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
-        // Invalidate the width
-        w = 0;
-    }
-    // Is the string empty?
-    else if (n == 0)
-    {
-        LogWrn("Invalid string length: %d < 0", n);
-    }
-    // Is the string in bounds?
-    else if ((n+o) > w)
-    {
-        LogWrn("String is out of bounds: (%d+%d) > %d", n, o, w);
-    }
-    // Insert the string
-    else
-    {
-        strncpy(buf + ((w-n)-o), t, n);
-    }
-    // Add the terminating character
-    buf[w] = '\0';
-    // Return the buffer back to the buffer pool
-    _Core->PushBuffer(std::move(vbuf));
-    // The buffer data wasn't destroyed and Squirrel should have time to copy it
-    return buf;
-}
-
-// ------------------------------------------------------------------------------------------------
-const SQChar * CenterStr(const SQChar * t, SQChar f, SQUint32 w)
-{
-    // Acquire a buffer from the buffer pool
-    Buffer vbuf = _Core->PullBuffer(w);
-    // Get direct access to the buffer data
-    Buffer::Pointer buf = vbuf.Data();
-    // Get the length of the string
-    SQUint32 n = strlen(t);
-    // Fill the buffer with the specified fill character
-    memset(buf, f, w * sizeof(Buffer::Value));
-    // Is the width in bounds?
-    if (w >= vbuf.Size())
-    {
-        LogWrn("Invalid width specified: %d > %d", w, vbuf.Size());
-        // Invalidate the width
-        w = 0;
-    }
-    // Is the string empty?
-    else if (n == 0)
-    {
-        LogWrn("Invalid string length: %d < 0", n);
-    }
-    // Is the string in bounds?
-    else if (n > w)
-    {
-        LogWrn("String is out of bounds: %d > %d", n, w);
-    }
-    // Insert the string
-    else
-    {
-        strncpy(buf + (w/2 - n/2), t, n);
-    }
-    // Add the terminating character
-    buf[w] = '\0';
-    // Return the buffer back to the buffer pool
-    _Core->PushBuffer(std::move(vbuf));
-    // The buffer data wasn't destroyed and Squirrel should have time to copy it
-    return buf;
-}
-
-// ------------------------------------------------------------------------------------------------
-void InitMTRG32()
-{
-    RG32_MT19937.reset(new std::mt19937(_SCU32(std::time(0))));
-}
-
-// ------------------------------------------------------------------------------------------------
-void InitMTRG64()
-{
-    RG64_MT19937.reset(new std::mt19937_64(_SCU32(std::time(0))));
-}
-
-// ------------------------------------------------------------------------------------------------
-Int8 GetRandomInt8()
-{
-    return Int8_Dist(*RG32_MT19937);
-}
-
-Int8 GetRandomInt8(Int8 min, Int8 max)
-{
-    std::uniform_int_distribution<Int8> dist(min, max);
-    return dist(*RG32_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint8 GetRandomUint8()
-{
-    return UInt8_Dist(*RG32_MT19937);
-}
-
-Uint8 GetRandomUint8(Uint8 min, Uint8 max)
-{
-    std::uniform_int_distribution<Uint8> dist(min, max);
-    return dist(*RG32_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int16 GetRandomInt16()
-{
-    return Int16_Dist(*RG32_MT19937);
-}
-
-Int16 GetRandomInt16(Int16 min, Int16 max)
-{
-    std::uniform_int_distribution<Int16> dist(min, max);
-    return dist(*RG32_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint16 GetRandomUint16()
-{
-    return UInt16_Dist(*RG32_MT19937);
-}
-
-Uint16 GetRandomUint16(Uint16 min, Uint16 max)
-{
-    std::uniform_int_distribution<Uint16> dist(min, max);
-    return dist(*RG32_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 GetRandomInt32()
-{
-    return Int32_Dist(*RG32_MT19937);
-}
-
-Int32 GetRandomInt32(Int32 min, Int32 max)
-{
-    std::uniform_int_distribution<Int32> dist(min, max);
-    return dist(*RG32_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint32 GetRandomUint32()
-{
-    return UInt32_Dist(*RG32_MT19937);
-}
-
-Uint32 GetRandomUint32(Uint32 min, Uint32 max)
-{
-    std::uniform_int_distribution<Uint32> dist(min, max);
-    return dist(*RG32_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int64 GetRandomInt64()
-{
-    return Int64_Dist(*RG64_MT19937);
-}
-
-Int64 GetRandomInt64(Int64 min, Int64 max)
-{
-    std::uniform_int_distribution<Int64> dist(min, max);
-    return dist(*RG64_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint64 GetRandomUint64()
-{
-    return UInt64_Dist(*RG64_MT19937);
-}
-
-Uint64 GetRandomUint64(Uint64 min, Uint64 max)
-{
-    std::uniform_int_distribution<Uint64> dist(min, max);
-    return dist(*RG64_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Float32 GetRandomFloat32()
-{
-    return Float32_Dist(*RG32_MT19937);
-}
-
-Float32 GetRandomFloat32(Float32 min, Float32 max)
-{
-    std::uniform_real_distribution<Float32> dist(min, max);
-    return dist(*RG32_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Float64 GetRandomFloat64()
-{
-    return Float64_Dist(*RG64_MT19937);
-}
-
-Float64 GetRandomFloat64(Float64 min, Float64 max)
-{
-    std::uniform_real_distribution<Float64> dist(min, max);
-    return dist(*RG64_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-String GetRandomString(String::size_type len)
-{
-    String str(len, 0);
-    std::generate(str.begin(), str.end(), [&] () -> String::value_type { return String_Dist(*RG32_MT19937); });
-    return std::move(str);
-}
-
-String GetRandomString(String::size_type len, String::value_type min, String::value_type max)
-{
-    String str(len, 0);
-    std::uniform_int_distribution<String::value_type> dist(min, max);
-    std::generate(str.begin(), str.end(), [&] () -> String::value_type { return dist(*RG32_MT19937); });
-    return std::move(str);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool GetRandomBool()
-{
-    return Int8_Dist(*RG32_MT19937) > 0 ? true : false;
-}
-
-// ------------------------------------------------------------------------------------------------
 const Color3 & GetRandomColor()
 {
-    return SQ_Color_List.at(GetRandomUint32(0, SQ_Color_List.size()-1));
-}
-
-// --------------------------------------------------------------------------------------------
-bool SToB(const SQChar * str)
-{
-    return (strcmp(str, "true") == 0 || \
-            strcmp(str, "yes") == 0 || \
-            strcmp(str, "on") == 0 || \
-            strcmp(str, "1") == 0) ? true : false;
+    return SQ_Color_List[GetRandomUint8(0, (sizeof(SQ_Color_List) / sizeof(Color3))-1)];
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 GetColor(const SQChar * name)
+Color3 GetColor(CSStr name)
 {
+    Uint32 len = 0;
     // See if we actually have something to search for
-    if(std::strlen(name) <= 0)
+    if(!name || (len = (Uint32)strlen(name)) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return Color3::NIL;
     }
     // Clone the string into an editable version
-    String str = String(name);
-    // Strip non alphanumeric characters from the name
-    str.erase(std::remove_if(str.begin(), str.end(), std::not1(std::ptr_fun(::isalnum))), str.end());
-    // Convert the string to lowercase
-    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    CCStr str = StrJustAlphaNum(name);
+    str = StrToLowercase(str);
     // See if we still have a valid name after the cleanup
-    if(str.empty())
+    if((len = (Uint32)strlen(name)) <= 0)
     {
-        LogErr("Cannot extract values from an invalid string: %s", name);
+        SqThrow("Cannot extract values from an invalid string: %s", name);
         return Color3::NIL;
     }
-    // Grab the actual length of the string
-    std::size_t len = str.length();
     // Get the most significant characters used to identify a weapon
     SQChar a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
-    if(str.length() >= 3)
+    if(len >= 3)
     {
         c = str[2];
         b = str[1];
     }
-    else if(str.length() >= 2)
+    else if(len >= 2)
     {
         b = str[1];
     }
@@ -1454,16 +885,16 @@ Color3 GetColor(const SQChar * name)
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB GetAABB(const SQChar * str, SQChar delim)
+AABB GetAABB(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f , %f , %f , %f ");
     static AABB box;
 
     box.Clear();
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return box;
     }
     else if (delim != AABB::Delim)
@@ -1483,22 +914,22 @@ AABB GetAABB(const SQChar * str, SQChar delim)
         fs[24] = AABB::Delim;
     }
 
-    std::sscanf(str, &fs[0], &box.min.x, &box.min.y, &box.min.z, &box.max.x, &box.max.y, &box.max.z);
+    sscanf(str, &fs[0], &box.min.x, &box.min.y, &box.min.z, &box.max.x, &box.max.y, &box.max.z);
 
     return box;
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle GetCircle(const SQChar * str, SQChar delim)
+Circle GetCircle(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f ");
     static Circle circle;
 
-    circle.Clear();
+    //circle.Clear();
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return circle;
     }
     else if (delim != Circle::Delim)
@@ -1512,20 +943,20 @@ Circle GetCircle(const SQChar * str, SQChar delim)
         fs[9] = Circle::Delim;
     }
 
-    std::sscanf(str, &fs[0], &circle.pos.x, &circle.pos.y, &circle.rad);
+    sscanf(str, &fs[0], &circle.pos.x, &circle.pos.y, &circle.rad);
 
     return circle;
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 GetColor3(const SQChar * str, SQChar delim)
+Color3 GetColor3(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %u , %u , %u ");
-    SQUint32 r = 0, g = 0, b = 0;
+    Uint32 r = 0, g = 0, b = 0;
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return Color3();
     }
     else if (delim != Color3::Delim)
@@ -1539,19 +970,19 @@ Color3 GetColor3(const SQChar * str, SQChar delim)
         fs[9] = Color3::Delim;
     }
 
-    std::sscanf(str, &fs[0], &r, &g, &b);
+    sscanf(str, &fs[0], &r, &g, &b);
 
-    return Color3(static_cast<Color3::Value>(r), static_cast<Color3::Value>(g), static_cast<Color3::Value>(b));
+    return Color3(Color3::Value(r), Color3::Value(g), Color3::Value(b));
 }
 
-Color4 GetColor4(const SQChar * str, SQChar delim)
+Color4 GetColor4(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %u , %u , %u , %u ");
-    SQUint32 r = 0, g = 0, b = 0, a = 0;
+    Uint32 r = 0, g = 0, b = 0, a = 0;
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return Color4();
     }
     else if (delim != Color4::Delim)
@@ -1567,22 +998,22 @@ Color4 GetColor4(const SQChar * str, SQChar delim)
         fs[14] = Color4::Delim;
     }
 
-    std::sscanf(str, &fs[0], &r, &g, &b, &a);
+    sscanf(str, &fs[0], &r, &g, &b, &a);
 
-    return Color4(static_cast<Color4::Value>(r), static_cast<Color4::Value>(g), static_cast<Color4::Value>(b), static_cast<Color4::Value>(a));
+    return Color4(Color4::Value(r), Color4::Value(g), Color4::Value(b), Color4::Value(a));
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion GetQuaternion(const SQChar * str, SQChar delim)
+Quaternion GetQuaternion(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
     static Quaternion quat;
 
-    quat.Clear();
+    //quat.Clear();
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return quat;
     }
     else if (delim != Quaternion::Delim)
@@ -1598,21 +1029,21 @@ Quaternion GetQuaternion(const SQChar * str, SQChar delim)
         fs[14] = Quaternion::Delim;
     }
 
-    std::sscanf(str, &fs[0], &quat.x, &quat.y, &quat.z, &quat.w);
+    sscanf(str, &fs[0], &quat.x, &quat.y, &quat.z, &quat.w);
 
     return quat;
 }
 
-Sphere GetSphere(const SQChar * str, SQChar delim)
+Sphere GetSphere(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
     static Sphere sphere;
 
-    sphere.Clear();
+    //sphere.Clear();
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return sphere;
     }
     else if (delim != Sphere::Delim)
@@ -1628,48 +1059,48 @@ Sphere GetSphere(const SQChar * str, SQChar delim)
         fs[14] = Sphere::Delim;
     }
 
-    std::sscanf(str, &fs[0], &sphere.pos.x, &sphere.pos.y, &sphere.pos.z, &sphere.rad);
+    sscanf(str, &fs[0], &sphere.pos.x, &sphere.pos.y, &sphere.pos.z, &sphere.rad);
 
     return sphere;
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2f GetVector2f(const SQChar * str, SQChar delim)
+Vector2 GetVector2(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f ");
-    static Vector2f vec;
+    static Vector2 vec;
 
-    vec.Clear();
+    //vec.Clear();
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return vec;
     }
-    else if (delim != Vector2f::Delim)
+    else if (delim != Vector2::Delim)
     {
         fs[4] = delim;
     }
     else
     {
-        fs[4] = Vector2f::Delim;
+        fs[4] = Vector2::Delim;
     }
 
-    std::sscanf(str, &fs[0], &vec.x, &vec.y);
+    sscanf(str, &fs[0], &vec.x, &vec.y);
 
     return vec;
 }
 
-Vector2i GetVector2i(const SQChar * str, SQChar delim)
+Vector2i GetVector2i(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %d , %d ");
     static Vector2i vec;
 
-    vec.Clear();
+    //vec.Clear();
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return vec;
     }
     else if (delim != Vector2i::Delim)
@@ -1681,48 +1112,22 @@ Vector2i GetVector2i(const SQChar * str, SQChar delim)
         fs[4] = Vector2i::Delim;
     }
 
-    std::sscanf(str, &fs[0], &vec.x, &vec.y);
-
-    return vec;
-}
-
-Vector2u GetVector2u(const SQChar * str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %u , %u ");
-    static Vector2u vec;
-
-    vec.Clear();
-
-    if (std::strlen(str) <= 0)
-    {
-        LogErr("Cannot extract values from an empty string");
-        return vec;
-    }
-    else if (delim != Vector2u::Delim)
-    {
-        fs[4] = delim;
-    }
-    else
-    {
-        fs[4] = Vector2u::Delim;
-    }
-
-    std::sscanf(str, &fs[0], &vec.x, &vec.y);
+    sscanf(str, &fs[0], &vec.x, &vec.y);
 
     return vec;
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 GetVector3(const SQChar * str, SQChar delim)
+Vector3 GetVector3(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f ");
     static Vector3 vec;
 
     vec.Clear();
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return vec;
     }
     else if (delim != Vector3::Delim)
@@ -1736,21 +1141,21 @@ Vector3 GetVector3(const SQChar * str, SQChar delim)
         fs[9] = Vector3::Delim;
     }
 
-    std::sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z);
+    sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z);
 
     return vec;
 }
 
-Vector4 GetVector4(const SQChar * str, SQChar delim)
+Vector4 GetVector4(CSStr str, SQChar delim)
 {
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
     static Vector4 vec;
 
     vec.Clear();
 
-    if (std::strlen(str) <= 0)
+    if (strlen(str) <= 0)
     {
-        LogErr("Cannot extract values from an empty string");
+        SqThrow("Cannot extract values from an empty string");
         return vec;
     }
     else if (delim != Vector4::Delim)
@@ -1766,92 +1171,20 @@ Vector4 GetVector4(const SQChar * str, SQChar delim)
         fs[14] = Vector4::Delim;
     }
 
-    std::sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z, &vec.w);
+    sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z, &vec.w);
 
     return vec;
 }
 
-// ------------------------------------------------------------------------------------------------
-template < typename T > T StrToInt(const SQChar * str)
+// ================================================================================================
+void Register_Base(HSQUIRRELVM vm)
 {
-    try
-    {
-        return SToI< T >::Fn(str, nullptr, 10);
-    }
-    catch (const std::invalid_argument & ia)
-    {
-        LogErr("Unable to convert string to integer: %s", ia.what());
-    }
-    catch (const std::out_of_range & oor)
-    {
-        LogErr("Unable to convert string to integer: %s", oor.what());
-    }
-    return static_cast< T >(0);
-}
-
-// ------------------------------------------------------------------------------------------------
-template < typename T > T StrToInt(const SQChar * str, SQInt32 base)
-{
-    try
-    {
-        return SToI< T >::Fn(str, nullptr, base);
-    }
-    catch (const std::invalid_argument & ia)
-    {
-        LogErr("Unable to convert string to integer: %s", ia.what());
-    }
-    catch (const std::out_of_range & oor)
-    {
-        LogErr("Unable to convert string to integer: %s", oor.what());
-    }
-    return static_cast< T >(0);
-}
-
-// ------------------------------------------------------------------------------------------------
-template < typename T > T StrToReal(const SQChar * str)
-{
-    try
-    {
-        return SToF< T >::Fn(str, nullptr);
-    }
-    catch (const std::invalid_argument & ia)
-    {
-        LogErr("Unable to convert string to float: %s", ia.what());
-    }
-    catch (const std::out_of_range & oor)
-    {
-        LogErr("Unable to convert string to float: %s", oor.what());
-    }
-    return static_cast< T >(0.0);
-}
-
-// ------------------------------------------------------------------------------------------------
-template < typename T > T RandomValue()
-{
-    return RandomVal< T >::Get();
-}
-
-template < typename T > T RandomValue(T min, T max)
-{
-    return RandomVal< T >::Get(min, max);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Register_Base(HSQUIRRELVM vm)
-{
-    // Typedef squirrel string to simplify code
-    typedef const SQChar * SQS;
-    // Output debugging information
-    LogDbg("Beginning registration of <Base> API");
-    // Attempt to register the specified API
-    Sqrat::RootTable(vm)
-
+    RootTable(vm)
     .Func(_SC("EpsEqI"), &EpsEq<SQInteger>)
     .Func(_SC("EpsEqF"), &EpsEq<SQFloat>)
-
     .Func(_SC("ClampI"), &Clamp<SQInteger>)
     .Func(_SC("ClampF"), &Clamp<SQFloat>)
-
+    .Func(_SC("NextPow2"), &NextPow2)
     .Func(_SC("IsSpace"), &isspace)
     .Func(_SC("IsPrint"), &isprint)
     .Func(_SC("IsCntrl"), &iscntrl)
@@ -1864,25 +1197,7 @@ bool Register_Base(HSQUIRRELVM vm)
     .Func(_SC("IsAlnum"), &isalnum)
     .Func(_SC("IsGraph"), &isgraph)
     .Func(_SC("IsBlank"), &isblank)
-
-    .Overload< SQInteger (*)(void) >(_SC("GetRandomInt"), &RandomValue< SQInteger >)
-    .Overload< SQInteger (*)(SQInteger, SQInteger) >(_SC("GetRandomInt"), &RandomValue< SQInteger >)
-
-    .Overload< SQFloat (*)(void) >(_SC("GetRandomFloat"), &RandomVal< SQFloat >::Get)
-    .Overload< SQFloat (*)(SQFloat, SQFloat) >(_SC("GetRandomFloat"), &RandomVal< SQFloat >::Get)
-
-    .Overload< String (*)(String::size_type) >(_SC("GetRandomString"), &GetRandomString)
-    .Overload< String (*)(String::size_type, String::value_type, String::value_type) >(_SC("GetRandomString"), &GetRandomString)
-
-    .Func(_SC("GetRandomBool"), &GetRandomBool)
-    .Func(_SC("GetRandomColor"), &GetRandomColor)
-
-    .Overload< SQInteger (*)(const SQChar *) >(_SC("SToI"), &StrToInt<SQInteger>)
-    .Overload< SQInteger (*)(const SQChar *, SQInt32) >(_SC("SToI"), &StrToInt<SQInteger>)
-
-    .Func(_SC("SToF"), &StrToReal<SQFloat>)
     .Func(_SC("SToB"), &SToB)
-
     .Func(_SC("GetColor"), &GetColor)
     .Func(_SC("GetCircle"), &GetCircle)
     .Func(_SC("GetAABB"), &GetAABB)
@@ -1890,58 +1205,10 @@ bool Register_Base(HSQUIRRELVM vm)
     .Func(_SC("GetColor4"), &GetColor4)
     .Func(_SC("GetQuaternion"), &GetQuaternion)
     .Func(_SC("GetSphere"), &GetSphere)
-    .Func(_SC("GetVector2f"), &GetVector2f)
+    .Func(_SC("GetVector2"), &GetVector2)
     .Func(_SC("GetVector2i"), &GetVector2i)
-    .Func(_SC("GetVector2u"), &GetVector2u)
     .Func(_SC("GetVector3"), &GetVector3)
-    .Func(_SC("GetVector4"), &GetVector4)
-
-    .Bind(_SC("Fmt"), Sqrat::Table(vm)
-        .Overload< SQS (*)(SQS) >(_SC("Ins"), \
-            &InsStr)
-        .Overload< SQS (*)(SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS) >(_SC("Ins"), \
-            &InsStr<SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS, SQS>)
-        .Overload< SQS (*)(SQS, SQChar, SQUint32) >(_SC("Left"), \
-            &LeftStr)
-        .Overload< SQS (*)(SQS, SQChar, SQUint32, SQUint32) >(_SC("Left"), \
-            &LeftStr)
-        .Overload< SQS (*)(SQS, SQChar, SQUint32) >(_SC("Right"), \
-            &RightStr)
-        .Overload< SQS (*)(SQS, SQChar, SQUint32, SQUint32) >(_SC("Right"), \
-            &RightStr)
-        .Func(_SC("Center"), &CenterStr)
-    )
-
-    /* END REGISTRATION STATEMENT */ ;
-
-    // Output debugging information
-    LogDbg("Registration of <Base> API was successful");
-    // Registration succeeded
-    return true;
+    .Func(_SC("GetVector4"), &GetVector4);
 }
 
 } // Namespace:: SqMod

@@ -2,239 +2,176 @@
 #define _ENTITY_OBJECT_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Entity.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class responsible for managing the referenced object instance.
+ * Manages Object instances.
 */
-class CObject : public Reference< CObject >
+class CObject
 {
     // --------------------------------------------------------------------------------------------
-    static CModel       s_Model;
+    friend class Core;
+
+private:
 
     // --------------------------------------------------------------------------------------------
     static Vector3      s_Vector3;
     static Quaternion   s_Quaternion;
 
+    /* --------------------------------------------------------------------------------------------
+     * Cached identifiers for fast integer to string conversion.
+    */
+    static SQChar s_StrID[SQMOD_OBJECT_POOL][8];
+
+    /* --------------------------------------------------------------------------------------------
+     * Identifier of the managed entity.
+    */
+    Int32   m_ID;
+
+    /* --------------------------------------------------------------------------------------------
+     * User tag and data associated with this instance.
+    */
+    String  m_Tag;
+    Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CObject(Int32 id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    CObject(const CObject &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    CObject & operator = (const CObject &);
+
 public:
 
-    /* --------------------------------------------------------------------------------------------
-     * Import the constructors, destructors and assignment operators from the base class.
-    */
-    using RefType::Reference;
+    // --------------------------------------------------------------------------------------------
+    static const Int32 Max;
 
     /* --------------------------------------------------------------------------------------------
-     * Construct a reference from a base reference.
+     * Destructor.
     */
-    CObject(const Reference< CObject > & o);
+    ~CObject();
 
     /* --------------------------------------------------------------------------------------------
-     * See if the referenced object instance is streamed for the specified player.
+     * See whether this instance manages a valid entity.
     */
-    bool IsStreamedFor(const Reference< CPlayer > & player) const;
+    bool Validate() const
+    {
+        if (VALID_ENTITY(m_ID))
+            return true;
+        SqThrow("Invalid object reference [%s]", m_Tag.c_str());
+        return false;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the model of the referenced object instance.
+     * Used by the script engine to compare two instances of this type.
     */
-    const CModel & GetModel() const;
+    Int32 Cmp(const CObject & o) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the model identifier of the referenced object instance.
+     * Used by the script engine to convert an instance of this type to a string.
     */
-    SQInt32 GetModelID() const;
+    CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the world in which the referenced object instance exists.
+     * Retrieve the identifier of the entity managed by this instance.
     */
-    SQInt32 GetWorld() const;
+    Int32 GetID() const { return m_ID; }
 
     /* --------------------------------------------------------------------------------------------
-     * Change the world in which the referenced object instance exists.
+     * Retrieve the maximum possible identifier to an entity of this type.
     */
-    void SetWorld(SQInt32 world) const;
+    Int32 GetMaxID() const { return SQMOD_OBJECT_POOL; }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the alpha of the referenced object instance.
+     * Check whether this instance manages a valid entity.
     */
-    SQInt32 GetAlpha() const;
+    bool IsActive() const { return VALID_ENTITY(m_ID); }
 
     /* --------------------------------------------------------------------------------------------
-     * Change the alpha of the referenced object instance.
+     * Retrieve the associated user tag.
     */
-    void SetAlpha(SQInt32 alpha) const;
+    CSStr GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Change the alpha of the referenced object instance over the specified time.
+     * Modify the associated user tag.
     */
-    void SetAlphaEx(SQInt32 alpha, SQInt32 time) const;
+    void SetTag(CSStr tag);
 
     /* --------------------------------------------------------------------------------------------
-     * Move the referenced object instance to the specified position instantly.
+     * Retrieve the associated user data.
     */
-    void MoveToPr(const Vector3 & pos) const;
+    Object & GetData();
 
     /* --------------------------------------------------------------------------------------------
-     * Move the referenced object instance to the specified position over the specified time.
+     * Modify the associated user data.
     */
-    void MoveTo(const Vector3 & pos, SQInt32 time) const;
+    void SetData(Object & data);
 
-    /* --------------------------------------------------------------------------------------------
-     * Move the referenced object instance to the specified position instantly.
-    */
-    void MoveToEx(SQFloat x, SQFloat y, SQFloat z) const;
+    // --------------------------------------------------------------------------------------------
+    bool Destroy(Int32 header, Object & payload);
+    bool Destroy() { return Destroy(0, NullObject()); }
+    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
 
-    /* --------------------------------------------------------------------------------------------
-     * Move the referenced object instance to the specified position over the specified time.
-    */
-    void MoveToEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const;
+    // --------------------------------------------------------------------------------------------
+    bool BindEvent(Int32 evid, Object & env, Function & func) const;
 
-    /* --------------------------------------------------------------------------------------------
-     * Move the referenced object instance by the specified position instantly.
-    */
-    void MoveByPr(const Vector3 & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move the referenced object instance by the specified position over the specified time.
-    */
-    void MoveBy(const Vector3 & pos, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move the referenced object instance by the specified position instantly.
-    */
-    void MoveByEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move the referenced object instance by the specified position over the specified time.
-    */
-    void MoveByEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the position of the referenced object instance.
-    */
+    // --------------------------------------------------------------------------------------------
+    bool IsStreamedFor(CPlayer & player) const;
+    Int32 GetModel() const;
+    Int32 GetWorld() const;
+    void SetWorld(Int32 world) const;
+    Int32 GetAlpha() const;
+    void SetAlpha(Int32 alpha) const;
+    void SetAlphaEx(Int32 alpha, Int32 time) const;
+    void MoveTo(const Vector3 & pos, Int32 time) const;
+    void MoveToEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
+    void MoveBy(const Vector3 & pos, Int32 time) const;
+    void MoveByEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
     const Vector3 & GetPosition();
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced object instance.
-    */
     void SetPosition(const Vector3 & pos) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the position of the referenced object instance.
-    */
-    void SetPositionEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance to the specified rotation instantly.
-    */
-    void RotateToPr(const Quaternion & rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance to the specified rotation over the specified time.
-    */
-    void RotateTo(const Quaternion & rot, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance to the specified rotation instantly.
-    */
-    void RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance to the specified rotation over the specified time.
-    */
-    void RotateToEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance to the specified euler rotation instantly.
-    */
-    void RotateToEulerPr(const Vector3 & rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance to the specified euler rotation over the specified time.
-    */
-    void RotateToEuler(const Vector3 & rot, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance to the specified euler rotation instantly.
-    */
-    void RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance to the specified euler rotation over the specified time.
-    */
-    void RotateToEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance by the specified rotation instantly.
-    */
-    void RotateByPr(const Quaternion & rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance by the specified rotation over the specified time.
-    */
-    void RotateBy(const Quaternion & rot, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance by the specified rotation instantly.
-    */
-    void RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance by the specified rotation over the specified time.
-    */
-    void RotateByEx(SQFloat x, SQFloat y, SQFloat z, SQFloat w, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance by the specified euler rotation instantly.
-    */
-    void RotateByEulerPr(const Vector3 & rot) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance by the specified euler rotation over the specified time.
-    */
-    void RotateByEuler(const Vector3 & rot, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance by the specified euler rotation instantly.
-    */
-    void RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the referenced object instance by the specified euler rotation over the specified time.
-    */
-    void RotateByEulerEx(SQFloat x, SQFloat y, SQFloat z, SQInt32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the rotation of the referenced object instance.
-    */
+    void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+    void RotateTo(const Quaternion & rot, Int32 time) const;
+    void RotateToEx(Float32 x, Float32 y, Float32 z, Float32 w, Int32 time) const;
+    void RotateToEuler(const Vector3 & rot, Int32 time) const;
+    void RotateToEulerEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
+    void RotateBy(const Quaternion & rot, Int32 time) const;
+    void RotateByEx(Float32 x, Float32 y, Float32 z, Float32 w, Int32 time) const;
+    void RotateByEuler(const Vector3 & rot, Int32 time) const;
+    void RotateByEulerEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
     const Quaternion & GetRotation();
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the euler rotation of the referenced object instance.
-    */
     const Vector3 & GetRotationEuler();
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the referenced object instance reports gunshots.
-    */
     bool GetShotReport() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the referenced object instance reports gunshots.
-    */
     void SetShotReport(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the referenced object instance reports player bumps.
-    */
     bool GetBumpReport() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the referenced object instance reports player bumps.
-    */
     void SetBumpReport(bool toggle) const;
+
+    // --------------------------------------------------------------------------------------------
+    Float32 GetPosX() const;
+    Float32 GetPosY() const;
+    Float32 GetPosZ() const;
+    void SetPosX(Float32 x) const;
+    void SetPosY(Float32 y) const;
+    void SetPosZ(Float32 z) const;
+
+    // --------------------------------------------------------------------------------------------
+    Float32 GetRotX() const;
+    Float32 GetRotY() const;
+    Float32 GetRotZ() const;
+    Float32 GetRotW() const;
+    Float32 GetERotX() const;
+    Float32 GetERotY() const;
+    Float32 GetERotZ() const;
 };
 
 } // Namespace:: SqMod

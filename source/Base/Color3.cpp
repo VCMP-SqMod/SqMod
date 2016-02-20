@@ -1,15 +1,16 @@
+// ------------------------------------------------------------------------------------------------
 #include "Base/Color3.hpp"
 #include "Base/Color4.hpp"
 #include "Base/Shared.hpp"
-#include "Register.hpp"
+#include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 const Color3 Color3::NIL = Color3();
-const Color3 Color3::MIN = Color3(std::numeric_limits<Color3::Value>::min());
-const Color3 Color3::MAX = Color3(std::numeric_limits<Color3::Value>::max());
+const Color3 Color3::MIN = Color3(NumLimit< Color3::Value >::Min);
+const Color3 Color3::MAX = Color3(NumLimit< Color3::Value >::Max);
 
 // ------------------------------------------------------------------------------------------------
 SQChar Color3::Delim = ',';
@@ -18,74 +19,42 @@ SQChar Color3::Delim = ',';
 Color3::Color3()
     : r(0), g(0), b(0)
 {
-
+    /* ... */
 }
 
-Color3::Color3(Value s)
-    : r(s), g(s), b(s)
+// ------------------------------------------------------------------------------------------------
+Color3::Color3(Value sv)
+    : r(sv), g(sv), b(sv)
 {
-
+    /* ... */
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3::Color3(Value rv, Value gv, Value bv)
     : r(rv), g(gv), b(bv)
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3::Color3(const Color4 & c)
-    : r(c.r), g(c.g), b(c.b)
+Color3::Color3(const Color3 & o)
+    : r(o.r), g(o.g), b(o.b)
 {
-
-}
-
-// ------------------------------------------------------------------------------------------------
-Color3::Color3(const SQChar * name)
-    : Color3(GetColor(name))
-{
-
-}
-
-Color3::Color3(const SQChar * str, SQChar delim)
-    : Color3(GetColor3(str, delim))
-{
-
-}
-
-// ------------------------------------------------------------------------------------------------
-Color3::Color3(const Color3 & c)
-    : r(c.r), g(c.g), b(c.b)
-{
-
-}
-
-Color3::Color3(Color3 && c)
-    : r(c.r), g(c.g), b(c.b)
-{
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3::~Color3()
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 & Color3::operator = (const Color3 & c)
+Color3 & Color3::operator = (const Color3 & o)
 {
-    r = c.r;
-    g = c.g;
-    b = c.b;
-    return *this;
-}
-
-Color3 & Color3::operator = (Color3 && c)
-{
-    r = c.r;
-    g = c.g;
-    b = c.b;
+    r = o.r;
+    g = o.g;
+    b = o.b;
     return *this;
 }
 
@@ -98,7 +67,7 @@ Color3 & Color3::operator = (Value s)
     return *this;
 }
 
-Color3 & Color3::operator = (const SQChar * name)
+Color3 & Color3::operator = (CSStr name)
 {
     Set(GetColor(name));
     return *this;
@@ -467,13 +436,18 @@ Color3::operator Color4 () const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Color3::Cmp(const Color3 & c) const
+Int32 Color3::Cmp(const Color3 & o) const
 {
-    return *this == c ? 0 : (*this > c ? 1 : -1);
+    if (*this == o)
+        return 0;
+    else if (*this > o)
+        return 1;
+    else
+        return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Color3::ToString() const
+CSStr Color3::ToString() const
 {
     return ToStringF("%u,%u,%u", r, g, b);
 }
@@ -509,75 +483,75 @@ void Color3::Set(const Color4 & c)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Set(const SQChar * str, SQChar delim)
+void Color3::Set(CSStr str, SQChar delim)
 {
     Set(GetColor3(str, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::SetCol(const SQChar * name)
+void Color3::SetCol(CSStr name)
 {
     Set(GetColor(name));
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color3::GetRGB() const
+Uint32 Color3::GetRGB() const
 {
-    return static_cast<SQUint32>(r << 16 | g << 8 | b);
+    return Uint32(r << 16 | g << 8 | b);
 }
 
-void Color3::SetRGB(SQUint32 p)
+void Color3::SetRGB(Uint32 p)
 {
-    r = static_cast<Value>((p >> 16) & 0xFF);
-    g = static_cast<Value>((p >> 8) & 0xFF);
-    b = static_cast<Value>((p) & 0xFF);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQUint32 Color3::GetRGBA() const
-{
-    return static_cast<SQUint32>(r << 24 | g << 16 | b << 8 | 0x00);
-}
-
-void Color3::SetRGBA(SQUint32 p)
-{
-    r = static_cast<Value>((p >> 24) & 0xFF);
-    g = static_cast<Value>((p >> 16) & 0xFF);
-    b = static_cast<Value>((p >> 8) & 0xFF);
+    r = Value((p >> 16) & 0xFF);
+    g = Value((p >> 8) & 0xFF);
+    b = Value((p) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color3::GetARGB() const
+Uint32 Color3::GetRGBA() const
 {
-    return static_cast<SQUint32>(0x00 << 24 | r << 16 | g << 8 | b);
+    return Uint32(r << 24 | g << 16 | b << 8 | 0x00);
 }
 
-void Color3::SetARGB(SQUint32 p)
+void Color3::SetRGBA(Uint32 p)
 {
-    r = static_cast<Value>((p >> 16) & 0xFF);
-    g = static_cast<Value>((p >> 8) & 0xFF);
-    b = static_cast<Value>((p) & 0xFF);
+    r = Value((p >> 24) & 0xFF);
+    g = Value((p >> 16) & 0xFF);
+    b = Value((p >> 8) & 0xFF);
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 Color3::GetARGB() const
+{
+    return Uint32(0x00 << 24 | r << 16 | g << 8 | b);
+}
+
+void Color3::SetARGB(Uint32 p)
+{
+    r = Value((p >> 16) & 0xFF);
+    g = Value((p >> 8) & 0xFF);
+    b = Value((p) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Color3::Generate()
 {
-    r = RandomVal<Value>::Get();
-    g = RandomVal<Value>::Get();
-    b = RandomVal<Value>::Get();
+    r = GetRandomUint8();
+    g = GetRandomUint8();
+    b = GetRandomUint8();
 }
 
 void Color3::Generate(Value min, Value max)
 {
     if (max < min)
     {
-        LogErr("max value is lower than min value");
+        SqThrow("max value is lower than min value");
     }
     else
     {
-        r = RandomVal<Value>::Get(min, max);
-        g = RandomVal<Value>::Get(min, max);
-        b = RandomVal<Value>::Get(min, max);
+        r = GetRandomUint8(min, max);
+        g = GetRandomUint8(min, max);
+        b = GetRandomUint8(min, max);
     }
 }
 
@@ -585,13 +559,13 @@ void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin)
     {
-        LogErr("max value is lower than min value");
+        SqThrow("max value is lower than min value");
     }
     else
     {
-        r = RandomVal<Value>::Get(rmin, rmax);
-        g = RandomVal<Value>::Get(gmin, gmax);
-        b = RandomVal<Value>::Get(bmin, bmax);
+        r = GetRandomUint8(rmin, rmax);
+        g = GetRandomUint8(gmin, gmax);
+        b = GetRandomUint8(bmin, bmax);
     }
 }
 
@@ -604,59 +578,57 @@ void Color3::Random()
 // ------------------------------------------------------------------------------------------------
 void Color3::Inverse()
 {
-    r = static_cast<Value>(~r);
-    g = static_cast<Value>(~g);
-    b = static_cast<Value>(~b);
+    r = Value(~r);
+    g = Value(~g);
+    b = Value(~b);
 }
 
 // ================================================================================================
-bool Register_Color3(HSQUIRRELVM vm)
+void Register_Color3(HSQUIRRELVM vm)
 {
-    LogDbg("Beginning registration of <Color3> type");
-
     typedef Color3::Value Val;
 
-    Sqrat::RootTable(vm).Bind(_SC("Color3"), Sqrat::Class<Color3>(vm, _SC("Color3"))
+    RootTable(vm).Bind(_SC("Color3"), Class< Color3 >(vm, _SC("Color3"))
+        /* Constructors */
         .Ctor()
-        .Ctor<Val>()
-        .Ctor<Val, Val, Val>()
-        .Ctor<const SQChar *, SQChar>()
-
-        .SetStaticValue(_SC("delim"), &Color3::Delim)
-
+        .Ctor< Val >()
+        .Ctor< Val, Val, Val >()
+        /* Static Members */
+        .SetStaticValue(_SC("Delim"), &Color3::Delim)
+        /* Member Variables */
         .Var(_SC("r"), &Color3::r)
         .Var(_SC("g"), &Color3::g)
         .Var(_SC("b"), &Color3::b)
-
+        /* Properties */
         .Prop(_SC("rgb"), &Color3::GetRGB, &Color3::SetRGB)
         .Prop(_SC("rgba"), &Color3::GetRGBA, &Color3::SetRGBA)
         .Prop(_SC("argb"), &Color3::GetARGB, &Color3::SetARGB)
         .Prop(_SC("str"), &Color3::SetCol)
-
+        /* Core Metamethods */
         .Func(_SC("_tostring"), &Color3::ToString)
         .Func(_SC("_cmp"), &Color3::Cmp)
-
+        /* Metamethods */
         .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_add"), &Color3::operator +)
         .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_sub"), &Color3::operator -)
         .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_mul"), &Color3::operator *)
         .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_div"), &Color3::operator /)
         .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_modulo"), &Color3::operator %)
         .Func<Color3 (Color3::*)(void) const>(_SC("_unm"), &Color3::operator -)
-
-        .Overload<void (Color3::*)(Val)>(_SC("set"), &Color3::Set)
-        .Overload<void (Color3::*)(Val, Val, Val)>(_SC("set"), &Color3::Set)
-        .Overload<void (Color3::*)(const Color3 &)>(_SC("set_col3"), &Color3::Set)
-        .Overload<void (Color3::*)(const Color4 &)>(_SC("set_col4"), &Color3::Set)
-        .Overload<void (Color3::*)(const SQChar *, SQChar)>(_SC("set_str"), &Color3::Set)
-
-        .Overload<void (Color3::*)(void)>(_SC("generate"), &Color3::Generate)
-        .Overload<void (Color3::*)(Val, Val)>(_SC("generate"), &Color3::Generate)
-        .Overload<void (Color3::*)(Val, Val, Val, Val, Val, Val)>(_SC("generate"), &Color3::Generate)
-
-        .Func(_SC("clear"), &Color3::Clear)
-        .Func(_SC("random"), &Color3::Random)
-        .Func(_SC("inverse"), &Color3::Inverse)
-
+        /* Setters */
+        .Overload<void (Color3::*)(Val)>(_SC("Set"), &Color3::Set)
+        .Overload<void (Color3::*)(Val, Val, Val)>(_SC("Set"), &Color3::Set)
+        .Overload<void (Color3::*)(const Color3 &)>(_SC("SetCol3"), &Color3::Set)
+        .Overload<void (Color3::*)(const Color4 &)>(_SC("SetCol4"), &Color3::Set)
+        .Overload<void (Color3::*)(CSStr, SQChar)>(_SC("SetStr"), &Color3::Set)
+        /* Random Generators */
+        .Overload<void (Color3::*)(void)>(_SC("Generate"), &Color3::Generate)
+        .Overload<void (Color3::*)(Val, Val)>(_SC("Generate"), &Color3::Generate)
+        .Overload<void (Color3::*)(Val, Val, Val, Val, Val, Val)>(_SC("Generate"), &Color3::Generate)
+        /* Utility Methods */
+        .Func(_SC("Clear"), &Color3::Clear)
+        .Func(_SC("Random"), &Color3::Random)
+        .Func(_SC("Inverse"), &Color3::Inverse)
+        /* Operator Exposure */
         .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opAddAssign"), &Color3::operator +=)
         .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opSubAssign"), &Color3::operator -=)
         .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opMulAssign"), &Color3::operator *=)
@@ -717,10 +689,6 @@ bool Register_Color3(HSQUIRRELVM vm)
         .Func<bool (Color3::*)(const Color3 &) const>(_SC("opLessEqual"), &Color3::operator <=)
         .Func<bool (Color3::*)(const Color3 &) const>(_SC("opGreaterEqual"), &Color3::operator >=)
     );
-
-    LogDbg("Registration of <Color3> type was successful");
-
-    return true;
 }
 
 } // Namespace:: SqMod

@@ -1,197 +1,184 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Keybind.hpp"
 #include "Core.hpp"
-#include "Register.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CKeybind::CKeybind(const Reference< CKeybind > & o)
-    : Reference(o)
+SQChar CKeybind::s_StrID[SQMOD_KEYBIND_POOL][8];
+
+// ------------------------------------------------------------------------------------------------
+const Int32 CKeybind::Max = SQMOD_KEYBIND_POOL;
+
+// ------------------------------------------------------------------------------------------------
+CKeybind::CKeybind(Int32 id)
+    : m_ID(VALID_ENTITYGETEX(id, SQMOD_KEYBIND_POOL))
+    , m_Tag(VALID_ENTITY(m_ID) ? s_StrID[m_ID] : _SC("-1"))
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CKeybind::GetPrimary() const
+CKeybind::~CKeybind()
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Primary;
-    }
-    else
-    {
-        BadRef("@primary", "get primary keycode");
-    }
-
-    return SQMOD_UNKNOWN;
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CKeybind::GetSecondary() const
+Int32 CKeybind::Cmp(const CKeybind & o) const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Secondary;
-    }
+    if (m_ID == o.m_ID)
+        return 0;
+    else if (m_ID > o.m_ID)
+        return 1;
     else
-    {
-        BadRef("@secondary", "get secondary keycode");
-    }
+        return -1;
+}
 
-    return SQMOD_UNKNOWN;
+CSStr CKeybind::ToString() const
+{
+    return VALID_ENTITYEX(m_ID, SQMOD_KEYBIND_POOL) ? s_StrID[m_ID] : _SC("-1");
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInt32 CKeybind::GetAlternative() const
+CSStr CKeybind::GetTag() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Alternative;
-    }
-    else
-    {
-        BadRef("@alternative", "get alternative keycode");
-    }
+    return m_Tag.c_str();
+}
 
-    return SQMOD_UNKNOWN;
+void CKeybind::SetTag(CSStr tag)
+{
+    m_Tag.assign(tag);
+}
+
+Object & CKeybind::GetData()
+{
+    if (Validate())
+        return m_Data;
+    return NullObject();
+}
+
+void CKeybind::SetData(Object & data)
+{
+    if (Validate())
+        m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
+bool CKeybind::Destroy(Int32 header, Object & payload)
+{
+    return _Core->DelKeybind(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CKeybind::BindEvent(Int32 evid, Object & env, Function & func) const
+{
+    if (!Validate())
+        return false;
+
+    Function & event = _Core->GetKeybindEvent(m_ID, evid);
+
+    if (func.IsNull())
+        event.Release();
+    else
+        event = Function(env.GetVM(), env, func.GetFunc());
+
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CKeybind::GetPrimary() const
+{
+    if (Validate())
+        return _Core->GetKeybind(m_ID).mPrimary;
+    return -1;
+}
+
+Int32 CKeybind::GetSecondary() const
+{
+    if (Validate())
+        return _Core->GetKeybind(m_ID).mSecondary;
+    return -1;
+}
+
+Int32 CKeybind::GetAlternative() const
+{
+    if (Validate())
+        return _Core->GetKeybind(m_ID).mAlternative;
+    return -1;
+}
+
 bool CKeybind::IsRelease() const
 {
-    if (VALID_ENTITY(m_ID))
-    {
-        RefType::Get(m_ID).Release;
-    }
-    else
-    {
-        BadRef("@is_release", "see whether it reacts on release");
-    }
-
+    if (Validate())
+        return _Core->GetKeybind(m_ID).mRelease;
     return false;
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CKeybind > CreateBaseKeybind_ES(bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative)
+static Object & CreateKeybindEx(Int32 slot, bool release, Int32 primary, Int32 secondary,
+                                Int32 alternative)
 {
-    return _Core->NewKeybind(SQMOD_UNKNOWN, release, primary, secondary, alternative,
-                            SQMOD_CREATE_DEFAULT, NullData());
+    return _Core->NewKeybind(slot, release, primary, secondary, alternative,
+                            SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CKeybind > CreateBaseKeybind_ES(bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                        SQInt32 header, SqObj & payload)
+static Object & CreateKeybindEx(Int32 slot, bool release, Int32 primary, Int32 secondary,
+                            Int32 alternative, Int32 header, Object & payload)
 {
-    return _Core->NewKeybind(SQMOD_UNKNOWN, release, primary, secondary, alternative,
-                            header, payload);
+    return _Core->NewKeybind(slot, release, primary, secondary, alternative, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CKeybind > CreateBaseKeybind_EF(SQInt32 slot, bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative)
+static Object & CreateKeybind(bool release, Int32 primary, Int32 secondary, Int32 alternative)
 {
-    return _Core->NewKeybind(slot, release, primary, secondary, alternative,
-                            SQMOD_CREATE_DEFAULT, NullData());
+    return _Core->NewKeybind(-1, release, primary, secondary, alternative,
+                            SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-Reference< CKeybind > CreateBaseKeybind_EF(SQInt32 slot, bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                        SQInt32 header, SqObj & payload)
+static Object & CreateKeybind(bool release, Int32 primary, Int32 secondary, Int32 alternative,
+                            Int32 header, Object & payload)
 {
-    return _Core->NewKeybind(slot, release, primary, secondary, alternative,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CKeybind CreateKeybind_ES(bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative)
-{
-    return _Core->NewKeybind(SQMOD_UNKNOWN, release, primary, secondary, alternative,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CKeybind CreateKeybind_ES(bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewKeybind(SQMOD_UNKNOWN, release, primary, secondary, alternative,
-                            header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-CKeybind CreateKeybind_EF(SQInt32 slot, bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative)
-{
-    return _Core->NewKeybind(slot, release, primary, secondary, alternative,
-                            SQMOD_CREATE_DEFAULT, NullData());
-}
-
-CKeybind CreateKeybind_EF(SQInt32 slot, bool release,
-                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                        SQInt32 header, SqObj & payload)
-{
-    return _Core->NewKeybind(slot, release, primary, secondary, alternative,
-                            header, payload);
+    return _Core->NewKeybind(-1, release, primary, secondary, alternative, header, payload);
 }
 
 // ================================================================================================
-bool Register_CKeybind(HSQUIRRELVM vm)
+void Register_CKeybind(HSQUIRRELVM vm)
 {
-    // Attempt to register the base reference type before the actual implementation
-    if (!Register_Reference< CKeybind >(vm, _SC("BaseKeybind")))
-    {
-        LogFtl("Unable to register the base class <BaseKeybind> for <CKeybind> type");
-        // Registration failed
-        return false;
-    }
-    // Typedef the base reference type for simplicity
-    typedef Reference< CKeybind > RefType;
-    // Output debugging information
-    LogDbg("Beginning registration of <CKeybind> type");
-    // Attempt to register the actual reference that implements all of the entity functionality
-    Sqrat::RootTable(vm).Bind(_SC("CKeybind"), Sqrat::DerivedClass< CKeybind, RefType >(vm, _SC("CKeybind"))
-        /* Constructors */
-        .Ctor()
-        .Ctor< SQInt32 >()
+    RootTable(vm).Bind(_SC("SqKeybind"),
+        Class< CKeybind, NoConstructor< CKeybind > >(vm, _SC("SqKeybind"))
+        /* Metamethods */
+        .Func(_SC("_cmp"), &CKeybind::Cmp)
+        .Func(_SC("_tostring"), &CKeybind::ToString)
+        /* Core Properties */
+        .Prop(_SC("ID"), &CKeybind::GetID)
+        .Prop(_SC("Tag"), &CKeybind::GetTag, &CKeybind::SetTag)
+        .Prop(_SC("Data"), &CKeybind::GetData, &CKeybind::SetData)
+        .Prop(_SC("MaxID"), &CKeybind::GetMaxID)
+        .Prop(_SC("Active"), &CKeybind::IsActive)
+        /* Core Functions */
+        .Func(_SC("Bind"), &CKeybind::BindEvent)
+        /* Core Overloads */
+        .Overload< bool (CKeybind::*)(void) >(_SC("Destroy"), &CKeybind::Destroy)
+        .Overload< bool (CKeybind::*)(Int32) >(_SC("Destroy"), &CKeybind::Destroy)
+        .Overload< bool (CKeybind::*)(Int32, Object &) >(_SC("Destroy"), &CKeybind::Destroy)
         /* Properties */
-        .Prop(_SC("primary"), &CKeybind::GetPrimary)
-        .Prop(_SC("secondary"), &CKeybind::GetSecondary)
-        .Prop(_SC("alternative"), &CKeybind::GetAlternative)
-        .Prop(_SC("is_release"), &CKeybind::IsRelease)
+        .Prop(_SC("Primary"), &CKeybind::GetPrimary)
+        .Prop(_SC("Secondary"), &CKeybind::GetSecondary)
+        .Prop(_SC("Alternative"), &CKeybind::GetAlternative)
+        .Prop(_SC("Release"), &CKeybind::IsRelease)
     );
-    // Output debugging information
-    LogDbg("Registration of <CKeybind> type was successful");
-    // Output debugging information
-    LogDbg("Beginning registration of <Keybind> functions");
-    // Register global functions related to this entity type
-    Sqrat::RootTable(vm)
-    /* Create BaseKeybind [E]xtended [S]ubstitute */
-    .Overload< RefType (*)(bool, SQInt32, SQInt32, SQInt32) >
-        (_SC("CreateBaseKeybind_ES"), &CreateBaseKeybind_ES)
-    .Overload< RefType (*)(bool, SQInt32, SQInt32, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBaseKeybind_ES"), &CreateBaseKeybind_ES)
-    /* Create BaseKeybind [E]xtended [F]Full */
-    .Overload< RefType (*)(SQInt32, bool, SQInt32, SQInt32, SQInt32) >
-        (_SC("CreateBaseKeybind_EF"), &CreateBaseKeybind_EF)
-    .Overload< RefType (*)(SQInt32, bool, SQInt32, SQInt32, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateBaseKeybind_EF"), &CreateBaseKeybind_EF)
-    /* Create CKeybind [E]xtended [S]ubstitute */
-    .Overload< CKeybind (*)(bool, SQInt32, SQInt32, SQInt32) >
-        (_SC("CreateKeybind_ES"), &CreateKeybind_ES)
-    .Overload< CKeybind (*)(bool, SQInt32, SQInt32, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateKeybind_ES"), &CreateKeybind_ES)
-    /* Create CKeybind [E]xtended [F]Full */
-    .Overload< CKeybind (*)(SQInt32, bool, SQInt32, SQInt32, SQInt32) >
-        (_SC("CreateKeybind_EF"), &CreateKeybind_EF)
-    .Overload< CKeybind (*)(SQInt32, bool, SQInt32, SQInt32, SQInt32, SQInt32, SqObj &) >
-        (_SC("CreateKeybind_EF"), &CreateKeybind_EF);
-    // Output debugging information
-    LogDbg("Registration of <Keybind> functions was successful");
-    // Registration succeeded
-    return true;
+
+    RootTable(vm)
+    .Overload< Object & (*)(Int32, bool, Int32, Int32, Int32) >
+        (_SC("CreateKeybindEx"), &CreateKeybindEx)
+    .Overload< Object & (*)(Int32, bool, Int32, Int32, Int32, Int32, Object &) >
+        (_SC("CreateKeybindEx"), &CreateKeybindEx)
+    .Overload< Object & (*)(bool, Int32, Int32, Int32) >
+        (_SC("CreateKeybind"), &CreateKeybind)
+    .Overload< Object & (*)(bool, Int32, Int32, Int32, Int32, Object &) >
+        (_SC("CreateKeybind"), &CreateKeybind);
 }
 
 } // Namespace:: SqMod

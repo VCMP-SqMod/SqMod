@@ -2,135 +2,439 @@
 #define _CORE_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Common.hpp"
-#include "Signal.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Buffer.hpp"
+#include "Base/Shared.hpp"
 #include "Base/Vector3.hpp"
+#include "Base/Color4.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <list>
 #include <vector>
-#include <utility>
-#include <unordered_map>
+#include <map>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
+// ------------------------------------------------------------------------------------------------
+extern Core * _Core;
+
 /* ------------------------------------------------------------------------------------------------
- * The central core class is supposed to manage the life time of the plug-in and it's resources.
+ * ...
 */
 class Core
 {
-    /* --------------------------------------------------------------------------------------------
-     * Allow only the smart pointer to delete this class instance as soon as it's not needed.
-    */
-    friend class std::unique_ptr< Core, void(*)(Core *) >;
-
 protected:
 
     /* --------------------------------------------------------------------------------------------
      * Helper structure meant to track changes in player instances.
     */
-    struct TPlayer
+    struct PlayerTrack
     {
-        /* Last used player weapon. */
-        SQInt32     Weapon;
-        /* Last known player health. */
-        SQFloat     Health;
-        /* Last known player armour */
-        SQFloat     Armour;
-        /* Last known player position. */
-        Vector3     Position;
-        /* Whether this entity is new and must not be check on first update. */
-        bool        Fresh;
+        PlayerTrack() : mWeapon(-1), mHealth(0), mArmour(0), mPosition()
+        { /* ... */ }
+
+        Int32       mWeapon; /* Last used player weapon. */
+        Float32     mHealth; /* Last known player health. */
+        Float32     mArmour; /* Last known player armour */
+        Vector3     mPosition; /* Last known player position. */
     };
 
     /* --------------------------------------------------------------------------------------------
      * Helper structure meant to track changes in vehicle instances.
     */
-    struct TVehicle
+    struct VehicleTrack
     {
-        /* Last known vehicle health. */
-        SQFloat     Health;
-        /* Last known vehicle position. */
-        Vector3     Position;
-        /* Whether this entity is new and must not be check on first update. */
-        bool        Fresh;
+        VehicleTrack() : mHealth(0), mPosition()
+        { /* ... */ }
+
+        Float32     mHealth; /* Last known vehicle health. */
+        Vector3     mPosition; /* Last known vehicle position. */
+    };
+
+    // --------------------------------------------------------------------------------------------
+    typedef String MsgPrefix[SQMOD_PLAYER_MSG_PREFIXES];
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    struct BlipInst
+    {
+        BlipInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        ~BlipInst();
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CBlip *         mInst;
+        Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mWorld;
+        Int32           mScale;
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mSprID;
+
+        // ----------------------------------------------------------------------------------------
+        Vector3         mPosition;
+        Color4          mColor;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
     };
 
     /* --------------------------------------------------------------------------------------------
-     * An array of player tracking structures for each player instance.
+     * ...
     */
-    typedef std::array< TPlayer, SQMOD_PLAYER_POOL >        TPlayerInstPool;
+    struct CheckpointInst
+    {
+        CheckpointInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        ~CheckpointInst();
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CCheckpoint *   mInst;
+        Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnEntered;
+        Function        mOnExited;
+    };
 
     /* --------------------------------------------------------------------------------------------
-     * An array of vehicle tracking structures for each vehicle instance.
+     * ...
     */
-    typedef std::array< TVehicle, SQMOD_VEHICLE_POOL >      TVehicleInstPool;
+    struct ForcefieldInst
+    {
+        ForcefieldInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        ~ForcefieldInst();
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CForcefield *   mInst;
+        Object          mObj;
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnEntered;
+        Function        mOnExited;
+    };
 
     /* --------------------------------------------------------------------------------------------
-     * Reference to all compiled scripts specified in the configuration file.
+     * ...
     */
-    typedef std::unordered_map< String, Script >            SqScriptPool;
+    struct KeybindInst
+    {
+        KeybindInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        ~KeybindInst();
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CKeybind *      mInst;
+        Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mPrimary;
+        Int32           mSecondary;
+        Int32           mAlternative;
+        Int32           mRelease;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnKeyPress;
+        Function        mOnKeyRelease;
+    };
 
     /* --------------------------------------------------------------------------------------------
-     * A key->value pair container with arbitrary configuration values.
+     * ...
     */
-    typedef std::unordered_map< String, String >            OptionPool;
+    struct ObjectInst
+    {
+        ObjectInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        ~ObjectInst();
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CObject *       mInst;
+        Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnShot;
+        Function        mOnBump;
+    };
 
     /* --------------------------------------------------------------------------------------------
-     * A list of available buffers that are shared across the script to avoid frequent allocations.
+     * ...
     */
-    typedef std::list< Buffer >                             BufferPool;
+    struct PickupInst
+    {
+        PickupInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        ~PickupInst();
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CPickup *       mInst;
+        Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnRespawn;
+        Function        mOnClaimed;
+        Function        mOnCollected;
+    };
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    struct PlayerInst
+    {
+        PlayerInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CPlayer *       mInst;
+        Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mAuthority;
+
+        // ----------------------------------------------------------------------------------------
+        MsgPrefix       mPrefixes;
+
+        // ----------------------------------------------------------------------------------------
+        Uint32          mMessageColor;
+        Int32           mAnnounceStyle;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnAway;
+        Function        mOnGameKeys;
+        Function        mOnRename;
+        Function        mOnRequestClass;
+        Function        mOnRequestSpawn;
+        Function        mOnSpawn;
+        Function        mOnStartTyping;
+        Function        mOnStopTyping;
+        Function        mOnChat;
+        Function        mOnCommand;
+        Function        mOnMessage;
+        Function        mOnHealth;
+        Function        mOnArmour;
+        Function        mOnWeapon;
+        Function        mOnMove;
+        Function        mOnWasted;
+        Function        mOnKilled;
+        Function        mOnTeamKill;
+        Function        mOnSpectate;
+        Function        mOnCrashreport;
+        Function        mOnBurning;
+        Function        mOnCrouching;
+        Function        mOnState;
+        Function        mOnAction;
+        Function        mOnStateNone;
+        Function        mOnStateNormal;
+        Function        mOnStateShooting;
+        Function        mOnStateDriver;
+        Function        mOnStatePassenger;
+        Function        mOnStateEnterDriver;
+        Function        mOnStateEnterPassenger;
+        Function        mOnStateExitVehicle;
+        Function        mOnStateUnspawned;
+        Function        mOnActionNone;
+        Function        mOnActionNormal;
+        Function        mOnActionAiming;
+        Function        mOnActionShooting;
+        Function        mOnActionJumping;
+        Function        mOnActionLieDown;
+        Function        mOnActionGettingUp;
+        Function        mOnActionJumpVehicle;
+        Function        mOnActionDriving;
+        Function        mOnActionDying;
+        Function        mOnActionWasted;
+        Function        mOnActionEmbarking;
+        Function        mOnActionDisembarking;
+        Function        mOnKeyPress;
+        Function        mOnKeyRelease;
+        Function        mOnEmbarking;
+        Function        mOnEmbarked;
+        Function        mOnDisembark;
+        Function        mOnPickupClaimed;
+        Function        mOnPickupCollected;
+        Function        mOnObjectShot;
+        Function        mOnObjectBump;
+        Function        mOnCheckpointEntered;
+        Function        mOnCheckpointExited;
+        Function        mOnForcefieldEntered;
+        Function        mOnForcefieldExited;
+    };
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    struct SpriteInst
+    {
+        SpriteInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        ~SpriteInst();
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CSprite *       mInst;
+        Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        String          mPath;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+    };
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    struct TextdrawInst
+    {
+        TextdrawInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        ~TextdrawInst();
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CTextdraw *     mInst;
+        Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        String          mText;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+    };
+
+    /* --------------------------------------------------------------------------------------------
+     * ...
+    */
+    struct VehicleInst
+    {
+        VehicleInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        { /* ... */ }
+
+        ~VehicleInst();
+
+        // ----------------------------------------------------------------------------------------
+        Int32           mID;
+        Int16           mFlags;
+        CVehicle *      mInst;
+        Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnDestroyed;
+        Function        mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        Function        mOnRespawn;
+        Function        mOnExplode;
+        Function        mOnHealth;
+        Function        mOnMove;
+        Function        mOnEmbarking;
+        Function        mOnEmbarked;
+        Function        mOnDisembark;
+    };
+
+    // --------------------------------------------------------------------------------------------
+    typedef std::vector< BlipInst >             Blips;
+    typedef std::vector< CheckpointInst >       Checkpoints;
+    typedef std::vector< ForcefieldInst >       Forcefields;
+    typedef std::vector< KeybindInst >          Keybinds;
+    typedef std::vector< ObjectInst >           Objects;
+    typedef std::vector< PickupInst >           Pickups;
+    typedef std::vector< PlayerInst >           Players;
+    typedef std::vector< SpriteInst >           Sprites;
+    typedef std::vector< TextdrawInst >         Textdraws;
+    typedef std::vector< VehicleInst >          Vehicles;
+
+    // --------------------------------------------------------------------------------------------
+    typedef PlayerTrack                         PlayerInstTrack[SQMOD_PLAYER_POOL];
+    typedef VehicleTrack                        VehicleInstTrack[SQMOD_VEHICLE_POOL];
+
+    // --------------------------------------------------------------------------------------------
+    typedef std::map< String, Script >          Scripts;
+    typedef std::map< String, String >          Options;
 
 private:
 
-    /* --------------------------------------------------------------------------------------------
-     * Last known state of the plug-in that is to be returned by the event callbacks.
-    */
-    SQInteger                           m_State;
+    // --------------------------------------------------------------------------------------------
+    Int32                           m_State;
+    HSQUIRRELVM                     m_VM;
+    Scripts                         m_Scripts;
+    Options                         m_Options;
 
-    /* --------------------------------------------------------------------------------------------
-     * All the user defined options in the general section of the configuration file.
-    */
-    OptionPool                          m_Options;
+    // --------------------------------------------------------------------------------------------
+    Blips                           m_Blips;
+    Checkpoints                     m_Checkpoints;
+    Forcefields                     m_Forcefields;
+    Keybinds                        m_Keybinds;
+    Objects                         m_Objects;
+    Pickups                         m_Pickups;
+    Players                         m_Players;
+    Sprites                         m_Sprites;
+    Textdraws                       m_Textdraws;
+    Vehicles                        m_Vehicles;
 
-    /* --------------------------------------------------------------------------------------------
-     * The main Squirrel virtual machine instance associated with this class instance.
-    */
-    HSQUIRRELVM                         m_VM;
-
-    /* --------------------------------------------------------------------------------------------
-     * All the scripts specified in the configuration file in their compiled form.
-    */
-    SqScriptPool                        m_Scripts;
-
-    /* --------------------------------------------------------------------------------------------
-     * Last known error message in the plug-in throwing an error at certain stages is not an option.
-    */
-    String                              m_ErrorMsg;
-
-    /* --------------------------------------------------------------------------------------------
-     * An array of instances of the tracking structure for each possible player on the server.
-    */
-    TPlayerInstPool                     m_PlayerTrack;
-
-    /* --------------------------------------------------------------------------------------------
-     * An array of instances of the tracking structure for each possible vehicle on the server.
-    */
-    TVehicleInstPool                    m_VehicleTrack;
-
-    /* --------------------------------------------------------------------------------------------
-     * A pool of shared buffers shared throughout the plug-in through move semantics.
-    */
-    BufferPool                          m_BufferPool;
-
-    /* --------------------------------------------------------------------------------------------
-     * Server uptime calculated as the sum of delta time between server frames.
-    */
-    Float32                             m_Uptime;
+    // --------------------------------------------------------------------------------------------
+    PlayerInstTrack                 m_PlayerTrack;
+    VehicleInstTrack                m_VehicleTrack;
 
 protected:
 
@@ -140,14 +444,16 @@ protected:
     Core();
 
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor (disabled).
+     * Copy constructor. (disabled)
     */
-    Core(Core const &) = delete;
+    Core(const Core &);
 
     /* --------------------------------------------------------------------------------------------
-     * Move constructor (disabled).
+     * Copy assignment operator. (disabled)
     */
-    Core(Core &&) = delete;
+    Core & operator = (const Core &);
+
+public:
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -155,1374 +461,467 @@ protected:
     ~Core();
 
     /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator (disabled).
+     * Singleton retriever.
     */
-    Core & operator=(Core const &) = delete;
+    static Core * Get()
+    {
+        if (!_Core)
+        {
+            _Core = new Core();
+        }
+
+        return _Core;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Move assignment operator (disabled).
-    */
-    Core & operator=(Core &&) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Called by the smart pointer to delete the instance of this class.
-    */
-    static void _Finalizer(Core * ptr);
-
-public:
-
-    // --------------------------------------------------------------------------------------------
-    typedef std::unique_ptr< Core, void(*)(Core *) >  Pointer;
-
-    /* --------------------------------------------------------------------------------------------
-     * Creates an instance of this type if one doesn't already exist and returns it.
-    */
-    static Pointer Inst();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to initialize the plug-in subsystems and prepare it for the loading stage.
+     * Lifetime managers.
     */
     bool Init();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt load the plug-in resources and finally startup the plug-in.
-    */
     bool Load();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to de-initialize the plug-in subsystems and prepare the plug-in for proper shutdown.
-    */
-    void Deinit();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to unload the plug-in resources and release everything from the load stage.
-    */
-    void Unload();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to completely terminate the plug-in instance with no intention of starting up again.
-    */
     void Terminate();
 
     /* --------------------------------------------------------------------------------------------
-     * Set the current plug-in state to the specified value.
+     * State mutators.
     */
-    void SetState(SQInteger val);
+    void SetState(Int32 val) { m_State = val; }
+    Int32 GetState() const { return m_State; }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the current plug-in state.
+     * Option mutators.
     */
-    SQInteger GetState() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the value associated with the specified option name.
-    */
-    String GetOption(const String & name) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Change the value associated with the specified name.
-    */
+    CSStr GetOption(const String & name) const;
     void SetOption(const String & name, const String & value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the plug-in/server cumulated uptime.
+     * Retrieve the virtual machine.
     */
-    SQFloat GetUptime() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve a buffer of at least the specified size.
-    */
-    Buffer PullBuffer(unsigned sz = 4096);
-
-    /* --------------------------------------------------------------------------------------------
-     * Return a previously borrowed buffer back to the pool of buffers.
-    */
-    void PushBuffer(Buffer && buf);
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a collection of buffer with the specified size and add them to the pool.
-    */
-    void MakeBuffer(unsigned num, unsigned sz = 4096);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to activate a specific player within the plug-in.
-    */
-    void ConnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to deactivate a specific player withing the plug-in.
-    */
-    void DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload);
+    HSQUIRRELVM GetVM() const { return m_VM; }
 
 protected:
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to retrieve the values from the configuration file.
+     * Compile the specified file as a script.
     */
-    bool Configure();
+    bool Compile(const string & name);
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to create a Squirrel Virtual Machine.
+     * Script output handlers.
     */
-    bool CreateVM();
+    static void PrintFunc(HSQUIRRELVM vm, CSStr msg, ...);
+    static void ErrorFunc(HSQUIRRELVM vm, CSStr msg, ...);
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to close a Squirrel Virtual Machine and destroy it's resources along with it.
-    */
-    void DestroyVM();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to load the scripts specified in the configuration file.
-    */
-    bool LoadScripts();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to compile the loaded scripts and store the resulted object.
-    */
-    bool Compile(const String & name);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to execute the previously compiled scripts.
-    */
-    bool Execute();
-
-    /* --------------------------------------------------------------------------------------------
-     * Print debugging information about the current call-stack.
-    */
-    void PrintCallstack();
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the Squirrel VM to output text messages to a stream defined by the plug-in.
-    */
-    static void PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...);
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the Squirrel VM to output error messages to a stream defined by the plug-in.
-    */
-    static void ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...);
-
-    /* --------------------------------------------------------------------------------------------
-     * A custom error handler defined by the plug-in to be invoked when runtime errors occur.
+     * Script error handlers.
     */
     static SQInteger RuntimeErrorHandler(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
-     * A custom error handler defined by the plug-in to be invoked when compile time errors occur.
-    */
-    static void CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQChar * src,
+    static void CompilerErrorHandler(HSQUIRRELVM vm, CSStr desc, CSStr src,
                                         SQInteger line, SQInteger column);
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-    * Creates a new Blip on the server
+     * Instance creators.
     */
-    Reference< CBlip > NewBlip(SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                SQInt32 scale, SQUint32 color, SQInt32 sprid,
-                                SQInt32 header, SqObj & payload);
+    Object & NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
+                        Int32 scale, Uint32 color, Int32 sprid,
+                        Int32 header, Object & payload);
+
+    Object & NewCheckpoint(Int32 player, Int32 world, Float32 x, Float32 y, Float32 z,
+                        Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
+                        Int32 header, Object & payload);
+
+    Object & NewForcefield(Int32 player, Int32 world, Float32 x, Float32 y, Float32 z,
+                        Uint8 r, Uint8 g, Uint8 b, Float32 radius,
+                        Int32 header, Object & payload);
+
+    Object & NewKeybind(Int32 slot, bool release,
+                        Int32 primary, Int32 secondary, Int32 alternative,
+                        Int32 header, Object & payload);
+
+    Object & NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+                        Int32 alpha, Int32 header, Object & payload);
+
+    Object & NewPickup(Int32 model, Int32 world, Int32 quantity,
+                        Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic,
+                        Int32 header, Object & payload);
+
+    Object & NewSprite(Int32 index, CSStr file, Int32 xp, Int32 yp,
+                        Int32 xr, Int32 yr, Float32 angle, Int32 alpha, bool rel,
+                        Int32 header, Object & payload);
+
+    Object & NewTextdraw(Int32 index, CSStr text, Int32 xp, Int32 yp,
+                        Uint32 color, bool rel, Int32 header, Object & payload);
+
+    Object & NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+                        Float32 angle, Int32 primary, Int32 secondary,
+                        Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
-    * Creates a new Checkpoint on the server
+     * Instance destroyers.
     */
-    Reference< CCheckpoint > NewCheckpoint(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, SQFloat radius,
-                                            SQInt32 header, SqObj & payload);
+    bool DelBlip(Int32 id, Int32 header, Object & payload);
+    bool DelCheckpoint(Int32 id, Int32 header, Object & payload);
+    bool DelForcefield(Int32 id, Int32 header, Object & payload);
+    bool DelKeybind(Int32 id, Int32 header, Object & payload);
+    bool DelObject(Int32 id, Int32 header, Object & payload);
+    bool DelPickup(Int32 id, Int32 header, Object & payload);
+    bool DelSprite(Int32 id, Int32 header, Object & payload);
+    bool DelTextdraw(Int32 id, Int32 header, Object & payload);
+    bool DelVehicle(Int32 id, Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
-    * Creates a new Keybind on the server
+     * Instance retrievers.
     */
-    Reference< CKeybind > NewKeybind(SQInt32 slot, bool release,
-                                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                                        SQInt32 header, SqObj & payload);
+    BlipInst & GetBlip(Int32 id) { return m_Blips.at(id); }
+    CheckpointInst & GetCheckpoint(Int32 id) { return m_Checkpoints.at(id); }
+    ForcefieldInst & GetForcefield(Int32 id) { return m_Forcefields.at(id); }
+    KeybindInst & GetKeybind(Int32 id) { return m_Keybinds.at(id); }
+    ObjectInst & GetObject(Int32 id) { return m_Objects.at(id); }
+    PickupInst & GetPickup(Int32 id) { return m_Pickups.at(id); }
+    PlayerInst & GetPlayer(Int32 id) { return m_Players.at(id); }
+    SpriteInst & GetSprite(Int32 id) { return m_Sprites.at(id); }
+    TextdrawInst & GetTextdraw(Int32 id) { return m_Textdraws.at(id); }
+    VehicleInst & GetVehicle(Int32 id) { return m_Vehicles.at(id); }
+
+protected:
 
     /* --------------------------------------------------------------------------------------------
-    * Creates a new Object on the server
+     * Instance cleaners.
     */
-    Reference< CObject > NewObject(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                    SQInt32 alpha,
-                                    SQInt32 header, SqObj & payload);
+    void ResetInst(BlipInst & inst);
+    void ResetInst(CheckpointInst & inst);
+    void ResetInst(ForcefieldInst & inst);
+    void ResetInst(KeybindInst & inst);
+    void ResetInst(ObjectInst & inst);
+    void ResetInst(PickupInst & inst);
+    void ResetInst(PlayerInst & inst);
+    void ResetInst(SpriteInst & inst);
+    void ResetInst(TextdrawInst & inst);
+    void ResetInst(VehicleInst & inst);
 
     /* --------------------------------------------------------------------------------------------
-    * Creates a new Pickup on the server
+     * Bindings cleaners.
     */
-    Reference< CPickup > NewPickup(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                                    SQFloat x, SQFloat y, SQFloat z, SQInt32 alpha, bool automatic,
-                                    SQInt32 header, SqObj & payload);
+    void ResetFunc(BlipInst & inst);
+    void ResetFunc(CheckpointInst & inst);
+    void ResetFunc(ForcefieldInst & inst);
+    void ResetFunc(KeybindInst & inst);
+    void ResetFunc(ObjectInst & inst);
+    void ResetFunc(PickupInst & inst);
+    void ResetFunc(PlayerInst & inst);
+    void ResetFunc(SpriteInst & inst);
+    void ResetFunc(TextdrawInst & inst);
+    void ResetFunc(VehicleInst & inst);
+    void ResetFunc();
 
-    /* --------------------------------------------------------------------------------------------
-    * Creates a new Sphere on the server
-    */
-    Reference< CSphere > NewSphere(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                    Uint8 r, Uint8 g, Uint8 b, SQFloat radius,
-                                    SQInt32 header, SqObj & payload);
+    // --------------------------------------------------------------------------------------------
+    static void Emit(Function & func)
+    {
+        if (!func.IsNull())
+            func.Execute();
+    }
 
-    /* --------------------------------------------------------------------------------------------
-    * Creates a new Sprite on the server
-    */
-    Reference< CSprite > NewSprite(SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
-                                    SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel,
-                                    SQInt32 header, SqObj & payload);
+    // --------------------------------------------------------------------------------------------
+    template < typename A1 >
+    static void Emit(Function & func, A1 a1)
+    {
+        if (!func.IsNull())
+            func.Execute(a1);
+    }
 
-    /* --------------------------------------------------------------------------------------------
-    * Creates a new Textdraw on the server
-    */
-    Reference< CTextdraw > NewTextdraw(SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
-                                        SQUint32 color, bool rel,
-                                        SQInt32 header, SqObj & payload);
+    // --------------------------------------------------------------------------------------------
+    template < typename A1, typename A2 >
+    static void Emit(Function & func, A1 a1, A2 a2)
+    {
+        if (!func.IsNull())
+            func.Execute(a1, a2);
+    }
 
-    /* --------------------------------------------------------------------------------------------
-    * Creates a new Vehicle on the server
-    */
-    Reference< CVehicle > NewVehicle(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                                        SQInt32 header, SqObj & payload);
+    // --------------------------------------------------------------------------------------------
+    template < typename A1, typename A2, typename A3 >
+    static void Emit(Function & func, A1 a1, A2 a2, A3 a3)
+    {
+        if (!func.IsNull())
+            func.Execute(a1, a2, a3);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    template < typename A1, typename A2, typename A3, typename A4 >
+    static void Emit(Function & func, A1 a1, A2 a2, A3 a3, A4 a4)
+    {
+        if (!func.IsNull())
+            func.Execute(a1, a2, a3, a4);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    template < typename A1, typename A2, typename A3, typename A4, typename A5 >
+    static void Emit(Function & func, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+    {
+        if (!func.IsNull())
+            func.Execute(a1, a2, a3, a4, a5);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    template < typename A1, typename A2, typename A3, typename A4, typename A5, typename A6 >
+    static void Emit(Function & func, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
+    {
+        if (!func.IsNull())
+            func.Execute(a1, a2, a3, a4, a5, a6);
+    }
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the Squirrel Virtual machine is about to be closed.
-    */
-    void OnVMClose();
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a blip entity instance was created.
-    */
-    void OnBlipCreated(SQInt32 blip, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a checkpoint entity instance was created.
-    */
-    void OnCheckpointCreated(SQInt32 checkpoint, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a keybind entity instance was created.
-    */
-    void OnKeybindCreated(SQInt32 keybind, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a object entity instance was created.
-    */
-    void OnObjectCreated(SQInt32 object, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a pickup entity instance was created.
-    */
-    void OnPickupCreated(SQInt32 pickup, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player entity instance was created.
-    */
-    void OnPlayerCreated(SQInt32 player, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a sphere entity instance was created.
-    */
-    void OnSphereCreated(SQInt32 sphere, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a sprite entity instance was created.
-    */
-    void OnSpriteCreated(SQInt32 sprite, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a textdraw entity instance was created.
-    */
-    void OnTextdrawCreated(SQInt32 textdraw, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a vehicle entity instance was created.
-    */
-    void OnVehicleCreated(SQInt32 vehicle, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a blip entity instance was destroyed.
-    */
-    void OnBlipDestroyed(SQInt32 blip, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a checkpoint entity instance was destroyed.
-    */
-    void OnCheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a keybind entity instance was destroyed.
-    */
-    void OnKeybindDestroyed(SQInt32 keybind, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a object entity instance was destroyed.
-    */
-    void OnObjectDestroyed(SQInt32 object, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a pickup entity instance was destroyed.
-    */
-    void OnPickupDestroyed(SQInt32 pickup, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player entity instance was destroyed.
-    */
-    void OnPlayerDestroyed(SQInt32 player, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a sphere entity instance was destroyed.
-    */
-    void OnSphereDestroyed(SQInt32 sphere, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a sprite entity instance was destroyed.
-    */
-    void OnSpriteDestroyed(SQInt32 sprite, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a textdraw entity instance was destroyed.
-    */
-    void OnTextdrawDestroyed(SQInt32 textdraw, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a vehicle entity instance was destroyed.
-    */
-    void OnVehicleDestroyed(SQInt32 vehicle, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a blip entity instance triggered a custom event.
-    */
-    void OnBlipCustom(SQInt32 blip, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a checkpoint entity instance triggered a custom event.
-    */
-    void OnCheckpointCustom(SQInt32 checkpoint, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a keybind entity instance triggered a custom event.
-    */
-    void OnKeybindCustom(SQInt32 keybind, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a object entity instance triggered a custom event.
-    */
-    void OnObjectCustom(SQInt32 object, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a pickup entity instance triggered a custom event.
-    */
-    void OnPickupCustom(SQInt32 pickup, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player entity instance triggered a custom event.
-    */
-    void OnPlayerCustom(SQInt32 player, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a sphere entity instance triggered a custom event.
-    */
-    void OnSphereCustom(SQInt32 sphere, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a sprite entity instance triggered a custom event.
-    */
-    void OnSpriteCustom(SQInt32 sprite, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a textdraw entity instance triggered a custom event.
-    */
-    void OnTextdrawCustom(SQInt32 textdraw, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a vehicle entity instance triggered a custom event.
-    */
-    void OnVehicleCustom(SQInt32 vehicle, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player changed his away status.
-    */
-    void OnPlayerAway(SQInt32 player, bool status);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player pressed some game keys.
-    */
-    void OnPlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player changed his nick name.
-    */
-    void OnPlayerName(SQInt32 player, const SQChar * previous, const SQChar * current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player is requesting a specific class to be assigned to.
-    */
-    void OnPlayerRequestClass(SQInt32 player, SQInt32 offset);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player requests to spawn in the game.
-    */
-    void OnPlayerRequestSpawn(SQInt32 player);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player has spawned in the game.
-    */
-    void OnPlayerSpawn(SQInt32 player);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player began typing in the chat/console.
-    */
-    void OnPlayerStartTyping(SQInt32 player);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player stopped typing in the chat/console.
-    */
-    void OnPlayerStopTyping(SQInt32 player);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player sent a public chat message.
-    */
-    void OnPlayerChat(SQInt32 player, const SQChar * message);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player sent a server command.
-    */
-    void OnPlayerCommand(SQInt32 player, const SQChar * command);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player sent a private chat message.
-    */
-    void OnPlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the health changed for a specific player.
-    */
-    void OnPlayerHealth(SQInt32 player, SQFloat previous, SQFloat current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the armour changed for a specific player.
-    */
-    void OnPlayerArmour(SQInt32 player, SQFloat previous, SQFloat current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player changed his current weapon.
-    */
-    void OnPlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player changed his current location/position.
-    */
-    void OnPlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player died from a natural cause or self inflicted injury.
-    */
-    void OnPlayerWasted(SQInt32 player, SQInt32 reason);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player was killed by another player.
-    */
-    void OnPlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player began to spectator another player.
-    */
-    void OnPlayerSpectate(SQInt32 player, SQInt32 target);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player sent a crash report to the server.
-    */
-    void OnPlayerCrashreport(SQInt32 player, const SQChar * report);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player is on fire or stopped being on fire.
-    */
-    void OnPlayerBurning(SQInt32 player, bool state);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player is crouching or stopped crouching.
-    */
-    void OnPlayerCrouching(SQInt32 player, bool state);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed.
-    */
-    void OnPlayerState(SQInt32 player, SQInt32 previous, SQInt32 current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed.
-    */
-    void OnPlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to nothing.
-    */
-    void OnStateNone(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to normal.
-    */
-    void OnStateNormal(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to shooting.
-    */
-    void OnStateShooting(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to entered a vehicle
-     * as the driver.
-    */
-    void OnStateDriver(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to entered a vehicle
-     * as the passenger.
-    */
-    void OnStatePassenger(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to preparing to
-     * enter a vehicle as the driver.
-    */
-    void OnStateEnterDriver(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to preparing to
-     * enter a vehicle as a passenger.
-    */
-    void OnStateEnterPassenger(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to exiting a vehicle.
-    */
-    void OnStateExitVehicle(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current state of a player has changed to being unspanned.
-    */
-    void OnStateUnspawned(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to nothing.
-    */
-    void OnActionNone(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to normal.
-    */
-    void OnActionNormal(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to aiming at
-     * something.
-    */
-    void OnActionAiming(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to shooting.
-    */
-    void OnActionShooting(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to jumping.
-    */
-    void OnActionJumping(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to lying down.
-    */
-    void OnActionLieDown(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to getting up.
-    */
-    void OnActionGettingUp(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to jumping out
-     * of a vehicle.
-    */
-    void OnActionJumpVehicle(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to driving a vehicle.
-    */
-    void OnActionDriving(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to dying after
-     * being killed by someone else.
-    */
-    void OnActionDying(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to dying by
-     * natural causes or self inflicted injuries.
-    */
-    void OnActionWasted(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to embarking
-     * a vehicle.
-    */
-    void OnActionEmbarking(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the current action of a player has changed to disembarking
-     * a vehicle.
-    */
-    void OnActionDisembarking(SQInt32 player, SQInt32 previous);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the a vehicle instance has re-spawned.
-    */
-    void OnVehicleRespawn(SQInt32 vehicle);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the a vehicle has exploded.
-    */
-    void OnVehicleExplode(SQInt32 vehicle);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the health changed for a specific vehicle.
-    */
-    void OnVehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a vehicle changed its current location/position.
-    */
-    void OnVehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 & current);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the a pickup instance has re-spawned.
-    */
-    void OnPickupRespawn(SQInt32 pickup);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player pressed a listened key combination.
-    */
-    void OnPlayerKeyPress(SQInt32 player, SQInt32 keybind);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player released a listened key combination.
-    */
-    void OnPlayerKeyRelease(SQInt32 player, SQInt32 keybind);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player is about to embark in a vehicle.
-    */
-    void OnPlayerEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player just embarked in a vehicle.
-    */
-    void OnPlayerEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player just disembarked from a vehicle.
-    */
-    void OnPlayerDisembark(SQInt32 player, SQInt32 vehicle);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player claimed ownership over a pickup.
-    */
-    void OnPickupClaimed(SQInt32 player, SQInt32 pickup);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player collected a pickup.
-    */
-    void OnPickupCollected(SQInt32 player, SQInt32 pickup);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player just shot a object.
-    */
-    void OnObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player just bumped in a object.
-    */
-    void OnObjectBump(SQInt32 player, SQInt32 object);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player just entered a checkpoint.
-    */
-    void OnCheckpointEntered(SQInt32 player, SQInt32 checkpoint);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player just exited a checkpoint.
-    */
-    void OnCheckpointExited(SQInt32 player, SQInt32 checkpoint);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player just entered a sphere.
-    */
-    void OnSphereEntered(SQInt32 player, SQInt32 sphere);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a player just exited a sphere.
-    */
-    void OnSphereExited(SQInt32 player, SQInt32 sphere);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the server just finished one cycle of it's main loop.
-    */
-    void OnServerFrame(SQFloat delta);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the server just started up.
-    */
-    void OnServerStartup();
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the server is about to shut down.
-    */
-    void OnServerShutdown();
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the server received an internal command.
-    */
-    void OnInternalCommand(SQInt32 type, const SQChar * text);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that someone is trying to log into the server.
-    */
-    void OnLoginAttempt(const SQChar * name, const SQChar * passwd, const SQChar * ip);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that a custom event was just triggered.
-    */
-    void OnCustomEvent(SQInt32 group, SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that an option just changed in the game world.
-    */
-    void OnWorldOption(SQInt32 option, SqObj & value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that something was just toggled in the game world.
-    */
-    void OnWorldToggle(SQInt32 option, bool value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Notify event listeners that the plug-in is about to reload it's resources.
-    */
-    void OnScriptReload(SQInt32 header, SqObj & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Process updates for a player instance.
-    */
-    void OnPlayerUpdate(SQInt32 player, SQInt32 type);
-
-    /* --------------------------------------------------------------------------------------------
-     * Process updates for a vehicle instance.
-    */
-    void OnVehicleUpdate(SQInt32 vehicle, SQInt32 type);
-
-    /* --------------------------------------------------------------------------------------------
-     * Process external creation and destruction of entity instances.
-    */
-    void OnEntityPool(SQInt32 type, SQInt32 id, bool deleted);
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the Squirrel VM is closed.
-    */
-    EVMClose                    VMClose;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a blip entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    EBlipCreated                BlipCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a checkpoint entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    ECheckpointCreated          CheckpointCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a keybind entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    EKeybindCreated             KeybindCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a object entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    EObjectCreated              ObjectCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a pickup entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    EPickupCreated              PickupCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a Player entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    EPlayerCreated              PlayerCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a sphere entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    ESphereCreated              SphereCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a sprite entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    ESpriteCreated              SpriteCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a textdraw entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    ETextdrawCreated            TextdrawCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a vehicle entity instance was
-     * created on the server. Either by this plug-in or external ones.
-    */
-    EVehicleCreated             VehicleCreated;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a blip entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    EBlipDestroyed              BlipDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a checkpoint entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    ECheckpointDestroyed        CheckpointDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a keybind entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    EKeybindDestroyed           KeybindDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a object entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    EObjectDestroyed            ObjectDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a pickup entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    EPickupDestroyed            PickupDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    EPlayerDestroyed            PlayerDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a sphere entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    ESphereDestroyed            SphereDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a sprite entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    ESpriteDestroyed            SpriteDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a textdraw entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    ETextdrawDestroyed          TextdrawDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a vehicle entity instance was
-     * destroyed from the server. Either by this plug-in or external ones.
-    */
-    EVehicleDestroyed           VehicleDestroyed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a blip entity instance emitted
-     * a custom event type.
-    */
-    EBlipCustom                 BlipCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a checkpoint entity instance emitted
-     * a custom event type.
-    */
-    ECheckpointCustom           CheckpointCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a keybind entity instance emitted
-     * a custom event type.
-    */
-    EKeybindCustom              KeybindCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a object entity instance emitted
-     * a custom event type.
-    */
-    EObjectCustom               ObjectCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a pickup entity instance emitted
-     * a custom event type.
-    */
-    EPickupCustom               PickupCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player entity instance emitted
-     * a custom event type.
-    */
-    EPlayerCustom               PlayerCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a sphere entity instance emitted
-     * a custom event type.
-    */
-    ESphereCustom               SphereCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a sprite entity instance emitted
-     * a custom event type.
-    */
-    ESpriteCustom               SpriteCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a textdraw entity instance emitted
-     * a custom event type.
-    */
-    ETextdrawCustom             TextdrawCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a vehicle entity instance emitted
-     * a custom event type.
-    */
-    EVehicleCustom              VehicleCustom;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player changed his away status.
-    */
-    EPlayerAway                 PlayerAway;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player pressed any of the game keys.
-    */
-    EPlayerGameKeys             PlayerGameKeys;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player changed his name.
-    */
-    EPlayerRename               PlayerRename;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when requested to be assigned a class.
-    */
-    EPlayerRequestClass         PlayerRequestClass;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player requested to spawn.
-    */
-    EPlayerRequestSpawn         PlayerRequestSpawn;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just spawned in the game.
-    */
-    EPlayerSpawn                PlayerSpawn;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player began typing in the
-     * chat/console.
-    */
-    EPlayerStartTyping          PlayerStartTyping;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player stopped typing in the
-     * chat/console.
-    */
-    EPlayerStopTyping           PlayerStopTyping;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player sent a public chat message.
-    */
-    EPlayerChat                 PlayerChat;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player sent a server command.
-    */
-    EPlayerCommand              PlayerCommand;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player sent a private chat message.
-    */
-    EPlayerMessage              PlayerMessage;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when health changed for a specific player.
-    */
-    EPlayerHealth               PlayerHealth;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the armour changed for a specific
-     * player.
-    */
-    EPlayerArmour               PlayerArmour;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player changed his current weapon.
-    */
-    EPlayerWeapon               PlayerWeapon;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player changed his current
-     * location/position.
-    */
-    EPlayerMove                 PlayerMove;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player died from a natural cause
-     * or self inflicted injury.
-    */
-    EPlayerWasted               PlayerWasted;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player was killed by another player.
-    */
-    EPlayerKilled               PlayerKilled;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player is killed by one of his
-     * teammates.
-    */
-    EPlayerTeamKill             PlayerTeamKill;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player began to spectate another
-     * player.
-    */
-    EPlayerSpectate             PlayerSpectate;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player sent a crash report to
-     * the server.
-    */
-    EPlayerCrashreport          PlayerCrashreport;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player is on fire or stopped
-     * being on fire.
-    */
-    EPlayerBurning              PlayerBurning;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player is crouching or stopped
-     * crouching.
-    */
-    EPlayerCrouching            PlayerCrouching;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the current state of a player has
-     * changed.
-    */
-    EPlayerState                PlayerState;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current action of a player has
-     * changed.
-    */
-    EPlayerAction               PlayerAction;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to nothing.
-    */
-    EStateNone                  StateNone;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to normal.
-    */
-    EStateNormal                StateNormal;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to shooting.
-    */
-    EStateShooting              StateShooting;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to entered a vehicle as the driver.
-    */
-    EStateDriver                StateDriver;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to entered a vehicle as the passenger.
-    */
-    EStatePassenger             StatePassenger;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to preparing to enter a vehicle as the driver.
-    */
-    EStateEnterDriver           StateEnterDriver;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to preparing to enter a vehicle as a passenger.
-    */
-    EStateEnterPassenger        StateEnterPassenger;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to exiting a vehicle.
-    */
-    EStateExitVehicle           StateExitVehicle;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to being un-spawned.
-    */
-    EStateUnspawned             StateUnspawned;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has action
-     * to nothing.
-    */
-    EActionNone                 ActionNone;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to normal.
-    */
-    EActionNormal               ActionNormal;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to aiming at something.
-    */
-    EActionAiming               ActionAiming;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to shooting.
-    */
-    EActionShooting             ActionShooting;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to jumping.
-    */
-    EActionJumping              ActionJumping;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to lying down.
-    */
-    EActionLieDown              ActionLieDown;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to getting up.
-    */
-    EActionGettingUp            ActionGettingUp;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to jumping out of a vehicle.
-    */
-    EActionJumpVehicle          ActionJumpVehicle;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to driving a vehicle.
-    */
-    EActionDriving              ActionDriving;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to dying after being killed by someone else.
-    */
-    EActionDying                ActionDying;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to dying by natural causes or self inflicted injuries.
-    */
-    EActionWasted               ActionWasted;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to embarking a vehicle.
-    */
-    EActionEmbarking            ActionEmbarking;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when current state of a player has changed
-     * to disembarking a vehicle.
-    */
-    EActionDisembarking         ActionDisembarking;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a vehicle instance has re-spawned.
-    */
-    EVehicleRespawn             VehicleRespawn;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a vehicle has exploded.
-    */
-    EVehicleExplode             VehicleExplode;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the health changed for a specific
-     * vehicle.
-    */
-    EVehicleHealth              VehicleHealth;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a vehicle changed its current
-     * location/position.
-    */
-    EVehicleMove                VehicleMove;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a pickup instance has re-spawned.
-    */
-    EPickupRespawn              PickupRespawn;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player pressed a listened
-     * key combination.
-    */
-    EKeybindKeyPress            KeybindKeyPress;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player released a listened
-     * key combination.
-    */
-    EKeybindKeyRelease          KeybindKeyRelease;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player is about to embark in a
-     * vehicle.
-    */
-    EVehicleEmbarking           VehicleEmbarking;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just embarked in a vehicle.
-    */
-    EVehicleEmbarked            VehicleEmbarked;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just disembarked from a
-     * vehicle.
-    */
-    EVehicleDisembark           VehicleDisembark;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player claimed ownership over a
-     * pickup.
-    */
-    EPickupClaimed              PickupClaimed;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player collected a pickup.
-    */
-    EPickupCollected            PickupCollected;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just shot a object.
-    */
-    EObjectShot                 ObjectShot;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just bumped in a object.
-    */
-    EObjectBump                 ObjectBump;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just entered a checkpoint.
-    */
-    ECheckpointEntered          CheckpointEntered;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just exited a checkpoint.
-    */
-    ECheckpointExited           CheckpointExited;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just entered a sphere.
-    */
-    ESphereEntered              SphereEntered;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a player just exited a sphere.
-    */
-    ESphereExited               SphereExited;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the server just finished one cycle
-     * of it's main loop.
-    */
-    EServerFrame                ServerFrame;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the server just started up.
-    */
-    EServerStartup              ServerStartup;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the server is about to shut down.
-    */
-    EServerShutdown             ServerShutdown;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the server received an internal
-     * command.
-    */
-    EInternalCommand            InternalCommand;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when someone is trying to log into the
-     * server.
-    */
-    ELoginAttempt               LoginAttempt;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when a custom event was just triggered.
-    */
-    ECustomEvent                CustomEvent;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when an option just changed in the
-     * game world.
-    */
-    EWorldOption                WorldOption;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when something was just toggled in the
-     * game world.
-    */
-    EWorldToggle                WorldToggle;
-
-    /* --------------------------------------------------------------------------------------------
-     * A collection of listeners waiting to be notified when the plug-in is about to reload it's
-     * resources.
-    */
-    EScriptReload               ScriptReload;
+     * Global event binder.
+    */
+    bool BindEvent(Int32 id, Object & env, Function & func);
+
+    /* --------------------------------------------------------------------------------------------
+     * Player lifetime management.
+    */
+    void ConnectPlayer(Int32 id, Int32 header, Object & payload);
+    void DisconnectPlayer(Int32 id, Int32 header, Object & payload);
+
+    /* --------------------------------------------------------------------------------------------
+     * Event propagators.
+    */
+    void EmitBlipCreated(Int32 blip, Int32 header, Object & payload);
+    void EmitCheckpointCreated(Int32 checkpoint, Int32 header, Object & payload);
+    void EmitForcefieldCreated(Int32 forcefield, Int32 header, Object & payload);
+    void EmitKeybindCreated(Int32 keybind, Int32 header, Object & payload);
+    void EmitObjectCreated(Int32 object, Int32 header, Object & payload);
+    void EmitPickupCreated(Int32 pickup, Int32 header, Object & payload);
+    void EmitPlayerCreated(Int32 player, Int32 header, Object & payload);
+    void EmitSpriteCreated(Int32 sprite, Int32 header, Object & payload);
+    void EmitTextdrawCreated(Int32 textdraw, Int32 header, Object & payload);
+    void EmitVehicleCreated(Int32 vehicle, Int32 header, Object & payload);
+    void EmitBlipDestroyed(Int32 blip, Int32 header, Object & payload);
+    void EmitCheckpointDestroyed(Int32 checkpoint, Int32 header, Object & payload);
+    void EmitForcefieldDestroyed(Int32 forcefield, Int32 header, Object & payload);
+    void EmitKeybindDestroyed(Int32 keybind, Int32 header, Object & payload);
+    void EmitObjectDestroyed(Int32 object, Int32 header, Object & payload);
+    void EmitPickupDestroyed(Int32 pickup, Int32 header, Object & payload);
+    void EmitPlayerDestroyed(Int32 player, Int32 header, Object & payload);
+    void EmitSpriteDestroyed(Int32 sprite, Int32 header, Object & payload);
+    void EmitTextdrawDestroyed(Int32 textdraw, Int32 header, Object & payload);
+    void EmitVehicleDestroyed(Int32 vehicle, Int32 header, Object & payload);
+    void EmitBlipCustom(Int32 blip, Int32 header, Object & payload);
+    void EmitCheckpointCustom(Int32 checkpoint, Int32 header, Object & payload);
+    void EmitForcefieldCustom(Int32 forcefield, Int32 header, Object & payload);
+    void EmitKeybindCustom(Int32 keybind, Int32 header, Object & payload);
+    void EmitObjectCustom(Int32 object, Int32 header, Object & payload);
+    void EmitPickupCustom(Int32 pickup, Int32 header, Object & payload);
+    void EmitPlayerCustom(Int32 player, Int32 header, Object & payload);
+    void EmitSpriteCustom(Int32 sprite, Int32 header, Object & payload);
+    void EmitTextdrawCustom(Int32 textdraw, Int32 header, Object & payload);
+    void EmitVehicleCustom(Int32 vehicle, Int32 header, Object & payload);
+    void EmitPlayerAway(Int32 player, bool status);
+    void EmitPlayerGameKeys(Int32 player, Int32 previous, Int32 current);
+    void EmitPlayerRename(Int32 player, CCStr previous, CCStr current);
+    void EmitPlayerRequestClass(Int32 player, Int32 offset);
+    void EmitPlayerRequestSpawn(Int32 player);
+    void EmitPlayerSpawn(Int32 player);
+    void EmitPlayerStartTyping(Int32 player);
+    void EmitPlayerStopTyping(Int32 player);
+    void EmitPlayerChat(Int32 player, CCStr message);
+    void EmitPlayerCommand(Int32 player, CCStr command);
+    void EmitPlayerMessage(Int32 player, Int32 receiver, CCStr message);
+    void EmitPlayerHealth(Int32 player, Float32 previous, Float32 current);
+    void EmitPlayerArmour(Int32 player, Float32 previous, Float32 current);
+    void EmitPlayerWeapon(Int32 player, Int32 previous, Int32 current);
+    void EmitPlayerMove(Int32 player, const Vector3 & previous, const Vector3 & current);
+    void EmitPlayerWasted(Int32 player, Int32 reason);
+    void EmitPlayerKilled(Int32 player, Int32 killer, Int32 reason, Int32 body_part);
+    void EmitPlayerTeamKill(Int32 player, Int32 killer, Int32 reason, Int32 body_part);
+    void EmitPlayerSpectate(Int32 player, Int32 target);
+    void EmitPlayerCrashreport(Int32 player, CCStr report);
+    void EmitPlayerBurning(Int32 player, bool state);
+    void EmitPlayerCrouching(Int32 player, bool state);
+    void EmitPlayerState(Int32 player, Int32 previous, Int32 current);
+    void EmitPlayerAction(Int32 player, Int32 previous, Int32 current);
+    void EmitStateNone(Int32 player, Int32 previous);
+    void EmitStateNormal(Int32 player, Int32 previous);
+    void EmitStateShooting(Int32 player, Int32 previous);
+    void EmitStateDriver(Int32 player, Int32 previous);
+    void EmitStatePassenger(Int32 player, Int32 previous);
+    void EmitStateEnterDriver(Int32 player, Int32 previous);
+    void EmitStateEnterPassenger(Int32 player, Int32 previous);
+    void EmitStateExitVehicle(Int32 player, Int32 previous);
+    void EmitStateUnspawned(Int32 player, Int32 previous);
+    void EmitActionNone(Int32 player, Int32 previous);
+    void EmitActionNormal(Int32 player, Int32 previous);
+    void EmitActionAiming(Int32 player, Int32 previous);
+    void EmitActionShooting(Int32 player, Int32 previous);
+    void EmitActionJumping(Int32 player, Int32 previous);
+    void EmitActionLieDown(Int32 player, Int32 previous);
+    void EmitActionGettingUp(Int32 player, Int32 previous);
+    void EmitActionJumpVehicle(Int32 player, Int32 previous);
+    void EmitActionDriving(Int32 player, Int32 previous);
+    void EmitActionDying(Int32 player, Int32 previous);
+    void EmitActionWasted(Int32 player, Int32 previous);
+    void EmitActionEmbarking(Int32 player, Int32 previous);
+    void EmitActionDisembarking(Int32 player, Int32 previous);
+    void EmitVehicleRespawn(Int32 vehicle);
+    void EmitVehicleExplode(Int32 vehicle);
+    void EmitVehicleHealth(Int32 vehicle, Float32 previous, Float32 current);
+    void EmitVehicleMove(Int32 vehicle, const Vector3 & previous, const Vector3 & current);
+    void EmitPickupRespawn(Int32 pickup);
+    void EmitPlayerKeyPress(Int32 player, Int32 keybind);
+    void EmitPlayerKeyRelease(Int32 player, Int32 keybind);
+    void EmitPlayerEmbarking(Int32 player, Int32 vehicle, Int32 slot);
+    void EmitPlayerEmbarked(Int32 player, Int32 vehicle, Int32 slot);
+    void EmitPlayerDisembark(Int32 player, Int32 vehicle);
+    void EmitPickupClaimed(Int32 player, Int32 pickup);
+    void EmitPickupCollected(Int32 player, Int32 pickup);
+    void EmitObjectShot(Int32 player, Int32 object, Int32 weapon);
+    void EmitObjectBump(Int32 player, Int32 object);
+    void EmitCheckpointEntered(Int32 player, Int32 checkpoint);
+    void EmitCheckpointExited(Int32 player, Int32 checkpoint);
+    void EmitForcefieldEntered(Int32 player, Int32 forcefield);
+    void EmitForcefieldExited(Int32 player, Int32 forcefield);
+    void EmitServerFrame(Float32 delta);
+    void EmitServerStartup();
+    void EmitServerShutdown();
+    void EmitInternalCommand(Int32 type, CCStr text);
+    void EmitLoginAttempt(CCStr name, CCStr passwd, CCStr ip);
+    void EmitCustomEvent(Int32 group, Int32 header, Object & payload);
+    void EmitWorldOption(Int32 option, Object & value);
+    void EmitWorldToggle(Int32 option, bool value);
+    void EmitScriptReload(Int32 header, Object & payload);
+    void EmitScriptUnload();
+    void EmitPlayerUpdate(Int32 player, Int32 type);
+    void EmitVehicleUpdate(Int32 vehicle, Int32 type);
+    void EmitEntityPool(Int32 type, Int32 id, bool deleted);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrie global event bidings.
+    */
+    Function & GetEvent(Int32 evid);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrie local event bidings.
+    */
+    Function & GetBlipEvent(Int32 id, Int32 evid);
+    Function & GetCheckpointEvent(Int32 id, Int32 evid);
+    Function & GetForcefieldEvent(Int32 id, Int32 evid);
+    Function & GetKeybindEvent(Int32 id, Int32 evid);
+    Function & GetObjectEvent(Int32 id, Int32 evid);
+    Function & GetPickupEvent(Int32 id, Int32 evid);
+    Function & GetPlayerEvent(Int32 id, Int32 evid);
+    Function & GetSpriteEvent(Int32 id, Int32 evid);
+    Function & GetTextdrawEvent(Int32 id, Int32 evid);
+    Function & GetVehicleEvent(Int32 id, Int32 evid);
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Global event bindings.
+    */
+    Function    mOnBlipCreated;
+    Function    mOnCheckpointCreated;
+    Function    mOnForcefieldCreated;
+    Function    mOnKeybindCreated;
+    Function    mOnObjectCreated;
+    Function    mOnPickupCreated;
+    Function    mOnPlayerCreated;
+    Function    mOnSpriteCreated;
+    Function    mOnTextdrawCreated;
+    Function    mOnVehicleCreated;
+    Function    mOnBlipDestroyed;
+    Function    mOnCheckpointDestroyed;
+    Function    mOnForcefieldDestroyed;
+    Function    mOnKeybindDestroyed;
+    Function    mOnObjectDestroyed;
+    Function    mOnPickupDestroyed;
+    Function    mOnPlayerDestroyed;
+    Function    mOnSpriteDestroyed;
+    Function    mOnTextdrawDestroyed;
+    Function    mOnVehicleDestroyed;
+    Function    mOnBlipCustom;
+    Function    mOnCheckpointCustom;
+    Function    mOnForcefieldCustom;
+    Function    mOnKeybindCustom;
+    Function    mOnObjectCustom;
+    Function    mOnPickupCustom;
+    Function    mOnPlayerCustom;
+    Function    mOnSpriteCustom;
+    Function    mOnTextdrawCustom;
+    Function    mOnVehicleCustom;
+    Function    mOnPlayerAway;
+    Function    mOnPlayerGameKeys;
+    Function    mOnPlayerRename;
+    Function    mOnPlayerRequestClass;
+    Function    mOnPlayerRequestSpawn;
+    Function    mOnPlayerSpawn;
+    Function    mOnPlayerStartTyping;
+    Function    mOnPlayerStopTyping;
+    Function    mOnPlayerChat;
+    Function    mOnPlayerCommand;
+    Function    mOnPlayerMessage;
+    Function    mOnPlayerHealth;
+    Function    mOnPlayerArmour;
+    Function    mOnPlayerWeapon;
+    Function    mOnPlayerMove;
+    Function    mOnPlayerWasted;
+    Function    mOnPlayerKilled;
+    Function    mOnPlayerTeamKill;
+    Function    mOnPlayerSpectate;
+    Function    mOnPlayerCrashreport;
+    Function    mOnPlayerBurning;
+    Function    mOnPlayerCrouching;
+    Function    mOnPlayerState;
+    Function    mOnPlayerAction;
+    Function    mOnStateNone;
+    Function    mOnStateNormal;
+    Function    mOnStateShooting;
+    Function    mOnStateDriver;
+    Function    mOnStatePassenger;
+    Function    mOnStateEnterDriver;
+    Function    mOnStateEnterPassenger;
+    Function    mOnStateExitVehicle;
+    Function    mOnStateUnspawned;
+    Function    mOnActionNone;
+    Function    mOnActionNormal;
+    Function    mOnActionAiming;
+    Function    mOnActionShooting;
+    Function    mOnActionJumping;
+    Function    mOnActionLieDown;
+    Function    mOnActionGettingUp;
+    Function    mOnActionJumpVehicle;
+    Function    mOnActionDriving;
+    Function    mOnActionDying;
+    Function    mOnActionWasted;
+    Function    mOnActionEmbarking;
+    Function    mOnActionDisembarking;
+    Function    mOnVehicleRespawn;
+    Function    mOnVehicleExplode;
+    Function    mOnVehicleHealth;
+    Function    mOnVehicleMove;
+    Function    mOnPickupRespawn;
+    Function    mOnKeybindKeyPress;
+    Function    mOnKeybindKeyRelease;
+    Function    mOnVehicleEmbarking;
+    Function    mOnVehicleEmbarked;
+    Function    mOnVehicleDisembark;
+    Function    mOnPickupClaimed;
+    Function    mOnPickupCollected;
+    Function    mOnObjectShot;
+    Function    mOnObjectBump;
+    Function    mOnCheckpointEntered;
+    Function    mOnCheckpointExited;
+    Function    mOnForcefieldEntered;
+    Function    mOnForcefieldExited;
+    Function    mOnServerFrame;
+    Function    mOnServerStartup;
+    Function    mOnServerShutdown;
+    Function    mOnInternalCommand;
+    Function    mOnLoginAttempt;
+    Function    mOnCustomEvent;
+    Function    mOnWorldOption;
+    Function    mOnWorldToggle;
+    Function    mOnScriptReload;
+    Function    mOnScriptUnload;
 };
-
-// ------------------------------------------------------------------------------------------------
-extern const Core::Pointer _Core;
 
 } // Namespace:: SqMod
 

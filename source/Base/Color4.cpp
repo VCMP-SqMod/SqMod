@@ -1,15 +1,16 @@
+// ------------------------------------------------------------------------------------------------
 #include "Base/Color4.hpp"
 #include "Base/Color3.hpp"
 #include "Base/Shared.hpp"
-#include "Register.hpp"
+#include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 const Color4 Color4::NIL = Color4();
-const Color4 Color4::MIN = Color4(std::numeric_limits<Color4::Value>::min());
-const Color4 Color4::MAX = Color4(std::numeric_limits<Color4::Value>::max());
+const Color4 Color4::MIN = Color4(NumLimit< Color4::Value >::Min);
+const Color4 Color4::MAX = Color4(NumLimit< Color4::Value >::Max);
 
 // ------------------------------------------------------------------------------------------------
 SQChar Color4::Delim = ',';
@@ -18,82 +19,50 @@ SQChar Color4::Delim = ',';
 Color4::Color4()
     : r(0), g(0), b(0), a(0)
 {
-
+    /* ... */
 }
 
-Color4::Color4(Value s)
-    : r(s), g(s), b(s), a(s)
+// ------------------------------------------------------------------------------------------------
+Color4::Color4(Value sv)
+    : r(sv), g(sv), b(sv), a(sv)
 {
-
+    /* ... */
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4::Color4(Value rv, Value gv, Value bv)
     : r(rv), g(gv), b(bv), a(0)
 {
-
+    /* ... */
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4::Color4(Value rv, Value gv, Value bv, Value av)
     : r(rv), g(gv), b(bv), a(av)
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4::Color4(const Color3 & c)
-    : r(c.r), g(c.g), b(c.b), a(0)
+Color4::Color4(const Color4 & o)
+    : r(o.r), g(o.g), b(o.b), a(o.a)
 {
-
-}
-
-// ------------------------------------------------------------------------------------------------
-Color4::Color4(const SQChar * name)
-    : Color4(GetColor(name))
-{
-
-}
-
-Color4::Color4(const SQChar * str, SQChar delim)
-    : Color4(GetColor4(str, delim))
-{
-
-}
-
-// ------------------------------------------------------------------------------------------------
-Color4::Color4(const Color4 & c)
-    : r(c.r), g(c.g), b(c.b), a(c.a)
-{
-
-}
-
-Color4::Color4(Color4 && c)
-    : r(c.r), g(c.g), b(c.b), a(c.a)
-{
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4::~Color4()
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 & Color4::operator = (const Color4 & c)
+Color4 & Color4::operator = (const Color4 & o)
 {
-    r = c.r;
-    g = c.g;
-    b = c.b;
-    a = c.a;
-    return *this;
-}
-
-Color4 & Color4::operator = (Color4 && c)
-{
-    r = c.r;
-    g = c.g;
-    b = c.b;
-    a = c.a;
+    r = o.r;
+    g = o.g;
+    b = o.b;
+    a = o.a;
     return *this;
 }
 
@@ -107,7 +76,7 @@ Color4 & Color4::operator = (Value s)
     return *this;
 }
 
-Color4 & Color4::operator = (const SQChar * name)
+Color4 & Color4::operator = (CSStr name)
 {
     Set(GetColor(name));
     return *this;
@@ -500,13 +469,18 @@ Color4::operator Color3 () const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Color4::Cmp(const Color4 & c) const
+Int32 Color4::Cmp(const Color4 & o) const
 {
-    return *this == c ? 0 : (*this > c ? 1 : -1);
+    if (*this == o)
+        return 0;
+    else if (*this > o)
+        return 1;
+    else
+        return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Color4::ToString() const
+CSStr Color4::ToString() const
 {
     return ToStringF("%u,%u,%u,%u", r, g, b, a);
 }
@@ -553,79 +527,79 @@ void Color4::Set(const Color3 & c)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Set(const SQChar * str, SQChar delim)
+void Color4::Set(CSStr str, SQChar delim)
 {
     Set(GetColor4(str, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetCol(const SQChar * name)
+void Color4::SetCol(CSStr name)
 {
     Set(GetColor(name));
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color4::GetRGB() const
+Uint32 Color4::GetRGB() const
 {
-    return static_cast<SQUint32>(r << 16 | g << 8 | b);
+    return Uint32(r << 16 | g << 8 | b);
 }
 
-void Color4::SetRGB(SQUint32 p)
+void Color4::SetRGB(Uint32 p)
 {
-    r = static_cast<Value>((p >> 16) & 0xFF);
-    g = static_cast<Value>((p >> 8) & 0xFF);
-    b = static_cast<Value>((p) & 0xFF);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQUint32 Color4::GetRGBA() const
-{
-    return static_cast<SQUint32>(r << 24 | g << 16 | b << 8 | a);
-}
-
-void Color4::SetRGBA(SQUint32 p)
-{
-    r = static_cast<Value>((p >> 24) & 0xFF);
-    g = static_cast<Value>((p >> 16) & 0xFF);
-    b = static_cast<Value>((p >> 8) & 0xFF);
-    a = static_cast<Value>((p) & 0xFF);
+    r = Value((p >> 16) & 0xFF);
+    g = Value((p >> 8) & 0xFF);
+    b = Value((p) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQUint32 Color4::GetARGB() const
+Uint32 Color4::GetRGBA() const
 {
-    return static_cast<SQUint32>(a << 24 | r << 16 | g << 8 | b);
+    return Uint32(r << 24 | g << 16 | b << 8 | a);
 }
 
-void Color4::SetARGB(SQUint32 p)
+void Color4::SetRGBA(Uint32 p)
 {
-    a = static_cast<Value>((p >> 24) & 0xFF);
-    r = static_cast<Value>((p >> 16) & 0xFF);
-    g = static_cast<Value>((p >> 8) & 0xFF);
-    b = static_cast<Value>((p) & 0xFF);
+    r = Value((p >> 24) & 0xFF);
+    g = Value((p >> 16) & 0xFF);
+    b = Value((p >> 8) & 0xFF);
+    a = Value((p) & 0xFF);
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 Color4::GetARGB() const
+{
+    return Uint32(a << 24 | r << 16 | g << 8 | b);
+}
+
+void Color4::SetARGB(Uint32 p)
+{
+    a = Value((p >> 24) & 0xFF);
+    r = Value((p >> 16) & 0xFF);
+    g = Value((p >> 8) & 0xFF);
+    b = Value((p) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Color4::Generate()
 {
-    r = RandomVal<Value>::Get();
-    g = RandomVal<Value>::Get();
-    b = RandomVal<Value>::Get();
-    a = RandomVal<Value>::Get();
+    r = GetRandomUint8();
+    g = GetRandomUint8();
+    b = GetRandomUint8();
+    a = GetRandomUint8();
 }
 
 void Color4::Generate(Value min, Value max)
 {
     if (max < min)
     {
-        LogErr("max value is lower than min value");
+        SqThrow("max value is lower than min value");
     }
     else
     {
-        r = RandomVal<Value>::Get(min, max);
-        g = RandomVal<Value>::Get(min, max);
-        b = RandomVal<Value>::Get(min, max);
-        a = RandomVal<Value>::Get(min, max);
+        r = GetRandomUint8(min, max);
+        g = GetRandomUint8(min, max);
+        b = GetRandomUint8(min, max);
+        a = GetRandomUint8(min, max);
     }
 }
 
@@ -633,14 +607,14 @@ void Color4::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin || amax < amin)
     {
-        LogErr("max value is lower than min value");
+        SqThrow("max value is lower than min value");
     }
     else
     {
-        r = RandomVal<Value>::Get(rmin, rmax);
-        g = RandomVal<Value>::Get(gmin, gmax);
-        b = RandomVal<Value>::Get(bmin, bmax);
-        a = RandomVal<Value>::Get(bmin, bmax);
+        r = GetRandomUint8(rmin, rmax);
+        g = GetRandomUint8(gmin, gmax);
+        b = GetRandomUint8(bmin, bmax);
+        a = GetRandomUint8(bmin, bmax);
     }
 }
 
@@ -653,63 +627,61 @@ void Color4::Random()
 // ------------------------------------------------------------------------------------------------
 void Color4::Inverse()
 {
-    r = static_cast<Value>(~r);
-    g = static_cast<Value>(~g);
-    b = static_cast<Value>(~b);
-    a = static_cast<Value>(~a);
+    r = Value(~r);
+    g = Value(~g);
+    b = Value(~b);
+    a = Value(~a);
 }
 
 // ================================================================================================
-bool Register_Color4(HSQUIRRELVM vm)
+void Register_Color4(HSQUIRRELVM vm)
 {
-    LogDbg("Beginning registration of <Color4> type");
-
     typedef Color4::Value Val;
 
-    Sqrat::RootTable(vm).Bind(_SC("Color4"), Sqrat::Class<Color4>(vm, _SC("Color4"))
+    RootTable(vm).Bind(_SC("Color4"), Class< Color4 >(vm, _SC("Color4"))
+        /* Constructors */
         .Ctor()
-        .Ctor<Val>()
-        .Ctor<Val, Val, Val>()
-        .Ctor<Val, Val, Val, Val>()
-        .Ctor<const SQChar *, SQChar>()
-
-        .SetStaticValue(_SC("delim"), &Color4::Delim)
-
+        .Ctor< Val >()
+        .Ctor< Val, Val, Val >()
+        .Ctor< Val, Val, Val, Val >()
+        /* Static Members */
+        .SetStaticValue(_SC("Delim"), &Color4::Delim)
+        /* Member Variables */
         .Var(_SC("r"), &Color4::r)
         .Var(_SC("g"), &Color4::g)
         .Var(_SC("b"), &Color4::b)
         .Var(_SC("a"), &Color4::a)
-
+        /* Properties */
         .Prop(_SC("rgb"), &Color4::GetRGB, &Color4::SetRGB)
         .Prop(_SC("rgba"), &Color4::GetRGBA, &Color4::SetRGBA)
         .Prop(_SC("argb"), &Color4::GetARGB, &Color4::SetARGB)
         .Prop(_SC("str"), &Color4::SetCol)
-
+        /* Core Metamethods */
         .Func(_SC("_tostring"), &Color4::ToString)
         .Func(_SC("_cmp"), &Color4::Cmp)
-
+        /* Metamethods */
         .Func<Color4 (Color4::*)(const Color4 &) const>(_SC("_add"), &Color4::operator +)
         .Func<Color4 (Color4::*)(const Color4 &) const>(_SC("_sub"), &Color4::operator -)
         .Func<Color4 (Color4::*)(const Color4 &) const>(_SC("_mul"), &Color4::operator *)
         .Func<Color4 (Color4::*)(const Color4 &) const>(_SC("_div"), &Color4::operator /)
         .Func<Color4 (Color4::*)(const Color4 &) const>(_SC("_modulo"), &Color4::operator %)
         .Func<Color4 (Color4::*)(void) const>(_SC("_unm"), &Color4::operator -)
-
-        .Overload<void (Color4::*)(Val)>(_SC("set"), &Color4::Set)
-        .Overload<void (Color4::*)(Val, Val, Val)>(_SC("set"), &Color4::Set)
-        .Overload<void (Color4::*)(Val, Val, Val, Val)>(_SC("set"), &Color4::Set)
-        .Overload<void (Color4::*)(const Color4 &)>(_SC("set_col4"), &Color4::Set)
-        .Overload<void (Color4::*)(const Color3 &)>(_SC("set_col3"), &Color4::Set)
-        .Overload<void (Color4::*)(const SQChar *, SQChar)>(_SC("set_str"), &Color4::Set)
-
-        .Overload<void (Color4::*)(void)>(_SC("generate"), &Color4::Generate)
-        .Overload<void (Color4::*)(Val, Val)>(_SC("generate"), &Color4::Generate)
-        .Overload<void (Color4::*)(Val, Val, Val, Val, Val, Val, Val, Val)>(_SC("generate"), &Color4::Generate)
-
-        .Func(_SC("clear"), &Color4::Clear)
-        .Func(_SC("random"), &Color4::Random)
-        .Func(_SC("inverse"), &Color4::Inverse)
-
+        /* Setters */
+        .Overload<void (Color4::*)(Val)>(_SC("Set"), &Color4::Set)
+        .Overload<void (Color4::*)(Val, Val, Val)>(_SC("Set"), &Color4::Set)
+        .Overload<void (Color4::*)(Val, Val, Val, Val)>(_SC("Set"), &Color4::Set)
+        .Overload<void (Color4::*)(const Color4 &)>(_SC("SetCol4"), &Color4::Set)
+        .Overload<void (Color4::*)(const Color3 &)>(_SC("SetCol3"), &Color4::Set)
+        .Overload<void (Color4::*)(CSStr, SQChar)>(_SC("SetStr"), &Color4::Set)
+        /* Random Generators */
+        .Overload<void (Color4::*)(void)>(_SC("Generate"), &Color4::Generate)
+        .Overload<void (Color4::*)(Val, Val)>(_SC("Generate"), &Color4::Generate)
+        .Overload<void (Color4::*)(Val, Val, Val, Val, Val, Val, Val, Val)>(_SC("Generate"), &Color4::Generate)
+        /* Utility Methods */
+        .Func(_SC("Clear"), &Color4::Clear)
+        .Func(_SC("Random"), &Color4::Random)
+        .Func(_SC("Inverse"), &Color4::Inverse)
+        /* Operator Exposure */
         .Func<Color4 & (Color4::*)(const Color4 &)>(_SC("opAddAssign"), &Color4::operator +=)
         .Func<Color4 & (Color4::*)(const Color4 &)>(_SC("opSubAssign"), &Color4::operator -=)
         .Func<Color4 & (Color4::*)(const Color4 &)>(_SC("opMulAssign"), &Color4::operator *=)
@@ -770,10 +742,6 @@ bool Register_Color4(HSQUIRRELVM vm)
         .Func<bool (Color4::*)(const Color4 &) const>(_SC("opLessEqual"), &Color4::operator <=)
         .Func<bool (Color4::*)(const Color4 &) const>(_SC("opGreaterEqual"), &Color4::operator >=)
     );
-
-    LogDbg("Registration of <Color4> type was successful");
-
-    return true;
 }
 
 } // Namespace:: SqMod

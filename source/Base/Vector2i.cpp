@@ -1,16 +1,16 @@
+// ------------------------------------------------------------------------------------------------
 #include "Base/Vector2i.hpp"
-#include "Base/Vector2u.hpp"
-#include "Base/Vector2f.hpp"
+#include "Base/Vector2.hpp"
 #include "Base/Shared.hpp"
-#include "Register.hpp"
+#include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 const Vector2i Vector2i::NIL = Vector2i(0);
-const Vector2i Vector2i::MIN = Vector2i(std::numeric_limits<Vector2i::Value>::min());
-const Vector2i Vector2i::MAX = Vector2i(std::numeric_limits<Vector2i::Value>::max());
+const Vector2i Vector2i::MIN = Vector2i(NumLimit< Vector2i::Value >::Min);
+const Vector2i Vector2i::MAX = Vector2i(NumLimit< Vector2i::Value >::Max);
 
 // ------------------------------------------------------------------------------------------------
 SQChar Vector2i::Delim = ',';
@@ -19,72 +19,41 @@ SQChar Vector2i::Delim = ',';
 Vector2i::Vector2i()
     : x(0), y(0)
 {
-
+    /* ... */
 }
 
-Vector2i::Vector2i(Value s)
-    : x(s), y(s)
+// ------------------------------------------------------------------------------------------------
+Vector2i::Vector2i(Value sv)
+    : x(sv), y(sv)
 {
-
+    /* ... */
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i::Vector2i(Value xv, Value yv)
     : x(xv), y(yv)
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2i::Vector2i(const Vector2u & v)
-    : x(static_cast<Value>(v.x)), y(static_cast<Value>(v.y))
+Vector2i::Vector2i(const Vector2i & o)
+    : x(o.x), y(o.y)
 {
-
-}
-
-Vector2i::Vector2i(const Vector2f & v)
-    : x(static_cast<Value>(v.x)), y(static_cast<Value>(v.y))
-{
-
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector2i::Vector2i(const SQChar * values, SQChar delim)
-    : Vector2i(GetVector2i(values, delim))
-{
-
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector2i::Vector2i(const Vector2i & v)
-    : x(v.x), y(v.y)
-{
-
-}
-
-Vector2i::Vector2i(Vector2i && v)
-    : x(v.x), y(v.y)
-{
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i::~Vector2i()
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2i & Vector2i::operator = (const Vector2i & v)
+Vector2i & Vector2i::operator = (const Vector2i & o)
 {
-    x = v.x;
-    y = v.y;
-    return *this;
-}
-
-Vector2i & Vector2i::operator = (Vector2i && v)
-{
-    x = v.x;
-    y = v.y;
+    x = o.x;
+    y = o.y;
     return *this;
 }
 
@@ -96,23 +65,16 @@ Vector2i & Vector2i::operator = (Value s)
     return *this;
 }
 
-Vector2i & Vector2i::operator = (const SQChar * values)
+Vector2i & Vector2i::operator = (CSStr values)
 {
     Set(GetVector2i(values, Delim));
     return *this;
 }
 
-Vector2i & Vector2i::operator = (const Vector2u & v)
+Vector2i & Vector2i::operator = (const Vector2 & v)
 {
-    x = static_cast<Value>(v.x);
-    y = static_cast<Value>(v.y);
-    return *this;
-}
-
-Vector2i & Vector2i::operator = (const Vector2f & v)
-{
-    x = static_cast<Value>(v.x);
-    y = static_cast<Value>(v.y);
+    x = Value(v.x);
+    y = Value(v.y);
     return *this;
 }
 
@@ -395,7 +357,7 @@ Vector2i Vector2i::operator >> (Value s) const
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator + () const
 {
-    return Vector2i(std::abs(x), std::abs(y));
+    return Vector2i(abs(x), abs(y));
 }
 
 Vector2i Vector2i::operator - () const
@@ -441,13 +403,18 @@ bool Vector2i::operator >= (const Vector2i & v) const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Vector2i::Cmp(const Vector2i & v) const
+Int32 Vector2i::Cmp(const Vector2i & o) const
 {
-    return *this == v ? 0 : (*this > v ? 1 : -1);
+    if (*this == o)
+        return 0;
+    else if (*this > o)
+        return 1;
+    else
+        return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * Vector2i::ToString() const
+CSStr Vector2i::ToString() const
 {
     return ToStringF("%d,%d", x, y);
 }
@@ -472,20 +439,14 @@ void Vector2i::Set(const Vector2i & v)
     y = v.y;
 }
 
-void Vector2i::Set(const Vector2u & v)
+void Vector2i::Set(const Vector2 & v)
 {
-    x = static_cast<Value>(v.x);
-    y = static_cast<Value>(v.y);
-}
-
-void Vector2i::Set(const Vector2f & v)
-{
-    x = static_cast<Value>(v.x);
-    y = static_cast<Value>(v.y);
+    x = Value(v.x);
+    y = Value(v.y);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2i::Set(const SQChar * values, SQChar delim)
+void Vector2i::Set(CSStr values, SQChar delim)
 {
     Set(GetVector2i(values, delim));
 }
@@ -493,20 +454,20 @@ void Vector2i::Set(const SQChar * values, SQChar delim)
 // ------------------------------------------------------------------------------------------------
 void Vector2i::Generate()
 {
-    x = RandomVal<Value>::Get();
-    y = RandomVal<Value>::Get();
+    x = GetRandomInt32();
+    y = GetRandomInt32();
 }
 
 void Vector2i::Generate(Value min, Value max)
 {
     if (max < min)
     {
-        LogErr("max value is lower than min value");
+        SqThrow("max value is lower than min value");
     }
     else
     {
-        x = RandomVal<Value>::Get(min, max);
-        y = RandomVal<Value>::Get(min, max);
+        x = GetRandomInt32(min, max);
+        y = GetRandomInt32(min, max);
     }
 }
 
@@ -514,63 +475,61 @@ void Vector2i::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (xmax < xmin || ymax < ymin)
     {
-        LogErr("max value is lower than min value");
+        SqThrow("max value is lower than min value");
     }
     else
     {
-        x = RandomVal<Value>::Get(ymin, ymax);
-        y = RandomVal<Value>::Get(xmin, xmax);
+        x = GetRandomInt32(ymin, ymax);
+        y = GetRandomInt32(xmin, xmax);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::Abs() const
 {
-    return Vector2i(std::abs(x), std::abs(y));
+    return Vector2i(abs(x), abs(y));
 }
 
 // ================================================================================================
-bool Register_Vector2i(HSQUIRRELVM vm)
+void Register_Vector2i(HSQUIRRELVM vm)
 {
-    LogDbg("Beginning registration of <Vector2i> type");
-
     typedef Vector2i::Value Val;
 
-    Sqrat::RootTable(vm).Bind(_SC("Vector2i"), Sqrat::Class<Vector2i>(vm, _SC("Vector2i"))
+    RootTable(vm).Bind(_SC("Vector2i"), Class< Vector2i >(vm, _SC("Vector2i"))
+        /* Constructors */
         .Ctor()
-        .Ctor<Val>()
-        .Ctor<Val, Val>()
-
-        .SetStaticValue(_SC("delim"), &Vector2i::Delim)
-
+        .Ctor< Val >()
+        .Ctor< Val, Val >()
+        /* Static Members */
+        .SetStaticValue(_SC("Delim"), &Vector2i::Delim)
+        /* Member Variables */
         .Var(_SC("x"), &Vector2i::x)
         .Var(_SC("y"), &Vector2i::y)
-
+        /* Properties */
         .Prop(_SC("abs"), &Vector2i::Abs)
-
+        /* Core Metamethods */
         .Func(_SC("_tostring"), &Vector2i::ToString)
         .Func(_SC("_cmp"), &Vector2i::Cmp)
-
+        /* Metamethods */
         .Func<Vector2i (Vector2i::*)(const Vector2i &) const>(_SC("_add"), &Vector2i::operator +)
         .Func<Vector2i (Vector2i::*)(const Vector2i &) const>(_SC("_sub"), &Vector2i::operator -)
         .Func<Vector2i (Vector2i::*)(const Vector2i &) const>(_SC("_mul"), &Vector2i::operator *)
         .Func<Vector2i (Vector2i::*)(const Vector2i &) const>(_SC("_div"), &Vector2i::operator /)
         .Func<Vector2i (Vector2i::*)(const Vector2i &) const>(_SC("_modulo"), &Vector2i::operator %)
         .Func<Vector2i (Vector2i::*)(void) const>(_SC("_unm"), &Vector2i::operator -)
-
-        .Overload<void (Vector2i::*)(Val)>(_SC("set"), &Vector2i::Set)
-        .Overload<void (Vector2i::*)(Val, Val)>(_SC("set"), &Vector2i::Set)
-        .Overload<void (Vector2i::*)(const Vector2i &)>(_SC("set_vec2i"), &Vector2i::Set)
-        .Overload<void (Vector2i::*)(const Vector2u &)>(_SC("set_vec2u"), &Vector2i::Set)
-        .Overload<void (Vector2i::*)(const Vector2f &)>(_SC("set_vec2f"), &Vector2i::Set)
-        .Overload<void (Vector2i::*)(const SQChar *, SQChar)>(_SC("set_str"), &Vector2i::Set)
-
-        .Overload<void (Vector2i::*)(void)>(_SC("generate"), &Vector2i::Generate)
-        .Overload<void (Vector2i::*)(Val, Val)>(_SC("generate"), &Vector2i::Generate)
-        .Overload<void (Vector2i::*)(Val, Val, Val, Val)>(_SC("generate"), &Vector2i::Generate)
-
-        .Func(_SC("clear"), &Vector2i::Clear)
-
+        /* Setters */
+        .Overload<void (Vector2i::*)(Val)>(_SC("Set"), &Vector2i::Set)
+        .Overload<void (Vector2i::*)(Val, Val)>(_SC("Set"), &Vector2i::Set)
+        .Overload<void (Vector2i::*)(const Vector2i &)>(_SC("SetVec2i"), &Vector2i::Set)
+        .Overload<void (Vector2i::*)(const Vector2 &)>(_SC("SetVec2"), &Vector2i::Set)
+        .Overload<void (Vector2i::*)(CSStr, SQChar)>(_SC("SetStr"), &Vector2i::Set)
+        /* Random Generators */
+        .Overload<void (Vector2i::*)(void)>(_SC("Generate"), &Vector2i::Generate)
+        .Overload<void (Vector2i::*)(Val, Val)>(_SC("Generate"), &Vector2i::Generate)
+        .Overload<void (Vector2i::*)(Val, Val, Val, Val)>(_SC("Generate"), &Vector2i::Generate)
+        /* Utility Methods */
+        .Func(_SC("Clear"), &Vector2i::Clear)
+        /* Operator Exposure */
         .Func<Vector2i & (Vector2i::*)(const Vector2i &)>(_SC("opAddAssign"), &Vector2i::operator +=)
         .Func<Vector2i & (Vector2i::*)(const Vector2i &)>(_SC("opSubAssign"), &Vector2i::operator -=)
         .Func<Vector2i & (Vector2i::*)(const Vector2i &)>(_SC("opMulAssign"), &Vector2i::operator *=)
@@ -631,10 +590,6 @@ bool Register_Vector2i(HSQUIRRELVM vm)
         .Func<bool (Vector2i::*)(const Vector2i &) const>(_SC("opLessEqual"), &Vector2i::operator <=)
         .Func<bool (Vector2i::*)(const Vector2i &) const>(_SC("opGreaterEqual"), &Vector2i::operator >=)
     );
-
-    LogDbg("Registration of <Vector2i> type was successful");
-
-    return true;
 }
 
 } // Namespace:: SqMod

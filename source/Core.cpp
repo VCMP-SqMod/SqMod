@@ -1,16 +1,19 @@
+// ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
-#include "Debug.hpp"
 #include "Logger.hpp"
-#include "Entity.hpp"
-#include "Register.hpp"
-
-// ------------------------------------------------------------------------------------------------
 #include "Command.hpp"
-#include "Misc/Automobile.hpp"
-#include "Misc/Model.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <SimpleIni.h>
+#include "Entity/Blip.hpp"
+#include "Entity/Checkpoint.hpp"
+#include "Entity/Forcefield.hpp"
+#include "Entity/Keybind.hpp"
+#include "Entity/Object.hpp"
+#include "Entity/Pickup.hpp"
+#include "Entity/Player.hpp"
+#include "Entity/Sprite.hpp"
+#include "Entity/Textdraw.hpp"
+#include "Entity/Vehicle.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <sqstdio.h>
@@ -18,385 +21,166 @@
 #include <sqstdmath.h>
 #include <sqstdsystem.h>
 #include <sqstdstring.h>
+#include <SimpleIni.h>
 
 // ------------------------------------------------------------------------------------------------
-#include <cstdarg>
-#include <sstream>
-#include <fstream>
-#include <algorithm>
+#include <stdio.h>
+#include <stdarg.h>
+
+// ------------------------------------------------------------------------------------------------
 #include <exception>
+#include <stdexcept>
+#include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-const Core::Pointer _Core = Core::Inst();
+extern bool RegisterAPI(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
-static std::shared_ptr<CSimpleIni> g_Config;
+Core * _Core = NULL;
+
+// ------------------------------------------------------------------------------------------------
+static void CalculateStringIDs(SQChar arr[][8], Uint32 num)
+{
+    for (Uint32 n = 0; n < num; n++)
+        snprintf(arr[n], 8, "%d", n);
+}
 
 // ------------------------------------------------------------------------------------------------
 Core::Core()
-    : m_State(SQMOD_SUCCESS)
-    , m_Options()
-    , m_VM(nullptr)
+    : m_State(0)
+    , m_VM(NULL)
     , m_Scripts()
-    , m_ErrorMsg()
-    , m_PlayerTrack()
-    , m_VehicleTrack()
-    , m_BufferPool()
-    , m_Uptime(0.0)
+    , m_Options()
+    , m_Blips()
+    , m_Checkpoints()
+    , m_Forcefields()
+    , m_Keybinds()
+    , m_Objects()
+    , m_Pickups()
+    , m_Players()
+    , m_Sprites()
+    , m_Textdraws()
+    , m_Vehicles()
 {
-    // Create a few shared buffers
-    MakeBuffer(8);
+
 }
 
 // ------------------------------------------------------------------------------------------------
 Core::~Core()
 {
-    // Tell the plug-in to terminate
-    this->Terminate();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::_Finalizer(Core * ptr)
-{
-    delete ptr; /* Assuming 'delete' checks for NULL */
-}
-
-// ------------------------------------------------------------------------------------------------
-Core::Pointer Core::Inst()
-{
-    if (!_Core)
-    {
-        return Pointer(new Core(), &Core::_Finalizer);
-    }
-
-    return Pointer(nullptr, &Core::_Finalizer);
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Core::Init()
 {
-    LogMsg("%s", CenterStr("INITIALIZING", '*'));
-    // Attempt to initialize the plug-in resources
-    if (!this->Configure() || !this->CreateVM() || !this->LoadScripts())
+    if (cLogWrn(m_VM, "Already initialized"))
+        return true;
+
+    LogDbg("Resizing the entity containers");
+    // Make sure the entity containers have the proper size
+    m_Blips.resize(SQMOD_BLIP_POOL);
+    m_Checkpoints.resize(SQMOD_CHECKPOINT_POOL);
+    m_Forcefields.resize(SQMOD_FORCEFIELD_POOL);
+    m_Keybinds.resize(SQMOD_KEYBIND_POOL);
+    m_Objects.resize(SQMOD_OBJECT_POOL);
+    m_Pickups.resize(SQMOD_PICKUP_POOL);
+    m_Players.resize(SQMOD_PLAYER_POOL);
+    m_Sprites.resize(SQMOD_SPRITE_POOL);
+    m_Textdraws.resize(SQMOD_TEXTDRAW_POOL);
+    m_Vehicles.resize(SQMOD_VEHICLE_POOL);
+
+    LogDbg("Pre-calculating entity string identifiers");
+    // Pre-calculate all possible entity IDs for fast string conversion
+    CalculateStringIDs(CBlip::s_StrID, SQMOD_BLIP_POOL);
+    CalculateStringIDs(CCheckpoint::s_StrID, SQMOD_CHECKPOINT_POOL);
+    CalculateStringIDs(CForcefield::s_StrID, SQMOD_FORCEFIELD_POOL);
+    CalculateStringIDs(CKeybind::s_StrID, SQMOD_KEYBIND_POOL);
+    CalculateStringIDs(CObject::s_StrID, SQMOD_OBJECT_POOL);
+    CalculateStringIDs(CPickup::s_StrID, SQMOD_PICKUP_POOL);
+    CalculateStringIDs(CPlayer::s_StrID, SQMOD_PLAYER_POOL);
+    CalculateStringIDs(CSprite::s_StrID, SQMOD_SPRITE_POOL);
+    CalculateStringIDs(CTextdraw::s_StrID, SQMOD_TEXTDRAW_POOL);
+    CalculateStringIDs(CVehicle::s_StrID, SQMOD_VEHICLE_POOL);
+
+    LogDbg("Initializing entity options to defaults");
+    // Initialize player messaging options to default values
+    for (Players::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
-        return false;
-    }
-
-    // Initialize the player message prefixes
-    Ent< CPlayer >::Prefixes.fill(Ent< CPlayer >::MsgPrefix::value_type());
-    // Initialize the player message styles
-    Ent< CPlayer >::MessageColor = 0x6599FFFF;
-    Ent< CPlayer >::AnnounceStyle = 1;
-    LogMsg("%s", CenterStr("SUCCESS", '*'));
-
-    return true;
-}
-
-bool Core::Load()
-{
-    LogMsg("%s", CenterStr("LOADING", '*'));
-    // Attempt to execute the loaded scripts
-    if (!this->Execute())
-    {
-        return false;
-    }
-
-    LogMsg("%s", CenterStr("SUCCESS", '*'));
-
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::Deinit()
-{
-    // Release the VM created during the initialization process
-    this->DestroyVM();
-}
-
-void Core::Unload()
-{
-
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::Terminate()
-{
-    this->Deinit();
-    this->Unload();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::SetState(SQInteger val)
-{
-    m_State = val;
-}
-
-SQInteger Core::GetState() const
-{
-    return m_State;
-}
-
-// ------------------------------------------------------------------------------------------------
-string Core::GetOption(const String & name) const
-{
-    // Attempt to find the specified option
-    OptionPool::const_iterator elem = m_Options.find(name);
-    // Return the value associated with the found option
-    return (elem == m_Options.cend()) ? String() : elem->second;
-}
-
-void Core::SetOption(const String & name, const String & value)
-{
-    m_Options[name] = value;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQFloat Core::GetUptime() const
-{
-    return m_Uptime;
-}
-
-// ------------------------------------------------------------------------------------------------
-Buffer Core::PullBuffer(unsigned sz)
-{
-    // The container that will manage the buffer
-    Buffer buf;
-    // See if there's any buffers available in the pool
-    if (m_BufferPool.empty())
-    {
-        // Create a new buffer if one wasn't available
-        buf.Reserve(sz);
-    }
-    // Is the last buffer big enough?
-    else if (m_BufferPool.back().Size() >= sz)
-    {
-        // Fetch the buffer
-        buf = std::move(m_BufferPool.back());
-        // Remove it from the pool
-        m_BufferPool.pop_back();
-    }
-    // Is the first buffer big enough?
-    else if (m_BufferPool.front().Size() >= sz)
-    {
-        // Fetch the buffer
-        buf = std::move(m_BufferPool.front());
-        // Remove it from the pool
-        m_BufferPool.pop_front();
-    }
-    // Just fetch one from the pool if possible
-    else
-    {
-        // Get an iterator to the beginning of the pool
-        auto itr = m_BufferPool.begin();
-        // See if there are any buffers with the size we need
-        for (; itr != m_BufferPool.end(); ++itr)
+        for (unsigned n = 0; n < SQMOD_PLAYER_MSG_PREFIXES; ++n)
         {
-            if (itr->Size() >= sz)
-            {
-                // Stop searching
-                break;
-            }
+            itr->mPrefixes[n].clear();
         }
-        // Have we found anything?
-        if (itr != m_BufferPool.end())
-        {
-            // Fetch the buffer
-            buf = std::move((*itr));
-            // Remove it from the pool
-            m_BufferPool.erase(itr);
-        }
-        // Just make one to satisfy the requested size
-        else
-        {
-            buf.Reserve(sz);
-        }
-    }
-    // Give the obtained buffer
-    return std::move(buf);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::PushBuffer(Buffer && buf)
-{
-    // Make sure we don't store empty buffers
-    if (buf)
-    {
-        // Return the specified buffer back to the pool
-        m_BufferPool.push_back(std::move(buf));
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::MakeBuffer(unsigned num, unsigned sz)
-{
-    // Create the specified number of buffers
-    while (num--)
-    {
-        m_BufferPool.emplace_back(sz);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ConnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload)
-{
-    // Attempt to activate the instance in the plug-in at the received identifier
-    if (EntMan< CPlayer >::Activate(id, false))
-    {
-        // Trigger the specific event
-        OnPlayerCreated(id, header, payload);
-    }
-    else
-    {
-        LogErr("Unable to activate player instance: %d", id);
-    }
-}
-
-void Core::DisconnectPlayer(SQInt32 id, SQInt32 header, SqObj & payload)
-{
-    // Attempt to deactivate this player instance
-    if (!EntMan< CPlayer >::Deactivate(id, header, payload, true))
-    {
-        LogErr("Unable to deactivate player instance: %d", id);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::Configure()
-{
-    LogDbg("Attempting to instantiate the configuration file");
-    // See if the configurations instance was previously created
-    if (g_Config)
-    {
-        // Release the loaded configurations
-        g_Config->Reset();
-    }
-    // Create the configuration instance
-    else
-    {
-        g_Config.reset(new CSimpleIniA(true, true, true));
-    }
-    // See if a configuration instance could be created
-    if (!g_Config)
-    {
-        LogFtl("Unable to instantiate the configuration class");
-
-        return false;
+        itr->mMessageColor = 0x6599FFFF;
+        itr->mAnnounceStyle = 1;
     }
 
-    LogDbg("Attempting to load the configuration file.");
+    LogDbg("Reading configuration file (sqmod.ini)");
+    CSimpleIniA conf(false, true, true);
     // Attempt to load the configurations from disk
-    SI_Error ini_ret = g_Config->LoadFile(_SC("./sqmod.ini"));
+    SI_Error ini_ret = conf.LoadFile("sqmod.ini");
     // See if the configurations could be loaded
     if (ini_ret < 0)
     {
         switch (ini_ret)
         {
-            case SI_FAIL:   LogErr("Failed to load the configuration file. Probably invalid"); break;
-            case SI_NOMEM:  LogErr("Run out of memory while loading the configuration file"); break;
-            case SI_FILE:   LogErr("Failed to load the configuration file. %s", strerror(errno)); break;
-            default:        LogErr("Failed to load the configuration file for some unforeseen reason");
+            case SI_FAIL:
+                LogFtl("Failed to load the configuration file. Probably invalid");
+            break;
+            case SI_NOMEM:
+                LogFtl("Run out of memory while loading the configuration file");
+            break;
+            case SI_FILE:
+                LogFtl("Failed to load the configuration file. %s", strerror(errno));
+            break;
+            default:
+                LogFtl("Failed to load the configuration file for some unforeseen reason");
         }
+        // Failed to load the configuration file
         return false;
     }
 
-    LogDbg("Applying the specified logging filters");
-    // Apply the specified logging filters before anything else
-    if (!SToB(g_Config->GetValue("ConsoleLog", "Debug", "true")))   _Log->DisableConsoleLevel(Logger::LEVEL_DBG);
-    if (!SToB(g_Config->GetValue("ConsoleLog", "Message", "true"))) _Log->DisableConsoleLevel(Logger::LEVEL_MSG);
-    if (!SToB(g_Config->GetValue("ConsoleLog", "Success", "true"))) _Log->DisableConsoleLevel(Logger::LEVEL_SCS);
-    if (!SToB(g_Config->GetValue("ConsoleLog", "Info", "true")))    _Log->DisableConsoleLevel(Logger::LEVEL_INF);
-    if (!SToB(g_Config->GetValue("ConsoleLog", "Warning", "true"))) _Log->DisableConsoleLevel(Logger::LEVEL_WRN);
-    if (!SToB(g_Config->GetValue("ConsoleLog", "Error", "true")))   _Log->DisableConsoleLevel(Logger::LEVEL_ERR);
-    if (!SToB(g_Config->GetValue("ConsoleLog", "Fatal", "true")))   _Log->DisableConsoleLevel(Logger::LEVEL_FTL);
-
-    if (!SToB(g_Config->GetValue("FileLog", "Debug", "true")))      _Log->DisableFileLevel(Logger::LEVEL_DBG);
-    if (!SToB(g_Config->GetValue("FileLog", "Message", "true")))    _Log->DisableFileLevel(Logger::LEVEL_MSG);
-    if (!SToB(g_Config->GetValue("FileLog", "Success", "true")))    _Log->DisableFileLevel(Logger::LEVEL_SCS);
-    if (!SToB(g_Config->GetValue("FileLog", "Info", "true")))       _Log->DisableFileLevel(Logger::LEVEL_INF);
-    if (!SToB(g_Config->GetValue("FileLog", "Warning", "true")))    _Log->DisableFileLevel(Logger::LEVEL_WRN);
-    if (!SToB(g_Config->GetValue("FileLog", "Error", "true")))      _Log->DisableFileLevel(Logger::LEVEL_ERR);
-    if (!SToB(g_Config->GetValue("FileLog", "Fatal", "true")))      _Log->DisableFileLevel(Logger::LEVEL_FTL);
-
-    LogDbg("Reading the options from the general section");
-
-    CSimpleIniA::TNamesDepend general_options;
-
-    if (g_Config->GetAllKeys("Options", general_options) || general_options.size() > 0)
-    {
-        for (const auto & cfg_option : general_options)
-        {
-            CSimpleIniA::TNamesDepend option_list;
-
-            if (!g_Config->GetAllValues("Options", cfg_option.pItem, option_list))
-            {
-                continue;
-            }
-
-            option_list.sort(CSimpleIniA::Entry::LoadOrder());
-
-            for (const auto & cfg_value : option_list)
-            {
-                m_Options[cfg_option.pItem] = cfg_value.pItem;
-            }
-        }
-    }
-    else
-    {
-        LogInf("No options specified in the configuration file");
-    }
-
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::CreateVM()
-{
-    LogDbg("Acquiring the virtual machine stack size");
-
-    // Start with an unknown stack size
-    SQInteger stack_size = SQMOD_UNKNOWN;
-
-    // Attempt to get it from the configuration file
+    Uint16 stack_size = SQMOD_STACK_SIZE;
+    // Attempt to read the database port number
     try
     {
-        stack_size = SToI< SQInteger >::Fn(GetOption(_SC("VMStackSize")), 0, 10);
+        Ulong num = strtoul(conf.GetValue("Config", "StackSize", "0"), NULL, 10);
+        // Make sure that the retrieved number is in range
+        if (!num)
+        {
+            throw std::out_of_range("stack size too small");
+        }
+        else if (num >= NumLimit< Uint16 >::Max)
+        {
+            throw std::out_of_range("stack size too big");
+        }
+        // Save the port number
+        stack_size = (Uint16)num;
     }
-    catch (const std::invalid_argument & e)
+    catch (const std::exception & e)
     {
-        LogWrn("Unable to extract option value: %s", e.what());
+        LogWrn("Unable to obtain the stack size [%s]", e.what());
     }
 
-    // Validate the stack size
-    if (stack_size <= 0)
-    {
-        LogWrn("Invalid stack size. Reverting to default size: %d", SQMOD_STACK_SIZE);
-        SetOption(_SC("VMStackSize"), std::to_string(SQMOD_STACK_SIZE));
-        stack_size = SQMOD_STACK_SIZE;
-    }
-
-    LogInf("Creating a virtual machine with a stack size of: %d", stack_size);
-
+    LogDbg("Creating virtual machine with a stack size (%d)", stack_size);
+    // Attempt to create the VM
     m_VM = sq_open(stack_size);
 
-    if (!m_VM)
+    if (cLogFtl(!m_VM, "Unable to create the virtual machine"))
     {
-        LogFtl("Unable to open a virtual machine with a stack size: %d", stack_size);
-
+        m_VM = NULL;
         return false;
     }
-    else
-    {
-        DefaultVM::Set(m_VM);
-        ErrorHandling::Enable(true);
-        m_Scripts.clear();
-        _Dbg->SetVM(m_VM);
-    }
+
+    // Set this as the default VM and enable error handling
+    DefaultVM::Set(m_VM);
+    ErrorHandling::Enable(true);
 
     LogDbg("Registering the standard libraries");
-    // Register the standard libraries
+    // Register the standard library on the root table
     sq_pushroottable(m_VM);
     sqstd_register_iolib(m_VM);
     sqstd_register_bloblib(m_VM);
@@ -406,76 +190,36 @@ bool Core::CreateVM()
     sq_pop(m_VM, 1);
 
     LogDbg("Setting the base output function");
-    // Set the function that handles the text output
     sq_setprintfunc(m_VM, PrintFunc, ErrorFunc);
 
     LogDbg("Setting the base error handlers");
-    // Se the error handlers
     sq_setcompilererrorhandler(m_VM, CompilerErrorHandler);
     sq_newclosure(m_VM, RuntimeErrorHandler, 0);
     sq_seterrorhandler(m_VM);
 
     LogDbg("Registering the plug-in API");
-    // Register the plug-in API
-    if (!RegisterAPI(m_VM))
-    {
-        LogFtl("Unable to register the plug-in API");
+    if (cLogFtl(!RegisterAPI(m_VM), "Unable to register the plug-in API"))
         return false;
-    }
-    // At this point the VM is ready
-    return true;
-}
 
-void Core::DestroyVM()
-{
-    // See if the Virtual Machine wasn't already destroyed
-    if (m_VM != nullptr)
-    {
-        // Let instances know that they should release links to this VM
-        OnVMClose();
-        // Release the references to the script objects
-        m_Scripts.clear();
-        // Assertions during close may cause double delete
-        HSQUIRRELVM sq_vm = m_VM;
-        // Explicitly set the virtual machine to null
-        m_VM = nullptr;
-        // Close the Virtual Machine
-        sq_close(sq_vm);
-        // Remove it from the debugger as well
-        _Dbg->SetVM(NULL);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Core::LoadScripts()
-{
-    LogDbg("Attempting to compile the specified scripts");
-    // See if the config file was loaded
-    if (!g_Config)
-    {
-        LogWrn("Cannot compile any scripts without the configurations");
-        // No point in loading the plug-in
-        return false;
-    }
     // Attempt to retrieve the list of strings specified in the config
-    CSimpleIniA::TNamesDepend script_list;
-    g_Config->GetAllValues("Scripts", "Source", script_list);
+    CSimpleIniA::TNamesDepend scripts;
+    conf.GetAllValues("Scripts", "Source", scripts);
     // See if any script was specified
-    if (script_list.size() <= 0)
+    if (scripts.size() <= 0)
     {
         LogWrn("No scripts specified in the configuration file");
         // No point in loading the plug-in
         return false;
     }
     // Sort the list in it's original order
-    script_list.sort(CSimpleIniA::Entry::LoadOrder());
+    scripts.sort(CSimpleIniA::Entry::LoadOrder());
     // Process each specified script path
-    for (auto const & cfg_script : script_list)
+    for (CSimpleIniA::TNamesDepend::iterator itr = scripts.begin(); itr != scripts.end(); ++itr)
     {
         // Get the file path as a string
-        string path(cfg_script.pItem);
+        String path(itr->pItem);
         // See if it wasn't already loaded
-        if (m_Scripts.find(path) != m_Scripts.cend())
+        if (m_Scripts.find(path) != m_Scripts.end())
         {
             LogWrn("Script was already loaded: %s", path.c_str());
             // No point in loading it again
@@ -499,11 +243,113 @@ bool Core::LoadScripts()
         // No point in loading the plug-in
         return false;
     }
-    // At this point everything went as expected
+
+    LogDbg("Reading the options from the general section");
+    // Read options only after compilation was successful
+    CSimpleIniA::TNamesDepend options;
+    // Are there any options to load?
+    if (conf.GetAllKeys("Options", options) || options.size() > 0)
+    {
+        // Process all the specified keys under the [Options] section
+        for (CSimpleIniA::TNamesDepend::iterator itr = options.begin(); itr != options.end(); ++itr)
+        {
+            CSimpleIniA::TNamesDepend optlist;
+            // Get all keys with the same name
+            if (!conf.GetAllValues("Options", itr->pItem, optlist))
+            {
+                continue;
+            }
+            // Sort the keys in their original order
+            optlist.sort(CSimpleIniA::Entry::LoadOrder());
+            // Process each option and overwrite existing values
+            for (CSimpleIniA::TNamesDepend::iterator opt = optlist.begin(); opt != optlist.end(); ++opt)
+            {
+                m_Options[itr->pItem] = opt->pItem;
+            }
+        }
+    }
+    else
+    {
+        LogInf("No options specified in the configuration file");
+    }
+
+    LogDbg("Applying the specified logging filters");
+    // Apply the specified logging filters only after initialization was completed
+    if (!SToB(conf.GetValue("Log", "Debug", "true")))   _Log->DisableLevel(LL_DBG);
+    if (!SToB(conf.GetValue("Log", "User", "true"))) _Log->DisableLevel(LL_USR);
+    if (!SToB(conf.GetValue("Log", "Success", "true"))) _Log->DisableLevel(LL_SCS);
+    if (!SToB(conf.GetValue("Log", "Info", "true")))    _Log->DisableLevel(LL_INF);
+    if (!SToB(conf.GetValue("Log", "Warning", "true"))) _Log->DisableLevel(LL_WRN);
+    if (!SToB(conf.GetValue("Log", "Error", "true")))   _Log->DisableLevel(LL_ERR);
+    if (!SToB(conf.GetValue("Log", "Fatal", "true")))   _Log->DisableLevel(LL_FTL);
+
+    // Initialization successful
     return true;
 }
 
 // ------------------------------------------------------------------------------------------------
+bool Core::Load()
+{
+    // Are there any scripts to execute?
+    if (cLogErr(m_Scripts.empty(), "No scripts to execute. Plug-in has no purpose"))
+    {
+        return false;
+    }
+    LogDbg("Attempting to execute the specified scripts");
+    // Go through each loaded script
+    for (Scripts::iterator itr = m_Scripts.begin(); itr != m_Scripts.end(); ++itr)
+    {
+        // Attempt to execute the script
+        itr->second.Run();
+        // See if the executed script had any errors
+        if (Error::Occurred(m_VM))
+        {
+            // Failed to execute scripts
+            return false;
+        }
+        else
+        {
+            LogScs("Successfully executed script: %s", itr->first.c_str());
+        }
+    }
+    // Successfully loaded
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::Terminate()
+{
+    // Release all entity resources by clearing the containers
+    m_Blips.clear();
+    m_Checkpoints.clear();
+    m_Keybinds.clear();
+    m_Objects.clear();
+    m_Pickups.clear();
+    m_Players.clear();
+    m_Forcefields.clear();
+    m_Sprites.clear();
+    m_Textdraws.clear();
+    m_Vehicles.clear();
+    m_Scripts.clear();
+    // Release all resources from command manager
+    _Cmd->Terminate();
+    // Release all resources from routines
+    //Routine::Cleanup();
+    // Is there a VM to close?
+    if (m_VM)
+    {
+        // Release all script callbacks
+        ResetFunc();
+        // Release the script instances
+        m_Scripts.clear();
+        // Assertions during close may cause double delete!
+        HSQUIRRELVM sq_vm = m_VM;
+        m_VM = NULL;
+        // Attempt to close the VM
+        sq_close(sq_vm);
+    }
+}
+
 bool Core::Compile(const string & name)
 {
     // See if the specified script path is valid
@@ -514,7 +360,7 @@ bool Core::Compile(const string & name)
         return false;
     }
     // Create a new script container and insert it into the script pool
-    std::pair< SqScriptPool::iterator, bool > res = m_Scripts.emplace(name, Script(m_VM));
+    std::pair< Scripts::iterator, bool > res = m_Scripts.insert(Scripts::value_type(name, Script(m_VM)));
     // See if the script container could be created and inserted
     if (res.second)
     {
@@ -523,9 +369,6 @@ bool Core::Compile(const string & name)
         // See if any compile time error occurred in the compiled script
         if (Error::Occurred(m_VM))
         {
-            // Output debugging information
-            LogErr("Unable to compile script: %s", name.c_str());
-            LogInf("=> %s", Error::Message(m_VM).c_str());
             // Release the script container
             m_Scripts.erase(res.first);
             // Failed to compile the specified script
@@ -536,1269 +379,2070 @@ bool Core::Compile(const string & name)
     else
     {
         LogErr("Unable to queue script: %s", name.c_str());
-            // Failed to compile the specified script
+        // Failed to compile the specified script
         return false;
     }
     // At this point everything went as it should
     return true;
 }
 
-bool Core::Execute()
+// ------------------------------------------------------------------------------------------------
+CSStr Core::GetOption(const String & name) const
 {
-    LogDbg("Attempting to execute the specified scripts");
-    // Go through each loaded script
-    for (auto & elem : m_Scripts)
-    {
-        // Attempt to execute the script
-        elem.second.Run();
-        // See if the executed script had any errors
-        if (Error::Occurred(m_VM))
-        {
-            // Output the error information
-            LogErr("Unable to execute script: %s", elem.first.c_str());
-            LogInf("=> %s", Error::Message(m_VM).c_str());
-            // Failed to execute scripts
-            return false;
-        }
-        else
-        {
-            LogScs("Successfully executed script: %s", elem.first.c_str());
-        }
-    }
-    // At this point everything succeeded
-    return true;
+    Options::const_iterator elem = m_Options.find(name);
+    return (elem == m_Options.end()) ? g_EmptyStr : elem->second.c_str();
+}
+
+void Core::SetOption(const String & name, const String & value)
+{
+    m_Options[name] = value;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PrintCallstack()
+void Core::PrintFunc(HSQUIRRELVM vm, CSStr msg, ...)
 {
-    SQStackInfos si;
-    // Begin a new section in the console
-    LogMsg("%s", CenterStr("CALLSTACK", '*'));
-    // Trace back the function call
-    for (SQInteger level = 1; SQ_SUCCEEDED(sq_stackinfos(m_VM, level, &si)); ++level)
-    {
-        // Function name
-        LogInf("FUNCTION %s()", si.funcname ? si.funcname : _SC("unknown"));
-        // Function location
-        LogInf("=> [%d] : {%s}", si.line, si.source ? si.source : _SC("unknown"));
-    }
-    // Dummy variables used to retrieve values from the Squirrel VM
-    const SQChar * s_ = 0, * name = 0;
-    SQInteger i_, seq = 0;
-    SQFloat f_;
-    SQUserPointer p_;
-    // Begin a new section in the console
-    LogMsg("%s", CenterStr("LOCALS", '*'));
-    // Process each local variable
-    for (SQInteger level = 0; level < 10; level++) {
-        seq = 0;
-        while((name = sq_getlocal(m_VM, level, seq))) {
-            ++seq;
-            switch(sq_gettype(m_VM, -1))
-            {
-                case OT_NULL:
-                    LogInf("NULL [%s] : ...", name);
-                    break;
-                case OT_INTEGER:
-                    sq_getinteger(m_VM, -1, &i_);
-                    LogInf("INTEGER [%s] : {%d}", name, i_);
-                    break;
-                case OT_FLOAT:
-                    sq_getfloat(m_VM, -1, &f_);
-                    LogInf("FLOAT [%s] : {%f}", name, f_);
-                    break;
-                case OT_USERPOINTER:
-                    sq_getuserpointer(m_VM, -1, &p_);
-                    LogInf("USERPOINTER [%s] : {%p}\n", name, p_);
-                    break;
-                case OT_STRING:
-                    sq_getstring(m_VM, -1, &s_);
-                    LogInf("STRING [%s] : {%s}", name, s_);
-                    break;
-                case OT_TABLE:
-                    LogInf("TABLE [%s] : ...", name);
-                    break;
-                case OT_ARRAY:
-                    LogInf("ARRAY [%s] : ...", name);
-                    break;
-                case OT_CLOSURE:
-                    LogInf("CLOSURE [%s] : ...", name);
-                    break;
-                case OT_NATIVECLOSURE:
-                    LogInf("NATIVECLOSURE [%s] : ...", name);
-                    break;
-                case OT_GENERATOR:
-                    LogInf("GENERATOR [%s] : ...", name);
-                    break;
-                case OT_USERDATA:
-                    LogInf("USERDATA [%s] : ...", name);
-                    break;
-                case OT_THREAD:
-                    LogInf("THREAD [%s] : ...", name);
-                    break;
-                case OT_CLASS:
-                    LogInf("CLASS [%s] : ...", name);
-                    break;
-                case OT_INSTANCE:
-                    LogInf("INSTANCE [%s] : ...", name);
-                    break;
-                case OT_WEAKREF:
-                    LogInf("WEAKREF [%s] : ...", name);
-                    break;
-                case OT_BOOL:
-                    sq_getinteger(m_VM, -1, &i_);
-                    LogInf("BOOL [%s] : {%s}", name, i_ ? _SC("true") : _SC("false"));
-                    break;
-                default:
-                    LogErr("UNKNOWN [%s] : ...", name);
-                break;
-            }
-            sq_pop(m_VM, 1);
-        }
-    }
+    SQMOD_UNUSED_VAR(vm);
+
+    va_list args;
+    va_start(args, msg);
+    _Log->Send(LL_USR, false, msg, args);
+    va_end(args);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PrintFunc(HSQUIRRELVM vm, const SQChar * str, ...)
+void Core::ErrorFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
 {
-    SQMOD_UNUSED_VAR(vm);
-    // Prepare the arguments list
     va_list args;
-    va_start(args, str);
-    // Acquire a buffer from the buffer pool
-    Buffer vbuf = _Core->PullBuffer();
-    // Attempt to process the specified format string
-    SQInt32 fmt_ret = std::vsnprintf(vbuf.Data(), vbuf.Size(), str, args);
-    // See if the formatting was successful
-    if (fmt_ret < 0)
-    {
-        // Return the buffer back to the buffer pool
-        _Core->PushBuffer(std::move(vbuf));
-        LogErr("Format error");
-        return;
-    }
-    // See if the buffer was big enough
-    else if (_SCU32(fmt_ret) > vbuf.Size())
-    {
-        // Resize the buffer to accommodate the required size
-        vbuf.Reserve(++fmt_ret);
-        // Attempt to process the specified format string again
-        fmt_ret = std::vsnprintf(vbuf.Data(), vbuf.Size(), str, args);
-        // See if the formatting was successful
-        if (fmt_ret < 0)
-        {
-            // Return the buffer back to the buffer pool
-            _Core->PushBuffer(std::move(vbuf));
-            LogErr("Format error");
-            return;
-        }
-    }
-    // Release the arguments list
+    va_start(args, msg);
+    _Log->Debug(msg, args);
     va_end(args);
-    // Output the buffer content
-    LogMsg("%s", vbuf.Data());
-    // Return the buffer back to the buffer pool
-    _Core->PushBuffer(std::move(vbuf));
-}
-
-void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * str, ...)
-{
-    SQMOD_UNUSED_VAR(vm);
-    // Prepare the arguments list
-    va_list args;
-    va_start(args, str);
-    // Acquire a buffer from the buffer pool
-    Buffer vbuf = _Core->PullBuffer();
-    // Attempt to process the specified format string
-    SQInt32 fmt_ret = std::vsnprintf(vbuf.Data(), vbuf.Size(), str, args);
-    // See if the formatting was successful
-    if (fmt_ret < 0)
-    {
-        // Return the buffer back to the buffer pool
-        _Core->PushBuffer(std::move(vbuf));
-        LogErr("Format error");
-        return;
-    }
-    // See if the buffer was big enough
-    else if (_SCU32(fmt_ret) > vbuf.Size())
-    {
-        // Resize the buffer to accommodate the required size
-        vbuf.Reserve(++fmt_ret);
-        // Attempt to process the specified format string again
-        fmt_ret = std::vsnprintf(vbuf.Data(), vbuf.Size(), str, args);
-        // See if the formatting was successful
-        if (fmt_ret < 0)
-        {
-            // Return the buffer back to the buffer pool
-            _Core->PushBuffer(std::move(vbuf));
-            LogErr("Format error");
-            return;
-        }
-    }
-    // Release the arguments list
-    va_end(args);
-    // Output the buffer content
-    LogErr("%s", vbuf.Data());
-    // Return the buffer back to the buffer pool
-    _Core->PushBuffer(std::move(vbuf));
 }
 
 // ------------------------------------------------------------------------------------------------
 SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
 {
-    // Verify the top of the stack and whether there's any information to process
     if (sq_gettop(vm) < 1)
-    {
         return 0;
-    }
 
-    const SQChar * err_msg = NULL;
-    // Attempt to retrieve the error message
+    CSStr err_msg = NULL;
+
     if (SQ_SUCCEEDED(sq_getstring(vm, 2, &err_msg)))
-    {
-        _Core->m_ErrorMsg.assign(err_msg);
-    }
+        _Log->Debug("%s", err_msg);
     else
-    {
-        _Core->m_ErrorMsg.assign(_SC("An unknown runtime error has occurred"));
-    }
-    // Start a new section in the console
-    LogMsg("%s", CenterStr("ERROR", '*'));
-    // Output the retrieved error message
-    LogInf("[MESSAGE] : %s", _Core->m_ErrorMsg.c_str());
-    // See if the specified verbosity level allows a print of the call-stack
-    if (_Log->GetVerbosity() > 0)
-    {
-        _Core->PrintCallstack();
-    }
-    // Close the console section
-    LogMsg("%s", CenterStr("CONCLUDED", '*'));
-    // The error was handled
+        _Log->Debug(_SC("unknown runtime error has occurred"));
+
     return SQ_OK;
 }
 
-void Core::CompilerErrorHandler(HSQUIRRELVM vm, const SQChar * desc, const SQChar * src, SQInteger line, SQInteger column)
+// ------------------------------------------------------------------------------------------------
+void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInteger line, SQInteger column)
 {
-    SQMOD_UNUSED_VAR(vm);
-    try
-    {
-        _Core->m_ErrorMsg.assign(ToStringF("%s : %s:%d : %s", src, line, column, desc));
-    }
-    catch (const std::exception & e)
-    {
-        LogErr("Compiler error: %s", e.what());
-        _Core->m_ErrorMsg.assign(_SC("An unknown compiler error has occurred"));
-    }
-    // Output the obtained error message
-    LogErr("%s", _Core->m_ErrorMsg.c_str());
+    LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %d\n=>Column: %d\n]", desc, src, line, column);
 }
 
-// ------------------------------------------------------------------------------------------------
-Reference< CBlip > Core::NewBlip(SQInt32 index, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                    SQInt32 scale, SQUint32 color, SQInt32 sprid,
-                                    SQInt32 header, SqObj & payload)
+// --------------------------------------------------------------------------------------------
+Object & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
+                            Int32 scale, Uint32 color, Int32 sprid,
+                            Int32 header, Object & payload)
 {
-    // Attempt to create the entity and return a reference to it
-    return Reference< CBlip >(EntMan< CBlip >::Create(header, payload, true,
-                                    index, world, x, y, z, scale, color, sprid));
+    Int32 id = _Func->CreateCoordBlip(index, world, x, y, z, scale, color, sprid);
+
+    if (INVALID_ENTITY(id))
+    {
+        LogErr("Server returned invalid blip: %d", id);
+        return NullObject();
+    }
+
+    BlipInst & inst = m_Blips.at(id);
+
+    inst.mInst = new CBlip(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a blip instance for: %d", id);
+        ResetInst(inst);
+
+        return NullObject();
+    }
+
+    inst.mID = id;
+    inst.mFlags |= ENF_OWNED;
+    EmitBlipCreated(id, header, payload);
+
+    return inst.mObj;
 }
 
-// ------------------------------------------------------------------------------------------------
-Reference< CCheckpoint > Core::NewCheckpoint(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                                Uint8 r, Uint8 g, Uint8 b, Uint8 a, SQFloat radius,
-                                                SQInt32 header, SqObj & payload)
+Object & Core::NewCheckpoint(Int32 player, Int32 world, Float32 x, Float32 y, Float32 z,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
+                            Int32 header, Object & payload)
 {
-    // See if the specified player reference is valid
-    if (!Reference< CPlayer >::Verify(player))
+    if (INVALID_ENTITY(m_Players.at(player).mID))
     {
-        LogWrn("Attempting to <create a checkpoint instance> on an invalid player: %d", player);
+        LogErr("Invalid player reference: %d", player);
+        return NullObject();
     }
-    // Attempt to create the entity and return a reference to it
+
+    Int32 id = _Func->CreateCheckpoint(player, world, x, y, z, r, g, b, a, radius);
+
+    if (INVALID_ENTITY(id))
+    {
+        LogErr("Server returned invalid checkpoint: %d", id);
+        return NullObject();
+    }
+
+    CheckpointInst & inst = m_Checkpoints.at(id);
+
+    inst.mInst = new CCheckpoint(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a checkpoint instance for: %d", id);
+        ResetInst(inst);
+
+        return NullObject();
+    }
+
+    inst.mID = id;
+    inst.mFlags |= ENF_OWNED;
+    EmitCheckpointCreated(id, header, payload);
+
+    return inst.mObj;
+}
+
+Object & Core::NewForcefield(Int32 player, Int32 world, Float32 x, Float32 y, Float32 z,
+                            Uint8 r, Uint8 g, Uint8 b, Float32 radius,
+                            Int32 header, Object & payload)
+{
+    if (INVALID_ENTITY(m_Players.at(player).mID))
+    {
+        LogErr("Invalid player reference: %d", player);
+        return NullObject();
+    }
+
+    Int32 id = _Func->CreateSphere(player, world, x, y, z, r, g, b, radius);
+
+    if (INVALID_ENTITY(id))
+    {
+        LogErr("Server returned invalid forcefield: %d", id);
+        return NullObject();
+    }
+
+    ForcefieldInst & inst = m_Forcefields.at(id);
+
+    inst.mInst = new CForcefield(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a forcefield instance for: %d", id);
+        ResetInst(inst);
+
+        return NullObject();
+    }
+
+    inst.mID = id;
+    inst.mFlags |= ENF_OWNED;
+    EmitForcefieldCreated(id, header, payload);
+
+    return inst.mObj;
+}
+
+Object & Core::NewKeybind(Int32 slot, bool release,
+                            Int32 primary, Int32 secondary, Int32 alternative,
+                            Int32 header, Object & payload)
+{
+    Int32 id = _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
+
+    if (INVALID_ENTITY(id))
+    {
+        LogErr("Server returned invalid keybind: %d", id);
+        return NullObject();
+    }
+
+    KeybindInst & inst = m_Keybinds.at(id);
+
+    inst.mInst = new CKeybind(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a keybind instance for: %d", id);
+        ResetInst(inst);
+
+        return NullObject();
+    }
+
+    inst.mID = id;
+    inst.mFlags |= ENF_OWNED;
+    EmitKeybindCreated(id, header, payload);
+
+    return inst.mObj;
+}
+
+Object & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+                            Int32 alpha, Int32 header, Object & payload)
+{
+    Int32 id = _Func->CreateObject(model, world, x, y, z, alpha);
+
+    if (INVALID_ENTITY(id))
+    {
+        LogErr("Server returned invalid object: %d", id);
+        return NullObject();
+    }
+
+    ObjectInst & inst = m_Objects.at(id);
+
+    inst.mInst = new CObject(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a object instance for: %d", id);
+        ResetInst(inst);
+
+        return NullObject();
+    }
+
+    inst.mID = id;
+    inst.mFlags |= ENF_OWNED;
+    EmitObjectCreated(id, header, payload);
+
+    return inst.mObj;
+}
+
+Object & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
+                            Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic,
+                            Int32 header, Object & payload)
+{
+    Int32 id = _Func->CreatePickup(model, world, quantity, x, y, z, alpha, automatic);
+
+    if (INVALID_ENTITY(id))
+    {
+        LogErr("Server returned invalid pickup: %d", id);
+        return NullObject();
+    }
+
+    PickupInst & inst = m_Pickups.at(id);
+
+    inst.mInst = new CPickup(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a pickup instance for: %d", id);
+        ResetInst(inst);
+
+        return NullObject();
+    }
+
+    inst.mID = id;
+    inst.mFlags |= ENF_OWNED;
+    EmitPickupCreated(id, header, payload);
+
+    return inst.mObj;
+}
+
+Object & Core::NewSprite(Int32 index, CSStr file, Int32 xp, Int32 yp,
+                            Int32 xr, Int32 yr, Float32 angle, Int32 alpha, bool rel,
+                            Int32 header, Object & payload)
+{
+    Int32 id = _Func->CreateSprite(index, file, xp, yp, xr, yr, angle, alpha, rel);
+
+    if (INVALID_ENTITY(id))
+    {
+        LogErr("Server returned invalid sprite: %d", id);
+        return NullObject();
+    }
+
+    SpriteInst & inst = m_Sprites.at(id);
+
+    inst.mInst = new CSprite(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a sprite instance for: %d", id);
+        ResetInst(inst);
+
+        return NullObject();
+    }
+
+    inst.mID = id;
+    inst.mFlags |= ENF_OWNED;
+    EmitSpriteCreated(id, header, payload);
+
+    return inst.mObj;
+}
+
+Object & Core::NewTextdraw(Int32 index, CSStr text, Int32 xp, Int32 yp,
+                            Uint32 color, bool rel, Int32 header, Object & payload)
+{
+    Int32 id = _Func->CreateTextdraw(index, text, xp, yp, color, rel);
+
+    if (INVALID_ENTITY(id))
+    {
+        LogErr("Server returned invalid textdraw: %d", id);
+        return NullObject();
+    }
+
+    TextdrawInst & inst = m_Textdraws.at(id);
+
+    inst.mInst = new CTextdraw(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a textdraw instance for: %d", id);
+        ResetInst(inst);
+
+        return NullObject();
+    }
+
+    inst.mID = id;
+    inst.mFlags |= ENF_OWNED;
+    EmitTextdrawCreated(id, header, payload);
+
+    return inst.mObj;
+}
+
+Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+                            Float32 angle, Int32 primary, Int32 secondary,
+                            Int32 header, Object & payload)
+{
+    Int32 id = _Func->CreateVehicle(model, world, x, y, z, angle, primary, secondary);
+
+    if (INVALID_ENTITY(id))
+    {
+        LogErr("Server returned invalid vehicle: %d", id);
+        return NullObject();
+    }
+
+    VehicleInst & inst = m_Vehicles.at(id);
+
+    inst.mInst = new CVehicle(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a vehicle instance for: %d", id);
+        ResetInst(inst);
+
+        return NullObject();
+    }
+
+    inst.mID = id;
+    inst.mFlags |= ENF_OWNED;
+    EmitVehicleCreated(id, header, payload);
+
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+bool Core::DelBlip(Int32 id, Int32 header, Object & payload)
+{
+    BlipInst & inst = m_Blips.at(id);
+    EmitBlipDestroyed(id, header, payload);
+
+    if (inst.mInst)
+    {
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
+    }
+
+    _Func->DestroyCoordBlip(inst.mID);
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+
+    return true;
+}
+
+bool Core::DelCheckpoint(Int32 id, Int32 header, Object & payload)
+{
+    CheckpointInst & inst = m_Checkpoints.at(id);
+    EmitCheckpointDestroyed(id, header, payload);
+
+    if (inst.mInst)
+    {
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
+    }
+
+    _Func->DeleteCheckpoint(inst.mID);
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+
+    return true;
+}
+
+bool Core::DelForcefield(Int32 id, Int32 header, Object & payload)
+{
+    ForcefieldInst & inst = m_Forcefields.at(id);
+    EmitForcefieldDestroyed(id, header, payload);
+
+    if (inst.mInst)
+    {
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
+    }
+
+    _Func->DeleteSphere(inst.mID);
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+
+    return true;
+}
+
+bool Core::DelKeybind(Int32 id, Int32 header, Object & payload)
+{
+    KeybindInst & inst = m_Keybinds.at(id);
+    EmitKeybindDestroyed(id, header, payload);
+
+    if (inst.mInst)
+    {
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
+    }
+
+    _Func->RemoveKeyBind(inst.mID);
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+
+    return true;
+}
+
+bool Core::DelObject(Int32 id, Int32 header, Object & payload)
+{
+    ObjectInst & inst = m_Objects.at(id);
+    EmitObjectDestroyed(id, header, payload);
+
+    if (inst.mInst)
+    {
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
+    }
+
+    _Func->DeleteObject(inst.mID);
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+
+    return true;
+}
+
+bool Core::DelPickup(Int32 id, Int32 header, Object & payload)
+{
+    PickupInst & inst = m_Pickups.at(id);
+    EmitPickupDestroyed(id, header, payload);
+
+    if (inst.mInst)
+    {
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
+    }
+
+    _Func->DeletePickup(inst.mID);
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+
+    return true;
+}
+
+bool Core::DelSprite(Int32 id, Int32 header, Object & payload)
+{
+    SpriteInst & inst = m_Sprites.at(id);
+    EmitSpriteDestroyed(id, header, payload);
+
+    if (inst.mInst)
+    {
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
+    }
+
+    _Func->DestroySprite(inst.mID);
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+
+    return true;
+}
+
+bool Core::DelTextdraw(Int32 id, Int32 header, Object & payload)
+{
+    TextdrawInst & inst = m_Textdraws.at(id);
+    EmitTextdrawDestroyed(id, header, payload);
+
+    if (inst.mInst)
+    {
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
+    }
+
+    _Func->DestroyTextdraw(inst.mID);
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+
+    return true;
+}
+
+bool Core::DelVehicle(Int32 id, Int32 header, Object & payload)
+{
+    VehicleInst & inst = m_Vehicles.at(id);
+    EmitVehicleDestroyed(id, header, payload);
+
+    if (inst.mInst)
+    {
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
+    }
+
+    _Func->DeleteVehicle(inst.mID);
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+
+    return true;
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
+{
+    PlayerInst & inst = m_Players.at(id);
+    inst.mInst = new CPlayer(id);
+    inst.mObj = Object(inst.mInst, m_VM);
+
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        LogErr("Unable to create a player instance for: %d", id);
+    }
     else
     {
-        return Reference< CCheckpoint >(EntMan< CCheckpoint >::Create(header, payload, true,
-                                        player, world, x, y, z, r, g, b, a, radius));
+        inst.mID = id;
+        EmitPlayerCreated(id, header, payload);
     }
-    // Return an invalid reference
-    return Reference< CCheckpoint >();
 }
 
-// ------------------------------------------------------------------------------------------------
-Reference< CKeybind > Core::NewKeybind(SQInt32 slot, bool release,
-                                        SQInt32 primary, SQInt32 secondary, SQInt32 alternative,
-                                        SQInt32 header, SqObj & payload)
+void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
 {
-    // Attempt to create the entity and return a reference to it
-    return Reference< CKeybind >(EntMan< CKeybind >::Create(header, payload, true,
-                                    slot, release, primary, secondary, alternative));
-}
+    if (static_cast< Uint32 >(id) >= m_Players.size())
+        return;
 
-// ------------------------------------------------------------------------------------------------
-Reference< CObject > Core::NewObject(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                        SQInt32 alpha,
-                                        SQInt32 header, SqObj & payload)
-{
-    // See if the specified model is valid
-    if (!CModel::Valid(model))
+    PlayerInst & inst = m_Players.at(id);
+    EmitPlayerDestroyed(id, header, payload);
+
+    if (inst.mInst)
     {
-        LogWrn("Attempting to <create an object instance> using an invalid model: %d", model);
+        inst.mInst->m_ID = -1;
+        inst.mInst->m_Data.Release();
     }
-    // Attempt to create the entity and return a reference to it
+
+    ResetInst(inst);
+    ResetFunc(inst);
+
+    inst.mInst = NULL;
+    inst.mObj.Release();
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::BindEvent(Int32 id, Object & env, Function & func)
+{
+    Function & event = GetEvent(id);
+
+    if (func.IsNull())
+        event.Release();
     else
-    {
-        return Reference< CObject >(EntMan< CObject >::Create(header, payload, true,
-                                    model, world, x, y, z, alpha));
-    }
-    // Return an invalid reference
-    return Reference< CObject >();
+        event = Function(env.GetVM(), env, func.GetFunc());
+
+    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
-Reference< CPickup > Core::NewPickup(SQInt32 model, SQInt32 world, SQInt32 quantity,
-                                        SQFloat x, SQFloat y, SQFloat z, SQInt32 alpha, bool automatic,
-                                        SQInt32 header, SqObj & payload)
+void Core::EmitBlipCreated(Int32 blip, Int32 header, Object & payload)
 {
-    // See if the specified model is valid
-    if (!CModel::Valid(model))
-    {
-        LogWrn("Attempting to <create a pickup instance> using an invalid model: %d", model);
-    }
-    // Attempt to create the entity and return a reference to it
-    else
-    {
-        return Reference< CPickup >(EntMan< CPickup >::Create(header, payload, true,
-                                    model, world, quantity, x, y, z, alpha, automatic));
-    }
-    // Return an invalid reference
-    return Reference< CPickup >();
+    Emit(mOnBlipCreated, m_Blips.at(blip).mObj, header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-Reference< CSphere > Core::NewSphere(SQInt32 player, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                        Uint8 r, Uint8 g, Uint8 b, SQFloat radius,
-                                        SQInt32 header, SqObj & payload)
+void Core::EmitCheckpointCreated(Int32 checkpoint, Int32 header, Object & payload)
 {
-    // See if the specified player reference is valid
-    if (!Reference< CPlayer >::Verify(player))
-    {
-        LogWrn("Attempting to <create a Sphere instance> on an invalid player: %d", player);
-    }
-    // Attempt to create the entity and return a reference to it
-    else
-    {
-        return Reference< CSphere >(EntMan< CSphere >::Create(header, payload, true,
-                                    player, world, x, y, z, r, g, b, radius));
-    }
-    // Return an invalid reference
-    return Reference< CSphere >();
+    Emit(mOnCheckpointCreated, m_Checkpoints.at(checkpoint).mObj, header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-Reference< CSprite > Core::NewSprite(SQInt32 index, const SQChar * file, SQInt32 xp, SQInt32 yp,
-                                        SQInt32 xr, SQInt32 yr, SQFloat angle, SQInt32 alpha, bool rel,
-                                        SQInt32 header, SqObj & payload)
+void Core::EmitForcefieldCreated(Int32 forcefield, Int32 header, Object & payload)
 {
-    // See if the specified file path is valid
-    if (!file)
-    {
-        LogWrn("Attempting to <create a sprite instance> with an empty path: null");
-    }
-    // Attempt to create the entity and return a reference to it
-    else
-    {
-        return Reference< CSprite >(EntMan< CSprite >::Create(header, payload, true,
-                                        index, file, xp, yp, xr, yr, angle, alpha, rel));
-    }
-    // Return an invalid reference
-    return Reference< CSprite >();
+    Emit(mOnForcefieldCreated, m_Forcefields.at(forcefield).mObj, header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-Reference< CTextdraw > Core::NewTextdraw(SQInt32 index, const SQChar * text, SQInt32 xp, SQInt32 yp,
-                                            SQUint32 color, bool rel,
-                                            SQInt32 header, SqObj & payload)
+void Core::EmitKeybindCreated(Int32 keybind, Int32 header, Object & payload)
 {
-    // See if the specified text is valid
-    if (!text)
-    {
-        LogWrn("Attempting to <create a textdraw instance> using an empty text: null");
-    }
-    // Attempt to create the entity and return a reference to it
-    else
-    {
-        return Reference< CTextdraw >(EntMan< CTextdraw >::Create(header, payload, true,
-                                        index, text, xp, yp, color, rel));
-    }
-    // Return an invalid reference
-    return Reference< CTextdraw >();
+    Emit(mOnKeybindCreated, m_Keybinds.at(keybind).mObj, header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-Reference< CVehicle > Core::NewVehicle(SQInt32 model, SQInt32 world, SQFloat x, SQFloat y, SQFloat z,
-                                        SQFloat angle, SQInt32 primary, SQInt32 secondary,
-                                        SQInt32 header, SqObj & payload)
+void Core::EmitObjectCreated(Int32 object, Int32 header, Object & payload)
 {
-    // See if the specified model is valid
-    if (!CAutomobile::Valid(model))
-    {
-        LogWrn("Attempting to <create a vehicle instance> using an invalid model: %d", model);
-    }
-    // Attempt to create the entity and return a reference to it
-    else
-    {
-        return Reference< CVehicle >(EntMan< CVehicle >::Create(header, payload, true,
-                                        model, world, x, y, z, angle, primary, secondary));
-    }
-    // Return an invalid reference
-    return Reference< CVehicle >();
+    Emit(mOnObjectCreated, m_Objects.at(object).mObj, header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::OnVMClose()
+void Core::EmitPickupCreated(Int32 pickup, Int32 header, Object & payload)
 {
-    // Call base classes manually
-    _Cmd->VMClose();
-    // Froward to instances
-    VMClose.Emit();
+    Emit(mOnPickupCreated, m_Pickups.at(pickup).mObj, header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::OnBlipCreated(SQInt32 blip, SQInt32 header, SqObj & payload)
+void Core::EmitPlayerCreated(Int32 player, Int32 header, Object & payload)
 {
-    BlipCreated.Emit(blip, header, payload);
-    Reference< CBlip >::Get(blip).BlipCreated.Emit(blip, header, payload);
+    Emit(mOnPlayerCreated, m_Players.at(player).mObj, header, payload);
 }
 
-void Core::OnCheckpointCreated(SQInt32 checkpoint, SQInt32 header, SqObj & payload)
+void Core::EmitSpriteCreated(Int32 sprite, Int32 header, Object & payload)
 {
-    CheckpointCreated.Emit(checkpoint, header, payload);
-    Reference< CCheckpoint >::Get(checkpoint).CheckpointCreated.Emit(checkpoint, header, payload);
+    Emit(mOnSpriteCreated, m_Sprites.at(sprite).mObj, header, payload);
 }
 
-void Core::OnKeybindCreated(SQInt32 keybind, SQInt32 header, SqObj & payload)
+void Core::EmitTextdrawCreated(Int32 textdraw, Int32 header, Object & payload)
 {
-    KeybindCreated.Emit(keybind, header, payload);
-    Reference< CKeybind >::Get(keybind).KeybindCreated.Emit(keybind, header, payload);
+    Emit(mOnTextdrawCreated, m_Textdraws.at(textdraw).mObj, header, payload);
 }
 
-void Core::OnObjectCreated(SQInt32 object, SQInt32 header, SqObj & payload)
+void Core::EmitVehicleCreated(Int32 vehicle, Int32 header, Object & payload)
 {
-    ObjectCreated.Emit(object, header, payload);
-    Reference< CObject >::Get(object).ObjectCreated.Emit(object, header, payload);
+    Emit(mOnVehicleCreated, m_Vehicles.at(vehicle).mObj, header, payload);
 }
 
-void Core::OnPickupCreated(SQInt32 pickup, SQInt32 header, SqObj & payload)
+void Core::EmitBlipDestroyed(Int32 blip, Int32 header, Object & payload)
 {
-    PickupCreated.Emit(pickup, header, payload);
-    Reference< CPickup >::Get(pickup).PickupCreated.Emit(pickup, header, payload);
+    BlipInst & _blip = m_Blips.at(blip);
+    Emit(_blip.mOnDestroyed, header, payload);
+    Emit(mOnBlipDestroyed, _blip.mObj, header, payload);
 }
 
-void Core::OnPlayerCreated(SQInt32 player, SQInt32 header, SqObj & payload)
+void Core::EmitCheckpointDestroyed(Int32 checkpoint, Int32 header, Object & payload)
 {
-    PlayerCreated.Emit(player, header, payload);
-    Reference< CPlayer >::Get(player).PlayerCreated.Emit(player, header, payload);
+    CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint);
+    Emit(_checkpoint.mOnDestroyed, header, payload);
+    Emit(mOnCheckpointDestroyed, _checkpoint.mObj, header, payload);
 }
 
-void Core::OnSphereCreated(SQInt32 sphere, SQInt32 header, SqObj & payload)
+void Core::EmitForcefieldDestroyed(Int32 forcefield, Int32 header, Object & payload)
 {
-    SphereCreated.Emit(sphere, header, payload);
-    Reference< CSphere >::Get(sphere).SphereCreated.Emit(sphere, header, payload);
+    ForcefieldInst & _forcefield = m_Forcefields.at(forcefield);
+    Emit(_forcefield.mOnDestroyed, header, payload);
+    Emit(mOnForcefieldDestroyed, _forcefield.mObj, header, payload);
 }
 
-void Core::OnSpriteCreated(SQInt32 sprite, SQInt32 header, SqObj & payload)
+void Core::EmitKeybindDestroyed(Int32 keybind, Int32 header, Object & payload)
 {
-    SpriteCreated.Emit(sprite, header, payload);
-    Reference< CSprite >::Get(sprite).SpriteCreated.Emit(sprite, header, payload);
+    KeybindInst & _keybind = m_Keybinds.at(keybind);
+    Emit(_keybind.mOnDestroyed, header, payload);
+    Emit(mOnKeybindDestroyed, _keybind.mObj, header, payload);
 }
 
-void Core::OnTextdrawCreated(SQInt32 textdraw, SQInt32 header, SqObj & payload)
+void Core::EmitObjectDestroyed(Int32 object, Int32 header, Object & payload)
 {
-    TextdrawCreated.Emit(textdraw, header, payload);
-    Reference< CTextdraw >::Get(textdraw).TextdrawCreated.Emit(textdraw, header, payload);
+    ObjectInst & _object = m_Objects.at(object);
+    Emit(_object.mOnDestroyed, header, payload);
+    Emit(mOnObjectDestroyed, _object.mObj, header, payload);
 }
 
-void Core::OnVehicleCreated(SQInt32 vehicle, SQInt32 header, SqObj & payload)
+void Core::EmitPickupDestroyed(Int32 pickup, Int32 header, Object & payload)
 {
-    VehicleCreated.Emit(vehicle, header, payload);
-    Reference< CVehicle >::Get(vehicle).VehicleCreated.Emit(vehicle, header, payload);
+    PickupInst & _pickup = m_Pickups.at(pickup);
+    Emit(_pickup.mOnDestroyed, header, payload);
+    Emit(mOnPickupDestroyed, _pickup.mObj, header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::OnBlipDestroyed(SQInt32 blip, SQInt32 header, SqObj & payload)
+void Core::EmitPlayerDestroyed(Int32 player, Int32 header, Object & payload)
 {
-    BlipDestroyed.Emit(blip, header, payload);
-    Reference< CBlip >::Get(blip).BlipDestroyed.Emit(blip, header, payload);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnDestroyed, header, payload);
+    Emit(mOnPlayerDestroyed, _player.mObj, header, payload);
 }
 
-void Core::OnCheckpointDestroyed(SQInt32 checkpoint, SQInt32 header, SqObj & payload)
+void Core::EmitSpriteDestroyed(Int32 sprite, Int32 header, Object & payload)
 {
-    CheckpointDestroyed.Emit(checkpoint, header, payload);
-    Reference< CCheckpoint >::Get(checkpoint).CheckpointDestroyed.Emit(checkpoint, header, payload);
+    SpriteInst & _sprite = m_Sprites.at(sprite);
+    Emit(_sprite.mOnDestroyed, header, payload);
+    Emit(mOnSpriteDestroyed, _sprite.mObj, header, payload);
 }
 
-void Core::OnKeybindDestroyed(SQInt32 keybind, SQInt32 header, SqObj & payload)
+void Core::EmitTextdrawDestroyed(Int32 textdraw, Int32 header, Object & payload)
 {
-    KeybindDestroyed.Emit(keybind, header, payload);
-    Reference< CKeybind >::Get(keybind).KeybindDestroyed.Emit(keybind, header, payload);
+    TextdrawInst & _textdraw = m_Textdraws.at(textdraw);
+    Emit(_textdraw.mOnDestroyed, header, payload);
+    Emit(mOnTextdrawDestroyed, _textdraw.mObj, header, payload);
 }
 
-void Core::OnObjectDestroyed(SQInt32 object, SQInt32 header, SqObj & payload)
+void Core::EmitVehicleDestroyed(Int32 vehicle, Int32 header, Object & payload)
 {
-    ObjectDestroyed.Emit(object, header, payload);
-    Reference< CObject >::Get(object).ObjectDestroyed.Emit(object, header, payload);
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle);
+    Emit(_vehicle.mOnDestroyed, header, payload);
+    Emit(mOnVehicleDestroyed, _vehicle.mObj, header, payload);
 }
 
-void Core::OnPickupDestroyed(SQInt32 pickup, SQInt32 header, SqObj & payload)
+void Core::EmitBlipCustom(Int32 blip, Int32 header, Object & payload)
 {
-    PickupDestroyed.Emit(pickup, header, payload);
-    Reference< CPickup >::Get(pickup).PickupDestroyed.Emit(pickup, header, payload);
+    BlipInst & _blip = m_Blips.at(blip);
+    Emit(_blip.mOnCustom, header, payload);
+    Emit(mOnBlipCustom, _blip.mObj, header, payload);
 }
 
-void Core::OnPlayerDestroyed(SQInt32 player, SQInt32 header, SqObj & payload)
+void Core::EmitCheckpointCustom(Int32 checkpoint, Int32 header, Object & payload)
 {
-    PlayerDestroyed.Emit(player, header, payload);
-    Reference< CPlayer >::Get(player).PlayerDestroyed.Emit(player, header, payload);
+    CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint);
+    Emit(_checkpoint.mOnCustom, header, payload);
+    Emit(mOnCheckpointCustom, _checkpoint.mObj, header, payload);
 }
 
-void Core::OnSphereDestroyed(SQInt32 sphere, SQInt32 header, SqObj & payload)
+void Core::EmitForcefieldCustom(Int32 forcefield, Int32 header, Object & payload)
 {
-    SphereDestroyed.Emit(sphere, header, payload);
-    Reference< CSphere >::Get(sphere).SphereDestroyed.Emit(sphere, header, payload);
+    ForcefieldInst & _forcefield = m_Forcefields.at(forcefield);
+    Emit(_forcefield.mOnCustom, header, payload);
+    Emit(mOnForcefieldCustom, _forcefield.mObj, header, payload);
 }
 
-void Core::OnSpriteDestroyed(SQInt32 sprite, SQInt32 header, SqObj & payload)
+void Core::EmitKeybindCustom(Int32 keybind, Int32 header, Object & payload)
 {
-    SpriteDestroyed.Emit(sprite, header, payload);
-    Reference< CSprite >::Get(sprite).SpriteDestroyed.Emit(sprite, header, payload);
+    KeybindInst & _keybind = m_Keybinds.at(keybind);
+    Emit(_keybind.mOnCustom, header, payload);
+    Emit(mOnKeybindCustom, _keybind.mObj, header, payload);
 }
 
-void Core::OnTextdrawDestroyed(SQInt32 textdraw, SQInt32 header, SqObj & payload)
+void Core::EmitObjectCustom(Int32 object, Int32 header, Object & payload)
 {
-    TextdrawDestroyed.Emit(textdraw, header, payload);
-    Reference< CTextdraw >::Get(textdraw).TextdrawDestroyed.Emit(textdraw, header, payload);
+    ObjectInst & _object = m_Objects.at(object);
+    Emit(_object.mOnCustom, header, payload);
+    Emit(mOnObjectCustom, _object.mObj, header, payload);
 }
 
-void Core::OnVehicleDestroyed(SQInt32 vehicle, SQInt32 header, SqObj & payload)
+void Core::EmitPickupCustom(Int32 pickup, Int32 header, Object & payload)
 {
-    VehicleDestroyed.Emit(vehicle, header, payload);
-    Reference< CVehicle >::Get(vehicle).VehicleDestroyed.Emit(vehicle, header, payload);
+    PickupInst & _pickup = m_Pickups.at(pickup);
+    Emit(_pickup.mOnCustom, header, payload);
+    Emit(mOnPickupCustom, _pickup.mObj, header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::OnBlipCustom(SQInt32 blip, SQInt32 header, SqObj & payload)
+void Core::EmitPlayerCustom(Int32 player, Int32 header, Object & payload)
 {
-    BlipCustom.Emit(blip, header, payload);
-    Reference< CBlip >::Get(blip).BlipCustom.Emit(blip, header, payload);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnCustom, header, payload);
+    Emit(mOnPlayerCustom, _player.mObj, header, payload);
 }
 
-void Core::OnCheckpointCustom(SQInt32 checkpoint, SQInt32 header, SqObj & payload)
+void Core::EmitSpriteCustom(Int32 sprite, Int32 header, Object & payload)
 {
-    CheckpointCustom.Emit(checkpoint, header, payload);
-    Reference< CCheckpoint >::Get(checkpoint).CheckpointCustom.Emit(checkpoint, header, payload);
+    SpriteInst & _sprite = m_Sprites.at(sprite);
+    Emit(_sprite.mOnCustom, header, payload);
+    Emit(mOnSpriteCustom, _sprite.mObj, header, payload);
 }
 
-void Core::OnKeybindCustom(SQInt32 keybind, SQInt32 header, SqObj & payload)
+void Core::EmitTextdrawCustom(Int32 textdraw, Int32 header, Object & payload)
 {
-    KeybindCustom.Emit(keybind, header, payload);
-    Reference< CKeybind >::Get(keybind).KeybindCustom.Emit(keybind, header, payload);
+    TextdrawInst & _textdraw = m_Textdraws.at(textdraw);
+    Emit(_textdraw.mOnCustom, header, payload);
+    Emit(mOnTextdrawCustom, _textdraw.mObj, header, payload);
 }
 
-void Core::OnObjectCustom(SQInt32 object, SQInt32 header, SqObj & payload)
+void Core::EmitVehicleCustom(Int32 vehicle, Int32 header, Object & payload)
 {
-    ObjectCustom.Emit(object, header, payload);
-    Reference< CObject >::Get(object).ObjectCustom.Emit(object, header, payload);
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle);
+    Emit(_vehicle.mOnCustom, header, payload);
+    Emit(mOnVehicleCustom, _vehicle.mObj, header, payload);
 }
 
-void Core::OnPickupCustom(SQInt32 pickup, SQInt32 header, SqObj & payload)
+void Core::EmitPlayerAway(Int32 player, bool status)
 {
-    PickupCustom.Emit(pickup, header, payload);
-    Reference< CPickup >::Get(pickup).PickupCustom.Emit(pickup, header, payload);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnAway, status);
+    Emit(mOnPlayerAway, _player.mObj, status);
 }
 
-void Core::OnPlayerCustom(SQInt32 player, SQInt32 header, SqObj & payload)
+void Core::EmitPlayerGameKeys(Int32 player, Int32 previous, Int32 current)
 {
-    PlayerCustom.Emit(player, header, payload);
-    Reference< CPlayer >::Get(player).PlayerCustom.Emit(player, header, payload);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnGameKeys, previous, current);
+    Emit(mOnPlayerGameKeys, _player.mObj, previous, current);
 }
 
-void Core::OnSphereCustom(SQInt32 sphere, SQInt32 header, SqObj & payload)
+void Core::EmitPlayerRename(Int32 player, CCStr previous, CCStr current)
 {
-    SphereCustom.Emit(sphere, header, payload);
-    Reference< CSphere >::Get(sphere).SphereCustom.Emit(sphere, header, payload);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnRename, previous, current);
+    Emit(mOnPlayerRename, _player.mObj, previous, current);
 }
 
-void Core::OnSpriteCustom(SQInt32 sprite, SQInt32 header, SqObj & payload)
+void Core::EmitPlayerRequestClass(Int32 player, Int32 offset)
 {
-    SpriteCustom.Emit(sprite, header, payload);
-    Reference< CSprite >::Get(sprite).SpriteCustom.Emit(sprite, header, payload);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnRequestClass, offset);
+    Emit(mOnPlayerRequestClass, _player.mObj, offset);
 }
 
-void Core::OnTextdrawCustom(SQInt32 textdraw, SQInt32 header, SqObj & payload)
+void Core::EmitPlayerRequestSpawn(Int32 player)
 {
-    TextdrawCustom.Emit(textdraw, header, payload);
-    Reference< CTextdraw >::Get(textdraw).TextdrawCustom.Emit(textdraw, header, payload);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnRequestSpawn);
+    Emit(mOnPlayerRequestSpawn, _player.mObj);
 }
 
-void Core::OnVehicleCustom(SQInt32 vehicle, SQInt32 header, SqObj & payload)
+void Core::EmitPlayerSpawn(Int32 player)
 {
-    VehicleCustom.Emit(vehicle, header, payload);
-    Reference< CVehicle >::Get(vehicle).VehicleCustom.Emit(vehicle, header, payload);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnSpawn);
+    Emit(mOnPlayerSpawn, _player.mObj);
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerAway(SQInt32 player, bool status)
+void Core::EmitPlayerStartTyping(Int32 player)
 {
-    PlayerAway.Emit(player, status);
-    Reference< CPlayer >::Get(player).PlayerAway.Emit(player, status);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStartTyping);
+    Emit(mOnPlayerStartTyping, _player.mObj);
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerGameKeys(SQInt32 player, SQInt32 previous, SQInt32 current)
+void Core::EmitPlayerStopTyping(Int32 player)
 {
-    PlayerGameKeys.Emit(player, previous, current);
-    Reference< CPlayer >::Get(player).PlayerGameKeys.Emit(player, previous, current);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStopTyping);
+    Emit(mOnPlayerStopTyping, _player.mObj);
 }
 
-void Core::OnPlayerName(SQInt32 player, const SQChar * previous, const SQChar * current)
+void Core::EmitPlayerChat(Int32 player, CCStr message)
 {
-    PlayerRename.Emit(player, previous, current);
-    Reference< CPlayer >::Get(player).PlayerRename.Emit(player, previous, current);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnChat, message);
+    Emit(mOnPlayerChat, _player.mObj, message);
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerRequestClass(SQInt32 player, SQInt32 offset)
+void Core::EmitPlayerCommand(Int32 player, CCStr command)
 {
-    PlayerRequestClass.Emit(player, offset);
-    Reference< CPlayer >::Get(player).PlayerRequestClass.Emit(player, offset);
-}
-
-void Core::OnPlayerRequestSpawn(SQInt32 player)
-{
-    PlayerRequestSpawn.Emit(player);
-    Reference< CPlayer >::Get(player).PlayerRequestSpawn.Emit(player);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerSpawn(SQInt32 player)
-{
-    PlayerSpawn.Emit(player);
-    Reference< CPlayer >::Get(player).PlayerSpawn.Emit(player);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerStartTyping(SQInt32 player)
-{
-    PlayerStartTyping.Emit(player);
-    Reference< CPlayer >::Get(player).PlayerStartTyping.Emit(player);
-}
-
-void Core::OnPlayerStopTyping(SQInt32 player)
-{
-    PlayerStopTyping.Emit(player);
-    Reference< CPlayer >::Get(player).PlayerStopTyping.Emit(player);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerChat(SQInt32 player, const SQChar * message)
-{
-    PlayerChat.Emit(player, message);
-    Reference< CPlayer >::Get(player).PlayerChat.Emit(player, message);
-}
-
-void Core::OnPlayerCommand(SQInt32 player, const SQChar * command)
-{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnCommand, command);
+    Emit(mOnPlayerCommand, _player.mObj, command);
     // Send it to the command manager
-    _Cmd->Execute(player, command);
-    // Forward to instances
-    PlayerCommand.Emit(player, command);
-    Reference< CPlayer >::Get(player).PlayerCommand.Emit(player, command);
+    _Cmd->Run(player, command);
 }
 
-void Core::OnPlayerMessage(SQInt32 player, SQInt32 receiver, const SQChar * message)
+void Core::EmitPlayerMessage(Int32 player, Int32 receiver, CCStr message)
 {
-    PlayerMessage.Emit(player, receiver, message);
-    Reference< CPlayer >::Get(player).PlayerMessage.Emit(player, receiver, message);
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnMessage, message);
+    Emit(mOnPlayerMessage, _player.mObj, message);
+}
+
+void Core::EmitPlayerHealth(Int32 player, Float32 previous, Float32 current)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnHealth, previous, current);
+    Emit(mOnPlayerHealth, _player.mObj, previous, current);
+}
+
+void Core::EmitPlayerArmour(Int32 player, Float32 previous, Float32 current)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnArmour, previous, current);
+    Emit(mOnPlayerArmour, _player.mObj, previous, current);
+}
+
+void Core::EmitPlayerWeapon(Int32 player, Int32 previous, Int32 current)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnWeapon, previous, current);
+    Emit(mOnPlayerWeapon, _player.mObj, previous, current);
+}
+
+void Core::EmitPlayerMove(Int32 player, const Vector3 & previous, const Vector3 & current)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnMove, previous, current);
+    Emit(mOnPlayerMove, _player.mObj, previous, current);
+}
+
+void Core::EmitPlayerWasted(Int32 player, Int32 reason)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnWasted, reason);
+    Emit(mOnPlayerWasted, _player.mObj, reason);
+}
+
+void Core::EmitPlayerKilled(Int32 player, Int32 killer, Int32 reason, Int32 body_part)
+{
+    PlayerInst & _player = m_Players.at(player);
+    PlayerInst & _killer = m_Players.at(killer);
+    Emit(_player.mOnKilled, _killer.mObj, reason, body_part);
+    Emit(mOnPlayerKilled, _player.mObj, _killer.mObj, reason, body_part);
+}
+
+void Core::EmitPlayerTeamKill(Int32 player, Int32 killer, Int32 reason, Int32 body_part)
+{
+    PlayerInst & _player = m_Players.at(player);
+    PlayerInst & _killer = m_Players.at(killer);
+    Emit(_player.mOnTeamKill, _killer.mObj, reason, body_part);
+    Emit(mOnPlayerTeamKill, _player.mObj, _killer.mObj, reason, body_part);
+}
+
+void Core::EmitPlayerSpectate(Int32 player, Int32 target)
+{
+    PlayerInst & _player = m_Players.at(player);
+    PlayerInst & _target = m_Players.at(target);
+    Emit(_player.mOnSpectate, _target.mObj);
+    Emit(mOnPlayerSpectate, _player.mObj, _target.mObj);
+}
+
+void Core::EmitPlayerCrashreport(Int32 player, CCStr report)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnCrashreport, report);
+    Emit(mOnPlayerCrashreport, _player.mObj, report);
+}
+
+void Core::EmitPlayerBurning(Int32 player, bool state)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnBurning, state);
+    Emit(mOnPlayerBurning, _player.mObj, state);
+}
+
+void Core::EmitPlayerCrouching(Int32 player, bool state)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnCrouching, state);
+    Emit(mOnPlayerCrouching, _player.mObj, state);
+}
+
+void Core::EmitPlayerState(Int32 player, Int32 previous, Int32 current)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnState, previous, current);
+    Emit(mOnPlayerState, _player.mObj, previous, current);
+}
+
+void Core::EmitPlayerAction(Int32 player, Int32 previous, Int32 current)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnAction, previous, current);
+    Emit(mOnPlayerAction, _player.mObj, previous, current);
+}
+
+void Core::EmitStateNone(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStateNone, previous);
+    Emit(mOnStateNone, _player.mObj, previous);
+}
+
+void Core::EmitStateNormal(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStateNormal, previous);
+    Emit(mOnStateNormal, _player.mObj, previous);
+}
+
+void Core::EmitStateShooting(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStateShooting, previous);
+    Emit(mOnStateShooting, _player.mObj, previous);
+}
+
+void Core::EmitStateDriver(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStateDriver, previous);
+    Emit(mOnStateDriver, _player.mObj, previous);
+}
+
+void Core::EmitStatePassenger(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStatePassenger, previous);
+    Emit(mOnStatePassenger, _player.mObj, previous);
+}
+
+void Core::EmitStateEnterDriver(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStateEnterDriver, previous);
+    Emit(mOnStateEnterDriver, _player.mObj, previous);
+}
+
+void Core::EmitStateEnterPassenger(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStateEnterPassenger, previous);
+    Emit(mOnStateEnterPassenger, _player.mObj, previous);
+}
+
+void Core::EmitStateExitVehicle(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStateExitVehicle, previous);
+    Emit(mOnStateExitVehicle, _player.mObj, previous);
+}
+
+void Core::EmitStateUnspawned(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnStateUnspawned, previous);
+    Emit(mOnStateUnspawned, _player.mObj, previous);
+}
+
+void Core::EmitActionNone(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionNone, previous);
+    Emit(mOnActionNone, _player.mObj, previous);
+}
+
+void Core::EmitActionNormal(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionNormal, previous);
+    Emit(mOnActionNormal, _player.mObj, previous);
+}
+
+void Core::EmitActionAiming(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionAiming, previous);
+    Emit(mOnActionAiming, _player.mObj, previous);
+}
+
+void Core::EmitActionShooting(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionShooting, previous);
+    Emit(mOnActionShooting, _player.mObj, previous);
+}
+
+void Core::EmitActionJumping(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionJumping, previous);
+    Emit(mOnActionJumping, _player.mObj, previous);
+}
+
+void Core::EmitActionLieDown(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionLieDown, previous);
+    Emit(mOnActionLieDown, _player.mObj, previous);
+}
+
+void Core::EmitActionGettingUp(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionGettingUp, previous);
+    Emit(mOnActionGettingUp, _player.mObj, previous);
+}
+
+void Core::EmitActionJumpVehicle(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionJumpVehicle, previous);
+    Emit(mOnActionJumpVehicle, _player.mObj, previous);
+}
+
+void Core::EmitActionDriving(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionDriving, previous);
+    Emit(mOnActionDriving, _player.mObj, previous);
+}
+
+void Core::EmitActionDying(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionDying, previous);
+    Emit(mOnActionDying, _player.mObj, previous);
+}
+
+void Core::EmitActionWasted(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionWasted, previous);
+    Emit(mOnActionWasted, _player.mObj, previous);
+}
+
+void Core::EmitActionEmbarking(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionEmbarking, previous);
+    Emit(mOnActionEmbarking, _player.mObj, previous);
+}
+
+void Core::EmitActionDisembarking(Int32 player, Int32 previous)
+{
+    PlayerInst & _player = m_Players.at(player);
+    Emit(_player.mOnActionDisembarking, previous);
+    Emit(mOnActionDisembarking, _player.mObj, previous);
+}
+
+void Core::EmitVehicleRespawn(Int32 vehicle)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle);
+    Emit(_vehicle.mOnRespawn);
+    Emit(mOnVehicleRespawn, _vehicle.mObj);
+}
+
+void Core::EmitVehicleExplode(Int32 vehicle)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle);
+    Emit(_vehicle.mOnExplode);
+    Emit(mOnVehicleExplode, _vehicle.mObj);
+}
+
+void Core::EmitVehicleHealth(Int32 vehicle, Float32 previous, Float32 current)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle);
+    Emit(_vehicle.mOnHealth, previous, current);
+    Emit(mOnVehicleHealth, _vehicle.mObj, previous, current);
+}
+
+void Core::EmitVehicleMove(Int32 vehicle, const Vector3 & previous, const Vector3 & current)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle);
+    Emit(_vehicle.mOnMove, previous, current);
+    Emit(mOnVehicleMove, _vehicle.mObj, previous, current);
+}
+
+void Core::EmitPickupRespawn(Int32 pickup)
+{
+    PickupInst & _pickup = m_Pickups.at(pickup);
+    Emit(_pickup.mOnRespawn);
+    Emit(mOnPickupRespawn, _pickup.mObj);
+}
+
+void Core::EmitPlayerKeyPress(Int32 player, Int32 keybind)
+{
+    PlayerInst & _player = m_Players.at(player);
+    KeybindInst & _keybind = m_Keybinds.at(keybind);
+    Emit(_keybind.mOnKeyPress, _player.mObj);
+    Emit(_player.mOnKeyPress, _keybind.mObj);
+    Emit(mOnKeybindKeyPress, _player.mObj, _keybind.mObj);
+}
+
+void Core::EmitPlayerKeyRelease(Int32 player, Int32 keybind)
+{
+    PlayerInst & _player = m_Players.at(player);
+    KeybindInst & _keybind = m_Keybinds.at(keybind);
+    Emit(_keybind.mOnKeyRelease, _player.mObj);
+    Emit(_player.mOnKeyRelease, _keybind.mObj);
+    Emit(mOnKeybindKeyRelease, _player.mObj, _keybind.mObj);
+}
+
+void Core::EmitPlayerEmbarking(Int32 player, Int32 vehicle, Int32 slot)
+{
+    PlayerInst & _player = m_Players.at(player);
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle);
+    Emit(_vehicle.mOnEmbarking, _player.mObj, slot);
+    Emit(_player.mOnEmbarking, _vehicle.mObj, slot);
+    Emit(mOnVehicleEmbarking, _player.mObj, _vehicle.mObj, slot);
+}
+
+void Core::EmitPlayerEmbarked(Int32 player, Int32 vehicle, Int32 slot)
+{
+    PlayerInst & _player = m_Players.at(player);
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle);
+    Emit(_vehicle.mOnEmbarked, _player.mObj, slot);
+    Emit(_player.mOnEmbarked, _vehicle.mObj, slot);
+    Emit(mOnVehicleEmbarked, _player.mObj, _vehicle.mObj, slot);
+}
+
+void Core::EmitPlayerDisembark(Int32 player, Int32 vehicle)
+{
+    PlayerInst & _player = m_Players.at(player);
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle);
+    Emit(_vehicle.mOnDisembark, _player.mObj);
+    Emit(_player.mOnDisembark, _vehicle.mObj);
+    Emit(mOnVehicleDisembark, _player.mObj, _vehicle.mObj);
+}
+
+void Core::EmitPickupClaimed(Int32 player, Int32 pickup)
+{
+    PlayerInst & _player = m_Players.at(player);
+    PickupInst & _pickup = m_Pickups.at(pickup);
+    Emit(_pickup.mOnClaimed, _player.mObj);
+    Emit(_player.mOnPickupClaimed, _pickup.mObj);
+    Emit(mOnPickupClaimed, _player.mObj, _pickup.mObj);
+}
+
+void Core::EmitPickupCollected(Int32 player, Int32 pickup)
+{
+    PlayerInst & _player = m_Players.at(player);
+    PickupInst & _pickup = m_Pickups.at(pickup);
+    Emit(_pickup.mOnCollected, _player.mObj);
+    Emit(_player.mOnPickupCollected, _pickup.mObj);
+    Emit(mOnPickupCollected, _player.mObj, _pickup.mObj);
+}
+
+void Core::EmitObjectShot(Int32 player, Int32 object, Int32 weapon)
+{
+    PlayerInst & _player = m_Players.at(player);
+    ObjectInst & _object = m_Objects.at(object);
+    Emit(_object.mOnShot, _player.mObj, weapon);
+    Emit(_player.mOnObjectShot, _object.mObj, weapon);
+    Emit(mOnObjectShot, _player.mObj, _object.mObj, weapon);
+}
+
+void Core::EmitObjectBump(Int32 player, Int32 object)
+{
+    PlayerInst & _player = m_Players.at(player);
+    ObjectInst & _object = m_Objects.at(object);
+    Emit(_object.mOnBump, _player.mObj);
+    Emit(_player.mOnObjectBump, _object.mObj);
+    Emit(mOnObjectBump, _player.mObj, _object.mObj);
+}
+
+void Core::EmitCheckpointEntered(Int32 player, Int32 checkpoint)
+{
+    PlayerInst & _player = m_Players.at(player);
+    CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint);
+    Emit(_checkpoint.mOnEntered, _player.mObj);
+    Emit(_player.mOnCheckpointEntered, _checkpoint.mObj);
+    Emit(mOnCheckpointEntered, _player.mObj, _checkpoint.mObj);
+}
+
+void Core::EmitCheckpointExited(Int32 player, Int32 checkpoint)
+{
+    PlayerInst & _player = m_Players.at(player);
+    CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint);
+    Emit(_checkpoint.mOnExited, _player.mObj);
+    Emit(_player.mOnCheckpointExited, _checkpoint.mObj);
+    Emit(mOnCheckpointExited, _player.mObj, _checkpoint.mObj);
+}
+
+void Core::EmitForcefieldEntered(Int32 player, Int32 forcefield)
+{
+    PlayerInst & _player = m_Players.at(player);
+    ForcefieldInst & _forcefield = m_Forcefields.at(forcefield);
+    Emit(_forcefield.mOnEntered, _player.mObj);
+    Emit(_player.mOnForcefieldEntered, _forcefield.mObj);
+    Emit(mOnForcefieldEntered, _player.mObj, _forcefield.mObj);
+}
+
+void Core::EmitForcefieldExited(Int32 player, Int32 forcefield)
+{
+    PlayerInst & _player = m_Players.at(player);
+    ForcefieldInst & _forcefield = m_Forcefields.at(forcefield);
+    Emit(_forcefield.mOnExited, _player.mObj);
+    Emit(_player.mOnForcefieldExited, _forcefield.mObj);
+    Emit(mOnForcefieldExited, _player.mObj, _forcefield.mObj);
+}
+
+void Core::EmitServerFrame(Float32 delta)
+{
+    Emit(mOnServerFrame, delta);
+    //Routine::Process();
+}
+
+void Core::EmitServerStartup()
+{
+    Emit(mOnServerStartup);
+}
+
+void Core::EmitServerShutdown()
+{
+    Emit(mOnServerShutdown);
+}
+
+void Core::EmitInternalCommand(Int32 type, CCStr text)
+{
+    Emit(mOnInternalCommand, type, text);
+}
+
+void Core::EmitLoginAttempt(CCStr name, CCStr passwd, CCStr ip)
+{
+    Emit(mOnLoginAttempt, name, passwd, ip);
+}
+
+void Core::EmitCustomEvent(Int32 group, Int32 header, Object & payload)
+{
+    Emit(mOnCustomEvent, group, header, payload);
+}
+
+void Core::EmitWorldOption(Int32 option, Object & value)
+{
+    Emit(mOnWorldOption, option, value);
+}
+
+void Core::EmitWorldToggle(Int32 option, bool value)
+{
+    Emit(mOnWorldToggle, option, value);
+}
+
+void Core::EmitScriptReload(Int32 header, Object & payload)
+{
+    Emit(mOnScriptReload, header, payload);
+}
+
+void Core::EmitScriptUnload()
+{
+    Emit(mOnScriptUnload);
+}
+
+void Core::EmitPlayerUpdate(Int32 player, Int32 type)
+{
+
+}
+
+void Core::EmitVehicleUpdate(Int32 vehicle, Int32 type)
+{
+
+}
+
+void Core::EmitEntityPool(Int32 type, Int32 id, bool deleted)
+{
+
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::OnPlayerHealth(SQInt32 player, SQFloat previous, SQFloat current)
+void Core::ResetInst(BlipInst & inst)
 {
-    PlayerHealth.Emit(player, previous, current);
-    Reference< CPlayer >::Get(player).PlayerHealth.Emit(player, previous, current);
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
+    inst.mWorld = -1;
+    inst.mScale = -1;
+    inst.mSprID = -1;
+    //inst.mPosition.Clear();
+    //inst.mColor.Clear();
 }
 
-void Core::OnPlayerArmour(SQInt32 player, SQFloat previous, SQFloat current)
+void Core::ResetInst(CheckpointInst & inst)
 {
-    PlayerArmour.Emit(player, previous, current);
-    Reference< CPlayer >::Get(player).PlayerArmour.Emit(player, previous, current);
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
 }
 
-void Core::OnPlayerWeapon(SQInt32 player, SQInt32 previous, SQInt32 current)
+void Core::ResetInst(ForcefieldInst & inst)
 {
-    PlayerWeapon.Emit(player, previous, current);
-    Reference< CPlayer >::Get(player).PlayerWeapon.Emit(player, previous, current);
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
 }
 
-void Core::OnPlayerMove(SQInt32 player, const Vector3 & previous, const Vector3 & current)
+void Core::ResetInst(KeybindInst & inst)
 {
-    PlayerMove.Emit(player, previous, current);
-    Reference< CPlayer >::Get(player).PlayerMove.Emit(player, previous, current);
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
+    inst.mPrimary = -1;
+    inst.mSecondary = -1;
+    inst.mAlternative = -1;
+    inst.mRelease = -1;
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerWasted(SQInt32 player, SQInt32 reason)
+void Core::ResetInst(ObjectInst & inst)
 {
-    PlayerWasted.Emit(player, reason);
-    Reference< CPlayer >::Get(player).PlayerWasted.Emit(player, reason);
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
 }
 
-void Core::OnPlayerKilled(SQInt32 player, SQInt32 killer, SQInt32 reason, SQInt32 body_part)
+void Core::ResetInst(PickupInst & inst)
 {
-    PlayerKilled.Emit(player, killer, reason, body_part);
-    Reference< CPlayer >::Get(player).PlayerKilled.Emit(player, killer, reason, body_part);
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerSpectate(SQInt32 player, SQInt32 target)
+void Core::ResetInst(PlayerInst & inst)
 {
-    PlayerSpectate.Emit(player, target);
-    Reference< CPlayer >::Get(player).PlayerSpectate.Emit(player, target);
-}
-
-void Core::OnPlayerCrashreport(SQInt32 player, const SQChar * report)
-{
-    PlayerCrashreport.Emit(player, report);
-    Reference< CPlayer >::Get(player).PlayerCrashreport.Emit(player, report);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerBurning(SQInt32 player, bool state)
-{
-    PlayerBurning.Emit(player, state);
-    Reference< CPlayer >::Get(player).PlayerBurning.Emit(player, state);
-}
-
-void Core::OnPlayerCrouching(SQInt32 player, bool state)
-{
-    PlayerCrouching.Emit(player, state);
-    Reference< CPlayer >::Get(player).PlayerCrouching.Emit(player, state);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerState(SQInt32 player, SQInt32 previous, SQInt32 current)
-{
-    PlayerState.Emit(player, previous, current);
-    Reference< CPlayer >::Get(player).PlayerState.Emit(player, previous, current);
-}
-
-void Core::OnPlayerAction(SQInt32 player, SQInt32 previous, SQInt32 current)
-{
-    PlayerAction.Emit(player, previous, current);
-    Reference< CPlayer >::Get(player).PlayerAction.Emit(player, previous, current);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnStateNone(SQInt32 player, SQInt32 previous)
-{
-    StateNone.Emit(player, previous);
-    Reference< CPlayer >::Get(player).StateNone.Emit(player, previous);
-}
-
-void Core::OnStateNormal(SQInt32 player, SQInt32 previous)
-{
-    StateNormal.Emit(player, previous);
-    Reference< CPlayer >::Get(player).StateNormal.Emit(player, previous);
-}
-
-void Core::OnStateShooting(SQInt32 player, SQInt32 previous)
-{
-    StateShooting.Emit(player, previous);
-    Reference< CPlayer >::Get(player).StateShooting.Emit(player, previous);
-}
-
-void Core::OnStateDriver(SQInt32 player, SQInt32 previous)
-{
-    StateDriver.Emit(player, previous);
-    Reference< CPlayer >::Get(player).StateDriver.Emit(player, previous);
-}
-
-void Core::OnStatePassenger(SQInt32 player, SQInt32 previous)
-{
-    StatePassenger.Emit(player, previous);
-    Reference< CPlayer >::Get(player).StatePassenger.Emit(player, previous);
-}
-
-void Core::OnStateEnterDriver(SQInt32 player, SQInt32 previous)
-{
-    StateEnterDriver.Emit(player, previous);
-    Reference< CPlayer >::Get(player).StateEnterDriver.Emit(player, previous);
-}
-
-void Core::OnStateEnterPassenger(SQInt32 player, SQInt32 previous)
-{
-    StateEnterPassenger.Emit(player, previous);
-    Reference< CPlayer >::Get(player).StateEnterPassenger.Emit(player, previous);
-}
-
-void Core::OnStateExitVehicle(SQInt32 player, SQInt32 previous)
-{
-    StateExitVehicle.Emit(player, previous);
-    Reference< CPlayer >::Get(player).StateExitVehicle.Emit(player, previous);
-}
-
-void Core::OnStateUnspawned(SQInt32 player, SQInt32 previous)
-{
-    StateUnspawned.Emit(player, previous);
-    Reference< CPlayer >::Get(player).StateUnspawned.Emit(player, previous);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnActionNone(SQInt32 player, SQInt32 previous)
-{
-    ActionNone.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionNone.Emit(player, previous);
-}
-
-void Core::OnActionNormal(SQInt32 player, SQInt32 previous)
-{
-    ActionNormal.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionNormal.Emit(player, previous);
-}
-
-void Core::OnActionAiming(SQInt32 player, SQInt32 previous)
-{
-    ActionAiming.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionAiming.Emit(player, previous);
-}
-
-void Core::OnActionShooting(SQInt32 player, SQInt32 previous)
-{
-    ActionShooting.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionShooting.Emit(player, previous);
-}
-
-void Core::OnActionJumping(SQInt32 player, SQInt32 previous)
-{
-    ActionJumping.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionJumping.Emit(player, previous);
-}
-
-void Core::OnActionLieDown(SQInt32 player, SQInt32 previous)
-{
-    ActionLieDown.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionLieDown.Emit(player, previous);
-}
-
-void Core::OnActionGettingUp(SQInt32 player, SQInt32 previous)
-{
-    ActionGettingUp.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionGettingUp.Emit(player, previous);
-}
-
-void Core::OnActionJumpVehicle(SQInt32 player, SQInt32 previous)
-{
-    ActionJumpVehicle.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionJumpVehicle.Emit(player, previous);
-}
-
-void Core::OnActionDriving(SQInt32 player, SQInt32 previous)
-{
-    ActionDriving.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionDriving.Emit(player, previous);
-}
-
-void Core::OnActionDying(SQInt32 player, SQInt32 previous)
-{
-    ActionDying.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionDying.Emit(player, previous);
-}
-
-void Core::OnActionWasted(SQInt32 player, SQInt32 previous)
-{
-    ActionWasted.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionWasted.Emit(player, previous);
-}
-
-void Core::OnActionEmbarking(SQInt32 player, SQInt32 previous)
-{
-    ActionEmbarking.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionEmbarking.Emit(player, previous);
-}
-
-void Core::OnActionDisembarking(SQInt32 player, SQInt32 previous)
-{
-    ActionDisembarking.Emit(player, previous);
-    Reference< CPlayer >::Get(player).ActionDisembarking.Emit(player, previous);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnVehicleRespawn(SQInt32 vehicle)
-{
-    VehicleRespawn.Emit(vehicle);
-    Reference< CVehicle >::Get(vehicle).VehicleRespawn.Emit(vehicle);
-}
-
-void Core::OnVehicleExplode(SQInt32 vehicle)
-{
-    VehicleExplode.Emit(vehicle);
-    Reference< CVehicle >::Get(vehicle).VehicleExplode.Emit(vehicle);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnVehicleHealth(SQInt32 vehicle, SQFloat previous, SQFloat current)
-{
-    VehicleHealth.Emit(vehicle, previous, current);
-    Reference< CVehicle >::Get(vehicle).VehicleHealth.Emit(vehicle, previous, current);
-}
-
-void Core::OnVehicleMove(SQInt32 vehicle, const Vector3 & previous, const Vector3 & current)
-{
-    VehicleMove.Emit(vehicle, previous, current);
-    Reference< CVehicle >::Get(vehicle).VehicleMove.Emit(vehicle, previous, current);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPickupRespawn(SQInt32 pickup)
-{
-    PickupRespawn.Emit(pickup);
-    Reference< CPickup >::Get(pickup).PickupRespawn.Emit(pickup);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerKeyPress(SQInt32 player, SQInt32 keybind)
-{
-    KeybindKeyPress.Emit(player, keybind);
-    Reference< CKeybind >::Get(keybind).KeybindKeyPress.Emit(player, keybind);
-    Reference< CPlayer >::Get(player).KeybindKeyPress.Emit(player, keybind);
-}
-
-void Core::OnPlayerKeyRelease(SQInt32 player, SQInt32 keybind)
-{
-    KeybindKeyRelease.Emit(player, keybind);
-    Reference< CKeybind >::Get(keybind).KeybindKeyRelease.Emit(player, keybind);
-    Reference< CPlayer >::Get(player).KeybindKeyRelease.Emit(player, keybind);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerEmbarking(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
-{
-    VehicleEmbarking.Emit(player, vehicle, slot);
-    Reference< CVehicle >::Get(vehicle).VehicleEmbarking.Emit(player, vehicle, slot);
-    Reference< CPlayer >::Get(player).VehicleEmbarking.Emit(player, vehicle, slot);
-}
-
-void Core::OnPlayerEmbarked(SQInt32 player, SQInt32 vehicle, SQInt32 slot)
-{
-    VehicleEmbarked.Emit(player, vehicle, slot);
-    Reference< CVehicle >::Get(vehicle).VehicleEmbarked.Emit(player, vehicle, slot);
-    Reference< CPlayer >::Get(player).VehicleEmbarked.Emit(player, vehicle, slot);
-}
-
-void Core::OnPlayerDisembark(SQInt32 player, SQInt32 vehicle)
-{
-    VehicleDisembark.Emit(player, vehicle);
-    Reference< CVehicle >::Get(vehicle).VehicleDisembark.Emit(player, vehicle);
-    Reference< CPlayer >::Get(player).VehicleDisembark.Emit(player, vehicle);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPickupClaimed(SQInt32 player, SQInt32 pickup)
-{
-    PickupClaimed.Emit(player, pickup);
-    Reference< CPickup >::Get(pickup).PickupClaimed.Emit(player, pickup);
-    Reference< CPlayer >::Get(player).PickupClaimed.Emit(player, pickup);
-}
-
-void Core::OnPickupCollected(SQInt32 player, SQInt32 pickup)
-{
-    PickupClaimed.Emit(player, pickup);
-    Reference< CPickup >::Get(pickup).PickupClaimed.Emit(player, pickup);
-    Reference< CPlayer >::Get(player).PickupClaimed.Emit(player, pickup);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnObjectShot(SQInt32 player, SQInt32 object, SQInt32 weapon)
-{
-    ObjectShot.Emit(player, object, weapon);
-    Reference< CObject >::Get(object).ObjectShot.Emit(player, object, weapon);
-    Reference< CPlayer >::Get(player).ObjectShot.Emit(player, object, weapon);
-}
-
-void Core::OnObjectBump(SQInt32 player, SQInt32 object)
-{
-    ObjectBump.Emit(player, object);
-    Reference< CObject >::Get(object).ObjectBump.Emit(player, object);
-    Reference< CPlayer >::Get(player).ObjectBump.Emit(player, object);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnCheckpointEntered(SQInt32 player, SQInt32 checkpoint)
-{
-    CheckpointEntered.Emit(player, checkpoint);
-    Reference< CCheckpoint >::Get(checkpoint).CheckpointEntered.Emit(player, checkpoint);
-    Reference< CPlayer >::Get(player).CheckpointEntered.Emit(player, checkpoint);
-}
-
-void Core::OnCheckpointExited(SQInt32 player, SQInt32 checkpoint)
-{
-    CheckpointExited.Emit(player, checkpoint);
-    Reference< CCheckpoint >::Get(checkpoint).CheckpointExited.Emit(player, checkpoint);
-    Reference< CPlayer >::Get(player).CheckpointExited.Emit(player, checkpoint);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnSphereEntered(SQInt32 player, SQInt32 sphere)
-{
-    SphereEntered.Emit(player, sphere);
-    Reference< CSphere >::Get(sphere).SphereEntered.Emit(player, sphere);
-    Reference< CPlayer >::Get(player).SphereEntered.Emit(player, sphere);
-}
-
-void Core::OnSphereExited(SQInt32 player, SQInt32 sphere)
-{
-    SphereExited.Emit(player, sphere);
-    Reference< CSphere >::Get(sphere).SphereExited.Emit(player, sphere);
-    Reference< CPlayer >::Get(player).SphereExited.Emit(player, sphere);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnServerFrame(SQFloat delta)
-{
-    m_Uptime += delta;
-    ServerFrame.Emit(delta);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnServerStartup()
-{
-    ServerStartup.Emit();
-}
-
-void Core::OnServerShutdown()
-{
-    ServerShutdown.Emit();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnInternalCommand(SQInt32 type, const SQChar * text)
-{
-    InternalCommand.Emit(type, text);
-}
-
-void Core::OnLoginAttempt(const SQChar * name, const SQChar * passwd, const SQChar * ip)
-{
-    LoginAttempt.Emit(name, passwd, ip);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnCustomEvent(SQInt32 group, SQInt32 header, SqObj & payload)
-{
-    CustomEvent.Emit(group, header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnWorldOption(SQInt32 option, SqObj & value)
-{
-    WorldOption.Emit(option, value);
-}
-
-void Core::OnWorldToggle(SQInt32 option, bool value)
-{
-    WorldToggle.Emit(option, value);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnScriptReload(SQInt32 header, SqObj & payload)
-{
-    ScriptReload.Emit(header, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::OnPlayerUpdate(SQInt32 player, SQInt32 type)
-{
-    SQMOD_UNUSED_VAR(type);
-    Vector3 pos;
-    // Is this player instance tracked for the first time
-    if (m_PlayerTrack[player].Fresh)
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
+    inst.mAuthority = 0;
+    for (unsigned n = 0; n < SQMOD_PLAYER_MSG_PREFIXES; ++n)
     {
-        // Obtain the current position of this instance
-        _Func->GetPlayerPos(player, &pos.x, &pos.y, &pos.z);
-        // Initialize the tracked values for the first time
-        m_PlayerTrack[player].Position =  pos;
-        m_PlayerTrack[player].Health = _Func->GetPlayerHealth(player);
-        m_PlayerTrack[player].Armour = _Func->GetPlayerArmour(player);
-        m_PlayerTrack[player].Weapon = _Func->GetPlayerWeapon(player);
-        m_PlayerTrack[player].Fresh = false;
-        // No need to check a freshly tracked instance
-        return;
+        inst.mPrefixes[n].clear();
     }
-    // Obtain the current position of this instance
-    _Func->GetPlayerPos(player, &pos.x, &pos.y, &pos.z);
-    // Did the position change since the last tracked value?
-    if (pos != m_PlayerTrack[player].Position)
-    {
-        // Trigger the specific event
-        PlayerMove.Emit(player, m_PlayerTrack[player].Position, pos);
-        // Update the tracked value
-        m_PlayerTrack[player].Position = pos;
-    }
-    // Obtain the current health of this instance
-    SQFloat health = _Func->GetPlayerHealth(player);
-    // Did the health change since the last tracked value?
-    if (!EpsEq(health, m_PlayerTrack[player].Health))
-    {
-        // Trigger the specific event
-        PlayerHealth.Emit(player, m_PlayerTrack[player].Health, health);
-        // Update the tracked value
-        m_PlayerTrack[player].Health = health;
-    }
-    // Obtain the current armor of this instance
-    SQFloat armour = _Func->GetPlayerArmour(player);
-    // Did the armor change since the last tracked value?
-    if (!EpsEq(armour, m_PlayerTrack[player].Armour))
-    {
-        // Trigger the specific event
-        PlayerArmour.Emit(player, m_PlayerTrack[player].Armour, armour);
-        // Update the tracked value
-        m_PlayerTrack[player].Armour = armour;
-    }
-    // Obtain the current weapon of this instance
-    SQInteger wep = _Func->GetPlayerWeapon(player);
-    // Did the weapon change since the last tracked value?
-    if (wep != m_PlayerTrack[player].Weapon)
-    {
-        // Trigger the specific event
-        PlayerWeapon.Emit(player, m_PlayerTrack[player].Weapon, wep);
-        // Update the tracked value
-        m_PlayerTrack[player].Weapon = wep;
-    }
+    inst.mMessageColor = 0x6599FFFF;
+    inst.mAnnounceStyle = 1;
 }
 
-void Core::OnVehicleUpdate(SQInt32 vehicle, SQInt32 type)
+void Core::ResetInst(SpriteInst & inst)
 {
-    SQMOD_UNUSED_VAR(type);
-    Vector3 pos;
-    // Is this vehicle instance tracked for the first time
-    if (m_VehicleTrack[vehicle].Fresh)
-    {
-        // Obtain the current position of this instance
-        _Func->GetVehiclePos(vehicle, &pos.x, &pos.y, &pos.z);
-        // Initialize the tracked values for the first time
-        m_VehicleTrack[vehicle].Position =  pos;
-        m_VehicleTrack[vehicle].Health = _Func->GetVehicleHealth(vehicle);
-        m_VehicleTrack[vehicle].Fresh = false;
-        // No need to check a freshly tracked instance
-        return;
-    }
-    // Obtain the current position of this instance
-    _Func->GetVehiclePos(vehicle, &pos.x, &pos.y, &pos.z);
-    // Did the position change since the last tracked value?
-    if (pos != m_VehicleTrack[vehicle].Position)
-    {
-        // Trigger the specific event
-        VehicleMove.Emit(vehicle, m_VehicleTrack[vehicle].Position, pos);
-        // Update the tracked value
-        m_VehicleTrack[vehicle].Position = pos;
-    }
-    // Obtain the current health of this instance
-    SQFloat health = _Func->GetVehicleHealth(vehicle);
-    // Did the health change since the last tracked value?
-    if (!EpsEq(health, m_VehicleTrack[vehicle].Health))
-    {
-        // Trigger the specific event
-        VehicleHealth.Emit(vehicle, m_VehicleTrack[vehicle].Health, health);
-        // Update the tracked value
-        m_VehicleTrack[vehicle].Health = health;
-    }
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
+    inst.mPath.clear();
 }
 
-void Core::OnEntityPool(SQInt32 type, SQInt32 id, bool deleted)
+void Core::ResetInst(TextdrawInst & inst)
 {
-    // Script object to play the role of a dummy payload
-    static SqObj payload;
-    // Make sure that the payload is null
-    payload.Release();
-    // See what type of change happened in the entity pool
-    switch (type)
-    {
-        case SQMOD_ENTITY_POOL_VEHICLE:
-            if (deleted)
-            {
-                EntMan< CVehicle >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
-            }
-            else if (EntMan< CVehicle >::Activate(id, false))
-            {
-                OnVehicleCreated(id, SQMOD_CREATE_POOL, payload);
-            }
-        break;
-        case SQMOD_ENTITY_POOL_OBJECT:
-            if (deleted)
-            {
-                EntMan< CObject >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
-            }
-            else if (EntMan< CObject >::Activate(id, false))
-            {
-                OnObjectCreated(id, SQMOD_CREATE_POOL, payload);
-            }
-        break;
-        case SQMOD_ENTITY_POOL_PICKUP:
-            if (deleted)
-            {
-                EntMan< CPickup >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
-            }
-            else if (EntMan< CPickup >::Activate(id, false))
-            {
-                OnPickupCreated(id, SQMOD_CREATE_POOL, payload);
-            }
-        break;
-        case SQMOD_ENTITY_POOL_RADIO:
-            // @TODO Implement...
-        break;
-        case SQMOD_ENTITY_POOL_SPRITE:
-            if (deleted)
-            {
-                EntMan< CSprite >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
-            }
-            else if (EntMan< CSprite >::Activate(id, false))
-            {
-                OnSpriteCreated(id, SQMOD_CREATE_POOL, payload);
-            }
-        break;
-        case SQMOD_ENTITY_POOL_TEXTDRAW:
-            if (deleted)
-            {
-                EntMan< CTextdraw >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
-            }
-            else if (EntMan< CTextdraw >::Activate(id, false))
-            {
-                OnTextdrawCreated(id, SQMOD_CREATE_POOL, payload);
-            }
-        break;
-        case SQMOD_ENTITY_POOL_BLIP:
-            if (deleted)
-            {
-                EntMan< CBlip >::Deactivate(id, SQMOD_DESTROY_POOL, payload, true);
-            }
-            else
-            {
-                SQInt32 world, scale, sprid;
-                SQUint32 color;
-                SQFloat x, y, z;
-                // Get the blip information from the server
-                _Func->GetCoordBlipInfo(id, &world, &x, &y, &z, &scale, &color, &sprid);
-                // Attempt to activate this instance
-                if (EntMan< CBlip >::Activate(id, false, SQMOD_UNKNOWN, world, x, y, z, scale, color, sprid))
-                {
-                    OnBlipCreated(id, SQMOD_CREATE_POOL, payload);
-                }
-            }
-        break;
-        default:
-            LogErr("Unknown change in the entity pool of type: %d", type);
-    }
-
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
+    inst.mText.clear();
 }
 
+void Core::ResetInst(VehicleInst & inst)
+{
+    inst.mID = -1;
+    inst.mFlags = ENF_DEFAULT;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::ResetFunc(BlipInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+}
+
+void Core::ResetFunc(CheckpointInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+    inst.mOnEntered.Release();
+    inst.mOnExited.Release();
+}
+
+void Core::ResetFunc(ForcefieldInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+    inst.mOnEntered.Release();
+    inst.mOnExited.Release();
+}
+
+void Core::ResetFunc(KeybindInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+    inst.mOnKeyPress.Release();
+    inst.mOnKeyRelease.Release();
+}
+
+void Core::ResetFunc(ObjectInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+    inst.mOnShot.Release();
+    inst.mOnBump.Release();
+}
+
+void Core::ResetFunc(PickupInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+    inst.mOnRespawn.Release();
+    inst.mOnClaimed.Release();
+    inst.mOnCollected.Release();
+}
+
+void Core::ResetFunc(PlayerInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+    inst.mOnAway.Release();
+    inst.mOnGameKeys.Release();
+    inst.mOnRename.Release();
+    inst.mOnRequestClass.Release();
+    inst.mOnRequestSpawn.Release();
+    inst.mOnSpawn.Release();
+    inst.mOnStartTyping.Release();
+    inst.mOnStopTyping.Release();
+    inst.mOnChat.Release();
+    inst.mOnCommand.Release();
+    inst.mOnMessage.Release();
+    inst.mOnHealth.Release();
+    inst.mOnArmour.Release();
+    inst.mOnWeapon.Release();
+    inst.mOnMove.Release();
+    inst.mOnWasted.Release();
+    inst.mOnKilled.Release();
+    inst.mOnTeamKill.Release();
+    inst.mOnSpectate.Release();
+    inst.mOnCrashreport.Release();
+    inst.mOnBurning.Release();
+    inst.mOnCrouching.Release();
+    inst.mOnState.Release();
+    inst.mOnAction.Release();
+    inst.mOnStateNone.Release();
+    inst.mOnStateNormal.Release();
+    inst.mOnStateShooting.Release();
+    inst.mOnStateDriver.Release();
+    inst.mOnStatePassenger.Release();
+    inst.mOnStateEnterDriver.Release();
+    inst.mOnStateEnterPassenger.Release();
+    inst.mOnStateExitVehicle.Release();
+    inst.mOnStateUnspawned.Release();
+    inst.mOnActionNone.Release();
+    inst.mOnActionNormal.Release();
+    inst.mOnActionAiming.Release();
+    inst.mOnActionShooting.Release();
+    inst.mOnActionJumping.Release();
+    inst.mOnActionLieDown.Release();
+    inst.mOnActionGettingUp.Release();
+    inst.mOnActionJumpVehicle.Release();
+    inst.mOnActionDriving.Release();
+    inst.mOnActionDying.Release();
+    inst.mOnActionWasted.Release();
+    inst.mOnActionEmbarking.Release();
+    inst.mOnActionDisembarking.Release();
+    inst.mOnKeyPress.Release();
+    inst.mOnKeyRelease.Release();
+    inst.mOnEmbarking.Release();
+    inst.mOnEmbarked.Release();
+    inst.mOnDisembark.Release();
+    inst.mOnPickupClaimed.Release();
+    inst.mOnPickupCollected.Release();
+    inst.mOnObjectShot.Release();
+    inst.mOnObjectBump.Release();
+    inst.mOnCheckpointEntered.Release();
+    inst.mOnCheckpointExited.Release();
+    inst.mOnForcefieldEntered.Release();
+    inst.mOnForcefieldExited.Release();
+}
+
+void Core::ResetFunc(SpriteInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+}
+
+void Core::ResetFunc(TextdrawInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+}
+
+void Core::ResetFunc(VehicleInst & inst)
+{
+    inst.mOnDestroyed.Release();
+    inst.mOnCustom.Release();
+    inst.mOnRespawn.Release();
+    inst.mOnExplode.Release();
+    inst.mOnHealth.Release();
+    inst.mOnMove.Release();
+    inst.mOnEmbarking.Release();
+    inst.mOnEmbarked.Release();
+    inst.mOnDisembark.Release();
+}
+
+void Core::ResetFunc()
+{
+    mOnBlipCreated.Release();
+    mOnCheckpointCreated.Release();
+    mOnForcefieldCreated.Release();
+    mOnKeybindCreated.Release();
+    mOnObjectCreated.Release();
+    mOnPickupCreated.Release();
+    mOnPlayerCreated.Release();
+    mOnSpriteCreated.Release();
+    mOnTextdrawCreated.Release();
+    mOnVehicleCreated.Release();
+    mOnBlipDestroyed.Release();
+    mOnCheckpointDestroyed.Release();
+    mOnForcefieldDestroyed.Release();
+    mOnKeybindDestroyed.Release();
+    mOnObjectDestroyed.Release();
+    mOnPickupDestroyed.Release();
+    mOnPlayerDestroyed.Release();
+    mOnSpriteDestroyed.Release();
+    mOnTextdrawDestroyed.Release();
+    mOnVehicleDestroyed.Release();
+    mOnBlipCustom.Release();
+    mOnCheckpointCustom.Release();
+    mOnForcefieldCustom.Release();
+    mOnKeybindCustom.Release();
+    mOnObjectCustom.Release();
+    mOnPickupCustom.Release();
+    mOnPlayerCustom.Release();
+    mOnSpriteCustom.Release();
+    mOnTextdrawCustom.Release();
+    mOnVehicleCustom.Release();
+    mOnPlayerAway.Release();
+    mOnPlayerGameKeys.Release();
+    mOnPlayerRename.Release();
+    mOnPlayerRequestClass.Release();
+    mOnPlayerRequestSpawn.Release();
+    mOnPlayerSpawn.Release();
+    mOnPlayerStartTyping.Release();
+    mOnPlayerStopTyping.Release();
+    mOnPlayerChat.Release();
+    mOnPlayerCommand.Release();
+    mOnPlayerMessage.Release();
+    mOnPlayerHealth.Release();
+    mOnPlayerArmour.Release();
+    mOnPlayerWeapon.Release();
+    mOnPlayerMove.Release();
+    mOnPlayerWasted.Release();
+    mOnPlayerKilled.Release();
+    mOnPlayerTeamKill.Release();
+    mOnPlayerSpectate.Release();
+    mOnPlayerCrashreport.Release();
+    mOnPlayerBurning.Release();
+    mOnPlayerCrouching.Release();
+    mOnPlayerState.Release();
+    mOnPlayerAction.Release();
+    mOnStateNone.Release();
+    mOnStateNormal.Release();
+    mOnStateShooting.Release();
+    mOnStateDriver.Release();
+    mOnStatePassenger.Release();
+    mOnStateEnterDriver.Release();
+    mOnStateEnterPassenger.Release();
+    mOnStateExitVehicle.Release();
+    mOnStateUnspawned.Release();
+    mOnActionNone.Release();
+    mOnActionNormal.Release();
+    mOnActionAiming.Release();
+    mOnActionShooting.Release();
+    mOnActionJumping.Release();
+    mOnActionLieDown.Release();
+    mOnActionGettingUp.Release();
+    mOnActionJumpVehicle.Release();
+    mOnActionDriving.Release();
+    mOnActionDying.Release();
+    mOnActionWasted.Release();
+    mOnActionEmbarking.Release();
+    mOnActionDisembarking.Release();
+    mOnVehicleRespawn.Release();
+    mOnVehicleExplode.Release();
+    mOnVehicleHealth.Release();
+    mOnVehicleMove.Release();
+    mOnPickupRespawn.Release();
+    mOnKeybindKeyPress.Release();
+    mOnKeybindKeyRelease.Release();
+    mOnVehicleEmbarking.Release();
+    mOnVehicleEmbarked.Release();
+    mOnVehicleDisembark.Release();
+    mOnPickupClaimed.Release();
+    mOnPickupCollected.Release();
+    mOnObjectShot.Release();
+    mOnObjectBump.Release();
+    mOnCheckpointEntered.Release();
+    mOnCheckpointExited.Release();
+    mOnForcefieldEntered.Release();
+    mOnForcefieldExited.Release();
+    mOnServerFrame.Release();
+    mOnServerStartup.Release();
+    mOnServerShutdown.Release();
+    mOnInternalCommand.Release();
+    mOnLoginAttempt.Release();
+    mOnCustomEvent.Release();
+    mOnWorldOption.Release();
+    mOnWorldToggle.Release();
+    mOnScriptReload.Release();
+    mOnScriptUnload.Release();
+}
+
+// ------------------------------------------------------------------------------------------------
+Function & Core::GetEvent(Int32 evid)
+{
+    switch (evid)
+    {
+        case EVT_BLIPCREATED:           return mOnBlipCreated;
+        case EVT_CHECKPOINTCREATED:     return mOnCheckpointCreated;
+        case EVT_FORCEFIELDCREATED:     return mOnForcefieldCreated;
+        case EVT_KEYBINDCREATED:        return mOnKeybindCreated;
+        case EVT_OBJECTCREATED:         return mOnObjectCreated;
+        case EVT_PICKUPCREATED:         return mOnPickupCreated;
+        case EVT_PLAYERCREATED:         return mOnPlayerCreated;
+        case EVT_SPRITECREATED:         return mOnSpriteCreated;
+        case EVT_TEXTDRAWCREATED:       return mOnTextdrawCreated;
+        case EVT_VEHICLECREATED:        return mOnVehicleCreated;
+        case EVT_BLIPDESTROYED:         return mOnBlipDestroyed;
+        case EVT_CHECKPOINTDESTROYED:   return mOnCheckpointDestroyed;
+        case EVT_FORCEFIELDDESTROYED:   return mOnForcefieldDestroyed;
+        case EVT_KEYBINDDESTROYED:      return mOnKeybindDestroyed;
+        case EVT_OBJECTDESTROYED:       return mOnObjectDestroyed;
+        case EVT_PICKUPDESTROYED:       return mOnPickupDestroyed;
+        case EVT_PLAYERDESTROYED:       return mOnPlayerDestroyed;
+        case EVT_SPRITEDESTROYED:       return mOnSpriteDestroyed;
+        case EVT_TEXTDRAWDESTROYED:     return mOnTextdrawDestroyed;
+        case EVT_VEHICLEDESTROYED:      return mOnVehicleDestroyed;
+        case EVT_BLIPCUSTOM:            return mOnBlipCustom;
+        case EVT_CHECKPOINTCUSTOM:      return mOnCheckpointCustom;
+        case EVT_FORCEFIELDCUSTOM:      return mOnForcefieldCustom;
+        case EVT_KEYBINDCUSTOM:         return mOnKeybindCustom;
+        case EVT_OBJECTCUSTOM:          return mOnObjectCustom;
+        case EVT_PICKUPCUSTOM:          return mOnPickupCustom;
+        case EVT_PLAYERCUSTOM:          return mOnPlayerCustom;
+        case EVT_SPRITECUSTOM:          return mOnSpriteCustom;
+        case EVT_TEXTDRAWCUSTOM:        return mOnTextdrawCustom;
+        case EVT_VEHICLECUSTOM:         return mOnVehicleCustom;
+        case EVT_PLAYERAWAY:            return mOnPlayerAway;
+        case EVT_PLAYERGAMEKEYS:        return mOnPlayerGameKeys;
+        case EVT_PLAYERRENAME:          return mOnPlayerRename;
+        case EVT_PLAYERREQUESTCLASS:    return mOnPlayerRequestClass;
+        case EVT_PLAYERREQUESTSPAWN:    return mOnPlayerRequestSpawn;
+        case EVT_PLAYERSPAWN:           return mOnPlayerSpawn;
+        case EVT_PLAYERSTARTTYPING:     return mOnPlayerStartTyping;
+        case EVT_PLAYERSTOPTYPING:      return mOnPlayerStopTyping;
+        case EVT_PLAYERCHAT:            return mOnPlayerChat;
+        case EVT_PLAYERCOMMAND:         return mOnPlayerCommand;
+        case EVT_PLAYERMESSAGE:         return mOnPlayerMessage;
+        case EVT_PLAYERHEALTH:          return mOnPlayerHealth;
+        case EVT_PLAYERARMOUR:          return mOnPlayerArmour;
+        case EVT_PLAYERWEAPON:          return mOnPlayerWeapon;
+        case EVT_PLAYERMOVE:            return mOnPlayerMove;
+        case EVT_PLAYERWASTED:          return mOnPlayerWasted;
+        case EVT_PLAYERKILLED:          return mOnPlayerKilled;
+        case EVT_PLAYERTEAMKILL:        return mOnPlayerTeamKill;
+        case EVT_PLAYERSPECTATE:        return mOnPlayerSpectate;
+        case EVT_PLAYERCRASHREPORT:     return mOnPlayerCrashreport;
+        case EVT_PLAYERBURNING:         return mOnPlayerBurning;
+        case EVT_PLAYERCROUCHING:       return mOnPlayerCrouching;
+        case EVT_PLAYERSTATE:           return mOnPlayerState;
+        case EVT_PLAYERACTION:          return mOnPlayerAction;
+        case EVT_STATENONE:             return mOnStateNone;
+        case EVT_STATENORMAL:           return mOnStateNormal;
+        case EVT_STATESHOOTING:         return mOnStateShooting;
+        case EVT_STATEDRIVER:           return mOnStateDriver;
+        case EVT_STATEPASSENGER:        return mOnStatePassenger;
+        case EVT_STATEENTERDRIVER:      return mOnStateEnterDriver;
+        case EVT_STATEENTERPASSENGER:   return mOnStateEnterPassenger;
+        case EVT_STATEEXITVEHICLE:      return mOnStateExitVehicle;
+        case EVT_STATEUNSPAWNED:        return mOnStateUnspawned;
+        case EVT_ACTIONNONE:            return mOnActionNone;
+        case EVT_ACTIONNORMAL:          return mOnActionNormal;
+        case EVT_ACTIONAIMING:          return mOnActionAiming;
+        case EVT_ACTIONSHOOTING:        return mOnActionShooting;
+        case EVT_ACTIONJUMPING:         return mOnActionJumping;
+        case EVT_ACTIONLIEDOWN:         return mOnActionLieDown;
+        case EVT_ACTIONGETTINGUP:       return mOnActionGettingUp;
+        case EVT_ACTIONJUMPVEHICLE:     return mOnActionJumpVehicle;
+        case EVT_ACTIONDRIVING:         return mOnActionDriving;
+        case EVT_ACTIONDYING:           return mOnActionDying;
+        case EVT_ACTIONWASTED:          return mOnActionWasted;
+        case EVT_ACTIONEMBARKING:       return mOnActionEmbarking;
+        case EVT_ACTIONDISEMBARKING:    return mOnActionDisembarking;
+        case EVT_VEHICLERESPAWN:        return mOnVehicleRespawn;
+        case EVT_VEHICLEEXPLODE:        return mOnVehicleExplode;
+        case EVT_VEHICLEHEALTH:         return mOnVehicleHealth;
+        case EVT_VEHICLEMOVE:           return mOnVehicleMove;
+        case EVT_PICKUPRESPAWN:         return mOnPickupRespawn;
+        case EVT_KEYBINDKEYPRESS:       return mOnKeybindKeyPress;
+        case EVT_KEYBINDKEYRELEASE:     return mOnKeybindKeyRelease;
+        case EVT_VEHICLEEMBARKING:      return mOnVehicleEmbarking;
+        case EVT_VEHICLEEMBARKED:       return mOnVehicleEmbarked;
+        case EVT_VEHICLEDISEMBARK:      return mOnVehicleDisembark;
+        case EVT_PICKUPCLAIMED:         return mOnPickupClaimed;
+        case EVT_PICKUPCOLLECTED:       return mOnPickupCollected;
+        case EVT_OBJECTSHOT:            return mOnObjectShot;
+        case EVT_OBJECTBUMP:            return mOnObjectBump;
+        case EVT_CHECKPOINTENTERED:     return mOnCheckpointEntered;
+        case EVT_CHECKPOINTEXITED:      return mOnCheckpointExited;
+        case EVT_FORCEFIELDENTERED:     return mOnForcefieldEntered;
+        case EVT_FORCEFIELDEXITED:      return mOnForcefieldExited;
+        case EVT_SERVERFRAME:           return mOnServerFrame;
+        case EVT_SERVERSTARTUP:         return mOnServerStartup;
+        case EVT_SERVERSHUTDOWN:        return mOnServerShutdown;
+        case EVT_INTERNALCOMMAND:       return mOnInternalCommand;
+        case EVT_LOGINATTEMPT:          return mOnLoginAttempt;
+        case EVT_CUSTOMEVENT:           return mOnCustomEvent;
+        case EVT_WORLDOPTION:           return mOnWorldOption;
+        case EVT_WORLDTOGGLE:           return mOnWorldToggle;
+        case EVT_SCRIPTRELOAD:          return mOnScriptReload;
+        case EVT_SCRIPTUNLOAD:          return mOnScriptUnload;
+        default:                        return NullFunction();
+    }
+}
+
+
+// ------------------------------------------------------------------------------------------------
+Function & Core::GetBlipEvent(Int32 id, Int32 evid)
+{
+    BlipInst & inst = m_Blips.at(id);
+
+    switch (evid)
+    {
+        case EVT_BLIPDESTROYED:         return inst.mOnDestroyed;
+        case EVT_BLIPCUSTOM:            return inst.mOnCustom;
+        default:                        return NullFunction();
+    }
+}
+
+Function & Core::GetCheckpointEvent(Int32 id, Int32 evid)
+{
+    CheckpointInst & inst = m_Checkpoints.at(id);
+
+    switch (evid)
+    {
+        case EVT_CHECKPOINTDESTROYED:   return inst.mOnDestroyed;
+        case EVT_CHECKPOINTCUSTOM:      return inst.mOnCustom;
+        case EVT_CHECKPOINTENTERED:     return inst.mOnEntered;
+        case EVT_CHECKPOINTEXITED:      return inst.mOnExited;
+        default:                        return NullFunction();
+    }
+}
+
+Function & Core::GetForcefieldEvent(Int32 id, Int32 evid)
+{
+    ForcefieldInst & inst = m_Forcefields.at(id);
+
+    switch (evid)
+    {
+        case EVT_FORCEFIELDDESTROYED:   return inst.mOnDestroyed;
+        case EVT_FORCEFIELDCUSTOM:      return inst.mOnCustom;
+        case EVT_FORCEFIELDENTERED:     return inst.mOnEntered;
+        case EVT_FORCEFIELDEXITED:      return inst.mOnExited;
+        default:                        return NullFunction();
+    }
+}
+
+Function & Core::GetKeybindEvent(Int32 id, Int32 evid)
+{
+    KeybindInst & inst = m_Keybinds.at(id);
+
+    switch (evid)
+    {
+        case EVT_KEYBINDDESTROYED:      return inst.mOnDestroyed;
+        case EVT_KEYBINDCUSTOM:         return inst.mOnCustom;
+        case EVT_KEYBINDKEYPRESS:       return inst.mOnKeyPress;
+        case EVT_KEYBINDKEYRELEASE:     return inst.mOnKeyRelease;
+        default:                        return NullFunction();
+    }
+}
+
+Function & Core::GetObjectEvent(Int32 id, Int32 evid)
+{
+    ObjectInst & inst = m_Objects.at(id);
+
+    switch (evid)
+    {
+        case EVT_OBJECTDESTROYED:       return inst.mOnDestroyed;
+        case EVT_OBJECTCUSTOM:          return inst.mOnCustom;
+        case EVT_OBJECTSHOT:            return inst.mOnShot;
+        case EVT_OBJECTBUMP:            return inst.mOnBump;
+        default:                        return NullFunction();
+    }
+}
+
+Function & Core::GetPickupEvent(Int32 id, Int32 evid)
+{
+    PickupInst & inst = m_Pickups.at(id);
+
+    switch (evid)
+    {
+        case EVT_PICKUPDESTROYED:       return inst.mOnDestroyed;
+        case EVT_PICKUPCUSTOM:          return inst.mOnCustom;
+        case EVT_PICKUPRESPAWN:         return inst.mOnRespawn;
+        case EVT_PICKUPCLAIMED:         return inst.mOnClaimed;
+        case EVT_PICKUPCOLLECTED:       return inst.mOnCollected;
+        default:                        return NullFunction();
+    }
+}
+
+Function & Core::GetPlayerEvent(Int32 id, Int32 evid)
+{
+    PlayerInst & inst = m_Players.at(id);
+
+    switch (evid)
+    {
+        case EVT_PLAYERDESTROYED:       return inst.mOnDestroyed;
+        case EVT_PLAYERCUSTOM:          return inst.mOnCustom;
+        case EVT_PLAYERAWAY:            return inst.mOnAway;
+        case EVT_PLAYERGAMEKEYS:        return inst.mOnGameKeys;
+        case EVT_PLAYERRENAME:          return inst.mOnRename;
+        case EVT_PLAYERREQUESTCLASS:    return inst.mOnRequestClass;
+        case EVT_PLAYERREQUESTSPAWN:    return inst.mOnRequestSpawn;
+        case EVT_PLAYERSPAWN:           return inst.mOnSpawn;
+        case EVT_PLAYERSTARTTYPING:     return inst.mOnStartTyping;
+        case EVT_PLAYERSTOPTYPING:      return inst.mOnStopTyping;
+        case EVT_PLAYERCHAT:            return inst.mOnChat;
+        case EVT_PLAYERCOMMAND:         return inst.mOnCommand;
+        case EVT_PLAYERMESSAGE:         return inst.mOnMessage;
+        case EVT_PLAYERHEALTH:          return inst.mOnHealth;
+        case EVT_PLAYERARMOUR:          return inst.mOnArmour;
+        case EVT_PLAYERWEAPON:          return inst.mOnWeapon;
+        case EVT_PLAYERMOVE:            return inst.mOnMove;
+        case EVT_PLAYERWASTED:          return inst.mOnWasted;
+        case EVT_PLAYERKILLED:          return inst.mOnKilled;
+        case EVT_PLAYERTEAMKILL:        return inst.mOnTeamKill;
+        case EVT_PLAYERSPECTATE:        return inst.mOnSpectate;
+        case EVT_PLAYERCRASHREPORT:     return inst.mOnCrashreport;
+        case EVT_PLAYERBURNING:         return inst.mOnBurning;
+        case EVT_PLAYERCROUCHING:       return inst.mOnCrouching;
+        case EVT_PLAYERSTATE:           return inst.mOnState;
+        case EVT_PLAYERACTION:          return inst.mOnAction;
+        case EVT_STATENONE:             return inst.mOnStateNone;
+        case EVT_STATENORMAL:           return inst.mOnStateNormal;
+        case EVT_STATESHOOTING:         return inst.mOnStateShooting;
+        case EVT_STATEDRIVER:           return inst.mOnStateDriver;
+        case EVT_STATEPASSENGER:        return inst.mOnStatePassenger;
+        case EVT_STATEENTERDRIVER:      return inst.mOnStateEnterDriver;
+        case EVT_STATEENTERPASSENGER:   return inst.mOnStateEnterPassenger;
+        case EVT_STATEEXITVEHICLE:      return inst.mOnStateExitVehicle;
+        case EVT_STATEUNSPAWNED:        return inst.mOnStateUnspawned;
+        case EVT_ACTIONNONE:            return inst.mOnActionNone;
+        case EVT_ACTIONNORMAL:          return inst.mOnActionNormal;
+        case EVT_ACTIONAIMING:          return inst.mOnActionAiming;
+        case EVT_ACTIONSHOOTING:        return inst.mOnActionShooting;
+        case EVT_ACTIONJUMPING:         return inst.mOnActionJumping;
+        case EVT_ACTIONLIEDOWN:         return inst.mOnActionLieDown;
+        case EVT_ACTIONGETTINGUP:       return inst.mOnActionGettingUp;
+        case EVT_ACTIONJUMPVEHICLE:     return inst.mOnActionJumpVehicle;
+        case EVT_ACTIONDRIVING:         return inst.mOnActionDriving;
+        case EVT_ACTIONDYING:           return inst.mOnActionDying;
+        case EVT_ACTIONWASTED:          return inst.mOnActionWasted;
+        case EVT_ACTIONEMBARKING:       return inst.mOnActionEmbarking;
+        case EVT_ACTIONDISEMBARKING:    return inst.mOnActionDisembarking;
+        case EVT_KEYBINDKEYPRESS:       return inst.mOnKeyPress;
+        case EVT_KEYBINDKEYRELEASE:     return inst.mOnKeyRelease;
+        case EVT_VEHICLEEMBARKING:      return inst.mOnEmbarking;
+        case EVT_VEHICLEEMBARKED:       return inst.mOnEmbarked;
+        case EVT_VEHICLEDISEMBARK:      return inst.mOnDisembark;
+        case EVT_PICKUPCLAIMED:         return inst.mOnPickupClaimed;
+        case EVT_PICKUPCOLLECTED:       return inst.mOnPickupCollected;
+        case EVT_OBJECTSHOT:            return inst.mOnObjectShot;
+        case EVT_OBJECTBUMP:            return inst.mOnObjectBump;
+        case EVT_CHECKPOINTENTERED:     return inst.mOnCheckpointEntered;
+        case EVT_CHECKPOINTEXITED:      return inst.mOnCheckpointExited;
+        case EVT_FORCEFIELDENTERED:     return inst.mOnForcefieldEntered;
+        case EVT_FORCEFIELDEXITED:      return inst.mOnForcefieldExited;
+        default:                        return NullFunction();
+    }
+}
+
+Function & Core::GetSpriteEvent(Int32 id, Int32 evid)
+{
+    SpriteInst & inst = m_Sprites.at(id);
+
+    switch (evid)
+    {
+        case EVT_SPRITEDESTROYED:       return inst.mOnDestroyed;
+        case EVT_SPRITECUSTOM:          return inst.mOnCustom;
+        default:                        return NullFunction();
+    }
+}
+
+Function & Core::GetTextdrawEvent(Int32 id, Int32 evid)
+{
+    TextdrawInst & inst = m_Textdraws.at(id);
+
+    switch (evid)
+    {
+        case EVT_TEXTDRAWDESTROYED:     return inst.mOnDestroyed;
+        case EVT_TEXTDRAWCUSTOM:        return inst.mOnCustom;
+        default:                        return NullFunction();
+    }
+}
+
+Function & Core::GetVehicleEvent(Int32 id, Int32 evid)
+{
+    VehicleInst & inst = m_Vehicles.at(id);
+
+    switch (evid)
+    {
+        case EVT_VEHICLEDESTROYED:      return inst.mOnDestroyed;
+        case EVT_VEHICLECUSTOM:         return inst.mOnCustom;
+        case EVT_VEHICLERESPAWN:        return inst.mOnRespawn;
+        case EVT_VEHICLEEXPLODE:        return inst.mOnExplode;
+        case EVT_VEHICLEHEALTH:         return inst.mOnHealth;
+        case EVT_VEHICLEMOVE:           return inst.mOnMove;
+        case EVT_VEHICLEEMBARKING:      return inst.mOnEmbarking;
+        case EVT_VEHICLEEMBARKED:       return inst.mOnEmbarked;
+        case EVT_VEHICLEDISEMBARK:      return inst.mOnDisembark;
+        default:                        return NullFunction();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Core::BlipInst::~BlipInst()
+{
+    if (mID >=0 && (mFlags & ENF_OWNED))
+    {
+        _Core->EmitBlipDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        _Func->DestroyCoordBlip(mID);
+    }
+}
+
+Core::CheckpointInst::~CheckpointInst()
+{
+    if (mID >=0 && (mFlags & ENF_OWNED))
+    {
+        _Core->EmitCheckpointDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        _Func->DeleteCheckpoint(mID);
+    }
+}
+
+Core::ForcefieldInst::~ForcefieldInst()
+{
+    if (mID >=0 && (mFlags & ENF_OWNED))
+    {
+        _Core->EmitForcefieldDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        _Func->DeleteSphere(mID);
+    }
+}
+
+Core::KeybindInst::~KeybindInst()
+{
+    if (mID >=0 && (mFlags & ENF_OWNED))
+    {
+        _Core->EmitKeybindDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        _Func->RemoveKeyBind(mID);
+    }
+}
+
+Core::ObjectInst::~ObjectInst()
+{
+    if (mID >=0 && (mFlags & ENF_OWNED))
+    {
+        _Core->EmitObjectDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        _Func->DeleteObject(mID);
+    }
+}
+
+Core::PickupInst::~PickupInst()
+{
+    if (mID >=0 && (mFlags & ENF_OWNED))
+    {
+        _Core->EmitPickupDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        _Func->DeletePickup(mID);
+    }
+}
+
+Core::SpriteInst::~SpriteInst()
+{
+    if (mID >=0 && (mFlags & ENF_OWNED))
+    {
+        _Core->EmitSpriteDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        _Func->DestroySprite(mID);
+    }
+}
+
+Core::TextdrawInst::~TextdrawInst()
+{
+    if (mID >=0 && (mFlags & ENF_OWNED))
+    {
+        _Core->EmitTextdrawDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        _Func->DestroyTextdraw(mID);
+    }
+}
+
+Core::VehicleInst::~VehicleInst()
+{
+    if (mID >=0 && (mFlags & ENF_OWNED))
+    {
+        _Core->EmitVehicleDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        _Func->DeleteVehicle(mID);
+    }
+}
 
 } // Namespace:: SqMod
