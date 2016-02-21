@@ -26,6 +26,11 @@ CSStr StrJustAlphaNum(CSStr str);
 */
 CSStr StrToLowercase(CSStr str);
 
+/* ------------------------------------------------------------------------------------------------
+ * Convert the specified string to uppercase.
+*/
+CSStr StrToUppercase(CSStr str);
+
 } // Namespace:: SqMod
 
 #endif // _LIBRARY_STRING_HPP_

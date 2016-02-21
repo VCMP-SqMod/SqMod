@@ -250,10 +250,49 @@ CSStr StrToLowercase(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
+CSStr StrToUppercase(CSStr str)
+{
+    Uint32 size = 0;
+    // See if we actually have something to search for
+    if(!str || (size = strlen(str)) <= 0)
+    {
+        return _SC("");
+    }
+    // Obtain a temporary buffer
+    Buffer b(size);
+    // Resulted string size
+    Uint32 n = 0;
+    // Currently processed character
+    SQChar c = 0;
+    // Process characters
+    while ((c = *(str++)) != 0)
+    {
+        // Convert it and move to the next one
+        b.At< SQChar >(n++) = toupper(c);
+    }
+    // End the resulted string
+    b.At< SQChar >(n) = 0;
+    // Return the string
+    return b.Get< SQChar >();
+}
+
+// ------------------------------------------------------------------------------------------------
 static CSStr FromArray(Array & arr)
 {
-    Buffer b((arr.Length()+1) * sizeof(SQChar));
-    arr.GetArray< SQChar >(b.Get< SQChar >(), b.Size< SQChar >());
+    // Determine array size
+    const Int32 length = (Int32)arr.Length();
+    // Obtain a temporary buffer
+    Buffer b(length * sizeof(Int32));
+    // Get array elements as integers
+    arr.GetArray< Int32 >(b.Get< Int32 >(), length);
+    // Overwrite integers with characters
+    for (Int32 n = 0; n < length; ++n)
+    {
+        b.At< SQChar >(n) = (SQChar)b.At< Int32 >(n);
+    }
+    // Terminate the resulted string
+    b.At< SQChar >(length) = 0;
+    // Return the string
     return b.Get< SQChar >();
 }
 
@@ -278,7 +317,10 @@ void Register_String(HSQUIRRELVM vm)
     .Overload< CSStr (*)(CSStr, SQChar, Uint32, Uint32) >(_SC("Left"), &LeftStr)
     .Overload< CSStr (*)(CSStr, SQChar, Uint32) >(_SC("Right"), &RightStr)
     .Overload< CSStr (*)(CSStr, SQChar, Uint32, Uint32) >(_SC("Right"), &RightStr)
-    .Func(_SC("Center"), &CenterStr);
+    .Func(_SC("Center"), &CenterStr)
+    .Func(_SC("JustAlphaNum"), &StrJustAlphaNum)
+    .Func(_SC("Lowercase"), &StrToLowercase)
+    .Func(_SC("Uppercase"), &StrToUppercase);
 
     RootTable(vm).Bind(_SC("SqStr"), strns);
     RootTable(vm).SquirrelFunc(_SC("printf"), &StdPrintF);
