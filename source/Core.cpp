@@ -2,6 +2,7 @@
 #include "Core.hpp"
 #include "Logger.hpp"
 #include "Command.hpp"
+#include "Routine.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
@@ -334,7 +335,7 @@ void Core::Terminate()
     // Release all resources from command manager
     _Cmd->Terminate();
     // Release all resources from routines
-    //Routine::Cleanup();
+    Routine::Cleanup();
     // Is there a VM to close?
     if (m_VM)
     {
@@ -1663,7 +1664,7 @@ void Core::EmitForcefieldExited(Int32 player, Int32 forcefield)
 void Core::EmitServerFrame(Float32 delta)
 {
     Emit(mOnServerFrame, delta);
-    //Routine::Process();
+    Routine::Process();
 }
 
 void Core::EmitServerStartup()

@@ -290,6 +290,8 @@
 		<Unit filename="../source/Misc/World.cpp" />
 		<Unit filename="../source/Misc/World.hpp" />
 		<Unit filename="../source/Register.cpp" />
+		<Unit filename="../source/Routine.cpp" />
+		<Unit filename="../source/Routine.hpp" />
 		<Unit filename="../source/SqBase.hpp" />
 		<Extensions>
 			<code_completion />
