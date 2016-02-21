@@ -1,5 +1,5 @@
-#ifndef _LIBRARY_TIMER_HPP_
-#define _LIBRARY_TIMER_HPP_
+#ifndef _LIBRARY_TIME_HPP_
+#define _LIBRARY_TIME_HPP_
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -13,7 +13,7 @@ class Timer;
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the current time as microseconds.
 */
-Int64 GetCurrentTime();
+Int64 GetCurrentSysTime();
 
 /* ------------------------------------------------------------------------------------------------
  *
@@ -439,4 +439,4 @@ private:
 
 } // Namespace:: SqMod
 
-#endif // _LIBRARY_TIMER_HPP_
+#endif // _LIBRARY_TIME_HPP_

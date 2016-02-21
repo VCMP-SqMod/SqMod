@@ -17,9 +17,9 @@ namespace SqMod {
 #ifdef SQMOD_OS_WINDOWS
 
 /* ------------------------------------------------------------------------------------------------
- * Used by GetCurrentTime to obtain the system frequency on initial call.
+ * Used by GetCurrentSysTime to obtain the system frequency on initial call.
 */
-static LARGE_INTEGER GetFrequency()
+LARGE_INTEGER GetFrequency()
 {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
@@ -27,7 +27,7 @@ static LARGE_INTEGER GetFrequency()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetCurrentTime()
+Int64 GetCurrentSysTime()
 {
     // Force the following code to run on first core
     // (see http://msdn.microsoft.com/en-us/library/windows/desktop/ms644904(v=vs.85).aspx)
@@ -46,7 +46,7 @@ Int64 GetCurrentTime()
     SetThreadAffinityMask(current_thread, previous_mask);
 
     // Return the current time as microseconds
-    return Int64(1000000 * time.QuadPart / frequency.QuadPart);
+    return Int64(1000000LL * time.QuadPart / frequency.QuadPart);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ Int64 GetEpochTimeMicro()
 #else
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetCurrentTime()
+Int64 GetCurrentSysTime()
 {
     // POSIX implementation
     timespec time;
@@ -119,7 +119,7 @@ CSStr Timestamp::ToString() const
 // ------------------------------------------------------------------------------------------------
 void Timestamp::SetNow()
 {
-    m_Timestamp = GetCurrentTime();
+    m_Timestamp = GetCurrentSysTime();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ void Timestamp::SetMilliseconds(const SLongInt & ammount)
 
 // ------------------------------------------------------------------------------------------------
 Timer::Timer()
-    : m_Timestamp(GetCurrentTime())
+    : m_Timestamp(GetCurrentSysTime())
 {
     /* ... */
 }
@@ -173,13 +173,13 @@ CSStr Timer::ToString() const
 // ------------------------------------------------------------------------------------------------
 void Timer::Reset()
 {
-    m_Timestamp = GetCurrentTime();
+    m_Timestamp = GetCurrentSysTime();
 }
 
 // ------------------------------------------------------------------------------------------------
 Timestamp Timer::Restart()
 {
-    const Int64 now = GetCurrentTime(), elapsed = now - m_Timestamp;
+    const Int64 now = GetCurrentSysTime(), elapsed = now - m_Timestamp;
     m_Timestamp = now;
     return Timestamp(elapsed);
 }
@@ -187,7 +187,7 @@ Timestamp Timer::Restart()
 // ------------------------------------------------------------------------------------------------
 Int64 Timer::RestartRaw()
 {
-    const Int64 now = GetCurrentTime(), elapsed = now - m_Timestamp;
+    const Int64 now = GetCurrentSysTime(), elapsed = now - m_Timestamp;
     m_Timestamp = now;
     return elapsed;
 }
@@ -195,13 +195,13 @@ Int64 Timer::RestartRaw()
 // ------------------------------------------------------------------------------------------------
 Timestamp Timer::GetElapsedTime() const
 {
-    return Timestamp(GetCurrentTime() - m_Timestamp);
+    return Timestamp(GetCurrentSysTime() - m_Timestamp);
 }
 
 // ------------------------------------------------------------------------------------------------
 Int64 Timer::GetElapsedTimeRaw() const
 {
-    return (GetCurrentTime() - m_Timestamp);
+    return (GetCurrentSysTime() - m_Timestamp);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -217,13 +217,13 @@ static SLongInt SqGetEpochTimeMilli()
 }
 
 // ------------------------------------------------------------------------------------------------
-static SLongInt SqGetCurrentTime()
+static SLongInt SqGetCurrentSysTime()
 {
-    return SLongInt(GetCurrentTime());
+    return SLongInt(GetCurrentSysTime());
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetCurrentTimeNow()
+static Timestamp SqGetEpochTimeNow()
 {
     return Timestamp(GetEpochTimeMicro());
 }
@@ -331,8 +331,8 @@ void Register_Time(HSQUIRRELVM vm)
     timens
     .Func(_SC("EpochMicro"), &SqGetEpochTimeMicro)
     .Func(_SC("EpochMilli"), &SqGetEpochTimeMilli)
-    .Func(_SC("Current"), &SqGetCurrentTime)
-    .Func(_SC("Now"), &SqGetCurrentTimeNow)
+    .Func(_SC("Current"), &SqGetCurrentSysTime)
+    .Func(_SC("Now"), &SqGetEpochTimeNow)
     .Func(_SC("MicrosecondsRaw"), &SqGetMicrosecondsRaw)
     .Func(_SC("Microseconds"), &SqGetMicroseconds)
     .Func(_SC("Milliseconds"), &SqGetMilliseconds)
