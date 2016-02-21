@@ -268,8 +268,8 @@
 		<Unit filename="../source/Library/SysPath.hpp" />
 		<Unit filename="../source/Library/System.cpp" />
 		<Unit filename="../source/Library/System.hpp" />
-		<Unit filename="../source/Library/Timer.cpp" />
-		<Unit filename="../source/Library/Timer.hpp" />
+		<Unit filename="../source/Library/Time.cpp" />
+		<Unit filename="../source/Library/Time.hpp" />
 		<Unit filename="../source/Library/Utils.cpp" />
 		<Unit filename="../source/Library/Utils.hpp" />
 		<Unit filename="../source/Logger.cpp" />
