@@ -254,6 +254,8 @@
 		<Unit filename="../source/Library/Format.hpp" />
 		<Unit filename="../source/Library/Hashing.cpp" />
 		<Unit filename="../source/Library/Hashing.hpp" />
+		<Unit filename="../source/Library/INI.cpp" />
+		<Unit filename="../source/Library/INI.hpp" />
 		<Unit filename="../source/Library/Math.cpp" />
 		<Unit filename="../source/Library/Math.hpp" />
 		<Unit filename="../source/Library/Numeric.cpp" />
