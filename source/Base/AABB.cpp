@@ -291,11 +291,11 @@ bool AABB::operator >= (const AABB & b) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::Cmp(const AABB & b) const
+Int32 AABB::Cmp(const AABB & o) const
 {
-    if (*this == b)
+    if (*this == o)
         return 0;
-    else if (*this > b)
+    else if (*this > o)
         return 1;
     else
         return -1;

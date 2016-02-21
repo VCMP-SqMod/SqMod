@@ -357,7 +357,7 @@ static bool RandomProbF(SQFloat m, SQFloat n)
 // ------------------------------------------------------------------------------------------------
 void Register_Random(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("Random"), Table(vm)
+    RootTable(vm).Bind(_SC("SqRand"), Table(vm)
         .Func(_SC("GenSeed"), &GenerateSeed)
         .Overload< void (*)(void) >(_SC("Reseed"), &ReseedRandom)
         .Overload< void (*)(Uint32) >(_SC("Reseed"), &ReseedRandom)

@@ -97,7 +97,7 @@ void Register_Hash(HSQUIRRELVM vm)
     hashns.SquirrelFunc(_SC("GetSHA256"), &HashF< SHA256 >);
     hashns.SquirrelFunc(_SC("GetSHA3"), &HashF< SHA3 >);
 
-    RootTable(vm).Bind(_SC("Hash"), hashns);
+    RootTable(vm).Bind(_SC("SqHash"), hashns);
 }
 
 } // Namespace:: SqMod
