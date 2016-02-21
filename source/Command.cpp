@@ -92,7 +92,7 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     {
         // Save the command name
         m_Command.assign(command, (split - command));
-        // Skip white space until after command name
+        // Skip white space after command name
         while (*split == ' ') ++split;
         // Save the command argument
         m_Argument.assign(split);
@@ -117,18 +117,28 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
         SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command.c_str());
         return -1;
     }
+    // Is the command instance valid? (just in case)
     else if (!itr->second)
     {
         m_Commands.erase(itr);
         SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command.c_str());
         return -1;
     }
-    // Get the command instance
+    // Save the command instance
     m_Instance = itr->second;
     // Place a lock on the command
     m_Instance->m_Locked = true;
     // Value returned by the command
-    Int32 ret = Exec();
+    Int32 ret = -1;
+    // Attempt to execute the command
+    try
+    {
+        ret = Exec();
+    }
+    catch (...)
+    {
+        SqError(CMDERR_EXECUTION_FAILED, _SC("Exceptions occurred during execution"), m_Invoker);
+    }
     // Remove the lock from the command
     m_Instance->m_Protected = false;
     // Release the command instance
@@ -144,14 +154,14 @@ Int32 CmdManager::Exec()
     m_Argv.clear();
     // Reset the argument counter
     m_Argc = 0;
-    // See if the invoker has enough authority to execute this command
+    // Make sure the invoker has enough authority to execute this command
     if (!m_Instance->AuthCheckID(m_Invoker))
     {
         SqError(CMDERR_INSUFFICIENT_AUTH, _SC("Insufficient authority to execute command"), m_Invoker);
         // Command failed
         return -1;
     }
-    // See if an executer was specified
+    // Make sure an executer was specified
     else if (m_Instance->GetOnExec().IsNull())
     {
         SqError(CMDERR_MISSING_EXECUTER, _SC("No executer was specified for this command"), m_Invoker);
@@ -164,14 +174,14 @@ Int32 CmdManager::Exec()
         // The error message was reported while parsing
         return -1;
     }
-    // See if we have enough arguments specified
+    // Make sure we have enough arguments specified
     else if (m_Instance->GetMinArgC() > m_Argc)
     {
         SqError(CMDERR_INCOMPLETE_ARGS, _SC("Incomplete command arguments"), m_Instance->GetMinArgC());
         // Command failed
         return -1;
     }
-    // The check during the parsing may not count the last argument
+    // The check during the parsing may omit the last argument
     else if (m_Instance->GetMaxArgC() < m_Argc)
     {
         SqError(CMDERR_EXTRANEOUS_ARGS, _SC("Extraneous command arguments"), m_Instance->GetMaxArgC());
@@ -188,16 +198,43 @@ Int32 CmdManager::Exec()
             return -1;
         }
     }
-    // Reserve an array for the extracted arguments
-    Array args(DefaultVM::Get(), m_Argc);
-    // Copy the arguments into the array
-    for (Uint32 arg = 0; arg < m_Argc; ++arg)
+    // Result of the command execution
+    SQInteger result = -1;
+    // Do we have to call the command with an associative container?
+    if (m_Instance->m_Associate)
     {
-        args.Bind(arg, m_Argv[arg].second);
+        // Create the associative container
+        Table args(DefaultVM::Get());
+        // Copy the arguments into the table
+        for (Uint32 arg = 0; arg < m_Argc; ++arg)
+        {
+            // Do we have use the argument index as the key?
+            if (m_Instance->m_ArgTags[arg].empty())
+            {
+                args.SetValue(SQInteger(arg), m_Argv[arg].second);
+            }
+            // Nope, we have a name for this argument!
+            else
+            {
+                args.SetValue(m_Instance->m_ArgTags[arg].c_str(), m_Argv[arg].second);
+            }
+        }
+        // Attempt to execute the command with the specified arguments
+        result = m_Instance->Execute(_Core->GetPlayer(m_Invoker).mObj, args);
     }
-    // Attempt to execute the command with the specified arguments
-    SQInteger result = m_Instance->Execute(_Core->GetPlayer(m_Invoker).mObj, args);
-    // See if an error occurred
+    else
+    {
+        // Reserve an array for the extracted arguments
+        Array args(DefaultVM::Get(), m_Argc);
+        // Copy the arguments into the array
+        for (Uint32 arg = 0; arg < m_Argc; ++arg)
+        {
+            args.Bind(SQInteger(arg), m_Argv[arg].second);
+        }
+        // Attempt to execute the command with the specified arguments
+        result = m_Instance->Execute(_Core->GetPlayer(m_Invoker).mObj, args);
+    }
+    // See if an error occurred or an exception was thrown
     if (Error::Occurred(DefaultVM::Get()))
     {
         SqError(CMDERR_EXECUTION_FAILED, _SC("Command execution failed"),
@@ -209,7 +246,7 @@ Int32 CmdManager::Exec()
         // Result is invalid at this point
         result = -1;
     }
-    // See if the command failed
+    // See if the command failed explicitly
     else if (!result)
     {
         SqError(CMDERR_EXECUTION_FAILED, _SC("Command execution failed"),
@@ -223,8 +260,8 @@ Int32 CmdManager::Exec()
     {
         m_Instance->m_OnPost.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
     }
-    // Release the command instance
-    return (Int32)result;
+    // Return the result
+    return Int32(result);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -236,15 +273,15 @@ bool CmdManager::Parse()
         return true; /* Done parsing */
     }
     // Obtain the flags of the currently processed argument
-    Uint8 arg_flags = m_Instance->GetArgFlags(m_Argc);
+    Uint8 arg_flags = m_Instance->m_ArgSpec[m_Argc];
     // Adjust the internal buffer if necessary (mostly never)
     m_Buffer.Adjust< SQChar >(m_Argument.size());
     // The iterator to the currently processed character
     String::iterator itr = m_Argument.begin();
-    // Previously, currently and next processed character
+    // Previous and currently processed character
     SQChar prev = 0, elem = 0;
     // Maximum arguments allowed to be processed
-    const Uint8 max_arg = m_Instance->GetMaxArgC();
+    const Uint8 max_arg = m_Instance->m_MaxArgc;
     // Process loop result
     bool good = true;
     // Process the specified command text
@@ -299,7 +336,7 @@ bool CmdManager::Parse()
         // Do we have to extract a string argument?
         else if ((elem == '\'' || elem == '"') && prev != '\\')
         {
-            // Obtain the internal beginning and ending of the internal buffer
+            // Obtain the beginning and ending of the internal buffer
             SStr str = m_Buffer.Begin< SQChar >();
             CSStr end = (m_Buffer.End< SQChar >()-1); /* + null */
             // Save the closing quote type
@@ -349,7 +386,7 @@ bool CmdManager::Parse()
                 }
                 // Simply replicate the character to the internal buffer
                 *(str++) = elem;
-                // Move to the next character
+                // Advance to the next character
                 ++itr;
             }
             // See if the argument was valid
@@ -385,15 +422,15 @@ bool CmdManager::Parse()
             }
             // Add it to the argument list along with it's type
             m_Argv.push_back(CmdArgs::value_type(CMDARG_STRING, var.value));
-            // Move to the next argument and obtain its flags
-            arg_flags = m_Instance->GetArgFlags(++m_Argc);
+            // Advance to the next argument and obtain its flags
+            arg_flags = m_Instance->m_ArgSpec[++m_Argc];
         }
-        // Ignore space characters until another valid argument is found
+        // Ignore space characters until another valid character is found
         else if (elem != ' ' && (prev == ' ' || prev == 0))
         {
             // Find the first character that marks the end of the argument
             String::iterator pos = std::find(String::iterator(itr), m_Argument.end(), ' ');
-            // Copy all elements within range into the internal buffer
+            // Copy all characters within range into the internal buffer
             const Uint32 sz = m_Buffer.Write(0, &(*itr), std::distance(itr, pos));
             // Update the main iterator position
             itr = pos;
@@ -414,7 +451,7 @@ bool CmdManager::Parse()
                 if (next == &m_Buffer.At< SQChar >(sz))
                 {
                     // Transform it into a script object
-                    Var< SQInteger >::push(DefaultVM::Get(), static_cast< SQInteger >(value));
+                    Var< SQInteger >::push(DefaultVM::Get(), SQInteger(value));
                     // Get the object from the stack
                     Var< Object & > var(DefaultVM::Get(), -1);
                     // Pop the created object from the stack
@@ -433,13 +470,13 @@ bool CmdManager::Parse()
             {
                 // Let's us know if the whole argument was part of the resulted value
                 CStr next = NULL;
-                // Attempt to extract the integer value from the string
+                // Attempt to extract the floating point value from the string
                 Float64 value = strtod(m_Buffer.Data(), &next);
-                // See if this whole string was indeed an integer
+                // See if this whole string was indeed an floating point
                 if (next == &m_Buffer.At< SQChar >(sz))
                 {
                     // Transform it into a script object
-                    Var< SQFloat >::push(DefaultVM::Get(), static_cast< SQFloat >(value));
+                    Var< SQFloat >::push(DefaultVM::Get(), SQFloat(value));
                     // Get the object from the stack
                     Var< Object & > var(DefaultVM::Get(), -1);
                     // Pop the created object from the stack
@@ -531,15 +568,15 @@ bool CmdManager::Parse()
                 // Add it to the argument list along with it's type
                 m_Argv.push_back(CmdArgs::value_type(CMDARG_STRING, var.value));
             }
-            // Move to the next argument and obtain its flags
-            arg_flags = m_Instance->GetArgFlags(++m_Argc);
+            // Advance to the next argument and obtain its flags
+            arg_flags = m_Instance->m_ArgSpec[++m_Argc];
         }
         // Is there anything left to parse?
         if (itr >= m_Argument.end())
         {
             break;
         }
-        // Move to the next character
+        // Advance to the next character
         ++itr;
     }
     // Return whether the parsing was successful
@@ -550,6 +587,7 @@ bool CmdManager::Parse()
 void CmdListener::Init(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max)
 {
     m_Name.assign("");
+    // Initialize the specifiers and tags to default values
     for (Uint8 n = 0; n < SQMOD_MAX_CMD_ARGS; ++n)
     {
         m_ArgSpec[n] = CMDARG_ANY;
@@ -1091,7 +1129,7 @@ bool CmdListener::ProcSpec(CSStr str)
                 // Stop parsing
                 break;
             }
-            // Move to the next argument
+            // Advance to the next argument
             ++idx;
         }
         // Simply ignore a type specifier delimiter
