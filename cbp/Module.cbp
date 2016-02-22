@@ -194,8 +194,23 @@
 		<Linker>
 			<Add library="squirrel" />
 			<Add library="sqlite" />
-			<Add library="hash" />
 		</Linker>
+		<Unit filename="../external/Hash/crc32.cpp" />
+		<Unit filename="../external/Hash/crc32.h" />
+		<Unit filename="../external/Hash/digest.cpp" />
+		<Unit filename="../external/Hash/endian.h" />
+		<Unit filename="../external/Hash/hash.h" />
+		<Unit filename="../external/Hash/hmac.h" />
+		<Unit filename="../external/Hash/keccak.cpp" />
+		<Unit filename="../external/Hash/keccak.h" />
+		<Unit filename="../external/Hash/md5.cpp" />
+		<Unit filename="../external/Hash/md5.h" />
+		<Unit filename="../external/Hash/sha1.cpp" />
+		<Unit filename="../external/Hash/sha1.h" />
+		<Unit filename="../external/Hash/sha256.cpp" />
+		<Unit filename="../external/Hash/sha256.h" />
+		<Unit filename="../external/Hash/sha3.cpp" />
+		<Unit filename="../external/Hash/sha3.h" />
 		<Unit filename="../external/PUGIXML/pugixml.cpp" />
 		<Unit filename="../external/RandomLib/Random.cpp" />
 		<Unit filename="../source/Base/AABB.cpp" />

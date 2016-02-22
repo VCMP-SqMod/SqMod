@@ -160,7 +160,6 @@
 		<Linker>
 			<Add library="squirrel" />
 			<Add library="sqlite" />
-			<Add library="hash" />
 		</Linker>
 		<Unit filename="../sandbox/main.cpp" />
 		<Extensions>
