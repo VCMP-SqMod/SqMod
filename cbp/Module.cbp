@@ -196,6 +196,8 @@
 			<Add library="sqlite" />
 			<Add library="hash" />
 		</Linker>
+		<Unit filename="../external/PUGIXML/pugixml.cpp" />
+		<Unit filename="../external/RandomLib/Random.cpp" />
 		<Unit filename="../source/Base/AABB.cpp" />
 		<Unit filename="../source/Base/AABB.hpp" />
 		<Unit filename="../source/Base/Buffer.cpp" />
@@ -208,7 +210,6 @@
 		<Unit filename="../source/Base/Color4.hpp" />
 		<Unit filename="../source/Base/Quaternion.cpp" />
 		<Unit filename="../source/Base/Quaternion.hpp" />
-		<Unit filename="../source/Base/Random.cpp" />
 		<Unit filename="../source/Base/Shared.cpp" />
 		<Unit filename="../source/Base/Shared.hpp" />
 		<Unit filename="../source/Base/Sphere.cpp" />
@@ -274,6 +275,8 @@
 		<Unit filename="../source/Library/Time.hpp" />
 		<Unit filename="../source/Library/Utils.cpp" />
 		<Unit filename="../source/Library/Utils.hpp" />
+		<Unit filename="../source/Library/XML.cpp" />
+		<Unit filename="../source/Library/XML.hpp" />
 		<Unit filename="../source/Logger.cpp" />
 		<Unit filename="../source/Logger.hpp" />
 		<Unit filename="../source/Main.cpp" />
