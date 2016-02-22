@@ -8,7 +8,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-Int32 IniEntries::Cmp(const IniEntries & o)
+Int32 IniEntries::Cmp(const IniEntries & o) const
 {
     if (m_Elem == o.m_Elem)
         return 0;
@@ -111,7 +111,7 @@ IniDocument::~IniDocument()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 IniDocument::Cmp(const IniDocument & o)
+Int32 IniDocument::Cmp(const IniDocument & o) const
 {
     if (m_Doc == o.m_Doc)
         return 0;
@@ -132,11 +132,6 @@ void IniDocument::LoadFile(CSStr filepath)
 {
     if (!Validate())
         return; /* Unable to proceed */
-    else if (!filepath)
-    {
-        SqThrow("Invalid ini filepath");
-        return; /* Nothing to load */
-    }
     // Attempt to load the file from disk
     const SI_Error ini_ret = m_Doc->LoadFile(filepath);
     // See if the file could be loaded
@@ -165,11 +160,6 @@ void IniDocument::LoadData(CSStr source, Int32 size)
 {
     if (!Validate())
         return; /* Unable to proceed */
-    else if (!source)
-    {
-        SqThrow("Invalid ini source");
-        return; /* Nothing to load */
-    }
     // Attempt to load the source from memory
     const SI_Error ini_ret = m_Doc->LoadData(source, size < 0 ? strlen(source) : size);
     // See if the source could be loaded
@@ -195,11 +185,6 @@ void IniDocument::SaveFile(CSStr filepath, bool signature)
 {
     if (!Validate())
         return; /* Unable to proceed */
-    else if (!filepath)
-    {
-        SqThrow("Invalid ini filepath");
-        return; /* Nothing to load */
-    }
     // Attempt to save the file to disk
     const SI_Error ini_ret = m_Doc->SaveFile(filepath, signature);
     // See if the file could be saved
@@ -244,8 +229,6 @@ IniEntries IniDocument::GetAllSections() const
         return IniEntries(); /* Unable to proceed */
     // Prepare a container to receive the entries
     static Container entries;
-    // Clear previous values (if any)
-    entries.clear();
     // Obtain all sections from the ini document
     m_Doc->GetAllSections(entries);
     // Return the entries and take over content
@@ -257,15 +240,8 @@ IniEntries IniDocument::GetAllKeys(CSStr section) const
 {
     if (!Validate())
         return IniEntries(); /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return IniEntries(); /* Unable to proceed */
-    }
     // Prepare a container to receive the entries
     static Container entries;
-    // Clear previous values (if any)
-    entries.clear();
     // Obtain all sections from the ini document
     m_Doc->GetAllKeys(section, entries);
     // Return the entries and take over content
@@ -277,20 +253,8 @@ IniEntries IniDocument::GetAllValues(CSStr section, CSStr key) const
 {
     if (!Validate())
         return IniEntries(); /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return IniEntries(); /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return IniEntries(); /* Unable to proceed */
-    }
     // Prepare a container to receive the entries
     static Container entries;
-    // Clear previous values (if any)
-    entries.clear();
     // Obtain all sections from the ini document
     m_Doc->GetAllValues(section, key, entries);
     // Return the entries and take over content
@@ -300,12 +264,8 @@ IniEntries IniDocument::GetAllValues(CSStr section, CSStr key) const
 // ------------------------------------------------------------------------------------------------
 Int32 IniDocument::GetSectionSize(CSStr section) const
 {
-    if (!Validate())
-        (void)(section); /* Just ignore... */
-    else if (!section)
-        SqThrow("Invalid ini section");
-    // Return the requested information
-    else
+    if (Validate())
+        // Return the requested information
         return m_Doc->GetSectionSize(section);
     // Return invalid size
     return -1;
@@ -316,16 +276,6 @@ bool IniDocument::HasMultipleKeys(CSStr section, CSStr key) const
 {
     if (!Validate())
         return false; /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return false; /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return false; /* Unable to proceed */
-    }
     // Where to retrive whether the key has multiple instances
     bool multiple = false;
     // Attempt to query the information
@@ -339,16 +289,6 @@ CCStr IniDocument::GetValue(CSStr section, CSStr key, CSStr def) const
 {
     if (!Validate())
         return _SC(""); /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return _SC(""); /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return _SC(""); /* Unable to proceed */
-    }
     // Attempt to query the information and return it
     return m_Doc->GetValue(section, key, def, NULL);
 }
@@ -358,16 +298,6 @@ SQInteger IniDocument::GetInteger(CSStr section, CSStr key, SQInteger def) const
 {
     if (!Validate())
         return 0; /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return 0; /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return 0; /* Unable to proceed */
-    }
     // Attempt to query the information and return it
     return (SQInteger)m_Doc->GetLongValue(section, key, def, NULL);
 }
@@ -377,16 +307,6 @@ SQFloat IniDocument::GetFloat(CSStr section, CSStr key, SQFloat def) const
 {
     if (!Validate())
         return 0.0; /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return 0.0; /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return 0.0; /* Unable to proceed */
-    }
     // Attempt to query the information and return it
     return (SQFloat)m_Doc->GetDoubleValue(section, key, def, NULL);
 }
@@ -396,16 +316,6 @@ bool IniDocument::GetBoolean(CSStr section, CSStr key, bool def) const
 {
     if (!Validate())
         return false; /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return false; /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return false; /* Unable to proceed */
-    }
     // Attempt to query the information and return it
     return m_Doc->GetBoolValue(section, key, def, NULL);
 }
@@ -415,16 +325,6 @@ void IniDocument::SetValue(CSStr section, CSStr key, CSStr value, bool force, CS
 {
     if (!Validate())
         return; /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return; /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return; /* Unable to proceed */
-    }
     // Attempt to apply the specified information
     const SI_Error ini_ret = m_Doc->SetValue(section, key, value, comment, force);
     // See if the information could be applied
@@ -450,16 +350,6 @@ void IniDocument::SetInteger(CSStr section, CSStr key, SQInteger value, bool hex
 {
     if (!Validate())
         return; /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return; /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return; /* Unable to proceed */
-    }
     // Attempt to apply the specified information
     const SI_Error ini_ret = m_Doc->SetLongValue(section, key, value, comment, hex, force);
     // See if the information could be applied
@@ -485,16 +375,6 @@ void IniDocument::SetFloat(CSStr section, CSStr key, SQFloat value, bool force, 
 {
     if (!Validate())
         return; /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return; /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return; /* Unable to proceed */
-    }
     // Attempt to apply the specified information
     const SI_Error ini_ret = m_Doc->SetDoubleValue(section, key, value, comment, force);
     // See if the information could be applied
@@ -520,16 +400,6 @@ void IniDocument::SetBoolean(CSStr section, CSStr key, bool value, bool force, C
 {
     if (!Validate())
         return; /* Unable to proceed */
-    else if (!section)
-    {
-        SqThrow("Invalid ini section");
-        return; /* Unable to proceed */
-    }
-    else if (!key)
-    {
-        SqThrow("Invalid ini key");
-        return; /* Unable to proceed */
-    }
     // Attempt to apply the specified information
     const SI_Error ini_ret = m_Doc->SetBoolValue(section, key, value, comment, force);
     // See if the information could be applied
@@ -584,6 +454,7 @@ void Register_INI(HSQUIRRELVM vm)
         /* Properties */
         .Prop(_SC("Valid"), &IniEntries::IsValid)
         .Prop(_SC("Empty"), &IniEntries::IsEmpty)
+        .Prop(_SC("References"), &IniEntries::GetRefCount)
         .Prop(_SC("Size"), &IniEntries::GetSize)
         .Prop(_SC("Item"), &IniEntries::GetItem)
         .Prop(_SC("Comment"), &IniEntries::GetComment)
@@ -610,6 +481,7 @@ void Register_INI(HSQUIRRELVM vm)
         /* Properties */
         .Prop(_SC("Valid"), &IniDocument::IsValid)
         .Prop(_SC("Empty"), &IniDocument::IsEmpty)
+        .Prop(_SC("References"), &IniDocument::GetRefCount)
         .Prop(_SC("Unicode"), &IniDocument::GetUnicode, &IniDocument::SetUnicode)
         .Prop(_SC("MultiKey"), &IniDocument::GetMultiKey, &IniDocument::SetMultiKey)
         .Prop(_SC("MultiLine"), &IniDocument::GetMultiLine, &IniDocument::SetMultiLine)

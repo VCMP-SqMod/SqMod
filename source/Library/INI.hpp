@@ -15,9 +15,9 @@ class IniEntries;
 class IniDocument;
 
 /* ------------------------------------------------------------------------------------------------
- * Manages a reference counted ini source instance.
+ * Manages a reference counted ini document instance.
 */
-class IniRef
+class IniDocumentRef
 {
     // --------------------------------------------------------------------------------------------
     friend class IniDocument;
@@ -25,17 +25,17 @@ class IniRef
 private:
 
     // --------------------------------------------------------------------------------------------
-    typedef CSimpleIniA     Source;
+    typedef CSimpleIniA     Document;
 
     // --------------------------------------------------------------------------------------------
     typedef unsigned int    Counter;
 
     // --------------------------------------------------------------------------------------------
-    Source*     m_Ptr; /* The ini reader, writer and manager instance. */
+    Document*   m_Ptr; /* The document reader, writer and manager instance. */
     Counter*    m_Ref; /* Reference count to the managed instance. */
 
     /* --------------------------------------------------------------------------------------------
-     * Grab a strong reference to a ini instance.
+     * Grab a strong reference to a document instance.
     */
     void Grab()
     {
@@ -46,7 +46,7 @@ private:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Drop a strong reference to a ini instance.
+     * Drop a strong reference to a document instance.
     */
     void Drop()
     {
@@ -62,8 +62,8 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    IniRef(bool utf8, bool multikey, bool multiline)
-        : m_Ptr(new Source(utf8, multikey, multiline)), m_Ref(new Counter(1))
+    IniDocumentRef(bool utf8, bool multikey, bool multiline)
+        : m_Ptr(new Document(utf8, multikey, multiline)), m_Ref(new Counter(1))
     {
         /* ... */
     }
@@ -73,7 +73,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null).
     */
-    IniRef()
+    IniDocumentRef()
         : m_Ptr(NULL), m_Ref(NULL)
     {
         /* ... */
@@ -82,7 +82,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    IniRef(const IniRef & o)
+    IniDocumentRef(const IniDocumentRef & o)
         : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
 
     {
@@ -92,7 +92,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~IniRef()
+    ~IniDocumentRef()
     {
         Drop();
     }
@@ -100,7 +100,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    IniRef & operator = (const IniRef & o)
+    IniDocumentRef & operator = (const IniDocumentRef & o)
     {
         if (m_Ptr != o.m_Ptr)
         {
@@ -113,17 +113,17 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Perform an equality comparison between two ini instances.
+     * Perform an equality comparison between two document instances.
     */
-    bool operator == (const IniRef & o) const
+    bool operator == (const IniDocumentRef & o) const
     {
         return (m_Ptr == o.m_Ptr);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Perform an inequality comparison between two ini instances.
+     * Perform an inequality comparison between two document instances.
     */
-    bool operator != (const IniRef & o) const
+    bool operator != (const IniDocumentRef & o) const
     {
         return (m_Ptr != o.m_Ptr);
     }
@@ -139,7 +139,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Member operator for dereferencing the managed pointer.
     */
-    Source * operator -> () const
+    Document * operator -> () const
     {
         assert(m_Ptr != NULL);
         return m_Ptr;
@@ -148,11 +148,20 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Indirection operator for obtaining a reference of the managed pointer.
     */
-    Source & operator * () const
+    Document & operator * () const
     {
         assert(m_Ptr != NULL);
         return *m_Ptr;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of active references to the managed instance.
+    */
+    Counter Count() const
+    {
+        return (m_Ptr && m_Ref) ? (*m_Ref) : 0;
+    }
+
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -166,18 +175,18 @@ class IniEntries
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef CSimpleIniA                 Source;
+    typedef CSimpleIniA                 Document;
 
     // --------------------------------------------------------------------------------------------
-    typedef Source::TNamesDepend        Container;
+    typedef Document::TNamesDepend      Container;
 
     // --------------------------------------------------------------------------------------------
     typedef Container::iterator         Iterator;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    IniEntries(const IniRef & ini, Container & list)
+    IniEntries(const IniDocumentRef & ini, Container & list)
         : m_Doc(ini), m_List(), m_Elem()
     {
         m_List.swap(list);
@@ -187,13 +196,13 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    IniRef      m_Doc; /* The document that contains the elements. */
-    Container   m_List; /* The list of elements to iterate. */
-    Iterator    m_Elem; /* The currently processed element. */
+    IniDocumentRef  m_Doc; /* The document that contains the elements. */
+    Container       m_List; /* The list of elements to iterate. */
+    Iterator        m_Elem; /* The currently processed element. */
 
 public:
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Default constructor. (null)
     */
     IniEntries()
@@ -202,7 +211,7 @@ public:
         /* ... */
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
     IniEntries(const IniEntries & o)
@@ -211,7 +220,7 @@ public:
         Reset();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~IniEntries()
@@ -219,7 +228,7 @@ public:
         /* ... */
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
     IniEntries & operator = (const IniEntries & o)
@@ -230,17 +239,17 @@ public:
         return *this;
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const IniEntries & o);
+    Int32 Cmp(const IniEntries & o) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Return whether the current element is valid and can be accessed.
     */
     bool IsValid() const
@@ -248,7 +257,7 @@ public:
         return !(m_List.empty() || m_Elem == m_List.end());
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Return whether the entry list is empty.
     */
     bool IsEmpty() const
@@ -256,7 +265,15 @@ public:
         return m_List.empty();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of active references to this document instance.
+    */
+    Uint32 GetRefCount() const
+    {
+        return m_Doc.Count();
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Return the total entries in the list.
     */
     Int32 GetSize() const
@@ -264,7 +281,7 @@ public:
         return (Int32)m_List.size();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Reset the internal iterator to the first element.
     */
     void Reset()
@@ -275,73 +292,73 @@ public:
             m_Elem = m_List.begin();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Go to the next element.
     */
     void Next();
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Go to the previous element.
     */
     void Prev();
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Advance a certain number of elements.
     */
     void Advance(Int32 n);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retreat a certain number of elements.
     */
     void Retreat(Int32 n);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Sort the entries using the default options.
     */
     void Sort()
     {
         if (!m_List.empty())
-            m_List.sort(Source::Entry::KeyOrder());
+            m_List.sort(Document::Entry::KeyOrder());
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Sort the entries by name of key only.
     */
     void SortByKeyOrder()
     {
         if (!m_List.empty())
-            m_List.sort(Source::Entry::KeyOrder());
+            m_List.sort(Document::Entry::KeyOrder());
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Sort the entries by their load order and then name of key.
     */
     void SortByLoadOrder()
     {
         if (!m_List.empty())
-            m_List.sort(Source::Entry::LoadOrder());
+            m_List.sort(Document::Entry::LoadOrder());
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Sort the entries by their load order but empty name always goes first.
     */
     void SortByLoadOrderEmptyFirst()
     {
         if (!m_List.empty())
-            m_List.sort(Source::Entry::LoadOrderEmptyFirst());
+            m_List.sort(Document::Entry::LoadOrderEmptyFirst());
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the string value of the current element item.
     */
     CSStr GetItem() const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the string value of the current element comment.
     */
     CSStr GetComment() const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the order of the current element.
     */
     Int32 GetOrder() const;
@@ -355,22 +372,22 @@ class IniDocument
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef CSimpleIniA                 Source;
+    typedef CSimpleIniA                 Document;
 
     // --------------------------------------------------------------------------------------------
-    typedef Source::TNamesDepend        Container;
+    typedef Document::TNamesDepend      Container;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
     IniDocument(const IniDocument & o);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
     IniDocument & operator = (const IniDocument & o);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Validate the document reference.
     */
     bool Validate() const
@@ -384,36 +401,36 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    IniRef  m_Doc; /* The main ini document instance. */
+    IniDocumentRef  m_Doc; /* The main ini document instance. */
 
 public:
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
     IniDocument();
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
     IniDocument(bool utf8, bool multikey, bool multiline);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~IniDocument();
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const IniDocument & o);
+    Int32 Cmp(const IniDocument & o) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid ini document.
     */
     bool IsValid() const
@@ -421,7 +438,7 @@ public:
         return m_Doc;
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * See whether any data has been loaded into this document.
     */
     bool IsEmpty() const
@@ -429,7 +446,15 @@ public:
         return m_Doc->IsEmpty();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of active references to this document instance.
+    */
+    Uint32 GetRefCount() const
+    {
+        return m_Doc.Count();
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Deallocate all memory stored by this document.
     */
     void Reset() const
@@ -437,7 +462,7 @@ public:
         m_Doc->Reset();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * See whether the ini data is treated as unicode.
     */
     bool GetUnicode() const
@@ -445,7 +470,7 @@ public:
         return m_Doc->IsUnicode();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Set whether the ini data should be treated as unicode.
     */
     void SetUnicode(bool toggle)
@@ -453,7 +478,7 @@ public:
         m_Doc->SetUnicode(toggle);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * See whether multiple identical keys be permitted in the file.
     */
     bool GetMultiKey() const
@@ -461,7 +486,7 @@ public:
         return m_Doc->IsMultiKey();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Set whether multiple identical keys be permitted in the file.
     */
     void SetMultiKey(bool toggle)
@@ -469,7 +494,7 @@ public:
         m_Doc->SetMultiKey(toggle);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * See whether data values are permitted to span multiple lines in the file.
     */
     bool GetMultiLine() const
@@ -477,7 +502,7 @@ public:
         return m_Doc->IsMultiLine();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Set whether data values are permitted to span multiple lines in the file.
     */
     void SetMultiLine(bool toggle)
@@ -485,7 +510,7 @@ public:
         m_Doc->SetMultiLine(toggle);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * See whether spaces are added around the equals sign when writing key/value pairs out.
     */
     bool GetSpaces() const
@@ -493,7 +518,7 @@ public:
         return m_Doc->UsingSpaces();
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Set whether spaces are added around the equals sign when writing key/value pairs out.
     */
     void SetSpaces(bool toggle)
@@ -501,12 +526,12 @@ public:
         m_Doc->SetSpaces(toggle);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Load an INI file from disk into memory.
     */
     void LoadFile(CSStr filepath);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Load INI file data direct from a string.
     */
     void LoadData(CSStr source)
@@ -514,12 +539,12 @@ public:
         LoadData(source, -1);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Load INI file data direct from a string.
     */
     void LoadData(CSStr source, Int32 size);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Save an INI file from memory to disk.
     */
     void SaveFile(CSStr filepath)
@@ -527,62 +552,62 @@ public:
         SaveFile(filepath, true);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Save an INI file from memory to disk.
     */
     void SaveFile(CSStr filepath, bool signature);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Save the INI data to a string.
     */
     Object SaveData(bool signature);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve all section names.
     */
     IniEntries GetAllSections() const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve all unique key names in a section.
     */
     IniEntries GetAllKeys(CSStr section) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve all values for a specific key.
     */
     IniEntries GetAllValues(CSStr section, CSStr key) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Query the number of keys in a specific section.
     */
     Int32 GetSectionSize(CSStr section) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * See whether a certain key has multiple instances.
     */
     bool HasMultipleKeys(CSStr section, CSStr key) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the value for a specific key.
     */
     CCStr GetValue(CSStr section, CSStr key, CSStr def) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve a numeric value for a specific key.
     */
     SQInteger GetInteger(CSStr section, CSStr key, SQInteger def) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve a numeric value for a specific key.
     */
     SQFloat GetFloat(CSStr section, CSStr key, SQFloat def) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Retrieve a boolean value for a specific key.
     */
     bool GetBoolean(CSStr section, CSStr key, bool def) const;
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a section or value.
     */
     void SetValue(CSStr section, CSStr key, CSStr value)
@@ -590,7 +615,7 @@ public:
         SetValue(section, key, value, false, NULL);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a section or value.
     */
     void SetValue(CSStr section, CSStr key, CSStr value, bool force)
@@ -598,12 +623,12 @@ public:
         SetValue(section, key, value, force, NULL);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a section or value.
     */
     void SetValue(CSStr section, CSStr key, CSStr value, bool force, CSStr comment);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a numeric value.
     */
     void SetInteger(CSStr section, CSStr key, SQInteger value)
@@ -611,7 +636,7 @@ public:
         SetInteger(section, key, value, false, false, NULL);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a numeric value.
     */
     void SetInteger(CSStr section, CSStr key, SQInteger value, bool hex)
@@ -619,7 +644,7 @@ public:
         SetInteger(section, key, value, hex, false, NULL);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a numeric value.
     */
     void SetInteger(CSStr section, CSStr key, SQInteger value, bool hex, bool force)
@@ -627,12 +652,12 @@ public:
         SetInteger(section, key, value, hex, force, NULL);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a numeric value.
     */
     void SetInteger(CSStr section, CSStr key, SQInteger value, bool hex, bool force, CSStr comment);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
     void SetFloat(CSStr section, CSStr key, SQFloat value)
@@ -640,7 +665,7 @@ public:
         SetFloat(section, key, value, false, NULL);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
     void SetFloat(CSStr section, CSStr key, SQFloat value, bool force)
@@ -648,12 +673,12 @@ public:
         SetFloat(section, key, value, force, NULL);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
     void SetFloat(CSStr section, CSStr key, SQFloat value, bool force, CSStr comment);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
     void SetBoolean(CSStr section, CSStr key, bool value)
@@ -661,7 +686,7 @@ public:
         SetBoolean(section, key, value, false, NULL);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
     void SetBoolean(CSStr section, CSStr key, bool value, bool force)
@@ -669,12 +694,12 @@ public:
         SetBoolean(section, key, value, force, NULL);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Add or update a boolean value.
     */
     void SetBoolean(CSStr section, CSStr key, bool value, bool force, CSStr comment);
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Delete an entire section, or a key from a section.
     */
     bool DeleteValue(CSStr section)
@@ -682,7 +707,7 @@ public:
         return DeleteValue(section, NULL, NULL, false);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Delete an entire section, or a key from a section.
     */
     bool DeleteValue(CSStr section, CSStr key)
@@ -690,7 +715,7 @@ public:
         return DeleteValue(section, key, NULL, false);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Delete an entire section, or a key from a section.
     */
     bool DeleteValue(CSStr section, CSStr key, CSStr value)
@@ -698,7 +723,7 @@ public:
         return DeleteValue(section, key, value, false);
     }
 
-    /* ---------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
      * Delete an entire section, or a key from a section.
     */
     bool DeleteValue(CSStr section, CSStr key, CSStr value, bool empty);
