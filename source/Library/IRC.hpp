@@ -506,12 +506,12 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv4 IRC server.
     */
     Int32 Connect();
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv4 IRC server.
     */
     Int32 Connect(CSStr server, Uint32 port, CSStr nick)
     {
@@ -519,7 +519,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv4 IRC server.
     */
     Int32 Connect(CSStr server, Uint32 port, CSStr nick, CSStr passwd)
     {
@@ -527,7 +527,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv4 IRC server.
     */
     Int32 Connect(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSStr user)
     {
@@ -535,17 +535,17 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv4 IRC server.
     */
     Int32 Connect(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSStr user, CSStr name);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv6 IRC server.
     */
     Int32 Connect6();
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv6 IRC server.
     */
     Int32 Connect6(CSStr server, Uint32 port, CSStr nick)
     {
@@ -553,7 +553,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv6 IRC server.
     */
     Int32 Connect6(CSStr server, Uint32 port, CSStr nick, CSStr passwd)
     {
@@ -561,7 +561,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv6 IRC server.
     */
     Int32 Connect6(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSStr user)
     {
@@ -569,17 +569,17 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Initiates the connection to the IPv6 IRC server.
     */
     Int32 Connect6(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSStr user, CSStr name);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Disconnect from the currently connected server.
     */
     void Disconnect();
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * See whether the session is connected to a server.
     */
     bool IsConnected()
     {
@@ -587,7 +587,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Joins a channel on the connected server.
     */
     Int32 CmdJoin(CSStr channel)
     {
@@ -597,7 +597,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Joins a channel on the connected server using a secret key.
     */
     Int32 CmdJoin(CSStr channel, CSStr key)
     {
@@ -607,7 +607,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Leave from a certain channel on the connected server.
     */
     Int32 CmdPart(CSStr channel)
     {
@@ -617,7 +617,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Invite someone into a channel on the connected server.
     */
     Int32 CmdInvite(CSStr nick, CSStr channel)
     {
@@ -627,7 +627,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Ask the IRC server for the list of the users who are joined the specified channel.
     */
     Int32 CmdNames(CSStr channel)
     {
@@ -637,7 +637,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Ask the IRC server for the active (existing) channels list.
     */
     Int32 CmdList()
     {
@@ -647,7 +647,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Ask the IRC server for the active (existing) channels from a specific list.
     */
     Int32 CmdList(CSStr channel)
     {
@@ -657,7 +657,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Retrieve the topic (title) of the specified channel on the connected server.
     */
     Int32 CmdTopic(CSStr channel)
     {
@@ -667,7 +667,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Change the topic (title) of the specified channel on the connected server.
     */
     Int32 CmdTopic(CSStr channel, CSStr topic)
     {
@@ -677,7 +677,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Retrieve the modes of the specified channel on the connected server.
     */
     Int32 CmdChannelMode(CSStr channel)
     {
@@ -687,7 +687,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Change the modes of the specified channel on the connected server.
     */
     Int32 CmdChannelMode(CSStr channel, CSStr mode)
     {
@@ -697,7 +697,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Retrieve the modes on the connected server.
     */
     Int32 CmdUserMode()
     {
@@ -707,7 +707,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Change the modes on the connected server.
     */
     Int32 CmdUserMode(CSStr mode)
     {
@@ -717,7 +717,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Kick the specified user from the specified channel on the connected server.
     */
     Int32 CmdKick(CSStr nick, CSStr channel)
     {
@@ -727,7 +727,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Kick the specified user from the specified channel on the connected server.
     */
     Int32 CmdKick(CSStr nick, CSStr channel, CSStr reason)
     {
@@ -737,7 +737,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Send a message to a specific channel or privately to another nick.
     */
     Int32 CmdMsg(CSStr nch, CSStr text)
     {
@@ -747,7 +747,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Send a /me message (CTCP ACTION) to a specific channel or privately to another nick.
     */
     Int32 CmdMe(CSStr nch, CSStr text)
     {
@@ -757,7 +757,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Send a notice to a specific channel or privately to another nick.
     */
     Int32 CmdNotice(CSStr nch, CSStr text)
     {
@@ -767,17 +767,17 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Send a CTCP request to the specified user on the connected server.
     */
     Int32 CmdCtcpRequest(CSStr nick, CSStr request)
     {
         if (ConnectedThrow())
-            return irc_cmd_notice(m_Session, nick, request);
+            return irc_cmd_ctcp_request(m_Session, nick, request);
         return -1;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Send a CTCP reply to the specified user on the connected server.
     */
     Int32 CmdCtcpReply(CSStr nick, CSStr reply)
     {
@@ -787,7 +787,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Change the currently used nick on the connected server.
     */
     Int32 CmdNick(CSStr nick)
     {
@@ -799,7 +799,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Query various information about the specified user.
     */
     Int32 CmdWhois(CSStr nick)
     {
@@ -809,7 +809,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Quit from the connected server and close the connection.
     */
     Int32 CmdQuit()
     {
@@ -819,7 +819,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Quit from the connected server and close the connection.
     */
     Int32 CmdQuit(CSStr reason)
     {
@@ -829,7 +829,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Sends the specified raw data as-is to the connected IRC server.
     */
     Int32 SendRaw(CSStr str)
     {
@@ -839,7 +839,8 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Close the specified DCC connection (if available), and destroys the DCC session,
+     * freeing the used resources.
     */
     Int32 DestroyDcc(Uint32 dccid)
     {
@@ -849,7 +850,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Set the internal CTCP VERSION.
     */
     void SetCtcpVersion(CSStr version)
     {
@@ -858,7 +859,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Returns the last error code associated with last operation of this IRC session.
     */
     Int32 GetErrNo()
     {
@@ -868,7 +869,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Returns the last error code associated with last operation of this IRC session as a string.
     */
     CSStr GetErrStr()
     {
@@ -878,7 +879,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Set the specified option for the managed session to change its behavior.
     */
     void SetOption(Uint32 option)
     {
@@ -887,7 +888,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Reset the specified option for the managed session to restore its behavior.
     */
     void ResetOption(Uint32 option)
     {
