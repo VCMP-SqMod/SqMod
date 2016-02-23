@@ -896,6 +896,21 @@ public:
             return irc_option_set(m_Session, option);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Send a message to a specific channel or privately to another nick.
+    */
+    static SQInteger CmdMsgF(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a /me message (CTCP ACTION) to a specific channel or privately to another nick.
+    */
+    static SQInteger CmdMeF(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a notice to a specific channel or privately to another nick.
+    */
+    static SQInteger CmdNoticeF(HSQUIRRELVM vm);
+
 protected:
 
     /* --------------------------------------------------------------------------------------------

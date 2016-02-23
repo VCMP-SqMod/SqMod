@@ -2,6 +2,9 @@
 #include "Library/IRC.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <sqstdstring.h>
+
+// ------------------------------------------------------------------------------------------------
 #include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
@@ -709,6 +712,207 @@ void Session::OnDccSendReq(irc_session_t * session, CCStr nick, CCStr addr, CCSt
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
+{
+    // Save the stack top
+    const Int32 top = sq_gettop(vm);
+    // Do we have a target?
+    if (top <= 1)
+        return sq_throwerror(vm, "Missing the message target");
+    // Do we have a valid target?
+    else if (sq_gettype(vm, 2) != OT_STRING)
+        return sq_throwerror(vm, "Invalid target specified");
+    // Do we have a message value?
+    else if (top <= 2)
+        return sq_throwerror(vm, "Missing the message value");
+    // Obtain the instance and target
+    Var< Session * > inst(vm, 1);
+    Var< String > target(vm, 2);
+    // The value returned by the command
+    Int32 code = -1;
+    // Do we have a valid session instance?
+    if (!inst.value)
+        return sq_throwerror(vm, "Invalid session instance");
+    // Is the specified message value a string or something convertible to string?
+    else if (top == 3 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        CSStr msg = NULL;
+        // Attempt to retrieve the string from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            // If the value was converted to a string then pop the string
+            sq_settop(vm, top);
+            // Now we can throw the error message
+            return sq_throwerror(vm, "Unable to retrieve the message");
+        }
+        // Forward the resulted string value
+        else if (msg)
+        {
+            code = inst.value->CmdMsg(target.value.c_str(), msg);
+        }
+        // If the value was converted to a string then pop the string
+        sq_settop(vm, top);
+    }
+    // Do we have enough values to call the format function?
+    else if (top > 3)
+    {
+        SStr msg = NULL;
+        SQInteger len = 0;
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret;
+        // Forward the resulted string value
+        else if (msg)
+        {
+            code = inst.value->CmdMsg(target.value.c_str(), msg);
+        }
+    }
+    // All methods of retrieving the message value failed
+    else
+        return sq_throwerror(vm, "Unable to extract the player message");
+    // Push the obtained code onto the stack
+    sq_pushinteger(vm, code);
+    // We have a value on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Session::CmdMeF(HSQUIRRELVM vm)
+{
+    // Save the stack top
+    const Int32 top = sq_gettop(vm);
+    // Do we have a target?
+    if (top <= 1)
+        return sq_throwerror(vm, "Missing the message target");
+    // Do we have a valid target?
+    else if (sq_gettype(vm, 2) != OT_STRING)
+        return sq_throwerror(vm, "Invalid target specified");
+    // Do we have a message value?
+    else if (top <= 2)
+        return sq_throwerror(vm, "Missing the message value");
+    // Obtain the instance and target
+    Var< Session * > inst(vm, 1);
+    Var< String > target(vm, 2);
+    // The value returned by the command
+    Int32 code = -1;
+    // Do we have a valid session instance?
+    if (!inst.value)
+        return sq_throwerror(vm, "Invalid session instance");
+    // Is the specified message value a string or something convertible to string?
+    else if (top == 3 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        CSStr msg = NULL;
+        // Attempt to retrieve the string from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            // If the value was converted to a string then pop the string
+            sq_settop(vm, top);
+            // Now we can throw the error message
+            return sq_throwerror(vm, "Unable to retrieve the message");
+        }
+        // Forward the resulted string value
+        else if (msg)
+        {
+            code = inst.value->CmdMe(target.value.c_str(), msg);
+        }
+        // If the value was converted to a string then pop the string
+        sq_settop(vm, top);
+    }
+    // Do we have enough values to call the format function?
+    else if (top > 3)
+    {
+        SStr msg = NULL;
+        SQInteger len = 0;
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret;
+        // Forward the resulted string value
+        else if (msg)
+        {
+            code = inst.value->CmdMe(target.value.c_str(), msg);
+        }
+    }
+    // All methods of retrieving the message value failed
+    else
+        return sq_throwerror(vm, "Unable to extract the player message");
+    // Push the obtained code onto the stack
+    sq_pushinteger(vm, code);
+    // We have a value on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Session::CmdNoticeF(HSQUIRRELVM vm)
+{
+    // Save the stack top
+    const Int32 top = sq_gettop(vm);
+    // Do we have a target?
+    if (top <= 1)
+        return sq_throwerror(vm, "Missing the message target");
+    // Do we have a valid target?
+    else if (sq_gettype(vm, 2) != OT_STRING)
+        return sq_throwerror(vm, "Invalid target specified");
+    // Do we have a message value?
+    else if (top <= 2)
+        return sq_throwerror(vm, "Missing the message value");
+    // Obtain the instance and target
+    Var< Session * > inst(vm, 1);
+    Var< String > target(vm, 2);
+    // The value returned by the command
+    Int32 code = -1;
+    // Do we have a valid session instance?
+    if (!inst.value)
+        return sq_throwerror(vm, "Invalid session instance");
+    // Is the specified message value a string or something convertible to string?
+    else if (top == 3 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    {
+        CSStr msg = NULL;
+        // Attempt to retrieve the string from the stack
+        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
+        {
+            // If the value was converted to a string then pop the string
+            sq_settop(vm, top);
+            // Now we can throw the error message
+            return sq_throwerror(vm, "Unable to retrieve the message");
+        }
+        // Forward the resulted string value
+        else if (msg)
+        {
+            code = inst.value->CmdNotice(target.value.c_str(), msg);
+        }
+        // If the value was converted to a string then pop the string
+        sq_settop(vm, top);
+    }
+    // Do we have enough values to call the format function?
+    else if (top > 3)
+    {
+        SStr msg = NULL;
+        SQInteger len = 0;
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret;
+        // Forward the resulted string value
+        else if (msg)
+        {
+            code = inst.value->CmdNotice(target.value.c_str(), msg);
+        }
+    }
+    // All methods of retrieving the message value failed
+    else
+        return sq_throwerror(vm, "Unable to extract the player message");
+    // Push the obtained code onto the stack
+    sq_pushinteger(vm, code);
+    // We have a value on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 CSStr GetNick(CSStr origin)
 {
     // Attempt to retrieve the nickname
@@ -778,6 +982,7 @@ void Register_IRC(HSQUIRRELVM vm)
         .Prop(_SC("Reconnecting"), &Session::GetReconnect)
         .Prop(_SC("IPv6"), &Session::GetIPv6)
         .Prop(_SC("Server"), &Session::GetServer, &Session::SetServer)
+        .Prop(_SC("CtcpVersion"), (void (Session::*)(void))(NULL), &Session::SetCtcpVersion)
         .Prop(_SC("ErrNo"), &Session::GetErrNo)
         .Prop(_SC("ErrStr"), &Session::GetErrStr)
         .Prop(_SC("OnConnect"), &Session::GetOnConnect)
@@ -863,6 +1068,9 @@ void Register_IRC(HSQUIRRELVM vm)
         .Func(_SC("BindNumeric"), &Session::BindOnNumeric)
         .Func(_SC("BindDccChatReq"), &Session::BindOnDccChatReq)
         .Func(_SC("BindDccSendReq"), &Session::BindOnDccSendReq)
+        .SquirrelFunc(_SC("CmdMsgF"), &Session::CmdMsgF)
+        .SquirrelFunc(_SC("CmdMeF"), &Session::CmdMeF)
+        .SquirrelFunc(_SC("CmdNoticeF"), &Session::CmdNoticeF)
     );
 
     ircns.Func(_SC("GetNick"), &GetNick);
