@@ -28,9 +28,14 @@
 #if !defined(_SCRAT_CLASS_H_)
 #define _SCRAT_CLASS_H_
 
+#ifdef SQMOD_PLUGIN_API
+    #include <sq_api.h>
+#else
+    #include <squirrel.h>
+#endif // SQMOD_PLUGIN_API
+
 #include <typeinfo>
 #include <squirrel.h>
-#include <string.h>
 
 #include "sqratObject.h"
 #include "sqratClassType.h"

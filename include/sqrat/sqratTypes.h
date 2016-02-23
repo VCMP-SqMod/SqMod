@@ -33,7 +33,12 @@
 #include <cstring>
 #endif
 
-#include <squirrel.h>
+#ifdef SQMOD_PLUGIN_API
+    #include <sq_api.h>
+#else
+    #include <squirrel.h>
+#endif // SQMOD_PLUGIN_API
+
 #include <string>
 
 #include "sqratClassType.h"

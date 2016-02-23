@@ -1,0 +1,4 @@
+// ////////////////////////////////////////////////////////////////////////////////////////////////
+#include "sq_mod.h"
+#include "sq_mod.inl"
+/* This method is used toa void compilers warning about C++ flags on C files and viceversa. */

@@ -112,6 +112,7 @@
 #define SQMOD_NAME "Squirrel Module"
 #define SQMOD_AUTHOR "Sandu Liviu Catalin"
 #define SQMOD_COPYRIGHT "Copyright (C) 2015 Sandu Liviu Catalin"
+#define SQMOD_HOST_NAME "SqModHost"
 #define SQMOD_VERSION 001
 #define SQMOD_VERSION_STR "0.0.1"
 #define SQMOD_VERSION_MAJOR 0
@@ -443,6 +444,8 @@ enum CmdError
 #if defined(_MSC_VER)
     #define SQMOD_API_EXPORT      extern "C" __declspec(dllexport)
 #elif defined(__GNUC__)
+    #define SQMOD_API_EXPORT      extern "C"
+#else
     #define SQMOD_API_EXPORT      extern "C"
 #endif
 

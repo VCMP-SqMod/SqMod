@@ -28,9 +28,14 @@
 #if !defined(_SCRAT_UTIL_H_)
 #define _SCRAT_UTIL_H_
 
+#ifdef SQMOD_PLUGIN_API
+    #include <sq_api.h>
+#else
+    #include <squirrel.h>
+#endif // SQMOD_PLUGIN_API
+
 #include <cassert>
 #include <map>
-#include <squirrel.h>
 #include <string.h>
 
 #if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)

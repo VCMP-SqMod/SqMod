@@ -229,26 +229,33 @@ bool Core::Init()
     {
         // Get the file path as a string
         String path(itr->pItem);
-        // See if it wasn't already loaded
-        if (m_Scripts.find(path) != m_Scripts.end())
+        // See if the specified script path is valid
+        if (path.empty())
         {
-            LogWrn("Script was already loaded: %s", path.c_str());
+            // Simply ignore it
+            continue;
+        }
+        // See if it wasn't already loaded
+        else if (m_Scripts.find(path) != m_Scripts.end())
+        {
+            LogWrn("Script was specified before: %s", path.c_str());
             // No point in loading it again
             continue;
         }
-        // Attempt to compile it
-        else if (!Compile(path))
+        // Create a new script container and insert it into the script pool
+        std::pair< Scripts::iterator, bool > res = m_Scripts.insert(Scripts::value_type(path, Script(m_VM)));
+        // We don't compile the scripts yet. We just store their path and prepare the objects.
+        if (!res.second)
         {
-            // Plug-in shouldn't load
+            LogErr("Unable to queue script: %s", path.c_str());
+            // Drop all previous scripts
+            m_Scripts.clear();
+            // Failed to compile the specified script
             return false;
-        }
-        else
-        {
-            LogScs("Successfully compiled script: %s", path.c_str());
         }
     }
     // See if any script could be compiled
-    if (m_Scripts.empty())
+    if (m_Scripts.empty() && !conf.GetBoolValue("Config", "EmptyInit", false))
     {
         LogErr("No scripts compiled. No reason to load the plug-in");
         // No point in loading the plug-in
@@ -303,25 +310,27 @@ bool Core::Load()
 {
     // Are there any scripts to execute?
     if (cLogErr(m_Scripts.empty(), "No scripts to execute. Plug-in has no purpose"))
-    {
         return false;
-    }
+    LogDbg("Signaling outside plugins to register their API");
+    // Signal outside plugins to do their monkey business
+    _Func->SendCustomCommand(0xDABBAD00, "");
     LogDbg("Attempting to execute the specified scripts");
-    // Go through each loaded script
+    // Go through each specified script
     for (Scripts::iterator itr = m_Scripts.begin(); itr != m_Scripts.end(); ++itr)
     {
+        // Attempt to load and compile the script file
+        itr->second.CompileFile(itr->first);
+        // See if any compile time error occurred during compilation
+        if (Error::Occurred(m_VM))
+            return false; /* Failed to load properly */
         // Attempt to execute the script
         itr->second.Run();
         // See if the executed script had any errors
         if (Error::Occurred(m_VM))
-        {
             // Failed to execute scripts
-            return false;
-        }
+            return false; /* Failed to load properly */
         else
-        {
             LogScs("Successfully executed script: %s", itr->first.c_str());
-        }
     }
     // Successfully loaded
     return true;
@@ -361,42 +370,6 @@ void Core::Terminate()
         // Attempt to close the VM
         sq_close(sq_vm);
     }
-}
-
-bool Core::Compile(const string & name)
-{
-    // See if the specified script path is valid
-    if (name.empty())
-    {
-        LogErr("Cannot compile script without a valid name");
-        // Failed to compile the specified script
-        return false;
-    }
-    // Create a new script container and insert it into the script pool
-    std::pair< Scripts::iterator, bool > res = m_Scripts.insert(Scripts::value_type(name, Script(m_VM)));
-    // See if the script container could be created and inserted
-    if (res.second)
-    {
-        // Attempt to load and compile the specified script file
-        res.first->second.CompileFile(name);
-        // See if any compile time error occurred in the compiled script
-        if (Error::Occurred(m_VM))
-        {
-            // Release the script container
-            m_Scripts.erase(res.first);
-            // Failed to compile the specified script
-            return false;
-        }
-    }
-    // Failed to create the script container
-    else
-    {
-        LogErr("Unable to queue script: %s", name.c_str());
-        // Failed to compile the specified script
-        return false;
-    }
-    // At this point everything went as it should
-    return true;
 }
 
 // ------------------------------------------------------------------------------------------------

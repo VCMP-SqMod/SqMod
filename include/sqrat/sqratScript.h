@@ -28,8 +28,13 @@
 #if !defined(_SCRAT_SCRIPT_H_)
 #define _SCRAT_SCRIPT_H_
 
-#include <squirrel.h>
-#include <sqstdio.h>
+#ifdef SQMOD_PLUGIN_API
+    #include <sq_api.h>
+#else
+    #include <squirrel.h>
+    #include <sqstdio.h>
+#endif // SQMOD_PLUGIN_API
+
 #include <string.h>
 
 #include "sqratObject.h"

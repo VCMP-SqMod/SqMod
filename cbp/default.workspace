@@ -5,6 +5,7 @@
 		<Project filename="Sandbox.cbp" />
 		<Project filename="Squirrel.cbp" />
 		<Project filename="SQLite.cbp" />
-		<Project filename="Hash.cbp" />
+		<Project filename="LibIRC.cbp" />
+		<Project filename="Sample.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

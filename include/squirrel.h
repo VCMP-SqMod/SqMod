@@ -194,6 +194,7 @@ typedef struct tagSQFunctionInfo {
 	SQInteger line;
 }SQFunctionInfo;
 
+#ifndef SQMOD_PLUGIN_API
 /*vm*/
 SQUIRREL_API HSQUIRRELVM sq_open(SQInteger initialstacksize);
 SQUIRREL_API HSQUIRRELVM sq_newthread(HSQUIRRELVM friendvm, SQInteger initialstacksize);
@@ -361,6 +362,7 @@ SQUIRREL_API void sq_free(void *p,SQUnsignedInteger size);
 SQUIRREL_API SQRESULT sq_stackinfos(HSQUIRRELVM v,SQInteger level,SQStackInfos *si);
 SQUIRREL_API void sq_setdebughook(HSQUIRRELVM v);
 SQUIRREL_API void sq_setnativedebughook(HSQUIRRELVM v,SQDEBUGHOOK hook);
+#endif // SQMOD_PLUGIN_API
 
 /*UTILITY MACRO*/
 #define sq_isnumeric(o) ((o)._type&SQOBJECT_NUMERIC)

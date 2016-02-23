@@ -500,11 +500,6 @@ public:
 protected:
 
     /* --------------------------------------------------------------------------------------------
-     * Compile the specified file as a script.
-    */
-    bool Compile(const string & name);
-
-    /* --------------------------------------------------------------------------------------------
      * Script output handlers.
     */
     static void PrintFunc(HSQUIRRELVM vm, CSStr msg, ...);

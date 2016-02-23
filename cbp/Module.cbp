@@ -263,6 +263,7 @@
 		<Unit filename="../source/Entity/Textdraw.hpp" />
 		<Unit filename="../source/Entity/Vehicle.cpp" />
 		<Unit filename="../source/Entity/Vehicle.hpp" />
+		<Unit filename="../source/Exports.cpp" />
 		<Unit filename="../source/Library/Datetime.cpp" />
 		<Unit filename="../source/Library/Datetime.hpp" />
 		<Unit filename="../source/Library/FileIO.cpp" />

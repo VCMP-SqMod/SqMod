@@ -29,7 +29,12 @@
 #if !defined(_SCRAT_MEMBER_METHODS_H_)
 #define _SCRAT_MEMBER_METHODS_H_
 
-#include <squirrel.h>
+#ifdef SQMOD_PLUGIN_API
+    #include <sq_api.h>
+#else
+    #include <squirrel.h>
+#endif // SQMOD_PLUGIN_API
+
 #include "sqratTypes.h"
 
 namespace Sqrat {

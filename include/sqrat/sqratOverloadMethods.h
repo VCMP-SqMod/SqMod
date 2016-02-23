@@ -28,8 +28,12 @@
 #if !defined(_SQRAT_OVERLOAD_METHODS_H_)
 #define _SQRAT_OVERLOAD_METHODS_H_
 
-#include <squirrel.h>
-#include <sqstdaux.h>
+#ifdef SQMOD_PLUGIN_API
+    #include <sq_api.h>
+#else
+    #include <squirrel.h>
+#endif // SQMOD_PLUGIN_API
+
 #include <sstream>
 #include "sqratTypes.h"
 #include "sqratUtil.h"

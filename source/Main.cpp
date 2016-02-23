@@ -11,11 +11,39 @@
 #endif // _WIN32
 
 // ------------------------------------------------------------------------------------------------
+namespace SqMod {
+extern void InitExports();
+} // Namespace:: SqMod
+
+// ------------------------------------------------------------------------------------------------
 using namespace SqMod;
 
 // ------------------------------------------------------------------------------------------------
 void BindCallbacks();
 void UnbindCallbacks();
+
+// ------------------------------------------------------------------------------------------------
+void DestroyComponents()
+{
+    // Destroy command component
+    if (_Cmd)
+    {
+        delete _Cmd;
+        _Cmd = NULL;
+    }
+    // Destroy core component
+    if (_Core)
+    {
+        delete _Core;
+        _Core = NULL;
+    }
+    // Destroy logger component
+    if (_Log)
+    {
+        delete _Log;
+        _Log = NULL;
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
@@ -24,23 +52,31 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     WSADATA wsaData;
 #endif // _WIN32
     _Log = Logger::Get();
-    _Core = Core::Get();
-    _Cmd = CmdManager::Get();
     // Verify that core components are working
     if (!_Log)
     {
         puts("[SQMOD] Unable to start because the logging class could not be instantiated");
         return SQMOD_FAILURE;
     }
-    else if (!_Core)
+    _Core = Core::Get();
+    if (!_Core)
     {
+        DestroyComponents();
         puts("[SQMOD] Unable to start because the central core class could not be instantiated");
+        return SQMOD_FAILURE;
+    }
+    _Cmd = CmdManager::Get();
+    if (!_Cmd)
+    {
+        DestroyComponents();
+        puts("[SQMOD] Unable to start because the command class could not be instantiated");
         return SQMOD_FAILURE;
     }
 #if defined(_WIN32)
     // Initialize the sockets on windows
-    else if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
+        DestroyComponents();
         puts("[SQMOD] Unable to start because the windows sockets could not be initialized");
         return SQMOD_FAILURE;
     }
@@ -51,12 +87,13 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     _Info = info;
 
     _Info->uPluginVer = SQMOD_VERSION;
-    strcpy(_Info->szName, SQMOD_NAME);
+    strcpy(_Info->szName, SQMOD_HOST_NAME);
 
     if (!_Core->Init())
     {
         LogFtl("The plugin failed to initialize");
         _Core->Terminate();
+        DestroyComponents();
         return SQMOD_FAILURE;
     }
     else if (_Clbk)
@@ -65,15 +102,23 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     }
     else
     {
+        _Core->Terminate();
+        DestroyComponents();
         LogFtl("Unable to start because the server callbacks are missing");
+        return SQMOD_FAILURE;
     }
-
+    // Attempt to initialize the plugin exports
+    InitExports();
+    // Initialization was successful
     return SQMOD_SUCCESS;
 }
 
 // --------------------------------------------------------------------------------------------
 static int VC_InitServer(void)
 {
+    if (!_Core)
+        return SQMOD_FAILURE;
+
     _Core->SetState(1);
 
     if (_Core->Load())
@@ -86,18 +131,16 @@ static int VC_InitServer(void)
 
 static void VC_ShutdownServer(void)
 {
+    if (!_Core)
+        return;
+
     _Core->EmitServerShutdown();
     // Deallocate and release everything obtained at startup
     _Core->Terminate();
     // The server still triggers callbacks and we deallocated everything!
     UnbindCallbacks();
-    // Destroy core components
-    delete _Cmd;
-    delete _Core;
-    delete _Log;
-    _Cmd = NULL;
-    _Core = NULL;
-    _Log = NULL;
+    // Destroy components
+    DestroyComponents();
 }
 
 static void VC_Frame(float delta)
