@@ -36,6 +36,7 @@ extern void Register_Entity(HSQUIRRELVM vm);
 // ------------------------------------------------------------------------------------------------
 extern void Register_Hash(HSQUIRRELVM vm);
 extern void Register_INI(HSQUIRRELVM vm);
+extern void Register_IRC(HSQUIRRELVM vm);
 extern void Register_Numeric(HSQUIRRELVM vm);
 extern void Register_Random(HSQUIRRELVM vm);
 extern void Register_SQLite(HSQUIRRELVM vm);
@@ -81,6 +82,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
 
     Register_Hash(vm);
     Register_INI(vm);
+    Register_IRC(vm);
     Register_Random(vm);
     Register_Numeric(vm);
     //Register_SQLite(vm);

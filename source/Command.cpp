@@ -60,16 +60,16 @@ void CmdManager::Terminate()
     {
         if (itr->second)
         {
-            itr->second->m_OnExec.Release2();
-            itr->second->m_OnAuth.Release2();
-            itr->second->m_OnPost.Release2();
-            itr->second->m_OnFail.Release2();
+            itr->second->m_OnExec.ReleaseGently();
+            itr->second->m_OnAuth.ReleaseGently();
+            itr->second->m_OnPost.ReleaseGently();
+            itr->second->m_OnFail.ReleaseGently();
         }
     }
     // Release the script resources from this class
     m_Argv.clear();
-    m_OnError.Release2();
-    m_OnAuth.Release2();
+    m_OnError.ReleaseGently();
+    m_OnAuth.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -648,10 +648,10 @@ CmdListener::~CmdListener()
     if (!m_Name.empty())
         _Cmd->Detach(m_Name);
     // Release callbacks
-    m_OnExec.Release2();
-    m_OnAuth.Release2();
-    m_OnPost.Release2();
-    m_OnFail.Release2();
+    m_OnExec.ReleaseGently();
+    m_OnAuth.ReleaseGently();
+    m_OnPost.ReleaseGently();
+    m_OnFail.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1224,6 +1224,22 @@ bool CmdListener::ProcSpec(CSStr str)
     GenerateInfo(false);
     // Return whether the parsing was successful
     return good;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to run a command.
+*/
+Int32 RunCommand(Int32 invoker, CSStr command)
+{
+    return _Cmd->Run(invoker, command);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to terminate the command system.
+*/
+void TerminateCommand()
+{
+    _Cmd->Terminate();
 }
 
 // ------------------------------------------------------------------------------------------------

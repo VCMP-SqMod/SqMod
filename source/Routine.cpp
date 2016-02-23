@@ -16,6 +16,62 @@ Routine::Queue      Routine::s_Queue;
 Routine::Buckets    Routine::s_Buckets;
 
 // ------------------------------------------------------------------------------------------------
+void Routine::Process()
+{
+    s_Lock = false; /* In case an exception prevented the unlock last time */
+    if (!s_Queue.empty())
+    {
+        for (Queue::iterator itr = s_Queue.begin(); itr != s_Queue.end(); ++itr)
+        {
+            if (itr->first && itr->second)
+                itr->second->Attach();
+            else if (itr->second)
+                itr->second->Terminate();
+        }
+        s_Queue.clear();
+    }
+    // Is this the first call?
+    if (s_Last == 0)
+    {
+        s_Last = GetCurrentSysTime();
+        return;
+    }
+    s_Lock = true;
+    s_Prev = s_Last;
+    s_Last = GetCurrentSysTime();
+    Int32 delta = Int32((s_Last - s_Prev) / 1000L);
+    for (Buckets::iterator bucket = s_Buckets.begin(); bucket != s_Buckets.end(); ++bucket)
+    {
+        bucket->mElapsed += delta;
+        if (bucket->mElapsed < bucket->mInterval)
+            continue;
+        Routines::iterator itr = bucket->mRoutines.begin();
+        Routines::iterator end = bucket->mRoutines.end();
+        for (; itr != end; ++itr)
+            (*itr)->Execute();
+        bucket->mElapsed = 0;
+    }
+    s_Lock = false;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::TerminateAll()
+{
+    for (Buckets::iterator bucket = s_Buckets.begin(); bucket != s_Buckets.end(); ++bucket)
+    {
+        Routines::iterator itr = bucket->mRoutines.begin();
+        Routines::iterator end = bucket->mRoutines.end();
+        for (; itr != end; ++itr)
+        {
+            (*itr)->Release();
+            (*itr)->m_Terminated = true;
+        }
+    }
+    // Clear all references
+    s_Buckets.clear();
+}
+
+// ------------------------------------------------------------------------------------------------
 Routine::Routine(Object & env, Function & func, Interval interval)
     : m_Iterations(0)
     , m_Interval(interval)
@@ -24,7 +80,7 @@ Routine::Routine(Object & env, Function & func, Interval interval)
     , m_Terminated(false)
     , m_Callback(env.GetVM(), env, func.GetFunc())
 {
-    /* ... */
+    Create();
 }
 
 Routine::Routine(Object & env, Function & func, Interval interval, Iterate iterations)
@@ -142,6 +198,7 @@ void Routine::Terminate()
     {
         Detach();
         Release();
+        m_Terminated = true;
     }
 }
 
@@ -298,7 +355,7 @@ void Routine::Release()
     if (m_Terminated)
         return;
     m_Terminated = true;
-    m_Callback.Release2();
+    m_Callback.ReleaseGently();
     m_Arg1.Release();
     m_Arg2.Release();
     m_Arg3.Release();
@@ -426,55 +483,20 @@ void Routine::Execute()
 
 }
 
-// ------------------------------------------------------------------------------------------------
-void Routine::Process()
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to process routines.
+*/
+void ProcessRoutine()
 {
-    s_Lock = false; /* In case an exception prevented the unlock last time */
-    if (!s_Queue.empty())
-    {
-        for (Queue::iterator itr = s_Queue.begin(); itr != s_Queue.end(); ++itr)
-        {
-            if (itr->first && itr->second)
-                itr->second->Attach();
-            else if (itr->second)
-                itr->second->Terminate();
-        }
-        s_Queue.clear();
-    }
-    // Is this the first call?
-    if (s_Last == 0)
-    {
-        s_Last = GetCurrentSysTime();
-        return;
-    }
-    s_Lock = true;
-    s_Prev = s_Last;
-    s_Last = GetCurrentSysTime();
-    Int32 delta = Int32((s_Last - s_Prev) / 1000L);
-    for (Buckets::iterator bucket = s_Buckets.begin(); bucket != s_Buckets.end(); ++bucket)
-    {
-        bucket->mElapsed += delta;
-        if (bucket->mElapsed < bucket->mInterval)
-            continue;
-        Routines::iterator itr = bucket->mRoutines.begin();
-        Routines::iterator end = bucket->mRoutines.end();
-        for (; itr != end; ++itr)
-            (*itr)->Execute();
-        bucket->mElapsed = 0;
-    }
-    s_Lock = false;
+    Routine::Process();
 }
 
-// ------------------------------------------------------------------------------------------------
-void Routine::Cleanup()
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to terminate routines.
+*/
+void TerminateRoutine()
 {
-    for (Buckets::iterator bucket = s_Buckets.begin(); bucket != s_Buckets.end(); ++bucket)
-    {
-        Routines::iterator itr = bucket->mRoutines.begin();
-        Routines::iterator end = bucket->mRoutines.end();
-        for (; itr != end; ++itr)
-            (*itr)->Release();
-    }
+    Routine::TerminateAll();
 }
 
 // ================================================================================================

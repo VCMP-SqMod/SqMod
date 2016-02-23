@@ -1,8 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
 #include "Logger.hpp"
-#include "Command.hpp"
-#include "Routine.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
@@ -38,6 +36,18 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 extern bool RegisterAPI(HSQUIRRELVM vm);
+
+// ------------------------------------------------------------------------------------------------
+extern void ProcessIrc();
+extern void TerminateIrc();
+
+// ------------------------------------------------------------------------------------------------
+extern void ProcessRoutine();
+extern void TerminateRoutine();
+
+// ------------------------------------------------------------------------------------------------
+extern Int32 RunCommand(Int32 invoker, CSStr command);
+extern void TerminateCommand();
 
 // ------------------------------------------------------------------------------------------------
 Core * _Core = NULL;
@@ -332,10 +342,12 @@ void Core::Terminate()
     m_Textdraws.clear();
     m_Vehicles.clear();
     m_Scripts.clear();
-    // Release all resources from command manager
-    _Cmd->Terminate();
     // Release all resources from routines
-    Routine::Cleanup();
+    TerminateRoutine();
+    // Release all resources from command manager
+    TerminateCommand();
+    // Release all resources from irc sessions
+    TerminateIrc();
     // Is there a VM to close?
     if (m_VM)
     {
@@ -1251,7 +1263,7 @@ void Core::EmitPlayerCommand(Int32 player, CCStr command)
     Emit(_player.mOnCommand, command);
     Emit(mOnPlayerCommand, _player.mObj, command);
     // Send it to the command manager
-    _Cmd->Run(player, command);
+    RunCommand(player, command);
 }
 
 void Core::EmitPlayerMessage(Int32 player, Int32 receiver, CCStr message)
@@ -1664,7 +1676,10 @@ void Core::EmitForcefieldExited(Int32 player, Int32 forcefield)
 void Core::EmitServerFrame(Float32 delta)
 {
     Emit(mOnServerFrame, delta);
-    Routine::Process();
+    // Update routines
+    ProcessRoutine();
+    // Update IRC sessions
+    ProcessIrc();
 }
 
 void Core::EmitServerStartup()

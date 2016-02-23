@@ -25,6 +25,16 @@ public:
     typedef Uint32                      Iterate;
     typedef std::vector< Routine * >    Routines;
 
+    /* --------------------------------------------------------------------------------------------
+     * Process all active routines and update elapsed time.
+    */
+    static void Process();
+
+    /* --------------------------------------------------------------------------------------------
+     * Release all resources and prepare for shutdown.
+    */
+    static void TerminateAll();
+
 protected:
 
     /* --------------------------------------------------------------------------------------------
@@ -117,6 +127,8 @@ protected:
     static Queue        s_Queue; /* Actions to be performed when the buckets aren't locked */
     static Buckets      s_Buckets; /* Buckets of routines grouped by similar intervals. */
 
+private:
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
@@ -126,6 +138,24 @@ protected:
      * Copy assignment operator. (disabled)
     */
     Routine & operator = (const Routine &);
+
+private:
+
+    // --------------------------------------------------------------------------------------------
+    Iterate     m_Iterations; /* Number of iterations before self destruct. */
+    Interval    m_Interval; /* Interval between calls. */
+    Uint8       m_Arguments; /* Number of arguments to forward. */
+    bool        m_Suspended; /* Whether calls should be ignored. */
+    bool        m_Terminated; /* Whether the routine was terminated. */
+
+    // --------------------------------------------------------------------------------------------
+    Function    m_Callback; /* The callback to be executed when triggered. */
+
+    /* --------------------------------------------------------------------------------------------
+     * Arguments to be forwarded to the callback.
+    */
+    Object      m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
+                m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13, m_Arg14;
 
 public:
 
@@ -280,36 +310,6 @@ protected:
      * Execute the binded callback.
     */
     void Execute();
-
-private:
-
-    // --------------------------------------------------------------------------------------------
-    Iterate     m_Iterations; /* Number of iterations before self destruct. */
-    Interval    m_Interval; /* Interval between calls. */
-    Uint8       m_Arguments; /* Number of arguments to forward. */
-    bool        m_Suspended; /* Whether calls should be ignored. */
-    bool        m_Terminated; /* Whether the routine was terminated. */
-
-    // --------------------------------------------------------------------------------------------
-    Function    m_Callback; /* The callback to be executed when triggered. */
-
-    /* --------------------------------------------------------------------------------------------
-     * Arguments to be forwarded to the callback.
-    */
-    Object      m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
-                m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13, m_Arg14;
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Process all active routines and update elapsed time.
-    */
-    static void Process();
-
-    /* --------------------------------------------------------------------------------------------
-     * Release all resources and prepare for shutdown.
-    */
-    static void Cleanup();
 };
 
 } // Namespace:: SqMod

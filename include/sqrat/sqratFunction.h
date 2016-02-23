@@ -223,7 +223,7 @@ public:
     /// This doesn't call release if the reference count is 1.
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    void Release2() {
+    void ReleaseGently() {
         if(!IsNull()) {
             sq_release(vm, &env);
             if (sq_getrefcount(vm, &obj) > 1)

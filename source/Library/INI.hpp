@@ -9,30 +9,31 @@
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
+namespace INI {
 
 // ------------------------------------------------------------------------------------------------
-class IniEntries;
-class IniDocument;
+class Entries;
+class Document;
 
 /* ------------------------------------------------------------------------------------------------
- * Manages a reference counted ini document instance.
+ * Manages a reference counted INI document instance.
 */
-class IniDocumentRef
+class DocumentRef
 {
     // --------------------------------------------------------------------------------------------
-    friend class IniDocument;
+    friend class Document;
 
 private:
 
     // --------------------------------------------------------------------------------------------
-    typedef CSimpleIniA     Document;
+    typedef CSimpleIniA     IrcDocument;
 
     // --------------------------------------------------------------------------------------------
     typedef unsigned int    Counter;
 
     // --------------------------------------------------------------------------------------------
-    Document*   m_Ptr; /* The document reader, writer and manager instance. */
-    Counter*    m_Ref; /* Reference count to the managed instance. */
+    IrcDocument*    m_Ptr; /* The document reader, writer and manager instance. */
+    Counter*        m_Ref; /* Reference count to the managed instance. */
 
     /* --------------------------------------------------------------------------------------------
      * Grab a strong reference to a document instance.
@@ -62,8 +63,8 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    IniDocumentRef(bool utf8, bool multikey, bool multiline)
-        : m_Ptr(new Document(utf8, multikey, multiline)), m_Ref(new Counter(1))
+    DocumentRef(bool utf8, bool multikey, bool multiline)
+        : m_Ptr(new IrcDocument(utf8, multikey, multiline)), m_Ref(new Counter(1))
     {
         /* ... */
     }
@@ -73,7 +74,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null).
     */
-    IniDocumentRef()
+    DocumentRef()
         : m_Ptr(NULL), m_Ref(NULL)
     {
         /* ... */
@@ -82,7 +83,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    IniDocumentRef(const IniDocumentRef & o)
+    DocumentRef(const DocumentRef & o)
         : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
 
     {
@@ -92,7 +93,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~IniDocumentRef()
+    ~DocumentRef()
     {
         Drop();
     }
@@ -100,7 +101,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    IniDocumentRef & operator = (const IniDocumentRef & o)
+    DocumentRef & operator = (const DocumentRef & o)
     {
         if (m_Ptr != o.m_Ptr)
         {
@@ -115,7 +116,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two document instances.
     */
-    bool operator == (const IniDocumentRef & o) const
+    bool operator == (const DocumentRef & o) const
     {
         return (m_Ptr == o.m_Ptr);
     }
@@ -123,7 +124,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Perform an inequality comparison between two document instances.
     */
-    bool operator != (const IniDocumentRef & o) const
+    bool operator != (const DocumentRef & o) const
     {
         return (m_Ptr != o.m_Ptr);
     }
@@ -139,7 +140,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Member operator for dereferencing the managed pointer.
     */
-    Document * operator -> () const
+    IrcDocument * operator -> () const
     {
         assert(m_Ptr != NULL);
         return m_Ptr;
@@ -148,7 +149,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Indirection operator for obtaining a reference of the managed pointer.
     */
-    Document & operator * () const
+    IrcDocument & operator * () const
     {
         assert(m_Ptr != NULL);
         return *m_Ptr;
@@ -165,20 +166,20 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * Class that can access and iterate a series of entries in the ini document.
+ * Class that can access and iterate a series of entries in the INI document.
 */
-class IniEntries
+class Entries
 {
     // --------------------------------------------------------------------------------------------
-    friend class IniDocument;
+    friend class Document;
 
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef CSimpleIniA                 Document;
+    typedef CSimpleIniA                 IrcDocument;
 
     // --------------------------------------------------------------------------------------------
-    typedef Document::TNamesDepend      Container;
+    typedef IrcDocument::TNamesDepend   Container;
 
     // --------------------------------------------------------------------------------------------
     typedef Container::iterator         Iterator;
@@ -186,7 +187,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    IniEntries(const IniDocumentRef & ini, Container & list)
+    Entries(const DocumentRef & ini, Container & list)
         : m_Doc(ini), m_List(), m_Elem()
     {
         m_List.swap(list);
@@ -196,7 +197,7 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    IniDocumentRef  m_Doc; /* The document that contains the elements. */
+    DocumentRef  m_Doc; /* The document that contains the elements. */
     Container       m_List; /* The list of elements to iterate. */
     Iterator        m_Elem; /* The currently processed element. */
 
@@ -205,7 +206,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor. (null)
     */
-    IniEntries()
+    Entries()
         : m_Doc(), m_List(), m_Elem(m_List.end())
     {
         /* ... */
@@ -214,7 +215,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    IniEntries(const IniEntries & o)
+    Entries(const Entries & o)
         : m_Doc(o.m_Doc), m_List(o.m_List), m_Elem()
     {
         Reset();
@@ -223,7 +224,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~IniEntries()
+    ~Entries()
     {
         /* ... */
     }
@@ -231,7 +232,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    IniEntries & operator = (const IniEntries & o)
+    Entries & operator = (const Entries & o)
     {
         m_Doc = o.m_Doc;
         m_List = o.m_List;
@@ -242,7 +243,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const IniEntries & o) const;
+    Int32 Cmp(const Entries & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
@@ -318,7 +319,7 @@ public:
     void Sort()
     {
         if (!m_List.empty())
-            m_List.sort(Document::Entry::KeyOrder());
+            m_List.sort(IrcDocument::Entry::KeyOrder());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -327,7 +328,7 @@ public:
     void SortByKeyOrder()
     {
         if (!m_List.empty())
-            m_List.sort(Document::Entry::KeyOrder());
+            m_List.sort(IrcDocument::Entry::KeyOrder());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -336,7 +337,7 @@ public:
     void SortByLoadOrder()
     {
         if (!m_List.empty())
-            m_List.sort(Document::Entry::LoadOrder());
+            m_List.sort(IrcDocument::Entry::LoadOrder());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -345,7 +346,7 @@ public:
     void SortByLoadOrderEmptyFirst()
     {
         if (!m_List.empty())
-            m_List.sort(Document::Entry::LoadOrderEmptyFirst());
+            m_List.sort(IrcDocument::Entry::LoadOrderEmptyFirst());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -365,27 +366,27 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- * Class that can read/write and alter the contents of ini files.
+ * Class that can read/write and alter the contents of INI files.
 */
-class IniDocument
+class Document
 {
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef CSimpleIniA                 Document;
+    typedef CSimpleIniA                 IrcDocument;
 
     // --------------------------------------------------------------------------------------------
-    typedef Document::TNamesDepend      Container;
+    typedef IrcDocument::TNamesDepend   Container;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    IniDocument(const IniDocument & o);
+    Document(const Document & o);
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    IniDocument & operator = (const IniDocument & o);
+    Document & operator = (const Document & o);
 
     /* --------------------------------------------------------------------------------------------
      * Validate the document reference.
@@ -394,36 +395,36 @@ protected:
     {
         if (m_Doc)
             return true;
-        SqThrow("Invalid ini document reference");
+        SqThrow("Invalid INI document reference");
         return false;
     }
 
 private:
 
     // ---------------------------------------------------------------------------------------------
-    IniDocumentRef  m_Doc; /* The main ini document instance. */
+    DocumentRef  m_Doc; /* The main INI document instance. */
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    IniDocument();
+    Document();
 
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    IniDocument(bool utf8, bool multikey, bool multiline);
+    Document(bool utf8, bool multikey, bool multiline);
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~IniDocument();
+    ~Document();
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const IniDocument & o) const;
+    Int32 Cmp(const Document & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
@@ -431,7 +432,7 @@ public:
     CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance references a valid ini document.
+     * See whether this instance references a valid INI document.
     */
     bool IsValid() const
     {
@@ -463,7 +464,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * See whether the ini data is treated as unicode.
+     * See whether the INI data is treated as unicode.
     */
     bool GetUnicode() const
     {
@@ -471,7 +472,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Set whether the ini data should be treated as unicode.
+     * Set whether the INI data should be treated as unicode.
     */
     void SetUnicode(bool toggle)
     {
@@ -565,17 +566,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve all section names.
     */
-    IniEntries GetAllSections() const;
+    Entries GetAllSections() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve all unique key names in a section.
     */
-    IniEntries GetAllKeys(CSStr section) const;
+    Entries GetAllKeys(CSStr section) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve all values for a specific key.
     */
-    IniEntries GetAllValues(CSStr section, CSStr key) const;
+    Entries GetAllValues(CSStr section, CSStr key) const;
 
     /* --------------------------------------------------------------------------------------------
      * Query the number of keys in a specific section.
@@ -729,6 +730,7 @@ public:
     bool DeleteValue(CSStr section, CSStr key, CSStr value, bool empty);
 };
 
+} // Namespace:: INI
 } // Namespace:: SqMod
 
 #endif // _LIBRARY_INI_HPP_

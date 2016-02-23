@@ -117,7 +117,7 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
 void Register_Log(HSQUIRRELVM vm)
 {
     RootTable(vm)
-    .Bind(_SC("Log"), Table(vm)
+    .Bind(_SC("SqLog"), Table(vm)
         .SquirrelFunc(_SC("Dbg"), &LogBasicMessage< LL_DBG, false >)
         .SquirrelFunc(_SC("Usr"), &LogBasicMessage< LL_USR, false >)
         .SquirrelFunc(_SC("Scs"), &LogBasicMessage< LL_SCS, false >)

@@ -194,6 +194,7 @@
 		<Linker>
 			<Add library="squirrel" />
 			<Add library="sqlite" />
+			<Add library="irclib" />
 		</Linker>
 		<Unit filename="../external/Hash/crc32.cpp" />
 		<Unit filename="../external/Hash/crc32.h" />
@@ -272,6 +273,8 @@
 		<Unit filename="../source/Library/Hashing.hpp" />
 		<Unit filename="../source/Library/INI.cpp" />
 		<Unit filename="../source/Library/INI.hpp" />
+		<Unit filename="../source/Library/IRC.cpp" />
+		<Unit filename="../source/Library/IRC.hpp" />
 		<Unit filename="../source/Library/Math.cpp" />
 		<Unit filename="../source/Library/Math.hpp" />
 		<Unit filename="../source/Library/Numeric.cpp" />

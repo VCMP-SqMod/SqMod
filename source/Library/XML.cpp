@@ -3,6 +3,7 @@
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
+namespace XML {
 
 // ------------------------------------------------------------------------------------------------
 void XmlParseResult::Check() const
@@ -25,9 +26,13 @@ XmlNode XmlDocument::GetNode() const
     return XmlNode();
 }
 
+} // Namespace:: XML
+
 // ================================================================================================
 void Register_XML(HSQUIRRELVM vm)
 {
+    using namespace XML;
+
     Table xmlns(vm);
 
     xmlns.Bind(_SC("ParseResult"), Class< XmlParseResult >(vm, _SC("SqXmlParseResult"))
