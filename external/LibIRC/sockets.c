@@ -1,14 +1,14 @@
-/* 
+/*
  * Copyright (C) 2004-2012 George Yunaev gyunaev@ulduzsoft.com
  *
- * This library is free software; you can redistribute it and/or modify it 
- * under the terms of the GNU Lesser General Public License as published by 
- * the Free Software Foundation; either version 3 of the License, or (at your 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public 
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
 
@@ -18,7 +18,7 @@
 #if !defined (_WIN32)
 	#include <sys/socket.h>
 	#include <netdb.h>
-	#include <arpa/inet.h>	
+	#include <arpa/inet.h>
 	#include <netinet/in.h>
 	#include <fcntl.h>
 
@@ -134,7 +134,7 @@ static int socket_recv (socket_t * sock, void * buf, size_t len)
 	while ( (length = recv (*sock, buf, len, 0)) < 0 )
 	{
 		int err = socket_error();
-		
+
 		if ( err != EINTR && err != EAGAIN )
 			break;
 	}
@@ -150,7 +150,7 @@ static int socket_send (socket_t * sock, const void *buf, size_t len)
 	while ( (length = send (*sock, buf, len, 0)) < 0 )
 	{
 		int err = socket_error();
-		
+
 		if ( err != EINTR && err != EAGAIN )
 			break;
 	}

@@ -307,7 +307,7 @@ static CSStr RandomString(Int32 len, SQChar n)
     }
     Buffer b(len+1);
     SStr s = b.Get< SQChar >();
-    for (Int32 n = 0; n <= len; ++n, ++s)
+    for (Int32 i = 0; i <= len; ++i, ++s)
     {
         *s = g_RGen.Integer< SQChar >(n);
     }
@@ -324,7 +324,7 @@ static CSStr RandomString(Int32 len, SQChar m, SQChar n)
     }
     Buffer b(len+1);
     SStr s = b.Get< SQChar >();
-    for (Int32 n = 0; n <= len; ++n, ++s)
+    for (Int32 i = 0; i <= len; ++i, ++s)
     {
         *s = g_RGen.IntegerC< SQChar >(m, n);
     }

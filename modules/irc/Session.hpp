@@ -1,21 +1,21 @@
-#ifndef _LIBRARY_IRC_HPP_
-#define _LIBRARY_IRC_HPP_
+#ifndef _SQIRC_SESSION_HPP_
+#define _SQIRC_SESSION_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
-#include "Library/Time.hpp"
-#include "Library/Numeric.hpp"
+#include "Common.hpp"
+
+// ------------------------------------------------------------------------------------------------
+#include <vector>
 
 // ------------------------------------------------------------------------------------------------
 #include <libircclient.h>
 #include <libirc_rfcnumeric.h>
 
 // ------------------------------------------------------------------------------------------------
-#include <vector>
+#include <sqrat.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
-namespace IRC {
 
 /* ------------------------------------------------------------------------------------------------
  * Manages a single connection to an IRC network.
@@ -77,18 +77,17 @@ protected:
     void Release();
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Completely destroy the internal session instance and release resources.
     */
-    bool Validate() const
-    {
-        if (m_Session)
-            return true;
-        SqThrow("Invalid IRC session (%s)", m_Tag.c_str());
-        return false;
-    }
+    void Destroy();
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Make sure a valid session exists and throw an error if it doesn't.
+    */
+    bool Validate() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether this session is connected to a server or not.
     */
     bool Connected() const
     {
@@ -96,45 +95,19 @@ protected:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * See whether this session is connected to a server and throw an error if not.
     */
-    void Destroy();
+    bool ConnectedThrow() const;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * See whether this session is NOT! connected to a server and throw an error if it is.
     */
-    bool ConnectedThrow() const
-    {
-        if (!m_Session)
-            SqThrow("Invalid IRC session (%s)", m_Tag.c_str());
-        else if (!irc_is_connected(m_Session))
-            SqThrow("Session is not connected (%s)", m_Tag.c_str());
-        else
-            return true;
-        return false;
-    }
+    bool NotConnected() const;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Validate a session instance used by an event and log an error if it's invalid.
     */
-    bool NotConnected() const
-    {
-        if (!m_Session || !irc_is_connected(m_Session) || !m_Reconnect)
-            return true;
-        SqThrow("Already connected or trying connect to IRC server (%s)", m_Tag.c_str());
-        return !m_Session;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     *
-    */
-    static bool ValidateEventSession(Session * ptr)
-    {
-        if (ptr)
-            return true;
-        LogErr("Cannot forward IRC event without a session container");
-        return false;
-    }
+    static bool ValidateEventSession(Session * ptr);
 
 private:
 
@@ -243,6 +216,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    CSStr Typename() const
+    {
+        return _SC("SqIrcSession");
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * See whether this session is valid.
     */
     bool IsValid() const
@@ -328,15 +309,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the nickname.
     */
-    void SetNick(CSStr nick)
-    {
-        if (!nick || strlen(nick) <= 0)
-            SqThrow("Invalid IRC nickname");
-        else if (Connected())
-            irc_cmd_nick(m_Session, nick);
-        else if (Validate())
-            m_Nick.assign(nick);
-    }
+    void SetNick(CSStr nick);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the user name.
@@ -369,7 +342,7 @@ public:
     void SetName(CSStr name)
     {
         if (Validate() && NotConnected())
-            m_Name.c_str();
+            m_Name.assign(name);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -383,13 +356,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the server port number.
     */
-    void SetPort(Uint32 num)
-    {
-        if (num > NumLimit< Uint16 >::Max)
-            SqThrow("Port number is out of range: %u > %u", num, NumLimit< Uint16 >::Max);
-        else if (Validate() && NotConnected())
-            m_Port = num;
-    }
+    void SetPort(Uint32 num);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of time to pool for session events.
@@ -466,28 +433,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve when the next connection retry should be performed.
     */
-    Timestamp GetNextTry() const
-    {
-        return Timestamp(m_NextTry);
-    }
+    Object GetNextTry() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify when the next connection retry should be performed.
     */
-    void SetNextTry(const Timestamp & tm)
-    {
-        m_NextTry = tm.GetMicroseconds().GetNum();
-    }
+    void SetNextTry(Object & tm);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the session uptime.
     */
-    Timestamp GetSessionTime() const
-    {
-        if (m_SessionTime)
-            return Timestamp(GetEpochTimeMicro() - m_SessionTime);
-        return Timestamp();
-    }
+    Object GetSessionTime() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the session is currently trying to reconnect.
@@ -789,14 +745,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Change the currently used nick on the connected server.
     */
-    Int32 CmdNick(CSStr nick)
-    {
-        if (!nick || strlen(nick) <= 0)
-            SqThrow("Invalid IRC nickname");
-        else if (ConnectedThrow())
-            return irc_cmd_nick(m_Session, nick);
-        return -1;
-    }
+    Int32 CmdNick(CSStr nick);
 
     /* --------------------------------------------------------------------------------------------
      * Query various information about the specified user.
@@ -1444,7 +1393,6 @@ public:
     }
 };
 
-} // Namespace:: IRC
 } // Namespace:: SqMod
 
-#endif // _LIBRARY_IRC_HPP_
+#endif // _SQIRC_SESSION_HPP_

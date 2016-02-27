@@ -2,13 +2,10 @@
 #include "Logger.hpp"
 #include "Core.hpp"
 #include "Command.hpp"
+#include "SqMod.h"
 
 // ------------------------------------------------------------------------------------------------
-#include <cstdio>
-
-#if defined(_WIN32)
-#include <winsock2.h>
-#endif // _WIN32
+#include <stdio.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -48,9 +45,15 @@ void DestroyComponents()
 // ------------------------------------------------------------------------------------------------
 SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
 {
-#if defined(_WIN32)
-    WSADATA wsaData;
-#endif // _WIN32
+    // Output plugin header
+    puts("");
+    OutputMessage("--------------------------------------------------------------------");
+    OutputMessage("Plugin: %s", SQMOD_NAME);
+    OutputMessage("Author: %s", SQMOD_AUTHOR);
+    OutputMessage("Legal: %s", SQMOD_COPYRIGHT);
+    OutputMessage("--------------------------------------------------------------------");
+    puts("");
+
     _Log = Logger::Get();
     // Verify that core components are working
     if (!_Log)
@@ -72,23 +75,14 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
         puts("[SQMOD] Unable to start because the command class could not be instantiated");
         return SQMOD_FAILURE;
     }
-#if defined(_WIN32)
-    // Initialize the sockets on windows
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
-    {
-        DestroyComponents();
-        puts("[SQMOD] Unable to start because the windows sockets could not be initialized");
-        return SQMOD_FAILURE;
-    }
-#endif // _WIN32
-
+    // Store server proxies
     _Func = funcs;
     _Clbk = calls;
     _Info = info;
-
+    // Assign plugin information
     _Info->uPluginVer = SQMOD_VERSION;
     strcpy(_Info->szName, SQMOD_HOST_NAME);
-
+    // Attempt to initialize the plugin
     if (!_Core->Init())
     {
         LogFtl("The plugin failed to initialize");
@@ -97,9 +91,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
         return SQMOD_FAILURE;
     }
     else if (_Clbk)
-    {
         BindCallbacks();
-    }
     else
     {
         _Core->Terminate();
@@ -109,6 +101,10 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     }
     // Attempt to initialize the plugin exports
     InitExports();
+    // Notify that the plugin was successfully loaded
+    OutputMessage("Successfully loaded %s", SQMOD_NAME);
+    // Dummy spacing
+    puts("");
     // Initialization was successful
     return SQMOD_SUCCESS;
 }
@@ -120,7 +116,11 @@ static int VC_InitServer(void)
         return SQMOD_FAILURE;
 
     _Core->SetState(1);
-
+    // Obtain the API version as a string
+    String apiver(ToStrF("%d", SQMOD_API_VER));
+    // Signal outside plugins to do fetch our proxies
+    _Func->SendCustomCommand(0xDABBAD00, apiver.c_str());
+    // Attempt to load the module core
     if (_Core->Load())
         _Core->EmitServerStartup();
     else

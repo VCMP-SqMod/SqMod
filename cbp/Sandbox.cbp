@@ -159,7 +159,6 @@
 		</Compiler>
 		<Linker>
 			<Add library="squirrel" />
-			<Add library="sqlite" />
 		</Linker>
 		<Unit filename="../sandbox/main.cpp" />
 		<Extensions>

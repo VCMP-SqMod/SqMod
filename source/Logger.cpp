@@ -394,4 +394,90 @@ void SqThrow(CCStr fmt, ...)
     va_end(args);
 }
 
+// --------------------------------------------------------------------------------------------
+void OutputMessageImpl(const char * msg, va_list args)
+{
+#if defined(WIN32) || defined(_WIN32)
+    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_SCREEN_BUFFER_INFO csb_before;
+    GetConsoleScreenBufferInfo( hstdout, &csb_before);
+    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN);
+    printf("[SQMOD] ");
+
+    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
+    vprintf(msg, args);
+    puts("");
+
+    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
+#else
+    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27, msg);
+    vprintf(msg, args);
+    puts("");
+#endif
+}
+
+// --------------------------------------------------------------------------------------------
+void OutputErrorImpl(const char * msg, va_list args)
+{
+#if defined(WIN32) || defined(_WIN32)
+    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_SCREEN_BUFFER_INFO csb_before;
+    GetConsoleScreenBufferInfo( hstdout, &csb_before);
+    SetConsoleTextAttribute(hstdout, FOREGROUND_RED | FOREGROUND_INTENSITY);
+    printf("[SQMOD] ");
+
+    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
+    vprintf(msg, args);
+    puts("");
+
+    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
+#else
+    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27, msg);
+    vprintf(msg, args);
+    puts("");
+#endif
+}
+
+// --------------------------------------------------------------------------------------------
+void OutputDebug(const char * msg, ...)
+{
+#ifdef _DEBUG
+    // Initialize the arguments list
+    va_list args;
+    va_start(args, msg);
+    // Call the output function
+    OutputMessageImpl(msg, args);
+    // Finalize the arguments list
+    va_end(args);
+#else
+    SQMOD_UNUSED_VAR(msg);
+#endif
+}
+
+// --------------------------------------------------------------------------------------------
+void OutputMessage(const char * msg, ...)
+{
+    // Initialize the arguments list
+    va_list args;
+    va_start(args, msg);
+    // Call the output function
+    OutputMessageImpl(msg, args);
+    // Finalize the arguments list
+    va_end(args);
+}
+
+// --------------------------------------------------------------------------------------------
+void OutputError(const char * msg, ...)
+{
+    // Initialize the arguments list
+    va_list args;
+    va_start(args, msg);
+    // Call the output function
+    OutputErrorImpl(msg, args);
+    // Finalize the arguments list
+    va_end(args);
+}
+
 } // Namespace:: SqMod

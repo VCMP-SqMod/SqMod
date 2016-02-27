@@ -34,7 +34,7 @@
 #endif
 
 #ifdef SQMOD_PLUGIN_API
-    #include <sq_api.h>
+    #include <SqAPI.h>
 #else
     #include <squirrel.h>
 #endif // SQMOD_PLUGIN_API

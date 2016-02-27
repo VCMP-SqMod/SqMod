@@ -2,6 +2,10 @@
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include "Library/Numeric.hpp"
+#include "Library/Time.hpp"
+
+// ------------------------------------------------------------------------------------------------
 #include <stdlib.h>
 #include <string.h>
 
@@ -9,7 +13,7 @@
 #include <sqstdio.h>
 #include <sqstdblob.h>
 #include <sqstdstring.h>
-#include <sq_mod.h>
+#include <SqMod.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -33,16 +37,216 @@ static HSQUIRRELVM GetSquirrelVM()
 }
 
 // ------------------------------------------------------------------------------------------------
+static SQRESULT SqEx_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
+{
+    // Validate the specified number pointer and value type
+    if (!num)
+        return SQ_ERROR; /* Nowhere to save */
+    else if (sq_gettype(vm, idx) == OT_INSTANCE)
+    {
+        // Attempt to obtain the long instance from the stack
+        Var< SLongInt * > inst(vm, idx);
+        // Validate the instance
+        if (!inst.value)
+            return SQ_ERROR; /* Invalid instance */
+        else
+            *num = (Int64)inst.value->GetNum();
+    }
+    // Is this a pure integer value?
+    else if(sq_gettype(vm, idx) == OT_INTEGER)
+    {
+        SQInteger val = 0;
+        // Attempt to get the value from the stack
+        sq_getinteger(vm, idx, &val);
+        // Save it into the specified memory location
+        *num = (Int64)val;
+    }
+    // Is this a pure floating point value?
+    else if(sq_gettype(vm, idx) == OT_FLOAT)
+    {
+        SQFloat val = 0.0;
+        // Attempt to get the value from the stack
+        sq_getfloat(vm, idx, &val);
+        // Save it into the specified memory location
+        *num = (Int64)val;
+    }
+    // Is this a pure boolean value?
+    else if(sq_gettype(vm, idx) == OT_BOOL)
+    {
+        SQBool val = SQFalse;
+        // Attempt to get the value from the stack
+        sq_getbool(vm, idx, &val);
+        // Save it into the specified memory location
+        *num = (Int64)val;
+    }
+    // Unrecognized value
+    else
+        return SQ_ERROR;
+    // Value retrieved
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqEx_PushSLongObject(HSQUIRRELVM vm, Int64 num)
+{
+    Var< const SLongInt & >::push(vm, SLongInt(num));
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQRESULT SqEx_GetULongValue(HSQUIRRELVM vm, SQInteger idx, Uint64 * num)
+{
+    // Validate the specified number pointer and value type
+    if (!num)
+        return SQ_ERROR; /* Nowhere to save */
+    else if (sq_gettype(vm, idx) == OT_INSTANCE)
+    {
+        // Attempt to obtain the long instance from the stack
+        Var< ULongInt * > inst(vm, idx);
+        // Validate the instance
+        if (!inst.value)
+            return SQ_ERROR; /* Invalid instance */
+        else
+            *num = (Uint64)inst.value->GetNum();
+    }
+    // Is this a pure integer value?
+    else if(sq_gettype(vm, idx) == OT_INTEGER)
+    {
+        SQInteger val = 0;
+        // Attempt to get the value from the stack
+        sq_getinteger(vm, idx, &val);
+        // Save it into the specified memory location
+        *num = val < 0 ? 0L : (Uint64)val;
+    }
+    // Is this a pure floating point value?
+    else if(sq_gettype(vm, idx) == OT_FLOAT)
+    {
+        SQFloat val = 0.0;
+        // Attempt to get the value from the stack
+        sq_getfloat(vm, idx, &val);
+        // Save it into the specified memory location
+        *num = EpsLt(val, SQFloat(0.0)) ? 0L : (Uint64)val;
+    }
+    // Is this a pure boolean value?
+    else if(sq_gettype(vm, idx) == OT_BOOL)
+    {
+        SQBool val = SQFalse;
+        // Attempt to get the value from the stack
+        sq_getbool(vm, idx, &val);
+        // Save it into the specified memory location
+        *num = (Uint64)val;
+    }
+    // Unrecognized value
+    else
+        return SQ_ERROR;
+    // Value retrieved
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqEx_PushULongObject(HSQUIRRELVM vm, Uint64 num)
+{
+    Var< const ULongInt & >::push(vm, ULongInt(num));
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
+{
+    // Validate the specified number pointer and value type
+    if (!num)
+        return SQ_ERROR; /* Nowhere to save */
+    else if (sq_gettype(vm, idx) == OT_INSTANCE)
+    {
+        // Attempt to obtain the long instance from the stack
+        Var< Timestamp * > inst(vm, idx);
+        // Validate the instance
+        if (!inst.value)
+            return SQ_ERROR; /* Invalid instance */
+        else
+            *num = (Int64)inst.value->GetNum();
+    }
+    // Is this a pure integer value?
+    else if(sq_gettype(vm, idx) == OT_INTEGER)
+    {
+        SQInteger val = 0;
+        // Attempt to get the value from the stack
+        sq_getinteger(vm, idx, &val);
+        // Save it into the specified memory location
+        *num = (Int64)val;
+    }
+    // Is this a pure floating point value?
+    else if(sq_gettype(vm, idx) == OT_FLOAT)
+    {
+        SQFloat val = 0.0;
+        // Attempt to get the value from the stack
+        sq_getfloat(vm, idx, &val);
+        // Save it into the specified memory location
+        *num = (Int64)val;
+    }
+    // Is this a pure boolean value?
+    else if(sq_gettype(vm, idx) == OT_BOOL)
+    {
+        SQBool val = SQFalse;
+        // Attempt to get the value from the stack
+        sq_getbool(vm, idx, &val);
+        // Save it into the specified memory location
+        *num = (Int64)val;
+    }
+    // Unrecognized value
+    else
+        return SQ_ERROR;
+    // Value retrieved
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqEx_PushTimestamp(HSQUIRRELVM vm, Int64 num)
+{
+    Var< const Timestamp & >::push(vm, Timestamp(num));
+}
+
+// ------------------------------------------------------------------------------------------------
 void InitExports()
 {
     static HSQEXPORTS sqexports = &g_SqExports;
 
     // Assign the functions that should be exported
     g_SqExports.uStructSize = sizeof(SQEXPORTS);
-    g_SqExports.GetSquirrelAPI = GetSquirrelAPI;
-    g_SqExports.GetSquirrelVM = GetSquirrelVM;
+    g_SqExports.GetSquirrelAPI          = GetSquirrelAPI;
+    g_SqExports.GetSquirrelVM           = GetSquirrelVM;
+
+    /*logging utilities*/
+    g_SqExports.LogDbg                  = LogDbg;
+    g_SqExports.LogUsr                  = LogUsr;
+    g_SqExports.LogScs                  = LogScs;
+    g_SqExports.LogInf                  = LogInf;
+    g_SqExports.LogWrn                  = LogWrn;
+    g_SqExports.LogErr                  = LogErr;
+    g_SqExports.LogFtl                  = LogFtl;
+    g_SqExports.LogSDbg                 = LogSDbg;
+    g_SqExports.LogSUsr                 = LogSUsr;
+    g_SqExports.LogSScs                 = LogSScs;
+    g_SqExports.LogSInf                 = LogSInf;
+    g_SqExports.LogSWrn                 = LogSWrn;
+    g_SqExports.LogSErr                 = LogSErr;
+    g_SqExports.LogSFtl                 = LogSFtl;
+    g_SqExports.SqThrow                 = SqThrow;
+
+    /*long numbers*/
+    g_SqExports.GetSLongValue           = SqEx_GetSLongValue;
+    g_SqExports.PushSLongObject         = SqEx_PushSLongObject;
+    g_SqExports.GetULongValue           = SqEx_GetULongValue;
+    g_SqExports.PushULongObject         = SqEx_PushULongObject;
+
+    /*time utilities*/
+    g_SqExports.GetCurrentSysTime       = GetCurrentSysTime;
+    g_SqExports.GetEpochTimeMicro       = GetEpochTimeMicro;
+    g_SqExports.GetEpochTimeMilli       = GetEpochTimeMilli;
+    g_SqExports.GetTimestamp            = SqEx_GetTimestamp;
+    g_SqExports.PushTimestamp           = SqEx_PushTimestamp;
+
     // Export them to the server
     _Func->ExportFunctions(_Info->nPluginId, (void **)(&sqexports), sizeof(SQEXPORTS));
+
     /*vm*/
     g_SqAPI.open                        = sq_open;
     g_SqAPI.newthread                   = sq_newthread;

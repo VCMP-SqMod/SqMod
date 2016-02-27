@@ -38,10 +38,6 @@ namespace SqMod {
 extern bool RegisterAPI(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
-extern void ProcessIrc();
-extern void TerminateIrc();
-
-// ------------------------------------------------------------------------------------------------
 extern void ProcessRoutine();
 extern void TerminateRoutine();
 
@@ -313,7 +309,8 @@ bool Core::Load()
         return false;
     LogDbg("Signaling outside plugins to register their API");
     // Signal outside plugins to do their monkey business
-    _Func->SendCustomCommand(0xDABBAD00, "");
+    _Func->SendCustomCommand(0xDEADBABE, "");
+
     LogDbg("Attempting to execute the specified scripts");
     // Go through each specified script
     for (Scripts::iterator itr = m_Scripts.begin(); itr != m_Scripts.end(); ++itr)
@@ -339,6 +336,9 @@ bool Core::Load()
 // ------------------------------------------------------------------------------------------------
 void Core::Terminate()
 {
+    LogDbg("Signaling outside plugins to release their resources");
+    // Signal outside plugins to do their monkey business
+    _Func->SendCustomCommand(0xDEADC0DE, "");
     // Release all entity resources by clearing the containers
     m_Blips.clear();
     m_Checkpoints.clear();
@@ -355,8 +355,6 @@ void Core::Terminate()
     TerminateRoutine();
     // Release all resources from command manager
     TerminateCommand();
-    // Release all resources from irc sessions
-    TerminateIrc();
     // Is there a VM to close?
     if (m_VM)
     {
@@ -1242,8 +1240,9 @@ void Core::EmitPlayerCommand(Int32 player, CCStr command)
 void Core::EmitPlayerMessage(Int32 player, Int32 receiver, CCStr message)
 {
     PlayerInst & _player = m_Players.at(player);
-    Emit(_player.mOnMessage, message);
-    Emit(mOnPlayerMessage, _player.mObj, message);
+    PlayerInst & _receiver = m_Players.at(receiver);
+    Emit(_player.mOnMessage,_receiver.mObj,  message);
+    Emit(mOnPlayerMessage, _player.mObj, _receiver.mObj, message);
 }
 
 void Core::EmitPlayerHealth(Int32 player, Float32 previous, Float32 current)
@@ -1651,8 +1650,6 @@ void Core::EmitServerFrame(Float32 delta)
     Emit(mOnServerFrame, delta);
     // Update routines
     ProcessRoutine();
-    // Update IRC sessions
-    ProcessIrc();
 }
 
 void Core::EmitServerStartup()
@@ -1700,17 +1697,17 @@ void Core::EmitScriptUnload()
     Emit(mOnScriptUnload);
 }
 
-void Core::EmitPlayerUpdate(Int32 player, Int32 type)
+void Core::EmitPlayerUpdate(Int32 /*player*/, Int32 /*type*/)
 {
 
 }
 
-void Core::EmitVehicleUpdate(Int32 vehicle, Int32 type)
+void Core::EmitVehicleUpdate(Int32 /*vehicle*/, Int32 /*type*/)
 {
 
 }
 
-void Core::EmitEntityPool(Int32 type, Int32 id, bool deleted)
+void Core::EmitEntityPool(Int32 /*type*/, Int32 /*id*/, bool /*deleted*/)
 {
 
 }

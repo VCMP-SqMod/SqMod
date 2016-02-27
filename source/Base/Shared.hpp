@@ -183,6 +183,21 @@ bool cLogSFtl(bool cond, CCStr fmt, ...);
 // ------------------------------------------------------------------------------------------------
 void SqThrow(CCStr fmt, ...);
 
+/* ------------------------------------------------------------------------------------------------
+ * Output a message only if the _DEBUG was defined.
+*/
+void OutputDebug(const char * msg, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Output a formatted user message to the console.
+*/
+void OutputMessage(const char * msg, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Output a formatted error message to the console.
+*/
+void OutputError(const char * msg, ...);
+
 // ------------------------------------------------------------------------------------------------
 Object & NullObject();
 

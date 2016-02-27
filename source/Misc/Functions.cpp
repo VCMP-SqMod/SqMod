@@ -11,7 +11,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static ServerSettings g_SvSettings = {0};
+static ServerSettings g_SvSettings;
 static SQChar g_SvNameBuff[SQMOD_SVNAMELENGTH] = {0};
 static SQChar g_PasswdBuff[SQMOD_PASSWDLENGTH] = {0};
 static SQChar g_GmNameBuff[SQMOD_GMNAMELENGTH] = {0};

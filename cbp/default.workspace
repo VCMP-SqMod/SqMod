@@ -4,8 +4,9 @@
 		<Project filename="Module.cbp" />
 		<Project filename="Sandbox.cbp" />
 		<Project filename="Squirrel.cbp" />
-		<Project filename="SQLite.cbp" />
-		<Project filename="LibIRC.cbp" />
-		<Project filename="Sample.cbp" />
+		<Project filename="ModINI.cbp" />
+		<Project filename="ModIRC.cbp" />
+		<Project filename="ModXML.cbp" />
+		<Project filename="ModSample.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

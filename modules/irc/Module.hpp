@@ -1,9 +1,11 @@
-#ifndef _SQMOD_MODULE_HPP_
-#define _SQMOD_MODULE_HPP_
+#ifndef _SQIRC_MODULE_HPP_
+#define _SQIRC_MODULE_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "sq_api.h"
-#include "vcmp.h"
+#include "SqMod.h"
+
+// ------------------------------------------------------------------------------------------------
+namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
  * Proxies to comunicate with the server.
@@ -16,7 +18,8 @@ extern PluginInfo*          _Info;
  * Proxies to comunicate with the Squirrel plugin.
 */
 extern HSQAPI               _SqAPI;
-extern HSQUIRRELVM          _SqVm;
+extern HSQEXPORTS           _SqMod;
+extern HSQUIRRELVM          _SqVM;
 
 /* ------------------------------------------------------------------------------------------------
  * Output a message only if the _DEBUG was defined.
@@ -24,8 +27,15 @@ extern HSQUIRRELVM          _SqVm;
 void OutputDebug(const char * msg, ...);
 
 /* ------------------------------------------------------------------------------------------------
- * Output a formatted message to the console.
+ * Output a formatted user message to the console.
 */
 void OutputMessage(const char * msg, ...);
 
-#endif // _SQMOD_MODULE_HPP_
+/* ------------------------------------------------------------------------------------------------
+ * Output a formatted error message to the console.
+*/
+void OutputError(const char * msg, ...);
+
+} // Namespace:: SqMod
+
+#endif // _SQIRC_MODULE_HPP_
