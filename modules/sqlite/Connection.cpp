@@ -18,13 +18,11 @@ SQInteger Connection::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Connection::Validate() const
+void Connection::Validate() const
 {
-    if (m_Handle)
-        return true;
-    // Invalid connection reference
-    _SqMod->SqThrow("Invalid SQLite connection reference");
-    return false;
+    // Is the handle valid?
+    if (!m_Handle)
+        SqThrowF("Invalid SQLite connection reference");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -40,12 +38,6 @@ Connection::Connection(CSStr name)
 {
     if (m_Handle.m_Hnd)
         m_Handle->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-    // Because Sqrat is majorly stupid and clears the error message
-    // then does an assert on debug builds thinking the type wasn't registered
-    // or throws a generic "unknown error" message on release builds
-    // we have to use this approach
-    if (Sqrat::Error::Occurred(_SqVM))
-        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -54,12 +46,6 @@ Connection::Connection(CSStr name, Int32 flags)
 {
     if (m_Handle.m_Hnd)
         m_Handle->Create(name, flags, NULL);
-    // Because Sqrat is majorly stupid and clears the error message
-    // then does an assert on debug builds thinking the type wasn't registered
-    // or throws a generic "unknown error" message on release builds
-    // we have to use this approach
-    if (Sqrat::Error::Occurred(_SqVM))
-        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -68,75 +54,60 @@ Connection::Connection(CSStr name, Int32 flags, CSStr vfs)
 {
     if (m_Handle.m_Hnd)
         m_Handle->Create(name, flags, vfs);
-    // Because Sqrat is majorly stupid and clears the error message
-    // then does an assert on debug builds thinking the type wasn't registered
-    // or throws a generic "unknown error" message on release builds
-    // we have to use this approach
-    if (Sqrat::Error::Occurred(_SqVM))
-        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::Exec(CSStr str)
 {
     // Validate the handle
-    if (Validate() && (m_Handle = sqlite3_exec(m_Handle, str, NULL, NULL, NULL)) != SQLITE_OK)
-        _SqMod->SqThrow("Unable to execute query [%s]", m_Handle.ErrMsg());
+    Validate();
+    // Attempt to execute the specified query
+    if ((m_Handle = sqlite3_exec(m_Handle, str, NULL, NULL, NULL)) != SQLITE_OK)
+        SqThrowF("Unable to execute query [%s]", m_Handle.ErrMsg());
     // Return rows affected by this query
-    else
-        return sqlite3_changes(m_Handle);
-    // Operation failed
-    return -1;
+    return sqlite3_changes(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
 Object Connection::Query(CSStr str) const
 {
     // Validate the handle
-    if (Validate())
-        return Object(new Statement(m_Handle, str));
-    // Request failed
-    return Object(new Statement());
+    Validate();
+    // Return the requested information
+    return Object(new Statement(m_Handle, str));
 }
 
 // ------------------------------------------------------------------------------------------------
 void Connection::Queue(CSStr str)
 {
     // Validate the handle
-    if (!Validate())
-        return; // Nothing to commit
+    Validate();
     // Is there a query to commit?
-    else if (IsQueryEmpty(str))
-        _SqMod->SqThrow("No query to queue");
+    if (IsQueryEmpty(str))
+        SqThrowF("No query string to queue");
     // Add the specified string to the queue
-    else
-        m_Handle->mQueue.push_back(str);
+    m_Handle->mQueue.push_back(str);
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Connection::IsReadOnly() const
 {
     // Validate the handle
-    if (!Validate())
-        return false;
+    Validate();
     // Request the desired information
     const int result = sqlite3_db_readonly(m_Handle, "main");
     // Verify the result
     if (result == -1)
-       _SqMod->SqThrow("'main' is not the name of a database on connection");
-    // Return the result
-    else
-        return (result != 1);
-    // Inexistent is same as read-only
-    return true;
+        SqThrowF("'main' is not the name of a database on connection");
+    // Return the requested information
+    return (result != 1);
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Connection::TableExists(CCStr name) const
 {
     // Validate the handle
-    if (!Validate())
-        return false;
+    Validate();
     // Prepare a statement to inspect the master table
     Statement stmt(m_Handle, "SELECT count(*) FROM [sqlite_master] WHERE [type]='table' AND [name]=?");
     // Could the statement be created?
@@ -156,8 +127,7 @@ bool Connection::TableExists(CCStr name) const
 Object Connection::GetLastInsertRowID() const
 {
     // Validate the handle
-    if (!Validate())
-        return Object();
+    Validate();
     // Obtain the initial stack size
     const Int32 top = sq_gettop(_SqVM);
     // Push a long integer instance with the requested value on the stack
@@ -173,155 +143,130 @@ Object Connection::GetLastInsertRowID() const
 // ------------------------------------------------------------------------------------------------
 void Connection::SetBusyTimeout(Int32 millis)
 {
-    // Validate the handle and apply requested timeout
-    if (Validate() && ((m_Handle = sqlite3_busy_timeout(m_Handle, millis)) != SQLITE_OK))
-        _SqMod->SqThrow("Unable to set busy timeout [%s]", m_Handle.ErrMsg());
+    // Validate the handle
+    Validate();
+    // Apply requested timeout
+    if ((m_Handle = sqlite3_busy_timeout(m_Handle, millis)) != SQLITE_OK)
+        SqThrowF("Unable to set busy timeout [%s]", m_Handle.ErrMsg());
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::GetInfo(Int32 operation, bool highwater, bool reset)
 {
     // Don't even bother to continue if there's no valid connection handle
-    if (!Validate())
-        return -1;
+    Validate();
     // Where to retrieve the information
     Int32 cur_value;
     Int32 hiwtr_value;
     // Attempt to retrieve the specified information
-    if((m_Handle = sqlite3_db_status(m_Handle, operation, &cur_value, &hiwtr_value, reset)) != SQLITE_OK)
-        _SqMod->SqThrow("Unable to get runtime status information", m_Handle.ErrMsg());
-    // Return what was requested
+    if ((m_Handle = sqlite3_db_status(m_Handle, operation, &cur_value, &hiwtr_value, reset)) != SQLITE_OK)
+        SqThrowF("Unable to get runtime status information", m_Handle.ErrMsg());
+    // Return the high-water value if requested
     else if (highwater)
         return hiwtr_value;
-    else
-        return cur_value;
-    // Request failed
-    return -1;
+    // Return the requested information
+    return cur_value;
 }
 
 // ------------------------------------------------------------------------------------------------
 Connection Connection::CopyToMemory()
 {
     // Validate the handle
-    if (!Validate())
-        return Connection();
+    Validate();
     // Is the database already in memory?
-    else if (m_Handle->mMemory)
-    {
-        _SqMod->SqThrow("The database is already in memory");
-        // No reason to move it again
-        return Connection();
-    }
+    if (m_Handle->mMemory)
+        SqThrowF("The database is already in memory");
     // Destination database
     ConnHnd db(_SC(""));
-    // Attempt to open an in-memory database
+    // Attempt to open the in-memory database
     db->Create(_SC(":memory:"), SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-    // See if the database could be opened
-    if (!db)
-        // The creation process already generated the error
-        return Connection();
-    // Clear any previous error (there shouldn't be any but just in case)
-    Sqrat::Error::Clear(_SqVM);
+    // Clear the temporary buffer
+    GetTempBuff()[0] = 0;
     // Begin a transaction to replicate the schema of origin database
     if ((m_Handle = sqlite3_exec(m_Handle, "BEGIN", NULL, NULL, NULL)) != SQLITE_OK)
-        _SqMod->SqThrow("Unable to begin schema replication [%s]", m_Handle.ErrMsg());
-        // Attempt to replicate the schema of origin database to the in-memory one
+        SqThrowF("Unable to begin schema replication [%s]", m_Handle.ErrMsg());
+    // Attempt to replicate the schema of origin database to the in-memory one
     else if ((m_Handle = sqlite3_exec(m_Handle,
                 "SELECT [sql] FROM [sqlite_master] WHERE [sql] NOT NULL AND [tbl_name] != 'sqlite_sequence'",
                 &Connection::ProcessDDLRow, db->mPtr, NULL)) != SQLITE_OK)
     {
         // Did the error occurred from the DDL process function?
-        if (Sqrat::Error::Occurred(_SqVM))
-        {
-            // Obtain the occurred message
-            String msg(Sqrat::Error::Message(_SqVM));
+        if (GetTempBuff()[0] != 0)
             // Throw the resulted message but also include the point where it failed
-            _SqMod->SqThrow("Unable to replicate schema [%s]", msg.c_str());
-        }
+            SqThrowF("Unable to replicate schema [%s]", GetTempBuff());
         // Obtain the message from the connection handle if possible
         else
-        _SqMod->SqThrow("Unable to replicate schema [%s]", m_Handle.ErrMsg());
+            SqThrowF("Unable to replicate schema [%s]", m_Handle.ErrMsg());
     }
     // Attempt to commit the changes to the database schema replication
     else if ((m_Handle = sqlite3_exec(m_Handle, "COMMIT", NULL, NULL, NULL)) != SQLITE_OK)
-        _SqMod->SqThrow("Unable to commit schema replication [%s]", m_Handle.ErrMsg());
+        SqThrowF("Unable to commit schema replication [%s]", m_Handle.ErrMsg());
     // Attempt to attach the origin database to the in-memory one
     else if ((db = sqlite3_exec(db, QFmtStr("ATTACH DATABASE '%q' as origin", m_Handle->mName.c_str()),
                                         NULL, NULL, NULL)) != SQLITE_OK)
-        _SqMod->SqThrow("Unable to attach origin [%s]", db.ErrMsg());
+        SqThrowF("Unable to attach origin [%s]", db.ErrMsg());
     // Begin a transaction to replicate the data of origin database
     else if ((db = sqlite3_exec(db, "BEGIN", NULL, NULL, NULL) != SQLITE_OK))
-        _SqMod->SqThrow("Unable to begin data replication [%s]", db.ErrMsg());
+        SqThrowF("Unable to begin data replication [%s]", db.ErrMsg());
     // Attempt to replicate the data of origin database to the in-memory one
     else if ((db = sqlite3_exec(db, "SELECT [name] FROM [origin.sqlite_master] WHERE [type]='table'",
                     &Connection::ProcessDMLRow, db->mPtr, NULL)) != SQLITE_OK)
     {
         // Did the error occurred from the DML process function?
-        if (Sqrat::Error::Occurred(_SqVM))
+        if (GetTempBuff()[0] != 0)
         {
-            // Obtain the occurred message
-            String msg(Sqrat::Error::Message(_SqVM));
             // Throw the resulted message but also include the point where it failed
-            _SqMod->SqThrow("Unable to replicate data [%s]", msg.c_str());
+            SqThrowF("Unable to replicate data [%s]", GetTempBuff());
         }
         // Obtain the message from the connection handle if possible
         else
-            _SqMod->SqThrow("Unable to replicate data [%s]", db.ErrMsg());
+            SqThrowF("Unable to replicate data [%s]", db.ErrMsg());
     }
     // Attempt to commit the changes to the database data replication
     else if ((db = sqlite3_exec(db, "COMMIT", NULL, NULL, NULL)) != SQLITE_OK)
     {
-        _SqMod->SqThrow("Unable to commit data replication [%s]", db.ErrMsg());
         // Attempt to rollback changes from the data copy operation
         if ((db = sqlite3_exec(db, "ROLLBACK", NULL, NULL, NULL)) != SQLITE_OK)
-            _SqMod->SqThrow("Unable to rollback data replication [%s]", db.ErrMsg());
+            SqThrowF("Unable to rollback data replication [%s]", db.ErrMsg());
         // Attempt to detach the disk origin from in-memory database
         else if ((db = sqlite3_exec(db, "DETACH DATABASE origin", NULL, NULL, NULL)) != SQLITE_OK)
-            _SqMod->SqThrow("Unable to detach origin [%s]", db.ErrMsg());
+            SqThrowF("Unable to detach origin [%s]", db.ErrMsg());
+        // Operation failed
+        SqThrowF("Unable to commit data replication [%s]", db.ErrMsg());
     }
     // At this point everything went fine and the database instance should be returned
-    else
-        return Connection(db);
-    // Failed to replicate the database
-    return Connection();
+    return Connection(db);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::CopyToDatabase(Connection & db)
+void Connection::CopyToDatabase(const Connection & db)
 {
     // Make sure that we have two valid database handles
-    if (Validate() && db.Validate())
-        _SqMod->SqThrow("Invalid database connections");
+    Validate();
+    db.Validate();
     // Attempt to take the snapshot and return the result
-    else
-        TakeSnapshot(db.m_Handle);
+    TakeSnapshot(db.m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::Flush(Uint32 num)
 {
     // Validate the handle
-    if (Validate())
-    {
-        // We need to supply a null callback
-        Object env;
-        Function func;
-        // Attempt to flush the requested amount of queries
-        return m_Handle->Flush(num, env, func);
-    }
-    // Request failed
-    return -1;
+    Validate();
+    // We need to supply a null callback
+    Object env;
+    Function func;
+    // Attempt to flush the requested amount of queries
+    return m_Handle->Flush(num, env, func);
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::Flush(Uint32 num, Object & env, Function & func)
 {
     // Validate the handle
-    if (Validate())
-        // Attempt to flush the requested amount of queries
-        return m_Handle->Flush(num, env, func);
-    // Request failed
-    return -1;
+    Validate();
+    // Attempt to flush the requested amount of queries
+    return m_Handle->Flush(num, env, func);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -340,10 +285,10 @@ int Connection::ProcessDDLRow(void * db, int columns_count, char ** values, char
 {
     // Make sure that exactly one column exists in the result
     if (columns_count != 1)
-        _SqMod->SqThrow("Error occurred during DDL: columns != 1");
+        FmtStr("Error occurred during DDL: columns != 1");
     // Execute the sql statement in values[0] in the received database connection
     else if (sqlite3_exec((sqlite3 *)db, values[0], NULL, NULL, NULL) != SQLITE_OK)
-        _SqMod->SqThrow("Error occurred during DDL execution: %s", sqlite3_errmsg((sqlite3 *)db));
+        FmtStr("Error occurred during DDL execution: %s", sqlite3_errmsg((sqlite3 *)db));
     else
         // Continue processing
         return 0;
@@ -354,9 +299,9 @@ int Connection::ProcessDDLRow(void * db, int columns_count, char ** values, char
 int Connection::ProcessDMLRow(void * db, int columns_count, char ** values, char ** /*columns*/)
 {
     // Make sure that exactly one column exists in the result
-    if(columns_count != 1)
+    if (columns_count != 1)
     {
-        _SqMod->SqThrow("Error occurred during DML: columns != 1");
+        FmtStr("Error occurred during DML: columns != 1");
         // Operation aborted
         return -1;
     }
@@ -364,7 +309,7 @@ int Connection::ProcessDMLRow(void * db, int columns_count, char ** values, char
     char * sql = sqlite3_mprintf("INSERT INTO main.%q SELECT * FROM origin.%q", values[0], values[0]);
     // Attempt to execute the generated query string on the received database connection
     if (sqlite3_exec((sqlite3 *)db, sql, NULL, NULL, NULL) != SQLITE_OK)
-        _SqMod->SqThrow("Error occurred during DML execution: %s", sqlite3_errmsg((sqlite3 *)db));
+        FmtStr("Error occurred during DML execution: %s", sqlite3_errmsg((sqlite3 *)db));
     else
     {
         // Free the generated query string
@@ -379,19 +324,24 @@ int Connection::ProcessDMLRow(void * db, int columns_count, char ** values, char
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::TakeSnapshot(ConnHnd & destination)
+void Connection::TakeSnapshot(const ConnHnd & destination)
 {
     // Attempt to initialize a backup structure
     sqlite3_backup * backup = sqlite3_backup_init(destination, "main", m_Handle, "main");
     // See if the backup structure could be created
     if (!backup)
-        _SqMod->SqThrow("Unable to initialize the backup structure [%s]", destination.ErrMsg());
+        SqThrowF("Unable to initialize the backup structure [%s]", destination.ErrMsg());
     // -1 to copy the entire source database to the destination
-    else if ((m_Handle = sqlite3_backup_step(backup, -1)) != SQLITE_DONE)
-        _SqMod->SqThrow("Unable to copy source [%s]", m_Handle.ErrStr());
+    if ((m_Handle = sqlite3_backup_step(backup, -1)) != SQLITE_DONE)
+    {
+        // Finalize the backup structure first
+        sqlite3_backup_finish(backup);
+        // Now it's safe to throw the error
+        SqThrowF("Unable to copy source [%s]", m_Handle.ErrStr());
+    }
     // Clean up resources allocated by sqlite3_backup_init()
     if ((m_Handle = sqlite3_backup_finish(backup)) != SQLITE_OK)
-        _SqMod->SqThrow("Unable to finalize backup [%s]", m_Handle.ErrStr());
+        SqThrowF("Unable to finalize backup [%s]", m_Handle.ErrStr());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -421,16 +371,16 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
             // Now we can throw the error message
             return sq_throwerror(vm, "Unable to retrieve the query");
         }
+        // Prevent the object from being destroyed once we pop it
+        Var< Object > obj(vm, -1);
+        // If the value was converted to a string then pop the string
+        sq_pop(vm, sq_gettop(vm) - top);
         // Attempt to execute the specified query
         if ((inst.value->m_Handle = sqlite3_exec(inst.value->m_Handle, sql, NULL, NULL, NULL)) != SQLITE_OK)
         {
-            // If the value was converted to a string then pop the string
-            sq_pop(vm, sq_gettop(vm) - top);
             // Generate the error message and throw the resulted string
             return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", inst.value->m_Handle.ErrMsg()));
         }
-        // If the value was converted to a string then pop the string
-        sq_pop(vm, sq_gettop(vm) - top);
         // Push the result onto the stack
         sq_pushinteger(vm, sqlite3_changes(inst.value->m_Handle));
     }
@@ -492,6 +442,7 @@ SQInteger Connection::QueueF(HSQUIRRELVM vm)
         {
             // If the value was converted to a string then pop the string
             sq_pop(vm, sq_gettop(vm) - top);
+            // Now we can throw the error message
             return sq_throwerror(vm,"No query to queue");
         }
         // Attempt to queue the specified query
@@ -549,17 +500,18 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
             // Now we can throw the error message
             return sq_throwerror(vm, "Unable to retrieve the query");
         }
-        // Attempt to create a statement with the specified query
-        ClassType< Statement >::PushInstance(vm, new Statement(inst.value->m_Handle, sql));
+        // Prevent the object from being destroyed once we pop it
+        Var< Object > obj(vm, -1);
         // If the value was converted to a string then pop the string
         sq_pop(vm, sq_gettop(vm) - top);
-        // See if any errors occured
-        if (Sqrat::Error::Occurred(vm))
+        // Attempt to create a statement with the specified query
+        try
         {
-            // Obtain the error message from sqrat
-            String msg = Sqrat::Error::Message(vm);
-            // Throw the error message further down the line
-            return sq_throwerror(vm, msg.c_str());
+            ClassType< Statement >::PushInstance(vm, new Statement(inst.value->m_Handle, sql));
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            return sq_throwerror(vm, e.Message().c_str());
         }
     }
     // Do we have enough values to call the format function?
@@ -573,14 +525,13 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
         if (SQ_FAILED(ret))
             return ret;
         // Attempt to create a statement with the specified query
-        ClassType< Statement >::PushInstance(vm, new Statement(inst.value->m_Handle, sql));
-        // See if any errors occured
-        if (Sqrat::Error::Occurred(vm))
+        try
         {
-            // Obtain the error message from sqrat
-            String msg = Sqrat::Error::Message(vm);
-            // Throw the error message further down the line
-            return sq_throwerror(vm, msg.c_str());
+            ClassType< Statement >::PushInstance(vm, new Statement(inst.value->m_Handle, sql));
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            return sq_throwerror(vm, e.Message().c_str());
         }
     }
     // All methods of retrieving the message value failed

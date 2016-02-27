@@ -363,6 +363,7 @@
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-DSQMOD_PLUGIN_API" />
+			<Add option="-DSCRAT_USE_EXCEPTIONS" />
 			<Add directory="../modules/sqlite" />
 			<Add directory="../shared" />
 			<Add directory="../include" />

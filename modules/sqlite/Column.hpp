@@ -27,12 +27,12 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Validate the statement reference and index, and throw an error if they're invalid.
     */
-    bool Validate() const;
+    void Validate() const;
 
     /* --------------------------------------------------------------------------------------------
      * Validate the statement reference, index and row, and throw an error if they're invalid.
     */
-    bool RowAvailable() const;
+    void ValidateRow() const;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.

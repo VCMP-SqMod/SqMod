@@ -23,7 +23,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Validate the document reference and throw an error if invalid.
     */
-    bool Validate() const;
+    void Validate() const;
 
 private:
 
@@ -138,10 +138,9 @@ public:
     CSStr ToString() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mName.c_str();
-        // Request failed
-        return _SC("");
+        Validate();
+        // Return the requested information
+        return m_Handle->mName.c_str();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -187,10 +186,9 @@ public:
     Int32 GetStatus() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mStatus;
-        // Request failed
-        return -1;
+        Validate();
+        // Return the requested information
+        return m_Handle->mStatus;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -199,10 +197,9 @@ public:
     Int32 GetFlags() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mFlags;
-        // Request failed
-        return 0;
+        Validate();
+        // Return the requested information
+        return m_Handle->mFlags;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -211,10 +208,9 @@ public:
     CSStr GetName() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mName.c_str();
-        // Request failed
-        return _SC("");
+        Validate();
+        // Return the requested information
+        return m_Handle->mName.c_str();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -223,10 +219,9 @@ public:
     CSStr GetVFS() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mVFS.c_str();
-        // Request failed
-        return _SC("");
+        Validate();
+        // Return the requested information
+        return m_Handle->mVFS.c_str();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -234,9 +229,10 @@ public:
     */
     Int32 GetErrorCode() const
     {
-        if (Validate())
-            return m_Handle.ErrNo();
-        return -1;
+        // Validate the handle
+        Validate();
+        // Return the requested information
+        return m_Handle.ErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -244,9 +240,10 @@ public:
     */
     Int32 GetExtendedErrorCode() const
     {
-        if (Validate())
-            return m_Handle.ExErrNo();
-        return -1;
+        // Validate the handle
+        Validate();
+        // Return the requested information
+        return m_Handle.ExErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -254,9 +251,10 @@ public:
     */
     CSStr GetErrStr() const
     {
-        if (Validate())
-            return m_Handle.ErrStr();
-        return _SC("");
+        // Validate the handle
+        Validate();
+        // Return the requested information
+        return m_Handle.ErrStr();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -264,9 +262,10 @@ public:
     */
     CSStr GetErrMsg() const
     {
-        if (Validate())
-            return m_Handle.ErrMsg();
-        return _SC("");
+        // Validate the handle
+        Validate();
+        // Return the requested information
+        return m_Handle.ErrMsg();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -326,11 +325,10 @@ public:
     */
     bool GetAutoCommit() const
     {
-        // Request failed
-        if (Validate())
-            return sqlite3_get_autocommit(m_Handle);
-        // Request failed
-        return false;
+        // Validate the handle
+        Validate();
+        // Return the requested information
+        return sqlite3_get_autocommit(m_Handle);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -345,10 +343,9 @@ public:
     Int32 GetChanges() const
     {
         // Validate the handle
-        if (Validate())
-            return sqlite3_changes(m_Handle);
-        // Request failed
-        return -1;
+        Validate();
+        // Return the requested information
+        return sqlite3_changes(m_Handle);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -358,10 +355,9 @@ public:
     Int32 GetTotalChanges() const
     {
         // Validate the handle
-        if (Validate())
-            return sqlite3_total_changes(m_Handle);
-        // Request failed
-        return -1;
+        Validate();
+        // Return the requested information
+        return sqlite3_total_changes(m_Handle);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -370,10 +366,9 @@ public:
     bool GetTracing() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mTrace;
-        // Request failed
-        return false;
+        Validate();
+        // Return the requested information
+        return m_Handle->mTrace;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -381,8 +376,10 @@ public:
     */
     void SetTracing(bool toggle)
     {
-        // Validate the handle and check whether changes are necessary
-        if (!Validate() || m_Handle->mTrace == toggle)
+        // Validate the handle
+        Validate();
+        // Check whether changes are necessary
+        if (m_Handle->mTrace == toggle)
             return; /* No point in proceeding */
         // Do we have to disable it?
         else if (m_Handle->mTrace)
@@ -398,10 +395,9 @@ public:
     bool GetProfiling() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mProfile;
-        // Request failed
-        return false;
+        Validate();
+        // Return the requested information
+        return m_Handle->mProfile;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -409,8 +405,10 @@ public:
     */
     void SetProfiling(bool toggle)
     {
-        // Validate the handle and check whether changes are necessary
-        if (!Validate() || m_Handle->mProfile == toggle)
+        // Validate the handle
+        Validate();
+        // Check whether changes are necessary
+        if (m_Handle->mProfile == toggle)
             return; /* No point in proceeding */
         // Do we have to disable it?
         else if (m_Handle->mProfile)
@@ -431,8 +429,9 @@ public:
     void InterruptOperation() const
     {
         // Validate the handle
-        if (Validate())
-            sqlite3_interrupt(m_Handle);
+        Validate();
+        // Perform the requested action
+        sqlite3_interrupt(m_Handle);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -441,8 +440,9 @@ public:
     void ReleaseMemory() const
     {
         // Validate the handle
-        if (Validate())
-            sqlite3_db_release_memory(m_Handle);
+        Validate();
+        // Perform the requested action
+        sqlite3_db_release_memory(m_Handle);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -453,7 +453,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Takes a snapshot of a database which is located in memory and saves it to a database file.
     */
-    void CopyToDatabase(Connection & db);
+    void CopyToDatabase(const Connection & db);
 
     /* --------------------------------------------------------------------------------------------
      * Returns internal runtime status information associated with the current database connection.
@@ -482,10 +482,9 @@ public:
     Uint32 QueueSize() const
     {
         // Validate the handle
-        if (Validate())
-            return (Uint32)m_Handle->mQueue.size();
-        // Request failed
-        return 0;
+        Validate();
+        // Return the requested information
+        return (Uint32)m_Handle->mQueue.size();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -494,8 +493,9 @@ public:
     void ClearQueue() const
     {
         // Validate the handle
-        if (Validate())
-            m_Handle->mQueue.clear();
+        Validate();
+        // Return the requested information
+        m_Handle->mQueue.clear();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -504,7 +504,9 @@ public:
     void PopQueue() const
     {
         // Validate the handle
-        if (Validate() && !m_Handle->mQueue.empty())
+        Validate();
+        // Perform the requested action
+        if (!m_Handle->mQueue.empty())
             m_Handle->mQueue.pop_back();
     }
 
@@ -514,10 +516,9 @@ public:
     Int32 Flush()
     {
         // Validate the handle
-        if (Validate())
-            return Flush(m_Handle->mQueue.size());
-        // Request failed
-        return 0;
+        Validate();
+        // Return the requested information
+        return Flush(m_Handle->mQueue.size());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -570,7 +571,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Takes and saves a snapshot of the memory database in a file.
     */
-    void TakeSnapshot(ConnHnd & destination);
+    void TakeSnapshot(const ConnHnd & destination);
 };
 
 } // Namespace:: SqMod

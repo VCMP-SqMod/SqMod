@@ -16,6 +16,27 @@ static SQChar g_Buffer[4096]; // Common buffer to reduce memory allocations.
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SStr GetTempBuff()
+{
+    return g_Buffer;
+}
+
+// ------------------------------------------------------------------------------------------------
+void SqThrowF(CSStr str, ...)
+{
+    // Initialize the argument list
+    va_list args;
+    va_start (args, str);
+    // Write the requested contents
+    if (snprintf(g_Buffer, sizeof(g_Buffer), str, args) < 0)
+        strcpy(g_Buffer, "Unknown error has occurred");
+    // Release the argument list
+    va_end(args);
+    // Throw the exception with the resulted message
+    throw Sqrat::Exception(g_Buffer);
+}
+
+// ------------------------------------------------------------------------------------------------
 CSStr FmtStr(CSStr str, ...)
 {
     // Initialize the argument list
@@ -72,7 +93,7 @@ ConnHnd::Handle::~Handle()
     // Are we dealing with a memory leak? Technically shouldn't reach this situation!
     else if (mRef != 0)
         // Should we deal with undefined behavior instead? How bad is one connection left open?
-        _SqMod->LogErr("SQLite connection is still referenced.");
+        _SqMod->LogErr("SQLite connection is still referenced (%s)", mName.c_str());
     else
     {
         // NOTE: Should we call sqlite3_interrupt(...) before closing?
@@ -91,18 +112,10 @@ void ConnHnd::Handle::Create(CSStr name, Int32 flags, CSStr vfs)
 {
     // Make sure a previous connection doesn't exist
     if (mPtr)
-    {
-        _SqMod->SqThrow("Unable to connect to database. Database already connected");
-        // Unable to proceed
-        return;
-    }
+        SqThrowF("Unable to connect to database. Database already connected");
     // Make sure the name is valid
     else if (!name || strlen(name) <= 0)
-    {
-        _SqMod->SqThrow("Unable to connect to database. The name is invalid");
-        // Unable to proceed
-        return;
-    }
+        SqThrowF("Unable to connect to database. The name is invalid");
     // Attempt to create the database connection
     else if ((mStatus = sqlite3_open_v2(name, &mPtr, flags, vfs)) != SQLITE_OK)
     {
@@ -111,9 +124,7 @@ void ConnHnd::Handle::Create(CSStr name, Int32 flags, CSStr vfs)
         // Explicitly make sure it's null
         mPtr = NULL;
         // Now its safe to throw the error
-        _SqMod->SqThrow("Unable to connect to database [%s]", sqlite3_errstr(mStatus));
-        // Unable to proceed
-        return;
+        SqThrowF("Unable to connect to database [%s]", sqlite3_errstr(mStatus));
     }
     // Let's save the specified information
     mName.assign(name);
@@ -142,11 +153,7 @@ Int32 ConnHnd::Handle::Flush(Uint32 num, Object & env, Function & func)
     QueryList::iterator end = mQueue.begin() + num;
     // Attempt to begin the flush transaction
     if ((mStatus = sqlite3_exec(mPtr, "BEGIN", NULL, NULL, NULL)) != SQLITE_OK)
-    {
-        _SqMod->SqThrow("Unable to begin transaction [%s]", sqlite3_errmsg(mPtr));
-        // Unable to proceed
-        return -1;
-    }
+        SqThrowF("Unable to begin transaction [%s]", sqlite3_errmsg(mPtr));
     // Process all queries within range of selection
     for (; itr != end; ++itr)
     {
@@ -175,10 +182,10 @@ Int32 ConnHnd::Handle::Flush(Uint32 num, Object & env, Function & func)
         return sqlite3_changes(mPtr);
     // Attempt to roll back erroneous changes
     else if ((mStatus = sqlite3_exec(mPtr, "ROLLBACK", NULL, NULL, NULL)) != SQLITE_OK)
-        _SqMod->SqThrow("Unable to rollback transaction [%s]", sqlite3_errmsg(mPtr));
+        SqThrowF("Unable to rollback transaction [%s]", sqlite3_errmsg(mPtr));
     // The transaction failed somehow but we managed to rollback
     else
-        _SqMod->SqThrow("Unable to commit transaction because [%s]", sqlite3_errmsg(mPtr));
+        SqThrowF("Unable to commit transaction because [%s]", sqlite3_errmsg(mPtr));
     // Operation failed
     return -1;
 }
@@ -192,7 +199,7 @@ StmtHnd::Handle::~Handle()
     // Are we dealing with a memory leak? Technically shouldn't reach this situation!
     else if (mRef != 0)
         // Should we deal with undefined behavior instead? How bad is one statement left alive?
-        _SqMod->LogErr("SQLite statement is still referenced.");
+        _SqMod->LogErr("SQLite statement is still referenced (%s)", mQuery.c_str());
     else
     {
         // Attempt to finalize the statement
@@ -206,33 +213,25 @@ void StmtHnd::Handle::Create(CSStr query)
 {
     // Make sure a previous statement doesn't exist
     if (mPtr)
-    {
-        _SqMod->SqThrow("Unable to prepare statement. Statement already prepared");
-        // Unable to proceed
-        return;
-    }
+        SqThrowF("Unable to prepare statement. Statement already prepared");
     // Is the specified database connection is valid?
     else if (!mConn)
-    {
-        _SqMod->SqThrow("Unable to prepare statement. Invalid connection handle");
-        // Unable to proceed
-        return;
-    }
+        SqThrowF("Unable to prepare statement. Invalid connection handle");
     // Save the query string and therefore multiple strlen(...) calls
     mQuery.assign(query ? query : _SC(""));
     // Is the specified query string we just saved, valid?
     if (mQuery.empty())
-        _SqMod->SqThrow("Unable to prepare statement. Invalid query string");
+        SqThrowF("Unable to prepare statement. Invalid query string");
     // Attempt to prepare a statement with the specified query string
     else if ((mStatus = sqlite3_prepare_v2(mConn, mQuery.c_str(), (Int32)mQuery.size(),
                                             &mPtr, NULL)) != SQLITE_OK)
     {
         // Clear the query string since it failed
         mQuery.clear();
-        // Now it's safe to throw the error
-        _SqMod->SqThrow("Unable to prepare statement [%s]", mConn.ErrMsg());
         // Explicitly make sure the handle is null
         mPtr = NULL;
+        // Now it's safe to throw the error
+        SqThrowF("Unable to prepare statement [%s]", mConn.ErrMsg());
     }
     else
         // Obtain the number of available columns
@@ -244,7 +243,7 @@ Int32 StmtHnd::Handle::GetColumnIndex(CSStr name)
 {
     // Validate the handle
     if (!mPtr)
-        _SqMod->SqThrow("Invalid SQLite statement");
+        SqThrowF("Invalid SQLite statement");
     // Are the names cached?
     else if (mIndexes.empty())
     {
@@ -254,7 +253,7 @@ Int32 StmtHnd::Handle::GetColumnIndex(CSStr name)
             CSStr name = (CSStr)sqlite3_column_name(mPtr, i);
             // Validate the name
             if (!name)
-                _SqMod->SqThrow("Unable to retrieve column name for index (%d)", i);
+                SqThrowF("Unable to retrieve column name for index (%d)", i);
             // Save it to guarantee the same lifetime as this instance
             else
                 mIndexes[name] = i;
@@ -267,6 +266,12 @@ Int32 StmtHnd::Handle::GetColumnIndex(CSStr name)
         return itr->second;
     // No such column exists (expecting the invoker to validate the result)
     return -1;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr GetErrStr(Int32 status)
+{
+    return sqlite3_errstr(status);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -290,7 +295,7 @@ Object GetMemoryUsage()
     _SqMod->PushSLongObject(_SqVM, sqlite3_memory_used());
     // Obtain the object from the stack
     Var< Object > inst(_SqVM, -1);
-    // Remove an pushed values (if any) to restore the stack
+    // Remove any pushed values (if any) to restore the stack
     sq_pop(_SqVM, sq_gettop(_SqVM) - top);
     // Return the long integer instance
     return inst.value;
@@ -305,7 +310,7 @@ Object GetMemoryHighwaterMark(bool reset)
     _SqMod->PushSLongObject(_SqVM, sqlite3_memory_highwater(reset));
     // Obtain the object from the stack
     Var< Object > inst(_SqVM, -1);
-    // Remove an pushed values (if any) to restore the stack
+    // Remove any pushed values (if any) to restore the stack
     sq_pop(_SqVM, sq_gettop(_SqVM) - top);
     // Return the long integer instance
     return inst.value;
@@ -331,7 +336,7 @@ CCStr EscapeStringEx(SQChar spec, CCStr str)
     // Validate the specified format specifier
     if (spec != 'q' && spec != 'Q' && spec != 'w' && spec != 's')
     {
-        _SqMod->SqThrow("Unknown format specifier: %c", spec);
+        SqThrowF("Unknown format specifier: %c", spec);
         // Default to empty string
         return _SC("");
     }
@@ -367,11 +372,7 @@ CCStr ArrayToQueryColumns(Array & arr)
     {
         // Is the name valid?
         if (itr->empty())
-        {
-            _SqMod->SqThrow("Invalid column name");
-            // Default to empty string
-            return _SC("");
-        }
+            SqThrowF("Invalid column name");
         // Attempt to append the column name to the buffer
         sqlite3_snprintf(sizeof(g_Buffer) - offset, g_Buffer + offset, "[%q], ", itr->c_str());
         // Add the column name size to the offset
@@ -403,11 +404,7 @@ CCStr TableToQueryColumns(Table & tbl)
         name.assign(itr.getName());
         // Is the name valid?
         if (name.empty())
-        {
-            _SqMod->SqThrow("Invalid column name");
-            // Default to empty string
-            return _SC("");
-        }
+            SqThrowF("Invalid column name");
         // Attempt to append the column name to the buffer
         sqlite3_snprintf(sizeof(g_Buffer) - offset, g_Buffer + offset, "[%q], ", name.c_str());
         // Add the column name size to the offset

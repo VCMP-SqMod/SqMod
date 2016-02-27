@@ -27,17 +27,17 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Validate the statement reference and throw an error if invalid.
     */
-    bool Validate() const;
+    void Validate() const;
 
     /* --------------------------------------------------------------------------------------------
      * Validate the statement reference and index, and throw an error if they're invalid.
     */
-    bool ValidateIndex(Int32 idx) const;
+    void ValidateIndex(Int32 idx) const;
 
     /* --------------------------------------------------------------------------------------------
      * Validate the statement reference and row, and throw an error if they're invalid.
     */
-    bool RowAvailable() const;
+    void ValidateRow() const;
 
 public:
 
@@ -196,10 +196,9 @@ public:
     Int32 GetStatus() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mStatus;
-        // Request failed
-        return -1;
+        Validate();
+        // Return the requested information
+        return m_Handle->mStatus;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -208,10 +207,9 @@ public:
     Int32 GetErrorCode() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle.ErrNo();
-        // Request failed
-        return -1;
+        Validate();
+        // Return the requested information
+        return m_Handle.ErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -220,10 +218,9 @@ public:
     Int32 GetExtendedErrorCode() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle.ExErrNo();
-        // Request failed
-        return -1;
+        Validate();
+        // Return the requested information
+        return m_Handle.ExErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -232,10 +229,9 @@ public:
     CSStr GetErrStr() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle.ErrStr();
-        // Request failed
-        return _SC("");
+        Validate();
+        // Return the requested information
+        return m_Handle.ErrStr();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -244,10 +240,9 @@ public:
     CSStr GetErrMsg() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle.ErrMsg();
-        // Request failed
-        return _SC("");
+        Validate();
+        // Return the requested information
+        return m_Handle.ErrMsg();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -256,10 +251,9 @@ public:
     Int32 GetColumns() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mColumns;
-        // Request failed
-        return -1;
+        Validate();
+        // Return the requested information
+        return m_Handle->mColumns;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -268,10 +262,9 @@ public:
     CSStr GetQuery() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mQuery.c_str();
-        // Request failed
-        return _SC("");
+        Validate();
+        // Return the requested information
+        return m_Handle->mQuery.c_str();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -280,10 +273,9 @@ public:
     bool GetGood() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mGood;
-        // Request failed
-        return false;
+        Validate();
+        // Return the requested information
+        return m_Handle->mGood;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -292,10 +284,9 @@ public:
     bool GetDone() const
     {
         // Validate the handle
-        if (Validate())
-            return m_Handle->mDone;
-        // Request failed
-        return false;
+        Validate();
+        // Return the requested information
+        return m_Handle->mDone;
     }
 
     /* --------------------------------------------------------------------------------------------

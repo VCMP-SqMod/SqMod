@@ -39,6 +39,16 @@ class Transaction;
 #define SQSQLITE_VERSION_PATCH 1
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve the temporary buffer.
+*/
+SStr GetTempBuff();
+
+/* ------------------------------------------------------------------------------------------------
+ * Throw a formatted exception.
+*/
+void SqThrowF(CSStr str, ...);
+
+/* ------------------------------------------------------------------------------------------------
  * Generate a formatted string.
 */
 CSStr FmtStr(CSStr str, ...);
@@ -726,42 +736,47 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Retrieve the string representation of a certain status code.
+*/
+CSStr GetErrStr(Int32 status);
+
+/* ------------------------------------------------------------------------------------------------
+ * Set a specific heap limit.
 */
 void SetSoftHeapLimit(Int32 limit);
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Release the specified amount of memory.
 */
 Int32 ReleaseMemory(Int32 bytes);
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Retrieve the current memory usage.
 */
 Object GetMemoryUsage();
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Retrieve the memory high watermark.
 */
 Object GetMemoryHighwaterMark(bool reset);
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Retrieve the escaped version of the specified string.
 */
 CSStr EscapeString(CSStr str);
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Retrieve the escaped version of the specified string using the supplied format specifier.
 */
 CCStr EscapeStringEx(SQChar spec, CCStr str);
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Convert the values from the specified array to a list of column names string.
 */
 CCStr ArrayToQueryColumns(Array & arr);
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Convert the keys from the specified array to a list of column names string.
 */
 CCStr TableToQueryColumns(Table & tbl);
 
