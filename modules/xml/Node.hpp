@@ -39,7 +39,7 @@ private:
 
     // ---------------------------------------------------------------------------------------------
     DocumentRef  m_Doc; /* The main xml document instance. */
-    Type            m_Node; /* The managed document node. */
+    Type         m_Node; /* The managed document node. */
 
 public:
 

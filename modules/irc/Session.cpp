@@ -284,6 +284,12 @@ Session::Session()
             s_Sessions.push_back(this);
         }
     }
+    // Because Sqrat is majorly stupid and clears the error message
+    // then does an assert on debug builds thinking the type wasn't registered
+    // or throws a generic "unknown error" message on release builds
+    // we have to use this approach
+    if (Sqrat::Error::Occurred(_SqVM))
+        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
