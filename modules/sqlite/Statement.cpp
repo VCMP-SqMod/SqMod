@@ -75,30 +75,43 @@ Statement::Statement()
 Statement::Statement(const ConnHnd & connection, CSStr query)
     : m_Handle(connection)
 {
-    if (m_Handle)
+    if (m_Handle.m_Hnd)
         m_Handle->Create(query);
     else
         _SqMod->SqThrow("Unable to create the statement reference");
+    // Because Sqrat is majorly stupid and clears the error message
+    // then does an assert on debug builds thinking the type wasn't registered
+    // or throws a generic "unknown error" message on release builds
+    // we have to use this approach
+    if (Sqrat::Error::Occurred(_SqVM))
+        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
 Statement::Statement(const Connection & connection, CSStr query)
     : m_Handle(connection.GetHandle())
 {
-    if (m_Handle)
+    // Validate the statement handle
+    if (m_Handle.m_Hnd)
         m_Handle->Create(query);
     else
         _SqMod->SqThrow("Unable to create the statement reference");
+    // Because Sqrat is majorly stupid and clears the error message
+    // then does an assert on debug builds thinking the type wasn't registered
+    // or throws a generic "unknown error" message on release builds
+    // we have to use this approach
+    if (Sqrat::Error::Occurred(_SqVM))
+        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
-Connection Statement::GetConnection() const
+Object Statement::GetConnection() const
 {
     // Validate the handle
     if (Validate())
-        return Connection(m_Handle->mConn);
+        return Object(new Connection(m_Handle->mConn));
     // Request failed
-    return Connection();
+    return Object(new Connection());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1108,17 +1121,17 @@ Int32 Statement::GetColumnBytes(Int32 idx) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Column Statement::GetColumnByIndex(Int32 idx) const
+Object Statement::GetColumnByIndex(Int32 idx) const
 {
     // Can we make the request?
     if (ValidateIndex(idx))
-        return Column(m_Handle, idx);
+        return Object(new Column(m_Handle, idx));
     // Request failed
-    return Column();
+    return Object(new Column());
 }
 
 // ------------------------------------------------------------------------------------------------
-Column Statement::GetColumnByName(CSStr name) const
+Object Statement::GetColumnByName(CSStr name) const
 {
     // Validate the handle
     if (Validate())
@@ -1130,10 +1143,10 @@ Column Statement::GetColumnByName(CSStr name) const
             _SqMod->SqThrow("Unknown column named (%s)", name);
         // Return the requested column
         else
-            return Column(m_Handle, idx);
+            return Object(new Column(m_Handle, idx));
     }
     // Request failed
-    return Column();
+    return Object(new Column());
 }
 
 } // Namespace:: SqMod

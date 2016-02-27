@@ -54,23 +54,23 @@ bool Column::RowAvailable() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Statement Column::GetStatement() const
+Object Column::GetStatement() const
 {
     // Validate the handle
     if (Validate())
-        return Statement(m_Stmt);
+        return Object(new Statement(m_Stmt));
     // Request failed
-    return Statement();
+    return Object(new Statement());
 }
 
 // ------------------------------------------------------------------------------------------------
-Connection Column::GetConnection() const
+Object Column::GetConnection() const
 {
     // Validate the handle
     if (Validate())
-        return Connection(m_Stmt->mConn);
+        return Object(new Connection(m_Stmt->mConn));
     // Request failed
-    return Connection();
+    return Object(new Connection());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ Object Column::GetLong() const
 Object Column::GetString() const
 {
     // Validate the handle and index
-    if (RowAvailable())
+    if (!RowAvailable())
         return Object(); // Request failed
     // Obtain the initial stack size
     const Int32 top = sq_gettop(_SqVM);

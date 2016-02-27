@@ -40,6 +40,12 @@ Connection::Connection(CSStr name)
 {
     if (m_Handle.m_Hnd)
         m_Handle->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    // Because Sqrat is majorly stupid and clears the error message
+    // then does an assert on debug builds thinking the type wasn't registered
+    // or throws a generic "unknown error" message on release builds
+    // we have to use this approach
+    if (Sqrat::Error::Occurred(_SqVM))
+        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -48,6 +54,12 @@ Connection::Connection(CSStr name, Int32 flags)
 {
     if (m_Handle.m_Hnd)
         m_Handle->Create(name, flags, NULL);
+    // Because Sqrat is majorly stupid and clears the error message
+    // then does an assert on debug builds thinking the type wasn't registered
+    // or throws a generic "unknown error" message on release builds
+    // we have to use this approach
+    if (Sqrat::Error::Occurred(_SqVM))
+        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -56,6 +68,12 @@ Connection::Connection(CSStr name, Int32 flags, CSStr vfs)
 {
     if (m_Handle.m_Hnd)
         m_Handle->Create(name, flags, vfs);
+    // Because Sqrat is majorly stupid and clears the error message
+    // then does an assert on debug builds thinking the type wasn't registered
+    // or throws a generic "unknown error" message on release builds
+    // we have to use this approach
+    if (Sqrat::Error::Occurred(_SqVM))
+        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -72,13 +90,13 @@ Int32 Connection::Exec(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-Statement Connection::Query(CSStr str) const
+Object Connection::Query(CSStr str) const
 {
     // Validate the handle
     if (Validate())
-        return Statement(m_Handle, str);
+        return Object(new Statement(m_Handle, str));
     // Request failed
-    return Statement();
+    return Object(new Statement());
 }
 
 // ------------------------------------------------------------------------------------------------

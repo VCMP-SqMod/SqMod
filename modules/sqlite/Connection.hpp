@@ -309,7 +309,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to create a statement from the specified query.
     */
-    Statement Query(CSStr str) const;
+    Object Query(CSStr str) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the database connection was opened in read-only mode.

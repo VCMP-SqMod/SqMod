@@ -268,7 +268,7 @@ public:
     */
     operator bool () const
     {
-        return !m_Hnd || !(m_Hnd->mPtr);
+        return m_Hnd && m_Hnd->mPtr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -310,7 +310,7 @@ public:
     */
     Handle * operator -> () const
     {
-        assert(m_Ptr);
+        assert(m_Hnd);
         return m_Hnd;
     }
 
@@ -319,7 +319,7 @@ public:
     */
     Handle & operator * () const
     {
-        assert(m_Ptr);
+        assert(m_Hnd);
         return *m_Hnd;
     }
 
@@ -344,7 +344,7 @@ public:
     */
     Counter Count() const
     {
-        assert(m_Ptr);
+        assert(m_Hnd);
         return m_Hnd ? m_Hnd->mRef : 0;
     }
 
@@ -353,7 +353,7 @@ public:
     */
     CCStr ErrStr() const
     {
-        assert(m_Ptr); // SQLite does it's null pointer validations internally
+        assert(m_Hnd); // SQLite does it's null pointer validations internally
         return sqlite3_errstr(sqlite3_errcode(m_Hnd->mPtr));
     }
 
@@ -362,7 +362,7 @@ public:
     */
     CCStr ErrMsg() const
     {
-        assert(m_Ptr); // SQLite does it's null pointer validations internally
+        assert(m_Hnd); // SQLite does it's null pointer validations internally
         return sqlite3_errmsg(m_Hnd->mPtr);
     }
 
@@ -371,7 +371,7 @@ public:
     */
     Int32 ErrNo() const
     {
-        assert(m_Ptr); // SQLite does it's null pointer validations internally
+        assert(m_Hnd); // SQLite does it's null pointer validations internally
         return sqlite3_errcode(m_Hnd->mPtr);
     }
 
@@ -380,7 +380,7 @@ public:
     */
     Int32 ExErrNo() const
     {
-        assert(m_Ptr); // SQLite does it's null pointer validations internally
+        assert(m_Hnd); // SQLite does it's null pointer validations internally
         return sqlite3_extended_errcode(m_Hnd->mPtr);
     }
 };
@@ -608,7 +608,7 @@ public:
     */
     operator bool () const
     {
-        return !m_Hnd || !(m_Hnd->mPtr);
+        return m_Hnd && m_Hnd->mPtr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -650,7 +650,7 @@ public:
     */
     Handle * operator -> () const
     {
-        assert(m_Ptr);
+        assert(m_Hnd);
         return m_Hnd;
     }
 
@@ -659,7 +659,7 @@ public:
     */
     Handle & operator * () const
     {
-        assert(m_Ptr);
+        assert(m_Hnd);
         return *m_Hnd;
     }
 
@@ -684,7 +684,7 @@ public:
     */
     Counter Count() const
     {
-        assert(m_Ptr);
+        assert(m_Hnd);
         return m_Hnd ? m_Hnd->mRef : 0;
     }
 
@@ -693,7 +693,7 @@ public:
     */
     CCStr ErrStr() const
     {
-        assert(m_Ptr); // SQLite does it's null pointer validations internally
+        assert(m_Hnd); // SQLite does it's null pointer validations internally
         return m_Hnd->mConn.ErrStr();
     }
 
@@ -702,7 +702,7 @@ public:
     */
     CCStr ErrMsg() const
     {
-        assert(m_Ptr); // SQLite does it's null pointer validations internally
+        assert(m_Hnd); // SQLite does it's null pointer validations internally
         return m_Hnd->mConn.ErrMsg();
     }
 
@@ -711,7 +711,7 @@ public:
     */
     Int32 ErrNo() const
     {
-        assert(m_Ptr); // SQLite does it's null pointer validations internally
+        assert(m_Hnd); // SQLite does it's null pointer validations internally
         return m_Hnd->mConn.ErrNo();
     }
 
@@ -720,7 +720,7 @@ public:
     */
     Int32 ExErrNo() const
     {
-        assert(m_Ptr); // SQLite does it's null pointer validations internally
+        assert(m_Hnd); // SQLite does it's null pointer validations internally
         return m_Hnd->mConn.ExErrNo();
     }
 };

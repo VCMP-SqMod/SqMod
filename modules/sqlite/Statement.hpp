@@ -180,7 +180,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated database connection.
     */
-    Connection GetConnection() const;
+    Object GetConnection() const;
 
     /* --------------------------------------------------------------------------------------------
      * Release the reference to the associated database statement.
@@ -486,12 +486,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the column with the specified index.
     */
-    Column GetColumnByIndex(Int32 idx) const;
+    Object GetColumnByIndex(Int32 idx) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the column with the specified name.
     */
-    Column GetColumnByName(CSStr name) const;
+    Object GetColumnByName(CSStr name) const;
 };
 
 } // Namespace:: SqMod

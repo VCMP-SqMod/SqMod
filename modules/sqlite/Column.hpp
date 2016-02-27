@@ -158,12 +158,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated database statement.
     */
-    Statement GetStatement() const;
+    Object GetStatement() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated database connection.
     */
-    Connection GetConnection() const;
+    Object GetConnection() const;
 
     /* --------------------------------------------------------------------------------------------
      * Release the reference to the associated database statement and index.
