@@ -16,6 +16,7 @@
 					<Add option="-m32" />
 					<Add option="-g" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DWIN32" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
@@ -37,6 +38,7 @@
 					<Add option="-O3" />
 					<Add option="-m32" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DWIN32" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
@@ -59,6 +61,7 @@
 					<Add option="-m64" />
 					<Add option="-g" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DWIN32" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
@@ -81,6 +84,7 @@
 					<Add option="-O3" />
 					<Add option="-m64" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DWIN32" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
@@ -183,6 +187,7 @@
 					<Add option="-static-libstdc++" />
 					<Add option="-enable-static" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DWIN32" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
@@ -208,6 +213,7 @@
 					<Add option="-static-libstdc++" />
 					<Add option="-enable-static" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DWIN32" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
@@ -234,6 +240,7 @@
 					<Add option="-static-libstdc++" />
 					<Add option="-enable-static" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DWIN32" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
@@ -260,6 +267,7 @@
 					<Add option="-static-libstdc++" />
 					<Add option="-enable-static" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DWIN32" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
@@ -370,7 +378,10 @@
 		<Compiler>
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-std=c++14" />
 			<Add option="-DSQMOD_PLUGIN_API" />
+			<Add option="-DSCRAT_USE_EXCEPTIONS" />
+			<Add option="-DSCRAT_USE_CXX11_OPTIMIZATIONS" />
 			<Add directory="../external/LibIRC" />
 			<Add directory="../shared" />
 			<Add directory="../include" />

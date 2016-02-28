@@ -186,7 +186,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Ctor()
         /* Core Metamethods */
         .Func(_SC("_cmp"), &Session::Cmp)
-        .Func(_SC("_typename"), &Session::Typename)
+        .SquirrelFunc(_SC("_typename"), &Session::Typename)
         .Func(_SC("_tostring"), &Session::ToString)
         /* Properties */
         .Prop(_SC("Valid"), &Session::IsValid)

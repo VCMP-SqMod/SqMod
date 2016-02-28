@@ -84,7 +84,17 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Make sure a valid session exists and throw an error if it doesn't.
     */
-    bool Validate() const;
+    void Validate() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether this session is connected to a server and throw an error if not.
+    */
+    void ValidateConnection() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether this session is NOT! connected to a server and throw an error if it is.
+    */
+    void IsNotConnected() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether this session is connected to a server or not.
@@ -93,16 +103,6 @@ protected:
     {
         return (m_Session && irc_is_connected(m_Session));
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether this session is connected to a server and throw an error if not.
-    */
-    bool ConnectedThrow() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether this session is NOT! connected to a server and throw an error if it is.
-    */
-    bool NotConnected() const;
 
     /* --------------------------------------------------------------------------------------------
      * Validate a session instance used by an event and log an error if it's invalid.
@@ -218,10 +218,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to retrieve the name from instances of this type.
     */
-    CSStr Typename() const
-    {
-        return _SC("SqIrcSession");
-    }
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this session is valid.
@@ -260,8 +257,10 @@ public:
     */
     void SetData(Object & data)
     {
-        if (Validate())
-            m_Data = data;
+        // Validate the handle
+        Validate();
+        // Perform the requested operation
+        m_Data = data;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -277,8 +276,12 @@ public:
     */
     void SetServer(CSStr server)
     {
-        if (Validate() && NotConnected())
-            m_Server.assign(server);
+        // Validate the handle
+        Validate();
+        // Make sure we are allowed to change the server
+        IsNotConnected();
+        // Perform the requested operation
+        m_Server.assign(server);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -293,9 +296,12 @@ public:
      * Modify the account password.
     */
     void SetPassword(CSStr passwd)
-    {
-        if (Validate() && NotConnected())
-            m_Passwd.assign(passwd);
+    {        // Validate the handle
+        Validate();
+        // Make sure we are allowed to change the server
+        IsNotConnected();
+        // Perform the requested operation
+        m_Passwd.assign(passwd);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -324,8 +330,12 @@ public:
     */
     void SetUser(CSStr user)
     {
-        if (Validate() && NotConnected())
-            m_User.assign(user);
+        // Validate the handle
+        Validate();
+        // Make sure we are allowed to change the server
+        IsNotConnected();
+        // Perform the requested operation
+        m_User.assign(user);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -341,8 +351,12 @@ public:
     */
     void SetName(CSStr name)
     {
-        if (Validate() && NotConnected())
-            m_Name.assign(name);
+        // Validate the handle
+        Validate();
+        // Make sure we are allowed to change the server
+        IsNotConnected();
+        // Perform the requested operation
+        m_Name.assign(name);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -547,9 +561,10 @@ public:
     */
     Int32 CmdJoin(CSStr channel)
     {
-        if (ConnectedThrow())
-            return irc_cmd_join(m_Session, channel, NULL);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_join(m_Session, channel, NULL);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -557,9 +572,10 @@ public:
     */
     Int32 CmdJoin(CSStr channel, CSStr key)
     {
-        if (ConnectedThrow())
-            return irc_cmd_join(m_Session, channel, key);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_join(m_Session, channel, key);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -567,9 +583,10 @@ public:
     */
     Int32 CmdPart(CSStr channel)
     {
-        if (ConnectedThrow())
-            return irc_cmd_part(m_Session, channel);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_part(m_Session, channel);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -577,9 +594,10 @@ public:
     */
     Int32 CmdInvite(CSStr nick, CSStr channel)
     {
-        if (ConnectedThrow())
-            return irc_cmd_invite(m_Session, nick, channel);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_invite(m_Session, nick, channel);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -587,9 +605,10 @@ public:
     */
     Int32 CmdNames(CSStr channel)
     {
-        if (ConnectedThrow())
-            return irc_cmd_names(m_Session, channel);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_names(m_Session, channel);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -597,9 +616,10 @@ public:
     */
     Int32 CmdList()
     {
-        if (ConnectedThrow())
-            return irc_cmd_list(m_Session, NULL);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_list(m_Session, NULL);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -607,9 +627,10 @@ public:
     */
     Int32 CmdList(CSStr channel)
     {
-        if (ConnectedThrow())
-            return irc_cmd_list(m_Session, channel);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_list(m_Session, channel);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -617,9 +638,10 @@ public:
     */
     Int32 CmdTopic(CSStr channel)
     {
-        if (ConnectedThrow())
-            return irc_cmd_topic(m_Session, channel, NULL);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_topic(m_Session, channel, NULL);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -627,9 +649,10 @@ public:
     */
     Int32 CmdTopic(CSStr channel, CSStr topic)
     {
-        if (ConnectedThrow())
-            return irc_cmd_topic(m_Session, channel, topic);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_topic(m_Session, channel, topic);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -637,9 +660,10 @@ public:
     */
     Int32 CmdChannelMode(CSStr channel)
     {
-        if (ConnectedThrow())
-            return irc_cmd_channel_mode(m_Session, channel, NULL);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_channel_mode(m_Session, channel, NULL);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -647,9 +671,10 @@ public:
     */
     Int32 CmdChannelMode(CSStr channel, CSStr mode)
     {
-        if (ConnectedThrow())
-            return irc_cmd_channel_mode(m_Session, channel, mode);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_channel_mode(m_Session, channel, mode);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -657,9 +682,10 @@ public:
     */
     Int32 CmdUserMode()
     {
-        if (ConnectedThrow())
-            return irc_cmd_user_mode(m_Session, NULL);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_user_mode(m_Session, NULL);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -667,9 +693,10 @@ public:
     */
     Int32 CmdUserMode(CSStr mode)
     {
-        if (ConnectedThrow())
-            return irc_cmd_user_mode(m_Session, mode);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_user_mode(m_Session, mode);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -677,9 +704,10 @@ public:
     */
     Int32 CmdKick(CSStr nick, CSStr channel)
     {
-        if (ConnectedThrow())
-            return irc_cmd_kick(m_Session, nick, channel, NULL);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_kick(m_Session, nick, channel, NULL);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -687,9 +715,10 @@ public:
     */
     Int32 CmdKick(CSStr nick, CSStr channel, CSStr reason)
     {
-        if (ConnectedThrow())
-            return irc_cmd_kick(m_Session, nick, channel, reason);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_kick(m_Session, nick, channel, reason);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -697,9 +726,10 @@ public:
     */
     Int32 CmdMsg(CSStr nch, CSStr text)
     {
-        if (ConnectedThrow())
-            return irc_cmd_msg(m_Session, nch, text);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_msg(m_Session, nch, text);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -707,9 +737,10 @@ public:
     */
     Int32 CmdMe(CSStr nch, CSStr text)
     {
-        if (ConnectedThrow())
-            return irc_cmd_me(m_Session, nch, text);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_me(m_Session, nch, text);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -717,9 +748,10 @@ public:
     */
     Int32 CmdNotice(CSStr nch, CSStr text)
     {
-        if (ConnectedThrow())
-            return irc_cmd_notice(m_Session, nch, text);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_notice(m_Session, nch, text);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -727,9 +759,10 @@ public:
     */
     Int32 CmdCtcpRequest(CSStr nick, CSStr request)
     {
-        if (ConnectedThrow())
-            return irc_cmd_ctcp_request(m_Session, nick, request);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_ctcp_request(m_Session, nick, request);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -737,9 +770,10 @@ public:
     */
     Int32 CmdCtcpReply(CSStr nick, CSStr reply)
     {
-        if (ConnectedThrow())
-            return irc_cmd_ctcp_reply(m_Session, nick, reply);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_ctcp_reply(m_Session, nick, reply);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -752,9 +786,10 @@ public:
     */
     Int32 CmdWhois(CSStr nick)
     {
-        if (ConnectedThrow())
-            return irc_cmd_whois(m_Session, nick);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_whois(m_Session, nick);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -762,9 +797,10 @@ public:
     */
     Int32 CmdQuit()
     {
-        if (ConnectedThrow())
-            return irc_cmd_quit(m_Session, NULL);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_quit(m_Session, NULL);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -772,9 +808,10 @@ public:
     */
     Int32 CmdQuit(CSStr reason)
     {
-        if (ConnectedThrow())
-            return irc_cmd_quit(m_Session, reason);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_cmd_quit(m_Session, reason);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -782,9 +819,10 @@ public:
     */
     Int32 SendRaw(CSStr str)
     {
-        if (ConnectedThrow())
-            return irc_send_raw(m_Session, str);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Send the specified command and return the result
+        return irc_send_raw(m_Session, str);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -793,9 +831,10 @@ public:
     */
     Int32 DestroyDcc(Uint32 dccid)
     {
-        if (ConnectedThrow())
-            return irc_dcc_destroy(m_Session, dccid);
-        return -1;
+        // Validate the connection status
+        ValidateConnection();
+        // Perform the requested operation and return the result
+        return irc_dcc_destroy(m_Session, dccid);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -803,8 +842,10 @@ public:
     */
     void SetCtcpVersion(CSStr version)
     {
-        if (ConnectedThrow())
-            irc_set_ctcp_version(m_Session, version);
+        // Validate the connection status
+        ValidateConnection();
+        // Perform the requested operation
+        irc_set_ctcp_version(m_Session, version);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -812,9 +853,10 @@ public:
     */
     Int32 GetErrNo()
     {
-        if (Validate())
-            return irc_errno(m_Session);
-        return -1;
+        // Validate the handle
+        Validate();
+        // Return the requested information
+        return irc_errno(m_Session);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -822,9 +864,10 @@ public:
     */
     CSStr GetErrStr()
     {
-        if (Validate())
-            return irc_strerror(irc_errno(m_Session));
-        return _SC("");
+        // Validate the handle
+        Validate();
+        // Return the requested information
+        return irc_strerror(irc_errno(m_Session));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -832,8 +875,10 @@ public:
     */
     void SetOption(Uint32 option)
     {
-        if (Validate())
-            return irc_option_set(m_Session, option);
+        // Validate the handle
+        Validate();
+        // Perform the requested operation and return the result
+        return irc_option_set(m_Session, option);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -841,8 +886,10 @@ public:
     */
     void ResetOption(Uint32 option)
     {
-        if (Validate())
-            return irc_option_set(m_Session, option);
+        // Validate the handle
+        Validate();
+        // Perform the requested operation and return the result
+        return irc_option_set(m_Session, option);
     }
 
     /* --------------------------------------------------------------------------------------------

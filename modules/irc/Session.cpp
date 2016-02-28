@@ -25,6 +25,14 @@ Session*            Session::s_Session = NULL;
 Session::Sessions   Session::s_Sessions;
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Session::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("SqIrcSession");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 void Session::Process()
 {
     // Do we only have one IRC session?
@@ -199,43 +207,41 @@ void Session::Destroy()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Session::Validate() const
+void Session::Validate() const
 {
-    if (m_Session)
-        return true;
-    // Invalid session instance
-    _SqMod->SqThrow("Invalid IRC session (%s)", m_Tag.c_str());
-    return false;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Session::ConnectedThrow() const
-{
+    // Do we have a valid session handle?
     if (!m_Session)
-        _SqMod->SqThrow("Invalid IRC session (%s)", m_Tag.c_str());
-    else if (!irc_is_connected(m_Session))
-        _SqMod->SqThrow("Session is not connected (%s)", m_Tag.c_str());
-    else
-        return true;
-    return false;
+        SqThrowF("Invalid IRC session");
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Session::NotConnected() const
+void Session::ValidateConnection() const
 {
-    if (!m_Session || !irc_is_connected(m_Session) || !m_Reconnect)
-        return true;
-    _SqMod->SqThrow("Already connected or trying connect to IRC server (%s)", m_Tag.c_str());
-    return !m_Session;
+    // Do we have a valid session handle?
+    if (!m_Session)
+        SqThrowF("Invalid IRC session");
+    // Is the session connected?
+    else if (!irc_is_connected(m_Session))
+        SqThrowF("Session is not connected");
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::IsNotConnected() const
+{
+    // Do we have a session that is not connected or trying to connect?
+    if (m_Session && (irc_is_connected(m_Session) || m_Reconnect))
+        SqThrowF("Already connected or trying connect to IRC server");
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Session::ValidateEventSession(Session * ptr)
 {
+    // Is the session instance valid?
     if (ptr)
         return true;
-    // Invalid session instance
+    // We can't throw an error here so we simply log it
     _SqMod->LogErr("Cannot forward IRC event without a session container");
+    // Invalid session instance
     return false;
 }
 
@@ -260,9 +266,10 @@ Session::Session()
 {
     if (!m_Session)
     {
-        _SqMod->SqThrow("Unable to create an IRC session");
         // Explicitly make sure no further calls can be made to this session
         m_Session = NULL;
+        // Now it's safe to throw the error
+        SqThrowF("Unable to create an IRC session");
     }
     else
     {
@@ -270,26 +277,18 @@ Session::Session()
         irc_set_ctx(m_Session, this);
         // Is this the only session instance?
         if (!s_Session && s_Sessions.empty())
-        {
             s_Session = this;
-        }
+        // Is this the second session instance?
         else if (s_Sessions.empty())
         {
             s_Sessions.push_back(s_Session);
             s_Session = NULL;
             s_Sessions.push_back(this);
         }
+        // This is part of multiple session instances
         else
-        {
             s_Sessions.push_back(this);
-        }
     }
-    // Because Sqrat is majorly stupid and clears the error message
-    // then does an assert on debug builds thinking the type wasn't registered
-    // or throws a generic "unknown error" message on release builds
-    // we have to use this approach
-    if (Sqrat::Error::Occurred(_SqVM))
-        _SqMod->LogErr("%s", Sqrat::Error::Message(_SqVM).c_str());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -309,260 +308,233 @@ Session::~Session()
 // ------------------------------------------------------------------------------------------------
 void Session::SetNick(CSStr nick)
 {
+    // Validate the handle
+    Validate();
+    // Validate the specified nick name
     if (!nick || strlen(nick) <= 0)
-        _SqMod->SqThrow("Invalid IRC nickname");
+        SqThrowF("Invalid IRC nickname");
+    // Do we have to issue a nickname command?
     else if (Connected())
         irc_cmd_nick(m_Session, nick);
-    else if (Validate())
+    // Simply save the specified nickname
+    else
         m_Nick.assign(nick);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Session::SetPort(Uint32 num)
 {
+    // The port cannot be changed once connected!
+    IsNotConnected();
+    // Validate the specified port number
     if (num > 0xFFFF)
-        _SqMod->SqThrow("Port number is out of range: %u > %u", num, 0xFFFF);
-    else if (Validate() && NotConnected())
-        m_Port = num;
+        SqThrowF("Port number is out of range: %u > %u", num, 0xFFFF);
+    // Assign the specified port number
+    m_Port = num;
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Session::CmdNick(CSStr nick)
 {
+    // Make sure the session is connected
+    ValidateConnection();
+    // Validate the specified nick name
     if (!nick || strlen(nick) <= 0)
-        _SqMod->SqThrow("Invalid IRC nickname");
-    else if (ConnectedThrow())
-        return irc_cmd_nick(m_Session, nick);
-    return -1;
+        SqThrowF("Invalid IRC nickname");
+    // Issue the command and return the result
+    return irc_cmd_nick(m_Session, nick);
 }
 
 // ------------------------------------------------------------------------------------------------
 Object Session::GetNextTry() const
 {
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Attempt to push a time-stamp instance on the stack
     _SqMod->PushTimestamp(_SqVM, m_NextTry);
-    // Obtain the object from the stack
-    Var< Object > inst(_SqVM, -1);
-    // Remove an pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Return the timestamp instance
-    return inst.value;
+    // Obtain the object from the stack and return it
+    return Var< Object >(_SqVM, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Session::SetNextTry(Object & tm)
 {
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Push the specified object onto the stack
     Var< Object >::push(_SqVM, tm);
     // The resulted times-tamp value
     Int64 microseconds = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetTimestamp(_SqVM, -1, &microseconds)))
-        _SqMod->SqThrow("Invalid time-stamp specified");
-    else
-        m_NextTry = microseconds;
-    // Remove an pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
+        SqThrowF("Invalid time-stamp specified");
+    // Assign the specified timestamp value
+    m_NextTry = microseconds;
 }
 
 // ------------------------------------------------------------------------------------------------
 Object Session::GetSessionTime() const
 {
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Attempt to push a time-stamp instance on the stack
     if (m_SessionTime)
         _SqMod->PushTimestamp(_SqVM, _SqMod->GetEpochTimeMicro() - m_SessionTime);
+    // This session was not connected yet
     else
         _SqMod->PushTimestamp(_SqVM, 0);
-    // Obtain the object from the stack
-    Var< Object > inst(_SqVM, -1);
-    // Remove an pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Return the timestamp instance
-    return inst.value;
+    // Obtain the object from the stack and return it
+    return Var< Object >(_SqVM, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Session::Connect()
 {
-    // Are we even allowed to try to connect?
-    if (!Validate() || !NotConnected())
-        return -1; /* No point in going forward */
-    // Did we already try to connect?
-    else if (m_Reconnect)
-        _SqMod->SqThrow("Attempting to connect IRC while connection was already issued");
+    // Validate the handle
+    Validate();
+    // Make sure we are allowed to connect
+    IsNotConnected();
     // Validate the specified server
-    else if (!m_Server.empty())
-        _SqMod->SqThrow("Attempting to connect IRC without specifying a server");
+    if (!m_Server.empty())
+        SqThrowF("Attempting to connect IRC without specifying a server");
     // Validate the specified nickname
     else if (!m_Nick.empty())
-        _SqMod->SqThrow("Attempting to connect IRC without specifying a nickname");
-    else
-    {
-        // Enable the reconnection system
-        m_Reconnect = true;
-        // Reset the number of tries
-        m_LeftTries = m_Tries;
-        // Set the time-point for the next try
-        m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
-        // This is not an IPv6 connection
-        m_IPv6 = false;
-        // Attempt to connect the session and return the result
-        return irc_connect(m_Session, m_Server.c_str(), m_Port,
-                            m_Passwd.empty() ? NULL : m_Passwd.c_str(),
-                            m_Nick.c_str(),
-                            m_User.empty() ? NULL : m_User.c_str(),
-                            m_Name.empty() ? NULL : m_Name.c_str()
-        );
-    }
-    // Connection denied before even attempted
-    return -1;
+        SqThrowF("Attempting to connect IRC without specifying a nickname");
+    // Enable the reconnection system
+    m_Reconnect = true;
+    // Reset the number of tries
+    m_LeftTries = m_Tries;
+    // Set the time-point for the next try
+    m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
+    // This is not an IPv6 connection
+    m_IPv6 = false;
+    // Attempt to connect the session and return the result
+    return irc_connect(m_Session, m_Server.c_str(), m_Port,
+                        m_Passwd.empty() ? NULL : m_Passwd.c_str(),
+                        m_Nick.c_str(),
+                        m_User.empty() ? NULL : m_User.c_str(),
+                        m_Name.empty() ? NULL : m_Name.c_str()
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Session::Connect(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSStr user, CSStr name)
 {
-    // Are we even allowed to try to connect?
-    if (!Validate() || !NotConnected())
-        return -1; /* No point in going forward */
-    // Did we already try to connect?
-    else if (m_Reconnect)
-        _SqMod->SqThrow("Attempting to connect IRC while connection was already issued");
+    // Validate the handle
+    Validate();
+    // Make sure we are allowed to connect
+    IsNotConnected();
     // Validate the specified port
-    else if (port > 0xFFFF)
-        _SqMod->SqThrow("Port number is out of range: %u > %u", port, 0xFFFF);
+    if (port > 0xFFFF)
+        SqThrowF("Port number is out of range: %u > %u", port, 0xFFFF);
     // Validate the specified server
     else if (!server || strlen(server) <= 0)
-        _SqMod->SqThrow("Attempting to connect IRC without specifying a server");
+        SqThrowF("Attempting to connect IRC without specifying a server");
     // Validate the specified nickname
     else if (!nick || strlen(nick) <= 0)
-        _SqMod->SqThrow("Attempting to connect IRC without specifying a nickname");
-    else
-    {
-        // Save the specified port
-        m_Port = port;
-        // Save the specified server
-        m_Server.assign(server);
-        // Save the specified nickname
-        m_Nick.assign(nick);
-        // Save the specified password
-        m_Passwd.assign(!passwd ? _SC("") : passwd);
-        // Save the specified user
-        m_User.assign(!user ? _SC("") : user);
-        // Save the specified name
-        m_Name.assign(!name ? _SC("") : name);
-        // Enable the reconnection system
-        m_Reconnect = true;
-        // Reset the number of tries
-        m_LeftTries = m_Tries;
-        // Set the time-point for the next connection try
-        m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
-        // This is not an IPv6 connection
-        m_IPv6 = false;
-        // Attempt to connect the session and return the result
-        return irc_connect(m_Session, m_Server.c_str(), m_Port,
-                            m_Passwd.empty() ? NULL : m_Passwd.c_str(),
-                            m_Nick.c_str(),
-                            m_User.empty() ? NULL : m_User.c_str(),
-                            m_Name.empty() ? NULL : m_Name.c_str()
-        );
-    }
-    // Connection denied before even attempted
-    return -1;
+        SqThrowF("Attempting to connect IRC without specifying a nickname");
+    // Save the specified port
+    m_Port = port;
+    // Save the specified server
+    m_Server.assign(server);
+    // Save the specified nickname
+    m_Nick.assign(nick);
+    // Save the specified password
+    m_Passwd.assign(passwd ? passwd : _SC(""));
+    // Save the specified user
+    m_User.assign(user ? user : _SC(""));
+    // Save the specified name
+    m_Name.assign(name ? name : _SC(""));
+    // Enable the reconnection system
+    m_Reconnect = true;
+    // Reset the number of tries
+    m_LeftTries = m_Tries;
+    // Set the time-point for the next connection try
+    m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
+    // This is not an IPv6 connection
+    m_IPv6 = false;
+    // Attempt to connect the session and return the result
+    return irc_connect(m_Session, m_Server.c_str(), m_Port,
+                        m_Passwd.empty() ? NULL : m_Passwd.c_str(),
+                        m_Nick.c_str(),
+                        m_User.empty() ? NULL : m_User.c_str(),
+                        m_Name.empty() ? NULL : m_Name.c_str()
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Session::Connect6()
 {
-    // Are we even allowed to try to connect?
-    if (!Validate() || !NotConnected())
-        return -1; /* No point in going forward */
-    // Did we already try to connect?
-    else if (m_Reconnect)
-        _SqMod->SqThrow("Attempting to connect IRC while connection was already issued");
+    // Validate the handle
+    Validate();
+    // Make sure we are allowed to connect
+    IsNotConnected();
     // Validate the specified server
-    else if (!m_Server.empty())
-        _SqMod->SqThrow("Attempting to connect IRC without specifying a server");
+    if (!m_Server.empty())
+        SqThrowF("Attempting to connect IRC without specifying a server");
     // Validate the specified nickname
     else if (!m_Nick.empty())
-        _SqMod->SqThrow("Attempting to connect IRC without specifying a nickname");
-    else
-    {
-        // Enable the reconnection system
-        m_Reconnect = true;
-        // Reset the number of tries
-        m_LeftTries = m_Tries;
-        // Set the time-point for the next try
-        m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
-        // This is an IPv6 connection
-        m_IPv6 = true;
-        // Attempt to connect the session and return the result
-        return irc_connect6(m_Session, m_Server.c_str(), m_Port,
-                            m_Passwd.empty() ? NULL : m_Passwd.c_str(),
-                            m_Nick.c_str(),
-                            m_User.empty() ? NULL : m_User.c_str(),
-                            m_Name.empty() ? NULL : m_Name.c_str()
-        );
-    }
-    // Connection denied before even attempted
-    return -1;
+        SqThrowF("Attempting to connect IRC without specifying a nickname");
+    // Enable the reconnection system
+    m_Reconnect = true;
+    // Reset the number of tries
+    m_LeftTries = m_Tries;
+    // Set the time-point for the next try
+    m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
+    // This is an IPv6 connection
+    m_IPv6 = true;
+    // Attempt to connect the session and return the result
+    return irc_connect6(m_Session, m_Server.c_str(), m_Port,
+                        m_Passwd.empty() ? NULL : m_Passwd.c_str(),
+                        m_Nick.c_str(),
+                        m_User.empty() ? NULL : m_User.c_str(),
+                        m_Name.empty() ? NULL : m_Name.c_str()
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Session::Connect6(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSStr user, CSStr name)
 {
-    // Are we even allowed to try to connect?
-    if (!Validate() || !NotConnected())
-        return -1; /* No point in going forward */
-    // Did we already try to connect?
-    else if (m_Reconnect)
-        _SqMod->SqThrow("Attempting to connect IRC while connection was already issued");
+    // Validate the handle
+    Validate();
+    // Make sure we are allowed to connect
+    IsNotConnected();
     // Validate the specified port
-    else if (port > 0xFFFF)
-        _SqMod->SqThrow("Port number is out of range: %u > %u", port, 0xFFFF);
+    if (port > 0xFFFF)
+        SqThrowF("Port number is out of range: %u > %u", port, 0xFFFF);
     // Validate the specified server
     else if (!server || strlen(server) <= 0)
-        _SqMod->SqThrow("Attempting to connect IRC without specifying a server");
+        SqThrowF("Attempting to connect IRC without specifying a server");
     // Validate the specified nickname
     else if (!nick || strlen(nick) <= 0)
-        _SqMod->SqThrow("Attempting to connect IRC without specifying a nickname");
-    else
-    {
-        // Save the specified port
-        m_Port = port;
-        // Save the specified server
-        m_Server.assign(server);
-        // Save the specified nickname
-        m_Nick.assign(nick);
-        // Save the specified password
-        m_Passwd.assign(!passwd ? _SC("") : passwd);
-        // Save the specified user
-        m_User.assign(!user ? _SC("") : user);
-        // Save the specified name
-        m_Name.assign(!name ? _SC("") : name);
-        // Enable the reconnection system
-        m_Reconnect = true;
-        // Reset the number of tries
-        m_LeftTries = m_Tries;
-        // Set the time-point for the next connection try
-        m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
-        // This is an IPv6 connection
-        m_IPv6 = true;
-        // Attempt to connect the session and return the result
-        return irc_connect6(m_Session, m_Server.c_str(), m_Port,
-                            m_Passwd.empty() ? NULL : m_Passwd.c_str(),
-                            m_Nick.c_str(),
-                            m_User.empty() ? NULL : m_User.c_str(),
-                            m_Name.empty() ? NULL : m_Name.c_str()
-        );
-    }
-    // Connection denied before even attempted
-    return -1;
+        SqThrowF("Attempting to connect IRC without specifying a nickname");
+    // Save the specified port
+    m_Port = port;
+    // Save the specified server
+    m_Server.assign(server);
+    // Save the specified nickname
+    m_Nick.assign(nick);
+    // Save the specified password
+    m_Passwd.assign(passwd ? passwd : _SC(""));
+    // Save the specified user
+    m_User.assign(user ? user : _SC(""));
+    // Save the specified name
+    m_Name.assign(name ? name : _SC(""));
+    // Enable the reconnection system
+    m_Reconnect = true;
+    // Reset the number of tries
+    m_LeftTries = m_Tries;
+    // Set the time-point for the next connection try
+    m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
+    // This is an IPv6 connection
+    m_IPv6 = true;
+    // Attempt to connect the session and return the result
+    return irc_connect6(m_Session, m_Server.c_str(), m_Port,
+                        m_Passwd.empty() ? NULL : m_Passwd.c_str(),
+                        m_Nick.c_str(),
+                        m_User.empty() ? NULL : m_User.c_str(),
+                        m_Name.empty() ? NULL : m_Name.c_str()
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -585,16 +557,12 @@ void Session::ForwardEvent(Session * session, Function & listener, CCStr event,
 {
     // Is there anyone even listening to this event?
     if (listener.IsNull())
-    {
         return; /* No point in going forward */
-    }
     // Make sure that the origin can't be a null pointer
     else if (!origin)
-    {
         origin = _SC("");
-    }
     // Each event must have an array of parameters (empty or not)
-    Array parameters(DefaultVM::Get(), count);
+    Array parameters(_SqVM, count);
     // Are the any parameters?
     if (params && count > 0)
     {
@@ -602,10 +570,12 @@ void Session::ForwardEvent(Session * session, Function & listener, CCStr event,
         for (Uint32 i = 0; i < count; ++i)
             parameters.SetValue(i, params[i]);
     }
+    // Obtain the initial stack size
+    const StackGuard sg(_SqVM);
     // Obtain an object to this session instance without creating a new reference counter!
-    ClassType< Session >::PushInstance(DefaultVM::Get(), session);
+    ClassType< Session >::PushInstance(_SqVM, session);
     // Obtain the pushed object from the stack
-    Var< Object > var(DefaultVM::Get(), -1);
+    Var< Object > var(_SqVM, -1);
     // Call the event with the obtained values
     listener.Execute< Object &, CSStr, CSStr, Array & >(var.value, event, origin, parameters);
 }
@@ -616,29 +586,25 @@ void Session::ForwardEvent(Session * session, Function & listener, Uint32 event,
 {
     // Is there anyone even listening to this event?
     if (listener.IsNull())
-    {
         return; /* No point in going forward */
-    }
     // Make sure that the origin can't be a null pointer
     else if (!origin)
-    {
         origin = _SC("");
-    }
     // Each event must have an array of parameters (empty or not)
-    Array parameters(DefaultVM::Get(), count);
+    Array parameters(_SqVM, count);
     // Are the any parameters?
     if (params && count > 0)
     {
         // Transform the parameters into a squirrel array
         for (unsigned int i = 0; i < count; ++i)
-        {
             parameters.SetValue(i, params[i]);
-        }
     }
+    // Obtain the initial stack size
+    const StackGuard sg(_SqVM);
     // Obtain an object to this session instance without creating a new reference counter!
-    ClassType< Session >::PushInstance(DefaultVM::Get(), session);
+    ClassType< Session >::PushInstance(_SqVM, session);
     // Obtain the pushed object from the stack
-    Var< Object > var(DefaultVM::Get(), -1);
+    Var< Object > var(_SqVM, -1);
     // Call the event with the obtained values
     listener.Execute< Object &, Uint32, CSStr, Array & >(var.value, event, origin, parameters);
 }
@@ -840,7 +806,7 @@ void Session::OnDccSendReq(irc_session_t * session, CCStr nick, CCStr addr, CCSt
 // ------------------------------------------------------------------------------------------------
 SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
 {
-    // Save the stack top
+    // Obtain the initial stack size
     const Int32 top = sq_gettop(vm);
     // Do we have a target?
     if (top <= 1)
@@ -908,7 +874,7 @@ SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 SQInteger Session::CmdMeF(HSQUIRRELVM vm)
 {
-    // Save the stack top
+    // Obtain the initial stack size
     const Int32 top = sq_gettop(vm);
     // Do we have a target?
     if (top <= 1)
@@ -976,7 +942,7 @@ SQInteger Session::CmdMeF(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 SQInteger Session::CmdNoticeF(HSQUIRRELVM vm)
 {
-    // Save the stack top
+    // Obtain the initial stack size
     const Int32 top = sq_gettop(vm);
     // Do we have a target?
     if (top <= 1)
