@@ -106,6 +106,16 @@
 #endif
 
 /* ------------------------------------------------------------------------------------------------
+ * SQUIRREL FORWARD DECLARATIONS
+*/
+extern "C" {
+    typedef struct tagSQObject SQObject;
+    struct SQVM;
+    typedef struct SQVM* HSQUIRRELVM;
+    typedef SQObject HSQOBJECT;
+} /*extern "C"*/
+
+/* ------------------------------------------------------------------------------------------------
  * SQRAT FORWARD DECLARATIONS
 */
 namespace Sqrat {
