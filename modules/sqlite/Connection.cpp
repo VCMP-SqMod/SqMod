@@ -129,15 +129,11 @@ Object Connection::GetLastInsertRowID() const
     // Validate the handle
     Validate();
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Push a long integer instance with the requested value on the stack
     _SqMod->PushSLongObject(_SqVM, sqlite3_last_insert_rowid(m_Handle));
-    // Obtain the object from the stack
-    Var< Object > inst(_SqVM, -1);
-    // Removed pushed values (if any)
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Return the long integer instance
-    return inst.value;
+    // Get the object from the stack and return it
+    return Var< Object >(_SqVM, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------

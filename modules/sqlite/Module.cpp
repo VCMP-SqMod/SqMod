@@ -325,6 +325,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("Release"), &Column::Release)
     );
 
+    sqlns.Func(_SC("IsQueryEmpty"), &IsQueryEmpty);
     sqlns.Func(_SC("GetErrStr"), &GetErrStr);
     sqlns.Func(_SC("SetSoftHeapLimit"), &SetSoftHeapLimit);
     sqlns.Func(_SC("ReleaseMemory"), &ReleaseMemory);

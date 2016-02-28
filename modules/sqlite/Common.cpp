@@ -10,15 +10,21 @@
 #include <sqrat.h>
 
 // ------------------------------------------------------------------------------------------------
-static SQChar g_Buffer[4096]; // Common buffer to reduce memory allocations.
+namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-namespace SqMod {
+static SQChar g_Buffer[4096]; // Common buffer to reduce memory allocations.
 
 // ------------------------------------------------------------------------------------------------
 SStr GetTempBuff()
 {
     return g_Buffer;
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 GetTempBuffSize()
+{
+    return sizeof(g_Buffer);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -82,6 +88,19 @@ bool IsQueryEmpty(CSStr str)
     }
     // At this point we consider the query empty
     return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+StackGuard::StackGuard(HSQUIRRELVM vm)
+    : m_Top(sq_gettop(vm)), m_VM(vm)
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+StackGuard::~StackGuard()
+{
+    sq_pop(m_VM, sq_gettop(m_VM) - m_Top);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -290,30 +309,22 @@ Int32 ReleaseMemory(Int32 bytes)
 Object GetMemoryUsage()
 {
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Push a long integer instance with the requested value on the stack
     _SqMod->PushSLongObject(_SqVM, sqlite3_memory_used());
-    // Obtain the object from the stack
-    Var< Object > inst(_SqVM, -1);
-    // Remove any pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Return the long integer instance
-    return inst.value;
+    // Obtain the object from the stack and return it
+    return Var< Object >(_SqVM, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
 Object GetMemoryHighwaterMark(bool reset)
 {
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Push a long integer instance with the requested value on the stack
     _SqMod->PushSLongObject(_SqVM, sqlite3_memory_highwater(reset));
-    // Obtain the object from the stack
-    Var< Object > inst(_SqVM, -1);
-    // Remove any pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Return the long integer instance
-    return inst.value;
+    // Obtain the object from the stack and return it
+    return Var< Object >(_SqVM, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -348,7 +359,7 @@ CCStr EscapeStringEx(SQChar spec, CCStr str)
     // Attempt to escape the specified string
     sqlite3_snprintf(sizeof(g_Buffer), g_Buffer, fs, str);
     // Restore the format specifier
-    fs[1] = '1';
+    fs[1] = 'q';
     // Return the resulted string
     return g_Buffer;
 }
@@ -389,6 +400,7 @@ CCStr ArrayToQueryColumns(Array & arr)
     return g_Buffer;
 }
 
+// ------------------------------------------------------------------------------------------------
 CCStr TableToQueryColumns(Table & tbl)
 {
     // Used to know the position of the next column name
@@ -404,7 +416,7 @@ CCStr TableToQueryColumns(Table & tbl)
         name.assign(itr.getName());
         // Is the name valid?
         if (name.empty())
-            SqThrowF("Invalid column name");
+            SqThrowF("Invalid or empty column name");
         // Attempt to append the column name to the buffer
         sqlite3_snprintf(sizeof(g_Buffer) - offset, g_Buffer + offset, "[%q], ", name.c_str());
         // Add the column name size to the offset

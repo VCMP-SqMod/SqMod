@@ -245,17 +245,13 @@ void Statement::IndexBindL(Int32 idx, Object & value)
     // Validate the handle
     Validate();
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Push the specified object onto the stack
     Var< Object & >::push(_SqVM, value);
     // The resulted long integer value
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
-    const SQRESULT res = _SqMod->GetSLongValue(_SqVM, -1, &longint);
-    // Remove any pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Now it's safe to throw the error if necessary
-    if (SQ_FAILED(res))
+    if (SQ_FAILED(_SqMod->GetSLongValue(_SqVM, -1, &longint)))
         SqThrowF("Invalid long integer specified");
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_int(m_Handle, idx, longint);
@@ -382,17 +378,13 @@ void Statement::NameBindL(CSStr name, Object & value)
     if (!idx)
         SqThrowF("Unknown parameter named (%s)", name);
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Push the specified object onto the stack
     Var< Object & >::push(_SqVM, value);
     // The resulted long integer value
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
-    const SQRESULT res = _SqMod->GetULongValue(_SqVM, -1, &longint);
-    // Remove any pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Now it's safe to throw the error if necessary
-    if (SQ_FAILED(res))
+    if (SQ_FAILED(_SqMod->GetULongValue(_SqVM, -1, &longint)))
         SqThrowF("Invalid long integer specified");
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_int(m_Handle, idx, longint);
@@ -590,7 +582,7 @@ Object Statement::FetchColumnIndex(Int32 idx) const
     if (!m_Handle->CheckIndex(idx))
         SqThrowF("Column index is out of range: %d", idx);
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Identify which type of value must be pushed on the stack
     switch (sqlite3_column_type(m_Handle, idx))
     {
@@ -631,7 +623,7 @@ Object Statement::FetchColumnIndex(Int32 idx) const
             else if (!b)
             {
                 // Pop the memory blob from the stack
-                sq_pop(_SqVM, sq_gettop(_SqVM) - top);
+                sq_pop(_SqVM, 1);
                 // Push a null value instead
                 sq_pushnull(_SqVM);
             }
@@ -643,12 +635,8 @@ Object Statement::FetchColumnIndex(Int32 idx) const
         default:
             SqThrowF("Unknown value to fetch at index: %d", idx);
     }
-    // Obtain the object with the value from the stack
-    Var< Object > obj(_SqVM, -1);
-    // Remove any pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Now return the obtained object
-    return obj.value;
+    // Obtain the object with the value from the stack and return it
+    return Var< Object >(_SqVM, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -695,8 +683,6 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
     // Is the maximum in range?
     else if (!m_Handle->CheckIndex(max))
         SqThrowF("Maximum is out of range");
-    // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
     // Allocate an array large enough to hold the values from selected columns
     Array arr(_SqVM, max-min);
     // Process the range of selected columns
@@ -728,6 +714,8 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
             // Is this raw data?
             case SQLITE_BLOB:
             {
+                // Obtain the initial stack size
+                const StackGuard sg(_SqVM);
                 // Obtain the size of the data
                 const Int32 sz = sqlite3_column_bytes(m_Handle, idx);
                 // Allocate a blob of the same size
@@ -741,7 +729,7 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
                 else if (!b)
                 {
                     // Pop the memory blob from the stack
-                    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
+                    sq_pop(_SqVM, 1);
                     // Push a null value instead
                     sq_pushnull(_SqVM);
                 }
@@ -750,8 +738,6 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
                     memcpy(p, b, sz);
                 // Obtain the object from the stack
                 Var< Object > obj(_SqVM, -1);
-                // Pop the memory blob from the stack
-                sq_pop(_SqVM, sq_gettop(_SqVM) - top);
                 // Bind it as an array element
                 arr.Bind(elem, obj.value);
             } break;
@@ -799,8 +785,6 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
     // Is the maximum in range?
     else if (!m_Handle->CheckIndex(max))
         SqThrowF("Maximum is out of range");
-    // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
     // Create a table to hold the selected column values
     Table tbl(_SqVM);
     // Used to bind null values
@@ -843,6 +827,8 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
             // Is this raw data?
             case SQLITE_BLOB:
             {
+                // Obtain the initial stack size
+                const StackGuard sg(_SqVM);
                 // Obtain the size of the data
                 const Int32 sz = sqlite3_column_bytes(m_Handle, idx);
                 // Allocate a blob of the same size
@@ -856,7 +842,7 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
                 else if (!b)
                 {
                     // Pop the memory blob from the stack
-                    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
+                    sq_pop(_SqVM, 1);
                     // Push a null value instead
                     sq_pushnull(_SqVM);
                 }
@@ -865,8 +851,6 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
                     memcpy(p, b, sz);
                 // Obtain the object from the stack
                 Var< Object > obj(_SqVM, -1);
-                // Pop the memory blob from the stack
-                sq_pop(_SqVM, sq_gettop(_SqVM) - top);
                 // Bind it as a table element
                 tbl.Bind(name, obj.value);
             } break;

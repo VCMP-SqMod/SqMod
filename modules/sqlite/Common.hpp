@@ -15,6 +15,12 @@
 #include <sqlite3.h>
 
 // ------------------------------------------------------------------------------------------------
+extern "C" {
+    struct SQVM;
+    typedef struct SQVM* HSQUIRRELVM;
+} /*extern "C"*/
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -44,6 +50,11 @@ class Transaction;
 SStr GetTempBuff();
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve the size of the temporary buffer.
+*/
+Uint32 GetTempBuffSize();
+
+/* ------------------------------------------------------------------------------------------------
  * Throw a formatted exception.
 */
 void SqThrowF(CSStr str, ...);
@@ -62,6 +73,50 @@ CSStr QFmtStr(CSStr str, ...);
  * Tests if a certain query string is empty.
 */
 bool IsQueryEmpty(CSStr str);
+
+/* ------------------------------------------------------------------------------------------------
+ * Implements RAII to restore the VM stack to it's initial size on function exit.
+*/
+struct StackGuard
+{
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    StackGuard(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~StackGuard();
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    StackGuard(const StackGuard &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    StackGuard(StackGuard &&);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator.
+    */
+    StackGuard & operator = (const StackGuard &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    StackGuard & operator = (StackGuard &&);
+
+private:
+
+    // --------------------------------------------------------------------------------------------
+    Int32       m_Top; /* The top of the stack when this instance was created. */
+    HSQUIRRELVM m_VM; /* The VM where the stack should be restored. */
+};
 
 /* ------------------------------------------------------------------------------------------------
  * Manages a reference counted database connection handle.
@@ -200,9 +255,17 @@ public:
     */
     ConnHnd(const ConnHnd & o)
         : m_Hnd(o.m_Hnd)
-
     {
         Grab();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    ConnHnd(ConnHnd && o)
+        : m_Hnd(o.m_Hnd)
+    {
+        o.m_Hnd = NULL;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -224,6 +287,20 @@ public:
             m_Hnd = o.m_Hnd;
             Grab();
         }
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    ConnHnd & operator = (ConnHnd && o)
+    {
+        if (m_Hnd != o.m_Hnd)
+        {
+            m_Hnd = o.m_Hnd;
+            o.m_Hnd = NULL;
+        }
+
         return *this;
     }
 
@@ -354,7 +431,6 @@ public:
     */
     Counter Count() const
     {
-        assert(m_Hnd);
         return m_Hnd ? m_Hnd->mRef : 0;
     }
 
@@ -363,8 +439,10 @@ public:
     */
     CCStr ErrStr() const
     {
-        assert(m_Hnd); // SQLite does it's null pointer validations internally
-        return sqlite3_errstr(sqlite3_errcode(m_Hnd->mPtr));
+        // SQLite does it's null pointer validations internally
+        if (m_Hnd)
+            return sqlite3_errstr(sqlite3_errcode(m_Hnd->mPtr));
+        return _SC("");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -372,8 +450,10 @@ public:
     */
     CCStr ErrMsg() const
     {
-        assert(m_Hnd); // SQLite does it's null pointer validations internally
-        return sqlite3_errmsg(m_Hnd->mPtr);
+        // SQLite does it's null pointer validations internally
+        if (m_Hnd)
+            return sqlite3_errmsg(m_Hnd->mPtr);
+        return _SC("");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -381,8 +461,10 @@ public:
     */
     Int32 ErrNo() const
     {
-        assert(m_Hnd); // SQLite does it's null pointer validations internally
-        return sqlite3_errcode(m_Hnd->mPtr);
+        // SQLite does it's null pointer validations internally
+        if (m_Hnd)
+            return sqlite3_errcode(m_Hnd->mPtr);
+        return SQLITE_NOMEM;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -390,8 +472,10 @@ public:
     */
     Int32 ExErrNo() const
     {
-        assert(m_Hnd); // SQLite does it's null pointer validations internally
-        return sqlite3_extended_errcode(m_Hnd->mPtr);
+        // SQLite does it's null pointer validations internally
+        if (m_Hnd)
+            return sqlite3_extended_errcode(m_Hnd->mPtr);
+        return SQLITE_NOMEM;
     }
 };
 
@@ -546,6 +630,15 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    StmtHnd(StmtHnd && o)
+        : m_Hnd(o.m_Hnd)
+    {
+        o.m_Hnd = NULL;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~StmtHnd()
@@ -564,6 +657,20 @@ public:
             m_Hnd = o.m_Hnd;
             Grab();
         }
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    StmtHnd & operator = (StmtHnd && o)
+    {
+        if (m_Hnd != o.m_Hnd)
+        {
+            m_Hnd = o.m_Hnd;
+            o.m_Hnd = NULL;
+        }
+
         return *this;
     }
 
@@ -604,7 +711,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Perform an inequality comparison with an integer value status.
+     * Perform an inequality comparison with an integer status value.
     */
     bool operator != (Int32 status) const
     {
@@ -694,7 +801,6 @@ public:
     */
     Counter Count() const
     {
-        assert(m_Hnd);
         return m_Hnd ? m_Hnd->mRef : 0;
     }
 
@@ -703,8 +809,9 @@ public:
     */
     CCStr ErrStr() const
     {
-        assert(m_Hnd); // SQLite does it's null pointer validations internally
-        return m_Hnd->mConn.ErrStr();
+        if (m_Hnd)
+            return m_Hnd->mConn.ErrStr();
+        return _SC("");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -712,8 +819,9 @@ public:
     */
     CCStr ErrMsg() const
     {
-        assert(m_Hnd); // SQLite does it's null pointer validations internally
-        return m_Hnd->mConn.ErrMsg();
+        if (m_Hnd)
+            return m_Hnd->mConn.ErrMsg();
+        return _SC("");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -721,8 +829,9 @@ public:
     */
     Int32 ErrNo() const
     {
-        assert(m_Hnd); // SQLite does it's null pointer validations internally
-        return m_Hnd->mConn.ErrNo();
+        if (m_Hnd)
+            return m_Hnd->mConn.ErrNo();
+        return SQLITE_NOMEM;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -730,8 +839,9 @@ public:
     */
     Int32 ExErrNo() const
     {
-        assert(m_Hnd); // SQLite does it's null pointer validations internally
-        return m_Hnd->mConn.ExErrNo();
+        if (m_Hnd)
+            return m_Hnd->mConn.ExErrNo();
+        return SQLITE_NOMEM;
     }
 };
 

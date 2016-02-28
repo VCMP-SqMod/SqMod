@@ -98,15 +98,11 @@ Object Column::GetLong() const
     // Validate the column and statement row
     ValidateRow();
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Push a long integer instance with the requested value on the stack
     _SqMod->PushSLongObject(_SqVM, sqlite3_column_int64(m_Stmt, m_Index));
-    // Obtain the object from the stack
-    Var< Object > inst(_SqVM, -1);
-    // Remove any pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Return the long integer instance
-    return inst.value;
+    // Get the object from the stack and return it
+    return Var< Object >(_SqVM, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -115,16 +111,12 @@ Object Column::GetString() const
     // Validate the column and statement row
     ValidateRow();
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Push the column text on the stack
     sq_pushstring(_SqVM, (CSStr)sqlite3_column_text(m_Stmt, m_Index),
                                 sqlite3_column_bytes(m_Stmt, m_Index));
-    // Obtain the object from the stack
-    Var< Object > inst(_SqVM, -1);
-    // Remove any pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Return the long integer instance
-    return inst.value;
+    // Get the object from the stack and return it
+    return Var< Object >(_SqVM, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -142,7 +134,7 @@ Object Column::GetBlob() const
     // Validate the column and statement row
     ValidateRow();
     // Obtain the initial stack size
-    const Int32 top = sq_gettop(_SqVM);
+    const StackGuard sg(_SqVM);
     // Obtain the size of the data
     const Int32 sz = sqlite3_column_bytes(m_Stmt, m_Index);
     // Allocate a blob of the same size
@@ -156,19 +148,15 @@ Object Column::GetBlob() const
     else if (!b)
     {
         // Pop the memory blob from the stack
-        sq_pop(_SqVM, sq_gettop(_SqVM) - top);
+        sq_pop(_SqVM, 1);
         // Push a null value instead
         sq_pushnull(_SqVM);
     }
     // Copy the data into the memory blob
     else
         memcpy(p, b, sz);
-    // Obtain the object from the stack
-    Var< Object > inst(_SqVM, -1);
-    // Remove any pushed values (if any) to restore the stack
-    sq_pop(_SqVM, sq_gettop(_SqVM) - top);
-    // Return the blob instance
-    return inst.value;
+    // Get the object from the stack and return it
+    return Var< Object >(_SqVM, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
