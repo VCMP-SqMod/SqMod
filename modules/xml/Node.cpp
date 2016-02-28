@@ -8,27 +8,19 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-bool Node::Validate() const
+SQInteger Node::Typename(HSQUIRRELVM vm)
 {
-    if (m_Doc)
-        return true;
-    // Invalid document reference
-    _SqMod->SqThrow("Invalid XML document reference");
-    return false;
+    static SQChar name[] = _SC("SqXmlNode");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Node::SetName(CSStr name)
+void Node::Validate() const
 {
-    if (!m_Node.set_name(name))
-        _SqMod->SqThrow("Unable to set XML node name");
-}
-
-// ------------------------------------------------------------------------------------------------
-void Node::SetValue(CSStr name)
-{
-    if (!m_Node.set_value(name))
-        _SqMod->SqThrow("Unable to set XML node value");
+    // Validate the document handle
+    if (!m_Doc)
+        SqThrowF("Invalid XML document reference");
 }
 
 // ------------------------------------------------------------------------------------------------

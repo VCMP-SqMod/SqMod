@@ -11,6 +11,12 @@
 #include <pugixml.hpp>
 
 // ------------------------------------------------------------------------------------------------
+extern "C" {
+    struct SQVM;
+    typedef struct SQVM* HSQUIRRELVM;
+} /*extern "C"*/
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -39,6 +45,70 @@ class XPathNodeSet;
 class XPathVariable;
 class XPathVariableSet;
 class XPathVariableQuery;
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the temporary buffer.
+*/
+SStr GetTempBuff();
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the size of the temporary buffer.
+*/
+Uint32 GetTempBuffSize();
+
+/* ------------------------------------------------------------------------------------------------
+ * Throw a formatted exception.
+*/
+void SqThrowF(CSStr str, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Generate a formatted string.
+*/
+CSStr FmtStr(CSStr str, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Implements RAII to restore the VM stack to it's initial size on function exit.
+*/
+struct StackGuard
+{
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    StackGuard(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~StackGuard();
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    StackGuard(const StackGuard &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    StackGuard(StackGuard &&);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator.
+    */
+    StackGuard & operator = (const StackGuard &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    StackGuard & operator = (StackGuard &&);
+
+private:
+
+    // --------------------------------------------------------------------------------------------
+    Int32       m_Top; /* The top of the stack when this instance was created. */
+    HSQUIRRELVM m_VM; /* The VM where the stack should be restored. */
+};
 
 /* ------------------------------------------------------------------------------------------------
  * Manages a reference counted xml document instance.
@@ -125,6 +195,16 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    DocumentRef(DocumentRef && o)
+        : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
+    {
+        o.m_Ptr = NULL;
+        o.m_Ref = NULL;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~DocumentRef()
@@ -143,6 +223,21 @@ public:
             m_Ptr = o.m_Ptr;
             m_Ref = o.m_Ref;
             Grab();
+        }
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    DocumentRef & operator = (DocumentRef && o)
+    {
+        if (m_Ptr != o.m_Ptr)
+        {
+            m_Ptr = o.m_Ptr;
+            m_Ref = o.m_Ref;
+            o.m_Ptr = NULL;
+            o.m_Ref = NULL;
         }
         return *this;
     }
@@ -210,7 +305,7 @@ public:
     */
     Pointer operator -> () const
     {
-        assert(m_Ptr != NULL);
+        assert(m_Ptr);
         return m_Ptr;
     }
 
@@ -219,7 +314,7 @@ public:
     */
     Reference operator * () const
     {
-        assert(m_Ptr != NULL);
+        assert(m_Ptr);
         return *m_Ptr;
     }
 
@@ -258,13 +353,13 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Validate the document reference and throw an error if invalid.
     */
-    bool Validate() const;
+    void Validate() const;
 
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef  m_Doc; /* The main xml document instance. */
-    Result          m_Result; /* The managed parse result. */
+    DocumentRef m_Doc; /* The main xml document instance. */
+    Result      m_Result; /* The managed parse result. */
 
 public:
 
@@ -324,6 +419,11 @@ public:
     {
         return m_Result.description();
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid xml document.

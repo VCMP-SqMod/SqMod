@@ -30,12 +30,12 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Validate the document reference and throw an error if invalid.
     */
-    bool Validate() const;
+    void Validate() const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the document is allowed to overwrite its contents and throw an error if not.
     */
-    bool CanLoad() const;
+    void CanLoad() const;
 
 private:
 
@@ -91,6 +91,11 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid xml document.
     */
     bool IsValid() const
@@ -103,7 +108,7 @@ public:
     */
     Uint32 GetRefCount() const
     {
-        return m_Doc ? *(m_Doc.m_Ref) : 0;
+        return m_Doc.Count();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -111,8 +116,10 @@ public:
     */
     void Reset()
     {
-        if (Validate())
-            m_Doc->reset();
+        // Validate the document handle
+        Validate();
+        // Perform the requested operation
+        m_Doc->reset();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -120,8 +127,11 @@ public:
     */
     void Reset(const Document & doc)
     {
-        if (Validate() && doc.Validate())
-            m_Doc->reset(*doc.m_Doc);
+        // Validate the document handles
+        Validate();
+        doc.Validate();
+        // Perform the requested operation
+        m_Doc->reset(*doc.m_Doc);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -129,9 +139,10 @@ public:
     */
     ParseResult LoadData(CSStr source)
     {
-        if (CanLoad())
-            return ParseResult(m_Doc, m_Doc->load_string(source));
-        return ParseResult();
+        // Make sure that we are allowed to load in data
+        CanLoad();
+        // Perform the requested operation and return the result
+        return ParseResult(m_Doc, m_Doc->load_string(source));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -139,9 +150,10 @@ public:
     */
     ParseResult LoadData(CSStr source, Uint32 options)
     {
-        if (CanLoad())
-            return ParseResult(m_Doc, m_Doc->load_string(source, options));
-        return ParseResult();
+        // Make sure that we are allowed to load in data
+        CanLoad();
+        // Perform the requested operation and return the result
+        return ParseResult(m_Doc, m_Doc->load_string(source, options));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -149,9 +161,10 @@ public:
     */
     ParseResult LoadFile(CSStr filepath)
     {
-        if (CanLoad())
-            return ParseResult(m_Doc, m_Doc->load_file(filepath));
-        return ParseResult();
+        // Make sure that we are allowed to load in data
+        CanLoad();
+        // Perform the requested operation and return the result
+        return ParseResult(m_Doc, m_Doc->load_file(filepath));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -159,9 +172,10 @@ public:
     */
     ParseResult LoadFile(CSStr filepath, Uint32 options)
     {
-        if (CanLoad())
-            return ParseResult(m_Doc, m_Doc->load_file(filepath, options));
-        return ParseResult();
+        // Make sure that we are allowed to load in data
+        CanLoad();
+        // Perform the requested operation and return the result
+        return ParseResult(m_Doc, m_Doc->load_file(filepath, options));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -169,9 +183,10 @@ public:
     */
     ParseResult LoadFile(CSStr filepath, Uint32 options, Int32 encoding)
     {
-        if (CanLoad())
-            return ParseResult(m_Doc, m_Doc->load_file(filepath, options, (xml_encoding)encoding));
-        return ParseResult();
+        // Make sure that we are allowed to load in data
+        CanLoad();
+        // Perform the requested operation and return the result
+        return ParseResult(m_Doc, m_Doc->load_file(filepath, options, (xml_encoding)encoding));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -179,8 +194,10 @@ public:
     */
     void SaveFile(CSStr filepath)
     {
-        if (Validate())
-            m_Doc->save_file(filepath);
+        // Validate the document handle
+        Validate();
+        // Perform the requested operation
+        m_Doc->save_file(filepath);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -188,8 +205,10 @@ public:
     */
     void SaveFile(CSStr filepath, CSStr indent)
     {
-        if (Validate())
-            m_Doc->save_file(filepath, indent);
+        // Validate the document handle
+        Validate();
+        // Perform the requested operation
+        m_Doc->save_file(filepath, indent);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -197,8 +216,10 @@ public:
     */
     void SaveFile(CSStr filepath, CSStr indent, Uint32 format)
     {
-        if (Validate())
-            m_Doc->save_file(filepath, indent, format);
+        // Validate the document handle
+        Validate();
+        // Perform the requested operation
+        m_Doc->save_file(filepath, indent, format);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -206,8 +227,10 @@ public:
     */
     void SaveFile(CSStr filepath, CSStr indent, Uint32 format, Int32 encoding)
     {
-        if (Validate())
-            m_Doc->save_file(filepath, indent, format, (xml_encoding)encoding);
+        // Validate the document handle
+        Validate();
+        // Perform the requested operation
+        m_Doc->save_file(filepath, indent, format, (xml_encoding)encoding);
     }
 
     /* --------------------------------------------------------------------------------------------

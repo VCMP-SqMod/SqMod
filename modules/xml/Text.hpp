@@ -32,7 +32,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Validate the document reference and throw an error if invalid.
     */
-    bool Validate() const;
+    void Validate() const;
 
 private:
 
@@ -89,6 +89,11 @@ public:
     {
         return m_Text.get();
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid xml document.

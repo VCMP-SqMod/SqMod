@@ -176,6 +176,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Ctor< const ParseResult & >()
         /* Core Metamethods */
         .Func(_SC("_cmp"), &ParseResult::Cmp)
+        .SquirrelFunc(_SC("_typename"), &ParseResult::Typename)
         .Func(_SC("_tostring"), &ParseResult::ToString)
         /* Properties */
         .Prop(_SC("Valid"), &ParseResult::IsValid)
@@ -195,6 +196,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Ctor< const Attribute & >()
         /* Core Metamethods */
         .Func(_SC("_cmp"), &Attribute::Cmp)
+        .SquirrelFunc(_SC("_typename"), &Attribute::Typename)
         .Func(_SC("_tostring"), &Attribute::ToString)
         /* Properties */
         .Prop(_SC("Valid"), &Attribute::IsValid)
@@ -239,6 +241,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Ctor< const Text & >()
         /* Core Metamethods */
         .Func(_SC("_cmp"), &Text::Cmp)
+        .SquirrelFunc(_SC("_typename"), &Text::Typename)
         .Func(_SC("_tostring"), &Text::ToString)
         /* Properties */
         .Prop(_SC("Valid"), &Text::IsValid)
@@ -278,6 +281,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Ctor< const Node & >()
         /* Core Metamethods */
         .Func(_SC("_cmp"), &Node::Cmp)
+        .SquirrelFunc(_SC("_typename"), &Node::Typename)
         .Func(_SC("_tostring"), &Node::ToString)
         /* Properties */
         .Prop(_SC("Valid"), &Node::IsValid)
@@ -352,6 +356,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Ctor()
         /* Core Metamethods */
         .Func(_SC("_cmp"), &Document::Cmp)
+        .SquirrelFunc(_SC("_typename"), &Document::Typename)
         .Func(_SC("_tostring"), &Document::ToString)
         /* Properties */
         .Prop(_SC("Valid"), &Document::IsValid)

@@ -33,7 +33,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Validate the document reference and throw an error if invalid.
     */
-    bool Validate() const;
+    void Validate() const;
 
 private:
 
@@ -101,6 +101,11 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid xml document.
     */
     bool IsValid() const
@@ -159,7 +164,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve node name.
     */
-    void SetName(CSStr name);
+    void SetName(CSStr name)
+    {
+        if (!m_Node.set_name(name))
+            SqThrowF("Unable to set XML node name");
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the node name.
@@ -180,7 +189,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve node value.
     */
-    void SetValue(CSStr name);
+    void SetValue(CSStr name)
+    {
+        if (!m_Node.set_value(name))
+            SqThrowF("Unable to set XML node value");
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the node value.
