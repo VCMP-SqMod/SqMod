@@ -362,7 +362,10 @@
 		<Compiler>
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-std=c++14" />
 			<Add option="-DSQMOD_PLUGIN_API" />
+			<Add option="-DSCRAT_USE_EXCEPTIONS" />
+			<Add option="-DSCRAT_USE_CXX11_OPTIMIZATIONS" />
 			<Add directory="../modules/sample" />
 			<Add directory="../shared" />
 			<Add directory="../include" />
