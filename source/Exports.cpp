@@ -229,7 +229,6 @@ void InitExports()
     g_SqExports.LogSWrn                 = LogSWrn;
     g_SqExports.LogSErr                 = LogSErr;
     g_SqExports.LogSFtl                 = LogSFtl;
-    g_SqExports.SqThrow                 = SqThrow;
 
     /*long numbers*/
     g_SqExports.GetSLongValue           = SqEx_GetSLongValue;

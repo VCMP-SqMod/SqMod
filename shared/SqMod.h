@@ -63,7 +63,6 @@ extern "C" {
     typedef HSQUIRRELVM     (*SqEx_GetSquirrelVM) (void);
     /*logging utilities*/
     typedef void            (*SqEx_LogMessage) (const SQChar * fmt, ...);
-    typedef void            (*SqEx_SqThrow) (const SQChar * fmt, ...);
     /*long numbers*/
     typedef SQRESULT        (*SqEx_GetSLongValue) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
     typedef void            (*SqEx_PushSLongObject) (HSQUIRRELVM vm, SqInt64 num);
@@ -100,7 +99,6 @@ extern "C" {
         SqEx_LogMessage                     LogSWrn;
         SqEx_LogMessage                     LogSErr;
         SqEx_LogMessage                     LogSFtl;
-        SqEx_SqThrow                        SqThrow;
         /*long numbers*/
         SqEx_GetSLongValue                  GetSLongValue;
         SqEx_PushSLongObject                PushSLongObject;
