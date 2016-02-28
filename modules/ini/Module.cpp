@@ -175,8 +175,8 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Ctor< const IniResult & >()
         /* Core Metamethods */
         .Func(_SC("_cmp"), &IniResult::Cmp)
+        .SquirrelFunc(_SC("_typename"), &IniResult::Typename)
         .Func(_SC("_tostring"), &IniResult::ToString)
-        .Func(_SC("_typename"), &IniResult::Typename)
         /* Properties */
         .Prop(_SC("Valid"), &IniResult::IsValid)
         .Prop(_SC("Action"), &IniResult::GetAction)
@@ -191,7 +191,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Ctor< const Entries & >()
         /* Core Metamethods */
         .Func(_SC("_cmp"), &Entries::Cmp)
-        .Func(_SC("_typename"), &Entries::Typename)
+        .SquirrelFunc(_SC("_typename"), &Entries::Typename)
         .Func(_SC("_tostring"), &Entries::ToString)
         /* Properties */
         .Prop(_SC("Valid"), &Entries::IsValid)
@@ -221,7 +221,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Ctor< bool, bool, bool >()
         /* Core Metamethods */
         .Func(_SC("_cmp"), &Document::Cmp)
-        .Func(_SC("_typename"), &Document::Typename)
+        .SquirrelFunc(_SC("_typename"), &Document::Typename)
         .Func(_SC("_tostring"), &Document::ToString)
         /* Properties */
         .Prop(_SC("Valid"), &Document::IsValid)
@@ -276,7 +276,6 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Const(_SC("Fail"),                     Int32(SI_FAIL))
         .Const(_SC("NoMem"),                    Int32(SI_NOMEM))
         .Const(_SC("File"),                     Int32(SI_FILE))
-        .Const(_SC("BadRef"),                   Int32(SI_BADREF))
     );
 }
 

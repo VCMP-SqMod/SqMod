@@ -30,7 +30,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Validate the document reference and throw an error if invalid.
     */
-    bool Validate() const;
+    void Validate() const;
 
 private:
 
@@ -99,10 +99,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to retrieve the name from instances of this type.
     */
-    CSStr Typename() const
-    {
-        return _SC("SqIniDocument");
-    }
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid INI document.

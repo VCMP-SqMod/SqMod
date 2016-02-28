@@ -6,6 +6,14 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Entries::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("SqIniEntries");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 Entries::Cmp(const Entries & o) const
 {
     if (m_Elem == o.m_Elem)
@@ -55,31 +63,31 @@ void Entries::Retreat(Int32 n)
 // ------------------------------------------------------------------------------------------------
 CSStr Entries::GetItem() const
 {
+    // is the current element valid?
     if (m_List.empty() || m_Elem == m_List.end())
-        _SqMod->SqThrow("Invalid INI entry [item]");
-    else
-        return m_Elem->pItem;
-    return _SC("");
+        SqThrowF("Invalid INI entry [item]");
+    // Return the requested information
+    return m_Elem->pItem;
 }
 
 // ------------------------------------------------------------------------------------------------
 CSStr Entries::GetComment() const
 {
+    // is the current element valid?
     if (m_List.empty() || m_Elem == m_List.end())
-        _SqMod->SqThrow("Invalid INI entry [comment]");
-    else
-        return m_Elem->pComment;
-    return _SC("");
+        SqThrowF("Invalid INI entry [comment]");
+    // Return the requested information
+    return m_Elem->pComment;
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Entries::GetOrder() const
 {
+    // is the current element valid?
     if (m_List.empty() || m_Elem == m_List.end())
-        _SqMod->SqThrow("Invalid INI entry [order]");
-    else
-        return m_Elem->nOrder;
-    return -1;
+        SqThrowF("Invalid INI entry [order]");
+    // Return the requested information
+    return m_Elem->nOrder;
 }
 
 } // Namespace:: SqMod

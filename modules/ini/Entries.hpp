@@ -95,10 +95,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to retrieve the name from instances of this type.
     */
-    CSStr Typename() const
-    {
-        return _SC("SqIniEntries");
-    }
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Return whether the current element is valid and can be accessed.

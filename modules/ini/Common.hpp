@@ -11,15 +11,13 @@
 #include <SimpleIni.h>
 
 // ------------------------------------------------------------------------------------------------
-namespace SqMod {
+extern "C" {
+    struct SQVM;
+    typedef struct SQVM* HSQUIRRELVM;
+} /*extern "C"*/
 
-/* ------------------------------------------------------------------------------------------------
- * Custom Error messages.
-*/
-enum SI_Custom_Error
-{
-    SI_BADREF = -4
-};
+// ------------------------------------------------------------------------------------------------
+namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
  * SOFTWARE INFORMATION
@@ -41,6 +39,70 @@ class Entries;
 class Document;
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve the temporary buffer.
+*/
+SStr GetTempBuff();
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the size of the temporary buffer.
+*/
+Uint32 GetTempBuffSize();
+
+/* ------------------------------------------------------------------------------------------------
+ * Throw a formatted exception.
+*/
+void SqThrowF(CSStr str, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Generate a formatted string.
+*/
+CSStr FmtStr(CSStr str, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Implements RAII to restore the VM stack to it's initial size on function exit.
+*/
+struct StackGuard
+{
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    StackGuard(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~StackGuard();
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    StackGuard(const StackGuard &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    StackGuard(StackGuard &&);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator.
+    */
+    StackGuard & operator = (const StackGuard &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    StackGuard & operator = (StackGuard &&);
+
+private:
+
+    // --------------------------------------------------------------------------------------------
+    Int32       m_Top; /* The top of the stack when this instance was created. */
+    HSQUIRRELVM m_VM; /* The VM where the stack should be restored. */
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Manages a reference counted INI document instance.
 */
 class DocumentRef
@@ -51,24 +113,24 @@ class DocumentRef
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef CSimpleIniA     Type; /* The managed type. */
+    typedef CSimpleIniA     Type; // The managed type.
 
     // --------------------------------------------------------------------------------------------
-    typedef Type*           Pointer; /* Pointer to the managed type. */
-    typedef const Type*     ConstPtr; /* Constant pointer to the managed type. */
+    typedef Type*           Pointer; // Pointer to the managed type.
+    typedef const Type*     ConstPtr; // Constant pointer to the managed type.
 
     // --------------------------------------------------------------------------------------------
-    typedef Type&           Reference; /* Reference to the managed type. */
-    typedef const Type&     ConstRef; /* Constant reference to the managed type. */
+    typedef Type&           Reference; // Reference to the managed type.
+    typedef const Type&     ConstRef; // Constant reference to the managed type.
 
     // --------------------------------------------------------------------------------------------
-    typedef unsigned int    Counter; /* Reference counter type. */
+    typedef unsigned int    Counter; // Reference counter type.
 
 private:
 
     // --------------------------------------------------------------------------------------------
-    Pointer     m_Ptr; /* The document reader, writer and manager instance. */
-    Counter*    m_Ref; /* Reference count to the managed instance. */
+    Pointer     m_Ptr; // The document reader, writer and manager instance.
+    Counter*    m_Ref; // Reference count to the managed instance.
 
     /* --------------------------------------------------------------------------------------------
      * Grab a strong reference to a document instance.
@@ -124,6 +186,17 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    DocumentRef(DocumentRef && o)
+        : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
+
+    {
+        o.m_Ptr = NULL;
+        o.m_Ref = NULL;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~DocumentRef()
@@ -142,6 +215,21 @@ public:
             m_Ptr = o.m_Ptr;
             m_Ref = o.m_Ref;
             Grab();
+        }
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    DocumentRef & operator = (DocumentRef && o)
+    {
+        if (m_Ptr != o.m_Ptr)
+        {
+            m_Ptr = o.m_Ptr;
+            m_Ref = o.m_Ref;
+            o.m_Ptr = NULL;
+            o.m_Ref = NULL;
         }
         return *this;
     }
@@ -209,7 +297,7 @@ public:
     */
     Pointer operator -> () const
     {
-        assert(m_Ptr != NULL);
+        assert(m_Ptr);
         return m_Ptr;
     }
 
@@ -218,7 +306,7 @@ public:
     */
     Reference operator * () const
     {
-        assert(m_Ptr != NULL);
+        assert(m_Ptr);
         return *m_Ptr;
     }
 
@@ -356,10 +444,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to retrieve the name from instances of this type.
     */
-    CSStr Typename() const
-    {
-        return _SC("SqIniResult");
-    }
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid INI result.
