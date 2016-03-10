@@ -155,14 +155,18 @@ bool EnabledChatTagsByDefault(void)
 // ------------------------------------------------------------------------------------------------
 void CreateExplosion(Int32 world, Int32 type, const Vector3 & pos, CPlayer & source, Uint32 level)
 {
-    if (source.Validate())
-        _Func->CreateExplosion(world, type, pos.x, pos.y, pos.z, source.GetID(), level);
+    // Validate the specified player
+    source.Validate();
+    // Perform the requested operation
+    _Func->CreateExplosion(world, type, pos.x, pos.y, pos.z, source.GetID(), level);
 }
 
 void CreateExplosionEx(Int32 world, Int32 type, Float32 x, Float32 y, Float32 z, CPlayer & source, Uint32 level)
 {
-    if (source.Validate())
-        _Func->CreateExplosion(world, type, x, y, z, source.GetID(), level);
+    // Validate the specified player
+    source.Validate();
+    // Perform the requested operation
+    _Func->CreateExplosion(world, type, x, y, z, source.GetID(), level);
 }
 
 // ------------------------------------------------------------------------------------------------

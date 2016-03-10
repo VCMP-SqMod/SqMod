@@ -58,17 +58,19 @@ extern "C" {
     #define SQMOD_TERMINATE_CMD     0xDEADC0DE
     #define SQMOD_API_VER           1
 
-    /*primitive functions*/
+    //primitive functions
     typedef HSQAPI          (*SqEx_GetSquirrelAPI) (void);
     typedef HSQUIRRELVM     (*SqEx_GetSquirrelVM) (void);
-    /*logging utilities*/
+    //logging utilities
     typedef void            (*SqEx_LogMessage) (const SQChar * fmt, ...);
-    /*long numbers*/
+    //script loading
+    typedef SQRESULT        (*SqEx_LoadScript) (const SQChar * filepath);
+    //long numbers
     typedef SQRESULT        (*SqEx_GetSLongValue) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
     typedef void            (*SqEx_PushSLongObject) (HSQUIRRELVM vm, SqInt64 num);
     typedef SQRESULT        (*SqEx_GetULongValue) (HSQUIRRELVM vm, SQInteger idx, SqUint64 * num);
     typedef void            (*SqEx_PushULongObject) (HSQUIRRELVM vm, SqUint64 num);
-    /*time utilities*/
+    //time utilities
     typedef SqInt64         (*SqEx_GetCurrentSysTime) (void);
     typedef SqInt64         (*SqEx_GetEpochTimeMicro) (void);
     typedef SqInt64         (*SqEx_GetEpochTimeMilli) (void);
@@ -80,11 +82,11 @@ extern "C" {
     */
     typedef struct
     {
-        unsigned int    uStructSize;
-        /*primitive functions*/
+        unsigned int                        StructSize;
+        //primitive functions
         SqEx_GetSquirrelAPI                 GetSquirrelAPI;
         SqEx_GetSquirrelVM                  GetSquirrelVM;
-        /*logging utilities*/
+        //logging utilities
         SqEx_LogMessage                     LogDbg;
         SqEx_LogMessage                     LogUsr;
         SqEx_LogMessage                     LogScs;
@@ -99,6 +101,8 @@ extern "C" {
         SqEx_LogMessage                     LogSWrn;
         SqEx_LogMessage                     LogSErr;
         SqEx_LogMessage                     LogSFtl;
+        //script loading
+        SqEx_LoadScript                     LoadScript;
         /*long numbers*/
         SqEx_GetSLongValue                  GetSLongValue;
         SqEx_PushSLongObject                PushSLongObject;

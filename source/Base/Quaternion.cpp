@@ -17,6 +17,14 @@ const Quaternion Quaternion::MAX = Quaternion(NumLimit< Quaternion::Value >::Max
 SQChar Quaternion::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Quaternion::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("Quaternion");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 Quaternion::Quaternion()
     : x(0.0), y(0.0), z(0.0), w(0.0)
 {
@@ -42,29 +50,6 @@ Quaternion::Quaternion(Value xv, Value yv, Value zv, Value wv)
     : x(xv), y(yv), z(zv), w(wv)
 {
     /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion(const Quaternion & o)
-    : x(o.x), y(o.y), z(o.z), w(o.w)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Quaternion::~Quaternion()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Quaternion & Quaternion::operator = (const Quaternion & o)
-{
-    x = o.x;
-    y = o.y;
-    z = o.z;
-    w = o.w;
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -338,7 +323,7 @@ Int32 Quaternion::Cmp(const Quaternion & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr Quaternion::ToString() const
 {
-    return ToStringF("%f,%f,%f,%f", x, y, z, w);
+    return ToStrF("%f,%f,%f,%f", x, y, z, w);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -408,31 +393,23 @@ void Quaternion::Generate()
 void Quaternion::Generate(Value min, Value max)
 {
     if (EpsLt(max, min))
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        x = GetRandomFloat32(min, max);
-        y = GetRandomFloat32(min, max);
-        z = GetRandomFloat32(min, max);
-        y = GetRandomFloat32(min, max);
-    }
+        SqThrowF("max value is lower than min value");
+
+    x = GetRandomFloat32(min, max);
+    y = GetRandomFloat32(min, max);
+    z = GetRandomFloat32(min, max);
+    y = GetRandomFloat32(min, max);
 }
 
 void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(wmax, wmin))
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        x = GetRandomFloat32(xmin, xmax);
-        y = GetRandomFloat32(ymin, ymax);
-        z = GetRandomFloat32(zmin, zmax);
-        y = GetRandomFloat32(ymin, ymax);
-    }
+        SqThrowF("max value is lower than min value");
+
+    x = GetRandomFloat32(xmin, xmax);
+    y = GetRandomFloat32(ymin, ymax);
+    z = GetRandomFloat32(zmin, zmax);
+    y = GetRandomFloat32(ymin, ymax);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -463,6 +440,7 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Prop(_SC("abs"), &Quaternion::Abs)
         /* Core Metamethods */
         .Func(_SC("_tostring"), &Quaternion::ToString)
+        .SquirrelFunc(_SC("_typename"), &Quaternion::Typename)
         .Func(_SC("_cmp"), &Quaternion::Cmp)
         /* Metamethods */
         .Func<Quaternion (Quaternion::*)(const Quaternion &) const>(_SC("_add"), &Quaternion::operator +)

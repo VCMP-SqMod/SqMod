@@ -13,15 +13,20 @@ Vector3      CObject::s_Vector3;
 Quaternion   CObject::s_Quaternion;
 
 // ------------------------------------------------------------------------------------------------
-SQChar CObject::s_StrID[SQMOD_OBJECT_POOL][8];
+const Int32 CObject::Max = SQMOD_OBJECT_POOL;
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CObject::Max = SQMOD_OBJECT_POOL;
+SQInteger CObject::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("SqObject");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
 
 // ------------------------------------------------------------------------------------------------
 CObject::CObject(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_OBJECT_POOL))
-    , m_Tag(VALID_ENTITY(m_ID) ? s_StrID[m_ID] : _SC("-1"))
+    , m_Tag(ToStrF("%d", id))
 {
     /* ... */
 }
@@ -43,372 +48,517 @@ Int32 CObject::Cmp(const CObject & o) const
         return -1;
 }
 
-CSStr CObject::ToString() const
+// ------------------------------------------------------------------------------------------------
+const String & CObject::ToString() const
 {
-    return VALID_ENTITYEX(m_ID, SQMOD_OBJECT_POOL) ? s_StrID[m_ID] : _SC("-1");
+    return m_Tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CObject::GetTag() const
+const String & CObject::GetTag() const
 {
-    return m_Tag.c_str();
+    return m_Tag;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetTag(CSStr tag)
 {
     m_Tag.assign(tag);
 }
 
+// ------------------------------------------------------------------------------------------------
 Object & CObject::GetData()
 {
-    if (Validate())
-        return m_Data;
-    return NullObject();
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return m_Data;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetData(Object & data)
 {
-    if (Validate())
-        m_Data = data;
+    // Validate the managed identifier
+    Validate();
+    // Apply the specified value
+    m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool CObject::Destroy(Int32 header, Object & payload)
 {
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
     return _Core->DelObject(m_ID, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CObject::BindEvent(Int32 evid, Object & env, Function & func) const
+void CObject::BindEvent(Int32 evid, Object & env, Function & func) const
 {
-    if (!Validate())
-        return false;
-
+    // Validate the managed identifier
+    Validate();
+    // Obtain the function instance called for this event
     Function & event = _Core->GetObjectEvent(m_ID, evid);
-
+    // Is the specified callback function null?
     if (func.IsNull())
-        event.Release();
+        event.Release(); // Then release the current callback
+    // Assign the specified environment and function
     else
         event = Function(env.GetVM(), env, func.GetFunc());
-
-    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool CObject::IsStreamedFor(CPlayer & player) const
 {
+    // Is the specified player even valid?
     if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        return _Func->IsObjectStreamedForPlayer(m_ID, player.GetID());
-    return false;
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsObjectStreamedForPlayer(m_ID, player.GetID());
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CObject::GetModel() const
 {
-    if (Validate())
-        return _Func->GetObjectModel(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetObjectModel(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CObject::GetWorld() const
 {
-    if (Validate())
-        return _Func->GetObjectWorld(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetObjectWorld(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetWorld(Int32 world) const
 {
-    if (Validate())
-        _Func->SetObjectWorld(m_ID, world);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetObjectWorld(m_ID, world);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CObject::GetAlpha() const
 {
-    if (Validate())
-        return _Func->GetObjectAlpha(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetObjectAlpha(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetAlpha(Int32 alpha) const
 {
-    if (Validate())
-        _Func->SetObjectAlpha(m_ID, alpha, 0);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetObjectAlpha(m_ID, alpha, 0);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetAlphaEx(Int32 alpha, Int32 time) const
 {
-    if (Validate())
-        _Func->SetObjectAlpha(m_ID, alpha, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetObjectAlpha(m_ID, alpha, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::MoveTo(const Vector3 & pos, Int32 time) const
 {
-    if (Validate())
-        _Func->MoveObjectTo(m_ID, pos.x, pos.y, pos.z, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveObjectTo(m_ID, pos.x, pos.y, pos.z, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::MoveToEx(Float32 x, Float32 y, Float32 z, Int32 time) const
 {
-    if (Validate())
-        _Func->MoveObjectTo(m_ID, x, y, z, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveObjectTo(m_ID, x, y, z, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::MoveBy(const Vector3 & pos, Int32 time) const
 {
-    if (Validate())
-        _Func->MoveObjectBy(m_ID, pos.x, pos.y, pos.z, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveObjectBy(m_ID, pos.x, pos.y, pos.z, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::MoveByEx(Float32 x, Float32 y, Float32 z, Int32 time) const
 {
-    if (Validate())
-        _Func->MoveObjectBy(m_ID, x, y, z, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveObjectBy(m_ID, x, y, z, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & CObject::GetPosition()
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous position information
     s_Vector3.Clear();
-    if (Validate())
-        _Func->GetObjectPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the position values
+    _Func->GetObjectPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Return the requested information
     return s_Vector3;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetPosition(const Vector3 & pos) const
 {
-    if (Validate())
-        _Func->SetObjectPos(m_ID, pos.x, pos.y, pos.z);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetObjectPos(m_ID, pos.x, pos.y, pos.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetPositionEx(Float32 x, Float32 y, Float32 z) const
 {
-    if (Validate())
-        _Func->SetObjectPos(m_ID, x, y, z);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetObjectPos(m_ID, x, y, z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::RotateTo(const Quaternion & rot, Int32 time) const
 {
-    if (Validate())
-        _Func->RotObjectTo(m_ID, rot.x, rot.y, rot.z, rot.w, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotObjectTo(m_ID, rot.x, rot.y, rot.z, rot.w, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::RotateToEx(Float32 x, Float32 y, Float32 z, Float32 w, Int32 time) const
 {
-    if (Validate())
-        _Func->RotObjectTo(m_ID, x, y, z, w, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotObjectTo(m_ID, x, y, z, w, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::RotateToEuler(const Vector3 & rot, Int32 time) const
 {
-    if (Validate())
-        _Func->RotObjectToEuler(m_ID, rot.x, rot.y, rot.z, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotObjectToEuler(m_ID, rot.x, rot.y, rot.z, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::RotateToEulerEx(Float32 x, Float32 y, Float32 z, Int32 time) const
 {
-    if (Validate())
-        _Func->RotObjectToEuler(m_ID, x, y, z, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotObjectToEuler(m_ID, x, y, z, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::RotateBy(const Quaternion & rot, Int32 time) const
 {
-    if (Validate())
-        _Func->RotObjectBy(m_ID, rot.x, rot.y, rot.z, rot.w, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotObjectBy(m_ID, rot.x, rot.y, rot.z, rot.w, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::RotateByEx(Float32 x, Float32 y, Float32 z, Float32 w, Int32 time) const
 {
-    if (Validate())
-        _Func->RotObjectBy(m_ID, x, y, z, w, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotObjectBy(m_ID, x, y, z, w, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::RotateByEuler(const Vector3 & rot, Int32 time) const
 {
-    if (Validate())
-        _Func->RotObjectByEuler(m_ID, rot.x, rot.y, rot.z, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotObjectByEuler(m_ID, rot.x, rot.y, rot.z, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::RotateByEulerEx(Float32 x, Float32 y, Float32 z, Int32 time) const
 {
-    if (Validate())
-        _Func->RotObjectByEuler(m_ID, x, y, z, time);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotObjectByEuler(m_ID, x, y, z, time);
 }
 
+// ------------------------------------------------------------------------------------------------
 const Quaternion & CObject::GetRotation()
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous rotation information
     s_Quaternion.Clear();
-    if (Validate())
-        _Func->GetObjectRot(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
+    // Query the server for the rotation values
+    _Func->GetObjectRot(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
+    // Return the requested information
     return s_Quaternion;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & CObject::GetRotationEuler()
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous rotation information
     s_Vector3.Clear();
-    if (Validate())
-        _Func->GetObjectRotEuler(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the rotation values
+    _Func->GetObjectRotEuler(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Return the requested information
     return s_Vector3;
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CObject::GetShotReport() const
 {
-    if (Validate())
-        return _Func->IsObjectShotReport(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsObjectShotReport(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetShotReport(bool toggle) const
 {
-    if (Validate())
-        _Func->SetObjectShotReport(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetObjectShotReport(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CObject::GetBumpReport() const
 {
-    if (Validate())
-        return _Func->IsObjectBumpReport(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsObjectBumpReport(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetBumpReport(bool toggle) const
 {
-    if (Validate())
-        _Func->SetObjectBumpReport(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetObjectBumpReport(m_ID, toggle);
 }
 
 // ------------------------------------------------------------------------------------------------
 Float32 CObject::GetPosX() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous position information, if any
     s_Vector3.x = 0;
-    if (Validate())
-        _Func->GetObjectPos(m_ID, &s_Vector3.x, NULL, NULL);
+    // Query the server for the requested component value
+    _Func->GetObjectPos(m_ID, &s_Vector3.x, NULL, NULL);
+    // Return the requested information
     return s_Vector3.x;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CObject::GetPosY() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous position information, if any
     s_Vector3.y = 0;
-    if (Validate())
-        _Func->GetObjectPos(m_ID, NULL, &s_Vector3.y, NULL);
+    // Query the server for the requested component value
+    _Func->GetObjectPos(m_ID, NULL, &s_Vector3.y, NULL);
+    // Return the requested information
     return s_Vector3.y;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CObject::GetPosZ() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous position information, if any
     s_Vector3.z = 0;
-    if (Validate())
-        _Func->GetObjectPos(m_ID, NULL, NULL, &s_Vector3.z);
+    // Query the server for the requested component value
+    _Func->GetObjectPos(m_ID, NULL, NULL, &s_Vector3.z);
+    // Return the requested information
     return s_Vector3.z;
 }
 
 // ------------------------------------------------------------------------------------------------
 void CObject::SetPosX(Float32 x) const
 {
-    if (Validate())
-    {
-        _Func->GetObjectPos(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
-        _Func->SetObjectPos(m_ID, x, s_Vector3.y, s_Vector3.z);
-    }
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetObjectPos(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
+    // Perform the requested operation
+    _Func->SetObjectPos(m_ID, x, s_Vector3.y, s_Vector3.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetPosY(Float32 y) const
 {
-    if (Validate())
-    {
-        _Func->GetObjectPos(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
-        _Func->SetObjectPos(m_ID, s_Vector3.x, y, s_Vector3.z);
-    }
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetObjectPos(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
+    // Perform the requested operation
+    _Func->SetObjectPos(m_ID, s_Vector3.x, y, s_Vector3.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CObject::SetPosZ(Float32 z) const
 {
-    if (Validate())
-    {
-        _Func->GetObjectPos(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
-        _Func->SetObjectPos(m_ID, s_Vector3.z, s_Vector3.y, z);
-    }
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetObjectPos(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
+    // Perform the requested operation
+    _Func->SetObjectPos(m_ID, s_Vector3.z, s_Vector3.y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
 Float32 CObject::GetRotX() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous rotation information, if any
     s_Quaternion.x = 0;
-    if (Validate())
-        _Func->GetObjectRot(m_ID, &s_Quaternion.x, NULL, NULL, NULL);
+    // Query the server for the requested component value
+    _Func->GetObjectRot(m_ID, &s_Quaternion.x, NULL, NULL, NULL);
+    // Return the requested information
     return s_Quaternion.x;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CObject::GetRotY() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous rotation information, if any
     s_Quaternion.y = 0;
-    if (Validate())
-        _Func->GetObjectRot(m_ID, NULL, &s_Quaternion.y, NULL, NULL);
+    // Query the server for the requested component value
+    _Func->GetObjectRot(m_ID, NULL, &s_Quaternion.y, NULL, NULL);
+    // Return the requested information
     return s_Quaternion.y;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CObject::GetRotZ() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous rotation information, if any
     s_Quaternion.z = 0;
-    if (Validate())
-        _Func->GetObjectRot(m_ID, NULL, NULL, &s_Quaternion.z, NULL);
+    // Query the server for the requested component value
+    _Func->GetObjectRot(m_ID, NULL, NULL, &s_Quaternion.z, NULL);
+    // Return the requested information
     return s_Quaternion.z;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CObject::GetRotW() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous rotation information, if any
     s_Quaternion.w = 0;
-    if (Validate())
-        _Func->GetObjectRot(m_ID, NULL, NULL, NULL, &s_Quaternion.w);
+    // Query the server for the requested component value
+    _Func->GetObjectRot(m_ID, NULL, NULL, NULL, &s_Quaternion.w);
+    // Return the requested information
     return s_Quaternion.w;
 }
 
 // ------------------------------------------------------------------------------------------------
 Float32 CObject::GetERotX() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous rotation information, if any
     s_Vector3.x = 0;
-    if (Validate())
-        _Func->GetObjectRotEuler(m_ID, &s_Vector3.x, NULL, NULL);
+    // Query the server for the requested component value
+    _Func->GetObjectRotEuler(m_ID, &s_Vector3.x, NULL, NULL);
+    // Return the requested information
     return s_Vector3.x;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CObject::GetERotY() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous rotation information, if any
     s_Vector3.y = 0;
-    if (Validate())
-        _Func->GetObjectRotEuler(m_ID, NULL, &s_Vector3.y, NULL);
+    // Query the server for the requested component value
+    _Func->GetObjectRotEuler(m_ID, NULL, &s_Vector3.y, NULL);
+    // Return the requested information
     return s_Vector3.y;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CObject::GetERotZ() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous rotation information, if any
     s_Vector3.z = 0;
-    if (Validate())
-        _Func->GetObjectRotEuler(m_ID, NULL, NULL, &s_Vector3.z);
+    // Query the server for the requested component value
+    _Func->GetObjectRotEuler(m_ID, NULL, NULL, &s_Vector3.z);
+    // Return the requested information
     return s_Vector3.z;
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateObjectEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+static Object & Object_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
                                 Int32 alpha)
 {
     return _Core->NewObject(model, world, x, y, z, alpha, SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateObjectEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+static Object & Object_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
                         Int32 alpha, Int32 header, Object & payload)
 {
     return _Core->NewObject(model, world, x, y, z, alpha, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateObject(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha)
+static Object & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateObject(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha,
+static Object & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha,
                             Int32 header, Object & payload)
 {
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha, header, payload);
@@ -419,22 +569,24 @@ void Register_CObject(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqObject"),
         Class< CObject, NoConstructor< CObject > >(vm, _SC("SqObject"))
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &CObject::Cmp)
+        .SquirrelFunc(_SC("_typename"), &CObject::Typename)
         .Func(_SC("_tostring"), &CObject::ToString)
-        /* Core Properties */
+        // Static values
+        .SetStaticValue(_SC("MaxID"), CObject::Max)
+        // Core Properties
         .Prop(_SC("ID"), &CObject::GetID)
         .Prop(_SC("Tag"), &CObject::GetTag, &CObject::SetTag)
         .Prop(_SC("Data"), &CObject::GetData, &CObject::SetData)
-        .Prop(_SC("MaxID"), &CObject::GetMaxID)
         .Prop(_SC("Active"), &CObject::IsActive)
-        /* Core Functions */
+        // Core Functions
         .Func(_SC("Bind"), &CObject::BindEvent)
-        /* Core Overloads */
+        // Core Overloads
         .Overload< bool (CObject::*)(void) >(_SC("Destroy"), &CObject::Destroy)
         .Overload< bool (CObject::*)(Int32) >(_SC("Destroy"), &CObject::Destroy)
         .Overload< bool (CObject::*)(Int32, Object &) >(_SC("Destroy"), &CObject::Destroy)
-        /* Properties */
+        // Properties
         .Prop(_SC("Model"), &CObject::GetModel)
         .Prop(_SC("World"), &CObject::GetWorld, &CObject::SetWorld)
         .Prop(_SC("Alpha"), &CObject::GetAlpha, &CObject::SetAlpha)
@@ -455,11 +607,11 @@ void Register_CObject(HSQUIRRELVM vm)
         .Prop(_SC("EX"), &CObject::GetERotX)
         .Prop(_SC("EY"), &CObject::GetERotY)
         .Prop(_SC("EZ"), &CObject::GetERotZ)
-        /* Functions */
+        // Functions
         .Func(_SC("StreamedFor"), &CObject::IsStreamedFor)
         .Func(_SC("SetAlpha"), &CObject::SetAlphaEx)
         .Func(_SC("SetPosition"), &CObject::SetPositionEx)
-        /* Overloads */
+        // Overloads
         .Overload< void (CObject::*)(const Vector3 &, Int32) const >
             (_SC("MoveTo"), &CObject::MoveTo)
         .Overload< void (CObject::*)(Float32, Float32, Float32, Int32) const >
@@ -484,17 +636,16 @@ void Register_CObject(HSQUIRRELVM vm)
             (_SC("RotateByEuler"), &CObject::RotateByEuler)
         .Overload< void (CObject::*)(Float32, Float32, Float32, Int32) const >
             (_SC("RotateByEuler"), &CObject::RotateByEulerEx)
+        // Static Overloads
+        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32) >
+            (_SC("CreateEx"), &Object_CreateEx)
+        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Int32, Object &) >
+            (_SC("CreateEx"), &Object_CreateEx)
+        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32) >
+            (_SC("Create"), &Object_Create)
+        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32, Int32, Object &) >
+            (_SC("Create"), &Object_Create)
     );
-
-    RootTable(vm)
-    .Overload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32) >
-        (_SC("CreateObjectEx"), &CreateObjectEx)
-    .Overload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Int32, Object &) >
-        (_SC("CreateObjectEx"), &CreateObjectEx)
-    .Overload< Object & (*)(Int32, Int32, const Vector3 &, Int32) >
-        (_SC("CreateObject"), &CreateObject)
-    .Overload< Object & (*)(Int32, Int32, const Vector3 &, Int32, Int32, Object &) >
-        (_SC("CreateObject"), &CreateObject);
 }
 
 } // Namespace:: SqMod

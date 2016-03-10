@@ -8,6 +8,7 @@
 		<Project filename="ModIRC.cbp" />
 		<Project filename="ModXML.cbp" />
 		<Project filename="ModSQLite.cbp" />
+		<Project filename="ModMMDB.cbp" />
 		<Project filename="ModSample.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

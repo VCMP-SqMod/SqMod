@@ -8,15 +8,20 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQChar CTextdraw::s_StrID[SQMOD_TEXTDRAW_POOL][8];
+const Int32 CTextdraw::Max = SQMOD_TEXTDRAW_POOL;
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CTextdraw::Max = SQMOD_TEXTDRAW_POOL;
+SQInteger CTextdraw::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("SqTextdraw");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
 
 // ------------------------------------------------------------------------------------------------
 CTextdraw::CTextdraw(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_TEXTDRAW_POOL))
-    , m_Tag(VALID_ENTITY(m_ID) ? s_StrID[m_ID] : _SC("-1"))
+    , m_Tag(ToStrF("%d", id))
 {
     /* ... */
 }
@@ -38,206 +43,283 @@ Int32 CTextdraw::Cmp(const CTextdraw & o) const
         return -1;
 }
 
-CSStr CTextdraw::ToString() const
+// ------------------------------------------------------------------------------------------------
+const String & CTextdraw::ToString() const
 {
-    return VALID_ENTITYEX(m_ID, SQMOD_TEXTDRAW_POOL) ? s_StrID[m_ID] : _SC("-1");
+    return m_Tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CTextdraw::GetTag() const
+const String & CTextdraw::GetTag() const
 {
-    return m_Tag.c_str();
+    return m_Tag;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CTextdraw::SetTag(CSStr tag)
 {
     m_Tag.assign(tag);
 }
 
+// ------------------------------------------------------------------------------------------------
 Object & CTextdraw::GetData()
 {
-    if (Validate())
-        return m_Data;
-    return NullObject();
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return m_Data;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CTextdraw::SetData(Object & data)
 {
-    if (Validate())
-        m_Data = data;
+    // Validate the managed identifier
+    Validate();
+    // Apply the specified value
+    m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool CTextdraw::Destroy(Int32 header, Object & payload)
 {
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
     return _Core->DelTextdraw(m_ID, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CTextdraw::BindEvent(Int32 evid, Object & env, Function & func) const
+void CTextdraw::BindEvent(Int32 evid, Object & env, Function & func) const
 {
-    if (!Validate())
-        return false;
-
+    // Validate the managed identifier
+    Validate();
+    // Obtain the function instance called for this event
     Function & event = _Core->GetTextdrawEvent(m_ID, evid);
-
+    // Is the specified callback function null?
     if (func.IsNull())
-        event.Release();
+        event.Release(); // Then release the current callback
+    // Assign the specified environment and function
     else
         event = Function(env.GetVM(), env, func.GetFunc());
-
-    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
 void CTextdraw::ShowAll() const
 {
-    if (Validate())
-        _Func->ShowTextdraw(m_ID, -1);
-}
-
-void CTextdraw::ShowFor(CPlayer & player) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->ShowTextdraw(m_ID, player.GetID());
-}
-
-void CTextdraw::ShowRange(Int32 first, Int32 last) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (; first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->ShowTextdraw(m_ID, first);
-        }
-}
-
-void CTextdraw::HideAll() const
-{
-    if (Validate())
-        _Func->HideTextdraw(m_ID, -1);
-}
-
-void CTextdraw::HideFor(CPlayer & player) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->HideTextdraw(m_ID, player.GetID());
-}
-
-void CTextdraw::HideRange(Int32 first, Int32 last) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (; first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->HideTextdraw(m_ID, first);
-        }
-}
-
-void CTextdraw::SetPositionAll(const Vector2i & pos) const
-{
-    if (Validate())
-        _Func->MoveTextdraw(m_ID, -1, pos.x, pos.y);
-}
-
-void CTextdraw::SetPositionAllEx(Int32 x, Int32 y) const
-{
-    if (Validate())
-        _Func->MoveTextdraw(m_ID, -1, x, y);
-}
-
-void CTextdraw::SetPositionFor(CPlayer & player, const Vector2i & pos) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->MoveTextdraw(m_ID, player.GetID(), pos.x, pos.y);
-}
-
-void CTextdraw::SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->MoveTextdraw(m_ID, player.GetID(), x, y);
-}
-
-void CTextdraw::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (; first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->MoveTextdraw(m_ID, first, pos.x, pos.y);
-        }
-}
-
-void CTextdraw::SetColorAll(const Color4 & col) const
-{
-    if (Validate())
-        _Func->SetTextdrawColour(m_ID, -1, col.GetRGBA());
-}
-
-void CTextdraw::SetColorAllEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
-{
-    if (Validate())
-        _Func->SetTextdrawColour(m_ID, -1, SQMOD_PACK_RGBA(r, g, b, a));
-}
-
-void CTextdraw::SetColorFor(CPlayer & player, const Color4 & col) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->SetTextdrawColour(m_ID, player.GetID(), col.GetRGBA());
-}
-
-void CTextdraw::SetColorForEx(CPlayer & player, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->SetTextdrawColour(m_ID, player.GetID(), SQMOD_PACK_RGBA(r, g, b, a));
-}
-
-void CTextdraw::SetColorRange(Int32 first, Int32 last, const Color4 & col) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (const Uint32 color = col.GetRGBA(); first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->SetTextdrawColour(m_ID, first, color);
-        }
-}
-
-CSStr CTextdraw::GetText() const
-{
-    if (Validate())
-        _Core->GetTextdraw(m_ID).mText.c_str();
-    return g_EmptyStr;
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->ShowTextdraw(m_ID, -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateTextdrawEx(CSStr text, Int32 xp, Int32 yp,
+void CTextdraw::ShowFor(CPlayer & player) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->ShowTextdraw(m_ID, player.GetID());
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::ShowRange(Int32 first, Int32 last) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (; first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then show this textdraw on his client
+            _Func->ShowTextdraw(m_ID, first);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::HideAll() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->HideTextdraw(m_ID, -1);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::HideFor(CPlayer & player) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+        _Func->HideTextdraw(m_ID, player.GetID());
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::HideRange(Int32 first, Int32 last) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (; first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then hide this textdraw on his client
+            _Func->HideTextdraw(m_ID, first);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetPositionAll(const Vector2i & pos) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveTextdraw(m_ID, -1, pos.x, pos.y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetPositionAllEx(Int32 x, Int32 y) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveTextdraw(m_ID, -1, x, y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetPositionFor(CPlayer & player, const Vector2i & pos) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveTextdraw(m_ID, player.GetID(), pos.x, pos.y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveTextdraw(m_ID, player.GetID(), x, y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (; first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then move this textdraw on his client
+            _Func->MoveTextdraw(m_ID, first, pos.x, pos.y);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetColorAll(const Color4 & col) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetTextdrawColour(m_ID, -1, col.GetRGBA());
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetColorAllEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetTextdrawColour(m_ID, -1, SQMOD_PACK_RGBA(r, g, b, a));
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetColorFor(CPlayer & player, const Color4 & col) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetTextdrawColour(m_ID, player.GetID(), col.GetRGBA());
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetColorForEx(CPlayer & player, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetTextdrawColour(m_ID, player.GetID(), SQMOD_PACK_RGBA(r, g, b, a));
+}
+
+// ------------------------------------------------------------------------------------------------
+void CTextdraw::SetColorRange(Int32 first, Int32 last, const Color4 & col) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (const Uint32 color = col.GetRGBA(); first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then colorize this textdraw on his client
+            _Func->SetTextdrawColour(m_ID, first, color);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+const String & CTextdraw::GetText() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetTextdraw(m_ID).mText;
+}
+
+// ------------------------------------------------------------------------------------------------
+static Object & Textdraw_CreateEx(CSStr text, Int32 xp, Int32 yp,
                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool rel)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, xp, yp, SQMOD_PACK_ARGB(a, r, g, b), rel,
                                 SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateTextdrawEx(CSStr text, Int32 xp, Int32 yp,
+// ------------------------------------------------------------------------------------------------
+static Object & Textdraw_CreateEx(CSStr text, Int32 xp, Int32 yp,
                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool rel,
                                 Int32 header, Object & payload)
 {
@@ -246,14 +328,15 @@ static Object & CreateTextdrawEx(CSStr text, Int32 xp, Int32 yp,
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateTextdrawEx(Int32 index, CSStr text, Int32 xp, Int32 yp,
+static Object & Textdraw_CreateEx(Int32 index, CSStr text, Int32 xp, Int32 yp,
                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool rel)
 {
     return _Core->NewTextdraw(index,text, xp, yp, SQMOD_PACK_ARGB(a, r, g, b), rel,
                                 SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateTextdrawEx(Int32 index, CSStr text, Int32 xp, Int32 yp,
+// ------------------------------------------------------------------------------------------------
+static Object & Textdraw_CreateEx(Int32 index, CSStr text, Int32 xp, Int32 yp,
                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a, bool rel,
                                 Int32 header, Object & payload)
 {
@@ -262,13 +345,14 @@ static Object & CreateTextdrawEx(Int32 index, CSStr text, Int32 xp, Int32 yp,
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateTextdraw(CSStr text, const Vector2i & pos, const Color4 & color, bool rel)
+static Object & Textdraw_Create(CSStr text, const Vector2i & pos, const Color4 & color, bool rel)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
                                 SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateTextdraw(CSStr text, const Vector2i & pos, const Color4 & color, bool rel,
+// ------------------------------------------------------------------------------------------------
+static Object & Textdraw_Create(CSStr text, const Vector2i & pos, const Color4 & color, bool rel,
                                 Int32 header, Object & payload)
 {
     return _Core->NewTextdraw(SQMOD_UNKNOWN, text, pos.x, pos.y, color.GetARGB(), rel,
@@ -276,14 +360,15 @@ static Object & CreateTextdraw(CSStr text, const Vector2i & pos, const Color4 & 
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateTextdraw(Int32 index, CSStr text, const Vector2i & pos, const Color4 & color,
+static Object & Textdraw_Create(Int32 index, CSStr text, const Vector2i & pos, const Color4 & color,
                                 bool rel)
 {
     return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel,
                                 SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateTextdraw(Int32 index, CSStr text, const Vector2i & pos, const Color4 & color,
+// ------------------------------------------------------------------------------------------------
+static Object & Textdraw_Create(Int32 index, CSStr text, const Vector2i & pos, const Color4 & color,
                                 bool rel, Int32 header, Object & payload)
 {
     return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel, header, payload);
@@ -294,24 +379,26 @@ void Register_CTextdraw(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqTextdraw"),
         Class< CTextdraw, NoConstructor< CTextdraw > >(vm, _SC("SqTextdraw"))
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &CTextdraw::Cmp)
+        .SquirrelFunc(_SC("_typename"), &CTextdraw::Typename)
         .Func(_SC("_tostring"), &CTextdraw::ToString)
-        /* Core Properties */
+        // Static values
+        .SetStaticValue(_SC("MaxID"), CTextdraw::Max)
+        // Core Properties
         .Prop(_SC("ID"), &CTextdraw::GetID)
         .Prop(_SC("Tag"), &CTextdraw::GetTag, &CTextdraw::SetTag)
         .Prop(_SC("Data"), &CTextdraw::GetData, &CTextdraw::SetData)
-        .Prop(_SC("MaxID"), &CTextdraw::GetMaxID)
         .Prop(_SC("Active"), &CTextdraw::IsActive)
-        /* Core Functions */
+        // Core Functions
         .Func(_SC("Bind"), &CTextdraw::BindEvent)
-        /* Core Overloads */
+        // Core Overloads
         .Overload< bool (CTextdraw::*)(void) >(_SC("Destroy"), &CTextdraw::Destroy)
         .Overload< bool (CTextdraw::*)(Int32) >(_SC("Destroy"), &CTextdraw::Destroy)
         .Overload< bool (CTextdraw::*)(Int32, Object &) >(_SC("Destroy"), &CTextdraw::Destroy)
-        /* Properties */
+        // Properties
         .Prop(_SC("Text"), &CTextdraw::GetText)
-        /* Functions */
+        // Functions
         .Func(_SC("ShowAll"), &CTextdraw::ShowAll)
         .Func(_SC("ShowTo"), &CTextdraw::ShowFor)
         .Func(_SC("ShowFor"), &CTextdraw::ShowFor)
@@ -322,7 +409,7 @@ void Register_CTextdraw(HSQUIRRELVM vm)
         .Func(_SC("HideRange"), &CTextdraw::HideRange)
         .Func(_SC("SetPositionRange"), &CTextdraw::SetPositionRange)
         .Func(_SC("SetColorRange"), &CTextdraw::SetColorRange)
-        /* Overloads */
+        // Overloads
         .Overload< void (CTextdraw::*)(const Vector2i &) const >
             (_SC("SetPositionAll"), &CTextdraw::SetPositionAll)
         .Overload< void (CTextdraw::*)(Int32, Int32) const >
@@ -339,25 +426,24 @@ void Register_CTextdraw(HSQUIRRELVM vm)
             (_SC("SetColorFor"), &CTextdraw::SetColorFor)
         .Overload< void (CTextdraw::*)(CPlayer &, Uint8, Uint8, Uint8, Uint8) const >
             (_SC("SetColorFor"), &CTextdraw::SetColorForEx)
+        // Static Overloads
+        .StaticOverload< Object & (*)(CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool) >
+            (_SC("CreateEx"), &Textdraw_CreateEx)
+        .StaticOverload< Object & (*)(CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool, Int32, Object &) >
+            (_SC("CreateEx"), &Textdraw_CreateEx)
+        .StaticOverload< Object & (*)(Int32, CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool) >
+            (_SC("CreateEx"), &Textdraw_CreateEx)
+        .StaticOverload< Object & (*)(Int32, CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool, Int32, Object &) >
+            (_SC("CreateEx"), &Textdraw_CreateEx)
+        .StaticOverload< Object & (*)(CSStr, const Vector2i &, const Color4 &, bool) >
+            (_SC("Create"), &Textdraw_Create)
+        .StaticOverload< Object & (*)(CSStr, const Vector2i &, const Color4 &, bool, Int32, Object &) >
+            (_SC("Create"), &Textdraw_Create)
+        .StaticOverload< Object & (*)(Int32, CSStr, const Vector2i &, const Color4 &, bool) >
+            (_SC("Create"), &Textdraw_Create)
+        .StaticOverload< Object & (*)(Int32, CSStr, const Vector2i &, const Color4 &, bool, Int32, Object &) >
+            (_SC("Create"), &Textdraw_Create)
     );
-
-    RootTable(vm)
-    .Overload< Object & (*)(CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool) >
-        (_SC("CreateTextdrawEx"), &CreateTextdrawEx)
-    .Overload< Object & (*)(CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool, Int32, Object &) >
-        (_SC("CreateTextdrawEx"), &CreateTextdrawEx)
-    .Overload< Object & (*)(Int32, CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool) >
-        (_SC("CreateTextdrawEx"), &CreateTextdrawEx)
-    .Overload< Object & (*)(Int32, CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool, Int32, Object &) >
-        (_SC("CreateTextdrawEx"), &CreateTextdrawEx)
-    .Overload< Object & (*)(CSStr, const Vector2i &, const Color4 &, bool) >
-        (_SC("CreateTextdraw"), &CreateTextdraw)
-    .Overload< Object & (*)(CSStr, const Vector2i &, const Color4 &, bool, Int32, Object &) >
-        (_SC("CreateTextdraw"), &CreateTextdraw)
-    .Overload< Object & (*)(Int32, CSStr, const Vector2i &, const Color4 &, bool) >
-        (_SC("CreateTextdraw"), &CreateTextdraw)
-    .Overload< Object & (*)(Int32, CSStr, const Vector2i &, const Color4 &, bool, Int32, Object &) >
-        (_SC("CreateTextdraw"), &CreateTextdraw);
 }
 
 } // Namespace:: SqMod

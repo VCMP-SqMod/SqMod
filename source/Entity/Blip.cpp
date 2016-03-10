@@ -6,15 +6,20 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQChar CBlip::s_StrID[SQMOD_BLIP_POOL][8];
+const Int32 CBlip::Max = SQMOD_BLIP_POOL;
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CBlip::Max = SQMOD_BLIP_POOL;
+SQInteger CBlip::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("SqBlip");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
 
 // ------------------------------------------------------------------------------------------------
 CBlip::CBlip(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_BLIP_POOL))
-    , m_Tag(VALID_ENTITY(m_ID) ? s_StrID[m_ID] : _SC("-1"))
+    , m_Tag(ToStrF("%d", id))
 {
     /* ... */
 }
@@ -36,153 +41,183 @@ Int32 CBlip::Cmp(const CBlip & o) const
         return -1;
 }
 
-CSStr CBlip::ToString() const
+// ------------------------------------------------------------------------------------------------
+const String & CBlip::ToString() const
 {
-    return VALID_ENTITYEX(m_ID, SQMOD_BLIP_POOL) ? s_StrID[m_ID] : _SC("-1");
+    return m_Tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CBlip::GetTag() const
+const String & CBlip::GetTag() const
 {
-    return m_Tag.c_str();
+    return m_Tag;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CBlip::SetTag(CSStr tag)
 {
     m_Tag.assign(tag);
 }
 
+// ------------------------------------------------------------------------------------------------
 Object & CBlip::GetData()
 {
-    if (Validate())
-        return m_Data;
-    return NullObject();
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return m_Data;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CBlip::SetData(Object & data)
 {
-    if (Validate())
-        m_Data = data;
+    // Validate the managed identifier
+    Validate();
+    // Apply the specified value
+    m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool CBlip::Destroy(Int32 header, Object & payload)
 {
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
     return _Core->DelBlip(m_ID, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CBlip::BindEvent(Int32 evid, Object & env, Function & func) const
+void CBlip::BindEvent(Int32 evid, Object & env, Function & func) const
 {
-    if (!Validate())
-        return false;
-
+    // Validate the managed identifier
+    Validate();
+    // Obtain the function instance called for this event
     Function & event = _Core->GetBlipEvent(m_ID, evid);
-
+    // Is the specified callback function null?
     if (func.IsNull())
-        event.Release();
+        event.Release(); // Then release the current callback
+    // Assign the specified environment and function
     else
         event = Function(env.GetVM(), env, func.GetFunc());
-
-    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 CBlip::GetWorld() const
 {
-    if (Validate())
-        return _Core->GetBlip(m_ID).mWorld;
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mWorld;
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CBlip::GetScale() const
 {
-    if (Validate())
-        return _Core->GetBlip(m_ID).mScale;
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mScale;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & CBlip::GetPosition() const
 {
-    if (Validate())
-        return _Core->GetBlip(m_ID).mPosition;
-    return Vector3::NIL;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mPosition;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Color4 & CBlip::GetColor() const
 {
-    if (Validate())
-        return _Core->GetBlip(m_ID).mColor;
-    return Color4::NIL;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mColor;
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CBlip::GetSprID() const
 {
-    if (Validate())
-        return _Core->GetBlip(m_ID).mSprID;
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mSprID;
 }
 
 // ------------------------------------------------------------------------------------------------
 Float32 CBlip::GetPosX() const
 {
-    if (Validate())
-        return _Core->GetBlip(m_ID).mPosition.x;
-    return 0;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mPosition.x;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CBlip::GetPosY() const
 {
-    if (Validate())
-        return _Core->GetBlip(m_ID).mPosition.y;
-    return 0;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mPosition.y;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CBlip::GetPosZ() const
 {
-    if (Validate())
-        return _Core->GetBlip(m_ID).mPosition.z;
-    return 0;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mPosition.z;
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 CBlip::GetColorR() const
 {
-    if (Validate())
-        return _Core->GetBlip(m_ID).mColor.r;
-    return 0;
-}
-
-Int32 CBlip::GetColorG() const
-{
-    if (Validate())
-        return _Core->GetBlip(m_ID).mColor.g;
-    return 0;
-}
-
-Int32 CBlip::GetColorB() const
-{
-    if (Validate())
-        return _Core->GetBlip(m_ID).mColor.b;
-    return 0;
-}
-
-Int32 CBlip::GetColorA() const
-{
-    if (Validate())
-        return _Core->GetBlip(m_ID).mColor.a;
-    return 0;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mColor.r;
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateBlipEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
+Int32 CBlip::GetColorG() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mColor.g;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CBlip::GetColorB() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mColor.b;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CBlip::GetColorA() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetBlip(m_ID).mColor.a;
+}
+
+// ------------------------------------------------------------------------------------------------
+static Object & Blip_CreateEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid)
 {
     return _Core->NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateBlipEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
+static Object & Blip_CreateEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid,
                             Int32 header, Object & payload)
 {
@@ -191,14 +226,14 @@ static Object & CreateBlipEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateBlipEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
+static Object & Blip_CreateEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
                             Int32 scale, Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid)
 {
     return _Core->NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateBlipEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
+static Object & Blip_CreateEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid,
                             Int32 header, Object & payload)
 {
@@ -207,14 +242,14 @@ static Object & CreateBlipEx(Int32 index, Int32 world, Float32 x, Float32 y, Flo
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateBlip(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
+static Object & Blip_Create(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
                             Int32 sprid)
 {
     return _Core->NewBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateBlip(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
+static Object & Blip_Create(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
                             Int32 sprid, Int32 header, Object & payload)
 {
     return _Core->NewBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
@@ -222,18 +257,57 @@ static Object & CreateBlip(Int32 world, const Vector3 & pos, Int32 scale, const 
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateBlip(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
+static Object & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
                             const Color4 & color, Int32 sprid)
 {
     return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateBlip(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
+static Object & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
                             const Color4 & color, Int32 sprid, Int32 header, Object & payload)
 {
     return _Core->NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static const Object & Blip_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
+        SqThrowF("The specified blip identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Blips::const_iterator itr = _Core->GetBlips().cbegin();
+    Core::Blips::const_iterator end = _Core->GetBlips().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a blip matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Blip_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified blip tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Blips::const_iterator itr = _Core->GetBlips().cbegin();
+    Core::Blips::const_iterator end = _Core->GetBlips().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a blip matching the specified tag
+    return NullObject();
 }
 
 // ================================================================================================
@@ -241,22 +315,24 @@ void Register_CBlip(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqBlip"),
         Class< CBlip, NoConstructor< CBlip > >(vm, _SC("SqBlip"))
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &CBlip::Cmp)
+        .SquirrelFunc(_SC("_typename"), &CBlip::Typename)
         .Func(_SC("_tostring"), &CBlip::ToString)
-        /* Core Properties */
+        // Static values
+        .SetStaticValue(_SC("MaxID"), CBlip::Max)
+        // Core Properties
         .Prop(_SC("ID"), &CBlip::GetID)
         .Prop(_SC("Tag"), &CBlip::GetTag, &CBlip::SetTag)
         .Prop(_SC("Data"), &CBlip::GetData, &CBlip::SetData)
-        .Prop(_SC("MaxID"), &CBlip::GetMaxID)
         .Prop(_SC("Active"), &CBlip::IsActive)
-        /* Core Functions */
+        // Core Functions
         .Func(_SC("Bind"), &CBlip::BindEvent)
-        /* Core Overloads */
+        // Core Overloads
         .Overload< bool (CBlip::*)(void) >(_SC("Destroy"), &CBlip::Destroy)
         .Overload< bool (CBlip::*)(Int32) >(_SC("Destroy"), &CBlip::Destroy)
         .Overload< bool (CBlip::*)(Int32, Object &) >(_SC("Destroy"), &CBlip::Destroy)
-        /* Properties */
+        // Properties
         .Prop(_SC("World"), &CBlip::GetWorld)
         .Prop(_SC("Scale"), &CBlip::GetScale)
         .Prop(_SC("Pos"), &CBlip::GetPosition)
@@ -270,25 +346,24 @@ void Register_CBlip(HSQUIRRELVM vm)
         .Prop(_SC("G"), &CBlip::GetColorG)
         .Prop(_SC("B"), &CBlip::GetColorB)
         .Prop(_SC("A"), &CBlip::GetColorA)
+        // Static Overloads
+        .StaticOverload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
+            (_SC("CreateEx"), &Blip_CreateEx)
+        .StaticOverload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, Object &) >
+            (_SC("CreateEx"), &Blip_CreateEx)
+        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
+            (_SC("CreateEx"), &Blip_CreateEx)
+        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, Object &) >
+            (_SC("CreateEx"), &Blip_CreateEx)
+        .StaticOverload< Object & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32) >
+            (_SC("Create"), &Blip_Create)
+        .StaticOverload< Object & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, Object &) >
+            (_SC("Create"), &Blip_Create)
+        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32) >
+            (_SC("Create"), &Blip_Create)
+        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, Object &) >
+            (_SC("Create"), &Blip_Create)
     );
-
-    RootTable(vm)
-    .Overload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
-        (_SC("CreateBlipEx"), &CreateBlipEx)
-    .Overload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, Object &) >
-        (_SC("CreateBlipEx"), &CreateBlipEx)
-    .Overload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
-        (_SC("CreateBlipEx"), &CreateBlipEx)
-    .Overload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, Object &) >
-        (_SC("CreateBlipEx"), &CreateBlipEx)
-    .Overload< Object & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32) >
-        (_SC("CreateBlip"), &CreateBlip)
-    .Overload< Object & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, Object &) >
-        (_SC("CreateBlip"), &CreateBlip)
-    .Overload< Object & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32) >
-        (_SC("CreateBlip"), &CreateBlip)
-    .Overload< Object & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, Object &) >
-        (_SC("CreateBlip"), &CreateBlip);
 }
 
 } // Namespace:: SqMod

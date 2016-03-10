@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Manages Object instances.
+ * Manages a single object entity.
 */
 class CObject
 {
@@ -22,19 +22,18 @@ private:
     static Quaternion   s_Quaternion;
 
     /* --------------------------------------------------------------------------------------------
-     * Cached identifiers for fast integer to string conversion.
-    */
-    static SQChar s_StrID[SQMOD_OBJECT_POOL][8];
-
-    /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
     Int32   m_ID;
 
     /* --------------------------------------------------------------------------------------------
-     * User tag and data associated with this instance.
+     * User tag associated with this instance.
     */
     String  m_Tag;
+
+    /* --------------------------------------------------------------------------------------------
+     * User data associated with this instance.
+    */
     Object  m_Data;
 
     /* --------------------------------------------------------------------------------------------
@@ -42,20 +41,22 @@ private:
     */
     CObject(Int32 id);
 
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Maximum possible number that could represent an identifier for this entity type.
+    */
+    static const Int32 Max;
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    CObject(const CObject &);
+    CObject(const CObject &) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
+     * Move constructor. (disabled)
     */
-    CObject & operator = (const CObject &);
-
-public:
-
-    // --------------------------------------------------------------------------------------------
-    static const Int32 Max;
+    CObject(CObject &&) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -63,14 +64,22 @@ public:
     ~CObject();
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance manages a valid entity.
+     * Copy assignment operator. (disabled)
     */
-    bool Validate() const
+    CObject & operator = (const CObject &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    CObject & operator = (CObject &&) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether this instance manages a valid entity instance otherwise throw an exception.
+    */
+    void Validate() const
     {
-        if (VALID_ENTITY(m_ID))
-            return true;
-        SqThrow("Invalid object reference [%s]", m_Tag.c_str());
-        return false;
+        if (INVALID_ENTITY(m_ID))
+            SqThrowF("Invalid object reference [%s]", m_Tag.c_str());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -81,27 +90,33 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    const String & ToString() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
     */
-    Int32 GetID() const { return m_ID; }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the maximum possible identifier to an entity of this type.
-    */
-    Int32 GetMaxID() const { return SQMOD_OBJECT_POOL; }
+    Int32 GetID() const
+    {
+        return m_ID;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Check whether this instance manages a valid entity.
     */
-    bool IsActive() const { return VALID_ENTITY(m_ID); }
+    bool IsActive() const
+    {
+        return VALID_ENTITY(m_ID);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user tag.
     */
-    CSStr GetTag() const;
+    const String & GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
@@ -118,59 +133,235 @@ public:
     */
     void SetData(Object & data);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed object entity.
+    */
+    bool Destroy()
+    {
+        return Destroy(0, NullObject());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed object entity.
+    */
+    bool Destroy(Int32 header)
+    {
+        return Destroy(header, NullObject());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed object entity.
+    */
     bool Destroy(Int32 header, Object & payload);
-    bool Destroy() { return Destroy(0, NullObject()); }
-    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
 
-    // --------------------------------------------------------------------------------------------
-    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+    /* --------------------------------------------------------------------------------------------
+     * Bind to an event supported by this entity type.
+    */
+    void BindEvent(Int32 evid, Object & env, Function & func) const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * See if the managed object entity is streamed for the specified player.
+    */
     bool IsStreamedFor(CPlayer & player) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the model of the managed object entity.
+    */
     Int32 GetModel() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the world in which the managed object entity exists.
+    */
     Int32 GetWorld() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the world in which the managed object entity exists.
+    */
     void SetWorld(Int32 world) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the alpha of the managed object entity.
+    */
     Int32 GetAlpha() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the alpha of the managed object entity.
+    */
     void SetAlpha(Int32 alpha) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the alpha of the managed object entity over the specified time.
+    */
     void SetAlphaEx(Int32 alpha, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move the managed object entity to the specified position over the specified time.
+    */
     void MoveTo(const Vector3 & pos, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move the managed object entity to the specified position over the specified time.
+    */
     void MoveToEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move the managed object entity by the specified position over the specified time.
+    */
     void MoveBy(const Vector3 & pos, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move the managed object entity by the specified position over the specified time.
+    */
     void MoveByEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position of the managed object entity.
+    */
     const Vector3 & GetPosition();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position of the managed object entity.
+    */
     void SetPosition(const Vector3 & pos) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position of the managed object entity.
+    */
     void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotate the managed object entity to the specified rotation over the specified time.
+    */
     void RotateTo(const Quaternion & rot, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotate the managed object entity to the specified rotation over the specified time.
+    */
     void RotateToEx(Float32 x, Float32 y, Float32 z, Float32 w, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotate the managed object entity to the specified euler rotation over the specified time.
+    */
     void RotateToEuler(const Vector3 & rot, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotate the managed object entity to the specified euler rotation over the specified time.
+    */
     void RotateToEulerEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotate the managed object entity by the specified rotation over the specified time.
+    */
     void RotateBy(const Quaternion & rot, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotate the managed object entity by the specified rotation over the specified time.
+    */
     void RotateByEx(Float32 x, Float32 y, Float32 z, Float32 w, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotate the managed object entity by the specified euler rotation over the specified time.
+    */
     void RotateByEuler(const Vector3 & rot, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotate the managed object entity by the specified euler rotation over the specified time.
+    */
     void RotateByEulerEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the rotation of the managed object entity.
+    */
     const Quaternion & GetRotation();
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the euler rotation of the managed object entity.
+    */
     const Vector3 & GetRotationEuler();
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed object entity reports gunshots.
+    */
     bool GetShotReport() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the managed object entity reports gunshots.
+    */
     void SetShotReport(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed object entity reports player bumps.
+    */
     bool GetBumpReport() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the managed object entity reports player bumps.
+    */
     void SetBumpReport(bool toggle) const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position on the x axis of the managed object entity.
+    */
     Float32 GetPosX() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position on the y axis of the managed object entity.
+    */
     Float32 GetPosY() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position on the z axis of the managed object entity.
+    */
     Float32 GetPosZ() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the x axis of the managed object entity.
+    */
     void SetPosX(Float32 x) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the y axis of the managed object entity.
+    */
     void SetPosY(Float32 y) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the z axis of the managed object entity.
+    */
     void SetPosZ(Float32 z) const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the rotation on the x axis of the managed object entity.
+    */
     Float32 GetRotX() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the rotation on the y axis of the managed object entity.
+    */
     Float32 GetRotY() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the rotation on the z axis of the managed object entity.
+    */
     Float32 GetRotZ() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the rotation amount of the managed object entity.
+    */
     Float32 GetRotW() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the euler rotation on the x axis of the managed object entity.
+    */
     Float32 GetERotX() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the euler rotation on the y axis of the managed object entity.
+    */
     Float32 GetERotY() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the euler rotation on the z axis of the managed object entity.
+    */
     Float32 GetERotZ() const;
 };
 

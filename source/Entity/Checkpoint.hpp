@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Manages Checkpoint instances.
+ * Manages a single checkpoint entity.
 */
 class CCheckpoint
 {
@@ -25,19 +25,18 @@ private:
     static Uint32       s_ColorR, s_ColorG, s_ColorB, s_ColorA;
 
     /* --------------------------------------------------------------------------------------------
-     * Cached identifiers for fast integer to string conversion.
-    */
-    static SQChar s_StrID[SQMOD_CHECKPOINT_POOL][8];
-
-    /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
     Int32   m_ID;
 
     /* --------------------------------------------------------------------------------------------
-     * User tag and data associated with this instance.
+     * User tag associated with this instance.
     */
     String  m_Tag;
+
+    /* --------------------------------------------------------------------------------------------
+     * User data associated with this instance.
+    */
     Object  m_Data;
 
     /* --------------------------------------------------------------------------------------------
@@ -45,20 +44,22 @@ private:
     */
     CCheckpoint(Int32 id);
 
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Maximum possible number that could represent an identifier for this entity type.
+    */
+    static const Int32 Max;
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    CCheckpoint(const CCheckpoint &);
+    CCheckpoint(const CCheckpoint &) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
+     * Move constructor. (disabled)
     */
-    CCheckpoint & operator = (const CCheckpoint &);
-
-public:
-
-    // --------------------------------------------------------------------------------------------
-    static const Int32 Max;
+    CCheckpoint(CCheckpoint &&) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -66,14 +67,22 @@ public:
     ~CCheckpoint();
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance manages a valid entity.
+     * Copy assignment operator. (disabled)
     */
-    bool Validate() const
+    CCheckpoint & operator = (const CCheckpoint &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    CCheckpoint & operator = (CCheckpoint &&) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether this instance manages a valid entity otherwise throw an exception.
+    */
+    void Validate() const
     {
-        if (VALID_ENTITY(m_ID))
-            return true;
-        SqThrow("Invalid checkpoint reference [%s]", m_Tag.c_str());
-        return false;
+        if (INVALID_ENTITY(m_ID))
+            SqThrowF("Invalid checkpoint reference [%s]", m_Tag.c_str());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -84,27 +93,33 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    const String & ToString() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
     */
-    Int32 GetID() const { return m_ID; }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the maximum possible identifier to an entity of this type.
-    */
-    Int32 GetMaxID() const { return SQMOD_CHECKPOINT_POOL; }
+    Int32 GetID() const
+    {
+        return m_ID;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Check whether this instance manages a valid entity.
     */
-    bool IsActive() const { return VALID_ENTITY(m_ID); }
+    bool IsActive() const
+    {
+        return VALID_ENTITY(m_ID);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user tag.
     */
-    CSStr GetTag() const;
+    const String & GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
@@ -120,45 +135,166 @@ public:
      * Modify the associated user data.
     */
     void SetData(Object & data);
-    // --------------------------------------------------------------------------------------------
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed checkpoint entity.
+    */
+    bool Destroy()
+    {
+        return Destroy(0, NullObject());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed checkpoint entity.
+    */
+    bool Destroy(Int32 header)
+    {
+        return Destroy(header, NullObject());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed checkpoint entity.
+    */
     bool Destroy(Int32 header, Object & payload);
-    bool Destroy() { return Destroy(0, NullObject()); }
-    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
 
-    // --------------------------------------------------------------------------------------------
-    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+    /* --------------------------------------------------------------------------------------------
+     * Bind to an event supported by this entity type.
+    */
+    void BindEvent(Int32 evid, Object & env, Function & func) const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * See if the managed checkpoint entity is streamed for the specified player.
+    */
     bool IsStreamedFor(CPlayer & player) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the world in which the managed checkpoint entity exists.
+    */
     Int32 GetWorld() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the world in which the managed checkpoint entity exists.
+    */
     void SetWorld(Int32 world) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the color of the managed checkpoint entity.
+    */
     const Color4 & GetColor() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the color of the managed checkpoint entity.
+    */
     void SetColor(const Color4 & col) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the color of the managed checkpoint entity.
+    */
     void SetColorEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position of the managed checkpoint entity.
+    */
     const Vector3 & GetPosition() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position of the managed checkpoint entity.
+    */
     void SetPosition(const Vector3 & pos) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position of the managed checkpoint entity.
+    */
     void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the radius of the managed checkpoint entity.
+    */
     Float32 GetRadius() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the radius of the managed checkpoint entity.
+    */
     void SetRadius(Float32 radius) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the owner of the managed checkpoint entity.
+    */
     Object & GetOwner() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the owner identifier of the managed checkpoint entity.
+    */
     Int32 GetOwnerID() const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position on the x axis of the managed checkpoint entity.
+    */
     Float32 GetPosX() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position on the y axis of the managed checkpoint entity.
+    */
     Float32 GetPosY() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position on the z axis of the managed checkpoint entity.
+    */
     Float32 GetPosZ() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the x axis of the managed checkpoint entity.
+    */
     void SetPosX(Float32 x) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the y axis of the managed checkpoint entity.
+    */
     void SetPosY(Float32 y) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the z axis of the managed checkpoint entity.
+    */
     void SetPosZ(Float32 z) const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the red color of the managed checkpoint entity.
+    */
     Uint32 GetColR() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the green color of the managed checkpoint entity.
+    */
     Uint32 GetColG() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the blue color of the managed checkpoint entity.
+    */
     Uint32 GetColB() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the alpha transparency of the managed checkpoint entity.
+    */
     Uint32 GetColA() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the red color of the managed checkpoint entity.
+    */
     void SetColR(Uint32 r) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the green color of the managed checkpoint entity.
+    */
     void SetColG(Uint32 g) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the blue color of the managed checkpoint entity.
+    */
     void SetColB(Uint32 b) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the alpha transparency of the managed checkpoint entity.
+    */
     void SetColA(Uint32 a) const;
 };
 

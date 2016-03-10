@@ -389,7 +389,7 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 3, &len, &sql);
         // Did the format failed?
         if (SQ_FAILED(ret))
-            return ret;
+            return ret; // Propagate the exception
         // Attempt to execute the resulted query
         if ((inst.value->m_Handle = sqlite3_exec(inst.value->m_Handle, sql, NULL, NULL, NULL)) != SQLITE_OK)
         {
@@ -399,7 +399,7 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
         // Push the result onto the stack
         sq_pushinteger(vm, sqlite3_changes(inst.value->m_Handle));
     }
-    // All methods of retrieving the message value failed
+    // All methods of retrieving the string value failed
     else
         return sq_throwerror(vm, "Unable to extract the query string");
     // At this point we should have a return value on the stack
@@ -455,14 +455,14 @@ SQInteger Connection::QueueF(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 3, &len, &sql);
         // Did the format failed?
         if (SQ_FAILED(ret))
-            return ret;
+            return ret; // Propagate the exception
         // Is there even a query to queue?
         else if (IsQueryEmpty(sql))
             return sq_throwerror(vm,"No query to queue");
         // Attempt to queue the specified query
         inst.value->m_Handle->mQueue.push_back(sql);
     }
-    // All methods of retrieving the message value failed
+    // All methods of retrieving the string value failed
     else
         return sq_throwerror(vm, "Unable to extract the query string");
     // This function does not return a value
@@ -519,7 +519,7 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 3, &len, &sql);
         // Did the format failed?
         if (SQ_FAILED(ret))
-            return ret;
+            return ret; // Propagate the exception
         // Attempt to create a statement with the specified query
         try
         {
@@ -530,7 +530,7 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
             return sq_throwerror(vm, e.Message().c_str());
         }
     }
-    // All methods of retrieving the message value failed
+    // All methods of retrieving the string value failed
     else
         return sq_throwerror(vm, "Unable to extract the query string");
     // At this point we should have a return value on the stack

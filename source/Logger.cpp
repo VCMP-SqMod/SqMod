@@ -148,22 +148,6 @@ void Logger::Message(Uint8 type, bool sub, CCStr fmt, ...)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Throw(CCStr fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    m_Buffer.WriteF(0, fmt, args);
-    va_end(args);
-    Error::Throw(DefaultVM::Get(), m_Buffer.Data());
-}
-
-void Logger::Throw(CCStr fmt, va_list args)
-{
-    m_Buffer.WriteF(0, fmt, args);
-    Error::Throw(DefaultVM::Get(), m_Buffer.Data());
-}
-
-// ------------------------------------------------------------------------------------------------
 void Logger::Debug(CCStr fmt, ...)
 {
     va_list args;
@@ -381,18 +365,6 @@ SQMOD_CLOG(cLogSInf, LL_INF, true)
 SQMOD_CLOG(cLogSWrn, LL_WRN, true)
 SQMOD_CLOG(cLogSErr, LL_ERR, true)
 SQMOD_CLOG(cLogSFtl, LL_FTL, true)
-
-// ------------------------------------------------------------------------------------------------
-void SqThrow(CCStr fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    if (_Log)
-        _Log->Throw(fmt, args);
-    else
-        vprintf(fmt, args);
-    va_end(args);
-}
 
 // --------------------------------------------------------------------------------------------
 void OutputMessageImpl(const char * msg, va_list args)

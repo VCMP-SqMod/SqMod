@@ -19,15 +19,20 @@ Vector3  CPlayer::s_Vector3;
 SQChar   CPlayer::s_Buffer[SQMOD_PLAYER_TMP_BUFFER];
 
 // ------------------------------------------------------------------------------------------------
-SQChar CPlayer::s_StrID[SQMOD_PLAYER_POOL][8];
+const Int32 CPlayer::Max = SQMOD_PLAYER_POOL;
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CPlayer::Max = SQMOD_PLAYER_POOL;
+SQInteger CPlayer::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("SqPlayer");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
 
 // ------------------------------------------------------------------------------------------------
 CPlayer::CPlayer(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_PLAYER_POOL))
-    , m_Tag(VALID_ENTITY(m_ID) ? s_StrID[m_ID] : _SC("-1"))
+    , m_Tag(ToStrF("%d", id))
 {
     /* ... */
 }
@@ -49,936 +54,1269 @@ Int32 CPlayer::Cmp(const CPlayer & o) const
         return -1;
 }
 
-CSStr CPlayer::ToString() const
+// ------------------------------------------------------------------------------------------------
+const String & CPlayer::ToString() const
 {
-    return VALID_ENTITYEX(m_ID, SQMOD_PLAYER_POOL) ? s_StrID[m_ID] : _SC("-1");
+    return m_Tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CPlayer::GetTag() const
+const String & CPlayer::GetTag() const
 {
-    return m_Tag.c_str();
+    return m_Tag;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetTag(CSStr tag)
 {
     m_Tag.assign(tag);
 }
 
+// ------------------------------------------------------------------------------------------------
 Object & CPlayer::GetData()
 {
-    if (Validate())
-        return m_Data;
-    return NullObject();
-}
-
-void CPlayer::SetData(Object & data)
-{
-    if (Validate())
-        m_Data = data;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return m_Data;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::BindEvent(Int32 evid, Object & env, Function & func) const
+void CPlayer::SetData(Object & data)
 {
-    if (!Validate())
-        return false;
+    // Validate the managed identifier
+    Validate();
+    // Apply the specified value
+    m_Data = data;
+}
 
+// ------------------------------------------------------------------------------------------------
+void CPlayer::BindEvent(Int32 evid, Object & env, Function & func) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Obtain the function instance called for this event
     Function & event = _Core->GetPlayerEvent(m_ID, evid);
-
+    // Is the specified callback function null?
     if (func.IsNull())
-        event.Release();
+        event.Release(); // Then release the current callback
+    // Assign the specified environment and function
     else
         event = Function(env.GetVM(), env, func.GetFunc());
-
-    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool CPlayer::IsStreamedFor(CPlayer & player) const
 {
+    // Is the specified player even valid?
     if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        return _Func->IsPlayerStreamedForPlayer(m_ID, player.GetID());
-    return false;
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerStreamedForPlayer(m_ID, player.GetID());
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetClass() const
 {
-    if (Validate())
-        return _Func->GetPlayerClass(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerClass(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetAdmin() const
 {
-    if (Validate())
-        return _Func->IsPlayerAdmin(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerAdmin(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetAdmin(bool toggle) const
 {
-    if (Validate())
-        _Func->SetPlayerAdmin(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerAdmin(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 CSStr CPlayer::GetIP() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear any previous string
     s_Buffer[0] = 0;
-
-    if (Validate())
-    {
-        memset(s_Buffer, 0, sizeof(s_Buffer));
-        _Func->GetPlayerIP(m_ID, s_Buffer, sizeof(s_Buffer));
-    }
-
+    // The server doesn't include the null terminator in the string (yet)
+    memset(s_Buffer, 0, sizeof(s_Buffer));
+    // Query the server for the ip of the managed player
+    _Func->GetPlayerIP(m_ID, s_Buffer, sizeof(s_Buffer));
+    // Return the requested information
     return s_Buffer;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::Kick() const
 {
-    if (Validate())
-        _Func->KickPlayer(m_ID);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->KickPlayer(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::Ban() const
 {
-    if (Validate())
-        _Func->BanPlayer(m_ID);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->BanPlayer(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsConnected() const
 {
     return _Func->IsPlayerConnected(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsSpawned() const
 {
-    if (Validate())
-        return _Func->IsPlayerSpawned(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerSpawned(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Uint32 CPlayer::GetKey() const
 {
-    if (Validate())
-        return _Func->GetPlayerKey(m_ID);
-    return 0;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerKey(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetWorld() const
 {
-    if (Validate())
-        return _Func->GetPlayerWorld(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerWorld(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetWorld(Int32 world) const
 {
-    if (Validate())
-        _Func->SetPlayerWorld(m_ID, world);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerWorld(m_ID, world);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetSecWorld() const
 {
-    if (Validate())
-        return _Func->GetPlayerSecWorld(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerSecWorld(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetSecWorld(Int32 world) const
 {
-    if (Validate())
-        _Func->SetPlayerSecWorld(m_ID, world);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerSecWorld(m_ID, world);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetUniqueWorld() const
 {
-    if (Validate())
-        return _Func->GetPlayerUniqueWorld(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerUniqueWorld(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsWorldCompatible(Int32 world) const
 {
-    if (Validate())
-        return _Func->IsPlayerWorldCompatible(m_ID, world);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerWorldCompatible(m_ID, world);
 }
 
+// ------------------------------------------------------------------------------------------------
 CSStr CPlayer::GetName() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear any previous string
     s_Buffer[0] = 0;
-
-    if (Validate())
-    {
-        memset(s_Buffer, 0, sizeof(s_Buffer));
-        _Func->GetPlayerName(m_ID, s_Buffer, sizeof(s_Buffer));
-    }
-
+    // The server doesn't include the null terminator in the string (yet)
+    memset(s_Buffer, 0, sizeof(s_Buffer));
+    // Query the server for the name of the managed player
+    _Func->GetPlayerName(m_ID, s_Buffer, sizeof(s_Buffer));
+    // Return the requested information
     return s_Buffer;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetName(CSStr name) const
 {
-    if (Validate())
-        _Func->SetPlayerName(m_ID, static_cast< CCStr >(name));
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerName(m_ID, static_cast< CCStr >(name));
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetTeam() const
 {
-    if (Validate())
-        return _Func->GetPlayerTeam(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerTeam(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetTeam(Int32 team) const
 {
-    if (Validate())
-        _Func->SetPlayerTeam(m_ID, team);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerTeam(m_ID, team);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetSkin() const
 {
-    if (Validate())
-        return _Func->GetPlayerSkin(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerSkin(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetSkin(Int32 skin) const
 {
-
-    if (Validate())
-        _Func->SetPlayerSkin(m_ID, skin);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerSkin(m_ID, skin);
 }
 
+// ------------------------------------------------------------------------------------------------
 const Color3 & CPlayer::GetColor() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous color information, if any
     s_Color3.Clear();
-    if (Validate())
-        s_Color3.SetRGB(_Func->GetPlayerColour(m_ID));
+    // Query the server for the color values
+    s_Color3.SetRGB(_Func->GetPlayerColour(m_ID));
+    // Return the requested information
     return s_Color3;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetColor(const Color3 & color) const
 {
-    if (Validate())
-        _Func->SetPlayerColour(m_ID, color.GetRGB());
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerColour(m_ID, color.GetRGB());
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
 {
-    if (Validate())
-        _Func->SetPlayerColour(m_ID, SQMOD_PACK_RGB(r, g, b));
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerColour(m_ID, SQMOD_PACK_RGB(r, g, b));
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::ForceSpawn() const
 {
-    if (Validate())
-        _Func->ForcePlayerSpawn(m_ID);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->ForcePlayerSpawn(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::ForceSelect() const
 {
-    if (Validate())
-        _Func->ForcePlayerSelect(m_ID);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->ForcePlayerSelect(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetMoney() const
 {
-    if (Validate())
-        return _Func->GetPlayerMoney(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerMoney(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetMoney(Int32 amount) const
 {
-    if (Validate())
-        _Func->SetPlayerMoney(m_ID, amount);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerMoney(m_ID, amount);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::GiveMoney(Int32 amount) const
 {
-    if (Validate())
-        _Func->GivePlayerMoney(m_ID, amount);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->GivePlayerMoney(m_ID, amount);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetScore() const
 {
-    if (Validate())
-        return _Func->GetPlayerScore(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerScore(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetScore(Int32 score) const
 {
-    if (Validate())
-        _Func->SetPlayerScore(m_ID, score);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerScore(m_ID, score);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetPing() const
 {
-    if (Validate())
-        return _Func->GetPlayerPing(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerPing(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CPlayer::GetFPS() const
 {
-    if (Validate())
-        return _Func->GetPlayerFPS(m_ID);
-    return 0;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerFPS(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsTyping() const
 {
-    if (Validate())
-        return _Func->IsPlayerTyping(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerTyping(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 CSStr CPlayer::GetUID() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear any previous string
     s_Buffer[0] = 0;
-
-    if (Validate())
-    {
-        memset(s_Buffer, 0, sizeof(s_Buffer));
-        _Func->GetPlayerUID(m_ID, s_Buffer, sizeof(s_Buffer));
-    }
-
+    // The server doesn't include the null terminator in the string (yet)
+    memset(s_Buffer, 0, sizeof(s_Buffer));
+    // Query the server for the uid of the managed player
+    _Func->GetPlayerUID(m_ID, s_Buffer, sizeof(s_Buffer));
+    // Return the requested information
     return s_Buffer;
 }
 
+// ------------------------------------------------------------------------------------------------
 CSStr CPlayer::GetUID2() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear any previous string
     s_Buffer[0] = 0;
-
-    if (Validate())
-    {
-        memset(s_Buffer, 0, sizeof(s_Buffer));
-        _Func->GetPlayerUID2(m_ID, s_Buffer, sizeof(s_Buffer));
-    }
-
+    // The server doesn't include the null terminator in the string (yet)
+    memset(s_Buffer, 0, sizeof(s_Buffer));
+    // Query the server for the uid2 of the managed player
+    _Func->GetPlayerUID2(m_ID, s_Buffer, sizeof(s_Buffer));
+    // Return the requested information
     return s_Buffer;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CPlayer::GetHealth() const
 {
-    if (Validate())
-        return _Func->GetPlayerHealth(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerHealth(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetHealth(Float32 amount) const
 {
-    if (Validate())
-        _Func->SetPlayerHealth(m_ID, amount);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerHealth(m_ID, amount);
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CPlayer::GetArmor() const
 {
-    if (Validate())
-        return _Func->GetPlayerArmour(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerArmour(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetArmor(Float32 amount) const
 {
-    if (Validate())
-        _Func->SetPlayerArmour(m_ID, amount);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerArmour(m_ID, amount);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetImmunity() const
 {
-    if (Validate())
-        return _Func->GetPlayerImmunityFlags(m_ID);
-    return 0;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerImmunityFlags(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetImmunity(Int32 flags) const
 {
-    if (Validate())
-        _Func->SetPlayerImmunityFlags(m_ID, flags);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerImmunityFlags(m_ID, flags);
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & CPlayer::GetPosition() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous position information, if any
     s_Vector3.Clear();
-    if (Validate())
-        _Func->GetPlayerPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the position values
+    _Func->GetPlayerPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Return the requested information
     return s_Vector3;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetPosition(const Vector3 & pos) const
 {
-    if (Validate())
-        _Func->SetPlayerPos(m_ID, pos.x, pos.y, pos.z);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerPos(m_ID, pos.x, pos.y, pos.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetPositionEx(Float32 x, Float32 y, Float32 z) const
 {
-    if (Validate())
-        _Func->SetPlayerPos(m_ID, x, y, z);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerPos(m_ID, x, y, z);
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & CPlayer::GetSpeed() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous speed information, if any
     s_Vector3.Clear();
-    if (Validate())
-        _Func->GetPlayerSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the speed values
+    _Func->GetPlayerSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Return the requested information
     return s_Vector3;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetSpeed(const Vector3 & vel) const
 {
-    if (Validate())
-        _Func->SetPlayerSpeed(m_ID, vel.x, vel.y, vel.z);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerSpeed(m_ID, vel.x, vel.y, vel.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetSpeedEx(Float32 x, Float32 y, Float32 z) const
 {
-    if (Validate())
-        _Func->SetPlayerSpeed(m_ID, x, y, z);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerSpeed(m_ID, x, y, z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::AddSpeed(const Vector3 & vel) const
 {
-    if (Validate())
-        _Func->AddPlayerSpeed(m_ID, vel.x, vel.y, vel.z);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->AddPlayerSpeed(m_ID, vel.x, vel.y, vel.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::AddSpeedEx(Float32 x, Float32 y, Float32 z) const
 {
-    if (Validate())
-        _Func->AddPlayerSpeed(m_ID, x, y, z);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->AddPlayerSpeed(m_ID, x, y, z);
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CPlayer::GetHeading() const
 {
-    if (Validate())
-        return _Func->GetPlayerHeading(m_ID);
-    return 0;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerHeading(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetHeading(Float32 angle) const
 {
-    if (Validate())
-        _Func->SetPlayerHeading(m_ID, angle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerHeading(m_ID, angle);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetAlpha() const
 {
-    if (Validate())
-        return _Func->GetPlayerAlpha(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerAlpha(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetAlpha(Int32 alpha, Int32 fade) const
 {
-    if (Validate())
-        _Func->SetPlayerAlpha(m_ID, alpha, fade);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerAlpha(m_ID, alpha, fade);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetVehicleStatus() const
 {
-    if (Validate())
-        return _Func->GetPlayerInVehicleStatus(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerInVehicleStatus(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetOccupiedSlot() const
 {
-    if (Validate())
-        return _Func->GetPlayerInVehicleSlot(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerInVehicleSlot(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Object & CPlayer::GetVehicle() const
 {
-    if (Validate())
-        return _Core->GetVehicle(_Func->GetPlayerVehicleID(m_ID)).mObj;
-    return NullObject();
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetVehicle(_Func->GetPlayerVehicleID(m_ID)).mObj;
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetVehicleID() const
 {
-    if (Validate())
-        return _Func->GetPlayerVehicleID(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerVehicleID(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetControllable() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerControllable(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerControllable(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetControllable(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerControllable(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerControllable(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetDriveby() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerDriveby(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerDriveby(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetDriveby(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerDriveby(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerDriveby(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetWhiteScanlines() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerWhiteScanlines(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerWhiteScanlines(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetWhiteScanlines(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerWhiteScanlines(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerWhiteScanlines(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetGreenScanlines() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerGreenScanlines(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerGreenScanlines(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetGreenScanlines(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerGreenScanlines(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerGreenScanlines(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetWidescreen() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerWidescreen(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerWidescreen(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetWidescreen(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerWidescreen(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerWidescreen(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetShowMarkers() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerShowMarkers(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerShowMarkers(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetShowMarkers(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerShowMarkers(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerShowMarkers(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetAttackPriv() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerAttackPriv(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerAttackPriv(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetAttackPriv(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerAttackPriv(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerAttackPriv(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetHasMarker() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerHasMarker(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerHasMarker(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetHasMarker(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerHasMarker(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerHasMarker(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetChatTags() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerChatTags(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerChatTags(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetChatTags(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerChatTagsEnabled(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerChatTagsEnabled(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::GetDrunkEffects() const
 {
-    if (Validate())
-        return _Func->EnabledPlayerDrunkEffects(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->EnabledPlayerDrunkEffects(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetDrunkEffects(bool toggle) const
 {
-    if (Validate())
-        _Func->TogglePlayerDrunkEffects(m_ID, toggle);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->TogglePlayerDrunkEffects(m_ID, toggle);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetWeapon() const
 {
-    if (Validate())
-        return _Func->GetPlayerWeapon(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerWeapon(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetWeapon(Int32 wep, Int32 ammo) const
 {
-    if (Validate())
-        _Func->SetPlayerWeapon(m_ID, wep, ammo);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerWeapon(m_ID, wep, ammo);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::GiveWeapon(Int32 wep, Int32 ammo) const
 {
-    if (Validate())
-        _Func->GivePlayerWeapon(m_ID, wep, ammo);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->GivePlayerWeapon(m_ID, wep, ammo);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::StripWeapons() const
 {
-    if (Validate())
-        _Func->RemoveAllWeapons(m_ID);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RemoveAllWeapons(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetCameraPosition(const Vector3 & pos, const Vector3 & aim) const
 {
-    if (Validate())
-        _Func->SetCameraPosition(m_ID, pos.x, pos.y, pos.z, aim.x, aim.y, aim.z);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetCameraPosition(m_ID, pos.x, pos.y, pos.z, aim.x, aim.y, aim.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetCameraPosition(Float32 xp, Float32 yp, Float32 zp, Float32 xa, Float32 ya, Float32 za) const
 {
-    if (Validate())
-        _Func->SetCameraPosition(m_ID, xp, yp, zp, xa, ya, za);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetCameraPosition(m_ID, xp, yp, zp, xa, ya, za);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::RestoreCamera() const
 {
-    if (Validate())
-        _Func->RestoreCamera(m_ID);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RestoreCamera(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsCameraLocked() const
 {
-    if (Validate())
-        _Func->IsCameraLocked(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsCameraLocked(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetAnimation(Int32 group, Int32 anim) const
 {
-    if (Validate())
-        _Func->SetPlayerAnimation(m_ID, group, anim);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerAnimation(m_ID, group, anim);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetWantedLevel() const
 {
-    if (Validate())
-        return _Func->GetPlayerWantedLevel(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerWantedLevel(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetWantedLevel(Int32 level) const
 {
-    if (Validate())
-        _Func->SetPlayerWantedLevel(m_ID, level);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerWantedLevel(m_ID, level);
 }
 
+// ------------------------------------------------------------------------------------------------
 Object & CPlayer::StandingOnVehicle() const
 {
-    if (Validate())
-        return _Core->GetVehicle(_Func->GetPlayerStandingOnVehicle(m_ID)).mObj;
-    return NullObject();
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetVehicle(_Func->GetPlayerStandingOnVehicle(m_ID)).mObj;
 }
 
+// ------------------------------------------------------------------------------------------------
 Object & CPlayer::StandingOnObject() const
 {
-    if (Validate())
-        return _Core->GetObject(_Func->GetPlayerStandingOnObject(m_ID)).mObj;
-    return NullObject();
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetObject(_Func->GetPlayerStandingOnObject(m_ID)).mObj;
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsAway() const
 {
-    if (Validate())
-        return _Func->IsPlayerAway(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerAway(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Object & CPlayer::GetSpectator() const
 {
-    if (Validate())
-        return _Core->GetPlayer(_Func->GetPlayerSpectateTarget(m_ID)).mObj;
-    return NullObject();
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetPlayer(_Func->GetPlayerSpectateTarget(m_ID)).mObj;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetSpectator(CPlayer & target) const
 {
+    // Is the specified player even valid?
     if (!target.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->SetPlayerSpectateTarget(m_ID, target.GetID());
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerSpectateTarget(m_ID, target.GetID());
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsBurning() const
 {
-    if (Validate())
-        return _Func->GetPlayerOnFireStatus(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerOnFireStatus(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsCrouched() const
 {
-    if (Validate())
-        return _Func->GetPlayerCrouchStatus(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerCrouchStatus(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetState() const
 {
-    if (Validate())
-        return _Func->GetPlayerState(m_ID);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerState(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetAction() const
 {
-    if (Validate())
-        return _Func->GetPlayerAction(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerAction(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetGameKeys() const
 {
-    if (Validate())
-        return _Func->GetPlayerGameKeys(m_ID);
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerGameKeys(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & CPlayer::GetAimPos() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous position information, if any
     s_Vector3.Clear();
-    if (Validate())
-        _Func->GetPlayerAimPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the position values
+    _Func->GetPlayerAimPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Return the requested information
     return s_Vector3;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & CPlayer::GetAimDir() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous direction information, if any
     s_Vector3.Clear();
-    if (Validate())
-        _Func->GetPlayerAimDir(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the direction values
+    _Func->GetPlayerAimDir(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Return the requested information
     return s_Vector3;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::Embark(CVehicle & vehicle) const
 {
+    // Is the specified vehicle even valid?
     if (!vehicle.IsActive())
-        SqThrow("Invalid vehicle argument: null");
-    else if (Validate())
-        _Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), 0, true, true);
+        SqThrowF("Invalid vehicle argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), 0, true, true);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::Embark(CVehicle & vehicle, Int32 slot, bool allocate, bool warp) const
 {
+    // Is the specified vehicle even valid?
     if (!vehicle.IsActive())
-        SqThrow("Invalid vehicle argument: null");
-    else if (Validate())
-        _Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), slot, allocate, warp);
+        SqThrowF("Invalid vehicle argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), slot, allocate, warp);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::Disembark() const
 {
-    if (Validate())
-        _Func->RemovePlayerFromVehicle(m_ID);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RemovePlayerFromVehicle(m_ID);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::Redirect(CSStr ip, Uint32 port, CSStr nick, CSStr pass, CSStr user)
 {
-    if (Validate())
-        return _Func->RedirectPlayerToServer(m_ID, ip, port, nick, pass, user);
-    return false;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->RedirectPlayerToServer(m_ID, ip, port, nick, pass, user);
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetAuthority() const
 {
-    if (Validate())
-        return _Core->GetPlayer(m_ID).mAuthority;
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetPlayer(m_ID).mAuthority;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetAuthority(Int32 level) const
 {
-    if (Validate())
-        _Core->GetPlayer(m_ID).mAuthority = level;
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Core->GetPlayer(m_ID).mAuthority = level;
 }
 
+// ------------------------------------------------------------------------------------------------
 CSStr CPlayer::GetMessagePrefix(Uint32 index) const
 {
+    // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
-        SqThrow("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
-    else if (Validate())
-        return _Core->GetPlayer(m_ID).mPrefixes[index].c_str();
-    return _SC("");
+        SqThrowF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetPlayer(m_ID).mPrefixes[index].c_str();
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetMessagePrefix(Uint32 index, CSStr prefix) const
 {
+    // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
-        SqThrow("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
-    else if (Validate())
-        _Core->GetPlayer(m_ID).mPrefixes[index].assign(prefix);
+        SqThrowF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Core->GetPlayer(m_ID).mPrefixes[index].assign(prefix);
 }
 
+// ------------------------------------------------------------------------------------------------
 Uint32 CPlayer::GetMessageColor() const
 {
-    if (Validate())
-        return _Core->GetPlayer(m_ID).mMessageColor;
-    return 0;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetPlayer(m_ID).mMessageColor;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetMessageColor(Uint32 color) const
 {
-    if (Validate())
-         _Core->GetPlayer(m_ID).mMessageColor = color;
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+     _Core->GetPlayer(m_ID).mMessageColor = color;
 }
 
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetAnnounceStyle() const
 {
-    if (Validate())
-        return _Core->GetPlayer(m_ID).mAnnounceStyle;
-    return -1;
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetPlayer(m_ID).mAnnounceStyle;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetAnnounceStyle(Int32 style) const
 {
-    if (Validate())
-        _Core->GetPlayer(m_ID).mAnnounceStyle = style;
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Core->GetPlayer(m_ID).mAnnounceStyle = style;
 }
 
 // ------------------------------------------------------------------------------------------------
 Float32 CPlayer::GetPosX() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous position information, if any
     s_Vector3.x = 0;
-    if (Validate())
-        _Func->GetPlayerPos(m_ID, &s_Vector3.x, NULL, NULL);
+    // Query the server for the requested component value
+    _Func->GetPlayerPos(m_ID, &s_Vector3.x, NULL, NULL);
+    // Return the requested information
     return s_Vector3.x;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CPlayer::GetPosY() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous position information, if any
     s_Vector3.y = 0;
-    if (Validate())
-        _Func->GetPlayerPos(m_ID, NULL, &s_Vector3.y, NULL);
+    // Query the server for the requested component value
+    _Func->GetPlayerPos(m_ID, NULL, &s_Vector3.y, NULL);
+    // Return the requested information
     return s_Vector3.y;
 }
 
+// ------------------------------------------------------------------------------------------------
 Float32 CPlayer::GetPosZ() const
 {
+    // Validate the managed identifier
+    Validate();
+    // Clear previous position information, if any
     s_Vector3.z = 0;
-    if (Validate())
-        _Func->GetPlayerPos(m_ID, NULL, NULL, &s_Vector3.z);
+    // Query the server for the requested component value
+    _Func->GetPlayerPos(m_ID, NULL, NULL, &s_Vector3.z);
+    // Return the requested information
     return s_Vector3.z;
 }
 
 // ------------------------------------------------------------------------------------------------
 void CPlayer::SetPosX(Float32 x) const
 {
-    if (Validate())
-    {
-        _Func->GetPlayerPos(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
-        _Func->SetPlayerPos(m_ID, x, s_Vector3.y, s_Vector3.z);
-    }
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetPlayerPos(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
+    // Perform the requested operation
+    _Func->SetPlayerPos(m_ID, x, s_Vector3.y, s_Vector3.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetPosY(Float32 y) const
 {
-    if (Validate())
-    {
-        _Func->GetPlayerPos(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
-        _Func->SetPlayerPos(m_ID, s_Vector3.x, y, s_Vector3.z);
-    }
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetPlayerPos(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
+    // Perform the requested operation
+    _Func->SetPlayerPos(m_ID, s_Vector3.x, y, s_Vector3.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 void CPlayer::SetPosZ(Float32 z) const
 {
-    if (Validate())
-    {
-        _Func->GetPlayerPos(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
-        _Func->SetPlayerPos(m_ID, s_Vector3.z, s_Vector3.y, z);
-    }
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetPlayerPos(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
+    // Perform the requested operation
+    _Func->SetPlayerPos(m_ID, s_Vector3.z, s_Vector3.y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CPlayer::Msg(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
-
+    // Was the message color specified?
     if (top <= 1)
+        return sq_throwerror(vm, "Missing message color");
+    // Was the message value specified?
+    else if (top <= 2)
+        return sq_throwerror(vm, "Missing message value");
+    // The player instance
+    CPlayer * player = nullptr;
+    // The message color
+    Color3 color;
+    // Attempt to extract the argument values
+    try
     {
-        SqThrow("Missing the message color");
-        return 0;
+        player = Var< CPlayer * >(vm, 1).value;
+        color = Var< Color3 >(vm, 2).value;
     }
-    else if (top == 2)
+    catch (const Sqrat::Exception & e)
     {
-        SqThrow("Missing the message value");
-        return 0;
+        // Propagate the error
+        return sq_throwerror(vm, e.Message().c_str());
     }
-
-    Var< CPlayer & > inst(vm, 1);
-    Var< Color3 > color(vm, 2);
-
-    if (!inst.value.IsActive())
-        SqThrow("Invalid player reference: %d", inst.value.GetID());
-    else if (top == 3 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
-    {
-        CSStr msg = NULL;
-
-        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
-            SqThrow("Unable to retrieve the message");
-        else
-            _Func->SendClientMessage(inst.value.GetID(), color.value.GetRGBA(), "%s", msg);
-
-        sq_settop(vm, top);
-    }
+    // Do we have a valid player instance?
+    if (!player)
+        return sq_throwerror(vm, "Invalid player instance");
+    // Do we have a valid player identifier?
+    else if (!player->IsActive())
+        return sq_throwerror(vm, "Invalid player reference");
+    // Do we have enough values to call the format function?
     else if (top > 3)
     {
         SStr msg = NULL;
         SQInteger len = 0;
-
-        if (SQ_FAILED(sqstd_format(vm, 3, &len, &msg)))
-            SqThrow("Unable to generate the player message [%s]", Error::Message(vm).c_str());
-        else
-            _Func->SendClientMessage(inst.value.GetID(), color.value.GetRGBA(), "%s", msg);
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret; // Propagate the exception
+        // Send the resulted message string
+        _Func->SendClientMessage(player->GetID(), color.GetRGBA(), "%s", msg);
     }
     else
-        SqThrow("Unable to extract the player message");
-
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > msg(vm, 3);
+        // See if the obtained value is a valid message
+        if (!msg.value)
+            return sq_throwerror(vm, "Unable to retrieve the message");
+        // Send the resulted message string
+        _Func->SendClientMessage(player->GetID(), color.GetRGBA(), "%s", msg.value);
+    }
+    // This function does not return a value
     return 0;
 }
 
@@ -986,52 +1324,67 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
 SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
-
+    // Was the index of the message prefix specified?
     if (top <= 1)
+        return sq_throwerror(vm, "Missing prefix index");
+    // Was the message value specified?
+    else if (top <= 2)
+        return sq_throwerror(vm, "Missing message value");
+    // The player instance
+    CPlayer * player = nullptr;
+    // The prefix index
+    Uint32 index;
+    // Attempt to extract the argument values
+    try
     {
-        SqThrow("Missing message prefix index");
-        return 0;
+        player = Var< CPlayer * >(vm, 1).value;
+        index = Var< Uint32 >(vm, 2).value;
     }
-    else if (top == 2)
+    catch (const Sqrat::Exception & e)
     {
-        SqThrow("Missing the message value");
-        return 0;
+        // Propagate the error
+        return sq_throwerror(vm, e.Message().c_str());
     }
-
-    Var< CPlayer & > inst(vm, 1);
-    Var< Uint32 > index(vm, 2);
-
-    if (!inst.value.IsActive())
-        SqThrow("Invalid player reference: %d", inst.value.GetID());
-    else if (index.value > SQMOD_PLAYER_MSG_PREFIXES)
-        SqThrow("Prefix index is out of range: %u > %u", index.value, SQMOD_PLAYER_MSG_PREFIXES);
-    else if (top == 3 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
-    {
-        CSStr msg = NULL;
-        const Int32 id = inst.value.GetID();
-
-        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
-            SqThrow("Unable to retrieve the message");
-        else
-            _Func->SendClientMessage(id, _Core->GetPlayer(id).mMessageColor, "%s%s",
-                                            _Core->GetPlayer(id).mPrefixes[index.value].c_str(), msg);
-        sq_settop(vm, top);
-    }
+    // Do we have a valid player instance?
+    if (!player)
+        return sq_throwerror(vm, "Invalid player instance");
+    // Do we have a valid player identifier?
+    else if (!player->IsActive())
+        return sq_throwerror(vm, "Invalid player reference");
+    // Perform a range check on the specified prefix index
+    else if (index > SQMOD_PLAYER_MSG_PREFIXES)
+        return sq_throwerror(vm, ToStrF("Prefix index is out of range: %u > %u",
+                                        index, SQMOD_PLAYER_MSG_PREFIXES));
+    // Do we have enough values to call the format function?
     else if (top > 3)
     {
         SStr msg = NULL;
         SQInteger len = 0;
-        const Int32 id = inst.value.GetID();
-
-        if (SQ_FAILED(sqstd_format(vm, 3, &len, &msg)))
-            SqThrow("Unable to generate the player message [%s]", Error::Message(vm).c_str());
-        else
-            _Func->SendClientMessage(id, _Core->GetPlayer(id).mMessageColor, "%s%s",
-                                            _Core->GetPlayer(id).mPrefixes[index.value].c_str(), msg);
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret; // Propagate the exception
+        // Retrieve the associated player structure
+        const auto & splayer = _Core->GetPlayer(player->GetID());
+        // Send the resulted message string
+        _Func->SendClientMessage(player->GetID(), splayer.mMessageColor, "%s%s",
+                                        splayer.mPrefixes[index].c_str(), msg);
     }
     else
-        SqThrow("Unable to extract the player message");
-
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > msg(vm, 3);
+        // See if the obtained value is a valid message
+        if (!msg.value)
+            return sq_throwerror(vm, "Unable to retrieve the message");
+        // Retrieve the associated player structure
+        const auto & splayer = _Core->GetPlayer(player->GetID());
+        // Send the resulted message string
+        _Func->SendClientMessage(player->GetID(), splayer.mMessageColor, "%s%s",
+                                        splayer.mPrefixes[index].c_str(), msg.value);
+    }
+    // This function does not return a value
     return 0;
 }
 
@@ -1039,52 +1392,59 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
 SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
-
-    if (top <= 1)
-    {
-        SqThrow("Missing the message color");
-        return 0;
-    }
+    // Was the message color specified?
+    if (top <= 3)
+        return sq_throwerror(vm, "Missing message color");
+    // Was the message value specified?
     else if (top <= 4)
+        return sq_throwerror(vm, "Missing message value");
+    // The player instance
+    CPlayer * player = nullptr;
+    // The message color
+    Uint8 r, g, b;
+    // Attempt to extract the argument values
+    try
     {
-        SqThrow("Missing the message value");
-        return 0;
+        player = Var< CPlayer * >(vm, 1).value;
+        r = Var< Uint8 >(vm, 2).value;
+        g = Var< Uint8 >(vm, 3).value;
+        b = Var< Uint8 >(vm, 4).value;
     }
-
-    Var< CPlayer & > inst(vm, 1);
-
-    Var< Int32 > r(vm, 2);
-    Var< Int32 > g(vm, 3);
-    Var< Int32 > b(vm, 4);
-
-    if (!inst.value.IsActive())
-        SqThrow("Invalid player reference: %d", inst.value.GetID());
-    else if (top == 5 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    catch (const Sqrat::Exception & e)
     {
-        CSStr msg = NULL;
-
-        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
-            SqThrow("Unable to retrieve the message");
-        else
-            _Func->SendClientMessage(inst.value.GetID(),
-                                        SQMOD_PACK_RGBA(r.value, g.value, b.value, 0), "%s", msg);
-
-        sq_settop(vm, top);
+        // Propagate the error
+        return sq_throwerror(vm, e.Message().c_str());
     }
+    // Do we have a valid player instance?
+    if (!player)
+        return sq_throwerror(vm, "Invalid player instance");
+    // Do we have a valid player identifier?
+    else if (!player->IsActive())
+        return sq_throwerror(vm, "Invalid player reference");
+    // Do we have enough values to call the format function?
     else if (top > 5)
     {
         SStr msg = NULL;
         SQInteger len = 0;
-
-        if (SQ_FAILED(sqstd_format(vm, 5, &len, &msg)))
-            SqThrow("Unable to generate the player message [%s]", Error::Message(vm).c_str());
-        else
-            _Func->SendClientMessage(inst.value.GetID(),
-                                        SQMOD_PACK_RGBA(r.value, g.value, b.value, 0), "%s", msg);
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 5, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret; // Propagate the exception
+        // Send the resulted message string
+        _Func->SendClientMessage(player->GetID(), SQMOD_PACK_RGBA(r, g, b, 0), "%s", msg);
     }
     else
-        SqThrow("Unable to extract the player message");
-
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > msg(vm, 5);
+        // See if the obtained value is a valid message
+        if (!msg.value)
+            return sq_throwerror(vm, "Unable to retrieve the message");
+        // Send the resulted message string
+        _Func->SendClientMessage(player->GetID(), SQMOD_PACK_RGBA(r, g, b, 0), "%s", msg.value);
+    }
+    // This function does not return a value
     return 0;
 }
 
@@ -1092,43 +1452,53 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
 SQInteger CPlayer::Message(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
-
+    // Was the message value specified?
     if (top <= 1)
+        return sq_throwerror(vm, "Missing message value");
+    // The player instance
+    CPlayer * player = nullptr;
+    // Attempt to extract the argument values
+    try
     {
-        SqThrow("Missing the message value");
-        return 0;
+        player = Var< CPlayer * >(vm, 1).value;
     }
-
-    Var< CPlayer & > inst(vm, 1);
-
-    if (!inst.value.IsActive())
-        SqThrow("Invalid player reference: %d", inst.value.GetID());
-    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    catch (const Sqrat::Exception & e)
     {
-        CSStr msg = NULL;
-        const Int32 id = inst.value.GetID();
-
-        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
-            SqThrow("Unable to retrieve the message");
-        else
-            _Func->SendClientMessage(id, _Core->GetPlayer(id).mMessageColor, "%s", msg);
-
-        sq_settop(vm, top);
+        // Propagate the error
+        return sq_throwerror(vm, e.Message().c_str());
     }
+    // Do we have a valid player instance?
+    if (!player)
+        return sq_throwerror(vm, "Invalid player instance");
+    // Do we have a valid player identifier?
+    else if (!player->IsActive())
+        return sq_throwerror(vm, "Invalid player reference");
+    // Do we have enough values to call the format function?
     else if (top > 2)
     {
         SStr msg = NULL;
         SQInteger len = 0;
-        const Int32 id = inst.value.GetID();
-
-        if (SQ_FAILED(sqstd_format(vm, 2, &len, &msg)))
-            SqThrow("Unable to generate the player message [%s]", Error::Message(vm).c_str());
-        else
-            _Func->SendClientMessage(id, _Core->GetPlayer(id).mMessageColor, "%s", msg);
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 2, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret; // Propagate the exception
+        // Send the resulted message string
+        _Func->SendClientMessage(player->GetID(),
+                                    _Core->GetPlayer(player->GetID()).mMessageColor, "%s", msg);
     }
     else
-        SqThrow("Unable to extract the player message");
-
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > msg(vm, 2);
+        // See if the obtained value is a valid message
+        if (!msg.value)
+            return sq_throwerror(vm, "Unable to retrieve the message");
+        // Send the resulted message string
+        _Func->SendClientMessage(player->GetID(),
+                                    _Core->GetPlayer(player->GetID()).mMessageColor, "%s", msg.value);
+    }
+    // This function does not return a value
     return 0;
 }
 
@@ -1136,43 +1506,53 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
 SQInteger CPlayer::Announce(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
-
+    // Was the announcement value specified?
     if (top <= 1)
+        return sq_throwerror(vm, "Missing announcement value");
+    // The player instance
+    CPlayer * player = nullptr;
+    // Attempt to extract the argument values
+    try
     {
-        SqThrow("Missing the announcement value");
-        return 0;
+        player = Var< CPlayer * >(vm, 1).value;
     }
-
-    Var< CPlayer & > inst(vm, 1);
-
-    if (!inst.value.IsActive())
-        SqThrow("Invalid player reference: %d", inst.value.GetID());
-    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
+    catch (const Sqrat::Exception & e)
     {
-        CSStr msg = 0;
-        const Int32 id = inst.value.GetID();
-
-        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
-            SqThrow("Unable to retrieve the announcement");
-        else
-            _Func->SendGameMessage(id, _Core->GetPlayer(id).mAnnounceStyle, "%s", msg);
-
-        sq_settop(vm, top);
+        // Propagate the error
+        return sq_throwerror(vm, e.Message().c_str());
     }
+    // Do we have a valid player instance?
+    if (!player)
+        return sq_throwerror(vm, "Invalid player instance");
+    // Do we have a valid player identifier?
+    else if (!player->IsActive())
+        return sq_throwerror(vm, "Invalid player reference");
+    // Do we have enough values to call the format function?
     else if (top > 2)
     {
         SStr msg = NULL;
         SQInteger len = 0;
-        const Int32 id = inst.value.GetID();
-
-        if (SQ_FAILED(sqstd_format(vm, 2, &len, &msg)))
-            SqThrow("Unable to generate the player announcement [%s]", Error::Message(vm).c_str());
-        else
-            _Func->SendGameMessage(id, _Core->GetPlayer(id).mAnnounceStyle, "%s", msg);
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 2, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret; // Propagate the exception
+        // Send the resulted announcement string
+        _Func->SendGameMessage(player->GetID(),
+                                _Core->GetPlayer(player->GetID()).mAnnounceStyle, "%s", msg);
     }
     else
-        SqThrow("Unable to extract the player message");
-
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > msg(vm, 2);
+        // See if the obtained value is a valid announcement
+        if (!msg.value)
+            return sq_throwerror(vm, "Unable to retrieve the announcement");
+        // Send the resulted announcement string
+        _Func->SendGameMessage(player->GetID(),
+                                _Core->GetPlayer(player->GetID()).mAnnounceStyle, "%s", msg.value);
+    }
+    // This function does not return a value
     return 0;
 }
 
@@ -1180,47 +1560,57 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
 SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
-
+    // Was the announcement style specified?
     if (top <= 1)
+        return sq_throwerror(vm, "Missing announcement style");
+    // Was the announcement value specified?
+    else if (top <= 2)
+        return sq_throwerror(vm, "Missing announcement value");
+    // The player instance
+    CPlayer * player = nullptr;
+    // The announcement style
+    Int32 style;
+    // style to extract the argument values
+    try
     {
-        SqThrow("Missing the announcement style");
-        return 0;
+        player = Var< CPlayer * >(vm, 1).value;
+        style = Var< Int32 >(vm, 2).value;
     }
-    else if (top == 2)
+    catch (const Sqrat::Exception & e)
     {
-        SqThrow("Missing the announcement value");
-        return 0;
+        // Propagate the error
+        return sq_throwerror(vm, e.Message().c_str());
     }
-
-    Var< CPlayer & > inst(vm, 1);
-    Var< SQInt32 > type(vm, 2);
-
-    if (!inst.value.IsActive())
-        SqThrow("Invalid player reference: %d", inst.value.GetID());
-    else if (top == 3 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
-    {
-        CSStr msg = 0;
-
-        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
-            SqThrow("Unable to retrieve the announcement");
-        else
-            _Func->SendGameMessage(inst.value.GetID(), type.value, "%s", msg);
-
-        sq_settop(vm, top);
-    }
+    // Do we have a valid player instance?
+    if (!player)
+        return sq_throwerror(vm, "Invalid player instance");
+    // Do we have a valid player identifier?
+    else if (!player->IsActive())
+        return sq_throwerror(vm, "Invalid player reference");
+    // Do we have enough values to call the format function?
     else if (top > 3)
     {
         SStr msg = NULL;
         SQInteger len = 0;
-
-        if (SQ_FAILED(sqstd_format(vm, 3, &len, &msg)))
-            SqThrow("Unable to generate the player announcement [%s]", Error::Message(vm).c_str());
-        else
-            _Func->SendGameMessage(inst.value.GetID(), type.value, "%s", msg);
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret; // Propagate the exception
+        // Send the resulted announcement string
+        _Func->SendGameMessage(player->GetID(), style, "%s", msg);
     }
     else
-        SqThrow("Unable to extract the player message");
-
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > msg(vm, 3);
+        // See if the obtained value is a valid announcement
+        if (!msg.value)
+            return sq_throwerror(vm, "Unable to retrieve the announcement");
+        // Send the resulted announcement string
+        _Func->SendGameMessage(player->GetID(), style, "%s", msg.value);
+    }
+    // This function does not return a value
     return 0;
 }
 
@@ -1229,20 +1619,21 @@ void Register_CPlayer(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqPlayer"),
         Class< CPlayer, NoConstructor< CPlayer > >(vm, _SC("SqPlayer"))
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &CPlayer::Cmp)
+        .SquirrelFunc(_SC("_typename"), &CPlayer::Typename)
         .Func(_SC("_tostring"), &CPlayer::ToString)
-        /* Core Properties */
+        // Static values
+        .SetStaticValue(_SC("MaxID"), CPlayer::Max)
+        // Core Properties
         .Prop(_SC("ID"), &CPlayer::GetID)
         .Prop(_SC("Tag"), &CPlayer::GetTag, &CPlayer::SetTag)
         .Prop(_SC("Data"), &CPlayer::GetData, &CPlayer::SetData)
-        .Prop(_SC("MaxID"), &CPlayer::GetMaxID)
         .Prop(_SC("Active"), &CPlayer::IsActive)
-        /* Core Functions */
+        // Core Functions
         .Func(_SC("Bind"), &CPlayer::BindEvent)
-        /* Properties */
-        .Prop(_SC("Cls"), &CPlayer::GetClass)
-        .Prop(_SC("ClassID"), &CPlayer::GetClass)
+        // Properties
+        .Prop(_SC("Class"), &CPlayer::GetClass)
         .Prop(_SC("Admin"), &CPlayer::GetAdmin, &CPlayer::SetAdmin)
         .Prop(_SC("IP"), &CPlayer::GetIP)
         .Prop(_SC("Connected"), &CPlayer::IsConnected)
@@ -1265,7 +1656,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("UID"), &CPlayer::GetUID)
         .Prop(_SC("UID2"), &CPlayer::GetUID2)
         .Prop(_SC("Health"), &CPlayer::GetHealth, &CPlayer::SetHealth)
-        .Prop(_SC("Armur"), &CPlayer::GetArmor, &CPlayer::SetArmor)
+        .Prop(_SC("Armor"), &CPlayer::GetArmor, &CPlayer::SetArmor)
         .Prop(_SC("Immunity"), &CPlayer::GetImmunity, &CPlayer::SetImmunity)
         .Prop(_SC("Pos"), &CPlayer::GetPosition, &CPlayer::SetPosition)
         .Prop(_SC("Position"), &CPlayer::GetPosition, &CPlayer::SetPosition)
@@ -1307,7 +1698,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("X"), &CPlayer::GetPosX, &CPlayer::SetPosX)
         .Prop(_SC("Y"), &CPlayer::GetPosY, &CPlayer::SetPosY)
         .Prop(_SC("Z"), &CPlayer::GetPosZ, &CPlayer::SetPosZ)
-        /* Functions */
+        // Functions
         .Func(_SC("StreamedFor"), &CPlayer::IsStreamedFor)
         .Func(_SC("Kick"), &CPlayer::Kick)
         .Func(_SC("Ban"), &CPlayer::Ban)
@@ -1330,7 +1721,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("GetMsgPrefix"), &CPlayer::GetMessagePrefix)
         .Func(_SC("SetMsgPrefix"), &CPlayer::SetMessagePrefix)
-        /* Raw Functions */
+        // Raw Functions
         .SquirrelFunc(_SC("Msg"), &CPlayer::Msg)
         .SquirrelFunc(_SC("MsgP"), &CPlayer::MsgP)
         .SquirrelFunc(_SC("MsgEx"), &CPlayer::MsgEx)
@@ -1339,7 +1730,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("AnnounceEx"), &CPlayer::AnnounceEx)
         .SquirrelFunc(_SC("Text"), &CPlayer::Announce)
         .SquirrelFunc(_SC("TextEx"), &CPlayer::AnnounceEx)
-        /* Overloads */
+        // Overloads
         .Overload< void (CPlayer::*)(const Vector3 &) const >
             (_SC("AddSpeed"), &CPlayer::AddSpeed)
         .Overload< void (CPlayer::*)(Float32, Float32, Float32) const >

@@ -15,6 +15,14 @@ const AABB AABB::MAX = AABB(Vector3::MIN, Vector3::MAX);
 SQChar AABB::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
+SQInteger AABB::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("AABB");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 AABB::AABB()
     : min(-1.0), max(1.0)
 {
@@ -47,27 +55,6 @@ AABB::AABB(const Vector3 & vmin, const Vector3 & vmax)
     : min(vmin), max(vmax)
 {
     /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-AABB::AABB(const AABB & b)
-    : min(b.min), max(b.max)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-AABB::~AABB()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-AABB & AABB::operator = (const AABB & b)
-{
-    min = b.min;
-    max = b.max;
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -304,7 +291,7 @@ Int32 AABB::Cmp(const AABB & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr AABB::ToString() const
 {
-    return ToStringF("%f,%f,%f,%f,%f,%f", min.x, min.y, min.z, max.x, max.y, max.z);
+    return ToStrF("%f,%f,%f,%f,%f,%f", min.x, min.y, min.z, max.x, max.y, max.z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -392,6 +379,7 @@ void Register_AABB(HSQUIRRELVM vm)
         .Prop(_SC("abs"), &AABB::Abs)
         /* Core Metamethods */
         .Func(_SC("_tostring"), &AABB::ToString)
+        .SquirrelFunc(_SC("_typename"), &AABB::Typename)
         .Func(_SC("_cmp"), &AABB::Cmp)
         /* Metamethods */
         .Func<AABB (AABB::*)(const AABB &) const>(_SC("_add"), &AABB::operator +)

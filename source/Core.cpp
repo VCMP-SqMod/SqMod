@@ -49,13 +49,6 @@ extern void TerminateCommand();
 Core * _Core = NULL;
 
 // ------------------------------------------------------------------------------------------------
-static void CalculateStringIDs(SQChar arr[][8], Uint32 num)
-{
-    for (Uint32 n = 0; n < num; n++)
-        snprintf(arr[n], 8, "%d", n);
-}
-
-// ------------------------------------------------------------------------------------------------
 Core::Core()
     : m_State(0)
     , m_VM(NULL)
@@ -100,19 +93,6 @@ bool Core::Init()
     m_Textdraws.resize(SQMOD_TEXTDRAW_POOL);
     m_Vehicles.resize(SQMOD_VEHICLE_POOL);
 
-    LogDbg("Pre-calculating entity string identifiers");
-    // Pre-calculate all possible entity IDs for fast string conversion
-    CalculateStringIDs(CBlip::s_StrID, SQMOD_BLIP_POOL);
-    CalculateStringIDs(CCheckpoint::s_StrID, SQMOD_CHECKPOINT_POOL);
-    CalculateStringIDs(CForcefield::s_StrID, SQMOD_FORCEFIELD_POOL);
-    CalculateStringIDs(CKeybind::s_StrID, SQMOD_KEYBIND_POOL);
-    CalculateStringIDs(CObject::s_StrID, SQMOD_OBJECT_POOL);
-    CalculateStringIDs(CPickup::s_StrID, SQMOD_PICKUP_POOL);
-    CalculateStringIDs(CPlayer::s_StrID, SQMOD_PLAYER_POOL);
-    CalculateStringIDs(CSprite::s_StrID, SQMOD_SPRITE_POOL);
-    CalculateStringIDs(CTextdraw::s_StrID, SQMOD_TEXTDRAW_POOL);
-    CalculateStringIDs(CVehicle::s_StrID, SQMOD_VEHICLE_POOL);
-
     LogDbg("Initializing entity options to defaults");
     // Initialize player messaging options to default values
     for (Players::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
@@ -154,148 +134,130 @@ bool Core::Init()
     // Attempt to read the database port number
     try
     {
-        Ulong num = strtoul(conf.GetValue("Config", "StackSize", "0"), NULL, 10);
-        // Make sure that the retrieved number is in range
+        Ulong num = conf.GetLongValue("Config", "StackSize", SQMOD_STACK_SIZE);
+        // Make sure that the retrieved number is within range
         if (!num)
-        {
             throw std::out_of_range("stack size too small");
-        }
-        else if (num >= NumLimit< Uint16 >::Max)
-        {
+        else if (num >= std::numeric_limits< Uint16 >::max())
             throw std::out_of_range("stack size too big");
-        }
         // Save the port number
-        stack_size = (Uint16)num;
+        stack_size = static_cast< Uint16 >(num);
     }
     catch (const std::exception & e)
     {
-        LogWrn("Unable to obtain the stack size [%s]", e.what());
+        LogWrn("Unable to obtain a valid stack size [%s]", e.what());
     }
 
-    LogDbg("Creating virtual machine with a stack size (%d)", stack_size);
+    LogDbg("Creating a virtual machine with a stack size of (%d)", stack_size);
     // Attempt to create the VM
     m_VM = sq_open(stack_size);
-
+    // See if the virtual machine could be created
     if (cLogFtl(!m_VM, "Unable to create the virtual machine"))
     {
-        m_VM = NULL;
+        // Explicitly prevent further use of this pointer
+        m_VM = nullptr;
+        // Unable to load the plugin properly
         return false;
     }
-
-    // Set this as the default VM and enable error handling
+    // Set this as the default VM
     DefaultVM::Set(m_VM);
+    // Enable error handling
     ErrorHandling::Enable(true);
 
     LogDbg("Registering the standard libraries");
-    // Register the standard library on the root table
+    // Push the root table on the stack
     sq_pushroottable(m_VM);
+    // Register the standard library on the pushed table
     sqstd_register_iolib(m_VM);
     sqstd_register_bloblib(m_VM);
     sqstd_register_mathlib(m_VM);
     sqstd_register_systemlib(m_VM);
     sqstd_register_stringlib(m_VM);
+    // Pop the root table from the stack
     sq_pop(m_VM, 1);
 
     LogDbg("Setting the base output function");
+    // Tell the VM to use these functions to output user on error messages
     sq_setprintfunc(m_VM, PrintFunc, ErrorFunc);
 
     LogDbg("Setting the base error handlers");
+    // Tell the VM to trigger this function on compile time errors
     sq_setcompilererrorhandler(m_VM, CompilerErrorHandler);
+    // Push the runtime error handler on the stack and create a closure
     sq_newclosure(m_VM, RuntimeErrorHandler, 0);
+    // Tell the VM to trigger this function on runtime errors
     sq_seterrorhandler(m_VM);
 
     LogDbg("Registering the plug-in API");
+    // Attempt to register the plugin API
     if (cLogFtl(!RegisterAPI(m_VM), "Unable to register the plug-in API"))
-        return false;
+        return false; // Can't execute scripts without a valid API!
 
     // Attempt to retrieve the list of strings specified in the config
     CSimpleIniA::TNamesDepend scripts;
     conf.GetAllValues("Scripts", "Source", scripts);
     // See if any script was specified
-    if (scripts.size() <= 0)
+    if (scripts.size() <= 0 && !conf.GetBoolValue("Config", "EmptyInit", false))
     {
         LogWrn("No scripts specified in the configuration file");
         // No point in loading the plug-in
         return false;
     }
-    // Sort the list in it's original order
-    scripts.sort(CSimpleIniA::Entry::LoadOrder());
-    // Process each specified script path
-    for (CSimpleIniA::TNamesDepend::iterator itr = scripts.begin(); itr != scripts.end(); ++itr)
+    else
     {
-        // Get the file path as a string
-        String path(itr->pItem);
-        // See if the specified script path is valid
-        if (path.empty())
-        {
-            // Simply ignore it
-            continue;
-        }
-        // See if it wasn't already loaded
-        else if (m_Scripts.find(path) != m_Scripts.end())
-        {
-            LogWrn("Script was specified before: %s", path.c_str());
-            // No point in loading it again
-            continue;
-        }
-        // Create a new script container and insert it into the script pool
-        std::pair< Scripts::iterator, bool > res = m_Scripts.insert(Scripts::value_type(path, Script(m_VM)));
-        // We don't compile the scripts yet. We just store their path and prepare the objects.
-        if (!res.second)
-        {
-            LogErr("Unable to queue script: %s", path.c_str());
-            // Drop all previous scripts
-            m_Scripts.clear();
-            // Failed to compile the specified script
-            return false;
-        }
+        // Sort the list in it's original order
+        scripts.sort(CSimpleIniA::Entry::LoadOrder());
+        // Process each specified script paths
+        for (const auto & script : scripts)
+            // Attempt to queue the specified script path for loading
+            LoadScript(script.pItem);
     }
-    // See if any script could be compiled
+    // See if any script could be queued for loading
     if (m_Scripts.empty() && !conf.GetBoolValue("Config", "EmptyInit", false))
     {
-        LogErr("No scripts compiled. No reason to load the plug-in");
+        LogErr("No scripts loaded. No reason to load the plug-in");
         // No point in loading the plug-in
         return false;
     }
-
     LogDbg("Reading the options from the general section");
-    // Read options only after compilation was successful
+    // Read options only after loading was successful
     CSimpleIniA::TNamesDepend options;
-    // Are there any options to load?
+    // Are there any options to read?
     if (conf.GetAllKeys("Options", options) || options.size() > 0)
     {
         // Process all the specified keys under the [Options] section
-        for (CSimpleIniA::TNamesDepend::iterator itr = options.begin(); itr != options.end(); ++itr)
+        for (const auto & option : options)
         {
-            CSimpleIniA::TNamesDepend optlist;
-            // Get all keys with the same name
-            if (!conf.GetAllValues("Options", itr->pItem, optlist))
-            {
+            CSimpleIniA::TNamesDepend values;
+            // Get the values of all keys with the same name
+            if (!conf.GetAllValues("Options", option.pItem, values))
                 continue;
-            }
             // Sort the keys in their original order
-            optlist.sort(CSimpleIniA::Entry::LoadOrder());
-            // Process each option and overwrite existing values
-            for (CSimpleIniA::TNamesDepend::iterator opt = optlist.begin(); opt != optlist.end(); ++opt)
-            {
-                m_Options[itr->pItem] = opt->pItem;
-            }
+            values.sort(CSimpleIniA::Entry::LoadOrder());
+            // Save each option option and overwrite existing value
+            for (const auto & value : values)
+                m_Options[option.pItem] = value.pItem;
         }
     }
     else
-    {
         LogInf("No options specified in the configuration file");
-    }
 
     LogDbg("Applying the specified logging filters");
     // Apply the specified logging filters only after initialization was completed
-    if (!SToB(conf.GetValue("Log", "Debug", "true")))   _Log->DisableLevel(LL_DBG);
-    if (!SToB(conf.GetValue("Log", "User", "true"))) _Log->DisableLevel(LL_USR);
-    if (!SToB(conf.GetValue("Log", "Success", "true"))) _Log->DisableLevel(LL_SCS);
-    if (!SToB(conf.GetValue("Log", "Info", "true")))    _Log->DisableLevel(LL_INF);
-    if (!SToB(conf.GetValue("Log", "Warning", "true"))) _Log->DisableLevel(LL_WRN);
-    if (!SToB(conf.GetValue("Log", "Error", "true")))   _Log->DisableLevel(LL_ERR);
-    if (!SToB(conf.GetValue("Log", "Fatal", "true")))   _Log->DisableLevel(LL_FTL);
+    if (!conf.GetBoolValue("Log", "Debug", true))
+        _Log->DisableLevel(LL_DBG);
+    if (!conf.GetBoolValue("Log", "User", true))
+        _Log->DisableLevel(LL_USR);
+    if (!conf.GetBoolValue("Log", "Success", true))
+        _Log->DisableLevel(LL_SCS);
+    if (!conf.GetBoolValue("Log", "Info", true))
+        _Log->DisableLevel(LL_INF);
+    if (!conf.GetBoolValue("Log", "Warning", true))
+        _Log->DisableLevel(LL_WRN);
+    if (!conf.GetBoolValue("Log", "Error", true))
+        _Log->DisableLevel(LL_ERR);
+    if (!conf.GetBoolValue("Log", "Fatal", true))
+        _Log->DisableLevel(LL_FTL);
 
     // Initialization successful
     return true;
@@ -306,7 +268,8 @@ bool Core::Load()
 {
     // Are there any scripts to execute?
     if (cLogErr(m_Scripts.empty(), "No scripts to execute. Plug-in has no purpose"))
-        return false;
+        return false; // No reason to load the plug-in
+
     LogDbg("Signaling outside plugins to register their API");
     // Signal outside plugins to do their monkey business
     _Func->SendCustomCommand(0xDEADBABE, "");
@@ -316,18 +279,29 @@ bool Core::Load()
     for (Scripts::iterator itr = m_Scripts.begin(); itr != m_Scripts.end(); ++itr)
     {
         // Attempt to load and compile the script file
-        itr->second.CompileFile(itr->first);
-        // See if any compile time error occurred during compilation
-        if (Error::Occurred(m_VM))
-            return false; /* Failed to load properly */
-        // Attempt to execute the script
-        itr->second.Run();
-        // See if the executed script had any errors
-        if (Error::Occurred(m_VM))
-            // Failed to execute scripts
-            return false; /* Failed to load properly */
-        else
-            LogScs("Successfully executed script: %s", itr->first.c_str());
+        try
+        {
+            itr->second.CompileFile(itr->first);
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            LogFtl("Unable to compile: %s", itr->first.c_str());
+            // Failed to load properly
+            return false;
+        }
+        // Attempt to execute the compiled script code
+        try
+        {
+            itr->second.Run();
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            LogFtl("Unable to execute: %s", itr->first.c_str());
+            // Failed to load properly
+            return false;
+        }
+        // At this point the script should be completely loaded
+        LogScs("Successfully executed script: %s", itr->first.c_str());
     }
     // Successfully loaded
     return true;
@@ -380,6 +354,25 @@ CSStr Core::GetOption(const String & name) const
 void Core::SetOption(const String & name, const String & value)
 {
     m_Options[name] = value;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::LoadScript(CSStr filepath)
+{
+    // Is the specified path empty?
+    if (!filepath || *filepath == 0)
+        return false; // Simply ignore it
+    // Get the file path as a string
+    String path(filepath);
+    // See if it wasn't already loaded
+    if (m_Scripts.find(path) != m_Scripts.end())
+        LogWrn("Script was specified before: %s", path.c_str());
+    // We don't compile the scripts yet. We just store their path and prepare the objects.
+    else
+        // Create a new script container and insert it into the script pool
+        m_Scripts.emplace(std::move(path), Script(m_VM));
+    // At this point the script exists in the pool
+    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1720,8 +1713,8 @@ void Core::ResetInst(BlipInst & inst)
     inst.mWorld = -1;
     inst.mScale = -1;
     inst.mSprID = -1;
-    //inst.mPosition.Clear();
-    //inst.mColor.Clear();
+    inst.mPosition.Clear();
+    inst.mColor.Clear();
 }
 
 void Core::ResetInst(CheckpointInst & inst)
@@ -1740,9 +1733,9 @@ void Core::ResetInst(KeybindInst & inst)
 {
     inst.mID = -1;
     inst.mFlags = ENF_DEFAULT;
-    inst.mPrimary = -1;
-    inst.mSecondary = -1;
-    inst.mAlternative = -1;
+    inst.mFirst = -1;
+    inst.mSecond = -1;
+    inst.mThird = -1;
     inst.mRelease = -1;
 }
 

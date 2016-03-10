@@ -15,6 +15,14 @@ const Circle Circle::MAX = Circle(NumLimit< Circle::Value >::Max);
 SQChar Circle::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Circle::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("Circle");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 Circle::Circle()
     : pos(0.0, 0.0), rad(0.0)
 {
@@ -40,27 +48,6 @@ Circle::Circle(Value xv, Value yv, Value rv)
     : pos(xv, yv), rad(rv)
 {
     /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Circle::Circle(const Circle & o)
-    : pos(o.pos), rad(o.rad)
-{
-
-}
-
-// ------------------------------------------------------------------------------------------------
-Circle::~Circle()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Circle & Circle::operator = (const Circle & o)
-{
-    pos = o.pos;
-    rad = o.rad;
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -341,7 +328,7 @@ Int32 Circle::Cmp(const Circle & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr Circle::ToString() const
 {
-    return ToStringF("%f,%f,%f", pos.x, pos.y, rad);
+    return ToStrF("%f,%f,%f", pos.x, pos.y, rad);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -395,35 +382,28 @@ void Circle::Generate()
 void Circle::Generate(Value min, Value max, bool r)
 {
     if (EpsLt(max, min))
-    {
-        SqThrow("max value is lower than min value");
-    }
+        SqThrowF("max value is lower than min value");
     else if (r)
-    {
         rad = GetRandomFloat32(min, max);
-    }
     else
-    {
         pos.Generate(min, max);
-    }
 }
 
 void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
+    if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin))
+        SqThrowF("max value is lower than min value");
+
     pos.Generate(xmin, xmax, ymin, ymax);
 }
 
 void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax)
 {
-    if (EpsLt(rmax, rmin))
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        pos.Generate(xmin, xmax, ymin, ymax);
-        rad = GetRandomFloat32(rmin, rmax);
-    }
+    if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(rmax, rmin))
+        SqThrowF("max value is lower than min value");
+
+    pos.Generate(xmin, xmax, ymin, ymax);
+    rad = GetRandomFloat32(rmin, rmax);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -452,6 +432,7 @@ void Register_Circle(HSQUIRRELVM vm)
         .Prop(_SC("abs"), &Circle::Abs)
         /* Core Metamethods */
         .Func(_SC("_tostring"), &Circle::ToString)
+        .SquirrelFunc(_SC("_typename"), &Circle::Typename)
         .Func(_SC("_cmp"), &Circle::Cmp)
         /* Metamethods */
         .Func<Circle (Circle::*)(const Circle &) const>(_SC("_add"), &Circle::operator +)

@@ -18,7 +18,7 @@ Int32 Entries::Cmp(const Entries & o) const
 {
     if (m_Elem == o.m_Elem)
         return 0;
-    else if (this > &o)
+    else if (m_List.size() > o.m_List.size())
         return 1;
     else
         return -1;

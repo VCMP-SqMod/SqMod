@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Manages Pickup instances.
+ * Manages a single pickup entity.
 */
 class CPickup
 {
@@ -21,19 +21,18 @@ private:
     static Vector3      s_Vector3;
 
     /* --------------------------------------------------------------------------------------------
-     * Cached identifiers for fast integer to string conversion.
-    */
-    static SQChar s_StrID[SQMOD_PICKUP_POOL][8];
-
-    /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
     Int32   m_ID;
 
     /* --------------------------------------------------------------------------------------------
-     * User tag and data associated with this instance.
+     * User tag associated with this instance.
     */
     String  m_Tag;
+
+    /* --------------------------------------------------------------------------------------------
+     * User data associated with this instance.
+    */
     Object  m_Data;
 
     /* --------------------------------------------------------------------------------------------
@@ -41,20 +40,22 @@ private:
     */
     CPickup(Int32 id);
 
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Maximum possible number that could represent an identifier for this entity type.
+    */
+    static const Int32 Max;
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    CPickup(const CPickup &);
+    CPickup(const CPickup &) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
+     * Move constructor. (disabled)
     */
-    CPickup & operator = (const CPickup &);
-
-public:
-
-    // --------------------------------------------------------------------------------------------
-    static const Int32 Max;
+    CPickup(CPickup &&) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -62,14 +63,22 @@ public:
     ~CPickup();
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance manages a valid entity.
+     * Copy assignment operator. (disabled)
     */
-    bool Validate() const
+    CPickup & operator = (const CPickup &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    CPickup & operator = (CPickup &&) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether this instance manages a valid entity instance otherwise throw an exception.
+    */
+    void Validate() const
     {
-        if (VALID_ENTITY(m_ID))
-            return true;
-        SqThrow("Invalid pickup reference [%s]", m_Tag.c_str());
-        return false;
+        if (INVALID_ENTITY(m_ID))
+            SqThrowF("Invalid pickup reference [%s]", m_Tag.c_str());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -80,27 +89,33 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    const String & ToString() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
     */
-    Int32 GetID() const { return m_ID; }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the maximum possible identifier to an entity of this type.
-    */
-    Int32 GetMaxID() const { return SQMOD_PICKUP_POOL; }
+    Int32 GetID() const
+    {
+        return m_ID;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Check whether this instance manages a valid entity.
     */
-    bool IsActive() const { return VALID_ENTITY(m_ID); }
+    bool IsActive() const
+    {
+        return VALID_ENTITY(m_ID);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user tag.
     */
-    CSStr GetTag() const;
+    const String & GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
@@ -117,37 +132,135 @@ public:
     */
     void SetData(Object & data);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed pickup entity.
+    */
+    bool Destroy()
+    {
+        return Destroy(0, NullObject());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed pickup entity.
+    */
+    bool Destroy(Int32 header)
+    {
+        return Destroy(header, NullObject());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed pickup entity.
+    */
     bool Destroy(Int32 header, Object & payload);
-    bool Destroy() { return Destroy(0, NullObject()); }
-    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
 
-    // --------------------------------------------------------------------------------------------
-    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+    /* --------------------------------------------------------------------------------------------
+     * Bind to an event supported by this entity type.
+    */
+    void BindEvent(Int32 evid, Object & env, Function & func) const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * See if the managed pickup entity is streamed for the specified player.
+    */
     bool IsStreamedFor(CPlayer & player) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the model of the managed pickup entity.
+    */
     Int32 GetModel() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the world in which the managed pickup entity exists.
+    */
     Int32 GetWorld() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Mpdify the world in which the managed pickup entity exists.
+    */
     void SetWorld(Int32 world) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the alpha of the managed pickup entity.
+    */
     Int32 GetAlpha() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Mpdify the alpha of the managed pickup entity.
+    */
     void SetAlpha(Int32 alpha) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed pickup entity is automatic.
+    */
     bool GetAutomatic() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the managed pickup entity is automatic.
+    */
     void SetAutomatic(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the automatic timer of the managed pickup entity.
+    */
     Int32 GetAutoTimer() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Mpdify the automatic timer of the managed pickup entity.
+    */
     void SetAutoTimer(Int32 timer) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Refresh the managed pickup entity.
+    */
     void Refresh() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position of the managed pickup entity.
+    */
     const Vector3 & GetPosition();
+
+    /* --------------------------------------------------------------------------------------------
+     * Mpdify the position of the managed pickup entity.
+    */
     void SetPosition(const Vector3 & pos) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Mpdify the position of the managed pickup entity.
+    */
     void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the quantity of the managed pickup entity.
+    */
     Int32 GetQuantity() const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position on the x axis of the managed pickup entity.
+    */
     Float32 GetPosX() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position on the y axis of the managed pickup entity.
+    */
     Float32 GetPosY() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the position on the z axis of the managed pickup entity.
+    */
     Float32 GetPosZ() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the x axis of the managed pickup entity.
+    */
     void SetPosX(Float32 x) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the y axis of the managed pickup entity.
+    */
     void SetPosY(Float32 y) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the z axis of the managed pickup entity.
+    */
     void SetPosZ(Float32 z) const;
 };
 

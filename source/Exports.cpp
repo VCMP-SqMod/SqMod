@@ -37,6 +37,16 @@ static HSQUIRRELVM GetSquirrelVM()
 }
 
 // ------------------------------------------------------------------------------------------------
+static SQRESULT SqEx_LoadScript(const SQChar * filepath)
+{
+    // Attempt to add the specified script to the load queue
+    if (_Core->LoadScript(filepath))
+        return SQ_OK; // The script as added or already existed
+    // The path was invalied or was unable to pool the script
+    return SQ_ERROR;
+}
+
+// ------------------------------------------------------------------------------------------------
 static SQRESULT SqEx_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 {
     // Validate the specified number pointer and value type
@@ -210,11 +220,11 @@ void InitExports()
     static HSQEXPORTS sqexports = &g_SqExports;
 
     // Assign the functions that should be exported
-    g_SqExports.uStructSize = sizeof(SQEXPORTS);
+    g_SqExports.StructSize              = sizeof(SQEXPORTS);
     g_SqExports.GetSquirrelAPI          = GetSquirrelAPI;
     g_SqExports.GetSquirrelVM           = GetSquirrelVM;
 
-    /*logging utilities*/
+    //logging utilities
     g_SqExports.LogDbg                  = LogDbg;
     g_SqExports.LogUsr                  = LogUsr;
     g_SqExports.LogScs                  = LogScs;
@@ -230,13 +240,16 @@ void InitExports()
     g_SqExports.LogSErr                 = LogSErr;
     g_SqExports.LogSFtl                 = LogSFtl;
 
-    /*long numbers*/
+    //script loading
+    g_SqExports.LoadScript              = SqEx_LoadScript;
+
+    //long numbers
     g_SqExports.GetSLongValue           = SqEx_GetSLongValue;
     g_SqExports.PushSLongObject         = SqEx_PushSLongObject;
     g_SqExports.GetULongValue           = SqEx_GetULongValue;
     g_SqExports.PushULongObject         = SqEx_PushULongObject;
 
-    /*time utilities*/
+    //time utilities
     g_SqExports.GetCurrentSysTime       = GetCurrentSysTime;
     g_SqExports.GetEpochTimeMicro       = GetEpochTimeMicro;
     g_SqExports.GetEpochTimeMilli       = GetEpochTimeMilli;
@@ -246,7 +259,7 @@ void InitExports()
     // Export them to the server
     _Func->ExportFunctions(_Info->nPluginId, (void **)(&sqexports), sizeof(SQEXPORTS));
 
-    /*vm*/
+    //vm
     g_SqAPI.open                        = sq_open;
     g_SqAPI.newthread                   = sq_newthread;
     g_SqAPI.seterrorhandler             = sq_seterrorhandler;
@@ -267,14 +280,14 @@ void InitExports()
     g_SqAPI.getvmstate                  = sq_getvmstate;
     g_SqAPI.getversion                  = sq_getversion;
 
-    /*compiler*/
+    //compiler
     g_SqAPI.compile                     = sq_compile;
     g_SqAPI.compilebuffer               = sq_compilebuffer;
     g_SqAPI.enabledebuginfo             = sq_enabledebuginfo;
     g_SqAPI.notifyallexceptions         = sq_notifyallexceptions;
     g_SqAPI.setcompilererrorhandler     = sq_setcompilererrorhandler;
 
-    /*stack operations*/
+    //stack operations
     g_SqAPI.push                        = sq_push;
     g_SqAPI.pop                         = sq_pop;
     g_SqAPI.poptop                      = sq_poptop;
@@ -285,7 +298,7 @@ void InitExports()
     g_SqAPI.cmp                         = sq_cmp;
     g_SqAPI.move                        = sq_move;
 
-    /*object creation handling*/
+    //object creation handling
     g_SqAPI.newuserdata                 = sq_newuserdata;
     g_SqAPI.newtable                    = sq_newtable;
     g_SqAPI.newtableex                  = sq_newtableex;
@@ -340,7 +353,7 @@ void InitExports()
     g_SqAPI.getbyhandle                 = sq_getbyhandle;
     g_SqAPI.setbyhandle                 = sq_setbyhandle;
 
-    /*object manipulation*/
+    //object manipulation
     g_SqAPI.pushroottable               = sq_pushroottable;
     g_SqAPI.pushregistrytable           = sq_pushregistrytable;
     g_SqAPI.pushconsttable              = sq_pushconsttable;
@@ -369,7 +382,7 @@ void InitExports()
     g_SqAPI.getweakrefval               = sq_getweakrefval;
     g_SqAPI.clear                       = sq_clear;
 
-    /*calls*/
+    //calls
     g_SqAPI.call                        = sq_call;
     g_SqAPI.resume                      = sq_resume;
     g_SqAPI.getlocal                    = sq_getlocal;
@@ -380,7 +393,7 @@ void InitExports()
     g_SqAPI.reseterror                  = sq_reseterror;
     g_SqAPI.getlasterror                = sq_getlasterror;
 
-    /*raw object handling*/
+    //raw object handling
     g_SqAPI.getstackobj                 = sq_getstackobj;
     g_SqAPI.pushobject                  = sq_pushobject;
     g_SqAPI.addref                      = sq_addref;
@@ -395,35 +408,35 @@ void InitExports()
     g_SqAPI.getobjtypetag               = sq_getobjtypetag;
     g_SqAPI.getvmrefcount               = sq_getvmrefcount;
 
-    /*GC*/
+    //GC
     g_SqAPI.collectgarbage              = sq_collectgarbage;
     g_SqAPI.resurrectunreachable        = sq_resurrectunreachable;
 
-    /*serialization*/
+    //serialization
     g_SqAPI.writeclosure                = sq_writeclosure;
     g_SqAPI.readclosure                 = sq_readclosure;
 
-    /*mem allocation*/
+    //mem allocation
     g_SqAPI.malloc                      = sq_malloc;
     g_SqAPI.realloc                     = sq_realloc;
     g_SqAPI.free                        = sq_free;
 
-    /*debug*/
+    //debug
     g_SqAPI.stackinfos                  = sq_stackinfos;
     g_SqAPI.setdebughook                = sq_setdebughook;
     g_SqAPI.setnativedebughook          = sq_setnativedebughook;
 
-    /*compiler helpers*/
+    //compiler helpers
     g_SqAPI.loadfile                    = sqstd_loadfile;
     g_SqAPI.dofile                      = sqstd_dofile;
     g_SqAPI.writeclosuretofile          = sqstd_writeclosuretofile;
 
-    /*blob*/
+    //blob
     g_SqAPI.createblob                  = sqstd_createblob;
     g_SqAPI.getblob                     = sqstd_getblob;
     g_SqAPI.getblobsize                 = sqstd_getblobsize;
 
-    /*string*/
+    //string
     g_SqAPI.format                      = sqstd_format;
 }
 

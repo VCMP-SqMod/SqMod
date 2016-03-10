@@ -2,7 +2,10 @@
 #define _BASE_BUFFER_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include <assert.h>
+#include <cassert>
+
+// ------------------------------------------------------------------------------------------------
+#include <utility>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -65,6 +68,17 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    MemRef(MemRef && o)
+        : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
+
+    {
+        o.m_Ptr = nullptr;
+        o.m_Ref = nullptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~MemRef()
@@ -83,6 +97,22 @@ public:
             m_Ptr = o.m_Ptr;
             m_Ref = o.m_Ref;
             Grab();
+        }
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    MemRef & operator = (MemRef && o)
+    {
+        if (m_Ptr != o.m_Ptr)
+        {
+            Drop();
+            m_Ptr = o.m_Ptr;
+            m_Ref = o.m_Ref;
+            o.m_Ptr = nullptr;
+            o.m_Ref = nullptr;
         }
         return *this;
     }
@@ -116,7 +146,7 @@ public:
     */
     Memory * operator -> () const
     {
-        assert(m_Ptr != NULL);
+        assert(m_Ptr);
         return m_Ptr;
     }
 
@@ -125,7 +155,7 @@ public:
     */
     Memory & operator * () const
     {
-        assert(m_Ptr != NULL);
+        assert(m_Ptr);
         return *m_Ptr;
     }
 };
@@ -134,43 +164,58 @@ public:
 void ThrowMemExcept(const char * msg, ...);
 
 /* ------------------------------------------------------------------------------------------------
- * Reusable buffer memory for quick allocations.
+ * Reusable and re-scalable buffer memory for quick memory allocations.
 */
 class Buffer
 {
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef char            Value; /* The type of value used to represent a byte. */
+    typedef char            Value; // The type of value used to represent a byte.
 
     // --------------------------------------------------------------------------------------------
-    typedef Value &         Reference; /* A reference to the stored value type. */
-    typedef const Value &   ConstRef; /* A const reference to the stored value type. */
+    typedef Value &         Reference; // A reference to the stored value type.
+    typedef const Value &   ConstRef; // A const reference to the stored value type.
 
     // --------------------------------------------------------------------------------------------
-    typedef Value *         Pointer; /* A pointer to the stored value type. */
-    typedef const Value *   ConstPtr; /* A const pointer to the stored value type. */
+    typedef Value *         Pointer; // A pointer to the stored value type.
+    typedef const Value *   ConstPtr; // A const pointer to the stored value type.
 
     // --------------------------------------------------------------------------------------------
-    typedef unsigned int    SzType; /* The type used to represent size in general. */
+    typedef unsigned int    SzType; // The type used to represent size in general.
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct and take ownership of the specified buffer.
+    */
+    Buffer(Pointer & ptr, SzType & cap, const MemRef & mem)
+        : m_Ptr(ptr)
+        , m_Cap(cap)
+        , m_Mem(mem)
+    {
+        ptr = nullptr;
+        cap = 0;
+    }
+
+public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null). Not null of a previous buffer was marked as movable.
     */
     Buffer()
-        : m_Ptr(s_Ptr)
-        , m_Cap(s_Cap)
+        : m_Ptr(nullptr)
+        , m_Cap(0)
         , m_Mem(MemRef::Get())
     {
-        s_Ptr = NULL;
-        s_Cap = 0;
+        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
      * Explicit size constructor.
     */
     Buffer(SzType n)
-        : m_Ptr(NULL)
+        : m_Ptr(nullptr)
         , m_Cap(0)
         , m_Mem(MemRef::Get())
     {
@@ -183,6 +228,15 @@ public:
     Buffer(const Buffer & o);
 
     /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    Buffer(Buffer && o)
+        : m_Ptr(o.m_Ptr), m_Cap(o.m_Cap), m_Mem(o.m_Mem)
+    {
+        o.m_Ptr = nullptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~Buffer();
@@ -191,6 +245,23 @@ public:
      * Copy assignment operator.
     */
     Buffer & operator = (const Buffer & o);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator.
+    */
+    Buffer & operator = (Buffer && o)
+    {
+        if (m_Ptr != o.m_Ptr)
+        {
+            if (m_Ptr)
+                Release();
+            m_Ptr = o.m_Ptr;
+            m_Cap = o.m_Cap;
+            m_Mem = o.m_Mem;
+            o.m_Ptr = nullptr;
+        }
+        return *this;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Equality comparison operator.
@@ -251,7 +322,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the internal buffer casted as a different type.
     */
-    template < typename T > T * Get()
+    template < typename T = Value> T * Get()
     {
         return reinterpret_cast< T * >(m_Ptr);
     }
@@ -259,7 +330,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the internal buffer casted as a different type.
     */
-    template < typename T > const T * Get() const
+    template < typename T = Value> const T * Get() const
     {
         return reinterpret_cast< const T * >(m_Ptr);
     }
@@ -267,7 +338,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the a certain element.
     */
-    template < typename T > T & At(SzType n)
+    template < typename T = Value> T & At(SzType n)
     {
         assert(n < m_Cap);
         return reinterpret_cast< T * >(m_Ptr)[n];
@@ -276,7 +347,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the a certain element.
     */
-    template < typename T > const T & At(SzType n) const
+    template < typename T = Value> const T & At(SzType n) const
     {
         assert(n < m_Cap);
         return reinterpret_cast< const T * >(m_Ptr)[n];
@@ -285,7 +356,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the internal buffer casted as a different type.
     */
-    template < typename T > T * Begin()
+    template < typename T = Value> T * Begin()
     {
         return reinterpret_cast< T * >(m_Ptr);
     }
@@ -293,7 +364,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the internal buffer casted as a different type.
     */
-    template < typename T > const T * Begin() const
+    template < typename T = Value> const T * Begin() const
     {
         return reinterpret_cast< const T * >(m_Ptr);
     }
@@ -301,7 +372,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the internal buffer casted as a different type.
     */
-    template < typename T > T * End()
+    template < typename T = Value> T * End()
     {
         return reinterpret_cast< T * >(m_Ptr) + (m_Cap / sizeof(T));
     }
@@ -309,7 +380,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the internal buffer casted as a different type.
     */
-    template < typename T > const T * End() const
+    template < typename T = Value> const T * End() const
     {
         return reinterpret_cast< const T * >(m_Ptr) + (m_Cap / sizeof(T));
     }
@@ -333,7 +404,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve maximum elements it can hold for a certain type.
     */
-    template < typename T > static SzType Max()
+    template < typename T = Value> static SzType Max()
     {
         return (0xFFFFFFFF / sizeof(T));
     }
@@ -341,7 +412,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current buffer capacity in element count.
     */
-    template < typename T > SzType Size() const
+    template < typename T = Value> SzType Size() const
     {
         return (m_Cap / sizeof(T));
     }
@@ -357,32 +428,28 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Makes sure there is enough capacity to hold the specified element count.
     */
-    template < typename T > Buffer Adjust(SzType n)
+    template < typename T = Value> Buffer Adjust(SzType n)
     {
+        // Do we meet the minimum size?
         if (n < 8)
-        {
-            n = 8;
-        }
+            n = 8; // Adjust to minimum size
         // See if the requested capacity doesn't exceed the limit
         if (n > Max< T >())
-        {
             ThrowMemExcept("Requested buffer of (%u) elements exceeds the (%u) limit", n, Max< T >());
-        }
         // Is there an existing buffer?
         else if (n && !m_Cap)
-        {
-            // Request the memory
-            Request(n * sizeof(T));
-        }
+            Request(n * sizeof(T)); // Request the memory
         // Should the size be increased?
         else if (n > m_Cap)
         {
             // Backup the current memory
-            Move();
+            Buffer bkp(m_Ptr, m_Cap, m_Mem);
             // Request the memory
             Request(n * sizeof(T));
+            // Return the backup
+            return std::move(bkp);
         }
-        // Return an empty buffer or the backup (if any)
+        // Return an empty buffer
         return Buffer();
     }
 
@@ -392,9 +459,7 @@ public:
     void Reset()
     {
         if (m_Ptr)
-        {
             Release();
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -437,17 +502,6 @@ protected:
     */
     void Release();
 
-    /* --------------------------------------------------------------------------------------------
-     * Moves the internal buffer to the global members to be taken over by the next instance.
-    */
-    void Move()
-    {
-        s_Ptr = m_Ptr;
-        s_Cap = m_Cap;
-        m_Ptr = NULL;
-        m_Cap = 0;
-    }
-
 private:
 
     // --------------------------------------------------------------------------------------------
@@ -456,10 +510,6 @@ private:
 
     // --------------------------------------------------------------------------------------------
     MemRef      m_Mem;
-
-    // --------------------------------------------------------------------------------------------
-    static Pointer  s_Ptr; /* Pointer to a moved memory buffer. */
-    static SzType   s_Cap; /* The total size of the moved buffer. */
 };
 
 } // Namespace:: SqMod

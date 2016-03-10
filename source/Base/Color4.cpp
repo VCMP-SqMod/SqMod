@@ -16,6 +16,14 @@ const Color4 Color4::MAX = Color4(NumLimit< Color4::Value >::Max);
 SQChar Color4::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Color4::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("Color4");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 Color4::Color4()
     : r(0), g(0), b(0), a(0)
 {
@@ -24,7 +32,7 @@ Color4::Color4()
 
 // ------------------------------------------------------------------------------------------------
 Color4::Color4(Value sv)
-    : r(sv), g(sv), b(sv), a(sv)
+    : r(sv), g(sv), b(sv), a(0)
 {
     /* ... */
 }
@@ -41,29 +49,6 @@ Color4::Color4(Value rv, Value gv, Value bv, Value av)
     : r(rv), g(gv), b(bv), a(av)
 {
     /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Color4::Color4(const Color4 & o)
-    : r(o.r), g(o.g), b(o.b), a(o.a)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Color4::~Color4()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Color4 & Color4::operator = (const Color4 & o)
-{
-    r = o.r;
-    g = o.g;
-    b = o.b;
-    a = o.a;
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -482,7 +467,7 @@ Int32 Color4::Cmp(const Color4 & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr Color4::ToString() const
 {
-    return ToStringF("%u,%u,%u,%u", r, g, b, a);
+    return ToStrF("%u,%u,%u,%u", r, g, b, a);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -546,9 +531,9 @@ Uint32 Color4::GetRGB() const
 
 void Color4::SetRGB(Uint32 p)
 {
-    r = Value((p >> 16) & 0xFF);
-    g = Value((p >> 8) & 0xFF);
-    b = Value((p) & 0xFF);
+    r = static_cast< Value >((p >> 16) & 0xFF);
+    g = static_cast< Value >((p >> 8) & 0xFF);
+    b = static_cast< Value >((p) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -559,10 +544,10 @@ Uint32 Color4::GetRGBA() const
 
 void Color4::SetRGBA(Uint32 p)
 {
-    r = Value((p >> 24) & 0xFF);
-    g = Value((p >> 16) & 0xFF);
-    b = Value((p >> 8) & 0xFF);
-    a = Value((p) & 0xFF);
+    r = static_cast< Value >((p >> 24) & 0xFF);
+    g = static_cast< Value >((p >> 16) & 0xFF);
+    b = static_cast< Value >((p >> 8) & 0xFF);
+    a = static_cast< Value >((p) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -573,10 +558,10 @@ Uint32 Color4::GetARGB() const
 
 void Color4::SetARGB(Uint32 p)
 {
-    a = Value((p >> 24) & 0xFF);
-    r = Value((p >> 16) & 0xFF);
-    g = Value((p >> 8) & 0xFF);
-    b = Value((p) & 0xFF);
+    a = static_cast< Value >((p >> 24) & 0xFF);
+    r = static_cast< Value >((p >> 16) & 0xFF);
+    g = static_cast< Value >((p >> 8) & 0xFF);
+    b = static_cast< Value >((p) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -591,31 +576,23 @@ void Color4::Generate()
 void Color4::Generate(Value min, Value max)
 {
     if (max < min)
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        r = GetRandomUint8(min, max);
-        g = GetRandomUint8(min, max);
-        b = GetRandomUint8(min, max);
-        a = GetRandomUint8(min, max);
-    }
+        SqThrowF("max value is lower than min value");
+
+    r = GetRandomUint8(min, max);
+    g = GetRandomUint8(min, max);
+    b = GetRandomUint8(min, max);
+    a = GetRandomUint8(min, max);
 }
 
 void Color4::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax, Value amin, Value amax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin || amax < amin)
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        r = GetRandomUint8(rmin, rmax);
-        g = GetRandomUint8(gmin, gmax);
-        b = GetRandomUint8(bmin, bmax);
-        a = GetRandomUint8(bmin, bmax);
-    }
+        SqThrowF("max value is lower than min value");
+
+    r = GetRandomUint8(rmin, rmax);
+    g = GetRandomUint8(gmin, gmax);
+    b = GetRandomUint8(bmin, bmax);
+    a = GetRandomUint8(bmin, bmax);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -627,10 +604,10 @@ void Color4::Random()
 // ------------------------------------------------------------------------------------------------
 void Color4::Inverse()
 {
-    r = Value(~r);
-    g = Value(~g);
-    b = Value(~b);
-    a = Value(~a);
+    r = static_cast< Value >(~r);
+    g = static_cast< Value >(~g);
+    b = static_cast< Value >(~b);
+    a = static_cast< Value >(~a);
 }
 
 // ================================================================================================
@@ -658,6 +635,7 @@ void Register_Color4(HSQUIRRELVM vm)
         .Prop(_SC("str"), &Color4::SetCol)
         /* Core Metamethods */
         .Func(_SC("_tostring"), &Color4::ToString)
+        .SquirrelFunc(_SC("_typename"), &Color4::Typename)
         .Func(_SC("_cmp"), &Color4::Cmp)
         /* Metamethods */
         .Func<Color4 (Color4::*)(const Color4 &) const>(_SC("_add"), &Color4::operator +)

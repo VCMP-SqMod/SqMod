@@ -60,6 +60,7 @@ void CmdManager::Terminate()
     {
         if (itr->second)
         {
+            // Release the local command callbacks
             itr->second->m_OnExec.ReleaseGently();
             itr->second->m_OnAuth.ReleaseGently();
             itr->second->m_OnPost.ReleaseGently();
@@ -68,6 +69,7 @@ void CmdManager::Terminate()
     }
     // Release the script resources from this class
     m_Argv.clear();
+    // Release the global callbacks
     m_OnError.ReleaseGently();
     m_OnAuth.ReleaseGently();
 }
@@ -76,15 +78,17 @@ void CmdManager::Terminate()
 Int32 CmdManager::Run(Int32 invoker, CCStr command)
 {
     // Validate the string command
-    if (!command || strlen(command) <= 0)
+    if (!command || *command == 0)
     {
+        // Tell the script callback to deal with the error
         SqError(CMDERR_EMPTY_COMMAND, _SC("Invalid or empty command name"), invoker);
+        // Execution failed!
         return -1;
     }
     // Save the invoker identifier
     m_Invoker = invoker;
-    // Skip whitespace until the command name
-    while (*command == ' ') ++command;
+    // Skip white-space until the command name
+    while (isspace(*command)) ++command;
     // Find where the command name ends
     CCStr split = strchr(command, ' ');
     // Are there any arguments specified?
@@ -93,7 +97,7 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
         // Save the command name
         m_Command.assign(command, (split - command));
         // Skip white space after command name
-        while (*split == ' ') ++split;
+        while (isspace(*split)) ++split;
         // Save the command argument
         m_Argument.assign(split);
     }
@@ -106,7 +110,9 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     // Did anything remain after cleaning?
     if (m_Command.empty())
     {
+        // Tell the script callback to deal with the error
         SqError(CMDERR_INVALID_COMMAND, _SC("Cannot execute invalid command name"), invoker);
+        // Execution failed!
         return -1;
     }
     // Attempt to find the specified command
@@ -114,14 +120,19 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     // Have we found anything?
     if (itr == m_Commands.end())
     {
-        SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command.c_str());
+        // Tell the script callback to deal with the error
+        SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command);
+        // Execution failed!
         return -1;
     }
     // Is the command instance valid? (just in case)
     else if (!itr->second)
     {
+        // There's no point in keeping this command anymore
         m_Commands.erase(itr);
+        // Tell the script callback to deal with the error
         SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command.c_str());
+        // Execution failed!
         return -1;
     }
     // Save the command instance
@@ -137,10 +148,11 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     }
     catch (...)
     {
+        // Tell the script callback to deal with the error
         SqError(CMDERR_EXECUTION_FAILED, _SC("Exceptions occurred during execution"), m_Invoker);
     }
     // Remove the lock from the command
-    m_Instance->m_Protected = false;
+    m_Instance->m_Locked = false;
     // Release the command instance
     m_Instance = NULL;
     // Return the result
@@ -157,15 +169,17 @@ Int32 CmdManager::Exec()
     // Make sure the invoker has enough authority to execute this command
     if (!m_Instance->AuthCheckID(m_Invoker))
     {
+        // Tell the script callback to deal with the error
         SqError(CMDERR_INSUFFICIENT_AUTH, _SC("Insufficient authority to execute command"), m_Invoker);
-        // Command failed
+        // Execution failed!
         return -1;
     }
     // Make sure an executer was specified
     else if (m_Instance->GetOnExec().IsNull())
     {
+        // Tell the script callback to deal with the error
         SqError(CMDERR_MISSING_EXECUTER, _SC("No executer was specified for this command"), m_Invoker);
-        // Command failed
+        // Execution failed!
         return -1;
     }
     // See if there are any arguments to parse
@@ -177,15 +191,17 @@ Int32 CmdManager::Exec()
     // Make sure we have enough arguments specified
     else if (m_Instance->GetMinArgC() > m_Argc)
     {
+        // Tell the script callback to deal with the error
         SqError(CMDERR_INCOMPLETE_ARGS, _SC("Incomplete command arguments"), m_Instance->GetMinArgC());
-        // Command failed
+        // Execution failed!
         return -1;
     }
     // The check during the parsing may omit the last argument
     else if (m_Instance->GetMaxArgC() < m_Argc)
     {
+        // Tell the script callback to deal with the error
         SqError(CMDERR_EXTRANEOUS_ARGS, _SC("Extraneous command arguments"), m_Instance->GetMaxArgC());
-        // Command failed
+        // Execution failed!
         return -1;
     }
     // Check argument types against the command specifiers
@@ -193,13 +209,18 @@ Int32 CmdManager::Exec()
     {
         if (!m_Instance->ArgCheck(arg, m_Argv[arg].first))
         {
+            // Tell the script callback to deal with the error
             SqError(CMDERR_UNSUPPORTED_ARG, _SC("Unsupported command argument"), arg);
-            // Command failed
+            // Execution failed!
             return -1;
         }
     }
     // Result of the command execution
     SQInteger result = -1;
+    // Clear any data from the buffer to make room for the error message
+    m_Buffer.At(0) = 0;
+    // Whether the command execution failed
+    bool failed = false;
     // Do we have to call the command with an associative container?
     if (m_Instance->m_Associate)
     {
@@ -210,17 +231,23 @@ Int32 CmdManager::Exec()
         {
             // Do we have use the argument index as the key?
             if (m_Instance->m_ArgTags[arg].empty())
-            {
                 args.SetValue(SQInteger(arg), m_Argv[arg].second);
-            }
             // Nope, we have a name for this argument!
             else
-            {
                 args.SetValue(m_Instance->m_ArgTags[arg].c_str(), m_Argv[arg].second);
-            }
         }
         // Attempt to execute the command with the specified arguments
-        result = m_Instance->Execute(_Core->GetPlayer(m_Invoker).mObj, args);
+        try
+        {
+            result = m_Instance->Execute(_Core->GetPlayer(m_Invoker).mObj, args);
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            // Let's store the exception message
+            m_Buffer.Write(0, e.Message().c_str(), e.Message().size());
+            // Specify that the command execution failed
+            failed = true;
+        }
     }
     else
     {
@@ -228,40 +255,78 @@ Int32 CmdManager::Exec()
         Array args(DefaultVM::Get(), m_Argc);
         // Copy the arguments into the array
         for (Uint32 arg = 0; arg < m_Argc; ++arg)
-        {
             args.Bind(SQInteger(arg), m_Argv[arg].second);
-        }
         // Attempt to execute the command with the specified arguments
-        result = m_Instance->Execute(_Core->GetPlayer(m_Invoker).mObj, args);
+        try
+        {
+            result = m_Instance->Execute(_Core->GetPlayer(m_Invoker).mObj, args);
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            // Let's store the exception message
+            m_Buffer.Write(0, e.Message().c_str(), e.Message().size());
+            // Specify that the command execution failed
+            failed = true;
+        }
     }
-    // See if an error occurred or an exception was thrown
-    if (Error::Occurred(DefaultVM::Get()))
+    // Was there a runtime exception during the execution?
+    if (failed)
     {
-        SqError(CMDERR_EXECUTION_FAILED, _SC("Command execution failed"),
-                Error::Message(DefaultVM::Get()).c_str());
+        // Tell the script callback to deal with the error
+        SqError(CMDERR_EXECUTION_FAILED, _SC("Command execution failed"), m_Buffer.Data());
+        // Is there a script callback that handles failures?
         if (!m_Instance->m_OnFail.IsNull())
         {
-            m_Instance->m_OnFail.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
+            // Then attempt to relay the result to that function
+            try
+            {
+                m_Instance->m_OnFail.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
+            }
+            catch (const Sqrat::Exception & e)
+            {
+                // Tell the script callback to deal with the error
+                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.Message());
+            }
         }
         // Result is invalid at this point
         result = -1;
     }
-    // See if the command failed explicitly
+    // Was the command aborted explicitly?
     else if (!result)
     {
-        SqError(CMDERR_EXECUTION_FAILED, _SC("Command execution failed"),
-              _SC("executor evaluated to false"));
+        // Tell the script callback to deal with the error
+        SqError(CMDERR_EXECUTION_ABORTED, _SC("Command execution aborted"), result);
+        // Is there a script callback that handles failures?
         if (!m_Instance->m_OnFail.IsNull())
         {
-            m_Instance->m_OnFail.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
+            // Then attempt to relay the result to that function
+            try
+            {
+                m_Instance->m_OnFail.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
+            }
+            catch (const Sqrat::Exception & e)
+            {
+                // Tell the script callback to deal with the error
+                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.Message());
+            }
         }
     }
+    // Is there a callback that must be executed after a successful execution?
     else if (!m_Instance->m_OnPost.IsNull())
     {
-        m_Instance->m_OnPost.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
+            // Then attempt to relay the result to that function
+            try
+            {
+                m_Instance->m_OnPost.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
+            }
+            catch (const Sqrat::Exception & e)
+            {
+                // Tell the script callback to deal with the error
+                SqError(CMDERR_POST_PROCESSING_FAILED, _SC("Unable to complete command post processing"), e.Message());
+            }
     }
     // Return the result
-    return Int32(result);
+    return static_cast< Int32 >(result);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -270,7 +335,7 @@ bool CmdManager::Parse()
     // Is there anything to parse?
     if (m_Argument.empty())
     {
-        return true; /* Done parsing */
+        return true; // Done parsing!
     }
     // Obtain the flags of the currently processed argument
     Uint8 arg_flags = m_Instance->m_ArgSpec[m_Argc];
@@ -291,12 +356,11 @@ bool CmdManager::Parse()
         prev = elem, elem = *itr;
         // See if there's anything left to parse
         if (elem == 0)
-        {
             break;
-        }
         // Early check to prevent parsing extraneous arguments
         else if (m_Argc >= max_arg)
         {
+            // Tell the script callback to deal with the error
             SqError(CMDERR_EXTRANEOUS_ARGS, _SC("Extraneous command arguments"), max_arg);
             // Parsing aborted
             good = false;
@@ -306,28 +370,19 @@ bool CmdManager::Parse()
         // Is this a greedy argument?
         else if (arg_flags & CMDARG_GREEDY)
         {
-            // Skip whitespace
-            while (*itr == ' ' && itr != m_Argument.end()) ++itr;
-            // Anything left to copy?
+            // Skip white-space characters
+            while (itr != m_Argument.end() && isspace(*itr)) ++itr;
+            // Anything left to copy to the argument?
             if (itr != m_Argument.end())
-            {
                 // Transform it into a script object
                 sq_pushstring(DefaultVM::Get(), &(*itr), std::distance(itr, m_Argument.end()));
-            }
             // Just push an empty string
             else
-            {
                 sq_pushstring(DefaultVM::Get(), _SC(""), 0);
-            }
-            // Get the object from the stack
-            Var< Object & > var(DefaultVM::Get(), -1);
+            // Get the object from the stack and add it to the argument list along with it's type
+            m_Argv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
             // Pop the created object from the stack
-            if (!var.value.IsNull())
-            {
-                sq_pop(DefaultVM::Get(), 1);
-            }
-            // Add it to the argument list along with it's type
-            m_Argv.push_back(CmdArgs::value_type(CMDARG_STRING, var.value));
+            sq_pop(DefaultVM::Get(), 1);
             // Include this argument into the count
             ++m_Argc;
             // Nothing left to parse
@@ -338,7 +393,7 @@ bool CmdManager::Parse()
         {
             // Obtain the beginning and ending of the internal buffer
             SStr str = m_Buffer.Begin< SQChar >();
-            CSStr end = (m_Buffer.End< SQChar >()-1); /* + null */
+            CSStr end = (m_Buffer.End< SQChar >()-1); // + null terminator
             // Save the closing quote type
             SQChar close = elem;
             // Skip the opening quote
@@ -351,6 +406,7 @@ bool CmdManager::Parse()
                 // See if there's anything left to parse
                 if (elem == 0)
                 {
+                    // Tell the script callback to deal with the error
                     SqError(CMDERR_SYNTAX_ERROR, _SC("String argument not closed properly"), m_Argc);
                     // Parsing aborted
                     good = false;
@@ -370,9 +426,7 @@ bool CmdManager::Parse()
                     }
                     // Overwrite last character when replicating
                     else
-                    {
                         --str;
-                    }
                 }
                 // See if the internal buffer needs to scale
                 else if  (str >= end)
@@ -391,44 +445,33 @@ bool CmdManager::Parse()
             }
             // See if the argument was valid
             if (!good)
-            {
                 // Propagate failure
                 break;
-            }
             // Do we have to make the string lowercase?
             else if (arg_flags & CMDARG_LOWER)
             {
                 for (SStr chr = m_Buffer.Begin< SQChar >(); chr <= str; ++chr)
-                {
-                    *chr = (SQChar)tolower(*chr);
-                }
+                    *chr = static_cast< SQChar >(tolower(*chr));
             }
             // Do we have to make the string uppercase?
             else if (arg_flags & CMDARG_UPPER)
             {
                 for (SStr chr = m_Buffer.Begin< SQChar >(); chr <= str; ++chr)
-                {
-                    *chr = (SQChar)toupper(*chr);
-                }
+                    *chr = static_cast< SQChar >(toupper(*chr));
             }
             // Transform it into a script object
             sq_pushstring(DefaultVM::Get(), m_Buffer.Get< SQChar >(), str - m_Buffer.Begin< SQChar >());
-            // Get the object from the stack
-            Var< Object & > var(DefaultVM::Get(), -1);
+            // Get the object from the stack and add it to the argument list along with it's type
+            m_Argv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
             // Pop the created object from the stack
-            if (!var.value.IsNull())
-            {
-                sq_pop(DefaultVM::Get(), 1);
-            }
-            // Add it to the argument list along with it's type
-            m_Argv.push_back(CmdArgs::value_type(CMDARG_STRING, var.value));
+            sq_pop(DefaultVM::Get(), 1);
             // Advance to the next argument and obtain its flags
             arg_flags = m_Instance->m_ArgSpec[++m_Argc];
         }
-        // Ignore space characters until another valid character is found
-        else if (elem != ' ' && (prev == ' ' || prev == 0))
+        // Ignore white-space characters until another valid character is found
+        else if (!isspace(elem) && (isspace(prev) || prev == 0))
         {
-            // Find the first character that marks the end of the argument
+            // Find the first space character that marks the end of the argument
             String::iterator pos = std::find(String::iterator(itr), m_Argument.end(), ' ');
             // Copy all characters within range into the internal buffer
             const Uint32 sz = m_Buffer.Write(0, &(*itr), std::distance(itr, pos));
@@ -446,21 +489,16 @@ bool CmdManager::Parse()
                 // Let's us know if the whole argument was part of the resulted value
                 CStr next = NULL;
                 // Attempt to extract the integer value from the string
-                Int64 value = strtol(m_Buffer.Data(), &next, 10);
+                LongI value = strtol(m_Buffer.Data(), &next, 10);
                 // See if this whole string was indeed an integer
                 if (next == &m_Buffer.At< SQChar >(sz))
                 {
                     // Transform it into a script object
-                    Var< SQInteger >::push(DefaultVM::Get(), SQInteger(value));
-                    // Get the object from the stack
-                    Var< Object & > var(DefaultVM::Get(), -1);
+                    sq_pushinteger(DefaultVM::Get(), static_cast< SQInteger >(value));
+                    // Get the object from the stack and add it to the argument list along with it's type
+                    m_Argv.emplace_back(CMDARG_INTEGER, Var< Object >(DefaultVM::Get(), -1).value);
                     // Pop the created object from the stack
-                    if (!var.value.IsNull())
-                    {
-                        sq_pop(DefaultVM::Get(), 1);
-                    }
-                    // Add it to the argument list along with it's type
-                    m_Argv.push_back(CmdArgs::value_type(CMDARG_INTEGER, var.value));
+                    sq_pop(DefaultVM::Get(), 1);
                     // We identified the correct value
                     identified = true;
                 }
@@ -471,21 +509,20 @@ bool CmdManager::Parse()
                 // Let's us know if the whole argument was part of the resulted value
                 CStr next = NULL;
                 // Attempt to extract the floating point value from the string
+#ifdef SQUSEDOUBLE
                 Float64 value = strtod(m_Buffer.Data(), &next);
+#else
+                Float32 value = strtof(m_Buffer.Data(), &next);
+#endif // SQUSEDOUBLE
                 // See if this whole string was indeed an floating point
                 if (next == &m_Buffer.At< SQChar >(sz))
                 {
                     // Transform it into a script object
-                    Var< SQFloat >::push(DefaultVM::Get(), SQFloat(value));
-                    // Get the object from the stack
-                    Var< Object & > var(DefaultVM::Get(), -1);
+                    sq_pushfloat(DefaultVM::Get(), static_cast< SQFloat >(value));
+                    // Get the object from the stack and add it to the argument list along with it's type
+                    m_Argv.emplace_back(CMDARG_FLOAT, Var< Object >(DefaultVM::Get(), -1).value);
                     // Pop the created object from the stack
-                    if (!var.value.IsNull())
-                    {
-                        sq_pop(DefaultVM::Get(), 1);
-                    }
-                    // Add it to the argument list along with it's type
-                    m_Argv.push_back(CmdArgs::value_type(CMDARG_FLOAT, var.value));
+                    sq_pop(DefaultVM::Get(), 1);
                     // We identified the correct value
                     identified = true;
                 }
@@ -499,23 +536,16 @@ bool CmdManager::Parse()
                 snprintf (lc, 6, "%.5s", m_Buffer.Data());
                 // Convert all characters to lowercase
                 for (Uint32 i = 0; i < 5; ++i)
-                {
                     lc[i] = tolower(lc[i]);
-                }
                 // Is this a boolean true value?
                 if (strcmp(m_Buffer.Data(), "true") == 0 || strcmp(m_Buffer.Data(), "on") == 0)
                 {
                     // Transform it into a script object
-                    Var< bool >::push(DefaultVM::Get(), true);
-                    // Get the object from the stack
-                    Var< Object & > var(DefaultVM::Get(), -1);
+                    sq_pushbool(DefaultVM::Get(), true);
+                    // Get the object from the stack and add it to the argument list along with it's type
+                    m_Argv.emplace_back(CMDARG_BOOLEAN, Var< Object >(DefaultVM::Get(), -1).value);
                     // Pop the created object from the stack
-                    if (!var.value.IsNull())
-                    {
-                        sq_pop(DefaultVM::Get(), 1);
-                    }
-                    // Add it to the argument list along with it's type
-                    m_Argv.push_back(CmdArgs::value_type(CMDARG_BOOLEAN, var.value));
+                    sq_pop(DefaultVM::Get(), 1);
                     // We identified the correct value
                     identified = true;
                 }
@@ -523,16 +553,11 @@ bool CmdManager::Parse()
                 else if (strcmp(m_Buffer.Data(), "false") == 0 || strcmp(m_Buffer.Data(), "off") == 0)
                 {
                     // Transform it into a script object
-                    Var< bool >::push(DefaultVM::Get(), false);
-                    // Get the object from the stack
-                    Var< Object & > var(DefaultVM::Get(), -1);
+                    sq_pushbool(DefaultVM::Get(), false);
+                    // Get the object from the stack and add it to the argument list along with it's type
+                    m_Argv.emplace_back(CMDARG_BOOLEAN, Var< Object >(DefaultVM::Get(), -1).value);
                     // Pop the created object from the stack
-                    if (!var.value.IsNull())
-                    {
-                        sq_pop(DefaultVM::Get(), 1);
-                    }
-                    // Add it to the argument list along with it's type
-                    m_Argv.push_back(CmdArgs::value_type(CMDARG_BOOLEAN, var.value));
+                    sq_pop(DefaultVM::Get(), 1);
                     // We identified the correct value
                     identified = true;
                 }
@@ -544,38 +569,27 @@ bool CmdManager::Parse()
                 if (arg_flags & CMDARG_LOWER)
                 {
                     for (Uint32 n = 0; n < sz; ++n)
-                    {
-                        m_Buffer.At< SQChar >(n) = (SQChar)tolower(m_Buffer.At< SQChar >(n));
-                    }
+                        m_Buffer.At< SQChar >(n) = static_cast< SQChar >(tolower(m_Buffer.At< SQChar >(n)));
                 }
                 // Do we have to make the string uppercase?
                 else if (arg_flags & CMDARG_UPPER)
                 {
                     for (Uint32 n = 0; n < sz; ++n)
-                    {
-                        m_Buffer.At< SQChar >(n) = (SQChar)toupper(m_Buffer.At< SQChar >(n));
-                    }
+                        m_Buffer.At< SQChar >(n) = static_cast< SQChar >(toupper(m_Buffer.At< SQChar >(n)));
                 }
                 // Transform it into a script object
                 sq_pushstring(DefaultVM::Get(), m_Buffer.Get< SQChar >(), sz);
-                // Get the object from the stack
-                Var< Object & > var(DefaultVM::Get(), -1);
+                // Get the object from the stack and add it to the argument list along with it's type
+                m_Argv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
                 // Pop the created object from the stack
-                if (!var.value.IsNull())
-                {
-                    sq_pop(DefaultVM::Get(), 1);
-                }
-                // Add it to the argument list along with it's type
-                m_Argv.push_back(CmdArgs::value_type(CMDARG_STRING, var.value));
+                sq_pop(DefaultVM::Get(), 1);
             }
             // Advance to the next argument and obtain its flags
             arg_flags = m_Instance->m_ArgSpec[++m_Argc];
         }
         // Is there anything left to parse?
         if (itr >= m_Argument.end())
-        {
             break;
-        }
         // Advance to the next character
         ++itr;
     }
@@ -593,18 +607,26 @@ void CmdListener::Init(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 ma
         m_ArgSpec[n] = CMDARG_ANY;
         m_ArgTags[n].assign("");
     }
+    // Default to minimum and maximum arguments
     m_MinArgc = 0;
     m_MaxArgc = (SQMOD_MAX_CMD_ARGS - 1);
+    // Default to no specifiers, help or informational message
     m_Spec.assign("");
     m_Help.assign("");
     m_Info.assign("");
+    // Use the global authentication inspector
     m_OnAuth = _Cmd->GetOnAuth();
+    // Default to no authority check
     m_Authority = -1;
+    // Default to unprotected command
     m_Protected = false;
+    // Default to unsuspended command
     m_Suspended = false;
+    // Default to non-associative arguments
     m_Associate = false;
+    // The command is unlocked to further changes
     m_Locked = false;
-    // Set the minimum and maximum allowed arguments
+    // Set the specified minimum and maximum allowed arguments
     SetMinArgC(min);
     SetMaxArgC(max);
     // Extract the specified argument tags
@@ -688,20 +710,19 @@ CSStr CmdListener::GetName() const
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetName(CSStr name)
 {
+    // Is this command locked because it's being executed now?
     if (m_Locked)
-        SqThrow("Cannot change locked command: %s", m_Name.c_str());
-    else if (!name || strlen(name) <= 0)
-        SqThrow("Invalid command name: null");
-    else
-    {
-        // Detach from the current name if necessary
-        if (!m_Name.empty())
-            _Cmd->Detach(name);
-        // Now it's safe to assign the new name
-        m_Name.assign(name);
-        // We know the new name is valid
-        _Cmd->Attach(m_Name, this);
-    }
+        SqThrowF("Cannot rename locked command: %s", m_Name.c_str());
+    // Is the command name even valid?
+    else if (!name || *name == 0)
+        SqThrowF("Invalid command name: null/empty");
+    // Detach from the current name if necessary
+    if (!m_Name.empty())
+        _Cmd->Detach(name);
+    // Now it's safe to assign the new name
+    m_Name.assign(name);
+    // We know the new name is valid
+    _Cmd->Attach(m_Name, this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -713,8 +734,10 @@ CSStr CmdListener::GetSpec() const
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetSpec(CSStr spec)
 {
-    if (ProcSpec(spec))
-        m_Spec.assign(spec);
+    // Attempt to process the specified string
+    ProcSpec(spec);
+    // At this point there were no errors
+    m_Spec.assign(spec);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -738,16 +761,14 @@ void CmdListener::SetArgTags(Array & tags)
     if (tags.IsNull() || max == 0)
     {
         for (Uint8 n = 0; n < SQMOD_MAX_CMD_ARGS; ++n)
-        {
             m_ArgTags[n].assign("");
-        }
     }
     // See if we're in range
     else if (max < SQMOD_MAX_CMD_ARGS)
         // Attempt to get all arguments in one go
         tags.GetArray(m_ArgTags, max);
     else
-        SqThrow("Argument tag (%u) is out of range (%u)", max, SQMOD_MAX_CMD_ARGS);
+        SqThrowF("Argument tag (%u) is out of range (%u)", max, SQMOD_MAX_CMD_ARGS);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -831,11 +852,13 @@ Uint8 CmdListener::GetMinArgC() const
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetMinArgC(Uint8 val)
 {
-    // Assuming (m_MaxArgc < SQMOD_MAX_CMD_ARGS) is always true
-    if (val <= m_MaxArgc)
-        m_MinArgc = val;
-    else
-        SqThrow("Minimum argument (%u) exceeds maximum (%u)", val, m_MaxArgc);
+    // Perform a range check on the specified argument index
+    if (val >= SQMOD_MAX_CMD_ARGS)
+        SqThrowF("Argument (%u) is out of total range (%u)", val, SQMOD_MAX_CMD_ARGS);
+    else if (val > m_MaxArgc)
+        SqThrowF("Minimum argument (%u) exceeds maximum (%u)", val, m_MaxArgc);
+    // Apply the specified value
+    m_MinArgc = val;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -847,12 +870,13 @@ Uint8 CmdListener::GetMaxArgC() const
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetMaxArgC(Uint8 val)
 {
-    if (val < SQMOD_MAX_CMD_ARGS && val >= m_MinArgc)
-        m_MaxArgc = val;
+    // Perform a range check on the specified argument index
+    if (val >= SQMOD_MAX_CMD_ARGS)
+        SqThrowF("Argument (%u) is out of total range (%u)", val, SQMOD_MAX_CMD_ARGS);
     else if (val < m_MinArgc)
-        SqThrow("Minimum argument (%u) exceeds maximum (%u)", m_MinArgc, val);
-    else
-        SqThrow("Argument (%u) is out of total range (%u)", val, SQMOD_MAX_CMD_ARGS);
+        SqThrowF("Minimum argument (%u) exceeds maximum (%u)", m_MinArgc, val);
+    // Apply the specified value
+    m_MaxArgc = val;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -870,10 +894,11 @@ Function & CmdListener::GetOnExec()
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetOnExec(Object & env, Function & func)
 {
-    if (!m_Name.empty())
-        m_OnExec = Function(env.GetVM(), env.GetObject(), func.GetFunc());
-    else
-        SqThrow("Invalid commands cannot store script resources");
+    // Make sure that we are allowed to store script resources
+    if (m_Name.empty())
+        SqThrowF("Invalid commands cannot store script resources");
+    // Apply the specified information
+    m_OnExec = Function(env.GetVM(), env.GetObject(), func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -885,10 +910,11 @@ Function & CmdListener::GetOnAuth()
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetOnAuth(Object & env, Function & func)
 {
-    if (!m_Name.empty())
-        m_OnAuth = Function(env.GetVM(), env.GetObject(), func.GetFunc());
-    else
-        SqThrow("Invalid commands cannot store script resources");
+    // Make sure that we are allowed to store script resources
+    if (m_Name.empty())
+        SqThrowF("Invalid commands cannot store script resources");
+    // Apply the specified information
+    m_OnAuth = Function(env.GetVM(), env.GetObject(), func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -900,10 +926,11 @@ Function & CmdListener::GetOnPost()
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetOnPost(Object & env, Function & func)
 {
-    if (!m_Name.empty())
-        m_OnPost = Function(env.GetVM(), env.GetObject(), func.GetFunc());
-    else
-        SqThrow("Invalid commands cannot store script resources");
+    // Make sure that we are allowed to store script resources
+    if (m_Name.empty())
+        SqThrowF("Invalid commands cannot store script resources");
+    // Apply the specified information
+    m_OnPost = Function(env.GetVM(), env.GetObject(), func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -915,28 +942,35 @@ Function & CmdListener::GetOnFail()
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetOnFail(Object & env, Function & func)
 {
-    if (!m_Name.empty())
-        m_OnFail = Function(env.GetVM(), env.GetObject(), func.GetFunc());
-    else
-        SqThrow("Invalid commands cannot store script resources");
+    // Make sure that we are allowed to store script resources
+    if (m_Name.empty())
+        SqThrowF("Invalid commands cannot store script resources");
+    // Apply the specified information
+    m_OnFail = Function(env.GetVM(), env.GetObject(), func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
 CSStr CmdListener::GetArgTag(Uint32 arg) const
 {
-    if (arg < SQMOD_MAX_CMD_ARGS)
-        return m_ArgTags[arg].c_str();
-    SqThrow("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
-    return g_EmptyStr;
+    // Perform a range check on the specified argument index
+    if (arg >= SQMOD_MAX_CMD_ARGS)
+        SqThrowF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+    // Return the requested information
+    return m_ArgTags[arg].c_str();
 }
 
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetArgTag(Uint32 arg, CSStr name)
 {
-    if (arg < SQMOD_MAX_CMD_ARGS)
+    // Perform a range check on the specified argument index
+    if (arg >= SQMOD_MAX_CMD_ARGS)
+        SqThrowF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+    // The string type doesn't appreciate null values
+    else if (name)
         m_ArgTags[arg].assign(name);
+    // Clear previous name in this case
     else
-        SqThrow("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+        m_ArgTags[arg].clear();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -970,85 +1004,83 @@ void CmdListener::GenerateInfo(bool full)
                 break;
         }
         // Begin the argument block
-        m_Info += '<';
+        m_Info.push_back('<');
         // If the current argument is beyond minimum then mark it as optional
         if (arg >= m_MinArgc)
-            m_Info += '*';
+            m_Info.push_back('*');
         // If the argument has a tag/name associated then add it as well
         if (!m_ArgTags[arg].empty())
         {
             // Add the name first
-            m_Info += m_ArgTags[arg];
+            m_Info.append(m_ArgTags[arg]);
             // Separate the name from the specifiers
-            m_Info += ':';
+            m_Info.push_back(':');
         }
+        // Obtain the argument specifier
+        const Uint8 spec = m_ArgSpec[arg];
         // Is this a greedy argument?
-        if (m_ArgSpec[arg] & CMDARG_GREEDY)
-        {
-            m_Info += _SC("...");
-        }
+        if (spec & CMDARG_GREEDY)
+            m_Info.append("...");
         // If the argument has any explicit types specified
-        else if (m_ArgSpec[arg] != CMDARG_ANY)
+        else if (spec != CMDARG_ANY)
         {
             // Does it support integers?
-            if (m_ArgSpec[arg] & CMDARG_INTEGER)
-                m_Info += _SC("integer");
+            if (spec & CMDARG_INTEGER)
+                m_Info.append("integer");
             // Does it support floats?
-            if (m_ArgSpec[arg] & CMDARG_FLOAT)
+            if (spec & CMDARG_FLOAT)
             {
-                // Add a separator if this is not the first enabled type?
-                if (m_Info[m_Info.size()-1] != ':' && m_Info[m_Info.size()-1] != '<')
-                    m_Info += ',';
+                // Add a separator if this is not the first enabled type!
+                if (m_Info.back() != ':' && m_Info.back() != '<')
+                    m_Info.push_back(',');
                 // Now add the type name
-                m_Info += _SC("float");
+                m_Info.append("float");
             }
             // Does it support booleans?
-            if (m_ArgSpec[arg] & CMDARG_BOOLEAN)
+            if (spec & CMDARG_BOOLEAN)
             {
-                // Add a separator if this is not the first enabled type?
-                if (m_Info[m_Info.size()-1] != ':' && m_Info[m_Info.size()-1] != '<')
-                    m_Info += ',';
+                // Add a separator if this is not the first enabled type!
+                if (m_Info.back() != ':' && m_Info.back() != '<')
+                    m_Info.push_back(',');
                 // Now add the type name
-                m_Info += _SC("boolean");
+                m_Info.append("boolean");
             }
             // Does it support strings?
-            if (m_ArgSpec[arg] & CMDARG_STRING)
+            if (spec & CMDARG_STRING)
             {
                 // Add a separator if this is not the first enabled type?
-                if (m_Info[m_Info.size()-1] != ':' && m_Info[m_Info.size()-1] != '<')
-                    m_Info += ',';
+                if (m_Info.back() != ':' && m_Info.back() != '<')
+                    m_Info.push_back(',');
                 // Now add the type name
-                m_Info += _SC("string");
+                m_Info.append("string");
             }
         }
         // Any kind of value is supported by this argument
         else
-            m_Info += _SC("any");
-        // Stop the argument block
-        m_Info += '>';
+            m_Info.append("any");
+        // Terminate the argument block
+        m_Info.push_back('>');
         // Don't process anything after greedy arguments
-        if (m_ArgSpec[arg] & CMDARG_GREEDY)
-        {
+        if (spec & CMDARG_GREEDY)
             break;
-        }
         // If this is not the last argument then add a separator
         else if (arg+1 != m_MaxArgc)
-            m_Info += ' ';
+            m_Info.push_back(' ');
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 bool CmdListener::ArgCheck(Uint32 arg, Uint8 flag) const
 {
-    if (arg < SQMOD_MAX_CMD_ARGS)
-    {
-        const Uint8 f = m_ArgSpec[arg];
-        return  (f == CMDARG_ANY) || /* Requires check? */
-                (f & flag) || /* Exact match? */
-                (f & CMDARG_GREEDY && flag & CMDARG_STRING);
-    }
-    SqThrow("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
-    return false;
+    // Perform a range check on the specified argument index
+    if (arg >= SQMOD_MAX_CMD_ARGS)
+        SqThrowF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+    // Retrieve the argument flags
+    const Uint8 f = m_ArgSpec[arg];
+    // Perform the requested check
+    return  (f == CMDARG_ANY) || /* Requires check? */
+            (f & flag) || /* Exact match? */
+            (f & CMDARG_GREEDY && flag & CMDARG_STRING);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1099,131 +1131,112 @@ SQInteger CmdListener::Execute(Object & invoker, Table & args)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CmdListener::ProcSpec(CSStr str)
+void CmdListener::ProcSpec(CSStr str)
 {
     // Reset current argument specifiers
     memset(m_ArgSpec, CMDARG_ANY, sizeof(m_ArgSpec));
-    // Currently processed character
-    SQChar ch = 0;
-    // When parsing may continue
-    bool good = true;
+    // Make sure we have anything to parse
+    if (!str || *str == 0)
+        return;
     // Currently processed argument
     Uint32 idx = 0;
-    // Process each character in the specified command
-    while (good)
+    // Try to apply the specified type specifiers
+    try
     {
-        // Extract the current character before advancing
-        ch = *(str++);
-        // See if there are still things left to parse
-        if (ch == 0)
-            // Finished parsing successfully
-            break;
-        // See if we need to move to the next argument
-        else if (ch == '|')
+        // Process until null terminator or an error occurs
+        while (*str != 0)
         {
-            if (idx >= SQMOD_MAX_CMD_ARGS)
+            // See if we need to move to the next argument
+            if (*str == '|')
             {
-                SqThrow("Extraneous type specifiers: %d >= %d", idx, SQMOD_MAX_CMD_ARGS);
-                // Parsing failed
-                good = false;
-                // Stop parsing
-                break;
+                if (idx >= SQMOD_MAX_CMD_ARGS)
+                    SqThrowF("Extraneous type specifiers: %d >= %d", idx, SQMOD_MAX_CMD_ARGS);
+                // Move to the next character
+                ++str;
+                // Advance to the next argument
+                ++idx;
             }
-            // Advance to the next argument
-            ++idx;
-        }
-        // Simply ignore a type specifier delimiter
-        else if (ch != ',')
-        {
-            // Consume space when found
-            if (ch == ' ')
-                while (good)
-                {
-                    ch = *(str++);
-                    // Stop when the text ends or on the first non-space character
-                    if (ch == 0 || ch != ' ')
-                        break;
-                }
-            // See if there is a specifier left
-            if (!good)
-                // Propagate the stop
-                break;
-            // Apply the type specifier
-            switch(ch)
+            // Simply ignore a type specifier delimiter
+            else if (*str != ',')
             {
-                // Is this a greedy argument?
-                case 'g':
+                // Ignore non-alphabetic characters
+                while (*str != 0 &&  !isalpha(*str)) ++str;
+                // Apply the type specifier
+                switch(*str)
                 {
-                    m_ArgSpec[idx] = CMDARG_GREEDY;
-                } break;
-                // Is this a integer type
-                case 'i':
-                {
-                    m_ArgSpec[idx] |= CMDARG_INTEGER;
-                    // Disable greedy argument flag if set
-                    if (m_ArgSpec[idx] & CMDARG_GREEDY)
-                        m_ArgSpec[idx] ^= CMDARG_GREEDY;
-                } break;
-                // Is this a float type
-                case 'f':
-                {
-                    m_ArgSpec[idx] |= CMDARG_FLOAT;
-                    // Disable greedy argument flag if set
-                    if (m_ArgSpec[idx] & CMDARG_GREEDY)
-                        m_ArgSpec[idx] ^= CMDARG_GREEDY;
-                } break;
-                // Is this a boolean type
-                case 'b':
-                {
-                    m_ArgSpec[idx] |= CMDARG_BOOLEAN;
-                    // Disable greedy argument flag if set
-                    if (m_ArgSpec[idx] & CMDARG_GREEDY)
-                        m_ArgSpec[idx] ^= CMDARG_GREEDY;
-                } break;
-                // Is this a string type
-                case 's':
-                {
-                    m_ArgSpec[idx] |= CMDARG_STRING;
-                    // Disable greedy argument flag if set
-                    if (m_ArgSpec[idx] & CMDARG_GREEDY)
-                        m_ArgSpec[idx] ^= CMDARG_GREEDY;
-                } break;
-                // Is this a lowercase string?
-                case 'l':
-                {
-                    m_ArgSpec[idx] |= CMDARG_STRING;
-                    m_ArgSpec[idx] |= CMDARG_LOWER;
-                    // Disable greedy argument flag if set
-                    if (m_ArgSpec[idx] & CMDARG_GREEDY)
-                        m_ArgSpec[idx] ^= CMDARG_GREEDY;
-                } break;
-                // Is this a uppercase string?
-                case 'u':
-                {
-                    m_ArgSpec[idx] |= CMDARG_STRING;
-                    m_ArgSpec[idx] |= CMDARG_UPPER;
-                    // Disable greedy argument flag if set
-                    if (m_ArgSpec[idx] & CMDARG_GREEDY)
-                        m_ArgSpec[idx] ^= CMDARG_GREEDY;
-                } break;
-                // Unknown type!
-                default:
+                    // Did we reached the end of the string?
+                    case '\0':
+                        break;
+                    // Is this a greedy argument?
+                    case 'g':
                     {
-                        SqThrow("Unknown type specifier (%c) at argument: %u", ch, idx);
-                        // Parsing failed
-                        good = false;
-                    }
-                break;
+                        m_ArgSpec[idx] = CMDARG_GREEDY;
+                    } break;
+                    // Is this a integer type
+                    case 'i':
+                    {
+                        m_ArgSpec[idx] |= CMDARG_INTEGER;
+                        // Disable greedy argument flag if set
+                        if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                            m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                    } break;
+                    // Is this a float type
+                    case 'f':
+                    {
+                        m_ArgSpec[idx] |= CMDARG_FLOAT;
+                        // Disable greedy argument flag if set
+                        if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                            m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                    } break;
+                    // Is this a boolean type
+                    case 'b':
+                    {
+                        m_ArgSpec[idx] |= CMDARG_BOOLEAN;
+                        // Disable greedy argument flag if set
+                        if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                            m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                    } break;
+                    // Is this a string type
+                    case 's':
+                    {
+                        m_ArgSpec[idx] |= CMDARG_STRING;
+                        // Disable greedy argument flag if set
+                        if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                            m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                    } break;
+                    // Is this a lowercase string?
+                    case 'l':
+                    {
+                        m_ArgSpec[idx] |= CMDARG_STRING;
+                        m_ArgSpec[idx] |= CMDARG_LOWER;
+                        // Disable greedy argument flag if set
+                        if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                            m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                    } break;
+                    // Is this a uppercase string?
+                    case 'u':
+                    {
+                        m_ArgSpec[idx] |= CMDARG_STRING;
+                        m_ArgSpec[idx] |= CMDARG_UPPER;
+                        // Disable greedy argument flag if set
+                        if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                            m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                    } break;
+                    // Unknown type!
+                    default: SqThrowF("Unknown type specifier (%c) at argument: %u", *str, idx);
+                }
             }
         }
     }
-    // Reset all argument specifiers if failed
-    if (!good)
+    catch (const Sqrat::Exception & e)
+    {
+        // Reset all argument specifiers if failed
         memset(m_ArgSpec, CMDARG_ANY, sizeof(m_ArgSpec));
+        // Propagate the exception back to the caller
+        throw e;
+    }
     // Attempt to generate an informational message
     GenerateInfo(false);
-    // Return whether the parsing was successful
-    return good;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -1369,8 +1382,11 @@ void Register_Command(HSQUIRRELVM vm)
         .Const(_SC("IncompleteArgs"),       CMDERR_INCOMPLETE_ARGS)
         .Const(_SC("ExtraneousArgs"),       CMDERR_EXTRANEOUS_ARGS)
         .Const(_SC("UnsupportedArg"),       CMDERR_UNSUPPORTED_ARG)
-        .Const(_SC("ExecutionFailed"),      CMDERR_EXECUTION_FAILED)
         .Const(_SC("BufferOverflow"),       CMDERR_BUFFER_OVERFLOW)
+        .Const(_SC("ExecutionFailed"),      CMDERR_EXECUTION_FAILED)
+        .Const(_SC("ExecutionAborted"),     CMDERR_EXECUTION_ABORTED)
+        .Const(_SC("PostProcessingFailed"), CMDERR_POST_PROCESSING_FAILED)
+        .Const(_SC("UnresolvedFailure"),    CMDERR_UNRESOLVED_FAILURE)
         .Const(_SC("Max"),                  CMDERR_MAX)
     );
 }

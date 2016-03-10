@@ -110,19 +110,19 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * See whether any data has been loaded into this document.
-    */
-    bool IsEmpty() const
-    {
-        return m_Doc->IsEmpty();
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Return the number of active references to this document instance.
     */
     Uint32 GetRefCount() const
     {
         return m_Doc.Count();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether any data has been loaded into this document.
+    */
+    bool IsEmpty() const
+    {
+        return m_Doc->IsEmpty();
     }
 
     /* --------------------------------------------------------------------------------------------

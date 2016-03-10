@@ -15,6 +15,14 @@ const Sphere Sphere::MAX = Sphere(NumLimit< Sphere::Value >::Max);
 SQChar Sphere::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Sphere::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("Sphere");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 Sphere::Sphere()
     : pos(0.0), rad(0.0)
 {
@@ -40,27 +48,6 @@ Sphere::Sphere(Value xv, Value yv, Value zv, Value rv)
     : pos(xv, yv, zv), rad(rv)
 {
     /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Sphere::Sphere(const Sphere & o)
-    : pos(o.pos), rad(o.rad)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Sphere::~Sphere()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Sphere & Sphere::operator = (const Sphere & o)
-{
-    pos = o.pos;
-    rad = o.rad;
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -341,7 +328,7 @@ Int32 Sphere::Cmp(const Sphere & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr Sphere::ToString() const
 {
-    return ToStringF("%f,%f,%f,%f", pos.x, pos.y, pos.z, rad);
+    return ToStrF("%f,%f,%f,%f", pos.x, pos.y, pos.z, rad);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -395,35 +382,28 @@ void Sphere::Generate()
 void Sphere::Generate(Value min, Value max, bool r)
 {
     if (EpsLt(max, min))
-    {
-        SqThrow("max value is lower than min value");
-    }
+        SqThrowF("max value is lower than min value");
     else if (r)
-    {
         rad = GetRandomFloat32(min, max);
-    }
     else
-    {
         pos.Generate(min, max);
-    }
 }
 
 void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
+    if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin))
+        SqThrowF("max value is lower than min value");
+
     pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
 }
 
 void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax)
 {
-    if (EpsLt(rmax, rmin))
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
-        rad = GetRandomFloat32(rmin, rmax);
-    }
+    if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(rmax, rmin))
+        SqThrowF("max value is lower than min value");
+
+    pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
+    rad = GetRandomFloat32(rmin, rmax);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -452,6 +432,7 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Prop(_SC("abs"), &Sphere::Abs)
         /* Core Metamethods */
         .Func(_SC("_tostring"), &Sphere::ToString)
+        .SquirrelFunc(_SC("_typename"), &Sphere::Typename)
         .Func(_SC("_cmp"), &Sphere::Cmp)
         /* Metamethods */
         .Func<Sphere (Sphere::*)(const Sphere &) const>(_SC("_add"), &Sphere::operator +)

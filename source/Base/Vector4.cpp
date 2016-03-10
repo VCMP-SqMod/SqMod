@@ -17,6 +17,14 @@ const Vector4 Vector4::MAX = Vector4(NumLimit< Vector4::Value >::Max);
 SQChar Vector4::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Vector4::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("Vector4");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 Vector4::Vector4()
     : x(0.0), y(0.0), z(0.0), w(0.0)
 {
@@ -42,29 +50,6 @@ Vector4::Vector4(Value xv, Value yv, Value zv, Value wv)
     : x(xv), y(yv), z(zv), w(wv)
 {
     /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector4::Vector4(const Vector4 & o)
-    : x(o.x), y(o.y), z(o.z), w(o.w)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector4::~Vector4()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector4 & Vector4::operator = (const Vector4 & o)
-{
-    x = o.x;
-    y = o.y;
-    z = o.z;
-    w = o.w;
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -335,7 +320,7 @@ Int32 Vector4::Cmp(const Vector4 & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr Vector4::ToString() const
 {
-    return ToStringF("%f,%f,%f,%f", x, y, z, w);
+    return ToStrF("%f,%f,%f,%f", x, y, z, w);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -405,31 +390,23 @@ void Vector4::Generate()
 void Vector4::Generate(Value min, Value max)
 {
     if (max < min)
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        x = GetRandomFloat32(min, max);
-        y = GetRandomFloat32(min, max);
-        z = GetRandomFloat32(min, max);
-        y = GetRandomFloat32(min, max);
-    }
+        SqThrowF("max value is lower than min value");
+
+    x = GetRandomFloat32(min, max);
+    y = GetRandomFloat32(min, max);
+    z = GetRandomFloat32(min, max);
+    y = GetRandomFloat32(min, max);
 }
 
 void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(wmax, wmin))
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        x = GetRandomFloat32(xmin, xmax);
-        y = GetRandomFloat32(ymin, ymax);
-        z = GetRandomFloat32(zmin, zmax);
-        y = GetRandomFloat32(ymin, ymax);
-    }
+        SqThrowF("max value is lower than min value");
+
+    x = GetRandomFloat32(xmin, xmax);
+    y = GetRandomFloat32(ymin, ymax);
+    z = GetRandomFloat32(zmin, zmax);
+    y = GetRandomFloat32(ymin, ymax);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -460,6 +437,7 @@ void Register_Vector4(HSQUIRRELVM vm)
         .Prop(_SC("abs"), &Vector4::Abs)
         /* Core Metamethods */
         .Func(_SC("_tostring"), &Vector4::ToString)
+        .SquirrelFunc(_SC("_typename"), &Vector4::Typename)
         .Func(_SC("_cmp"), &Vector4::Cmp)
         /* Metamethods */
         .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("_add"), &Vector4::operator +)

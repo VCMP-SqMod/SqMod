@@ -74,8 +74,6 @@ public:
     void Message(Uint8 type, bool sub, CCStr fmt, ...);
 
     // --------------------------------------------------------------------------------------------
-    void Throw(CCStr fmt, ...);
-    void Throw(CCStr fmt, va_list args);
     void Debug(CCStr fmt, ...);
     void Debug(CCStr fmt, va_list args);
 

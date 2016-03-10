@@ -362,6 +362,9 @@
 		<Compiler>
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-std=c++14" />
+			<Add option="-DSCRAT_USE_EXCEPTIONS" />
+			<Add option="-DSCRAT_USE_CXX11_OPTIMIZATIONS" />
 			<Add directory="../source" />
 			<Add directory="../shared" />
 			<Add directory="../include" />
@@ -372,6 +375,7 @@
 		<Linker>
 			<Add library="squirrel" />
 		</Linker>
+		<Unit filename="../external/Common/aes256.cpp" />
 		<Unit filename="../external/Hash/crc32.cpp" />
 		<Unit filename="../external/Hash/crc32.h" />
 		<Unit filename="../external/Hash/digest.cpp" />
@@ -387,7 +391,6 @@
 		<Unit filename="../external/Hash/sha256.h" />
 		<Unit filename="../external/Hash/sha3.cpp" />
 		<Unit filename="../external/Hash/sha3.h" />
-		<Unit filename="../external/RandomLib/Random.cpp" />
 		<Unit filename="../source/Base/AABB.cpp" />
 		<Unit filename="../source/Base/AABB.hpp" />
 		<Unit filename="../source/Base/Buffer.cpp" />
@@ -438,14 +441,14 @@
 		<Unit filename="../source/Entity/Vehicle.cpp" />
 		<Unit filename="../source/Entity/Vehicle.hpp" />
 		<Unit filename="../source/Exports.cpp" />
+		<Unit filename="../source/Library/Crypt.cpp" />
+		<Unit filename="../source/Library/Crypt.hpp" />
 		<Unit filename="../source/Library/Datetime.cpp" />
 		<Unit filename="../source/Library/Datetime.hpp" />
 		<Unit filename="../source/Library/FileIO.cpp" />
 		<Unit filename="../source/Library/FileIO.hpp" />
 		<Unit filename="../source/Library/Format.cpp" />
 		<Unit filename="../source/Library/Format.hpp" />
-		<Unit filename="../source/Library/Hashing.cpp" />
-		<Unit filename="../source/Library/Hashing.hpp" />
 		<Unit filename="../source/Library/Math.cpp" />
 		<Unit filename="../source/Library/Math.hpp" />
 		<Unit filename="../source/Library/Numeric.cpp" />

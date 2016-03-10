@@ -5,8 +5,8 @@
 #include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <set>
 #include <vector>
+#include <map>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -38,6 +38,16 @@ public:
 protected:
 
     /* --------------------------------------------------------------------------------------------
+     * Commands that can be performed when the buckets are unlocked.
+    */
+    enum
+    {
+        CMD_REMOVE = 1,
+        CMD_DETACH = 2,
+        CMD_ATTACH = 3
+    };
+
+    /* --------------------------------------------------------------------------------------------
      * Group of routines that have the same interval.
     */
     struct Bucket
@@ -48,7 +58,7 @@ protected:
         Routines    mRoutines; /* Routines to trigger on completion. */
 
         /* ----------------------------------------------------------------------------------------
-         * Base constructor.
+         * Default constructor.
         */
         Bucket(Interval interval)
             : mInterval(interval), mElapsed(0), mRoutines()
@@ -59,36 +69,78 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Copy constructor.
         */
-        Bucket(const Bucket & o)
-            : mInterval(o.mInterval), mElapsed(o.mElapsed), mRoutines(o.mRoutines)
-        {
-            /* ... */
-        }
+        Bucket(const Bucket & o) = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move constructor.
+        */
+        Bucket(Bucket && o) = default;
 
         /* ----------------------------------------------------------------------------------------
          * Destructor.
         */
-        ~Bucket()
+        ~Bucket() = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy assignment operator.
+        */
+        Bucket & operator = (const Bucket & o) = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move assignment operator.
+        */
+        Bucket & operator = (Bucket && o) = default;
+    };
+
+    /* --------------------------------------------------------------------------------------------
+     * A command to perform certain actions when the buckets are unlocked.
+    */
+    struct Cmd
+    {
+        // ----------------------------------------------------------------------------------------
+        Routine*    mRoutine; /* The routine to which this command applies */
+        Interval    mInterval; /* The bucket where this routine is stored. */
+        Uint16      mCommand; /* The command that must be performed. */
+
+        /* ----------------------------------------------------------------------------------------
+         * Base constructor.
+        */
+        Cmd(Routine * routine, Interval interval, Uint16 command)
+            : mRoutine(routine), mInterval(interval), mCommand(command)
         {
             /* ... */
         }
 
         /* ----------------------------------------------------------------------------------------
+         * Copy constructor.
+        */
+        Cmd(const Cmd & o) = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move constructor.
+        */
+        Cmd(Cmd && o) = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~Cmd() = default;
+
+        /* ----------------------------------------------------------------------------------------
          * Copy assignment operator.
         */
-        Bucket & operator = (const Bucket & o)
-        {
-            mInterval = o.mInterval;
-            mElapsed = o.mElapsed;
-            mRoutines = o.mRoutines;
-            return *this;
-        }
+        Cmd & operator = (const Cmd & o) = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move assignment operator.
+        */
+        Cmd & operator = (Cmd && o) = default;
     };
 
     // --------------------------------------------------------------------------------------------
-    typedef Int64                                       Time;
-    typedef std::vector< Bucket >                       Buckets;
-    typedef std::vector< std::pair< bool, Routine * > > Queue;
+    typedef Int64                   Time;
+    typedef std::vector< Cmd >      Queue;
+    typedef std::vector< Bucket >   Buckets;
 
     /* --------------------------------------------------------------------------------------------
      * Functor used to search for buckets with a certain interval.
@@ -98,7 +150,7 @@ protected:
     private:
 
         // ----------------------------------------------------------------------------------------
-        Interval m_Interval; /* The interval to be matched. */
+        const Interval m_Interval; /* The interval to be matched. */
 
     public:
 
@@ -118,6 +170,14 @@ protected:
         {
             return (elem.mInterval == m_Interval);
         }
+
+        /* ----------------------------------------------------------------------------------------
+         * Function call operator.
+        */
+        bool operator () (Buckets::const_reference elem) const
+        {
+            return (elem.mInterval == m_Interval);
+        }
     };
 
     // --------------------------------------------------------------------------------------------
@@ -126,6 +186,21 @@ protected:
     static Time         s_Prev; /* Previous time point. */
     static Queue        s_Queue; /* Actions to be performed when the buckets aren't locked */
     static Buckets      s_Buckets; /* Buckets of routines grouped by similar intervals. */
+
+    /* --------------------------------------------------------------------------------------------
+     * Attach a routine to a certain bucket.
+    */
+    static void Attach(Routine * routine, Interval interval);
+
+    /* --------------------------------------------------------------------------------------------
+     * Detach a routine from a certain bucket.
+    */
+    static void Detach(Routine * routine, Interval interval);
+
+    /* --------------------------------------------------------------------------------------------
+     * Process queue commands.
+    */
+    static void ProcQueue();
 
 private:
 
@@ -215,7 +290,7 @@ public:
     CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Terminate this routine by releasing all resources and sscheduling it for detachment.
+     * Terminate this routine by releasing all resources and scheduling it for detachment.
     */
     void Terminate();
 

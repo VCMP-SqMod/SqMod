@@ -739,10 +739,9 @@ Object & FindPlayer(Object & by)
             Int32 id = _Func->GetPlayerIDFromName(&str[0]);
             if (VALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
                 _Core->GetPlayer(id).mObj;
-        }
-        break;
+        } break;
         default:
-            SqThrow("Unsupported search identifier");
+            SqThrowF("Unsupported search identifier");
     }
     return NullObject();
 }

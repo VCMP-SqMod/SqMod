@@ -16,6 +16,14 @@ const Color3 Color3::MAX = Color3(NumLimit< Color3::Value >::Max);
 SQChar Color3::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Color3::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("Color3");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 Color3::Color3()
     : r(0), g(0), b(0)
 {
@@ -34,28 +42,6 @@ Color3::Color3(Value rv, Value gv, Value bv)
     : r(rv), g(gv), b(bv)
 {
     /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Color3::Color3(const Color3 & o)
-    : r(o.r), g(o.g), b(o.b)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Color3::~Color3()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Color3 & Color3::operator = (const Color3 & o)
-{
-    r = o.r;
-    g = o.g;
-    b = o.b;
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -449,7 +435,7 @@ Int32 Color3::Cmp(const Color3 & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr Color3::ToString() const
 {
-    return ToStringF("%u,%u,%u", r, g, b);
+    return ToStrF("%u,%u,%u", r, g, b);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -502,9 +488,9 @@ Uint32 Color3::GetRGB() const
 
 void Color3::SetRGB(Uint32 p)
 {
-    r = Value((p >> 16) & 0xFF);
-    g = Value((p >> 8) & 0xFF);
-    b = Value((p) & 0xFF);
+    r = static_cast< Value >((p >> 16) & 0xFF);
+    g = static_cast< Value >((p >> 8) & 0xFF);
+    b = static_cast< Value >((p) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -515,9 +501,9 @@ Uint32 Color3::GetRGBA() const
 
 void Color3::SetRGBA(Uint32 p)
 {
-    r = Value((p >> 24) & 0xFF);
-    g = Value((p >> 16) & 0xFF);
-    b = Value((p >> 8) & 0xFF);
+    r = static_cast< Value >((p >> 24) & 0xFF);
+    g = static_cast< Value >((p >> 16) & 0xFF);
+    b = static_cast< Value >((p >> 8) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -528,9 +514,9 @@ Uint32 Color3::GetARGB() const
 
 void Color3::SetARGB(Uint32 p)
 {
-    r = Value((p >> 16) & 0xFF);
-    g = Value((p >> 8) & 0xFF);
-    b = Value((p) & 0xFF);
+    r = static_cast< Value >((p >> 16) & 0xFF);
+    g = static_cast< Value >((p >> 8) & 0xFF);
+    b = static_cast< Value >((p) & 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -544,29 +530,21 @@ void Color3::Generate()
 void Color3::Generate(Value min, Value max)
 {
     if (max < min)
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        r = GetRandomUint8(min, max);
-        g = GetRandomUint8(min, max);
-        b = GetRandomUint8(min, max);
-    }
+        SqThrowF("max value is lower than min value");
+
+    r = GetRandomUint8(min, max);
+    g = GetRandomUint8(min, max);
+    b = GetRandomUint8(min, max);
 }
 
 void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin)
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        r = GetRandomUint8(rmin, rmax);
-        g = GetRandomUint8(gmin, gmax);
-        b = GetRandomUint8(bmin, bmax);
-    }
+        SqThrowF("max value is lower than min value");
+
+    r = GetRandomUint8(rmin, rmax);
+    g = GetRandomUint8(gmin, gmax);
+    b = GetRandomUint8(bmin, bmax);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -578,9 +556,9 @@ void Color3::Random()
 // ------------------------------------------------------------------------------------------------
 void Color3::Inverse()
 {
-    r = Value(~r);
-    g = Value(~g);
-    b = Value(~b);
+    r = static_cast< Value >(~r);
+    g = static_cast< Value >(~g);
+    b = static_cast< Value >(~b);
 }
 
 // ================================================================================================
@@ -606,6 +584,7 @@ void Register_Color3(HSQUIRRELVM vm)
         .Prop(_SC("str"), &Color3::SetCol)
         /* Core Metamethods */
         .Func(_SC("_tostring"), &Color3::ToString)
+        .SquirrelFunc(_SC("_typename"), &Color3::Typename)
         .Func(_SC("_cmp"), &Color3::Cmp)
         /* Metamethods */
         .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_add"), &Color3::operator +)

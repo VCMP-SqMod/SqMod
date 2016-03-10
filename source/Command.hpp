@@ -165,9 +165,18 @@ protected:
     */
     template < typename T > void SqError(Int32 type, CSStr msg, T data)
     {
-        if (!m_OnError.IsNull())
+        // Is there a callback that deals with errors?
+        if (m_OnError.IsNull())
+            return;
+        // Attempt to forward the error to that callback
+        try
         {
             m_OnError.Execute< Int32, CSStr, T >(type, msg, data);
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            // We can only log this incident and in the future maybe also include the location
+            LogErr("Command error callback failed [%s]", e.Message().c_str());
         }
     }
 
@@ -350,7 +359,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    bool ProcSpec(CSStr spec);
+    void ProcSpec(CSStr spec);
 
 private:
 

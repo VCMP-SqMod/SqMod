@@ -17,6 +17,14 @@ const Vector3 Vector3::MAX = Vector3(NumLimit< Vector3::Value >::Max);
 SQChar Vector3::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Vector3::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("Vector3");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 Vector3::Vector3()
     : x(0.0), y(0.0), z(0.0)
 {
@@ -35,28 +43,6 @@ Vector3::Vector3(Value xv, Value yv, Value zv)
     : x(xv), y(yv), z(zv)
 {
     /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector3::Vector3(const Vector3 & o)
-    : x(o.x), y(o.y), z(o.z)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector3::~Vector3()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector3 & Vector3::operator = (const Vector3 & o)
-{
-    x = o.x;
-    y = o.y;
-    z = o.z;
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -310,7 +296,7 @@ Int32 Vector3::Cmp(const Vector3 & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr Vector3::ToString() const
 {
-    return ToStringF("%f,%f,%f", x, y, z);
+    return ToStrF("%f,%f,%f", x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -367,29 +353,21 @@ void Vector3::Generate()
 void Vector3::Generate(Value min, Value max)
 {
     if (EpsLt(max, min))
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        x = GetRandomFloat32(min, max);
-        y = GetRandomFloat32(min, max);
-        z = GetRandomFloat32(min, max);
-    }
+        SqThrowF("max value is lower than min value");
+
+    x = GetRandomFloat32(min, max);
+    y = GetRandomFloat32(min, max);
+    z = GetRandomFloat32(min, max);
 }
 
 void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin))
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        x = GetRandomFloat32(xmin, xmax);
-        y = GetRandomFloat32(ymin, ymax);
-        z = GetRandomFloat32(zmin, zmax);
-    }
+        SqThrowF("max value is lower than min value");
+
+    x = GetRandomFloat32(xmin, xmax);
+    y = GetRandomFloat32(ymin, ymax);
+    z = GetRandomFloat32(zmin, zmax);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -418,6 +396,7 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Prop(_SC("abs"), &Vector3::Abs)
         /* Core Metamethods */
         .Func(_SC("_tostring"), &Vector3::ToString)
+        .SquirrelFunc(_SC("_typename"), &Vector3::Typename)
         .Func(_SC("_cmp"), &Vector3::Cmp)
         /* Metamethods */
         .Func<Vector3 (Vector3::*)(const Vector3 &) const>(_SC("_add"), &Vector3::operator +)

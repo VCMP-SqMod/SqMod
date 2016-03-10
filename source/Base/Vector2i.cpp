@@ -16,6 +16,14 @@ const Vector2i Vector2i::MAX = Vector2i(NumLimit< Vector2i::Value >::Max);
 SQChar Vector2i::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
+SQInteger Vector2i::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("Vector2i");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 Vector2i::Vector2i()
     : x(0), y(0)
 {
@@ -34,27 +42,6 @@ Vector2i::Vector2i(Value xv, Value yv)
     : x(xv), y(yv)
 {
     /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector2i::Vector2i(const Vector2i & o)
-    : x(o.x), y(o.y)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector2i::~Vector2i()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Vector2i & Vector2i::operator = (const Vector2i & o)
-{
-    x = o.x;
-    y = o.y;
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -416,7 +403,7 @@ Int32 Vector2i::Cmp(const Vector2i & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr Vector2i::ToString() const
 {
-    return ToStringF("%d,%d", x, y);
+    return ToStrF("%d,%d", x, y);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -461,27 +448,19 @@ void Vector2i::Generate()
 void Vector2i::Generate(Value min, Value max)
 {
     if (max < min)
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        x = GetRandomInt32(min, max);
-        y = GetRandomInt32(min, max);
-    }
+        SqThrowF("max value is lower than min value");
+
+    x = GetRandomInt32(min, max);
+    y = GetRandomInt32(min, max);
 }
 
 void Vector2i::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (xmax < xmin || ymax < ymin)
-    {
-        SqThrow("max value is lower than min value");
-    }
-    else
-    {
-        x = GetRandomInt32(ymin, ymax);
-        y = GetRandomInt32(xmin, xmax);
-    }
+        SqThrowF("max value is lower than min value");
+
+    x = GetRandomInt32(ymin, ymax);
+    y = GetRandomInt32(xmin, xmax);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -509,6 +488,7 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Prop(_SC("abs"), &Vector2i::Abs)
         /* Core Metamethods */
         .Func(_SC("_tostring"), &Vector2i::ToString)
+        .SquirrelFunc(_SC("_typename"), &Vector2i::Typename)
         .Func(_SC("_cmp"), &Vector2i::Cmp)
         /* Metamethods */
         .Func<Vector2i (Vector2i::*)(const Vector2i &) const>(_SC("_add"), &Vector2i::operator +)

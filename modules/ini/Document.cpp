@@ -33,7 +33,7 @@ Int32 Document::Cmp(const Document & o) const
 {
     if (m_Doc == o.m_Doc)
         return 0;
-    else if (this > &o)
+    else if (m_Doc.m_Ptr > o.m_Doc.m_Ptr)
         return 1;
     else
         return -1;

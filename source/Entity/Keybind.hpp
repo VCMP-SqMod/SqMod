@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Manages Keybind instances.
+ * Manages a single keybind entity.
 */
 class CKeybind
 {
@@ -18,19 +18,18 @@ class CKeybind
 private:
 
     /* --------------------------------------------------------------------------------------------
-     * Cached identifiers for fast integer to string conversion.
-    */
-    static SQChar s_StrID[SQMOD_KEYBIND_POOL][8];
-
-    /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
     Int32   m_ID;
 
     /* --------------------------------------------------------------------------------------------
-     * User tag and data associated with this instance.
+     * User tag associated with this instance.
     */
     String  m_Tag;
+
+    /* --------------------------------------------------------------------------------------------
+     * User data associated with this instance.
+    */
     Object  m_Data;
 
     /* --------------------------------------------------------------------------------------------
@@ -38,20 +37,22 @@ private:
     */
     CKeybind(Int32 id);
 
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Maximum possible number that could represent an identifier for this entity type.
+    */
+    static const Int32 Max;
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    CKeybind(const CKeybind &);
+    CKeybind(const CKeybind &) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
+     * Move constructor. (disabled)
     */
-    CKeybind & operator = (const CKeybind &);
-
-public:
-
-    // --------------------------------------------------------------------------------------------
-    static const Int32 Max;
+    CKeybind(CKeybind &&) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -59,14 +60,22 @@ public:
     ~CKeybind();
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance manages a valid entity.
+     * Copy assignment operator. (disabled)
     */
-    bool Validate() const
+    CKeybind & operator = (const CKeybind &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    CKeybind & operator = (CKeybind &&) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether this instance manages a valid entity instance otherwise throw an exception.
+    */
+    void Validate() const
     {
-        if (VALID_ENTITY(m_ID))
-            return true;
-        SqThrow("Invalid keybind reference [%s]", m_Tag.c_str());
-        return false;
+        if (INVALID_ENTITY(m_ID))
+            SqThrowF("Invalid keybind reference [%s]", m_Tag.c_str());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -77,27 +86,33 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    const String & ToString() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
     */
-    Int32 GetID() const { return m_ID; }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the maximum possible identifier to an entity of this type.
-    */
-    Int32 GetMaxID() const { return SQMOD_KEYBIND_POOL; }
+    Int32 GetID() const
+    {
+        return m_ID;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Check whether this instance manages a valid entity.
     */
-    bool IsActive() const { return VALID_ENTITY(m_ID); }
+    bool IsActive() const
+    {
+        return VALID_ENTITY(m_ID);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user tag.
     */
-    CSStr GetTag() const;
+    const String & GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
@@ -114,18 +129,50 @@ public:
     */
     void SetData(Object & data);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed destroy entity.
+    */
+    bool Destroy()
+    {
+        return Destroy(0, NullObject());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed destroy entity.
+    */
+    bool Destroy(Int32 header)
+    {
+        return Destroy(header, NullObject());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroy the managed destroy entity.
+    */
     bool Destroy(Int32 header, Object & payload);
-    bool Destroy() { return Destroy(0, NullObject()); }
-    bool Destroy(Int32 header) { return Destroy(header, NullObject()); }
 
-    // --------------------------------------------------------------------------------------------
-    bool BindEvent(Int32 evid, Object & env, Function & func) const;
+    /* --------------------------------------------------------------------------------------------
+     * Bind to an event supported by this entity type.
+    */
+    void BindEvent(Int32 evid, Object & env, Function & func) const;
 
-    // --------------------------------------------------------------------------------------------
-    Int32 GetPrimary() const;
-    Int32 GetSecondary() const;
-    Int32 GetAlternative() const;
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the first key code of the managed keybind entity.
+    */
+    Int32 GetFirst() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the second key code of the managed keybind entity.
+    */
+    Int32 GetSecond() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the third key code of the managed keybind entity.
+    */
+    Int32 GetThird() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed keybind entity reacts to key release events.
+    */
     bool IsRelease() const;
 };
 

@@ -8,15 +8,20 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQChar CSprite::s_StrID[SQMOD_SPRITE_POOL][8];
+const Int32 CSprite::Max = SQMOD_SPRITE_POOL;
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CSprite::Max = SQMOD_SPRITE_POOL;
+SQInteger CSprite::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("SqSprite");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
 
 // ------------------------------------------------------------------------------------------------
 CSprite::CSprite(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_SPRITE_POOL))
-    , m_Tag(VALID_ENTITY(m_ID) ? s_StrID[m_ID] : _SC("-1"))
+    , m_Tag(ToStrF("%d", id))
 {
     /* ... */
 }
@@ -38,301 +43,407 @@ Int32 CSprite::Cmp(const CSprite & o) const
         return -1;
 }
 
-CSStr CSprite::ToString() const
+// ------------------------------------------------------------------------------------------------
+const String & CSprite::ToString() const
 {
-    return VALID_ENTITYEX(m_ID, SQMOD_SPRITE_POOL) ? s_StrID[m_ID] : _SC("-1");
+    return m_Tag;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CSprite::GetTag() const
+const String & CSprite::GetTag() const
 {
-    return m_Tag.c_str();
+    return m_Tag;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CSprite::SetTag(CSStr tag)
 {
     m_Tag.assign(tag);
 }
 
+// ------------------------------------------------------------------------------------------------
 Object & CSprite::GetData()
 {
-    if (Validate())
-        return m_Data;
-    return NullObject();
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return m_Data;
 }
 
+// ------------------------------------------------------------------------------------------------
 void CSprite::SetData(Object & data)
 {
-    if (Validate())
-        m_Data = data;
+    // Validate the managed identifier
+    Validate();
+    // Apply the specified value
+    m_Data = data;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool CSprite::Destroy(Int32 header, Object & payload)
 {
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
     return _Core->DelSprite(m_ID, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CSprite::BindEvent(Int32 evid, Object & env, Function & func) const
+void CSprite::BindEvent(Int32 evid, Object & env, Function & func) const
 {
-    if (!Validate())
-        return false;
-
+    // Validate the managed identifier
+    Validate();
+    // Obtain the function instance called for this event
     Function & event = _Core->GetSpriteEvent(m_ID, evid);
-
+    // Is the specified callback function null?
     if (func.IsNull())
-        event.Release();
+        event.Release(); // Then release the current callback
+    // Assign the specified environment and function
     else
         event = Function(env.GetVM(), env, func.GetFunc());
-
-    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
 void CSprite::ShowAll() const
 {
-    if (Validate())
-        _Func->ShowSprite(m_ID, -1);
-}
-
-void CSprite::ShowFor(CPlayer & player) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->ShowSprite(m_ID, player.GetID());
-
-}
-
-void CSprite::ShowRange(Int32 first, Int32 last) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (; first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->ShowSprite(m_ID, first);
-        }
-}
-
-void CSprite::HideAll() const
-{
-    if (Validate())
-        _Func->HideSprite(m_ID, -1);
-}
-
-void CSprite::HideFor(CPlayer & player) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->HideSprite(m_ID, player.GetID());
-}
-
-void CSprite::HideRange(Int32 first, Int32 last) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (; first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->HideSprite(m_ID, first);
-        }
-}
-
-void CSprite::SetPositionAll(const Vector2i & pos) const
-{
-    if (Validate())
-        _Func->MoveSprite(m_ID, -1, pos.x, pos.y);
-}
-
-void CSprite::SetPositionAllEx(Int32 x, Int32 y) const
-{
-    if (Validate())
-        _Func->MoveSprite(m_ID, -1, x, y);
-}
-
-void CSprite::SetPositionFor(CPlayer & player, const Vector2i & pos) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->MoveSprite(m_ID, player.GetID(), pos.x, pos.y);
-}
-
-void CSprite::SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->MoveSprite(m_ID, player.GetID(), x, y);
-}
-
-void CSprite::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (; first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->MoveSprite(m_ID, first, pos.x, pos.y);
-        }
-}
-
-void CSprite::SetCenterAll(const Vector2i & pos) const
-{
-    if (Validate())
-        _Func->SetSpriteCenter(m_ID, -1, pos.x, pos.y);
-}
-
-void CSprite::SetCenterAllEx(Int32 x, Int32 y) const
-{
-    if (Validate())
-        _Func->SetSpriteCenter(m_ID, -1, x, y);
-}
-
-void CSprite::SetCenterFor(CPlayer & player, const Vector2i & pos) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->SetSpriteCenter(m_ID, player.GetID(), pos.x, pos.y);
-}
-
-void CSprite::SetCenterForEx(CPlayer & player, Int32 x, Int32 y) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->SetSpriteCenter(m_ID, player.GetID(), x, y);
-}
-
-void CSprite::SetCenterRange(Int32 first, Int32 last, const Vector2i & pos) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (; first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->SetSpriteCenter(m_ID, first, pos.x, pos.y);
-        }
-}
-
-void CSprite::SetRotationAll(Float32 rot) const
-{
-    if (Validate())
-        _Func->RotateSprite(m_ID, -1, rot);
-}
-
-void CSprite::SetRotationFor(CPlayer & player, Float32 rot) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->RotateSprite(m_ID, player.GetID(), rot);
-}
-
-void CSprite::SetRotationRange(Int32 first, Int32 last, Float32 rot) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (; first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->RotateSprite(m_ID, first, rot);
-        }
-}
-
-void CSprite::SetAlphaAll(Uint8 alpha) const
-{
-    if (Validate())
-        _Func->SetSpriteAlpha(m_ID, -1, alpha);
-}
-
-void CSprite::SetAlphaFor(CPlayer & player, Uint8 alpha) const
-{
-    if (!player.IsActive())
-        SqThrow("Invalid player argument: null");
-    else if (Validate())
-        _Func->SetSpriteAlpha(m_ID, player.GetID(), alpha);
-}
-
-void CSprite::SetAlphaRange(Int32 first, Int32 last, Uint8 alpha) const
-{
-    if (first > last)
-        SqThrow("Invalid player range: %d > %d", first, last);
-    else if (Validate())
-        for (; first <= last; ++first)
-        {
-            if (_Func->IsPlayerConnected(first))
-                _Func->SetSpriteAlpha(m_ID, first, alpha);
-        }
-}
-
-CSStr CSprite::GetFilePath() const
-{
-    if (Validate())
-        _Core->GetSprite(m_ID).mPath.c_str();
-    return g_EmptyStr;
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->ShowSprite(m_ID, -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateSpriteEx(CSStr file, Int32 xp, Int32 yp, Int32 xr, Int32 yr,
+void CSprite::ShowFor(CPlayer & player) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->ShowSprite(m_ID, player.GetID());
+
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::ShowRange(Int32 first, Int32 last) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (; first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then show this textdraw on his client
+            _Func->ShowSprite(m_ID, first);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::HideAll() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->HideSprite(m_ID, -1);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::HideFor(CPlayer & player) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->HideSprite(m_ID, player.GetID());
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::HideRange(Int32 first, Int32 last) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (; first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then hide this textdraw on his client
+            _Func->HideSprite(m_ID, first);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetPositionAll(const Vector2i & pos) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveSprite(m_ID, -1, pos.x, pos.y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetPositionAllEx(Int32 x, Int32 y) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveSprite(m_ID, -1, x, y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetPositionFor(CPlayer & player, const Vector2i & pos) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveSprite(m_ID, player.GetID(), pos.x, pos.y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->MoveSprite(m_ID, player.GetID(), x, y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (; first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then move this textdraw on his client
+            _Func->MoveSprite(m_ID, first, pos.x, pos.y);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetCenterAll(const Vector2i & pos) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetSpriteCenter(m_ID, -1, pos.x, pos.y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetCenterAllEx(Int32 x, Int32 y) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetSpriteCenter(m_ID, -1, x, y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetCenterFor(CPlayer & player, const Vector2i & pos) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetSpriteCenter(m_ID, player.GetID(), pos.x, pos.y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetCenterForEx(CPlayer & player, Int32 x, Int32 y) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetSpriteCenter(m_ID, player.GetID(), x, y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetCenterRange(Int32 first, Int32 last, const Vector2i & pos) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (; first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then center this textdraw on his client
+            _Func->SetSpriteCenter(m_ID, first, pos.x, pos.y);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetRotationAll(Float32 rot) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotateSprite(m_ID, -1, rot);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetRotationFor(CPlayer & player, Float32 rot) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RotateSprite(m_ID, player.GetID(), rot);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetRotationRange(Int32 first, Int32 last, Float32 rot) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (; first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then rotate this textdraw on his client
+            _Func->RotateSprite(m_ID, first, rot);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetAlphaAll(Uint8 alpha) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetSpriteAlpha(m_ID, -1, alpha);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetAlphaFor(CPlayer & player, Uint8 alpha) const
+{
+    // Is the specified player even valid?
+    if (!player.IsActive())
+        SqThrowF("Invalid player argument: null");
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetSpriteAlpha(m_ID, player.GetID(), alpha);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CSprite::SetAlphaRange(Int32 first, Int32 last, Uint8 alpha) const
+{
+    // Validate the specified range
+    if (first > last)
+        SqThrowF("Invalid player range: %d > %d", first, last);
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    for (; first <= last; ++first)
+    {
+        // Is the currently processed player even connected?
+        if (_Func->IsPlayerConnected(first))
+            // Then colorize this textdraw on his client
+            _Func->SetSpriteAlpha(m_ID, first, alpha);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+const String & CSprite::GetFilePath() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Core->GetSprite(m_ID).mPath;
+}
+
+// ------------------------------------------------------------------------------------------------
+static Object & Sprite_CreateEx(CSStr file, Int32 xp, Int32 yp, Int32 xr, Int32 yr,
                                 Float32 angle, Int32 alpha, bool rel)
 {
     return _Core->NewSprite(-1, file, xp, yp, xr, yr, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateSpriteEx(CSStr file, Int32 xp, Int32 yp, Int32 xr, Int32 yr,
+// ------------------------------------------------------------------------------------------------
+static Object & Sprite_CreateEx(CSStr file, Int32 xp, Int32 yp, Int32 xr, Int32 yr,
                                 Float32 angle, Int32 alpha, bool rel, Int32 header, Object & payload)
 {
     return _Core->NewSprite(-1, file, xp, yp, xr, yr, angle, alpha, rel, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateSpriteEx(Int32 index, CSStr file, Int32 xp, Int32 yp, Int32 xr, Int32 yr,
+static Object & Sprite_CreateEx(Int32 index, CSStr file, Int32 xp, Int32 yp, Int32 xr, Int32 yr,
                                 Float32 angle, Int32 alpha, bool rel)
 {
     return _Core->NewSprite(index, file, xp, yp, xr, yr, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateSpriteEx(Int32 index, CSStr file, Int32 xp, Int32 yp, Int32 xr, Int32 yr,
+// ------------------------------------------------------------------------------------------------
+static Object & Sprite_CreateEx(Int32 index, CSStr file, Int32 xp, Int32 yp, Int32 xr, Int32 yr,
                                 Float32 angle, Int32 alpha, bool rel, Int32 header, Object & payload)
 {
     return _Core->NewSprite(index, file, xp, yp, xr, yr, angle, alpha, rel, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateSprite(CSStr file, const Vector2i & pos, const Vector2i & rot,
+static Object & Sprite_Create(CSStr file, const Vector2i & pos, const Vector2i & rot,
                                 Float32 angle, Int32 alpha, bool rel)
 {
     return _Core->NewSprite(-1, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateSprite(CSStr file, const Vector2i & pos, const Vector2i & rot,
+// ------------------------------------------------------------------------------------------------
+static Object & Sprite_Create(CSStr file, const Vector2i & pos, const Vector2i & rot,
                                 Float32 angle, Int32 alpha, bool rel, Int32 header, Object & payload)
 {
     return _Core->NewSprite(-1, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & CreateSprite(Int32 index, CSStr file, const Vector2i & pos, const Vector2i & rot,
+static Object & Sprite_Create(Int32 index, CSStr file, const Vector2i & pos, const Vector2i & rot,
                                 Float32 angle, Int32 alpha, bool rel)
 {
     return _Core->NewSprite(index, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & CreateSprite(Int32 index, CSStr file, const Vector2i & pos, const Vector2i & rot,
+// ------------------------------------------------------------------------------------------------
+static Object & Sprite_Create(Int32 index, CSStr file, const Vector2i & pos, const Vector2i & rot,
                                 Float32 angle, Int32 alpha, bool rel, Int32 header, Object & payload)
 {
     return _Core->NewSprite(index, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel, header, payload);
@@ -343,24 +454,26 @@ void Register_CSprite(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqSprite"),
         Class< CSprite, NoConstructor< CSprite > >(vm, _SC("SqSprite"))
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &CSprite::Cmp)
+        .SquirrelFunc(_SC("_typename"), &CSprite::Typename)
         .Func(_SC("_tostring"), &CSprite::ToString)
-        /* Core Properties */
+        // Static values
+        .SetStaticValue(_SC("MaxID"), CSprite::Max)
+        // Core Properties
         .Prop(_SC("ID"), &CSprite::GetID)
         .Prop(_SC("Tag"), &CSprite::GetTag, &CSprite::SetTag)
         .Prop(_SC("Data"), &CSprite::GetData, &CSprite::SetData)
-        .Prop(_SC("MaxID"), &CSprite::GetMaxID)
         .Prop(_SC("Active"), &CSprite::IsActive)
-        /* Core Functions */
+        // Core Functions
         .Func(_SC("Bind"), &CSprite::BindEvent)
-        /* Core Overloads */
+        // Core Overloads
         .Overload< bool (CSprite::*)(void) >(_SC("Destroy"), &CSprite::Destroy)
         .Overload< bool (CSprite::*)(Int32) >(_SC("Destroy"), &CSprite::Destroy)
         .Overload< bool (CSprite::*)(Int32, Object &) >(_SC("Destroy"), &CSprite::Destroy)
-        /* Properties */
+        // Properties
         .Prop(_SC("Path"), &CSprite::GetFilePath)
-        /* Functions */
+        // Functions
         .Func(_SC("ShowAll"), &CSprite::ShowAll)
         .Func(_SC("ShowTo"), &CSprite::ShowFor)
         .Func(_SC("ShowFor"), &CSprite::ShowFor)
@@ -377,7 +490,7 @@ void Register_CSprite(HSQUIRRELVM vm)
         .Func(_SC("SetAlphaAll"), &CSprite::SetAlphaAll)
         .Func(_SC("SetAlphaFor"), &CSprite::SetAlphaFor)
         .Func(_SC("SetAlphaRange"), &CSprite::SetAlphaRange)
-        /* Overloads */
+        // Overloads
         .Overload< void (CSprite::*)(const Vector2i &) const >
             (_SC("SetPositionAll"), &CSprite::SetPositionAll)
         .Overload< void (CSprite::*)(Int32, Int32) const >
@@ -394,25 +507,24 @@ void Register_CSprite(HSQUIRRELVM vm)
             (_SC("SetCenterFor"), &CSprite::SetCenterFor)
         .Overload< void (CSprite::*)(CPlayer &, Int32, Int32) const >
             (_SC("SetCenterFor"), &CSprite::SetCenterForEx)
+        // Static Overloads
+        .StaticOverload< Object & (*)(CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel) >
+            (_SC("CreateEx"), &Sprite_CreateEx)
+        .StaticOverload< Object & (*)(CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel, Int32, Object &) >
+            (_SC("CreateEx"), &Sprite_CreateEx)
+        .StaticOverload< Object & (*)(Int32, CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel) >
+            (_SC("CreateEx"), &Sprite_CreateEx)
+        .StaticOverload< Object & (*)(Int32, CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel, Int32, Object &) >
+            (_SC("CreateEx"), &Sprite_CreateEx)
+        .StaticOverload< Object & (*)(CSStr, const Vector2i &, const Vector2i &, Float32, Int32, bool) >
+            (_SC("Create"), &Sprite_Create)
+        .StaticOverload< Object & (*)(CSStr, const Vector2i &, const Vector2i &, Float32, Int32, bool, Int32, Object &) >
+            (_SC("Create"), &Sprite_Create)
+        .StaticOverload< Object & (*)(Int32, CSStr, const Vector2i &, const Vector2i &, Float32, Int32, bool) >
+            (_SC("Create"), &Sprite_Create)
+        .StaticOverload< Object & (*)(Int32, CSStr, const Vector2i &, const Vector2i &, Float32, Int32, bool, Int32, Object &) >
+            (_SC("Create"), &Sprite_Create)
     );
-
-    RootTable(vm)
-    .Overload< Object & (*)(CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel) >
-        (_SC("CreateSpriteEx"), &CreateSpriteEx)
-    .Overload< Object & (*)(CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel, Int32, Object &) >
-        (_SC("CreateSpriteEx"), &CreateSpriteEx)
-    .Overload< Object & (*)(Int32, CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel) >
-        (_SC("CreateSpriteEx"), &CreateSpriteEx)
-    .Overload< Object & (*)(Int32, CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel, Int32, Object &) >
-        (_SC("CreateSpriteEx"), &CreateSpriteEx)
-    .Overload< Object & (*)(CSStr, const Vector2i &, const Vector2i &, Float32, Int32, bool) >
-        (_SC("CreateSprite"), &CreateSprite)
-    .Overload< Object & (*)(CSStr, const Vector2i &, const Vector2i &, Float32, Int32, bool, Int32, Object &) >
-        (_SC("CreateSprite"), &CreateSprite)
-    .Overload< Object & (*)(Int32, CSStr, const Vector2i &, const Vector2i &, Float32, Int32, bool) >
-        (_SC("CreateSprite"), &CreateSprite)
-    .Overload< Object & (*)(Int32, CSStr, const Vector2i &, const Vector2i &, Float32, Int32, bool, Int32, Object &) >
-        (_SC("CreateSprite"), &CreateSprite);
 }
 
 } // Namespace:: SqMod

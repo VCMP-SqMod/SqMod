@@ -16,59 +16,133 @@ Routine::Queue      Routine::s_Queue;
 Routine::Buckets    Routine::s_Buckets;
 
 // ------------------------------------------------------------------------------------------------
+void Routine::Attach(Routine * routine, Interval interval)
+{
+    // Do we have a valid routine and interval bucket to attach?
+    if (!routine || ! interval)
+        return;
+    // Attempt to locate the bucket with the specified interval
+    Buckets::iterator itr = std::find_if(s_Buckets.begin(), s_Buckets.end(), IntrvFunc(interval));
+    // Does this bucket exist?
+    if (itr == s_Buckets.end())
+    {
+        // Then create it
+        s_Buckets.emplace_back(interval);
+        // And attach this routine
+        s_Buckets.back().mRoutines.push_back(routine);
+    }
+    // Is this routine already attached to this bucket?
+    else if (std::find(itr->mRoutines.begin(), itr->mRoutines.end(), routine) != itr->mRoutines.end())
+        // Then let's attach it now
+        itr->mRoutines.push_back(routine);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::Detach(Routine * routine, Interval interval)
+{
+    // Do we have a valid routine and interval to detach?
+    if (!routine || ! interval)
+        return;
+    // Attempt to locate the bucket with this interval
+    Buckets::iterator bitr = std::find_if(s_Buckets.begin(), s_Buckets.end(), IntrvFunc(interval));
+    // Was there a bucket with this interval?
+    if (bitr == s_Buckets.end())
+        return; // Nothing to detach from!
+    // Attempt to find this routine in the associated bucket
+    Routines::iterator ritr = std::find(bitr->mRoutines.begin(), bitr->mRoutines.end(), routine);
+    // Was this routine even attached?
+    if (ritr != bitr->mRoutines.end())
+        // Then erase it and move on
+        bitr->mRoutines.erase(ritr);
+    // Any reason to keep this bucket?
+    if (bitr->mRoutines.empty())
+        // Remove the bucket as well
+        s_Buckets.erase(bitr);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::ProcQueue()
+{
+    // Do we have any queued commands that must be performed when unlocked?
+    if (s_Queue.empty() || s_Lock)
+        return; // We're done here!
+    // Process all commands in the queue
+    for (const auto & cmd : s_Queue)
+    {
+        // Are we supposed to detach the associated routine?
+        if (cmd.mCommand == CMD_DETACH)
+            Detach(cmd.mRoutine, cmd.mInterval);
+        // Are we supposed to attach the associated routine?
+        else if (cmd.mCommand == CMD_ATTACH)
+            Attach(cmd.mRoutine, cmd.mInterval);
+    }
+    // Clear processed commands
+    s_Queue.clear();
+}
+
+// ------------------------------------------------------------------------------------------------
 void Routine::Process()
 {
-    s_Lock = false; /* In case an exception prevented the unlock last time */
-    if (!s_Queue.empty())
-    {
-        for (Queue::iterator itr = s_Queue.begin(); itr != s_Queue.end(); ++itr)
-        {
-            if (itr->first && itr->second)
-                itr->second->Attach();
-            else if (itr->second)
-                itr->second->Terminate();
-        }
-        s_Queue.clear();
-    }
+    // In case an exception prevented the unlock last time
+    s_Lock = false;
+    // Normally there shouldn't be any but just in case the above happened
+    ProcQueue();
     // Is this the first call?
     if (s_Last == 0)
     {
         s_Last = GetCurrentSysTime();
+        // We'll do it text time
         return;
     }
+    // Lock the buckets
     s_Lock = true;
+    // Backup the last known time-stamp
     s_Prev = s_Last;
+    // Get the current time-stamp
     s_Last = GetCurrentSysTime();
+    // Calculate the elapsed time
     Int32 delta = Int32((s_Last - s_Prev) / 1000L);
-    for (Buckets::iterator bucket = s_Buckets.begin(); bucket != s_Buckets.end(); ++bucket)
+    // Process all available buckets
+    for (auto & bucket : s_Buckets)
     {
-        bucket->mElapsed += delta;
-        if (bucket->mElapsed < bucket->mInterval)
-            continue;
-        Routines::iterator itr = bucket->mRoutines.begin();
-        Routines::iterator end = bucket->mRoutines.end();
-        for (; itr != end; ++itr)
-            (*itr)->Execute();
-        bucket->mElapsed = 0;
+        // Update the bucket elapsed time
+        bucket.mElapsed += delta;
+        // Have we completed the bucket interval?
+        if (bucket.mElapsed < bucket.mInterval)
+            continue; // Move to the next one
+        // Attempt to execute bucket routines, if any
+        for (auto & routine : bucket.mRoutines)
+            routine->Execute();
+        // Reset the bucket elapsed time
+        bucket.mElapsed = 0;
     }
+    // Unlock the buckets
     s_Lock = false;
+    // Process operations that couldn't be performed while buckets were locked
+    ProcQueue();
 }
 
 // ------------------------------------------------------------------------------------------------
 void Routine::TerminateAll()
 {
-    for (Buckets::iterator bucket = s_Buckets.begin(); bucket != s_Buckets.end(); ++bucket)
+    // Let's make sure no pending commands are left
+    ProcQueue();
+    // Process all buckets
+    for (auto & bucket : s_Buckets)
     {
-        Routines::iterator itr = bucket->mRoutines.begin();
-        Routines::iterator end = bucket->mRoutines.end();
-        for (; itr != end; ++itr)
+        //  Process all routines in this bucket
+        for (auto & routine : bucket.mRoutines)
         {
-            (*itr)->Release();
-            (*itr)->m_Terminated = true;
+            // Release all resources
+            routine->Release();
+            // Mark it as terminated
+            routine->m_Terminated = true;
         }
     }
-    // Clear all references
+    // Clear all references to routines
     s_Buckets.clear();
+    // Clear the last time-stamp in case of a reload
+    s_Last = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -167,8 +241,13 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterate itera
 // ------------------------------------------------------------------------------------------------
 Routine::~Routine()
 {
-    if (!m_Terminated)
-        Terminate();
+    // Was the routine already terminated?
+    if (m_Terminated)
+        return;
+    // Detach from the associated bucket
+    Detach();
+    // Release script resources
+    Release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -182,6 +261,7 @@ Int32 Routine::Cmp(const Routine & o) const
         return -1;
 }
 
+// ------------------------------------------------------------------------------------------------
 CSStr Routine::ToString() const
 {
     return ToStrF(_PRINT_INT_FMT, m_Interval);
@@ -190,27 +270,22 @@ CSStr Routine::ToString() const
 // ------------------------------------------------------------------------------------------------
 void Routine::Terminate()
 {
+    // Was the routine already terminated?
     if (m_Terminated)
-        SqThrow("Routine was already terminated");
-    else if (s_Lock)
-        s_Queue.push_back(Queue::value_type(false, this));
-    else
-    {
-        Detach();
-        Release();
-        m_Terminated = true;
-    }
+        SqThrowF("Routine was already terminated");
+    // Detach from the associated bucket
+    Detach();
+    // Release script resources and mark it as terminated
+    Release();
 }
 
 // ------------------------------------------------------------------------------------------------
 void Routine::SetArg(Uint8 num, Object & val)
 {
+    // Was the routine terminated?
     if (m_Terminated)
-    {
-        SqThrow("Routine was terminated");
-        return;
-    }
-
+        SqThrowF("Routine was terminated");
+    // Identify which argument was requested
     switch (num)
     {
         case 1: m_Arg1 = val; break;
@@ -227,18 +302,16 @@ void Routine::SetArg(Uint8 num, Object & val)
         case 12: m_Arg12 = val; break;
         case 13: m_Arg13 = val; break;
         case 14: m_Arg14 = val; break;
-        default: SqThrow("Argument is out of range: %d", num);
+        default: SqThrowF("Argument is out of range: %d", num);
     }
 }
 
 Object & Routine::GetArg(Uint8 num)
 {
+    // Was the routine terminated?
     if (m_Terminated)
-    {
-        SqThrow("Routine was terminated");
-        return NullObject();
-    }
-
+        SqThrowF("Routine was terminated");
+    // Identify which argument was requested
     switch (num)
     {
         case 1: return m_Arg1;
@@ -255,9 +328,9 @@ Object & Routine::GetArg(Uint8 num)
         case 12: return m_Arg12;
         case 13: return m_Arg13;
         case 14: return m_Arg14;
-        default: SqThrow("Argument is out of range: %d", num);
+        default: SqThrowF("Argument is out of range: %d", num);
     }
-
+    // Shouldn't really reach this point
     return NullObject();
 }
 
@@ -269,16 +342,18 @@ Routine::Interval Routine::GetInterval() const
 
 void Routine::SetInterval(Interval interval)
 {
+    // Was the routine terminated?
     if (m_Terminated)
-        SqThrow("Routine was terminated");
+        SqThrowF("Routine was terminated");
+    // Is the specified interval valid?
     else if (!interval)
-        SqThrow("Invalid routine interval");
-    else
-    {
-        Detach();
-        m_Interval = interval;
-        Attach();
-    }
+        SqThrowF("Invalid routine interval");
+    // Detach from the current bucket
+    Detach();
+    // Update the interval
+    m_Interval = interval;
+    // Attach to the new bucket
+    Attach();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -289,10 +364,11 @@ Routine::Iterate Routine::GetIterations() const
 
 void Routine::SetIterations(Iterate iterations)
 {
+    // Was the routine terminated?
     if (m_Terminated)
-        SqThrow("Routine was terminated");
-    else
-        m_Iterations = iterations;
+        SqThrowF("Routine was terminated");
+    // Perform the requested operation
+    m_Iterations = iterations;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -303,12 +379,14 @@ Uint8 Routine::GetArguments() const
 
 void Routine::SetArguments(Uint8 num)
 {
+    // Was the routine terminated?
     if (m_Terminated)
-        SqThrow("Routine was terminated");
+        SqThrowF("Routine was terminated");
+    // Is the specified argument count valid?
     else if (num > 14)
-        SqThrow("Argument is out of range: %d", num);
-    else
-        m_Arguments = num;
+        SqThrowF("Argument is out of range: %d", num);
+    // Perform the requested operation
+    m_Arguments = num;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -319,10 +397,11 @@ bool Routine::GetSuspended() const
 
 void Routine::SetSuspended(bool toggle)
 {
+    // Was the routine terminated?
     if (m_Terminated)
-        SqThrow("Routine was terminated");
-    else
-        m_Suspended = toggle;
+        SqThrowF("Routine was terminated");
+    // Perform the requested operation
+    m_Suspended = toggle;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -334,28 +413,33 @@ bool Routine::GetTerminated() const
 // ------------------------------------------------------------------------------------------------
 Function & Routine::GetCallback()
 {
+    // Was the routine terminated?
     if (m_Terminated)
-        SqThrow("Routine was terminated");
-    else
-        return m_Callback;
-    return NullFunction();
+        SqThrowF("Routine was terminated");
+    // Return the requested information
+    return m_Callback;
 }
 
 void Routine::SetCallback(Object & env, Function & func)
 {
+    // Was the routine terminated?
     if (m_Terminated)
-        SqThrow("Routine was terminated");
-    else
-        m_Callback = Function(env.GetVM(), env, func.GetFunc());
+        SqThrowF("Routine was terminated");
+    // Perform the requested operation
+    m_Callback = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
 void Routine::Release()
 {
+    // Was the routine terminated?
     if (m_Terminated)
         return;
+    // Mark it as terminated
     m_Terminated = true;
+    // Release the callback
     m_Callback.ReleaseGently();
+    // Release the arguments
     m_Arg1.Release();
     m_Arg2.Release();
     m_Arg3.Release();
@@ -375,64 +459,53 @@ void Routine::Release()
 // ------------------------------------------------------------------------------------------------
 void Routine::Create()
 {
+    // Was the routine terminated?
     if (!m_Interval)
-        SqThrow("Invalid routine interval");
+        SqThrowF("Invalid routine interval");
+    // Is the specified callback valid?
     else if (m_Callback.IsNull())
-        SqThrow("Invalid routine callback");
-    else
-    {
-        Attach();
-        return;
-    }
-    Release();
+        SqThrowF("Invalid routine callback");
+    // Attempt to attach the routine
+    Attach();
 }
 
+// ------------------------------------------------------------------------------------------------
 void Routine::Attach()
 {
+    // Do we have a valid interval?
     if (!m_Interval)
-        return;
+        return; // Nothing to attach to!
+    // Are the buckets locked?
     else if (s_Lock)
-    {
-        s_Queue.push_back(Queue::value_type(true, this));
-        return;
-    }
-    Buckets::iterator itr = std::find_if(s_Buckets.begin(), s_Buckets.end(), IntrvFunc(m_Interval));
-    if (itr == s_Buckets.end())
-    {
-        s_Buckets.push_back(Buckets::value_type(m_Interval));
-        s_Buckets.back().mRoutines.push_back(this);
-    }
-    else if (std::find(itr->mRoutines.begin(), itr->mRoutines.end(), this) != itr->mRoutines.end())
-        return;
+        // Queue a command to attach this routine when the bucket is unlocked
+        s_Queue.emplace_back(this, m_Interval, CMD_ATTACH);
+    // Attempt to attach the the routine now
     else
-        itr->mRoutines.push_back(this);
+        Attach(this, m_Interval);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Routine::Detach()
 {
+    // Do we have a valid interval?
     if (!m_Interval)
-        return;
+        return; // Nothing to detach from!
+    // Are the buckets locked?
     else if (s_Lock)
-    {
-        s_Queue.push_back(Queue::value_type(false, this));
-        return;
-    }
-    Buckets::iterator bitr = std::find_if(s_Buckets.begin(), s_Buckets.end(), IntrvFunc(m_Interval));
-    if (bitr == s_Buckets.end())
-        return;
-    Routines::iterator ritr = std::find(bitr->mRoutines.begin(), bitr->mRoutines.end(), this);
-    if (ritr != bitr->mRoutines.end())
-        bitr->mRoutines.erase(ritr);
-    // Any reason to keep this bucket?
-    if (bitr->mRoutines.empty())
-        s_Buckets.erase(bitr);
+        // Queue a command to detach this routine when the bucket is unlocked
+        s_Queue.emplace_back(this, m_Interval, CMD_DETACH);
+    // Attempt to detach the the routine now
+    else
+        Detach(this, m_Interval);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Routine::Execute()
 {
+    // Is this routine suspended or has nothing to call?
     if (m_Suspended || m_Callback.IsNull())
-        return;
+        return; // We're done here!
+    // Attempt to identify how many arguments should be passed
     switch (m_Arguments)
     {
         case 0: m_Callback.Execute();
@@ -473,14 +546,11 @@ void Routine::Execute()
                                     m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13, m_Arg14);
         break;
         default:
-            SqThrow("Unknown argument count: %d", m_Arguments);
+            SqThrowF("Unknown argument count: %d", m_Arguments);
     }
-
+    // Decrease the number of iterations if necessary
     if (m_Iterations && (--m_Iterations) == 0)
-    {
-        Terminate();
-    }
-
+        Terminate(); // This routine reached the end of it's life
 }
 
 /* ------------------------------------------------------------------------------------------------

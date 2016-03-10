@@ -34,7 +34,7 @@ extern void Register_CVehicle(HSQUIRRELVM vm);
 extern void Register_Entity(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
-extern void Register_Hash(HSQUIRRELVM vm);
+extern void Register_Crypt(HSQUIRRELVM vm);
 extern void Register_Numeric(HSQUIRRELVM vm);
 extern void Register_Random(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
@@ -76,7 +76,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_CTextdraw(vm);
     Register_CVehicle(vm);
 
-    Register_Hash(vm);
+    Register_Crypt(vm);
     Register_Random(vm);
     Register_Numeric(vm);
     Register_String(vm);

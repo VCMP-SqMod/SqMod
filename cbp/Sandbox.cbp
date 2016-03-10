@@ -149,6 +149,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-std=c++14" />
 			<Add directory="../include" />
 			<Add directory="../sandbox" />
 			<Add directory="../source" />
@@ -160,6 +161,7 @@
 		<Linker>
 			<Add library="squirrel" />
 		</Linker>
+		<Unit filename="../external/Common/aes256.cpp" />
 		<Unit filename="../sandbox/main.cpp" />
 		<Extensions>
 			<code_completion />

@@ -88,29 +88,34 @@ void Register_Core(HSQUIRRELVM vm)
 template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
+    // Was the message value specified?
     if (top <= 1)
-        SqThrow("The log message was not specified");
-    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
-    {
-        CCStr msg = NULL;
-        if (SQ_FAILED(sq_getstring(vm, -1, &msg)))
-            SqThrow("Unable to retrieve the log message");
-        else
-            _Log->Message(L, S, "%s", msg);
-        sq_settop(vm, top);
-    }
+        return sq_throwerror(vm, "Missing message value");
+    // Do we have enough values to call the format function?
     else if (top > 2)
     {
-        CStr msg = NULL;
+        SStr msg = NULL;
         SQInteger len = 0;
-        if (SQ_FAILED(sqstd_format(vm, 2, &len, &msg)))
-            SqThrow("Unable to generate the log message [%s]", Error::Message(vm).c_str());
-        else
-            _Log->Message(L, S, "%s", msg);
+        // Attempt to generate the specified string format
+        SQRESULT ret = sqstd_format(vm, 2, &len, &msg);
+        // Did the format failed?
+        if (SQ_FAILED(ret))
+            return ret; // Propagate the exception
+        // Log the resulted string value
+        _Log->Message(L, S, "%s", msg);
     }
     else
-        SqThrow("Unable to extract the log message");
-    return 0;
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > msg(vm, 2);
+        // See if the obtained value is a valid string
+        if (!msg.value)
+            return sq_throwerror(vm, "Unable to retrieve the value");
+        // Log the resulted string value
+        _Log->Message(L, S, "%s", msg.value);
+    }
+    // This function does not return a value
+    return 1;
 }
 
 // ================================================================================================
