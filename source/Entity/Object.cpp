@@ -564,6 +564,45 @@ static Object & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int
     return _Core->NewObject(model, world, pos.x, pos.y, pos.z, alpha, header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Object_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+        SqThrowF("The specified object identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Objects::const_iterator itr = _Core->GetObjects().cbegin();
+    Core::Objects::const_iterator end = _Core->GetObjects().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a object matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Object_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified object tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Objects::const_iterator itr = _Core->GetObjects().cbegin();
+    Core::Objects::const_iterator end = _Core->GetObjects().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a object matching the specified tag
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CObject(HSQUIRRELVM vm)
 {
@@ -573,14 +612,14 @@ void Register_CObject(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CObject::Cmp)
         .SquirrelFunc(_SC("_typename"), &CObject::Typename)
         .Func(_SC("_tostring"), &CObject::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CObject::Max)
         // Core Properties
         .Prop(_SC("ID"), &CObject::GetID)
         .Prop(_SC("Tag"), &CObject::GetTag, &CObject::SetTag)
         .Prop(_SC("Data"), &CObject::GetData, &CObject::SetData)
         .Prop(_SC("Active"), &CObject::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CObject::BindEvent)
         // Core Overloads
         .Overload< bool (CObject::*)(void) >(_SC("Destroy"), &CObject::Destroy)
@@ -607,11 +646,11 @@ void Register_CObject(HSQUIRRELVM vm)
         .Prop(_SC("EX"), &CObject::GetERotX)
         .Prop(_SC("EY"), &CObject::GetERotY)
         .Prop(_SC("EZ"), &CObject::GetERotZ)
-        // Functions
+        // Member Methods
         .Func(_SC("StreamedFor"), &CObject::IsStreamedFor)
         .Func(_SC("SetAlpha"), &CObject::SetAlphaEx)
         .Func(_SC("SetPosition"), &CObject::SetPositionEx)
-        // Overloads
+        // Member Overloads
         .Overload< void (CObject::*)(const Vector3 &, Int32) const >
             (_SC("MoveTo"), &CObject::MoveTo)
         .Overload< void (CObject::*)(Float32, Float32, Float32, Int32) const >
@@ -636,6 +675,9 @@ void Register_CObject(HSQUIRRELVM vm)
             (_SC("RotateByEuler"), &CObject::RotateByEuler)
         .Overload< void (CObject::*)(Float32, Float32, Float32, Int32) const >
             (_SC("RotateByEuler"), &CObject::RotateByEulerEx)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Object_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Object_FindByTag)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32) >
             (_SC("CreateEx"), &Object_CreateEx)

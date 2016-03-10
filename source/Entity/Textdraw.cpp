@@ -374,6 +374,45 @@ static Object & Textdraw_Create(Int32 index, CSStr text, const Vector2i & pos, c
     return _Core->NewTextdraw(index, text, pos.x, pos.y, color.GetARGB(), rel, header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Textdraw_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_TEXTDRAW_POOL))
+        SqThrowF("The specified textdraw identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Textdraws::const_iterator itr = _Core->GetTextdraws().cbegin();
+    Core::Textdraws::const_iterator end = _Core->GetTextdraws().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a textdraw matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Textdraw_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified textdraw tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Textdraws::const_iterator itr = _Core->GetTextdraws().cbegin();
+    Core::Textdraws::const_iterator end = _Core->GetTextdraws().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a textdraw matching the specified tag
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CTextdraw(HSQUIRRELVM vm)
 {
@@ -383,14 +422,14 @@ void Register_CTextdraw(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CTextdraw::Cmp)
         .SquirrelFunc(_SC("_typename"), &CTextdraw::Typename)
         .Func(_SC("_tostring"), &CTextdraw::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CTextdraw::Max)
         // Core Properties
         .Prop(_SC("ID"), &CTextdraw::GetID)
         .Prop(_SC("Tag"), &CTextdraw::GetTag, &CTextdraw::SetTag)
         .Prop(_SC("Data"), &CTextdraw::GetData, &CTextdraw::SetData)
         .Prop(_SC("Active"), &CTextdraw::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CTextdraw::BindEvent)
         // Core Overloads
         .Overload< bool (CTextdraw::*)(void) >(_SC("Destroy"), &CTextdraw::Destroy)
@@ -398,7 +437,7 @@ void Register_CTextdraw(HSQUIRRELVM vm)
         .Overload< bool (CTextdraw::*)(Int32, Object &) >(_SC("Destroy"), &CTextdraw::Destroy)
         // Properties
         .Prop(_SC("Text"), &CTextdraw::GetText)
-        // Functions
+        // Member Methods
         .Func(_SC("ShowAll"), &CTextdraw::ShowAll)
         .Func(_SC("ShowTo"), &CTextdraw::ShowFor)
         .Func(_SC("ShowFor"), &CTextdraw::ShowFor)
@@ -409,7 +448,7 @@ void Register_CTextdraw(HSQUIRRELVM vm)
         .Func(_SC("HideRange"), &CTextdraw::HideRange)
         .Func(_SC("SetPositionRange"), &CTextdraw::SetPositionRange)
         .Func(_SC("SetColorRange"), &CTextdraw::SetColorRange)
-        // Overloads
+        // Member Overloads
         .Overload< void (CTextdraw::*)(const Vector2i &) const >
             (_SC("SetPositionAll"), &CTextdraw::SetPositionAll)
         .Overload< void (CTextdraw::*)(Int32, Int32) const >
@@ -426,6 +465,9 @@ void Register_CTextdraw(HSQUIRRELVM vm)
             (_SC("SetColorFor"), &CTextdraw::SetColorFor)
         .Overload< void (CTextdraw::*)(CPlayer &, Uint8, Uint8, Uint8, Uint8) const >
             (_SC("SetColorFor"), &CTextdraw::SetColorForEx)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Textdraw_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Textdraw_FindByTag)
         // Static Overloads
         .StaticOverload< Object & (*)(CSStr, Int32, Int32, Uint8, Uint8, Uint8, Uint8, bool) >
             (_SC("CreateEx"), &Textdraw_CreateEx)

@@ -310,6 +310,26 @@ static const Object & Blip_FindByTag(CSStr tag)
     return NullObject();
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Blip_FindBySprID(Int32 sprid)
+{
+    // Perform a range check on the specified identifier
+    if (sprid < 0)
+        SqThrowF("The specified sprite identifier is invalid: %d", sprid);
+    // Obtain the ends of the entity pool
+    Core::Blips::const_iterator itr = _Core->GetBlips().cbegin();
+    Core::Blips::const_iterator end = _Core->GetBlips().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mSprID == sprid)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a blip matching the specified identifier
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CBlip(HSQUIRRELVM vm)
 {
@@ -319,14 +339,14 @@ void Register_CBlip(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CBlip::Cmp)
         .SquirrelFunc(_SC("_typename"), &CBlip::Typename)
         .Func(_SC("_tostring"), &CBlip::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CBlip::Max)
         // Core Properties
         .Prop(_SC("ID"), &CBlip::GetID)
         .Prop(_SC("Tag"), &CBlip::GetTag, &CBlip::SetTag)
         .Prop(_SC("Data"), &CBlip::GetData, &CBlip::SetData)
         .Prop(_SC("Active"), &CBlip::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CBlip::BindEvent)
         // Core Overloads
         .Overload< bool (CBlip::*)(void) >(_SC("Destroy"), &CBlip::Destroy)
@@ -346,6 +366,10 @@ void Register_CBlip(HSQUIRRELVM vm)
         .Prop(_SC("G"), &CBlip::GetColorG)
         .Prop(_SC("B"), &CBlip::GetColorB)
         .Prop(_SC("A"), &CBlip::GetColorA)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Blip_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Blip_FindByTag)
+        .StaticFunc(_SC("FindBySprID"), &Blip_FindBySprID)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
             (_SC("CreateEx"), &Blip_CreateEx)

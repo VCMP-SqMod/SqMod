@@ -1219,6 +1219,45 @@ static Object & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, Fl
                             header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Vehicle_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+        SqThrowF("The specified vehicle identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Vehicles::const_iterator itr = _Core->GetVehicles().cbegin();
+    Core::Vehicles::const_iterator end = _Core->GetVehicles().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a vehicle matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Vehicle_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified vehicle tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Vehicles::const_iterator itr = _Core->GetVehicles().cbegin();
+    Core::Vehicles::const_iterator end = _Core->GetVehicles().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a vehicle matching the specified tag
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CVehicle(HSQUIRRELVM vm)
 {
@@ -1228,14 +1267,14 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CVehicle::Cmp)
         .SquirrelFunc(_SC("_typename"), &CVehicle::Typename)
         .Func(_SC("_tostring"), &CVehicle::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CVehicle::Max)
         // Core Properties
         .Prop(_SC("ID"), &CVehicle::GetID)
         .Prop(_SC("Tag"), &CVehicle::GetTag, &CVehicle::SetTag)
         .Prop(_SC("Data"), &CVehicle::GetData, &CVehicle::SetData)
         .Prop(_SC("Active"), &CVehicle::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CVehicle::BindEvent)
         // Core Overloads
         .Overload< bool (CVehicle::*)(void) >(_SC("Destroy"), &CVehicle::Destroy)
@@ -1290,7 +1329,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("EX"), &CVehicle::GetERotX, &CVehicle::SetERotX)
         .Prop(_SC("EY"), &CVehicle::GetERotY, &CVehicle::SetERotY)
         .Prop(_SC("EZ"), &CVehicle::GetERotZ, &CVehicle::SetERotZ)
-        // Functions
+        // Member Methods
         .Func(_SC("StreamedFor"), &CVehicle::IsStreamedFor)
         .Func(_SC("Occupant"), &CVehicle::GetOccupant)
         .Func(_SC("OccupantID"), &CVehicle::GetOccupantID)
@@ -1319,7 +1358,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Func(_SC("ExistsHandling"), &CVehicle::ExistsHandling)
         .Func(_SC("GetHandlingData"), &CVehicle::GetHandlingData)
         .Func(_SC("SetHandlingData"), &CVehicle::SetHandlingData)
-        // Overloads
+        // Member Overloads
         .Overload< void (CVehicle::*)(const Vector3 &, bool) const >
             (_SC("SetPos"), &CVehicle::SetPositionEx)
         .Overload< void (CVehicle::*)(Float32, Float32, Float32) const >
@@ -1356,6 +1395,9 @@ void Register_CVehicle(HSQUIRRELVM vm)
             (_SC("Embark"), &CVehicle::Embark)
         .Overload< void (CVehicle::*)(CPlayer &, Int32, bool, bool) const >
             (_SC("Embark"), &CVehicle::Embark)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Vehicle_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Vehicle_FindByTag)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Float32, Int32, Int32) >
             (_SC("CreateEx"), &Vehicle_CreateEx)

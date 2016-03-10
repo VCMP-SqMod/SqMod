@@ -350,6 +350,45 @@ static Object & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const Ve
                             header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Pickup_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
+        SqThrowF("The specified pickup identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Pickups::const_iterator itr = _Core->GetPickups().cbegin();
+    Core::Pickups::const_iterator end = _Core->GetPickups().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a pickup matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Pickup_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified pickup tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Pickups::const_iterator itr = _Core->GetPickups().cbegin();
+    Core::Pickups::const_iterator end = _Core->GetPickups().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a pickup matching the specified tag
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CPickup(HSQUIRRELVM vm)
 {
@@ -359,14 +398,14 @@ void Register_CPickup(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CPickup::Cmp)
         .SquirrelFunc(_SC("_typename"), &CPickup::Typename)
         .Func(_SC("_tostring"), &CPickup::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CPickup::Max)
         // Core Properties
         .Prop(_SC("ID"), &CPickup::GetID)
         .Prop(_SC("Tag"), &CPickup::GetTag, &CPickup::SetTag)
         .Prop(_SC("Data"), &CPickup::GetData, &CPickup::SetData)
         .Prop(_SC("Active"), &CPickup::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CPickup::BindEvent)
         // Core Overloads
         .Overload< bool (CPickup::*)(void) >(_SC("Destroy"), &CPickup::Destroy)
@@ -386,11 +425,14 @@ void Register_CPickup(HSQUIRRELVM vm)
         .Prop(_SC("X"), &CPickup::GetPosX, &CPickup::SetPosX)
         .Prop(_SC("Y"), &CPickup::GetPosY, &CPickup::SetPosY)
         .Prop(_SC("Z"), &CPickup::GetPosZ, &CPickup::SetPosZ)
-        // Functions
+        // Member Methods
         .Func(_SC("StreamedFor"), &CPickup::IsStreamedFor)
         .Func(_SC("Refresh"), &CPickup::Refresh)
         .Func(_SC("SetPos"), &CPickup::SetPositionEx)
         .Func(_SC("SetPosition"), &CPickup::SetPositionEx)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Pickup_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Pickup_FindByTag)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, Int32, Int32, Float32, Float32, Float32, Int32, bool) >
             (_SC("CreateEx"), &Pickup_CreateEx)

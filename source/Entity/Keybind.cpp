@@ -164,6 +164,45 @@ static Object & Keybind_Create(bool release, Int32 primary, Int32 secondary, Int
     return _Core->NewKeybind(-1, release, primary, secondary, alternative, header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Keybind_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
+        SqThrowF("The specified keybind identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Keybinds::const_iterator itr = _Core->GetKeybinds().cbegin();
+    Core::Keybinds::const_iterator end = _Core->GetKeybinds().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a keybind matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Keybind_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified keybind tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Keybinds::const_iterator itr = _Core->GetKeybinds().cbegin();
+    Core::Keybinds::const_iterator end = _Core->GetKeybinds().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a keybind matching the specified tag
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CKeybind(HSQUIRRELVM vm)
 {
@@ -173,14 +212,14 @@ void Register_CKeybind(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CKeybind::Cmp)
         .SquirrelFunc(_SC("_typename"), &CKeybind::Typename)
         .Func(_SC("_tostring"), &CKeybind::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CKeybind::Max)
         // Core Properties
         .Prop(_SC("ID"), &CKeybind::GetID)
         .Prop(_SC("Tag"), &CKeybind::GetTag, &CKeybind::SetTag)
         .Prop(_SC("Data"), &CKeybind::GetData, &CKeybind::SetData)
         .Prop(_SC("Active"), &CKeybind::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CKeybind::BindEvent)
         // Core Overloads
         .Overload< bool (CKeybind::*)(void) >(_SC("Destroy"), &CKeybind::Destroy)
@@ -191,6 +230,9 @@ void Register_CKeybind(HSQUIRRELVM vm)
         .Prop(_SC("Second"), &CKeybind::GetSecond)
         .Prop(_SC("Third"), &CKeybind::GetThird)
         .Prop(_SC("Release"), &CKeybind::IsRelease)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Keybind_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Keybind_FindByTag)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, bool, Int32, Int32, Int32) >
             (_SC("CreateEx"), &Keybind_CreateEx)

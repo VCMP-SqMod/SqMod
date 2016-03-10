@@ -1614,6 +1614,45 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     return 0;
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Player_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+        SqThrowF("The specified player identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();
+    Core::Players::const_iterator end = _Core->GetPlayers().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a player matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Player_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified player tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();
+    Core::Players::const_iterator end = _Core->GetPlayers().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a player matching the specified tag
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CPlayer(HSQUIRRELVM vm)
 {
@@ -1623,14 +1662,14 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CPlayer::Cmp)
         .SquirrelFunc(_SC("_typename"), &CPlayer::Typename)
         .Func(_SC("_tostring"), &CPlayer::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CPlayer::Max)
         // Core Properties
         .Prop(_SC("ID"), &CPlayer::GetID)
         .Prop(_SC("Tag"), &CPlayer::GetTag, &CPlayer::SetTag)
         .Prop(_SC("Data"), &CPlayer::GetData, &CPlayer::SetData)
         .Prop(_SC("Active"), &CPlayer::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CPlayer::BindEvent)
         // Properties
         .Prop(_SC("Class"), &CPlayer::GetClass)
@@ -1698,7 +1737,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("X"), &CPlayer::GetPosX, &CPlayer::SetPosX)
         .Prop(_SC("Y"), &CPlayer::GetPosY, &CPlayer::SetPosY)
         .Prop(_SC("Z"), &CPlayer::GetPosZ, &CPlayer::SetPosZ)
-        // Functions
+        // Member Methods
         .Func(_SC("StreamedFor"), &CPlayer::IsStreamedFor)
         .Func(_SC("Kick"), &CPlayer::Kick)
         .Func(_SC("Ban"), &CPlayer::Ban)
@@ -1721,7 +1760,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("GetMsgPrefix"), &CPlayer::GetMessagePrefix)
         .Func(_SC("SetMsgPrefix"), &CPlayer::SetMessagePrefix)
-        // Raw Functions
+        // Raw Methods
         .SquirrelFunc(_SC("Msg"), &CPlayer::Msg)
         .SquirrelFunc(_SC("MsgP"), &CPlayer::MsgP)
         .SquirrelFunc(_SC("MsgEx"), &CPlayer::MsgEx)
@@ -1730,7 +1769,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("AnnounceEx"), &CPlayer::AnnounceEx)
         .SquirrelFunc(_SC("Text"), &CPlayer::Announce)
         .SquirrelFunc(_SC("TextEx"), &CPlayer::AnnounceEx)
-        // Overloads
+        // Member Overloads
         .Overload< void (CPlayer::*)(const Vector3 &) const >
             (_SC("AddSpeed"), &CPlayer::AddSpeed)
         .Overload< void (CPlayer::*)(Float32, Float32, Float32) const >
@@ -1743,6 +1782,9 @@ void Register_CPlayer(HSQUIRRELVM vm)
             (_SC("Embark"), &CPlayer::Embark)
         .Overload< void (CPlayer::*)(CVehicle &, SQInt32, bool, bool) const >
             (_SC("Embark"), &CPlayer::Embark)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Player_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Player_FindByTag)
     );
 }
 

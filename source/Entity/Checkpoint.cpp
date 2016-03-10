@@ -443,6 +443,45 @@ static Object & Checkpoint_Create(CPlayer & player, Int32 world, const Vector3 &
                                 color.r, color.g, color.b, color.a, radius, header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Checkpoint_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
+        SqThrowF("The specified checkpoint identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Checkpoints::const_iterator itr = _Core->GetCheckpoints().cbegin();
+    Core::Checkpoints::const_iterator end = _Core->GetCheckpoints().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a checkpoint matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Checkpoint_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified checkpoint tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Checkpoints::const_iterator itr = _Core->GetCheckpoints().cbegin();
+    Core::Checkpoints::const_iterator end = _Core->GetCheckpoints().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a checkpoint matching the specified tag
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CCheckpoint(HSQUIRRELVM vm)
 {
@@ -452,14 +491,14 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CCheckpoint::Cmp)
         .SquirrelFunc(_SC("_typename"), &CCheckpoint::Typename)
         .Func(_SC("_tostring"), &CCheckpoint::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CCheckpoint::Max)
         // Core Properties
         .Prop(_SC("ID"), &CCheckpoint::GetID)
         .Prop(_SC("Tag"), &CCheckpoint::GetTag, &CCheckpoint::SetTag)
         .Prop(_SC("Data"), &CCheckpoint::GetData, &CCheckpoint::SetData)
         .Prop(_SC("Active"), &CCheckpoint::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CCheckpoint::BindEvent)
         // Core Overloads
         .Overload< bool (CCheckpoint::*)(void) >(_SC("Destroy"), &CCheckpoint::Destroy)
@@ -480,11 +519,14 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Prop(_SC("G"), &CCheckpoint::GetColG, &CCheckpoint::SetColG)
         .Prop(_SC("B"), &CCheckpoint::GetColB, &CCheckpoint::SetColB)
         .Prop(_SC("A"), &CCheckpoint::GetColA, &CCheckpoint::SetColA)
-        // Functions
+        // Member Methods
         .Func(_SC("StreamedFor"), &CCheckpoint::IsStreamedFor)
         .Func(_SC("SetColor"), &CCheckpoint::SetColorEx)
         .Func(_SC("SetPos"), &CCheckpoint::SetPositionEx)
         .Func(_SC("SetPosition"), &CCheckpoint::SetPositionEx)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Checkpoint_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Checkpoint_FindByTag)
         // Static Overloads
         .StaticOverload< Object & (*)(CPlayer &, Int32, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
             (_SC("CreateEx"), &Checkpoint_CreateEx)

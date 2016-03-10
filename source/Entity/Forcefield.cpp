@@ -417,6 +417,45 @@ static Object & Forcefield_Create(CPlayer & player, Int32 world, const Vector3 &
                                 header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Forcefield_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_FORCEFIELD_POOL))
+        SqThrowF("The specified forcefield identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Forcefields::const_iterator itr = _Core->GetForcefields().cbegin();
+    Core::Forcefields::const_iterator end = _Core->GetForcefields().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a forcefield matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Forcefield_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified forcefield tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Forcefields::const_iterator itr = _Core->GetForcefields().cbegin();
+    Core::Forcefields::const_iterator end = _Core->GetForcefields().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a forcefield matching the specified tag
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CForcefield(HSQUIRRELVM vm)
 {
@@ -426,14 +465,14 @@ void Register_CForcefield(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CForcefield::Cmp)
         .SquirrelFunc(_SC("_typename"), &CForcefield::Typename)
         .Func(_SC("_tostring"), &CForcefield::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CForcefield::Max)
         // Core Properties
         .Prop(_SC("ID"), &CForcefield::GetID)
         .Prop(_SC("Tag"), &CForcefield::GetTag, &CForcefield::SetTag)
         .Prop(_SC("Data"), &CForcefield::GetData, &CForcefield::SetData)
         .Prop(_SC("Active"), &CForcefield::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CForcefield::BindEvent)
         // Core Overloads
         .Overload< bool (CForcefield::*)(void) >(_SC("Destroy"), &CForcefield::Destroy)
@@ -453,11 +492,14 @@ void Register_CForcefield(HSQUIRRELVM vm)
         .Prop(_SC("R"), &CForcefield::GetColR, &CForcefield::SetColR)
         .Prop(_SC("G"), &CForcefield::GetColG, &CForcefield::SetColG)
         .Prop(_SC("B"), &CForcefield::GetColB, &CForcefield::SetColB)
-        // Functions
+        // Member Methods
         .Func(_SC("StreamedFor"), &CForcefield::IsStreamedFor)
         .Func(_SC("SetColor"), &CForcefield::SetColorEx)
         .Func(_SC("SetPos"), &CForcefield::SetPositionEx)
         .Func(_SC("SetPosition"), &CForcefield::SetPositionEx)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Forcefield_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Forcefield_FindByTag)
         // Static Overloads
         .StaticOverload< Object & (*)(CPlayer &, Int32, Float32, Float32, Float32, Uint8, Uint8, Uint8, Float32) >
             (_SC("CreateEx"), &Forcefield_CreateEx)

@@ -449,6 +449,45 @@ static Object & Sprite_Create(Int32 index, CSStr file, const Vector2i & pos, con
     return _Core->NewSprite(index, file, pos.x, pos.y, rot.x, rot.y, angle, alpha, rel, header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Sprite_FindByID(Int32 id)
+{
+    // Perform a range check on the specified identifier
+    if (INVALID_ENTITYEX(id, SQMOD_SPRITE_POOL))
+        SqThrowF("The specified sprite identifier is invalid: %d", id);
+    // Obtain the ends of the entity pool
+    Core::Sprites::const_iterator itr = _Core->GetSprites().cbegin();
+    Core::Sprites::const_iterator end = _Core->GetSprites().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mID == id)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a sprite matching the specified identifier
+    return NullObject();
+}
+
+static const Object & Sprite_FindByTag(CSStr tag)
+{
+    // Perform a validity check on the specified tag
+    if (!tag || *tag == 0)
+        SqThrowF("The specified sprite tag is invalid: null/empty");
+    // Obtain the ends of the entity pool
+    Core::Sprites::const_iterator itr = _Core->GetSprites().cbegin();
+    Core::Sprites::const_iterator end = _Core->GetSprites().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does this entity even exist and does the tag match the specified one?
+        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+            return itr->mObj; // Stop searching and return this entity
+    }
+    // Unable to locate a sprite matching the specified tag
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CSprite(HSQUIRRELVM vm)
 {
@@ -458,14 +497,14 @@ void Register_CSprite(HSQUIRRELVM vm)
         .Func(_SC("_cmp"), &CSprite::Cmp)
         .SquirrelFunc(_SC("_typename"), &CSprite::Typename)
         .Func(_SC("_tostring"), &CSprite::ToString)
-        // Static values
+        // Static Values
         .SetStaticValue(_SC("MaxID"), CSprite::Max)
         // Core Properties
         .Prop(_SC("ID"), &CSprite::GetID)
         .Prop(_SC("Tag"), &CSprite::GetTag, &CSprite::SetTag)
         .Prop(_SC("Data"), &CSprite::GetData, &CSprite::SetData)
         .Prop(_SC("Active"), &CSprite::IsActive)
-        // Core Functions
+        // Core Methods
         .Func(_SC("Bind"), &CSprite::BindEvent)
         // Core Overloads
         .Overload< bool (CSprite::*)(void) >(_SC("Destroy"), &CSprite::Destroy)
@@ -473,7 +512,7 @@ void Register_CSprite(HSQUIRRELVM vm)
         .Overload< bool (CSprite::*)(Int32, Object &) >(_SC("Destroy"), &CSprite::Destroy)
         // Properties
         .Prop(_SC("Path"), &CSprite::GetFilePath)
-        // Functions
+        // Member Methods
         .Func(_SC("ShowAll"), &CSprite::ShowAll)
         .Func(_SC("ShowTo"), &CSprite::ShowFor)
         .Func(_SC("ShowFor"), &CSprite::ShowFor)
@@ -490,7 +529,7 @@ void Register_CSprite(HSQUIRRELVM vm)
         .Func(_SC("SetAlphaAll"), &CSprite::SetAlphaAll)
         .Func(_SC("SetAlphaFor"), &CSprite::SetAlphaFor)
         .Func(_SC("SetAlphaRange"), &CSprite::SetAlphaRange)
-        // Overloads
+        // Member Overloads
         .Overload< void (CSprite::*)(const Vector2i &) const >
             (_SC("SetPositionAll"), &CSprite::SetPositionAll)
         .Overload< void (CSprite::*)(Int32, Int32) const >
@@ -507,6 +546,9 @@ void Register_CSprite(HSQUIRRELVM vm)
             (_SC("SetCenterFor"), &CSprite::SetCenterFor)
         .Overload< void (CSprite::*)(CPlayer &, Int32, Int32) const >
             (_SC("SetCenterFor"), &CSprite::SetCenterForEx)
+        // Static Functions
+        .StaticFunc(_SC("FindByID"), &Sprite_FindByID)
+        .StaticFunc(_SC("FindByTag"), &Sprite_FindByTag)
         // Static Overloads
         .StaticOverload< Object & (*)(CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel) >
             (_SC("CreateEx"), &Sprite_CreateEx)
