@@ -1078,17 +1078,6 @@ Buffer SysEnv::NullDir()
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object BufferToObj(const Buffer & b)
-{
-    // Obtain the initial stack size
-    const StackGuard sg(DefaultVM::Get());
-    // Push the string onto the stack
-    sq_pushstring(DefaultVM::Get(), b.Data(), b.Position());
-    // Obtain the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
-}
-
-// ------------------------------------------------------------------------------------------------
 static bool SqEnv_Has(CCStr name)
 {
     return SysEnv::Has(name);
@@ -1097,13 +1086,13 @@ static bool SqEnv_Has(CCStr name)
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_Get(CCStr name)
 {
-    return BufferToObj(SysEnv::Get(name, nullptr));
+    return BufferToStrObj(SysEnv::Get(name, nullptr));
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_GetOr(CCStr name, CCStr fallback)
 {
-    return BufferToObj(SysEnv::Get(name, fallback));
+    return BufferToStrObj(SysEnv::Get(name, fallback));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1115,73 +1104,73 @@ static void SqEnv_Set(CCStr name, CCStr value)
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_ExpandVars(CCStr str)
 {
-    return BufferToObj(SysEnv::ExpandVars(str));
+    return BufferToStrObj(SysEnv::ExpandVars(str));
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_ExpandPath(CCStr path)
 {
-    return BufferToObj(SysEnv::ExpandPath(path));
+    return BufferToStrObj(SysEnv::ExpandPath(path));
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_WorkingDir()
 {
-    return BufferToObj(SysEnv::WorkingDir());
+    return BufferToStrObj(SysEnv::WorkingDir());
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_HomeDir()
 {
-    return BufferToObj(SysEnv::HomeDir());
+    return BufferToStrObj(SysEnv::HomeDir());
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_ConfigHomeDir()
 {
-    return BufferToObj(SysEnv::ConfigHomeDir());
+    return BufferToStrObj(SysEnv::ConfigHomeDir());
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_DataHomeDir()
 {
-    return BufferToObj(SysEnv::DataHomeDir());
+    return BufferToStrObj(SysEnv::DataHomeDir());
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_TempHomeDir()
 {
-    return BufferToObj(SysEnv::TempHomeDir());
+    return BufferToStrObj(SysEnv::TempHomeDir());
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_CacheHomeDir()
 {
-    return BufferToObj(SysEnv::CacheHomeDir());
+    return BufferToStrObj(SysEnv::CacheHomeDir());
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_TempDir()
 {
-    return BufferToObj(SysEnv::TempDir());
+    return BufferToStrObj(SysEnv::TempDir());
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_ConfigDir()
 {
-    return BufferToObj(SysEnv::ConfigDir());
+    return BufferToStrObj(SysEnv::ConfigDir());
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_SystemDir()
 {
-    return BufferToObj(SysEnv::SystemDir());
+    return BufferToStrObj(SysEnv::SystemDir());
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object SqEnv_NullDir()
 {
-    return BufferToObj(SysEnv::NullDir());
+    return BufferToStrObj(SysEnv::NullDir());
 }
 
 // ================================================================================================

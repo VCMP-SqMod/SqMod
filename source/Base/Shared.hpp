@@ -240,6 +240,16 @@ Array & NullArray();
 Function & NullFunction();
 
 /* ------------------------------------------------------------------------------------------------
+ * Create a script string object from a buffer.
+*/
+Object BufferToStrObj(const Buffer & b);
+
+/* ------------------------------------------------------------------------------------------------
+ * Create a script string object from a portion of a buffer.
+*/
+Object BufferToStrObj(const Buffer & b, Uint32 size);
+
+/* ------------------------------------------------------------------------------------------------
  * Create a script object from the specified value on the default VM.
 */
 template < typename T > Object MakeObject(const T & v)

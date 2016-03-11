@@ -96,6 +96,33 @@ Function & NullFunction()
     return f;
 }
 
+// ------------------------------------------------------------------------------------------------
+Object BufferToStrObj(const Buffer & b)
+{
+    // Obtain the initial stack size
+    const StackGuard sg(DefaultVM::Get());
+    // Push the string onto the stack
+    sq_pushstring(DefaultVM::Get(), b.Data(), b.Position());
+    // Obtain the object from the stack and return it
+    return Var< Object >(DefaultVM::Get(), -1).value;
+}
+
+// --------------------------------------------------------------------------------------------
+Object BufferToStrObj(const Buffer & b, Uint32 size)
+{
+    // Perform a range check on the specified buffer
+    if (size > b.Capacity())
+    {
+        SqThrowF("The specified buffer size is out of range: %u >= %u", size, b.Capacity());
+    }
+    // Obtain the initial stack size
+    const StackGuard sg(DefaultVM::Get());
+    // Push the string onto the stack
+    sq_pushstring(DefaultVM::Get(), b.Data(), size);
+    // Obtain the object from the stack and return it
+    return Var< Object >(DefaultVM::Get(), -1).value;
+}
+
 // --------------------------------------------------------------------------------------------
 bool SToB(CSStr str)
 {

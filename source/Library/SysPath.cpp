@@ -278,14 +278,7 @@ Int32 SysPath::Cmp(const SysPath & o) const
 // ------------------------------------------------------------------------------------------------
 Object SysPath::ToString() const
 {
-    // Transform the path components into a string
-    Buffer b(ToBuffer());
-    // Obtain the initial stack size
-    const StackGuard sg(DefaultVM::Get());
-    // Push the string onto the stack
-    sq_pushstring(DefaultVM::Get(), b.Data(), b.Position());
-    // Obtain the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return BufferToStrObj(ToBuffer());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -687,14 +680,7 @@ Buffer SysPath::ToBuffer(Style style) const
 // ------------------------------------------------------------------------------------------------
 Object SysPath::ToStr(Int32 style) const
 {
-    // Transform the path components into a string
-    Buffer b(ToBuffer(static_cast< Style >(style)));
-    // Obtain the initial stack size
-    const StackGuard sg(DefaultVM::Get());
-    // Push the string onto the stack
-    sq_pushstring(DefaultVM::Get(), b.Data(), b.Position());
-    // Obtain the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return BufferToStrObj(ToBuffer(static_cast< Style >(style)));
 }
 
 // ------------------------------------------------------------------------------------------------
