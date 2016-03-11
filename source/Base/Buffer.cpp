@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------------------------
-#include "Buffer.hpp"
+#include "Base/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
@@ -40,7 +40,9 @@ void ThrowMemExcept(const char * msg, ...)
     int ret =  vsnprintf(buffer, sizeof(buffer), msg, args);
     // Check for formatting errors
     if (ret < 0)
+    {
         throw std::runtime_error("Unknown memory error");
+    }
     // Throw the actual exception
     throw std::runtime_error(buffer);
 }
@@ -54,7 +56,9 @@ static Buffer::Pointer AllocMem(Buffer::SzType size)
     Buffer::Pointer ptr = reinterpret_cast< Buffer::Pointer >(malloc(size));
     // Validate the allocated memory
     if (!ptr)
+    {
         ThrowMemExcept("Unable to allocate (%u) bytes of memory", size);
+    }
     // Return the allocated memory
     return ptr;
 }
@@ -100,7 +104,9 @@ private:
          * Base constructor.
         */
         Node(Node * next)
-            : mCap(0), mPtr(nullptr), mNext(next)
+            : mCap(0)
+            , mPtr(nullptr)
+            , mNext(next)
         {
             /* ... */
         }
@@ -130,7 +136,9 @@ private:
         {
             // Free the memory (if any)
             if (node->mPtr)
+            {
                 free(node->mPtr);
+            }
             // Save the next node
             next = node->mNext;
             // Release the node instance
@@ -149,7 +157,9 @@ private:
         {
             // Free the memory (if any)
             if (node->mPtr)
+            {
                 free(node->mPtr);
+            }
             // Save the next node
             next = node->mNext;
             // Release the node instance
@@ -173,10 +183,14 @@ private:
             {
                 // Was there a previous node?
                 if (prev)
+                {
                     prev->mNext = node->mNext;
+                }
                 // Probably this was the head
                 else
+                {
                     m_Head = node->mNext;
+                }
                 // Assign the memory
                 ptr = node->mPtr;
                 // Assign the size
@@ -208,7 +222,9 @@ private:
     void Drop(Pointer & ptr, SzType & size)
     {
         if (!ptr)
+        {
             ThrowMemExcept("Cannot store invalid memory buffer");
+        }
         // Request a node instance
         Node * node = Pull();
         // Assign the specified memory
@@ -232,7 +248,9 @@ private:
             s_Nodes = new Node(s_Nodes);
             // Validate the head node
             if (!s_Nodes)
+            {
                 ThrowMemExcept("Unable to allocate memory nodes");
+            }
         }
     }
 
@@ -243,7 +261,9 @@ private:
     {
         // Are there any nodes available?
         if (!s_Nodes)
+        {
             Make(); // Make some!
+        }
         // Grab the head node
         Node * node = s_Nodes;
         // Promote the next node as the head
@@ -259,7 +279,9 @@ private:
     {
         // See if the node is even valid
         if (!node)
+        {
             ThrowMemExcept("Attempting to push invalid node");
+        }
         // Demote the current head node
         node->mNext = s_Nodes;
         // Promote as the head node
@@ -324,7 +346,9 @@ MemRef MemRef::s_Mem;
 void MemRef::Grab()
 {
     if (m_Ptr)
+    {
         ++(*m_Ref);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -354,7 +378,8 @@ const MemRef & MemRef::Get()
 // ------------------------------------------------------------------------------------------------
 Buffer::Buffer(const Buffer & o)
     : m_Ptr(nullptr)
-    , m_Cap(0)
+    , m_Cap(o.m_Cap)
+    , m_Cur(o.m_Cur)
     , m_Mem(o.m_Mem)
 {
     if (m_Cap)
@@ -369,7 +394,9 @@ Buffer::~Buffer()
 {
     // Do we have a buffer?
     if (m_Ptr)
+    {
         Release(); // Release it!
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -379,28 +406,49 @@ Buffer & Buffer::operator = (const Buffer & o)
     {
         // Can we work in the current buffer?
         if (m_Cap && o.m_Cap <= m_Cap)
+        {
             // It's safe to copy the data
-            memcpy(m_Ptr, o.m_Ptr, m_Cap);
+            memcpy(m_Ptr, o.m_Ptr, o.m_Cap);
+        }
         // Do we even have data to copy?
         else if (!o.m_Cap)
         {
             // Do we have a buffer?
             if (m_Ptr)
+            {
                 Release(); // Release it!
+            }
         }
         else
         {
             // Do we have a buffer?
             if (m_Ptr)
+            {
                 Release(); // Release it!
+            }
             // Request a larger buffer
             Request(o.m_Cap);
             // Now it's safe to copy the data
             memcpy(m_Ptr, o.m_Ptr, o.m_Cap);
         }
+        // Also copy the edit cursor
+        m_Cur = o.m_Cur;
     }
 
     return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Buffer::Grow(SzType n)
+{
+    // Backup the current memory
+    Buffer bkp(m_Ptr, m_Cap, m_Cur, m_Mem);
+    // Acquire a bigger buffer
+    Request(bkp.m_Cap + n);
+    // Copy the data from the old buffer
+    memcpy(m_Ptr, bkp.m_Ptr, bkp.m_Cap);
+    // Copy the previous edit cursor
+    m_Cur = bkp.m_Cur;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -417,11 +465,17 @@ void Buffer::Request(SzType n)
     }
     // Find out in which category does this buffer reside
     else if (n <= 1024)
+    {
         m_Mem->m_Small.Grab(m_Ptr, n);
+    }
     else if (n <= 4096)
+    {
         m_Mem->m_Medium.Grab(m_Ptr, n);
+    }
     else
+    {
         m_Mem->m_Large.Grab(m_Ptr, n);
+    }
     // If no errors occurred then we can set the size
     m_Cap = n;
 }
@@ -432,32 +486,41 @@ void Buffer::Release()
     // TODO: Implement a limit on how much memory can actually be pooled.
     // Is there a memory manager available?
     if (!m_Mem)
+    {
         free(m_Ptr); // Deallocate the memory directly
+    }
     // Find out to which category does this buffer belong
     else if (m_Cap <= 1024)
+    {
         m_Mem->m_Small.Drop(m_Ptr, m_Cap);
+    }
     else if (m_Cap <= 4096)
+    {
         m_Mem->m_Medium.Drop(m_Ptr, m_Cap);
+    }
     else
+    {
         m_Mem->m_Large.Drop(m_Ptr, m_Cap);
+    }
     // Explicitly reset the buffer
     m_Ptr = nullptr;
     m_Cap = 0;
+    m_Cur = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
 Buffer::SzType Buffer::Write(SzType pos, ConstPtr data, SzType size)
 {
-    // Make sure the position is not out of bounds
-    if (pos > m_Cap || !data || !size)
+    // Do we have what to write?
+    if (!data || !size)
+    {
         return 0;
+    }
     // See if the buffer size must be adjusted
     else if ((pos + size) >= m_Cap)
     {
-        // Allocate a larger memory chunk and backup old data
-        Buffer bkp(Adjust< Value >(NextPow2(pos + size)));
-        // Copy data back from the old buffer
-        memcpy(m_Ptr, bkp.m_Ptr, bkp.m_Cap);
+        // Acquire a larger buffer
+        Grow((pos + size) - m_Cap + 32);
     }
     // Copy the data into the internal buffer
     memcpy(m_Ptr + pos, data, size);
@@ -472,7 +535,7 @@ Buffer::SzType Buffer::WriteF(SzType pos, const char * fmt, ...)
     va_list args;
     va_start(args, fmt);
     // Call the function that takes the variable argument list
-    SzType ret = WriteF(pos, fmt, args);
+    const SzType ret = WriteF(pos, fmt, args);
     // Finalize the variable argument list
     va_end(args);
     // Return the result
@@ -482,9 +545,12 @@ Buffer::SzType Buffer::WriteF(SzType pos, const char * fmt, ...)
 // ------------------------------------------------------------------------------------------------
 Buffer::SzType Buffer::WriteF(SzType pos, const char * fmt, va_list args)
 {
-    // Make sure the position is not out of bounds
-    if (pos > m_Cap)
-        return 0;
+    // Is the specified position within range?
+    if (pos >= m_Cap)
+    {
+        // Acquire a larger buffer
+        Grow(pos - m_Cap + 32);
+    }
     // Backup the variable argument list
     va_list args_cpy;
     va_copy(args_cpy, args);
@@ -494,18 +560,53 @@ Buffer::SzType Buffer::WriteF(SzType pos, const char * fmt, va_list args)
     // Do we need a bigger buffer?
     if ((pos + ret) >= m_Cap)
     {
-        // Allocate a larger memory chunk and backup old data
-        Buffer bkp(Adjust< Value >(NextPow2(pos + ret)));
-        // Copy data back from the old buffer
-        memcpy(m_Ptr, bkp.m_Ptr, bkp.m_Cap);
+        // Acquire a larger buffer
+        Grow((pos + ret) - m_Cap + 32);
         // Retry writing the requested information
         ret =  vsnprintf(m_Ptr + pos, m_Cap, fmt, args_cpy);
     }
     // Return the value 0 if data could not be written
     if (ret < 0)
+    {
         return 0;
+    }
     // Return the number of written characters
     return static_cast< SzType >(ret);
+}
+
+// ------------------------------------------------------------------------------------------------
+Buffer::SzType Buffer::WriteS(SzType pos, ConstPtr str)
+{
+    // Is there any string to write?
+    if (str && *str != '\0')
+    {
+        // Forward this to the regular write function
+        return Write(pos, str, strlen(str));
+    }
+    // Nothing to write
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Buffer::AppendF(const char * fmt, ...)
+{
+    // Initialize the variable argument list
+    va_list args;
+    va_start(args, fmt);
+    // Forward this to the regular write function
+    m_Cur += WriteF(m_Cur, fmt, args);
+    // Finalize the variable argument list
+    va_end(args);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Buffer::AppendS(const char * str)
+{
+    // Is there any string to write?
+    if (str)
+    {
+        m_Cur += Write(m_Cur, str, strlen(str));
+    }
 }
 
 } // Namespace:: SqMod
