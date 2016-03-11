@@ -344,41 +344,32 @@ void Connection::TakeSnapshot(const ConnHnd & destination)
 SQInteger Connection::ExecF(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
-    // Do we even have enough arguments?
+    // Was the query value specified?
     if (top <= 1)
-        return sq_throwerror(vm, "Missing the query string");
-    // Obtain the connection instance
-    Var< Connection * > inst(vm, 1);
-    // Do we have a valid connection instance?
-    if (!inst.value)
-        return sq_throwerror(vm, "Invalid connection instance");
-    // Do we have a valid connection reference?
-    else if (!inst.value->m_Handle)
-        return sq_throwerror(vm, "Invalid SQLite connection reference");
-    // Is the specified message value a string or something convertible to string?
-    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
     {
-        CCStr sql = NULL;
-        // Attempt to retrieve the string from the stack
-        if (SQ_FAILED(sq_getstring(vm, -1, &sql)))
-        {
-            // If the value was converted to a string then pop the string
-            sq_pop(vm, sq_gettop(vm) - top);
-            // Now we can throw the error message
-            return sq_throwerror(vm, "Unable to retrieve the query");
-        }
-        // Prevent the object from being destroyed once we pop it
-        Var< Object > obj(vm, -1);
-        // If the value was converted to a string then pop the string
-        sq_pop(vm, sq_gettop(vm) - top);
-        // Attempt to execute the specified query
-        if ((inst.value->m_Handle = sqlite3_exec(inst.value->m_Handle, sql, NULL, NULL, NULL)) != SQLITE_OK)
-        {
-            // Generate the error message and throw the resulted string
-            return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", inst.value->m_Handle.ErrMsg()));
-        }
-        // Push the result onto the stack
-        sq_pushinteger(vm, sqlite3_changes(inst.value->m_Handle));
+        return sq_throwerror(vm, "Missing query value");
+    }
+    // The connection instance
+    Connection * conn = nullptr;
+    // Attempt to extract the argument values
+    try
+    {
+        conn = Var< Connection * >(vm, 1).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.Message().c_str());
+    }
+    // Do we have a valid connection instance?
+    if (!conn)
+    {
+        return sq_throwerror(vm, "Invalid SQLite connection instance");
+    }
+    // Do we have a valid connection identifier?
+    else if (!conn->m_Handle)
+    {
+        return sq_throwerror(vm, "Invalid SQLite connection reference");
     }
     // Do we have enough values to call the format function?
     else if (top > 2)
@@ -386,23 +377,36 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
         SStr sql = NULL;
         SQInteger len = 0;
         // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 3, &len, &sql);
+        SQRESULT ret = sqstd_format(vm, 2, &len, &sql);
         // Did the format failed?
         if (SQ_FAILED(ret))
-            return ret; // Propagate the exception
-        // Attempt to execute the resulted query
-        if ((inst.value->m_Handle = sqlite3_exec(inst.value->m_Handle, sql, NULL, NULL, NULL)) != SQLITE_OK)
         {
-            // Generate the error message and throw the resulted string
-            return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", inst.value->m_Handle.ErrMsg()));
+            return ret; // Propagate the exception
         }
-        // Push the result onto the stack
-        sq_pushinteger(vm, sqlite3_changes(inst.value->m_Handle));
+        // Attempt to execute the specified query
+        else if ((conn->m_Handle = sqlite3_exec(conn->m_Handle, sql, NULL, NULL, NULL)) != SQLITE_OK)
+        {
+            return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", conn->m_Handle.ErrMsg()));
+        }
     }
-    // All methods of retrieving the string value failed
     else
-        return sq_throwerror(vm, "Unable to extract the query string");
-    // At this point we should have a return value on the stack
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > sql(vm, 2);
+        // See if the obtained value is a valid query string
+        if (!sql.value)
+        {
+            return sq_throwerror(vm, "Unable to retrieve the query");
+        }
+        // Attempt to execute the specified query
+        else if ((conn->m_Handle = sqlite3_exec(conn->m_Handle, sql.value, NULL, NULL, NULL)) != SQLITE_OK)
+        {
+            return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", conn->m_Handle.ErrMsg()));
+        }
+    }
+    // Push the number of changes onto the stack
+    sq_pushinteger(vm, sqlite3_changes(conn->m_Handle));
+    // This function returned a value
     return 1;
 }
 
@@ -410,41 +414,32 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
 SQInteger Connection::QueueF(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
-    // Do we even have enough arguments?
+    // Was the query value specified?
     if (top <= 1)
-        return sq_throwerror(vm, "Missing the query string");
-    // Obtain the connection instance
-    Var< Connection * > inst(vm, 1);
-    // Do we have a valid connection instance?
-    if (!inst.value)
-        return sq_throwerror(vm, "Invalid connection instance");
-    // Do we have a valid connection reference?
-    else if (!inst.value->m_Handle)
-        return sq_throwerror(vm, "Invalid SQLite connection reference");
-    // Is the specified message value a string or something convertible to string?
-    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
     {
-        CCStr sql = NULL;
-        // Attempt to retrieve the string from the stack
-        if (SQ_FAILED(sq_getstring(vm, -1, &sql)))
-        {
-            // If the value was converted to a string then pop the string
-            sq_pop(vm, sq_gettop(vm) - top);
-            // Now we can throw the error message
-            return sq_throwerror(vm, "Unable to retrieve the query");
-        }
-        // Is there even a query to queue?
-        else if (IsQueryEmpty(sql))
-        {
-            // If the value was converted to a string then pop the string
-            sq_pop(vm, sq_gettop(vm) - top);
-            // Now we can throw the error message
-            return sq_throwerror(vm,"No query to queue");
-        }
-        // Attempt to queue the specified query
-        inst.value->m_Handle->mQueue.push_back(sql);
-        // If the value was converted to a string then pop the string
-        sq_pop(vm, sq_gettop(vm) - top);
+        return sq_throwerror(vm, "Missing query value");
+    }
+    // The connection instance
+    Connection * conn = nullptr;
+    // Attempt to extract the argument values
+    try
+    {
+        conn = Var< Connection * >(vm, 1).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.Message().c_str());
+    }
+    // Do we have a valid connection instance?
+    if (!conn)
+    {
+        return sq_throwerror(vm, "Invalid SQLite connection instance");
+    }
+    // Do we have a valid connection identifier?
+    else if (!conn->m_Handle)
+    {
+        return sq_throwerror(vm, "Invalid SQLite connection reference");
     }
     // Do we have enough values to call the format function?
     else if (top > 2)
@@ -452,19 +447,27 @@ SQInteger Connection::QueueF(HSQUIRRELVM vm)
         SStr sql = NULL;
         SQInteger len = 0;
         // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 3, &len, &sql);
+        SQRESULT ret = sqstd_format(vm, 2, &len, &sql);
         // Did the format failed?
         if (SQ_FAILED(ret))
+        {
             return ret; // Propagate the exception
-        // Is there even a query to queue?
-        else if (IsQueryEmpty(sql))
-            return sq_throwerror(vm,"No query to queue");
+        }
         // Attempt to queue the specified query
-        inst.value->m_Handle->mQueue.push_back(sql);
+        conn->m_Handle->mQueue.emplace_back(sql);
     }
-    // All methods of retrieving the string value failed
     else
-        return sq_throwerror(vm, "Unable to extract the query string");
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > sql(vm, 2);
+        // See if the obtained value is a valid query string
+        if (!sql.value)
+        {
+            return sq_throwerror(vm, "Unable to retrieve the query");
+        }
+        // Attempt to queue the specified query
+        conn->m_Handle->mQueue.emplace_back(sql.value);
+    }
     // This function does not return a value
     return 0;
 }
@@ -473,42 +476,32 @@ SQInteger Connection::QueueF(HSQUIRRELVM vm)
 SQInteger Connection::QueryF(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
-    // Do we even have enough arguments?
+    // Was the query value specified?
     if (top <= 1)
-        return sq_throwerror(vm, "Missing the query string");
-    // Obtain the connection instance
-    Var< Connection * > inst(vm, 1);
-    // Do we have a valid connection instance?
-    if (!inst.value)
-        return sq_throwerror(vm, "Invalid connection instance");
-    // Do we have a valid connection reference?
-    else if (!inst.value->m_Handle)
-        return sq_throwerror(vm, "Invalid SQLite connection reference");
-    // Is the specified message value a string or something convertible to string?
-    else if (top == 2 && ((sq_gettype(vm, -1) == OT_STRING) || !SQ_FAILED(sq_tostring(vm, -1))))
     {
-        CCStr sql = NULL;
-        // Attempt to retrieve the string from the stack
-        if (SQ_FAILED(sq_getstring(vm, -1, &sql)))
-        {
-            // If the value was converted to a string then pop the string
-            sq_pop(vm, sq_gettop(vm) - top);
-            // Now we can throw the error message
-            return sq_throwerror(vm, "Unable to retrieve the query");
-        }
-        // Prevent the object from being destroyed once we pop it
-        Var< Object > obj(vm, -1);
-        // If the value was converted to a string then pop the string
-        sq_pop(vm, sq_gettop(vm) - top);
-        // Attempt to create a statement with the specified query
-        try
-        {
-            ClassType< Statement >::PushInstance(vm, new Statement(inst.value->m_Handle, sql));
-        }
-        catch (const Sqrat::Exception & e)
-        {
-            return sq_throwerror(vm, e.Message().c_str());
-        }
+        return sq_throwerror(vm, "Missing query value");
+    }
+    // The connection instance
+    Connection * conn = nullptr;
+    // Attempt to extract the argument values
+    try
+    {
+        conn = Var< Connection * >(vm, 1).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.Message().c_str());
+    }
+    // Do we have a valid connection instance?
+    if (!conn)
+    {
+        return sq_throwerror(vm, "Invalid SQLite connection instance");
+    }
+    // Do we have a valid connection identifier?
+    else if (!conn->m_Handle)
+    {
+        return sq_throwerror(vm, "Invalid SQLite connection reference");
     }
     // Do we have enough values to call the format function?
     else if (top > 2)
@@ -516,24 +509,42 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
         SStr sql = NULL;
         SQInteger len = 0;
         // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 3, &len, &sql);
+        SQRESULT ret = sqstd_format(vm, 2, &len, &sql);
         // Did the format failed?
         if (SQ_FAILED(ret))
+        {
             return ret; // Propagate the exception
+        }
         // Attempt to create a statement with the specified query
         try
         {
-            ClassType< Statement >::PushInstance(vm, new Statement(inst.value->m_Handle, sql));
+            ClassType< Statement >::PushInstance(vm, new Statement(conn->m_Handle, sql));
         }
         catch (const Sqrat::Exception & e)
         {
             return sq_throwerror(vm, e.Message().c_str());
         }
     }
-    // All methods of retrieving the string value failed
     else
-        return sq_throwerror(vm, "Unable to extract the query string");
-    // At this point we should have a return value on the stack
+    {
+        // Attempt to retrieve the value from the stack as a string
+        Var< CSStr > sql(vm, 2);
+        // See if the obtained value is a valid query string
+        if (!sql.value)
+        {
+            return sq_throwerror(vm, "Unable to retrieve the query");
+        }
+        // Attempt to create a statement with the specified query
+        try
+        {
+            ClassType< Statement >::PushInstance(vm, new Statement(conn->m_Handle, sql.value));
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            return sq_throwerror(vm, e.Message().c_str());
+        }
+    }
+    // This function returned a value
     return 1;
 }
 
