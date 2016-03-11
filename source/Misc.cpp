@@ -50,17 +50,19 @@ static void SetState(Int32 value) { return _Core->SetState(value); }
 
 // ------------------------------------------------------------------------------------------------
 static CSStr GetOption(CSStr name) { return _Core->GetOption(name); }
+static CSStr GetOptionOr(CSStr name, CSStr value) { return _Core->GetOption(name, value); }
 static void SetOption(CSStr name, CSStr value) { return _Core->SetOption(name, value); }
 
 // ================================================================================================
 void Register_Core(HSQUIRRELVM vm)
 {
     RootTable(vm)
-    .Bind(_SC("Core"), Table(vm)
+    .Bind(_SC("SqCore"), Table(vm)
         .Func(_SC("Bind"), &BindEvent)
         .Func(_SC("GetState"), &GetState)
         .Func(_SC("SetState"), &SetState)
         .Func(_SC("GetOption"), &GetOption)
+        .Func(_SC("GetOptionOr"), &GetOptionOr)
         .Func(_SC("SetOption"), &SetOption)
         .Func(_SC("GetBlip"), &GetBlip)
         .Func(_SC("GetCheckpoint"), &GetCheckpoint)

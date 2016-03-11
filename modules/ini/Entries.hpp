@@ -188,15 +188,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Sort the entries by their load order but empty name always goes first.
-    */
-    void SortByLoadOrderEmptyFirst()
-    {
-        if (!m_List.empty())
-            m_List.sort(DocumentRef::Type::Entry::LoadOrderEmptyFirst());
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Retrieve the string value of the current element item.
     */
     CSStr GetItem() const;

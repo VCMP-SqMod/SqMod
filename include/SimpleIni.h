@@ -50,15 +50,21 @@
     -#  Define the appropriate symbol for the converter you wish to use and
         include the SimpleIni.h header file. If no specific converter is defined
         then the default converter is used. The default conversion mode uses
-        SI_CONVERT_WIN32 on Windows and SI_CONVERT_ICU on all other
+        SI_CONVERT_WIN32 on Windows and SI_CONVERT_GENERIC on all other
+        platforms. If you are using ICU then SI_CONVERT_ICU is supported on all
         platforms.
     -#  Declare an instance the appropriate class. Note that the following
         definitions are just shortcuts for commonly used types. Other types
         (PRUnichar, unsigned short, unsigned char) are also possible.
         <table>
             <tr><th>Interface   <th>Case-sensitive  <th>Load UTF-8  <th>Load MBCS   <th>Typedef
+        <tr><th>SI_CONVERT_GENERIC
+            <tr><td>char        <td>No              <td>Yes         <td>Yes #1      <td>CSimpleIniA
+            <tr><td>char        <td>Yes             <td>Yes         <td>Yes         <td>CSimpleIniCaseA
+            <tr><td>wchar_t     <td>No              <td>Yes         <td>Yes         <td>CSimpleIniW
+            <tr><td>wchar_t     <td>Yes             <td>Yes         <td>Yes         <td>CSimpleIniCaseW
         <tr><th>SI_CONVERT_WIN32
-            <tr><td>char        <td>No              <td>No #1       <td>Yes         <td>CSimpleIniA
+            <tr><td>char        <td>No              <td>No #2       <td>Yes         <td>CSimpleIniA
             <tr><td>char        <td>Yes             <td>Yes         <td>Yes         <td>CSimpleIniCaseA
             <tr><td>wchar_t     <td>No              <td>Yes         <td>Yes         <td>CSimpleIniW
             <tr><td>wchar_t     <td>Yes             <td>Yes         <td>Yes         <td>CSimpleIniCaseW
@@ -68,7 +74,8 @@
             <tr><td>UChar       <td>No              <td>Yes         <td>Yes         <td>CSimpleIniW
             <tr><td>UChar       <td>Yes             <td>Yes         <td>Yes         <td>CSimpleIniCaseW
         </table>
-        #1  Only affects Windows. On Windows this uses MBCS functions and
+        #1  On Windows you are better to use CSimpleIniA with SI_CONVERT_WIN32.<br>
+        #2  Only affects Windows. On Windows this uses MBCS functions and
             so may fold case incorrectly leading to uncertain results.
     -# Call LoadData() or LoadFile() to load and parse the INI configuration file
     -# Access and modify the data of the file using the following functions
@@ -142,11 +149,12 @@
     @section notes NOTES
 
     - To load UTF-8 data on Windows 95, you need to use Microsoft Layer for
-      Unicode, or SI_CONVERT_ICU.
+      Unicode, or SI_CONVERT_GENERIC, or SI_CONVERT_ICU.
+    - When using SI_CONVERT_GENERIC, ConvertUTF.c must be compiled and linked.
     - When using SI_CONVERT_ICU, ICU header files must be on the include
       path and icuuc.lib must be linked in.
     - To load a UTF-8 file on Windows AND expose it with SI_CHAR == char,
-      you should use SI_CONVERT_ICU.
+      you should use SI_CONVERT_GENERIC.
     - The collation (sorting) order used for sections and keys returned from
       iterators is NOT DEFINED. If collation order of the text is important
       then it should be done yourself by either supplying a replacement
@@ -156,7 +164,7 @@
     - Not thread-safe so manage your own locking
 
     @section contrib CONTRIBUTIONS
-
+    
     - 2010/05/03: Tobias Gehrig: added GetDoubleValue()
 
     @section licence MIT LICENCE
@@ -313,6 +321,12 @@ public:
             return *this;
         }
 
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+        /** STL of VC6 doesn't allow me to specify my own comparator for list::sort() */
+        bool operator<(const Entry & rhs) const { return LoadOrder()(*this, rhs); }
+        bool operator>(const Entry & rhs) const { return LoadOrder()(rhs, *this); }
+#endif
+
         /** Strict less ordering by name of key only */
         struct KeyOrder : std::binary_function<Entry, Entry, bool> {
             bool operator()(const Entry & lhs, const Entry & rhs) const {
@@ -328,16 +342,6 @@ public:
                     return lhs.nOrder < rhs.nOrder;
                 }
                 return KeyOrder()(lhs.pItem, rhs.pItem);
-            }
-        };
-
-        /** Like LoadOrder, but empty name always goes first */
-        struct LoadOrderEmptyFirst : std::binary_function<Entry, Entry, bool> {
-            bool operator()(const Entry & lhs, const Entry & rhs) const {
-                if (*lhs.pItem == 0 || *rhs.pItem == 0) {
-                    return *lhs.pItem < *rhs.pItem;
-                }
-                return LoadOrder()(lhs, rhs);
             }
         };
     };
@@ -526,7 +530,7 @@ public:
     bool IsMultiLine() const { return m_bAllowMultiLine; }
 
     /** Should spaces be added around the equals sign when writing key/value
-        pairs out. When true, the result will be "key = value". When false,
+        pairs out. When true, the result will be "key = value". When false, 
         the result will be "key=value". This value may be changed at any time.
 
         \param a_bSpaces     Add spaces around the equals sign?
@@ -537,7 +541,7 @@ public:
 
     /** Query the status of spaces output */
     bool UsingSpaces() const { return m_bSpaces; }
-
+    
     /*-----------------------------------------------------------------------*/
     /** @}
         @{ @name Loading INI Data */
@@ -767,8 +771,8 @@ public:
         ) const;
 
     /** Retrieve all unique key names in a section. The sort order of the
-        returned strings is NOT DEFINED. You can sort the names into the load
-        order if desired. Search this file for ".sort" for an example. Only
+        returned strings is NOT DEFINED. You can sort the names into the load 
+        order if desired. Search this file for ".sort" for an example. Only 
         unique key names are returned.
 
         NOTE! This structure contains only pointers to strings. The actual
@@ -789,8 +793,8 @@ public:
         ) const;
 
     /** Retrieve all values for a specific key. This method can be used when
-        multiple keys are both enabled and disabled. Note that the sort order
-        of the returned strings is NOT DEFINED. You can sort the names into
+        multiple keys are both enabled and disabled. Note that the sort order 
+        of the returned strings is NOT DEFINED. You can sort the names into 
         the load order if desired. Search this file for ".sort" for an example.
 
         NOTE! The returned values are pointers to string data stored in memory
@@ -911,7 +915,7 @@ public:
 
         Strings starting with "t", "y", "on" or "1" are returned as logically true.
         Strings starting with "f", "n", "of" or "0" are returned as logically false.
-        For all other values the default is returned. Character comparisons are
+        For all other values the default is returned. Character comparisons are 
         case-insensitive.
 
         @param a_pSection       Section to search
@@ -950,9 +954,9 @@ public:
                             character starting every line).
         @param a_bForceReplace  Should all existing values in a multi-key INI
                             file be replaced with this entry. This option has
-                            no effect if not using multi-key files. The
+                            no effect if not using multi-key files. The 
                             difference between Delete/SetValue and SetValue
-                            with a_bForceReplace = true, is that the load
+                            with a_bForceReplace = true, is that the load 
                             order and comment will be preserved this way.
 
         @return SI_Error    See error definitions
@@ -974,19 +978,19 @@ public:
         when multiple keys are enabled.
 
         @param a_pSection   Section to add or update
-        @param a_pKey       Key to add or update.
-        @param a_nValue     Value to set.
-        @param a_pComment   Comment to be associated with the key. See the
+        @param a_pKey       Key to add or update. 
+        @param a_nValue     Value to set. 
+        @param a_pComment   Comment to be associated with the key. See the 
                             notes on SetValue() for comments.
-        @param a_bUseHex    By default the value will be written to the file
-                            in decimal format. Set this to true to write it
+        @param a_bUseHex    By default the value will be written to the file 
+                            in decimal format. Set this to true to write it 
                             as hexadecimal.
         @param a_bForceReplace  Should all existing values in a multi-key INI
                             file be replaced with this entry. This option has
-                            no effect if not using multi-key files. The
-                            difference between Delete/SetLongValue and
-                            SetLongValue with a_bForceReplace = true, is that
-                            the load order and comment will be preserved this
+                            no effect if not using multi-key files. The 
+                            difference between Delete/SetLongValue and 
+                            SetLongValue with a_bForceReplace = true, is that 
+                            the load order and comment will be preserved this 
                             way.
 
         @return SI_Error    See error definitions
@@ -1006,16 +1010,16 @@ public:
         when multiple keys are enabled.
 
         @param a_pSection   Section to add or update
-        @param a_pKey       Key to add or update.
-        @param a_nValue     Value to set.
-        @param a_pComment   Comment to be associated with the key. See the
+        @param a_pKey       Key to add or update. 
+        @param a_nValue     Value to set. 
+        @param a_pComment   Comment to be associated with the key. See the 
                             notes on SetValue() for comments.
         @param a_bForceReplace  Should all existing values in a multi-key INI
                             file be replaced with this entry. This option has
-                            no effect if not using multi-key files. The
-                            difference between Delete/SetDoubleValue and
-                            SetDoubleValue with a_bForceReplace = true, is that
-                            the load order and comment will be preserved this
+                            no effect if not using multi-key files. The 
+                            difference between Delete/SetDoubleValue and 
+                            SetDoubleValue with a_bForceReplace = true, is that 
+                            the load order and comment will be preserved this 
                             way.
 
         @return SI_Error    See error definitions
@@ -1034,16 +1038,16 @@ public:
         when multiple keys are enabled.
 
         @param a_pSection   Section to add or update
-        @param a_pKey       Key to add or update.
-        @param a_bValue     Value to set.
-        @param a_pComment   Comment to be associated with the key. See the
+        @param a_pKey       Key to add or update. 
+        @param a_bValue     Value to set. 
+        @param a_pComment   Comment to be associated with the key. See the 
                             notes on SetValue() for comments.
         @param a_bForceReplace  Should all existing values in a multi-key INI
                             file be replaced with this entry. This option has
-                            no effect if not using multi-key files. The
-                            difference between Delete/SetBoolValue and
-                            SetBoolValue with a_bForceReplace = true, is that
-                            the load order and comment will be preserved this
+                            no effect if not using multi-key files. The 
+                            difference between Delete/SetBoolValue and 
+                            SetBoolValue with a_bForceReplace = true, is that 
+                            the load order and comment will be preserved this 
                             way.
 
         @return SI_Error    See error definitions
@@ -1164,9 +1168,9 @@ private:
                             comment character starting every line).
         @param a_bForceReplace  Should all existing values in a multi-key INI
                             file be replaced with this entry. This option has
-                            no effect if not using multi-key files. The
+                            no effect if not using multi-key files. The 
                             difference between Delete/AddEntry and AddEntry
-                            with a_bForceReplace = true, is that the load
+                            with a_bForceReplace = true, is that the load 
                             order and comment will be preserved this way.
         @param a_bCopyStrings   Should copies of the strings be made or not.
                             If false then the pointers will be used as is.
@@ -1261,7 +1265,7 @@ private:
 
     /** Should spaces be written out surrounding the equals sign? */
     bool m_bSpaces;
-
+    
     /** Next order value, used to ensure sections and keys are output in the
         same order that they are loaded/added.
      */
@@ -1381,14 +1385,14 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::LoadFile(
     if (lSize == 0) {
         return SI_OK;
     }
-
+    
     // allocate and ensure NULL terminated
-    char * pData = new char[lSize+1];
+    char * pData = new(std::nothrow) char[lSize+1];
     if (!pData) {
         return SI_NOMEM;
     }
     pData[lSize] = 0;
-
+    
     // load data into buffer
     fseek(a_fpFile, 0, SEEK_SET);
     size_t uRead = fread(pData, sizeof(char), lSize, a_fpFile);
@@ -1432,7 +1436,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::LoadData(
 
     // allocate memory for the data, ensure that there is a NULL
     // terminator wherever the converted data ends
-    SI_CHAR * pData = new SI_CHAR[uLen+1];
+    SI_CHAR * pData = new(std::nothrow) SI_CHAR[uLen+1];
     if (!pData) {
         return SI_NOMEM;
     }
@@ -1857,7 +1861,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::CopyString(
         for ( ; a_pString[uLen]; ++uLen) /*loop*/ ;
     }
     ++uLen; // NULL character
-    SI_CHAR * pCopy = new SI_CHAR[uLen];
+    SI_CHAR * pCopy = new(std::nothrow) SI_CHAR[uLen];
     if (!pCopy) {
         return SI_NOMEM;
     }
@@ -2041,15 +2045,15 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::GetLongValue(
     }
 
     // any invalid strings will return the default value
-    if (*pszSuffix) {
-        return a_nDefault;
+    if (*pszSuffix) { 
+        return a_nDefault; 
     }
 
     return nValue;
 }
 
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
-SI_Error
+SI_Error 
 CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SetLongValue(
     const SI_CHAR * a_pSection,
     const SI_CHAR * a_pKey,
@@ -2073,7 +2077,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SetLongValue(
     // convert to output text
     SI_CHAR szOutput[64];
     SI_CONVERTER c(m_bStoreIsUtf8);
-    c.ConvertFromStore(szInput, strlen(szInput) + 1,
+    c.ConvertFromStore(szInput, strlen(szInput) + 1, 
         szOutput, sizeof(szOutput) / sizeof(SI_CHAR));
 
     // actually add it
@@ -2104,15 +2108,15 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::GetDoubleValue(
     double nValue = strtod(szValue, &pszSuffix);
 
     // any invalid strings will return the default value
-    if (!pszSuffix || *pszSuffix) {
-        return a_nDefault;
+    if (!pszSuffix || *pszSuffix) { 
+        return a_nDefault; 
     }
 
     return nValue;
 }
 
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
-SI_Error
+SI_Error 
 CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SetDoubleValue(
 	const SI_CHAR * a_pSection,
 	const SI_CHAR * a_pKey,
@@ -2135,7 +2139,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SetDoubleValue(
 	// convert to output text
 	SI_CHAR szOutput[64];
 	SI_CONVERTER c(m_bStoreIsUtf8);
-	c.ConvertFromStore(szInput, strlen(szInput) + 1,
+	c.ConvertFromStore(szInput, strlen(szInput) + 1, 
 		szOutput, sizeof(szOutput) / sizeof(SI_CHAR));
 
 	// actually add it
@@ -2178,7 +2182,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::GetBoolValue(
 }
 
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
-SI_Error
+SI_Error 
 CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SetBoolValue(
     const SI_CHAR * a_pSection,
     const SI_CHAR * a_pKey,
@@ -2196,13 +2200,13 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SetBoolValue(
     // convert to output text
     SI_CHAR szOutput[64];
     SI_CONVERTER c(m_bStoreIsUtf8);
-    c.ConvertFromStore(pszInput, strlen(pszInput) + 1,
+    c.ConvertFromStore(pszInput, strlen(pszInput) + 1, 
         szOutput, sizeof(szOutput) / sizeof(SI_CHAR));
 
     // actually add it
     return AddEntry(a_pSection, a_pKey, szOutput, a_pComment, a_bForceReplace, true);
 }
-
+    
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
 bool
 CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::GetAllValues(
@@ -2403,13 +2407,15 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::Save(
         a_oOutput.Write(SI_UTF8_SIGNATURE);
     }
 
-    // get all of the sections sorted in load order with root section first
+    // get all of the sections sorted in load order
     TNamesDepend oSections;
     GetAllSections(oSections);
-#if defined(__BORLANDC__)
-    oSections.sort(Entry::LoadOrderEmptyFirst());
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+    oSections.sort();
+#elif defined(__BORLANDC__)
+    oSections.sort(Entry::LoadOrder());
 #else
-    oSections.sort(typename Entry::LoadOrderEmptyFirst());
+    oSections.sort(typename Entry::LoadOrder());
 #endif
 
     // write the file comment if we have one
@@ -2456,7 +2462,9 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::Save(
         // get all of the keys sorted in load order
         TNamesDepend oKeys;
         GetAllKeys(iSection->pItem, oKeys);
-#if defined(__BORLANDC__)
+#if defined(_MSC_VER) && _MSC_VER <= 1200
+        oKeys.sort();
+#elif defined(__BORLANDC__)
         oKeys.sort(Entry::LoadOrder());
 #else
         oKeys.sort(typename Entry::LoadOrder());
@@ -2654,15 +2662,17 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::DeleteString(
 // SimpleIni.h, set the converter that you wish you use by defining one of the
 // following symbols.
 //
+//  SI_CONVERT_GENERIC      Use the Unicode reference conversion library in
+//                          the accompanying files ConvertUTF.h/c
 //  SI_CONVERT_ICU          Use the IBM ICU conversion library. Requires
 //                          ICU headers on include path and icuuc.lib
 //  SI_CONVERT_WIN32        Use the Win32 API functions for conversion.
 
-#if !defined(SI_CONVERT_WIN32) && !defined(SI_CONVERT_ICU)
+#if !defined(SI_CONVERT_GENERIC) && !defined(SI_CONVERT_WIN32) && !defined(SI_CONVERT_ICU)
 # ifdef _WIN32
 #  define SI_CONVERT_WIN32
 # else
-#  define SI_CONVERT_ICU
+#  define SI_CONVERT_GENERIC
 # endif
 #endif
 
@@ -2823,6 +2833,214 @@ public:
         return true;
     }
 };
+
+
+// ---------------------------------------------------------------------------
+//                              SI_CONVERT_GENERIC
+// ---------------------------------------------------------------------------
+#ifdef SI_CONVERT_GENERIC
+
+#define SI_Case     SI_GenericCase
+#define SI_NoCase   SI_GenericNoCase
+
+#include <wchar.h>
+#include "ConvertUTF.h"
+
+/**
+ * Converts UTF-8 to a wchar_t (or equivalent) using the Unicode reference
+ * library functions. This can be used on all platforms.
+ */
+template<class SI_CHAR>
+class SI_ConvertW {
+    bool m_bStoreIsUtf8;
+protected:
+    SI_ConvertW() { }
+public:
+    SI_ConvertW(bool a_bStoreIsUtf8) : m_bStoreIsUtf8(a_bStoreIsUtf8) { }
+
+    /* copy and assignment */
+    SI_ConvertW(const SI_ConvertW & rhs) { operator=(rhs); }
+    SI_ConvertW & operator=(const SI_ConvertW & rhs) {
+        m_bStoreIsUtf8 = rhs.m_bStoreIsUtf8;
+        return *this;
+    }
+
+    /** Calculate the number of SI_CHAR required for converting the input
+     * from the storage format. The storage format is always UTF-8 or MBCS.
+     *
+     * @param a_pInputData  Data in storage format to be converted to SI_CHAR.
+     * @param a_uInputDataLen Length of storage format data in bytes. This
+     *                      must be the actual length of the data, including
+     *                      NULL byte if NULL terminated string is required.
+     * @return              Number of SI_CHAR required by the string when
+     *                      converted. If there are embedded NULL bytes in the
+     *                      input data, only the string up and not including
+     *                      the NULL byte will be converted.
+     * @return              -1 cast to size_t on a conversion error.
+     */
+    size_t SizeFromStore(
+        const char *    a_pInputData,
+        size_t          a_uInputDataLen)
+    {
+        SI_ASSERT(a_uInputDataLen != (size_t) -1);
+
+        if (m_bStoreIsUtf8) {
+            // worst case scenario for UTF-8 to wchar_t is 1 char -> 1 wchar_t
+            // so we just return the same number of characters required as for
+            // the source text.
+            return a_uInputDataLen;
+        }
+
+#if defined(SI_NO_MBSTOWCS_NULL) || (!defined(_MSC_VER) && !defined(_linux))
+        // fall back processing for platforms that don't support a NULL dest to mbstowcs
+        // worst case scenario is 1:1, this will be a sufficient buffer size
+        (void)a_pInputData;
+        return a_uInputDataLen;
+#else
+        // get the actual required buffer size
+        return mbstowcs(NULL, a_pInputData, a_uInputDataLen);
+#endif
+    }
+
+    /** Convert the input string from the storage format to SI_CHAR.
+     * The storage format is always UTF-8 or MBCS.
+     *
+     * @param a_pInputData  Data in storage format to be converted to SI_CHAR.
+     * @param a_uInputDataLen Length of storage format data in bytes. This
+     *                       must be the actual length of the data, including
+     *                       NULL byte if NULL terminated string is required.
+     * @param a_pOutputData Pointer to the output buffer to received the
+     *                       converted data.
+     * @param a_uOutputDataSize Size of the output buffer in SI_CHAR.
+     * @return              true if all of the input data was successfully
+     *                       converted.
+     */
+    bool ConvertFromStore(
+        const char *    a_pInputData,
+        size_t          a_uInputDataLen,
+        SI_CHAR *       a_pOutputData,
+        size_t          a_uOutputDataSize)
+    {
+        if (m_bStoreIsUtf8) {
+            // This uses the Unicode reference implementation to do the
+            // conversion from UTF-8 to wchar_t. The required files are
+            // ConvertUTF.h and ConvertUTF.c which should be included in
+            // the distribution but are publically available from unicode.org
+            // at http://www.unicode.org/Public/PROGRAMS/CVTUTF/
+            ConversionResult retval;
+            const UTF8 * pUtf8 = (const UTF8 *) a_pInputData;
+            if (sizeof(wchar_t) == sizeof(UTF32)) {
+                UTF32 * pUtf32 = (UTF32 *) a_pOutputData;
+                retval = ConvertUTF8toUTF32(
+                    &pUtf8, pUtf8 + a_uInputDataLen,
+                    &pUtf32, pUtf32 + a_uOutputDataSize,
+                    lenientConversion);
+            }
+            else if (sizeof(wchar_t) == sizeof(UTF16)) {
+                UTF16 * pUtf16 = (UTF16 *) a_pOutputData;
+                retval = ConvertUTF8toUTF16(
+                    &pUtf8, pUtf8 + a_uInputDataLen,
+                    &pUtf16, pUtf16 + a_uOutputDataSize,
+                    lenientConversion);
+            }
+            return retval == conversionOK;
+        }
+
+        // convert to wchar_t
+        size_t retval = mbstowcs(a_pOutputData,
+            a_pInputData, a_uOutputDataSize);
+        return retval != (size_t)(-1);
+    }
+
+    /** Calculate the number of char required by the storage format of this
+     * data. The storage format is always UTF-8 or MBCS.
+     *
+     * @param a_pInputData  NULL terminated string to calculate the number of
+     *                       bytes required to be converted to storage format.
+     * @return              Number of bytes required by the string when
+     *                       converted to storage format. This size always
+     *                       includes space for the terminating NULL character.
+     * @return              -1 cast to size_t on a conversion error.
+     */
+    size_t SizeToStore(
+        const SI_CHAR * a_pInputData)
+    {
+        if (m_bStoreIsUtf8) {
+            // worst case scenario for wchar_t to UTF-8 is 1 wchar_t -> 6 char
+            size_t uLen = 0;
+            while (a_pInputData[uLen]) {
+                ++uLen;
+            }
+            return (6 * uLen) + 1;
+        }
+        else {
+            size_t uLen = wcstombs(NULL, a_pInputData, 0);
+            if (uLen == (size_t)(-1)) {
+                return uLen;
+            }
+            return uLen + 1; // include NULL terminator
+        }
+    }
+
+    /** Convert the input string to the storage format of this data.
+     * The storage format is always UTF-8 or MBCS.
+     *
+     * @param a_pInputData  NULL terminated source string to convert. All of
+     *                       the data will be converted including the
+     *                       terminating NULL character.
+     * @param a_pOutputData Pointer to the buffer to receive the converted
+     *                       string.
+     * @param a_uOutputDataSize Size of the output buffer in char.
+     * @return              true if all of the input data, including the
+     *                       terminating NULL character was successfully
+     *                       converted.
+     */
+    bool ConvertToStore(
+        const SI_CHAR * a_pInputData,
+        char *          a_pOutputData,
+        size_t          a_uOutputDataSize
+        )
+    {
+        if (m_bStoreIsUtf8) {
+            // calc input string length (SI_CHAR type and size independent)
+            size_t uInputLen = 0;
+            while (a_pInputData[uInputLen]) {
+                ++uInputLen;
+            }
+            ++uInputLen; // include the NULL char
+
+            // This uses the Unicode reference implementation to do the
+            // conversion from wchar_t to UTF-8. The required files are
+            // ConvertUTF.h and ConvertUTF.c which should be included in
+            // the distribution but are publically available from unicode.org
+            // at http://www.unicode.org/Public/PROGRAMS/CVTUTF/
+            ConversionResult retval;
+            UTF8 * pUtf8 = (UTF8 *) a_pOutputData;
+            if (sizeof(wchar_t) == sizeof(UTF32)) {
+                const UTF32 * pUtf32 = (const UTF32 *) a_pInputData;
+                retval = ConvertUTF32toUTF8(
+                    &pUtf32, pUtf32 + uInputLen,
+                    &pUtf8, pUtf8 + a_uOutputDataSize,
+                    lenientConversion);
+            }
+            else if (sizeof(wchar_t) == sizeof(UTF16)) {
+                const UTF16 * pUtf16 = (const UTF16 *) a_pInputData;
+                retval = ConvertUTF16toUTF8(
+                    &pUtf16, pUtf16 + uInputLen,
+                    &pUtf8, pUtf8 + a_uOutputDataSize,
+                    lenientConversion);
+            }
+            return retval == conversionOK;
+        }
+        else {
+            size_t retval = wcstombs(a_pOutputData,
+                a_pInputData, a_uOutputDataSize);
+            return retval != (size_t) -1;
+        }
+    }
+};
+
+#endif // SI_CONVERT_GENERIC
 
 
 // ---------------------------------------------------------------------------
@@ -3027,13 +3245,7 @@ public:
 # endif
 #endif
 
-#ifdef NOMINMAX
 #include <windows.h>
-#else
-#define NOMINMAX
-#include <windows.h>
-#undef NOMINMAX
-#endif
 #ifdef SI_NO_MBCS
 # define SI_NoCase   SI_GenericNoCase
 #else // !SI_NO_MBCS

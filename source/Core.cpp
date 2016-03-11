@@ -345,13 +345,21 @@ void Core::Terminate()
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Core::GetOption(const String & name) const
+CSStr Core::GetOption(CSStr name) const
 {
     Options::const_iterator elem = m_Options.find(name);
-    return (elem == m_Options.end()) ? g_EmptyStr : elem->second.c_str();
+    return (elem == m_Options.end()) ? _SC("") : elem->second.c_str();
 }
 
-void Core::SetOption(const String & name, const String & value)
+// ------------------------------------------------------------------------------------------------
+CSStr Core::GetOption(CSStr name, CSStr value) const
+{
+    Options::const_iterator elem = m_Options.find(name);
+    return (elem == m_Options.end()) ? value : elem->second.c_str();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::SetOption(CSStr name, CSStr value)
 {
     m_Options[name] = value;
 }

@@ -1136,8 +1136,10 @@ void CmdListener::ProcSpec(CSStr str)
     // Reset current argument specifiers
     memset(m_ArgSpec, CMDARG_ANY, sizeof(m_ArgSpec));
     // Make sure we have anything to parse
-    if (!str || *str == 0)
+    if (!str || *str == '\0')
+    {
         return;
+    }
     // Currently processed argument
     Uint32 idx = 0;
     // Try to apply the specified type specifiers
@@ -1150,7 +1152,9 @@ void CmdListener::ProcSpec(CSStr str)
             if (*str == '|')
             {
                 if (idx >= SQMOD_MAX_CMD_ARGS)
+                {
                     SqThrowF("Extraneous type specifiers: %d >= %d", idx, SQMOD_MAX_CMD_ARGS);
+                }
                 // Move to the next character
                 ++str;
                 // Advance to the next argument
@@ -1160,9 +1164,12 @@ void CmdListener::ProcSpec(CSStr str)
             else if (*str != ',')
             {
                 // Ignore non-alphabetic characters
-                while (*str != 0 &&  !isalpha(*str)) ++str;
+                while (*str != 0 &&  !isalpha(*str))
+                {
+                    ++str;
+                }
                 // Apply the type specifier
-                switch(*str)
+                switch(*str++)
                 {
                     // Did we reached the end of the string?
                     case '\0':
@@ -1178,7 +1185,9 @@ void CmdListener::ProcSpec(CSStr str)
                         m_ArgSpec[idx] |= CMDARG_INTEGER;
                         // Disable greedy argument flag if set
                         if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                        {
                             m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                        }
                     } break;
                     // Is this a float type
                     case 'f':
@@ -1186,7 +1195,9 @@ void CmdListener::ProcSpec(CSStr str)
                         m_ArgSpec[idx] |= CMDARG_FLOAT;
                         // Disable greedy argument flag if set
                         if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                        {
                             m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                        }
                     } break;
                     // Is this a boolean type
                     case 'b':
@@ -1194,7 +1205,9 @@ void CmdListener::ProcSpec(CSStr str)
                         m_ArgSpec[idx] |= CMDARG_BOOLEAN;
                         // Disable greedy argument flag if set
                         if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                        {
                             m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                        }
                     } break;
                     // Is this a string type
                     case 's':
@@ -1202,7 +1215,9 @@ void CmdListener::ProcSpec(CSStr str)
                         m_ArgSpec[idx] |= CMDARG_STRING;
                         // Disable greedy argument flag if set
                         if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                        {
                             m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                        }
                     } break;
                     // Is this a lowercase string?
                     case 'l':
@@ -1211,7 +1226,9 @@ void CmdListener::ProcSpec(CSStr str)
                         m_ArgSpec[idx] |= CMDARG_LOWER;
                         // Disable greedy argument flag if set
                         if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                        {
                             m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                        }
                     } break;
                     // Is this a uppercase string?
                     case 'u':
@@ -1220,7 +1237,9 @@ void CmdListener::ProcSpec(CSStr str)
                         m_ArgSpec[idx] |= CMDARG_UPPER;
                         // Disable greedy argument flag if set
                         if (m_ArgSpec[idx] & CMDARG_GREEDY)
+                        {
                             m_ArgSpec[idx] ^= CMDARG_GREEDY;
+                        }
                     } break;
                     // Unknown type!
                     default: SqThrowF("Unknown type specifier (%c) at argument: %u", *str, idx);
@@ -1351,8 +1370,10 @@ void Register_Command(HSQUIRRELVM vm)
 
     cmdns.Func(_SC("GetOnError"), &Cmd_GetOnError);
     cmdns.Func(_SC("SetOnError"), &Cmd_SetOnError);
+    cmdns.Func(_SC("BindError"), &Cmd_SetOnError);
     cmdns.Func(_SC("GetOnAuth"), &Cmd_GetOnAuth);
     cmdns.Func(_SC("SetOnAuth"), &Cmd_SetOnAuth);
+    cmdns.Func(_SC("BindAuth"), &Cmd_SetOnAuth);
     cmdns.Func(_SC("GetInvoker"), &Cmd_GetInvoker);
     cmdns.Func(_SC("GetInvokerID"), &Cmd_GetInvokerID);
     cmdns.Func(_SC("GetName"), &Cmd_GetCommand);

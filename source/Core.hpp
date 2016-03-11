@@ -498,8 +498,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Option mutators.
     */
-    CSStr GetOption(const String & name) const;
-    void SetOption(const String & name, const String & value);
+    CSStr GetOption(CSStr name) const;
+    CSStr GetOption(CSStr name, CSStr value) const;
+    void SetOption(CSStr name, CSStr value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the virtual machine.

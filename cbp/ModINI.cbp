@@ -379,6 +379,7 @@
 			<Add directory="../include" />
 			<Add directory="../config/common" />
 		</Compiler>
+		<Unit filename="../external/Common/ConvertUTF.cpp" />
 		<Unit filename="../modules/ini/Common.cpp" />
 		<Unit filename="../modules/ini/Common.hpp" />
 		<Unit filename="../modules/ini/Document.cpp" />

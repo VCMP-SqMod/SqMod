@@ -210,7 +210,6 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("Sort"), &Entries::Sort)
         .Func(_SC("SortByKeyOrder"), &Entries::SortByKeyOrder)
         .Func(_SC("SortByLoadOrder"), &Entries::SortByLoadOrder)
-        .Func(_SC("SortByLoadOrderEmptyFirst"), &Entries::SortByLoadOrderEmptyFirst)
     );
 
     inins.Bind(_SC("Document"), Class< Document, NoCopy< Document > >(vm, _SC("SqIniDocument"))
