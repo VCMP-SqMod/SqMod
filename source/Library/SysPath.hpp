@@ -330,7 +330,7 @@ public:
     */
     bool Empty() const
     {
-        return (!m_Dirs.empty() || !m_Name.empty() || m_Drive != 0);
+        return (m_Dirs.empty() && m_Name.empty() && m_Drive == 0);
     }
 
     /* --------------------------------------------------------------------------------------------
