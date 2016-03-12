@@ -80,7 +80,9 @@ public:
     void Validate() const
     {
         if (INVALID_ENTITY(m_ID))
+        {
             SqThrowF("Invalid vehicle reference [%s]", m_Tag.c_str());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------

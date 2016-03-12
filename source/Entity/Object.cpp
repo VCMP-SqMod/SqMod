@@ -102,10 +102,14 @@ void CObject::BindEvent(Int32 evid, Object & env, Function & func) const
     Function & event = _Core->GetObjectEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
+    {
         event.Release(); // Then release the current callback
+    }
     // Assign the specified environment and function
     else
+    {
         event = Function(env.GetVM(), env, func.GetFunc());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -113,7 +117,9 @@ bool CObject::IsStreamedFor(CPlayer & player) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Return the requested information
@@ -569,7 +575,9 @@ static const Object & Object_FindByID(Int32 id)
 {
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+    {
         SqThrowF("The specified object identifier is invalid: %d", id);
+    }
     // Obtain the ends of the entity pool
     Core::Objects::const_iterator itr = _Core->GetObjects().cbegin();
     Core::Objects::const_iterator end = _Core->GetObjects().cend();
@@ -578,7 +586,9 @@ static const Object & Object_FindByID(Int32 id)
     {
         // Does the identifier match the specified one?
         if (itr->mID == id)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a object matching the specified identifier
     return NullObject();
@@ -587,7 +597,7 @@ static const Object & Object_FindByID(Int32 id)
 static const Object & Object_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
-    if (!tag || *tag == 0)
+    if (!tag || *tag == '\0')
         SqThrowF("The specified object tag is invalid: null/empty");
     // Obtain the ends of the entity pool
     Core::Objects::const_iterator itr = _Core->GetObjects().cbegin();
@@ -597,7 +607,9 @@ static const Object & Object_FindByTag(CSStr tag)
     {
         // Does this entity even exist and does the tag match the specified one?
         if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a object matching the specified tag
     return NullObject();

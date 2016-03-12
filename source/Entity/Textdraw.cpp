@@ -97,10 +97,14 @@ void CTextdraw::BindEvent(Int32 evid, Object & env, Function & func) const
     Function & event = _Core->GetTextdrawEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
+    {
         event.Release(); // Then release the current callback
+    }
     // Assign the specified environment and function
     else
+    {
         event = Function(env.GetVM(), env, func.GetFunc());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -117,7 +121,9 @@ void CTextdraw::ShowFor(CPlayer & player) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -129,7 +135,9 @@ void CTextdraw::ShowRange(Int32 first, Int32 last) const
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -137,8 +145,10 @@ void CTextdraw::ShowRange(Int32 first, Int32 last) const
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then show this textdraw on his client
             _Func->ShowTextdraw(m_ID, first);
+        }
     }
 }
 
@@ -156,11 +166,13 @@ void CTextdraw::HideFor(CPlayer & player) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-        _Func->HideTextdraw(m_ID, player.GetID());
+    _Func->HideTextdraw(m_ID, player.GetID());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -168,7 +180,9 @@ void CTextdraw::HideRange(Int32 first, Int32 last) const
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -176,8 +190,10 @@ void CTextdraw::HideRange(Int32 first, Int32 last) const
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then hide this textdraw on his client
             _Func->HideTextdraw(m_ID, first);
+        }
     }
 }
 
@@ -204,7 +220,9 @@ void CTextdraw::SetPositionFor(CPlayer & player, const Vector2i & pos) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -216,7 +234,9 @@ void CTextdraw::SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -228,7 +248,9 @@ void CTextdraw::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) 
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -236,8 +258,10 @@ void CTextdraw::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) 
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then move this textdraw on his client
             _Func->MoveTextdraw(m_ID, first, pos.x, pos.y);
+        }
     }
 }
 
@@ -264,7 +288,9 @@ void CTextdraw::SetColorFor(CPlayer & player, const Color4 & col) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -276,7 +302,9 @@ void CTextdraw::SetColorForEx(CPlayer & player, Uint8 r, Uint8 g, Uint8 b, Uint8
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -288,7 +316,9 @@ void CTextdraw::SetColorRange(Int32 first, Int32 last, const Color4 & col) const
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -296,8 +326,10 @@ void CTextdraw::SetColorRange(Int32 first, Int32 last, const Color4 & col) const
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then colorize this textdraw on his client
             _Func->SetTextdrawColour(m_ID, first, color);
+        }
     }
 }
 
@@ -379,7 +411,9 @@ static const Object & Textdraw_FindByID(Int32 id)
 {
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_TEXTDRAW_POOL))
+    {
         SqThrowF("The specified textdraw identifier is invalid: %d", id);
+    }
     // Obtain the ends of the entity pool
     Core::Textdraws::const_iterator itr = _Core->GetTextdraws().cbegin();
     Core::Textdraws::const_iterator end = _Core->GetTextdraws().cend();
@@ -388,7 +422,9 @@ static const Object & Textdraw_FindByID(Int32 id)
     {
         // Does the identifier match the specified one?
         if (itr->mID == id)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a textdraw matching the specified identifier
     return NullObject();
@@ -397,8 +433,10 @@ static const Object & Textdraw_FindByID(Int32 id)
 static const Object & Textdraw_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
-    if (!tag || *tag == 0)
+    if (!tag || *tag == '\0')
+    {
         SqThrowF("The specified textdraw tag is invalid: null/empty");
+    }
     // Obtain the ends of the entity pool
     Core::Textdraws::const_iterator itr = _Core->GetTextdraws().cbegin();
     Core::Textdraws::const_iterator end = _Core->GetTextdraws().cend();
@@ -407,7 +445,9 @@ static const Object & Textdraw_FindByTag(CSStr tag)
     {
         // Does this entity even exist and does the tag match the specified one?
         if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a textdraw matching the specified tag
     return NullObject();

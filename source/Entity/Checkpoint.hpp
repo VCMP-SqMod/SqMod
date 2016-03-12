@@ -82,7 +82,9 @@ public:
     void Validate() const
     {
         if (INVALID_ENTITY(m_ID))
+        {
             SqThrowF("Invalid checkpoint reference [%s]", m_Tag.c_str());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------

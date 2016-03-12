@@ -22,36 +22,82 @@ static Object & GetVehicle(Int32 id) { return _Core->GetVehicle(id).mObj; }
 
 // ------------------------------------------------------------------------------------------------
 static bool DelBlip(Int32 id, Int32 header, Object & payload)
-{ return _Core->DelBlip(id, header, payload); }
+{
+    return _Core->DelBlip(id, header, payload);
+}
+
 static bool DelCheckpoint(Int32 id, Int32 header, Object & payload)
-{ return _Core->DelCheckpoint(id, header, payload); }
+{
+    return _Core->DelCheckpoint(id, header, payload);
+}
+
 static bool DelForcefield(Int32 id, Int32 header, Object & payload)
-{ return _Core->DelForcefield(id, header, payload); }
+{
+    return _Core->DelForcefield(id, header, payload);
+}
+
 static bool DelKeybind(Int32 id, Int32 header, Object & payload)
-{ return _Core->DelKeybind(id, header, payload); }
+{
+    return _Core->DelKeybind(id, header, payload);
+}
+
 static bool DelObject(Int32 id, Int32 header, Object & payload)
-{ return _Core->DelObject(id, header, payload); }
+{
+    return _Core->DelObject(id, header, payload);
+}
+
 static bool DelPickup(Int32 id, Int32 header, Object & payload)
-{ return _Core->DelPickup(id, header, payload); }
+{
+    return _Core->DelPickup(id, header, payload);
+}
+
 static bool DelSprite(Int32 id, Int32 header, Object & payload)
-{ return _Core->DelSprite(id, header, payload); }
+{
+    return _Core->DelSprite(id, header, payload);
+}
+
 static bool DelTextdraw(Int32 id, Int32 header, Object & payload)
-{ return _Core->DelTextdraw(id, header, payload); }
+{
+    return _Core->DelTextdraw(id, header, payload);
+}
+
 static bool DelVehicle(Int32 id, Int32 header, Object & payload)
-{ return _Core->DelVehicle(id, header, payload); }
+{
+    return _Core->DelVehicle(id, header, payload);
+}
 
 // ------------------------------------------------------------------------------------------------
 static bool BindEvent(Int32 id, Object & env, Function & func)
-{ return _Core->BindEvent(id, env, func); }
+{
+    return _Core->BindEvent(id, env, func);
+}
 
 // ------------------------------------------------------------------------------------------------
-static Int32 GetState() { return _Core->GetState(); }
-static void SetState(Int32 value) { return _Core->SetState(value); }
+static Int32 GetState()
+{
+    return _Core->GetState();
+}
+
+static void SetState(Int32 value)
+{
+    return _Core->SetState(value);
+}
 
 // ------------------------------------------------------------------------------------------------
-static CSStr GetOption(CSStr name) { return _Core->GetOption(name); }
-static CSStr GetOptionOr(CSStr name, CSStr value) { return _Core->GetOption(name, value); }
-static void SetOption(CSStr name, CSStr value) { return _Core->SetOption(name, value); }
+static CSStr GetOption(CSStr name)
+{
+    return _Core->GetOption(name);
+}
+
+static CSStr GetOptionOr(CSStr name, CSStr value)
+{
+    return _Core->GetOption(name, value);
+}
+
+static void SetOption(CSStr name, CSStr value)
+{
+    return _Core->SetOption(name, value);
+}
 
 // ================================================================================================
 void Register_Core(HSQUIRRELVM vm)
@@ -92,7 +138,9 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
     const Int32 top = sq_gettop(vm);
     // Was the message value specified?
     if (top <= 1)
+    {
         return sq_throwerror(vm, "Missing message value");
+    }
     // Do we have enough values to call the format function?
     else if (top > 2)
     {
@@ -102,7 +150,9 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 2, &len, &msg);
         // Did the format failed?
         if (SQ_FAILED(ret))
+        {
             return ret; // Propagate the exception
+        }
         // Log the resulted string value
         _Log->Message(L, S, "%s", msg);
     }
@@ -112,7 +162,9 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
         Var< CSStr > msg(vm, 2);
         // See if the obtained value is a valid string
         if (!msg.value)
+        {
             return sq_throwerror(vm, "Unable to retrieve the value");
+        }
         // Log the resulted string value
         _Log->Message(L, S, "%s", msg.value);
     }

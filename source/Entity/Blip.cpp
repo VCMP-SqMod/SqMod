@@ -95,10 +95,14 @@ void CBlip::BindEvent(Int32 evid, Object & env, Function & func) const
     Function & event = _Core->GetBlipEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
+    {
         event.Release(); // Then release the current callback
+    }
     // Assign the specified environment and function
     else
+    {
         event = Function(env.GetVM(), env, func.GetFunc());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -285,7 +289,9 @@ static const Object & Blip_FindByID(Int32 id)
     {
         // Does the identifier match the specified one?
         if (itr->mID == id)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a blip matching the specified identifier
     return NullObject();
@@ -294,8 +300,10 @@ static const Object & Blip_FindByID(Int32 id)
 static const Object & Blip_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
-    if (!tag || *tag == 0)
+    if (!tag || *tag == '\0')
+    {
         SqThrowF("The specified blip tag is invalid: null/empty");
+    }
     // Obtain the ends of the entity pool
     Core::Blips::const_iterator itr = _Core->GetBlips().cbegin();
     Core::Blips::const_iterator end = _Core->GetBlips().cend();
@@ -304,7 +312,9 @@ static const Object & Blip_FindByTag(CSStr tag)
     {
         // Does this entity even exist and does the tag match the specified one?
         if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a blip matching the specified tag
     return NullObject();
@@ -315,7 +325,9 @@ static const Object & Blip_FindBySprID(Int32 sprid)
 {
     // Perform a range check on the specified identifier
     if (sprid < 0)
+    {
         SqThrowF("The specified sprite identifier is invalid: %d", sprid);
+    }
     // Obtain the ends of the entity pool
     Core::Blips::const_iterator itr = _Core->GetBlips().cbegin();
     Core::Blips::const_iterator end = _Core->GetBlips().cend();
@@ -324,7 +336,9 @@ static const Object & Blip_FindBySprID(Int32 sprid)
     {
         // Does the identifier match the specified one?
         if (itr->mSprID == sprid)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a blip matching the specified identifier
     return NullObject();

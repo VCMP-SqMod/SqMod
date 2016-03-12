@@ -97,10 +97,14 @@ void CSprite::BindEvent(Int32 evid, Object & env, Function & func) const
     Function & event = _Core->GetSpriteEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
+    {
         event.Release(); // Then release the current callback
+    }
     // Assign the specified environment and function
     else
+    {
         event = Function(env.GetVM(), env, func.GetFunc());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -117,7 +121,9 @@ void CSprite::ShowFor(CPlayer & player) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -130,7 +136,9 @@ void CSprite::ShowRange(Int32 first, Int32 last) const
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -138,8 +146,10 @@ void CSprite::ShowRange(Int32 first, Int32 last) const
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then show this textdraw on his client
             _Func->ShowSprite(m_ID, first);
+        }
     }
 }
 
@@ -157,7 +167,9 @@ void CSprite::HideFor(CPlayer & player) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -169,7 +181,9 @@ void CSprite::HideRange(Int32 first, Int32 last) const
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -177,8 +191,10 @@ void CSprite::HideRange(Int32 first, Int32 last) const
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then hide this textdraw on his client
             _Func->HideSprite(m_ID, first);
+        }
     }
 }
 
@@ -205,7 +221,9 @@ void CSprite::SetPositionFor(CPlayer & player, const Vector2i & pos) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -217,7 +235,9 @@ void CSprite::SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -229,7 +249,9 @@ void CSprite::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) co
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -237,8 +259,10 @@ void CSprite::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) co
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then move this textdraw on his client
             _Func->MoveSprite(m_ID, first, pos.x, pos.y);
+        }
     }
 }
 
@@ -265,7 +289,9 @@ void CSprite::SetCenterFor(CPlayer & player, const Vector2i & pos) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -277,7 +303,9 @@ void CSprite::SetCenterForEx(CPlayer & player, Int32 x, Int32 y) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -289,7 +317,9 @@ void CSprite::SetCenterRange(Int32 first, Int32 last, const Vector2i & pos) cons
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -297,8 +327,10 @@ void CSprite::SetCenterRange(Int32 first, Int32 last, const Vector2i & pos) cons
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then center this textdraw on his client
             _Func->SetSpriteCenter(m_ID, first, pos.x, pos.y);
+        }
     }
 }
 
@@ -316,7 +348,9 @@ void CSprite::SetRotationFor(CPlayer & player, Float32 rot) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -328,7 +362,9 @@ void CSprite::SetRotationRange(Int32 first, Int32 last, Float32 rot) const
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -336,8 +372,10 @@ void CSprite::SetRotationRange(Int32 first, Int32 last, Float32 rot) const
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then rotate this textdraw on his client
             _Func->RotateSprite(m_ID, first, rot);
+        }
     }
 }
 
@@ -355,7 +393,9 @@ void CSprite::SetAlphaFor(CPlayer & player, Uint8 alpha) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -367,7 +407,9 @@ void CSprite::SetAlphaRange(Int32 first, Int32 last, Uint8 alpha) const
 {
     // Validate the specified range
     if (first > last)
+    {
         SqThrowF("Invalid player range: %d > %d", first, last);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -375,8 +417,10 @@ void CSprite::SetAlphaRange(Int32 first, Int32 last, Uint8 alpha) const
     {
         // Is the currently processed player even connected?
         if (_Func->IsPlayerConnected(first))
+        {
             // Then colorize this textdraw on his client
             _Func->SetSpriteAlpha(m_ID, first, alpha);
+        }
     }
 }
 
@@ -454,7 +498,9 @@ static const Object & Sprite_FindByID(Int32 id)
 {
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_SPRITE_POOL))
+    {
         SqThrowF("The specified sprite identifier is invalid: %d", id);
+    }
     // Obtain the ends of the entity pool
     Core::Sprites::const_iterator itr = _Core->GetSprites().cbegin();
     Core::Sprites::const_iterator end = _Core->GetSprites().cend();
@@ -463,7 +509,9 @@ static const Object & Sprite_FindByID(Int32 id)
     {
         // Does the identifier match the specified one?
         if (itr->mID == id)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a sprite matching the specified identifier
     return NullObject();
@@ -472,8 +520,10 @@ static const Object & Sprite_FindByID(Int32 id)
 static const Object & Sprite_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
-    if (!tag || *tag == 0)
+    if (!tag || *tag == '\0')
+    {
         SqThrowF("The specified sprite tag is invalid: null/empty");
+    }
     // Obtain the ends of the entity pool
     Core::Sprites::const_iterator itr = _Core->GetSprites().cbegin();
     Core::Sprites::const_iterator end = _Core->GetSprites().cend();
@@ -482,7 +532,9 @@ static const Object & Sprite_FindByTag(CSStr tag)
     {
         // Does this entity even exist and does the tag match the specified one?
         if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a sprite matching the specified tag
     return NullObject();

@@ -107,10 +107,14 @@ void CForcefield::BindEvent(Int32 evid, Object & env, Function & func) const
     Function & event = _Core->GetForcefieldEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
+    {
         event.Release(); // Then release the current callback
+    }
     // Assign the specified environment and function
     else
+    {
         event = Function(env.GetVM(), env, func.GetFunc());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -118,7 +122,9 @@ bool CForcefield::IsStreamedFor(CPlayer & player) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Return the requested information
@@ -422,7 +428,9 @@ static const Object & Forcefield_FindByID(Int32 id)
 {
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_FORCEFIELD_POOL))
+    {
         SqThrowF("The specified forcefield identifier is invalid: %d", id);
+    }
     // Obtain the ends of the entity pool
     Core::Forcefields::const_iterator itr = _Core->GetForcefields().cbegin();
     Core::Forcefields::const_iterator end = _Core->GetForcefields().cend();
@@ -431,7 +439,9 @@ static const Object & Forcefield_FindByID(Int32 id)
     {
         // Does the identifier match the specified one?
         if (itr->mID == id)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a forcefield matching the specified identifier
     return NullObject();
@@ -440,8 +450,10 @@ static const Object & Forcefield_FindByID(Int32 id)
 static const Object & Forcefield_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
-    if (!tag || *tag == 0)
+    if (!tag || *tag == '\0')
+    {
         SqThrowF("The specified forcefield tag is invalid: null/empty");
+    }
     // Obtain the ends of the entity pool
     Core::Forcefields::const_iterator itr = _Core->GetForcefields().cbegin();
     Core::Forcefields::const_iterator end = _Core->GetForcefields().cend();
@@ -450,7 +462,9 @@ static const Object & Forcefield_FindByTag(CSStr tag)
     {
         // Does this entity even exist and does the tag match the specified one?
         if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a forcefield matching the specified tag
     return NullObject();

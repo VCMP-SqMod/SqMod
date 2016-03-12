@@ -99,10 +99,14 @@ void CPlayer::BindEvent(Int32 evid, Object & env, Function & func) const
     Function & event = _Core->GetPlayerEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
+    {
         event.Release(); // Then release the current callback
+    }
     // Assign the specified environment and function
     else
+    {
         event = Function(env.GetVM(), env, func.GetFunc());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -992,7 +996,9 @@ void CPlayer::SetSpectator(CPlayer & target) const
 {
     // Is the specified player even valid?
     if (!target.IsActive())
+    {
         SqThrowF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -1075,7 +1081,9 @@ void CPlayer::Embark(CVehicle & vehicle) const
 {
     // Is the specified vehicle even valid?
     if (!vehicle.IsActive())
+    {
         SqThrowF("Invalid vehicle argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -1087,7 +1095,9 @@ void CPlayer::Embark(CVehicle & vehicle, Int32 slot, bool allocate, bool warp) c
 {
     // Is the specified vehicle even valid?
     if (!vehicle.IsActive())
+    {
         SqThrowF("Invalid vehicle argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -1135,7 +1145,9 @@ CSStr CPlayer::GetMessagePrefix(Uint32 index) const
 {
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
+    {
         SqThrowF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
+    }
     // Validate the managed identifier
     Validate();
     // Return the requested information
@@ -1147,7 +1159,9 @@ void CPlayer::SetMessagePrefix(Uint32 index, CSStr prefix) const
 {
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
+    {
         SqThrowF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
+    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
@@ -1268,10 +1282,14 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     const Int32 top = sq_gettop(vm);
     // Was the message color specified?
     if (top <= 1)
+    {
         return sq_throwerror(vm, "Missing message color");
+    }
     // Was the message value specified?
     else if (top <= 2)
+    {
         return sq_throwerror(vm, "Missing message value");
+    }
     // The player instance
     CPlayer * player = nullptr;
     // The message color
@@ -1289,10 +1307,14 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     }
     // Do we have a valid player instance?
     if (!player)
+    {
         return sq_throwerror(vm, "Invalid player instance");
+    }
     // Do we have a valid player identifier?
     else if (!player->IsActive())
+    {
         return sq_throwerror(vm, "Invalid player reference");
+    }
     // Do we have enough values to call the format function?
     else if (top > 3)
     {
@@ -1302,7 +1324,9 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
         // Did the format failed?
         if (SQ_FAILED(ret))
+        {
             return ret; // Propagate the exception
+        }
         // Send the resulted message string
         _Func->SendClientMessage(player->GetID(), color.GetRGBA(), "%s", msg);
     }
@@ -1312,7 +1336,9 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
         Var< CSStr > msg(vm, 3);
         // See if the obtained value is a valid message
         if (!msg.value)
+        {
             return sq_throwerror(vm, "Unable to retrieve the message");
+        }
         // Send the resulted message string
         _Func->SendClientMessage(player->GetID(), color.GetRGBA(), "%s", msg.value);
     }
@@ -1326,10 +1352,14 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     const Int32 top = sq_gettop(vm);
     // Was the index of the message prefix specified?
     if (top <= 1)
+    {
         return sq_throwerror(vm, "Missing prefix index");
+    }
     // Was the message value specified?
     else if (top <= 2)
+    {
         return sq_throwerror(vm, "Missing message value");
+    }
     // The player instance
     CPlayer * player = nullptr;
     // The prefix index
@@ -1347,14 +1377,20 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     }
     // Do we have a valid player instance?
     if (!player)
+    {
         return sq_throwerror(vm, "Invalid player instance");
+    }
     // Do we have a valid player identifier?
     else if (!player->IsActive())
+    {
         return sq_throwerror(vm, "Invalid player reference");
+    }
     // Perform a range check on the specified prefix index
     else if (index > SQMOD_PLAYER_MSG_PREFIXES)
+    {
         return sq_throwerror(vm, ToStrF("Prefix index is out of range: %u > %u",
                                         index, SQMOD_PLAYER_MSG_PREFIXES));
+    }
     // Do we have enough values to call the format function?
     else if (top > 3)
     {
@@ -1364,7 +1400,9 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
         // Did the format failed?
         if (SQ_FAILED(ret))
+        {
             return ret; // Propagate the exception
+        }
         // Retrieve the associated player structure
         const auto & splayer = _Core->GetPlayer(player->GetID());
         // Send the resulted message string
@@ -1377,7 +1415,9 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
         Var< CSStr > msg(vm, 3);
         // See if the obtained value is a valid message
         if (!msg.value)
+        {
             return sq_throwerror(vm, "Unable to retrieve the message");
+        }
         // Retrieve the associated player structure
         const auto & splayer = _Core->GetPlayer(player->GetID());
         // Send the resulted message string
@@ -1394,10 +1434,14 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     const Int32 top = sq_gettop(vm);
     // Was the message color specified?
     if (top <= 3)
+    {
         return sq_throwerror(vm, "Missing message color");
+    }
     // Was the message value specified?
     else if (top <= 4)
+    {
         return sq_throwerror(vm, "Missing message value");
+    }
     // The player instance
     CPlayer * player = nullptr;
     // The message color
@@ -1417,10 +1461,14 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     }
     // Do we have a valid player instance?
     if (!player)
+    {
         return sq_throwerror(vm, "Invalid player instance");
+    }
     // Do we have a valid player identifier?
     else if (!player->IsActive())
+    {
         return sq_throwerror(vm, "Invalid player reference");
+    }
     // Do we have enough values to call the format function?
     else if (top > 5)
     {
@@ -1430,7 +1478,9 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 5, &len, &msg);
         // Did the format failed?
         if (SQ_FAILED(ret))
+        {
             return ret; // Propagate the exception
+        }
         // Send the resulted message string
         _Func->SendClientMessage(player->GetID(), SQMOD_PACK_RGBA(r, g, b, 0), "%s", msg);
     }
@@ -1440,7 +1490,9 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
         Var< CSStr > msg(vm, 5);
         // See if the obtained value is a valid message
         if (!msg.value)
+        {
             return sq_throwerror(vm, "Unable to retrieve the message");
+        }
         // Send the resulted message string
         _Func->SendClientMessage(player->GetID(), SQMOD_PACK_RGBA(r, g, b, 0), "%s", msg.value);
     }
@@ -1454,7 +1506,9 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     const Int32 top = sq_gettop(vm);
     // Was the message value specified?
     if (top <= 1)
+    {
         return sq_throwerror(vm, "Missing message value");
+    }
     // The player instance
     CPlayer * player = nullptr;
     // Attempt to extract the argument values
@@ -1469,10 +1523,14 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     }
     // Do we have a valid player instance?
     if (!player)
+    {
         return sq_throwerror(vm, "Invalid player instance");
+    }
     // Do we have a valid player identifier?
     else if (!player->IsActive())
+    {
         return sq_throwerror(vm, "Invalid player reference");
+    }
     // Do we have enough values to call the format function?
     else if (top > 2)
     {
@@ -1482,7 +1540,9 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 2, &len, &msg);
         // Did the format failed?
         if (SQ_FAILED(ret))
+        {
             return ret; // Propagate the exception
+        }
         // Send the resulted message string
         _Func->SendClientMessage(player->GetID(),
                                     _Core->GetPlayer(player->GetID()).mMessageColor, "%s", msg);
@@ -1493,7 +1553,9 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
         Var< CSStr > msg(vm, 2);
         // See if the obtained value is a valid message
         if (!msg.value)
+        {
             return sq_throwerror(vm, "Unable to retrieve the message");
+        }
         // Send the resulted message string
         _Func->SendClientMessage(player->GetID(),
                                     _Core->GetPlayer(player->GetID()).mMessageColor, "%s", msg.value);
@@ -1508,7 +1570,9 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     const Int32 top = sq_gettop(vm);
     // Was the announcement value specified?
     if (top <= 1)
+    {
         return sq_throwerror(vm, "Missing announcement value");
+    }
     // The player instance
     CPlayer * player = nullptr;
     // Attempt to extract the argument values
@@ -1523,10 +1587,14 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     }
     // Do we have a valid player instance?
     if (!player)
+    {
         return sq_throwerror(vm, "Invalid player instance");
+    }
     // Do we have a valid player identifier?
     else if (!player->IsActive())
+    {
         return sq_throwerror(vm, "Invalid player reference");
+    }
     // Do we have enough values to call the format function?
     else if (top > 2)
     {
@@ -1536,7 +1604,9 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 2, &len, &msg);
         // Did the format failed?
         if (SQ_FAILED(ret))
+        {
             return ret; // Propagate the exception
+        }
         // Send the resulted announcement string
         _Func->SendGameMessage(player->GetID(),
                                 _Core->GetPlayer(player->GetID()).mAnnounceStyle, "%s", msg);
@@ -1547,7 +1617,9 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
         Var< CSStr > msg(vm, 2);
         // See if the obtained value is a valid announcement
         if (!msg.value)
+        {
             return sq_throwerror(vm, "Unable to retrieve the announcement");
+        }
         // Send the resulted announcement string
         _Func->SendGameMessage(player->GetID(),
                                 _Core->GetPlayer(player->GetID()).mAnnounceStyle, "%s", msg.value);
@@ -1562,10 +1634,14 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     const Int32 top = sq_gettop(vm);
     // Was the announcement style specified?
     if (top <= 1)
+    {
         return sq_throwerror(vm, "Missing announcement style");
+    }
     // Was the announcement value specified?
     else if (top <= 2)
+    {
         return sq_throwerror(vm, "Missing announcement value");
+    }
     // The player instance
     CPlayer * player = nullptr;
     // The announcement style
@@ -1583,10 +1659,14 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     }
     // Do we have a valid player instance?
     if (!player)
+    {
         return sq_throwerror(vm, "Invalid player instance");
+    }
     // Do we have a valid player identifier?
     else if (!player->IsActive())
+    {
         return sq_throwerror(vm, "Invalid player reference");
+    }
     // Do we have enough values to call the format function?
     else if (top > 3)
     {
@@ -1596,7 +1676,9 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
         SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
         // Did the format failed?
         if (SQ_FAILED(ret))
+        {
             return ret; // Propagate the exception
+        }
         // Send the resulted announcement string
         _Func->SendGameMessage(player->GetID(), style, "%s", msg);
     }
@@ -1606,7 +1688,9 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
         Var< CSStr > msg(vm, 3);
         // See if the obtained value is a valid announcement
         if (!msg.value)
+        {
             return sq_throwerror(vm, "Unable to retrieve the announcement");
+        }
         // Send the resulted announcement string
         _Func->SendGameMessage(player->GetID(), style, "%s", msg.value);
     }
@@ -1619,7 +1703,9 @@ static const Object & Player_FindByID(Int32 id)
 {
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+    {
         SqThrowF("The specified player identifier is invalid: %d", id);
+    }
     // Obtain the ends of the entity pool
     Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();
     Core::Players::const_iterator end = _Core->GetPlayers().cend();
@@ -1628,7 +1714,9 @@ static const Object & Player_FindByID(Int32 id)
     {
         // Does the identifier match the specified one?
         if (itr->mID == id)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a player matching the specified identifier
     return NullObject();
@@ -1637,8 +1725,10 @@ static const Object & Player_FindByID(Int32 id)
 static const Object & Player_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
-    if (!tag || *tag == 0)
+    if (!tag || *tag == '\0')
+    {
         SqThrowF("The specified player tag is invalid: null/empty");
+    }
     // Obtain the ends of the entity pool
     Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();
     Core::Players::const_iterator end = _Core->GetPlayers().cend();
@@ -1647,7 +1737,9 @@ static const Object & Player_FindByTag(CSStr tag)
     {
         // Does this entity even exist and does the tag match the specified one?
         if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
+        {
             return itr->mObj; // Stop searching and return this entity
+        }
     }
     // Unable to locate a player matching the specified tag
     return NullObject();

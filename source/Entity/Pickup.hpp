@@ -78,7 +78,9 @@ public:
     void Validate() const
     {
         if (INVALID_ENTITY(m_ID))
+        {
             SqThrowF("Invalid pickup reference [%s]", m_Tag.c_str());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
