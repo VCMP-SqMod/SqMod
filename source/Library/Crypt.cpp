@@ -209,12 +209,12 @@ void Register_Crypt(HSQUIRRELVM vm)
     RegisterWrapper< SHA256 >(hashns, _SC("SHA256"));
     RegisterWrapper< SHA3 >(hashns, _SC("SHA3"));
 
-    hashns.SquirrelFunc(_SC("CRC32"), &HashF< CRC32 >);
-    hashns.SquirrelFunc(_SC("Keccak"), &HashF< Keccak >);
-    hashns.SquirrelFunc(_SC("MD5"), &HashF< MD5 >);
-    hashns.SquirrelFunc(_SC("SHA1"), &HashF< SHA1 >);
-    hashns.SquirrelFunc(_SC("SHA256"), &HashF< SHA256 >);
-    hashns.SquirrelFunc(_SC("SHA3"), &HashF< SHA3 >);
+    hashns.SquirrelFunc(_SC("GetCRC32"), &HashF< CRC32 >);
+    hashns.SquirrelFunc(_SC("GetKeccak"), &HashF< Keccak >);
+    hashns.SquirrelFunc(_SC("GetMD5"), &HashF< MD5 >);
+    hashns.SquirrelFunc(_SC("GetSHA1"), &HashF< SHA1 >);
+    hashns.SquirrelFunc(_SC("GetSHA256"), &HashF< SHA256 >);
+    hashns.SquirrelFunc(_SC("GetSHA3"), &HashF< SHA3 >);
 
     RootTable(vm).Bind(_SC("SqHash"), hashns);
 
