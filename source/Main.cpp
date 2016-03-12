@@ -109,351 +109,617 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     return SQMOD_SUCCESS;
 }
 
+#define SQMOD_CATCH_EVENT_EXCEPTION(ev) /*
+*/ catch (const Sqrat::Exception & e) /*
+*/ { /*
+*/  LogErr("Squirrel exception caught during (" #ev ") event"); /*
+*/  LogInf("Message: %s", e.Message().c_str()); /*
+*/ } /*
+*/ catch (const std::exception & e) /*
+*/ { /*
+*/  LogErr("Program exception caught during (" #ev ") event"); /*
+*/  LogInf("Message: %s", e.what()); /*
+*/ } /*
+*/ catch (...) /*
+*/ { /*
+*/  LogErr("Unknown exception caught during (" #ev ") event"); /*
+*/ } /*
+*/
+
 // --------------------------------------------------------------------------------------------
 static int VC_InitServer(void)
 {
+    // Don't even try to initialize if there's no core instance
     if (!_Core)
+    {
         return SQMOD_FAILURE;
-
+    }
+    // Mark the initialization as successful by default
     _Core->SetState(1);
-    // Obtain the API version as a string
-    String apiver(ToStrF("%d", SQMOD_API_VER));
-    // Signal outside plugins to do fetch our proxies
-    _Func->SendCustomCommand(0xDABBAD00, apiver.c_str());
-    // Attempt to load the module core
-    if (_Core->Load())
-        _Core->EmitServerStartup();
-    else
-        LogFtl("Unable to load the plugin resources properly");
+    // Attempt to forward the event
+    try
+    {
 
+        // Obtain the API version as a string
+        String apiver(ToStrF("%d", SQMOD_API_VER));
+        // Signal outside plug-ins to do fetch our proxies
+        _Func->SendCustomCommand(0xDABBAD00, apiver.c_str());
+        // Attempt to load the module core
+        if (_Core->Load())
+        {
+            _Core->EmitServerStartup();
+        }
+        else
+        {
+            LogFtl("Unable to load the plugin resources properly");
+        }
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(InitServer)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static void VC_ShutdownServer(void)
 {
+    // Don't even try to de-initialize if there's no core instance
     if (!_Core)
+    {
         return;
-
-    _Core->EmitServerShutdown();
-    // Deallocate and release everything obtained at startup
-    _Core->Terminate();
-    // The server still triggers callbacks and we deallocated everything!
-    UnbindCallbacks();
-    // Destroy components
-    DestroyComponents();
+    }
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitServerShutdown();
+        // Deallocate and release everything obtained at startup
+        _Core->Terminate();
+        // The server still triggers callbacks and we deallocated everything!
+        UnbindCallbacks();
+        // Destroy components
+        DestroyComponents();
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(ShutdownServer)
 }
 
 static void VC_Frame(float delta)
 {
-    _Core->EmitServerFrame(delta);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitServerFrame(delta);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(Frame)
 }
 
 static void VC_PlayerConnect(int player)
 {
-    _Core->ConnectPlayer(player, SQMOD_CREATE_AUTOMATIC, NullObject());
+    // Attempt to forward the event
+    try
+    {
+        _Core->ConnectPlayer(player, SQMOD_CREATE_AUTOMATIC, NullObject());
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerConnect)
 }
 
 static void VC_PlayerDisconnect(int player, int reason)
 {
-    _Core->DisconnectPlayer(player, reason, NullObject());
+    // Attempt to forward the event
+    try
+    {
+        _Core->DisconnectPlayer(player, reason, NullObject());
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerDisconnect)
 }
 
 static void VC_PlayerBeginTyping(int player)
 {
-    _Core->EmitPlayerStartTyping(player);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerStartTyping(player);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerBeginTyping)
 }
 
 static void VC_PlayerEndTyping(int player)
 {
-    _Core->EmitPlayerStopTyping(player);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerStopTyping(player);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerEndTyping)
 }
 
 static int VC_PlayerRequestClass(int player, int offset)
 {
+    // Mark the initialization as successful by default
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->EmitPlayerRequestClass(player, offset);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerRequestClass(player, offset);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerEndTyping)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static int VC_PlayerRequestSpawn(int player)
 {
+    // Mark the initialization as successful by default
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->EmitPlayerRequestSpawn(player);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerRequestSpawn(player);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerRequestSpawn)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static void VC_PlayerSpawn(int player)
 {
-    _Core->EmitPlayerSpawn(player);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerSpawn(player);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerSpawn)
 }
 
 static void VC_PlayerDeath(int player, int killer, int reason, int body_part)
 {
-    if (_Func->IsPlayerConnected(killer))
-        _Core->EmitPlayerKilled(player, killer, reason, body_part);
-    else
-        _Core->EmitPlayerWasted(player, reason);
+    // Attempt to forward the event
+    try
+    {
+        if (_Func->IsPlayerConnected(killer))
+        {
+            _Core->EmitPlayerKilled(player, killer, reason, body_part);
+        }
+        else
+        {
+            _Core->EmitPlayerWasted(player, reason);
+        }
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerDeath)
 }
 
 static void VC_PlayerUpdate(int player, int type)
 {
-    _Core->EmitPlayerUpdate(player, type);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerUpdate(player, type);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerUpdate)
 }
 
 static int VC_PlayerRequestEnter(int player, int vehicle, int slot)
 {
+    // Mark the initialization as successful by default
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->EmitPlayerEmbarking(player, vehicle, slot);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerEmbarking(player, vehicle, slot);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerRequestEnter)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static void VC_PlayerEnterVehicle(int player, int vehicle, int slot)
 {
-    _Core->EmitPlayerEmbarked(player, vehicle, slot);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerEmbarked(player, vehicle, slot);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerEnterVehicle)
 }
 
 static void VC_PlayerExitVehicle(int player, int vehicle)
 {
-    _Core->EmitPlayerDisembark(player, vehicle);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerDisembark(player, vehicle);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerExitVehicle)
 }
 
 static int VC_PickupClaimPicked(int pickup, int player)
 {
+    // Mark the initialization as successful by default
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->EmitPickupClaimed(player, pickup);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPickupClaimed(player, pickup);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PickupClaimPicked)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static void VC_PickupPickedUp(int pickup, int player)
 {
-    _Core->EmitPickupCollected(player, pickup);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPickupCollected(player, pickup);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PickupPickedUp)
 }
 
 static void VC_PickupRespawn(int pickup)
 {
-    _Core->EmitPickupRespawn(pickup);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPickupRespawn(pickup);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PickupRespawn)
 }
 
 static void VC_VehicleUpdate(int vehicle, int type)
 {
-    _Core->EmitVehicleUpdate(vehicle, type);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitVehicleUpdate(vehicle, type);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(VehicleUpdate)
 }
 
 static void VC_VehicleExplode(int vehicle)
 {
-    _Core->EmitVehicleExplode(vehicle);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitVehicleExplode(vehicle);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(VehicleExplode)
 }
 
 static void VC_VehicleRespawn(int vehicle)
 {
-    _Core->EmitVehicleRespawn(vehicle);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitVehicleRespawn(vehicle);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(VehicleRespawn)
 }
 
 static void VC_ObjectShot(int object, int player, int weapon)
 {
-    _Core->EmitObjectShot(player, object, weapon);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitObjectShot(player, object, weapon);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(ObjectShot)
 }
 
 static void VC_ObjectBump(int object, int player)
 {
-    _Core->EmitObjectBump(player, object);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitObjectBump(player, object);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(ObjectBump)
 }
 
 static int VC_PublicMessage(int player, const char * text)
 {
+    // Mark the initialization as successful by default
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->EmitPlayerChat(player, text);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerChat(player, text);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PublicMessage)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static int VC_CommandMessage(int player, const char * text)
 {
+    // Mark the initialization as successful by default
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->EmitPlayerCommand(player, text);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerCommand(player, text);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(CommandMessage)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static int VC_PrivateMessage(int player, int target, const char * text)
 {
+    // Mark the initialization as successful by default
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->EmitPlayerMessage(player, target, text);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerMessage(player, target, text);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PrivateMessage)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static int VC_InternalCommand(unsigned int type, const char * text)
 {
+    // Mark the initialization as successful by default
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->EmitInternalCommand(type, text);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitInternalCommand(type, text);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(InternalCommand)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static int VC_LoginAttempt(char * name, const char * passwd, const char * address)
 {
+    // Mark the initialization as successful by default
     _Core->SetState(SQMOD_SUCCESS);
-    _Core->EmitLoginAttempt(name, passwd, address);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitLoginAttempt(name, passwd, address);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(LoginAttempt)
+    // Return the last known plug-in state
     return _Core->GetState();
 }
 
 static void VC_EntityPool(int type, int id, unsigned int deleted)
 {
-    _Core->EmitEntityPool(type, id, static_cast<bool>(deleted));
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitEntityPool(type, id, static_cast< bool >(deleted));
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(EntityPool)
 }
 
 static void VC_KeyBindDown(int player, int bind)
 {
-    _Core->EmitPlayerKeyPress(player, bind);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerKeyPress(player, bind);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(KeyBindDown)
 }
 
 static void VC_KeyBindUp(int player, int bind)
 {
-    _Core->EmitPlayerKeyRelease(player, bind);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerKeyRelease(player, bind);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(KeyBindUp)
 }
 
 static void VC_PlayerAway(int player, unsigned int status)
 {
-    _Core->EmitPlayerAway(player, static_cast<bool>(status));
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerAway(player, static_cast< bool >(status));
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerAway)
 }
 
 static void VC_PlayerSpectate(int player, int target)
 {
-    _Core->EmitPlayerSpectate(player, target);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerSpectate(player, target);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerSpectate)
 }
 
 static void VC_PlayerCrashReport(int player, const char * report)
 {
-    _Core->EmitPlayerCrashreport(player, report);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerCrashreport(player, report);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerCrashReport)
 }
 
-static void VC_ServerPerformanceReport(int count, const char ** description, unsigned long long * millis)
+static void VC_ServerPerformanceReport(int /*count*/, const char ** /*description*/, unsigned long long * /*millis*/)
 {
     // Ignored for now...
-    SQMOD_UNUSED_VAR(count);
-    SQMOD_UNUSED_VAR(description);
-    SQMOD_UNUSED_VAR(millis);
 }
 
 static void VC_PlayerName(int player, const char * previous, const char * current)
 {
-    _Core->EmitPlayerRename(player, previous, current);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerRename(player, previous, current);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerName)
 }
 
 static void VC_PlayerState(int player, int previous, int current)
 {
-    _Core->EmitPlayerState(player, previous, current);
-
-    switch (current)
+    // Attempt to forward the event
+    try
     {
-        case SQMOD_PLAYER_STATE_NONE:
-            _Core->EmitStateNone(player, previous);
-        break;
-        case SQMOD_PLAYER_STATE_NORMAL:
-            _Core->EmitStateNormal(player, previous);
-        break;
-        case SQMOD_PLAYER_STATE_SHOOTING:
-            _Core->EmitStateShooting(player, previous);
-        break;
-        case SQMOD_PLAYER_STATE_DRIVER:
-            _Core->EmitStateDriver(player, previous);
-        break;
-        case SQMOD_PLAYER_STATE_PASSENGER:
-            _Core->EmitStatePassenger(player, previous);
-        break;
-        case SQMOD_PLAYER_STATE_ENTERING_AS_DRIVER:
-            _Core->EmitStateEnterDriver(player, previous);
-        break;
-        case SQMOD_PLAYER_STATE_ENTERING_AS_PASSENGER:
-            _Core->EmitStateEnterPassenger(player, previous);
-        break;
-        case SQMOD_PLAYER_STATE_EXITING_VEHICLE:
-            _Core->EmitStateExitVehicle(player, previous);
-        break;
-        case SQMOD_PLAYER_STATE_UNSPAWNED:
-            _Core->EmitStateUnspawned(player, previous);
-        break;
+        _Core->EmitPlayerState(player, previous, current);
+        // Identify the current state and trigger the listeners specific to that
+        switch (current)
+        {
+            case SQMOD_PLAYER_STATE_NONE:
+                _Core->EmitStateNone(player, previous);
+            break;
+            case SQMOD_PLAYER_STATE_NORMAL:
+                _Core->EmitStateNormal(player, previous);
+            break;
+            case SQMOD_PLAYER_STATE_SHOOTING:
+                _Core->EmitStateShooting(player, previous);
+            break;
+            case SQMOD_PLAYER_STATE_DRIVER:
+                _Core->EmitStateDriver(player, previous);
+            break;
+            case SQMOD_PLAYER_STATE_PASSENGER:
+                _Core->EmitStatePassenger(player, previous);
+            break;
+            case SQMOD_PLAYER_STATE_ENTERING_AS_DRIVER:
+                _Core->EmitStateEnterDriver(player, previous);
+            break;
+            case SQMOD_PLAYER_STATE_ENTERING_AS_PASSENGER:
+                _Core->EmitStateEnterPassenger(player, previous);
+            break;
+            case SQMOD_PLAYER_STATE_EXITING_VEHICLE:
+                _Core->EmitStateExitVehicle(player, previous);
+            break;
+            case SQMOD_PLAYER_STATE_UNSPAWNED:
+                _Core->EmitStateUnspawned(player, previous);
+            break;
+        } 
     }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerState)
 }
 
 static void VC_PlayerAction(int player, int previous, int current)
 {
-    _Core->EmitPlayerAction(player, previous, current);
-
-    switch (current)
+    // Attempt to forward the event
+    try
     {
-        case SQMOD_PLAYER_ACTION_NONE:
-            _Core->EmitActionNone(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_NORMAL:
-            _Core->EmitActionNormal(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_AIMING:
-            _Core->EmitActionAiming(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_SHOOTING:
-            _Core->EmitActionShooting(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_JUMPING:
-            _Core->EmitActionJumping(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_LYING_ON_GROUND:
-            _Core->EmitActionLieDown(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_GETTING_UP:
-            _Core->EmitActionGettingUp(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_JUMPING_FROM_VEHICLE:
-            _Core->EmitActionJumpVehicle(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_DRIVING:
-            _Core->EmitActionDriving(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_DYING:
-            _Core->EmitActionDying(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_WASTED:
-            _Core->EmitActionWasted(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_ENTERING_VEHICLE:
-            _Core->EmitActionEmbarking(player, previous);
-        break;
-        case SQMOD_PLAYER_ACTION_EXITING_VEHICLE:
-            _Core->EmitActionDisembarking(player, previous);
-        break;
+        _Core->EmitPlayerAction(player, previous, current);
+        // Identify the current action and trigger the listeners specific to that
+        switch (current)
+        {
+            case SQMOD_PLAYER_ACTION_NONE:
+                _Core->EmitActionNone(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_NORMAL:
+                _Core->EmitActionNormal(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_AIMING:
+                _Core->EmitActionAiming(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_SHOOTING:
+                _Core->EmitActionShooting(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_JUMPING:
+                _Core->EmitActionJumping(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_LYING_ON_GROUND:
+                _Core->EmitActionLieDown(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_GETTING_UP:
+                _Core->EmitActionGettingUp(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_JUMPING_FROM_VEHICLE:
+                _Core->EmitActionJumpVehicle(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_DRIVING:
+                _Core->EmitActionDriving(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_DYING:
+                _Core->EmitActionDying(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_WASTED:
+                _Core->EmitActionWasted(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_ENTERING_VEHICLE:
+                _Core->EmitActionEmbarking(player, previous);
+            break;
+            case SQMOD_PLAYER_ACTION_EXITING_VEHICLE:
+                _Core->EmitActionDisembarking(player, previous);
+            break;
+        }
     }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerAction)
 }
 
 static void VC_PlayerOnFire(int player, unsigned int state)
 {
-    _Core->EmitPlayerBurning(player, static_cast<bool>(state));
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerBurning(player, static_cast< bool >(state));
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerOnFire)
 }
 
 static void VC_PlayerCrouch(int player, unsigned int state)
 {
-    _Core->EmitPlayerCrouching(player, static_cast<bool>(state));
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerCrouching(player, static_cast< bool >(state));
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerCrouch)
 }
 
 static void VC_PlayerGameKeys(int player, int previous, int current)
 {
-    _Core->EmitPlayerGameKeys(player, previous, current);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitPlayerGameKeys(player, previous, current);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerGameKeys)
 }
 
 static void VC_OnCheckpointEntered(int checkpoint, int player)
 {
-    _Core->EmitCheckpointEntered(player, checkpoint);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitCheckpointEntered(player, checkpoint);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(CheckpointEntered)
 }
 
 static void VC_OnCheckpointExited(int checkpoint, int player)
 {
-    _Core->EmitCheckpointExited(player, checkpoint);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitCheckpointExited(player, checkpoint);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(CheckpointExited)
 }
 
 static void VC_OnSphereEntered(int sphere, int player)
 {
-    _Core->EmitForcefieldEntered(player, sphere);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitForcefieldEntered(player, sphere);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(SphereEntered)
 }
 
 static void VC_OnSphereExited(int sphere, int player)
 {
-    _Core->EmitForcefieldExited(player, sphere);
+    // Attempt to forward the event
+    try
+    {
+        _Core->EmitForcefieldExited(player, sphere);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(SphereExited)
 }
 
 // ------------------------------------------------------------------------------------------------

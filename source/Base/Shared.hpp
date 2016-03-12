@@ -52,6 +52,15 @@ template <> struct NumLimit< long double > { static const long double Min, Max; 
 struct StackGuard
 {
     /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    StackGuard()
+        : m_Top(sq_gettop(DefaultVM::Get())), m_VM(DefaultVM::Get())
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
     StackGuard(HSQUIRRELVM vm)

@@ -138,9 +138,10 @@ protected:
     };
 
     // --------------------------------------------------------------------------------------------
-    typedef Int64                   Time;
-    typedef std::vector< Cmd >      Queue;
-    typedef std::vector< Bucket >   Buckets;
+    typedef Int64                                   Time;
+    typedef std::vector< Cmd >                      Queue;
+    typedef std::vector< Bucket >                   Buckets;
+    typedef std::unordered_map< Routine *, Object > Objects;
 
     /* --------------------------------------------------------------------------------------------
      * Functor used to search for buckets with a certain interval.
@@ -186,6 +187,7 @@ protected:
     static Time         s_Prev; /* Previous time point. */
     static Queue        s_Queue; /* Actions to be performed when the buckets aren't locked */
     static Buckets      s_Buckets; /* Buckets of routines grouped by similar intervals. */
+    static Objects      s_Objects; /* List of existing routines and their associated object. */
 
     /* --------------------------------------------------------------------------------------------
      * Attach a routine to a certain bucket.
@@ -198,41 +200,42 @@ protected:
     static void Detach(Routine * routine, Interval interval);
 
     /* --------------------------------------------------------------------------------------------
+     * Create or locate the object for the specified routine and keep a strong reference to it.
+    */
+    static Object Associate(Routine * routine);
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the strong reference associated with the specified routine so it can be destroyed.
+    */
+    static void Dissociate(Routine * routine);
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the specified routine exists in the pool and references itself.
+    */
+    static bool Associated(Routine * routine);
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove the specified routine from the pool and any associated reference, if any.
+    */
+    static void Forget(Routine * routine);
+
+    /* --------------------------------------------------------------------------------------------
      * Process queue commands.
     */
     static void ProcQueue();
 
+    /* --------------------------------------------------------------------------------------------
+     * See whether this routine is valid otherwise throw an exception.
+    */
+    void Validate() const
+    {
+        if (m_Terminated)
+        {
+            SqThrowF("Routine [%s] => Was terminated", m_Tag.c_str());
+        }
+    }
+
 private:
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    Routine(const Routine &);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    Routine & operator = (const Routine &);
-
-private:
-
-    // --------------------------------------------------------------------------------------------
-    Iterate     m_Iterations; /* Number of iterations before self destruct. */
-    Interval    m_Interval; /* Interval between calls. */
-    Uint8       m_Arguments; /* Number of arguments to forward. */
-    bool        m_Suspended; /* Whether calls should be ignored. */
-    bool        m_Terminated; /* Whether the routine was terminated. */
-
-    // --------------------------------------------------------------------------------------------
-    Function    m_Callback; /* The callback to be executed when triggered. */
-
-    /* --------------------------------------------------------------------------------------------
-     * Arguments to be forwarded to the callback.
-    */
-    Object      m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
-                m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13, m_Arg14;
-
-public:
 
     /* --------------------------------------------------------------------------------------------
      * Constructor with just an interval.
@@ -275,6 +278,66 @@ public:
             , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5);
 
     /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    Routine(const Routine &);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    Routine & operator = (const Routine &);
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Number of iterations before self destruct.
+    */    
+    Iterate     m_Iterations;
+
+    /* --------------------------------------------------------------------------------------------
+     * Interval between calls.
+    */  
+    Interval    m_Interval;
+
+    /* --------------------------------------------------------------------------------------------
+     * Number of arguments to forward.
+    */  
+    Uint8       m_Arguments;
+
+    /* --------------------------------------------------------------------------------------------
+     * Whether calls should be ignored.
+    */  
+    bool        m_Suspended;
+
+    /* --------------------------------------------------------------------------------------------
+     * Whether the routine was terminated.
+    */  
+    bool        m_Terminated;
+
+    /* --------------------------------------------------------------------------------------------
+     * The callback to be executed when triggered.
+    */
+    Function    m_Callback;
+
+    /* --------------------------------------------------------------------------------------------
+     * User tag associated with this instance.
+    */
+    String      m_Tag;
+
+    /* --------------------------------------------------------------------------------------------
+     * User data associated with this instance.
+    */
+    Object      m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Arguments to be forwarded to the callback.
+    */
+    Object      m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
+                m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13, m_Arg14;
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~Routine();
@@ -290,6 +353,41 @@ public:
     CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user tag.
+    */
+    const String & GetTag() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    void SetTag(CSStr tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    Object & GetData();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(Object & data);
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag and allow chaining of operations.
+    */
+    Routine & ApplyTag(CSStr tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data and allow chaining of operations.
+    */
+    Routine & ApplyData(Object & data);
+
+    /* --------------------------------------------------------------------------------------------
      * Terminate this routine by releasing all resources and scheduling it for detachment.
     */
     void Terminate();
@@ -297,7 +395,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify an explicit value to be passed as the specified argument.
     */
-    void SetArg(Uint8 num, Object & val);
+    Routine & SetArg(Uint8 num, Object & val);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value that is passed as the specified argument.
@@ -385,6 +483,59 @@ protected:
      * Execute the binded callback.
     */
     void Execute();
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a routine with just an interval.
+    */
+    static Object Create(Object & env, Function & func, Interval interval);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a routine with just an interval and explicit iterations.
+    */
+    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a routine with just an interval, explicit iterations and arguments.
+    */
+    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+                            , Object & a1);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a routine with just an interval, explicit iterations and arguments.
+    */
+    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+                            , Object & a1, Object & a2);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a routine with just an interval, explicit iterations and arguments.
+    */
+    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+                            , Object & a1, Object & a2, Object & a3);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a routine with just an interval, explicit iterations and arguments.
+    */
+    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+                            , Object & a1, Object & a2, Object & a3, Object & a4);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a routine with just an interval, explicit iterations and arguments.
+    */
+    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+                            , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5);
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of known routines.
+    */
+    static Uint32 Count();
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to find a certain routine by its associated tag.
+    */
+    static Object FindByTag(CSStr tag);
+
 };
 
 } // Namespace:: SqMod
