@@ -158,13 +158,19 @@ Int32 ConnHnd::Handle::Flush(Uint32 num, Object & env, Function & func)
 {
     // Do we even have a valid connection?
     if (!mPtr)
-        return -1;
+    {
+        return -1; // No connection!
+    }
     // Is there anything to flush?
     else if (!num || mQueue.empty())
-        return 0;
+    {
+        return 0; // Nothing to process!
+    }
     // Can we even flush that many?
     else if (num > mQueue.size())
+    {
         num = mQueue.size();
+    }
     // Generate the function that should be called upon error
     Function callback = Function(env.GetVM(), env.GetObject(), func.GetFunc());
     // Obtain iterators to the range of queries that should be flushed
@@ -172,39 +178,68 @@ Int32 ConnHnd::Handle::Flush(Uint32 num, Object & env, Function & func)
     QueryList::iterator end = mQueue.begin() + num;
     // Attempt to begin the flush transaction
     if ((mStatus = sqlite3_exec(mPtr, "BEGIN", NULL, NULL, NULL)) != SQLITE_OK)
-        SqThrowF("Unable to begin transaction [%s]", sqlite3_errmsg(mPtr));
+    {
+        SqThrowF("Unable to begin flush transaction [%s]", sqlite3_errmsg(mPtr));
+    }
     // Process all queries within range of selection
     for (; itr != end; ++itr)
     {
         // Should we manually terminate this query?
         /*
         if (*(*itr).rbegin() != ';')
+        {
             itr->push_back(';');
+        }
         */
         // Attempt to execute the currently processed query string
         if ((mStatus = sqlite3_exec(mPtr, itr->c_str(), NULL, NULL, NULL)) == SQLITE_OK)
+        {
             continue;
+        }
         // Do we have to execute any callback to resolve our issue?
         else if (!callback.IsNull())
         {
-            // Ask the callback whether the query processing should end here
-            SharedPtr< bool > ret = callback.Evaluate< bool, Int32, CSStr >(mStatus, itr->c_str());
-            // Should we break here?
-            if (!!ret && (*ret == false))
-                break;
+            try
+            {
+                // Ask the callback whether the query processing should end here
+                SharedPtr< bool > ret = callback.Evaluate< bool, Int32, const String & >(mStatus, *itr);
+                // Should we break here?
+                if (!!ret && (*ret == false))
+                {
+                    break;
+                }
+            }
+            catch (const Sqrat::Exception & e)
+            {
+                _SqMod->LogErr("Squirrel error caught in flush handler [%s]", e.Message().c_str());
+            }
+            catch (const std::exception & e)
+            {
+                _SqMod->LogErr("Program error caught in flush handler [%s]", e.what());
+            }
+            catch (...)
+            {
+                _SqMod->LogErr("Unknown error caught in flush handler");
+            }
         }
     }
     // Erase all queries till end or till the point of failure (if any occurred)
     mQueue.erase(mQueue.begin(), itr);
     // Attempt to commit changes requested during transaction
     if ((mStatus = sqlite3_exec(mPtr, "COMMIT", NULL, NULL, NULL)) == SQLITE_OK)
+    {
         return sqlite3_changes(mPtr);
+    }
     // Attempt to roll back erroneous changes
     else if ((mStatus = sqlite3_exec(mPtr, "ROLLBACK", NULL, NULL, NULL)) != SQLITE_OK)
-        SqThrowF("Unable to rollback transaction [%s]", sqlite3_errmsg(mPtr));
+    {
+        SqThrowF("Unable to rollback flush transaction [%s]", sqlite3_errmsg(mPtr));
+    }
     // The transaction failed somehow but we managed to rollback
     else
-        SqThrowF("Unable to commit transaction because [%s]", sqlite3_errmsg(mPtr));
+    {
+        SqThrowF("Unable to commit flush transaction [%s]", sqlite3_errmsg(mPtr));
+    }
     // Operation failed
     return -1;
 }

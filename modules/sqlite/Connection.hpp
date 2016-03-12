@@ -527,7 +527,7 @@ public:
     Int32 Flush(Uint32 num);
 
     /* --------------------------------------------------------------------------------------------
-     * Flush a specific amount of queries from the queue.
+     * Flush a specific amount of queries from the queue and handle errors manually.
     */
     Int32 Flush(Uint32 num, Object & env, Function & func);
 
