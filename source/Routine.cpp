@@ -250,7 +250,7 @@ Routine::Routine(Object & env, Function & func, Interval interval)
     , m_Suspended(false)
     , m_Terminated(false)
     , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag()
+    , m_Tag(_SC(""))
     , m_Data()
 {
     Create();
@@ -263,7 +263,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterate itera
     , m_Suspended(false)
     , m_Terminated(false)
     , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag()
+    , m_Tag(_SC(""))
     , m_Data()
 {
    Create();
@@ -278,7 +278,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterate itera
     , m_Suspended(false)
     , m_Terminated(false)
     , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag()
+    , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1)
 {
@@ -294,7 +294,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterate itera
     , m_Suspended(false)
     , m_Terminated(false)
     , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag()
+    , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1), m_Arg2(a2)
 {
@@ -310,7 +310,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterate itera
     , m_Suspended(false)
     , m_Terminated(false)
     , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag()
+    , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3)
 {
@@ -326,7 +326,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterate itera
     , m_Suspended(false)
     , m_Terminated(false)
     , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag()
+    , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3), m_Arg4(a4)
 {
@@ -342,7 +342,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterate itera
     , m_Suspended(false)
     , m_Terminated(false)
     , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag()
+    , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3), m_Arg4(a4), m_Arg5(a5)
 {
@@ -391,7 +391,7 @@ const String & Routine::GetTag() const
 // ------------------------------------------------------------------------------------------------
 void Routine::SetTag(CSStr tag)
 {
-    m_Tag.assign(tag);
+    m_Tag.assign(tag ? tag : _SC(""));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -415,7 +415,7 @@ void Routine::SetData(Object & data)
 // ------------------------------------------------------------------------------------------------
 Routine & Routine::ApplyTag(CSStr tag)
 {
-    m_Tag.assign(tag);
+    m_Tag.assign(tag ? tag : _SC(""));
     // Allow chaining
     return *this;
 }
@@ -437,7 +437,7 @@ void Routine::Terminate()
     // Was the routine already terminated?
     if (m_Terminated)
     {
-        SqThrowF("Routine [%s] => Was already terminated", m_Tag.c_str());
+        SqThrowF("Routine was already terminated");
     }
     // Detach from the associated bucket
     Detach();
@@ -467,7 +467,7 @@ Routine & Routine::SetArg(Uint8 num, Object & val)
         case 12: m_Arg12 = val; break;
         case 13: m_Arg13 = val; break;
         case 14: m_Arg14 = val; break;
-        default: SqThrowF("Routine [%s] => Argument is out of range: %d", m_Tag.c_str(), num);
+        default: SqThrowF("Argument is out of range: %d", num);
     }
     // Allow chaining
     return *this;
@@ -495,7 +495,7 @@ Object & Routine::GetArg(Uint8 num)
         case 12: return m_Arg12;
         case 13: return m_Arg13;
         case 14: return m_Arg14;
-        default: SqThrowF("Routine [%s] => Argument is out of range: %d", m_Tag.c_str(), num);
+        default: SqThrowF("Argument is out of range: %d", num);
     }
     // Shouldn't really reach this point
     return NullObject();
@@ -515,7 +515,7 @@ void Routine::SetInterval(Interval interval)
     // Is the specified interval valid?
     if (!interval)
     {
-        SqThrowF("Routine [%s] => Invalid interval", m_Tag.c_str());
+        SqThrowF("Invalid routine interval");
     }
     // Detach from the current bucket
     Detach();
@@ -553,7 +553,7 @@ void Routine::SetArguments(Uint8 num)
     // Is the specified argument count valid?
     if (num > 14)
     {
-        SqThrowF("Routine [%s] => Argument is out of range: %d", m_Tag.c_str(), num);
+        SqThrowF("Argument is out of range: %d", num);
     }
     // Perform the requested operation
     m_Arguments = num;
@@ -633,12 +633,12 @@ void Routine::Create()
     // Do we even have a valid interval?
     if (!m_Interval)
     {
-        SqThrowF("Routine [%s] => Invalid interval", m_Tag.c_str());
+        SqThrowF("Invalid routine interval");
     }
     // Is the specified callback even valid?
     else if (m_Callback.IsNull())
     {
-        SqThrowF("Routine [%s] => Invalid callback", m_Tag.c_str());
+        SqThrowF("Invalid routine callback");
     }
     // Always use the command queue to attach the routine when created
     s_Queue.emplace_back(this, m_Interval, CMD_ATTACH);
@@ -703,7 +703,7 @@ void Routine::Execute()
     // Make sure that we have a known number of arguments
     else if (m_Arguments > 14)
     {
-        SqThrowF("Routine [%s] => Out of range argument count: %d", m_Tag.c_str(), m_Arguments);
+        SqThrowF("Routine [%s] => Out of range argument count [%d]", m_Tag.c_str(), m_Arguments);
     }
     // Attempt to forward the call
     try
@@ -767,15 +767,15 @@ void Routine::Execute()
     }
     catch (const Sqrat::Exception & e)
     {
-        SqThrowF("Routine [%s] => Squirrel error: %s", m_Tag.c_str(), e.Message().c_str());
+        LogErr("Routine [%s] => Squirrel error [%s]", m_Tag.c_str(), e.Message().c_str());
     }
     catch (const std::exception & e)
     {
-        SqThrowF("Routine [%s] => Program error: %s", m_Tag.c_str(), e.what());
+        LogErr("Routine [%s] => Program error [%s]", m_Tag.c_str(), e.what());
     }
     catch (...)
     {
-        SqThrowF("Routine [%s] => Unknown error", m_Tag.c_str());
+        LogErr("Routine [%s] => Unknown error", m_Tag.c_str());
     }
     // Decrease the number of iterations if necessary
     if (m_Iterations && (--m_Iterations) == 0)

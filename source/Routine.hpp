@@ -231,7 +231,7 @@ protected:
     {
         if (m_Terminated)
         {
-            SqThrowF("Routine [%s] => Was terminated", m_Tag.c_str());
+            SqThrowF("Routine was terminated [%s]", m_Tag.c_str());
         }
     }
 
