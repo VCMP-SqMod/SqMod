@@ -561,7 +561,7 @@ protected:
         */
         bool CheckIndex(Int32 idx) const
         {
-            return (idx >= 0) && (idx < mColumns);
+            return (idx >= 0) && (idx <= mColumns);
         }
 
         /* --------------------------------------------------------------------------------------------

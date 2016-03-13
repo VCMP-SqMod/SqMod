@@ -527,6 +527,17 @@ public:
     Int32 Flush(Uint32 num);
 
     /* --------------------------------------------------------------------------------------------
+     * Flush all queries from the queue and handle errors manually.
+    */
+    Int32 Flush(Object & env, Function & func)
+    {
+        // Validate the handle
+        Validate();
+        // Return the requested information
+        return Flush(m_Handle->mQueue.size(), env, func);
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Flush a specific amount of queries from the queue and handle errors manually.
     */
     Int32 Flush(Uint32 num, Object & env, Function & func);

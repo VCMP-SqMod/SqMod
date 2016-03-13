@@ -654,7 +654,7 @@ Array Statement::FetchArray() const
     // Validate the handle
     Validate();
     // Return the requested information
-    return FetchArray(0, m_Handle->mColumns-1);
+    return FetchArray(0, m_Handle->mColumns);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -663,7 +663,7 @@ Array Statement::FetchArray(Int32 min) const
     // Validate the handle
     Validate();
     // Return the requested information
-    return FetchArray(min, m_Handle->mColumns-1);
+    return FetchArray(min, m_Handle->mColumns);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -756,7 +756,7 @@ Table Statement::FetchTable() const
     // Validate the handle
     Validate();
     // Return the requested information
-    return FetchTable(0, m_Handle->mColumns-1);
+    return FetchTable(0, m_Handle->mColumns);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -765,7 +765,7 @@ Table Statement::FetchTable(Int32 min) const
     // Validate the handle
     Validate();
     // Return the requested information
-    return FetchTable(min, m_Handle->mColumns-1);
+    return FetchTable(min, m_Handle->mColumns);
 }
 
 // ------------------------------------------------------------------------------------------------

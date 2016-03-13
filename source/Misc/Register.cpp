@@ -110,7 +110,7 @@ void Register_Misc(HSQUIRRELVM vm)
     .Func(_SC("AddRadioStream"), &AddRadioStream)
     .Func(_SC("RemoveRadioStream"), &RemoveRadioStream);
 
-    RootTable(vm).Bind(_SC("Server"), srvns);
+    RootTable(vm).Bind(_SC("SqServer"), srvns);
 
     RootTable(vm)
     .Func(_SC("GetModelName"), &GetModelName)
