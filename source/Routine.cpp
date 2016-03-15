@@ -95,6 +95,7 @@ Object Routine::Associate(Routine * routine)
         // If the iterator still points to a null element then we failed
         if (itr == s_Objects.end())
         {
+            // NOTE: Routine instance is destroyed by the script object if necessary!
             SqThrowF("Unable to remember routine instance");
         }
     }

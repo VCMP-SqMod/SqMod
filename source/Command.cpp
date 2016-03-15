@@ -14,7 +14,36 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CmdManager * _Cmd = NULL;
+CmdManager * _Cmd = nullptr;
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CmdListener::Typename(HSQUIRRELVM vm)
+{
+    static SQChar name[] = _SC("SqCmdListener");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static void ValidateName(CSStr name)
+{
+    // Is the name empty?
+    if (!name || *name == '\0')
+    {
+        SqThrowF("Invalid or empty command name");
+    }
+    // Inspect name characters
+    while (*name != '\0')
+    {
+        // Does it contain spaces?
+        if (isspace(*name) != 0)
+        {
+            SqThrowF("Command names cannot contain spaces");
+        }
+        // Move to the next character
+        ++name;
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 CSStr CmdArgSpecToStr(Uint8 spec)
@@ -38,8 +67,8 @@ CmdManager::CmdManager()
     : m_Buffer(512)
     , m_Commands()
     , m_Invoker(SQMOD_UNKNOWN)
-    , m_Command()
-    , m_Argument()
+    , m_Command(64, '\0')
+    , m_Argument(512, '\0')
     , m_Argv()
     , m_Argc(0)
 {
@@ -53,20 +82,159 @@ CmdManager::~CmdManager()
 }
 
 // ------------------------------------------------------------------------------------------------
+Object & CmdManager::Attach(const String & name, CmdListener * ptr, bool autorel)
+{
+    // Obtain the unique identifier of the specified name
+    const std::size_t hash = std::hash< String >()(name);
+    // Make sure the command doesn't already exist
+    for (const auto & cmd : m_Commands)
+    {
+        // Are the hashes identical?
+        if (cmd.mHash == hash)
+        {
+            // Do we have to release this listener instance our self?
+            if (autorel)
+            {
+                delete ptr; // Let's avoid memory leaks!
+            }
+            // Now it's safe to throw the exception
+            // (include information necessary to help identify hash collisions!)
+            SqThrowF("Command (%s:%zu) already exists as (%s:%zu)",
+                        name.c_str(), hash, cmd.mName.c_str(), cmd.mHash);
+        }
+    }
+    // Obtain the initial stack size
+    const StackGuard sg;
+    // Push this instance on the stack
+    ClassType< CmdListener >::PushInstance(DefaultVM::Get(), ptr);
+    // Attempt to insert the command
+    m_Commands.emplace_back(hash, name, Var< Object >(DefaultVM::Get(), -1).value);
+    // Return the script object of the listener
+    return m_Commands.back().mObj;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdManager::Detach(const String & name)
+{
+    // Obtain the unique identifier of the specified name
+    const std::size_t hash = std::hash< String >()(name);
+    // Iterator to the found command, if any
+    CmdList::const_iterator itr = m_Commands.cbegin();
+    // Attempt to find the specified command
+    for (; itr != m_Commands.cend(); ++itr)
+    {
+        // Are the hashes identical?
+        if (itr->mHash == hash)
+        {
+            break; // We found our command!
+        }
+    }
+    // Make sure the command exist before attempting to remove it
+    if (itr != m_Commands.end())
+    {
+        m_Commands.erase(itr);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdManager::Detach(CmdListener * ptr)
+{
+    // Iterator to the found command, if any
+    CmdList::const_iterator itr = m_Commands.cbegin();
+    // Attempt to find the specified command
+    for (; itr != m_Commands.cend(); ++itr)
+    {
+        // Are the instances identical?
+        if (itr->mPtr == ptr)
+        {
+            break; // We found our command!
+        }
+    }
+    // Make sure the command exists before attempting to remove it
+    if (itr != m_Commands.end())
+    {
+        m_Commands.erase(itr);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CmdManager::Attached(const String & name) const
+{
+    // Obtain the unique identifier of the specified name
+    const std::size_t hash = std::hash< String >()(name);
+    // Attempt to find the specified command
+    for (const auto & cmd : m_Commands)
+    {
+        // Are the hashes identical?
+        if (cmd.mHash == hash)
+        {
+            return true; // We found our command!
+        }
+    }
+    // No such command exists
+    return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CmdManager::Attached(const CmdListener * ptr) const
+{
+    // Attempt to find the specified command
+    for (const auto & cmd : m_Commands)
+    {
+        // Are the instances identical?
+        if (cmd.mPtr == ptr)
+        {
+            return true; // We found our command!
+        }
+    }
+    // No such command exists
+    return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdManager::Sort()
+{
+    std::sort(m_Commands.begin(), m_Commands.end(),
+        [](CmdList::const_reference a, CmdList::const_reference b) -> bool {
+            return (b.mName < a.mName);
+        });
+}
+
+// ------------------------------------------------------------------------------------------------
+const Object & CmdManager::FindByName(const String & name)
+{
+    // Obtain the unique identifier of the specified name
+    const std::size_t hash = std::hash< String >()(name);
+    // Attempt to find the specified command
+    for (const auto & cmd : m_Commands)
+    {
+        // Are the hashes identical?
+        if (cmd.mHash == hash)
+        {
+            return cmd.mObj; // We found our command!
+        }
+    }
+    // No such command exist
+    return NullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
 void CmdManager::Terminate()
 {
     // Release the script resources from command instances
-    for (CmdList::iterator itr = m_Commands.begin(); itr != m_Commands.end(); ++itr)
+    for (const auto & cmd : m_Commands)
     {
-        if (itr->second)
+        if (cmd.mPtr)
         {
             // Release the local command callbacks
-            itr->second->m_OnExec.ReleaseGently();
-            itr->second->m_OnAuth.ReleaseGently();
-            itr->second->m_OnPost.ReleaseGently();
-            itr->second->m_OnFail.ReleaseGently();
+            cmd.mPtr->m_OnExec.ReleaseGently();
+            cmd.mPtr->m_OnAuth.ReleaseGently();
+            cmd.mPtr->m_OnPost.ReleaseGently();
+            cmd.mPtr->m_OnFail.ReleaseGently();
         }
     }
+    // Clear the command list and release all references
+    m_Commands.clear();
     // Release the script resources from this class
     m_Argv.clear();
     // Release the global callbacks
@@ -78,7 +246,7 @@ void CmdManager::Terminate()
 Int32 CmdManager::Run(Int32 invoker, CCStr command)
 {
     // Validate the string command
-    if (!command || *command == 0)
+    if (!command || *command == '\0')
     {
         // Tell the script callback to deal with the error
         SqError(CMDERR_EMPTY_COMMAND, _SC("Invalid or empty command name"), invoker);
@@ -89,10 +257,20 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     m_Invoker = invoker;
     // Skip white-space until the command name
     while (isspace(*command)) ++command;
+    // Anything left to process?
+    if (*command == '\0')
+    {
+        // Tell the script callback to deal with the error
+        SqError(CMDERR_EMPTY_COMMAND, _SC("Invalid or empty command name"), invoker);
+        // Execution failed!
+        return -1;
+    }
+    // Where the name ends and argument begins
+    CCStr split = command;
     // Find where the command name ends
-    CCStr split = strchr(command, ' ');
+    while (isspace(*split)) ++split;
     // Are there any arguments specified?
-    if (split != NULL)
+    if (split != nullptr)
     {
         // Save the command name
         m_Command.assign(command, (split - command));
@@ -104,11 +282,17 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     // No arguments specified
     else
     {
+        // Save the command name
         m_Command.assign(command);
+        // Leave argument empty
         m_Argument.assign("");
     }
-    // Did anything remain after cleaning?
-    if (m_Command.empty())
+    // Do we have a valid command name?
+    try
+    {
+        ValidateName(m_Command.c_str());
+    }
+    catch (...)
     {
         // Tell the script callback to deal with the error
         SqError(CMDERR_INVALID_COMMAND, _SC("Cannot execute invalid command name"), invoker);
@@ -116,29 +300,25 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
         return -1;
     }
     // Attempt to find the specified command
-    CmdList::iterator itr = m_Commands.find(m_Command);
+    Object obj = FindByName(m_Command);
     // Have we found anything?
-    if (itr == m_Commands.end())
+    if (obj.IsNull())
     {
         // Tell the script callback to deal with the error
         SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command);
         // Execution failed!
         return -1;
     }
+    // Save the command instance
+    m_Instance = obj.Cast< CmdListener * >();
     // Is the command instance valid? (just in case)
-    else if (!itr->second)
+    if (!m_Instance)
     {
-        // There's no point in keeping this command anymore
-        m_Commands.erase(itr);
         // Tell the script callback to deal with the error
         SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command.c_str());
         // Execution failed!
         return -1;
     }
-    // Save the command instance
-    m_Instance = itr->second;
-    // Place a lock on the command
-    m_Instance->m_Locked = true;
     // Value returned by the command
     Int32 ret = -1;
     // Attempt to execute the command
@@ -151,10 +331,8 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
         // Tell the script callback to deal with the error
         SqError(CMDERR_EXECUTION_FAILED, _SC("Exceptions occurred during execution"), m_Invoker);
     }
-    // Remove the lock from the command
-    m_Instance->m_Locked = false;
     // Release the command instance
-    m_Instance = NULL;
+    m_Instance = nullptr;
     // Return the result
     return ret;
 }
@@ -487,7 +665,7 @@ bool CmdManager::Parse()
             if (!identified)
             {
                 // Let's us know if the whole argument was part of the resulted value
-                CStr next = NULL;
+                CStr next = nullptr;
                 // Attempt to extract the integer value from the string
                 LongI value = strtol(m_Buffer.Data(), &next, 10);
                 // See if this whole string was indeed an integer
@@ -507,7 +685,7 @@ bool CmdManager::Parse()
             if (!identified)
             {
                 // Let's us know if the whole argument was part of the resulted value
-                CStr next = NULL;
+                CStr next = nullptr;
                 // Attempt to extract the floating point value from the string
 #ifdef SQUSEDOUBLE
                 Float64 value = strtod(m_Buffer.Data(), &next);
@@ -598,6 +776,32 @@ bool CmdManager::Parse()
 }
 
 // ------------------------------------------------------------------------------------------------
+Object & CmdManager::Create(CSStr name)
+{
+    return Attach(name, new CmdListener(name), true);
+}
+
+Object & CmdManager::Create(CSStr name, CSStr spec)
+{
+    return Attach(name, new CmdListener(name, spec), true);
+}
+
+Object & CmdManager::Create(CSStr name, CSStr spec, Array & tags)
+{
+    return Attach(name, new CmdListener(name, spec, tags), true);
+}
+
+Object & CmdManager::Create(CSStr name, CSStr spec, Uint8 min, Uint8 max)
+{
+    return Attach(name, new CmdListener(name, spec, min, max), true);
+}
+
+Object & CmdManager::Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max)
+{
+    return Attach(name, new CmdListener(name, spec, tags, min, max), true);
+}
+
+// ------------------------------------------------------------------------------------------------
 void CmdListener::Init(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max)
 {
     m_Name.assign("");
@@ -614,8 +818,6 @@ void CmdListener::Init(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 ma
     m_Spec.assign("");
     m_Help.assign("");
     m_Info.assign("");
-    // Use the global authentication inspector
-    m_OnAuth = _Cmd->GetOnAuth();
     // Default to no authority check
     m_Authority = -1;
     // Default to unprotected command
@@ -624,8 +826,6 @@ void CmdListener::Init(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 ma
     m_Suspended = false;
     // Default to non-associative arguments
     m_Associate = false;
-    // The command is unlocked to further changes
-    m_Locked = false;
     // Set the specified minimum and maximum allowed arguments
     SetMinArgC(min);
     SetMaxArgC(max);
@@ -666,9 +866,8 @@ CmdListener::CmdListener(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 
 // ------------------------------------------------------------------------------------------------
 CmdListener::~CmdListener()
 {
-    // See the instance must be detached
-    if (!m_Name.empty())
-        _Cmd->Detach(m_Name);
+    // Detach this command (shouldn't be necessary!)
+    _Cmd->Detach(this);
     // Release callbacks
     m_OnExec.ReleaseGently();
     m_OnAuth.ReleaseGently();
@@ -694,6 +893,30 @@ CSStr CmdListener::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CmdListener::Attach()
+{
+    // Is the associated name even valid?
+    if (m_Name.empty())
+    {
+        SqThrowF("Invalid or empty command name");
+    }
+    // Are we already attached?
+    else if (_Cmd->Attached(this))
+    {
+        SqThrowF("Command is already attached");
+    }
+    // Attempt to attach this command
+    _Cmd->Attach(m_Name, this, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdListener::Detach()
+{
+    // Detach this command
+    _Cmd->Detach(this);
+}
+
+// ------------------------------------------------------------------------------------------------
 Uint8 CmdListener::GetArgFlags(Uint32 idx) const
 {
     if (idx < SQMOD_MAX_CMD_ARGS)
@@ -710,19 +933,23 @@ CSStr CmdListener::GetName() const
 // ------------------------------------------------------------------------------------------------
 void CmdListener::SetName(CSStr name)
 {
-    // Is this command locked because it's being executed now?
-    if (m_Locked)
-        SqThrowF("Cannot rename locked command: %s", m_Name.c_str());
-    // Is the command name even valid?
-    else if (!name || *name == 0)
-        SqThrowF("Invalid command name: null/empty");
-    // Detach from the current name if necessary
-    if (!m_Name.empty())
-        _Cmd->Detach(name);
-    // Now it's safe to assign the new name
-    m_Name.assign(name);
-    // We know the new name is valid
-    _Cmd->Attach(m_Name, this);
+    // Validate the specified name
+    ValidateName(name);
+    // Is this command already attached to a name?
+    if (_Cmd->Attached(this))
+    {
+        // Detach from the current name if necessary
+        _Cmd->Detach(this);
+        // Now it's safe to assign the new name
+        m_Name.assign(name);
+        // We know the new name is valid
+        _Cmd->Attach(m_Name, this, false);
+    }
+    else
+    {
+        // Just assign the name
+        m_Name.assign(name);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -747,7 +974,9 @@ Array CmdListener::GetArgTags() const
     Array arr(DefaultVM::Get(), SQMOD_MAX_CMD_ARGS);
     // Put the tags to the allocated array
     for (Uint32 arg = 0; arg < SQMOD_MAX_CMD_ARGS; ++arg)
+    {
         arr.SetValue(arg, m_ArgTags[arg]);
+    }
     // Return the array with the tags
     return arr;
 }
@@ -761,14 +990,26 @@ void CmdListener::SetArgTags(Array & tags)
     if (tags.IsNull() || max == 0)
     {
         for (Uint8 n = 0; n < SQMOD_MAX_CMD_ARGS; ++n)
+        {
             m_ArgTags[n].assign("");
+        }
     }
     // See if we're in range
     else if (max < SQMOD_MAX_CMD_ARGS)
+    {
         // Attempt to get all arguments in one go
         tags.GetArray(m_ArgTags, max);
+    }
     else
+    {
         SqThrowF("Argument tag (%u) is out of range (%u)", max, SQMOD_MAX_CMD_ARGS);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CmdListener::Attached() const
+{
+    return _Cmd->Attached(this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -854,9 +1095,13 @@ void CmdListener::SetMinArgC(Uint8 val)
 {
     // Perform a range check on the specified argument index
     if (val >= SQMOD_MAX_CMD_ARGS)
+    {
         SqThrowF("Argument (%u) is out of total range (%u)", val, SQMOD_MAX_CMD_ARGS);
+    }
     else if (val > m_MaxArgc)
+    {
         SqThrowF("Minimum argument (%u) exceeds maximum (%u)", val, m_MaxArgc);
+    }
     // Apply the specified value
     m_MinArgc = val;
 }
@@ -872,17 +1117,15 @@ void CmdListener::SetMaxArgC(Uint8 val)
 {
     // Perform a range check on the specified argument index
     if (val >= SQMOD_MAX_CMD_ARGS)
+    {
         SqThrowF("Argument (%u) is out of total range (%u)", val, SQMOD_MAX_CMD_ARGS);
+    }
     else if (val < m_MinArgc)
+    {
         SqThrowF("Minimum argument (%u) exceeds maximum (%u)", m_MinArgc, val);
+    }
     // Apply the specified value
     m_MaxArgc = val;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CmdListener::GetLocked() const
-{
-    return m_Locked;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -896,7 +1139,9 @@ void CmdListener::SetOnExec(Object & env, Function & func)
 {
     // Make sure that we are allowed to store script resources
     if (m_Name.empty())
+    {
         SqThrowF("Invalid commands cannot store script resources");
+    }
     // Apply the specified information
     m_OnExec = Function(env.GetVM(), env.GetObject(), func.GetFunc());
 }
@@ -912,7 +1157,9 @@ void CmdListener::SetOnAuth(Object & env, Function & func)
 {
     // Make sure that we are allowed to store script resources
     if (m_Name.empty())
+    {
         SqThrowF("Invalid commands cannot store script resources");
+    }
     // Apply the specified information
     m_OnAuth = Function(env.GetVM(), env.GetObject(), func.GetFunc());
 }
@@ -928,7 +1175,9 @@ void CmdListener::SetOnPost(Object & env, Function & func)
 {
     // Make sure that we are allowed to store script resources
     if (m_Name.empty())
+    {
         SqThrowF("Invalid commands cannot store script resources");
+    }
     // Apply the specified information
     m_OnPost = Function(env.GetVM(), env.GetObject(), func.GetFunc());
 }
@@ -944,7 +1193,9 @@ void CmdListener::SetOnFail(Object & env, Function & func)
 {
     // Make sure that we are allowed to store script resources
     if (m_Name.empty())
+    {
         SqThrowF("Invalid commands cannot store script resources");
+    }
     // Apply the specified information
     m_OnFail = Function(env.GetVM(), env.GetObject(), func.GetFunc());
 }
@@ -954,7 +1205,9 @@ CSStr CmdListener::GetArgTag(Uint32 arg) const
 {
     // Perform a range check on the specified argument index
     if (arg >= SQMOD_MAX_CMD_ARGS)
+    {
         SqThrowF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+    }
     // Return the requested information
     return m_ArgTags[arg].c_str();
 }
@@ -964,10 +1217,14 @@ void CmdListener::SetArgTag(Uint32 arg, CSStr name)
 {
     // Perform a range check on the specified argument index
     if (arg >= SQMOD_MAX_CMD_ARGS)
+    {
         SqThrowF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+    }
     // The string type doesn't appreciate null values
     else if (name)
+    {
         m_ArgTags[arg].assign(name);
+    }
     // Clear previous name in this case
     else
         m_ArgTags[arg].clear();
@@ -1000,14 +1257,17 @@ void CmdListener::GenerateInfo(bool full)
             }
             // Is there any argument left?
             if (stop)
-                // Stop the main loop as well
-                break;
+            {
+                break; // Stop the main loop as well
+            }
         }
         // Begin the argument block
         m_Info.push_back('<');
         // If the current argument is beyond minimum then mark it as optional
         if (arg >= m_MinArgc)
+        {
             m_Info.push_back('*');
+        }
         // If the argument has a tag/name associated then add it as well
         if (!m_ArgTags[arg].empty())
         {
@@ -1020,19 +1280,25 @@ void CmdListener::GenerateInfo(bool full)
         const Uint8 spec = m_ArgSpec[arg];
         // Is this a greedy argument?
         if (spec & CMDARG_GREEDY)
+        {
             m_Info.append("...");
+        }
         // If the argument has any explicit types specified
         else if (spec != CMDARG_ANY)
         {
             // Does it support integers?
             if (spec & CMDARG_INTEGER)
+            {
                 m_Info.append("integer");
+            }
             // Does it support floats?
             if (spec & CMDARG_FLOAT)
             {
                 // Add a separator if this is not the first enabled type!
                 if (m_Info.back() != ':' && m_Info.back() != '<')
+                {
                     m_Info.push_back(',');
+                }
                 // Now add the type name
                 m_Info.append("float");
             }
@@ -1041,7 +1307,9 @@ void CmdListener::GenerateInfo(bool full)
             {
                 // Add a separator if this is not the first enabled type!
                 if (m_Info.back() != ':' && m_Info.back() != '<')
+                {
                     m_Info.push_back(',');
+                }
                 // Now add the type name
                 m_Info.append("boolean");
             }
@@ -1050,22 +1318,30 @@ void CmdListener::GenerateInfo(bool full)
             {
                 // Add a separator if this is not the first enabled type?
                 if (m_Info.back() != ':' && m_Info.back() != '<')
+                {
                     m_Info.push_back(',');
+                }
                 // Now add the type name
                 m_Info.append("string");
             }
         }
         // Any kind of value is supported by this argument
         else
+        {
             m_Info.append("any");
+        }
         // Terminate the argument block
         m_Info.push_back('>');
         // Don't process anything after greedy arguments
         if (spec & CMDARG_GREEDY)
+        {
             break;
+        }
         // If this is not the last argument then add a separator
         else if (arg+1 != m_MaxArgc)
+        {
             m_Info.push_back(' ');
+        }
     }
 }
 
@@ -1074,7 +1350,9 @@ bool CmdListener::ArgCheck(Uint32 arg, Uint8 flag) const
 {
     // Perform a range check on the specified argument index
     if (arg >= SQMOD_MAX_CMD_ARGS)
+    {
         SqThrowF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+    }
     // Retrieve the argument flags
     const Uint8 f = m_ArgSpec[arg];
     // Perform the requested check
@@ -1094,7 +1372,9 @@ bool CmdListener::AuthCheckID(Int32 id)
 {
     // Do we need explicit authority verification?
     if (!m_Protected)
+    {
         return true;
+    }
     // Allow execution by default
     bool allow = true;
     // Was there a custom authority inspector specified?
@@ -1105,9 +1385,19 @@ bool CmdListener::AuthCheckID(Int32 id)
         // See what the custom authority inspector said or default to disallow
         allow = (!ret ? false : *ret);
     }
+    // Was there a global authority inspector specified?
+    else if (!_Cmd->GetOnAuth().IsNull())
+    {
+        // Ask the specified authority inspector if this execution should be allowed
+        SharedPtr< bool > ret = _Cmd->GetOnAuth().Evaluate< bool, Object & >(_Core->GetPlayer(id).mObj);
+        // See what the custom authority inspector said or default to disallow
+        allow = (!ret ? false : *ret);
+    }
     // Can we use the default authority system?
     else if (m_Authority >= 0)
+    {
         allow = (_Core->GetPlayer(id).mAuthority >= m_Authority);
+    }
     // Return result
     return allow;
 }
@@ -1275,6 +1565,21 @@ void TerminateCommand()
 }
 
 // ------------------------------------------------------------------------------------------------
+static void Cmd_Sort()
+{
+    _Cmd->Sort();
+}
+
+// ------------------------------------------------------------------------------------------------
+static const Object & Cmd_FindByName(CSStr name)
+{
+    // Validate the specified name
+    ValidateName(name);
+    // Now perform the requested search
+    return _Cmd->FindByName(name);
+}
+
+// ------------------------------------------------------------------------------------------------
 static Function & Cmd_GetOnError()
 {
     return _Cmd->GetOnError();
@@ -1322,22 +1627,44 @@ static CSStr Cmd_GetArgument()
     return _Cmd->GetArgument();
 }
 
+// ------------------------------------------------------------------------------------------------
+Object & Cmd_Create(CSStr name)
+{
+    return _Cmd->Create(name);
+}
+
+Object & Cmd_Create(CSStr name, CSStr spec)
+{
+    return _Cmd->Create(name, spec);
+}
+
+Object & Cmd_Create(CSStr name, CSStr spec, Array & tags)
+{
+    return _Cmd->Create(name, spec, tags);
+}
+
+Object & Cmd_Create(CSStr name, CSStr spec, Uint8 min, Uint8 max)
+{
+    return _Cmd->Create(name,spec, min, max);
+}
+
+Object & Cmd_Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max)
+{
+    return _Cmd->Create(name, spec, tags, min, max);
+}
+
 // ================================================================================================
 void Register_Command(HSQUIRRELVM vm)
 {
     Table cmdns(vm);
 
-    cmdns.Bind(_SC("Listener"), Class< CmdListener, NoCopy< CmdListener > >(vm, _SC("Listener"))
-        /* Constructors */
-        .Ctor< CSStr >()
-        .Ctor< CSStr, CSStr >()
-        .Ctor< CSStr, CSStr, Array & >()
-        .Ctor< CSStr, CSStr, Uint8, Uint8 >()
-        .Ctor< CSStr, CSStr, Array &, Uint8, Uint8 >()
+    cmdns.Bind(_SC("Listener"), Class< CmdListener, NoConstructor< CmdListener > >(vm, _SC("SqCmdListener"))
         /* Metamethods */
         .Func(_SC("_cmp"), &CmdListener::Cmp)
+        .SquirrelFunc(_SC("_typename"), &CmdListener::Typename)
         .Func(_SC("_tostring"), &CmdListener::ToString)
         /* Properties */
+        .Prop(_SC("Attached"), &CmdListener::Attached)
         .Prop(_SC("Name"), &CmdListener::GetName, &CmdListener::SetName)
         .Prop(_SC("Spec"), &CmdListener::GetSpec, &CmdListener::SetSpec)
         .Prop(_SC("Specifier"), &CmdListener::GetSpec, &CmdListener::SetSpec)
@@ -1350,12 +1677,13 @@ void Register_Command(HSQUIRRELVM vm)
         .Prop(_SC("Associate"), &CmdListener::GetAssociate, &CmdListener::SetAssociate)
         .Prop(_SC("MinArgs"), &CmdListener::GetMinArgC, &CmdListener::SetMinArgC)
         .Prop(_SC("MaxArgs"), &CmdListener::GetMaxArgC, &CmdListener::SetMaxArgC)
-        .Prop(_SC("Locked"), &CmdListener::GetLocked)
         .Prop(_SC("OnExec"), &CmdListener::GetOnExec)
         .Prop(_SC("OnAuth"), &CmdListener::GetOnAuth)
         .Prop(_SC("OnPost"), &CmdListener::GetOnPost)
         .Prop(_SC("OnFail"), &CmdListener::GetOnFail)
         /* Functions */
+        .Func(_SC("Attach"), &CmdListener::Attach)
+        .Func(_SC("Detach"), &CmdListener::Detach)
         .Func(_SC("BindExec"), &CmdListener::SetOnExec)
         .Func(_SC("BindAuth"), &CmdListener::SetOnAuth)
         .Func(_SC("BindPost"), &CmdListener::SetOnPost)
@@ -1368,6 +1696,8 @@ void Register_Command(HSQUIRRELVM vm)
         .Func(_SC("AuthCheckID"), &CmdListener::AuthCheckID)
     );
 
+    cmdns.Func(_SC("Sort"), &Cmd_Sort);
+    cmdns.Func(_SC("FindByName"), &Cmd_FindByName);
     cmdns.Func(_SC("GetOnError"), &Cmd_GetOnError);
     cmdns.Func(_SC("SetOnError"), &Cmd_SetOnError);
     cmdns.Func(_SC("BindError"), &Cmd_SetOnError);
@@ -1378,6 +1708,11 @@ void Register_Command(HSQUIRRELVM vm)
     cmdns.Func(_SC("GetInvokerID"), &Cmd_GetInvokerID);
     cmdns.Func(_SC("GetName"), &Cmd_GetCommand);
     cmdns.Func(_SC("GetText"), &Cmd_GetArgument);
+    cmdns.Overload< Object & (CSStr) >(_SC("Create"), &Cmd_Create);
+    cmdns.Overload< Object & (CSStr, CSStr) >(_SC("Create"), &Cmd_Create);
+    cmdns.Overload< Object & (CSStr, CSStr, Array &) >(_SC("Create"), &Cmd_Create);
+    cmdns.Overload< Object & (CSStr, CSStr, Uint8, Uint8) >(_SC("Create"), &Cmd_Create);
+    cmdns.Overload< Object & (CSStr, CSStr, Array &, Uint8, Uint8) >(_SC("Create"), &Cmd_Create);
 
     RootTable(vm).Bind(_SC("SqCmd"), cmdns);
 

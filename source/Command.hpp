@@ -33,11 +33,67 @@ class CmdManager
 
 private:
 
-    // --------------------------------------------------------------------------------------------
-    typedef std::map< String, CmdListener * > CmdList;
+    /* --------------------------------------------------------------------------------------------
+     * Structure that represents a unique command in the pool.
+    */
+    struct Command
+    {
+        // ----------------------------------------------------------------------------------------
+        std::size_t     mHash; // The unique hash that identifies this command.
+        String          mName; // The unique name that identifies this command.
+        CmdListener*    mPtr; // The listener that reacts to this command.
+        Object          mObj; // A strong reference to the script object.
+
+        /* ----------------------------------------------------------------------------------------
+         * Construct a command and the also create a script object from the specified listener.
+        */
+        Command(std::size_t hash, const String & name, CmdListener * ptr)
+            : mHash(hash), mName(name), mPtr(ptr), mObj(ptr)
+        {
+            /* ... */
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Construct a command and extract the listener from the specified script object.
+        */
+        Command(std::size_t hash, const String & name, const Object & obj)
+            : mHash(hash), mName(name), mPtr(obj.Cast< CmdListener * >()), mObj(obj)
+        {
+            /* ... */
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy constructor.
+        */
+        Command(const Command & o) = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move constructor.
+        */
+        Command(Command && o) = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~Command() = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy assignment operator.
+        */
+        Command & operator = (const Command & o) = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move assignment operator.
+        */
+        Command & operator = (Command && o) = default;
+    };
 
     // --------------------------------------------------------------------------------------------
-    typedef std::vector< std::pair< Uint8, Object > > CmdArgs;
+    typedef std::vector< Command >      CmdList;
+
+    // --------------------------------------------------------------------------------------------
+    typedef std::pair< Uint8, Object >  CmdArg;
+    typedef std::vector< CmdArg >       CmdArgs;
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
@@ -57,10 +113,27 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Attach a command listener to a certain name.
     */
-    void Attach(const String & name, CmdListener * cmd)
-    {
-        m_Commands[name] = cmd;
-    }
+    Object & Attach(const String & name, CmdListener * ptr, bool autorel);
+
+    /* --------------------------------------------------------------------------------------------
+     * Detach a command listener from a certain name.
+    */
+    void Detach(const String & name);
+
+    /* --------------------------------------------------------------------------------------------
+     * Detach a command listener from a certain name.
+    */
+    void Detach(CmdListener * ptr);
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether a certain name exist in the command list.
+    */
+    bool Attached(const String & name) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether a certain instance exist in the command list.
+    */
+    bool Attached(const CmdListener * ptr) const;
 
 public:
 
@@ -83,17 +156,19 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Sort the command list in an ascending order.
+    */
+    void Sort();
+
+    /* --------------------------------------------------------------------------------------------
+     * Sort the command list in an ascending order.
+    */
+    const Object & FindByName(const String & name);
+
+    /* --------------------------------------------------------------------------------------------
      * Terminate current session.
     */
     void Terminate();
-
-    /* --------------------------------------------------------------------------------------------
-     * Dettach a command listener from a certain name.
-    */
-    void Detach(const String & name)
-    {
-        m_Commands.erase(name);
-    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the error callback.
@@ -144,7 +219,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the argument of the last executed coommand.
+     * Retrieve the argument of the last executed command.
     */
     CSStr GetArgument() const
     {
@@ -152,7 +227,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Run a command under a speciffic player.
+     * Run a command under a specific player.
     */
     Int32 Run(Int32 invoker, CSStr command);
 
@@ -194,7 +269,7 @@ private:
 
     // --------------------------------------------------------------------------------------------
     Buffer          m_Buffer; /* Internal buffer used for parsing commands. */
-    CmdList         m_Commands; /* List of attached commands. */
+    CmdList         m_Commands; /* List of created commands. */
 
     // --------------------------------------------------------------------------------------------
     Int32           m_Invoker; /* Current command invoker. */
@@ -209,6 +284,17 @@ private:
     // --------------------------------------------------------------------------------------------
     Function        m_OnError; /* Error handler. */
     Function        m_OnAuth; /* Authentication handler. */
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Create command instances and obtain the associated object.
+    */
+    Object & Create(CSStr name);
+    Object & Create(CSStr name, CSStr spec);
+    Object & Create(CSStr name, CSStr spec, Array & tags);
+    Object & Create(CSStr name, CSStr spec, Uint8 min, Uint8 max);
+    Object & Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max);
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -218,6 +304,15 @@ class CmdListener
 {
     // --------------------------------------------------------------------------------------------
     friend class CmdManager;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructors.
+    */
+    CmdListener(CSStr name);
+    CmdListener(CSStr name, CSStr spec);
+    CmdListener(CSStr name, CSStr spec, Array & tags);
+    CmdListener(CSStr name, CSStr spec, Uint8 min, Uint8 max);
+    CmdListener(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -237,15 +332,6 @@ class CmdListener
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Base constructors.
-    */
-    CmdListener(CSStr name);
-    CmdListener(CSStr name, CSStr spec);
-    CmdListener(CSStr name, CSStr spec, Array & tags);
-    CmdListener(CSStr name, CSStr spec, Uint8 min, Uint8 max);
-    CmdListener(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max);
-
-    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~CmdListener();
@@ -260,84 +346,203 @@ public:
     */
     CSStr ToString() const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attach the listener instance to the associated command name.
+    */
+    void Attach();
+
+    /* --------------------------------------------------------------------------------------------
+     * Detach the listener instance from the associated command name.
+    */
+    void Detach();
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the listener instance is attached to the associated command name.
+    */
+    bool Attached() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the flags of the specified argument.
+    */
     Uint8 GetArgFlags(Uint32 idx) const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the name that triggers this command listener instance.
+    */
     CSStr GetName() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the name that triggers this command listener instance.
+    */
     void SetName(CSStr name);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the argument specification string.
+    */
     CSStr GetSpec() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the argument specification string.
+    */
     void SetSpec(CSStr spec);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the argument tags array.
+    */
     Array GetArgTags() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the argument tags array.
+    */
     void SetArgTags(Array & tags);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the help message associated with this command listener instance.
+    */
     CSStr GetHelp() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the help message associated with this command listener instance.
+    */
     void SetHelp(CSStr help);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the informational message associated with this command listener instance.
+    */
     CSStr GetInfo() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the informational message associated with this command listener instance.
+    */
     void SetInfo(CSStr info);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the authority level required to execute this command listener instance.
+    */
     Int32 GetAuthority() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the authority level required to execute this command listener instance.
+    */
     void SetAuthority(Int32 level);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * See whether this command listener instance requires explicit authority inspection.
+    */
     bool GetProtected() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether this command listener instance requires explicit authority inspection.
+    */
     void SetProtected(bool toggle);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * See whether this command listener instance is currently ignoring calls.
+    */
     bool GetSuspended() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether this command listener instance should start ignoring calls.
+    */
     void SetSuspended(bool toggle);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * See whether this command listener instance receives arguments in an associative container.
+    */
     bool GetAssociate() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether this command listener instance receives arguments in an associative container.
+    */
     void SetAssociate(bool toggle);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the maximum arguments supported by this command listener.
+    */
     Uint8 GetMinArgC() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the minimum arguments supported by this command listener.
+    */
     void SetMinArgC(Uint8 val);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the maximum arguments supported by this command listener.
+    */
     Uint8 GetMaxArgC() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the maximum arguments supported by this command listener.
+    */
     void SetMaxArgC(Uint8 val);
 
-    // --------------------------------------------------------------------------------------------
-    bool GetLocked() const;
-
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the function that must be called when this command listener is executed.
+    */
     Function & GetOnExec();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the function that must be called when this command listener is executed.
+    */
     void SetOnExec(Object & env, Function & func);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the function that must be called when this command listener needs to authenticate.
+    */
     Function & GetOnAuth();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the function that must be called when this command listener needs to authenticate.
+    */
     void SetOnAuth(Object & env, Function & func);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the function that must be called when this command listener finished execution.
+    */
     Function & GetOnPost();
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the function that must be called when this command listener finished execution.
+    */
     void SetOnPost(Object & env, Function & func);
 
     // --------------------------------------------------------------------------------------------
     Function & GetOnFail();
     void SetOnFail(Object & env, Function & func);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the function that must be called when this command listener failed to execute.
+    */
     CSStr GetArgTag(Uint32 arg) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the function that must be called when this command listener failed to execute.
+    */
     void SetArgTag(Uint32 arg, CSStr name);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * Use the command listener argument properties to generate an informational message.
+    */
     void GenerateInfo(bool full);
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * See whether whether the specified argument can be used on this command listener instance.
+    */
     bool ArgCheck(Uint32 arg, Uint8 flag) const;
 
-    // --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+     * See whether the specified player entity has the proper authority to run this command.
+    */
     bool AuthCheck(CPlayer & player);
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the specified player entity has the proper authority to run this command.
+    */
     bool AuthCheckID(Int32 id);
 
 protected:
@@ -347,17 +552,17 @@ protected:
     typedef String  ArgTags[SQMOD_MAX_CMD_ARGS];
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Execute the designated callback by passing the arguments in their specified order.
     */
     SQInteger Execute(Object & invoker, Array & args);
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Execute the designated callback by passing the arguments using an associative container.
     */
     SQInteger Execute(Object & invoker, Table & args);
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Process the specified string and extract the argument properties in it.
     */
     void ProcSpec(CSStr spec);
 
@@ -392,7 +597,6 @@ private:
     bool        m_Protected;
     bool        m_Suspended;
     bool        m_Associate;
-    bool        m_Locked;
 };
 
 } // Namespace:: SqMod
