@@ -268,7 +268,7 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     // Where the name ends and argument begins
     CCStr split = command;
     // Find where the command name ends
-    while (isspace(*split)) ++split;
+    while (!isspace(*split)) ++split;
     // Are there any arguments specified?
     if (split != nullptr)
     {
@@ -1571,6 +1571,12 @@ static void Cmd_Sort()
 }
 
 // ------------------------------------------------------------------------------------------------
+static Uint32 Cmd_Count()
+{
+    return _Cmd->Count();
+}
+
+// ------------------------------------------------------------------------------------------------
 static const Object & Cmd_FindByName(CSStr name)
 {
     // Validate the specified name
@@ -1697,6 +1703,7 @@ void Register_Command(HSQUIRRELVM vm)
     );
 
     cmdns.Func(_SC("Sort"), &Cmd_Sort);
+    cmdns.Func(_SC("Count"), &Cmd_Count);
     cmdns.Func(_SC("FindByName"), &Cmd_FindByName);
     cmdns.Func(_SC("GetOnError"), &Cmd_GetOnError);
     cmdns.Func(_SC("SetOnError"), &Cmd_SetOnError);

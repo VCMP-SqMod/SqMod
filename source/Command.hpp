@@ -161,6 +161,14 @@ public:
     void Sort();
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of commands.
+    */
+    Uint32 Count() const
+    {
+        return static_cast< Uint32 >(m_Commands.size());
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Sort the command list in an ascending order.
     */
     const Object & FindByName(const String & name);
