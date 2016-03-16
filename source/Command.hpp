@@ -96,6 +96,45 @@ private:
     typedef std::vector< CmdArg >       CmdArgs;
 
     /* --------------------------------------------------------------------------------------------
+     * Helper class implementing RAII to release the command object and instance.
+    */
+    struct Guard
+    {
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
+        Guard() = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy constructor.
+        */
+        Guard(const Guard & o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move constructor.
+        */
+        Guard(Guard && o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~Guard();
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy assignment operator.
+        */
+        Guard & operator = (const Guard & o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move assignment operator.
+        */
+        Guard & operator = (Guard && o) = delete;
+    };
+
+    // --------------------------------------------------------------------------------------------
+    friend class Guard;
+
+    /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
     CmdManager();
@@ -172,6 +211,14 @@ public:
      * Sort the command list in an ascending order.
     */
     const Object & FindByName(const String & name);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the currently active command object.
+    */
+    const Object & Current() const
+    {
+        return m_Object;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Terminate current session.
@@ -276,22 +323,23 @@ protected:
 private:
 
     // --------------------------------------------------------------------------------------------
-    Buffer          m_Buffer; /* Internal buffer used for parsing commands. */
-    CmdList         m_Commands; /* List of created commands. */
+    Buffer          m_Buffer; // Internal buffer used for parsing commands.
+    CmdList         m_Commands; // List of created commands.
 
     // --------------------------------------------------------------------------------------------
-    Int32           m_Invoker; /* Current command invoker. */
-    String          m_Command; /* Current command name. */
-    String          m_Argument; /* Current command argument. */
-    CmdListener*    m_Instance; /* Current command instance. */
+    Int32           m_Invoker; // Current command invoker.
+    String          m_Command; // Current command name.
+    String          m_Argument; // Current command argument.
+    CmdListener*    m_Instance; // Current command instance.
+    Object          m_Object; // Current command script object.
 
     // --------------------------------------------------------------------------------------------
-    CmdArgs         m_Argv; /* Extracted command arguments. */
-    Uint32          m_Argc; /* Extracted arguments count. */
+    CmdArgs         m_Argv; // Extracted command arguments.
+    Uint32          m_Argc; // Extracted arguments count.
 
     // --------------------------------------------------------------------------------------------
-    Function        m_OnError; /* Error handler. */
-    Function        m_OnAuth; /* Authentication handler. */
+    Function        m_OnError; // Error handler.
+    Function        m_OnAuth; // Authentication handler.
 
 public:
 

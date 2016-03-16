@@ -63,14 +63,27 @@ CSStr CmdArgSpecToStr(Uint8 spec)
 }
 
 // ------------------------------------------------------------------------------------------------
+CmdManager::Guard::~Guard()
+{
+    // Release the command instance
+    _Cmd->m_Instance = nullptr;
+    // Release the reference to the script object
+    _Cmd->m_Object.Release();
+}
+
+// ------------------------------------------------------------------------------------------------
 CmdManager::CmdManager()
     : m_Buffer(512)
     , m_Commands()
     , m_Invoker(SQMOD_UNKNOWN)
     , m_Command(64, '\0')
     , m_Argument(512, '\0')
+    , m_Instance(nullptr)
+    , m_Object()
     , m_Argv()
     , m_Argc(0)
+    , m_OnError()
+    , m_OnAuth()
 {
     /* ... */
 }
@@ -299,10 +312,12 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
         // Execution failed!
         return -1;
     }
+    // Make sure resources are released at the end of this function
+    Guard g;
     // Attempt to find the specified command
-    Object obj = FindByName(m_Command);
+    m_Object = FindByName(m_Command);
     // Have we found anything?
-    if (obj.IsNull())
+    if (m_Object.IsNull())
     {
         // Tell the script callback to deal with the error
         SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command);
@@ -310,31 +325,27 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
         return -1;
     }
     // Save the command instance
-    m_Instance = obj.Cast< CmdListener * >();
+    m_Instance = m_Object.Cast< CmdListener * >();
     // Is the command instance valid? (just in case)
     if (!m_Instance)
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command.c_str());
+        SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command);
         // Execution failed!
         return -1;
     }
-    // Value returned by the command
-    Int32 ret = -1;
     // Attempt to execute the command
     try
     {
-        ret = Exec();
+        return Exec();
     }
     catch (...)
     {
         // Tell the script callback to deal with the error
         SqError(CMDERR_EXECUTION_FAILED, _SC("Exceptions occurred during execution"), m_Invoker);
     }
-    // Release the command instance
-    m_Instance = nullptr;
-    // Return the result
-    return ret;
+    // Execution failed
+    return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -409,10 +420,14 @@ Int32 CmdManager::Exec()
         {
             // Do we have use the argument index as the key?
             if (m_Instance->m_ArgTags[arg].empty())
+            {
                 args.SetValue(SQInteger(arg), m_Argv[arg].second);
+            }
             // Nope, we have a name for this argument!
             else
+            {
                 args.SetValue(m_Instance->m_ArgTags[arg].c_str(), m_Argv[arg].second);
+            }
         }
         // Attempt to execute the command with the specified arguments
         try
@@ -433,7 +448,9 @@ Int32 CmdManager::Exec()
         Array args(DefaultVM::Get(), m_Argc);
         // Copy the arguments into the array
         for (Uint32 arg = 0; arg < m_Argc; ++arg)
+        {
             args.Bind(SQInteger(arg), m_Argv[arg].second);
+        }
         // Attempt to execute the command with the specified arguments
         try
         {
@@ -1586,6 +1603,12 @@ static const Object & Cmd_FindByName(CSStr name)
 }
 
 // ------------------------------------------------------------------------------------------------
+static const Object & Cmd_Current()
+{
+    return _Cmd->Current();
+}
+
+// ------------------------------------------------------------------------------------------------
 static Function & Cmd_GetOnError()
 {
     return _Cmd->GetOnError();
@@ -1704,6 +1727,7 @@ void Register_Command(HSQUIRRELVM vm)
 
     cmdns.Func(_SC("Sort"), &Cmd_Sort);
     cmdns.Func(_SC("Count"), &Cmd_Count);
+    cmdns.Func(_SC("Current"), &Cmd_Current);
     cmdns.Func(_SC("FindByName"), &Cmd_FindByName);
     cmdns.Func(_SC("GetOnError"), &Cmd_GetOnError);
     cmdns.Func(_SC("SetOnError"), &Cmd_SetOnError);
