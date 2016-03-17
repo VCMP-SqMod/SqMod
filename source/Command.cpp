@@ -281,7 +281,7 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     // Where the name ends and argument begins
     CCStr split = command;
     // Find where the command name ends
-    while (!isspace(*split)) ++split;
+    while (!isspace(*split) && *split != '\0') ++split;
     // Are there any arguments specified?
     if (split != nullptr)
     {
@@ -1603,12 +1603,6 @@ static const Object & Cmd_FindByName(CSStr name)
 }
 
 // ------------------------------------------------------------------------------------------------
-static const Object & Cmd_Current()
-{
-    return _Cmd->Current();
-}
-
-// ------------------------------------------------------------------------------------------------
 static Function & Cmd_GetOnError()
 {
     return _Cmd->GetOnError();
@@ -1645,13 +1639,19 @@ static Int32 Cmd_GetInvokerID()
 }
 
 // ------------------------------------------------------------------------------------------------
-static CSStr Cmd_GetCommand()
+static const Object & Cmd_GetObject()
+{
+    return _Cmd->GetObject();
+}
+
+// ------------------------------------------------------------------------------------------------
+static const String & Cmd_GetCommand()
 {
     return _Cmd->GetCommand();
 }
 
 // ------------------------------------------------------------------------------------------------
-static CSStr Cmd_GetArgument()
+static const String & Cmd_GetArgument()
 {
     return _Cmd->GetArgument();
 }
@@ -1727,7 +1727,6 @@ void Register_Command(HSQUIRRELVM vm)
 
     cmdns.Func(_SC("Sort"), &Cmd_Sort);
     cmdns.Func(_SC("Count"), &Cmd_Count);
-    cmdns.Func(_SC("Current"), &Cmd_Current);
     cmdns.Func(_SC("FindByName"), &Cmd_FindByName);
     cmdns.Func(_SC("GetOnError"), &Cmd_GetOnError);
     cmdns.Func(_SC("SetOnError"), &Cmd_SetOnError);
@@ -1735,10 +1734,13 @@ void Register_Command(HSQUIRRELVM vm)
     cmdns.Func(_SC("GetOnAuth"), &Cmd_GetOnAuth);
     cmdns.Func(_SC("SetOnAuth"), &Cmd_SetOnAuth);
     cmdns.Func(_SC("BindAuth"), &Cmd_SetOnAuth);
-    cmdns.Func(_SC("GetInvoker"), &Cmd_GetInvoker);
-    cmdns.Func(_SC("GetInvokerID"), &Cmd_GetInvokerID);
-    cmdns.Func(_SC("GetName"), &Cmd_GetCommand);
-    cmdns.Func(_SC("GetText"), &Cmd_GetArgument);
+    cmdns.Func(_SC("Invoker"), &Cmd_GetInvoker);
+    cmdns.Func(_SC("InvokerID"), &Cmd_GetInvokerID);
+    cmdns.Func(_SC("Instance"), &Cmd_GetObject);
+    cmdns.Func(_SC("Name"), &Cmd_GetCommand);
+    cmdns.Func(_SC("Command"), &Cmd_GetCommand);
+    cmdns.Func(_SC("Text"), &Cmd_GetArgument);
+    cmdns.Func(_SC("Argument"), &Cmd_GetArgument);
     cmdns.Overload< Object & (CSStr) >(_SC("Create"), &Cmd_Create);
     cmdns.Overload< Object & (CSStr, CSStr) >(_SC("Create"), &Cmd_Create);
     cmdns.Overload< Object & (CSStr, CSStr, Array &) >(_SC("Create"), &Cmd_Create);

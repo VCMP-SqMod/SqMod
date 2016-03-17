@@ -213,14 +213,6 @@ public:
     const Object & FindByName(const String & name);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the currently active command object.
-    */
-    const Object & Current() const
-    {
-        return m_Object;
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Terminate current session.
     */
     void Terminate();
@@ -266,19 +258,35 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the last executed command.
+     * Retrieve the currently active command instance.
     */
-    CSStr GetCommand() const
+    const CmdListener * GetInstance() const
     {
-        return m_Command.c_str();
+        return m_Instance;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the argument of the last executed command.
+     * Retrieve the currently active command object.
     */
-    CSStr GetArgument() const
+    const Object & GetObject() const
     {
-        return m_Argument.c_str();
+        return m_Object;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the currently active command name.
+    */
+    const String & GetCommand() const
+    {
+        return m_Command;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the currently active command argument.
+    */
+    const String & GetArgument() const
+    {
+        return m_Argument;
     }
 
     /* --------------------------------------------------------------------------------------------
