@@ -913,7 +913,6 @@ Table Routine::GetBucketsTable()
 {
     // Create a table to hold the number of active buckets
     Table tbl(DefaultVM::Get());
-        printf("Adding Bucket %d\n", 0);
     // Insert the interval of each active bucket
     for (const auto & bucket : s_Buckets)
     {
