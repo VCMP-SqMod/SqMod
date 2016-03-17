@@ -527,9 +527,39 @@ public:
                             , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5);
 
     /* --------------------------------------------------------------------------------------------
+     * Flush queued commands manually.
+    */
+    static void Flush();
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of queued commands.
+    */
+    static Uint32 QueueSize();
+
+    /* --------------------------------------------------------------------------------------------
      * Return the number of known routines.
     */
-    static Uint32 Count();
+    static Uint32 GetCount();
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of known buckets.
+    */
+    static Uint32 GetBuckets();
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of known routines in bucket.
+    */
+    static Uint32 GetInBucket(Interval interval);
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of known buckets.
+    */
+    static Array GetBucketsList();
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of known buckets.
+    */
+    static Table GetBucketsTable();
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to find a certain routine by its associated tag.

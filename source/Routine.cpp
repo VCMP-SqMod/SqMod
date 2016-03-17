@@ -28,7 +28,7 @@ SQInteger Routine::Typename(HSQUIRRELVM vm)
 void Routine::Attach(Routine * routine, Interval interval)
 {
     // Do we have a valid routine and interval bucket to attach?
-    if (!routine || ! interval)
+    if (!routine || !interval)
     {
         return;
     }
@@ -43,7 +43,7 @@ void Routine::Attach(Routine * routine, Interval interval)
         s_Buckets.back().mRoutines.push_back(routine);
     }
     // Is this routine already attached to this bucket?
-    else if (std::find(itr->mRoutines.begin(), itr->mRoutines.end(), routine) != itr->mRoutines.end())
+    else if (std::find(itr->mRoutines.begin(), itr->mRoutines.end(), routine) == itr->mRoutines.end())
     {
         itr->mRoutines.push_back(routine); // Then let's attach it now
     }
@@ -53,7 +53,7 @@ void Routine::Attach(Routine * routine, Interval interval)
 void Routine::Detach(Routine * routine, Interval interval)
 {
     // Do we have a valid routine and interval to detach?
-    if (!routine || ! interval)
+    if (!routine || !interval)
     {
         return;
     }
@@ -849,9 +849,78 @@ Object Routine::Create(Object & env, Function & func, Interval interval, Iterate
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 Routine::Count()
+void Routine::Flush()
+{
+    // Make sure the buckets are not locked
+    if (s_Lock)
+    {
+        SqThrowF("Buckets are under active lock");
+    }
+    // Process commands in queue
+    ProcQueue();
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 Routine::QueueSize()
+{
+    return static_cast< Uint32 >(s_Queue.size());
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 Routine::GetCount()
 {
     return static_cast< Uint32 >(s_Objects.size());
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 Routine::GetBuckets()
+{
+    return static_cast< Uint32 >(s_Buckets.size());
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 Routine::GetInBucket(Interval interval)
+{
+    // Attempt to locate the bucket with the specified interval
+    Buckets::iterator itr = std::find_if(s_Buckets.begin(), s_Buckets.end(), IntrvFunc(interval));
+    // Does this bucket exist?
+    if (itr == s_Buckets.end())
+    {
+        return 0; // This bucket doesn't exist!
+    }
+    // Return the number of elements in this bucket
+    return static_cast< Uint32 >(itr->mRoutines.size());
+}
+
+// ------------------------------------------------------------------------------------------------
+Array Routine::GetBucketsList()
+{
+    // Allocate an array large enough to hold the number of active buckets
+    Array arr(DefaultVM::Get(), s_Buckets.size());
+    // The index where the bucket interval should be inserted
+    SQInteger idx = 0;
+    // Insert the interval and size of each active bucket
+    for (const auto & bucket : s_Buckets)
+    {
+        arr.SetValue(idx++, bucket.mInterval);
+    }
+    // Return the resulted array
+    return arr;
+}
+
+// ------------------------------------------------------------------------------------------------
+Table Routine::GetBucketsTable()
+{
+    // Create a table to hold the number of active buckets
+    Table tbl(DefaultVM::Get());
+        printf("Adding Bucket %d\n", 0);
+    // Insert the interval of each active bucket
+    for (const auto & bucket : s_Buckets)
+    {
+        tbl.SetValue(bucket.mInterval, bucket.mRoutines.size());
+    }
+    // Return the resulted table
+    return tbl;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -912,7 +981,13 @@ void Register_Routine(HSQUIRRELVM vm)
         .Func(_SC("GetArg"), &Routine::GetArg)
         .Func(_SC("SetArg"), &Routine::SetArg)
         // Static Functions
-        .StaticFunc(_SC("Count"), &Routine::Count)
+        .StaticFunc(_SC("Flush"), &Routine::Flush)
+        .StaticFunc(_SC("QueueSize"), &Routine::QueueSize)
+        .StaticFunc(_SC("Count"), &Routine::GetCount)
+        .StaticFunc(_SC("Buckets"), &Routine::GetBuckets)
+        .StaticFunc(_SC("InBucket"), &Routine::GetInBucket)
+        .StaticFunc(_SC("BucketsList"), &Routine::GetBucketsList)
+        .StaticFunc(_SC("BucketsTable"), &Routine::GetBucketsTable)
         .StaticFunc(_SC("FindByTag"), &Routine::FindByTag)
         // Static Overloads
         .StaticOverload< Object (*)(Object &, Function &, Routine::Interval) >
