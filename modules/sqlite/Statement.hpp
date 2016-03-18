@@ -312,7 +312,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the values from an array starting at the specified index.
     */
-    void IndexBindA(Int32 idx, Array & arr);
+    void IndexBindA(Int32 idx, const Array & arr);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a integer value at the the specified parameter index.
@@ -322,7 +322,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a long integer value at the the specified parameter index.
     */
-    void IndexBindL(Int32 idx, Object & value);
+    void IndexBindL(Int32 idx, const Object & value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a native integer value at the the specified parameter index.
@@ -352,7 +352,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the values from an associative container.
     */
-    void NameBindT(Table & tbl);
+    void NameBindT(const Table & tbl);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a integer value at the specified parameter name.
@@ -362,7 +362,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a long integer value at the specified parameter name.
     */
-    void NameBindL(CSStr name, Object & value);
+    void NameBindL(CSStr name, const Object & value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a native integer value at the specified parameter name.
@@ -392,12 +392,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the specified value at the specified parameter index.
     */
-    void IndexBind(Int32 idx, Object & value);
+    void IndexBind(Int32 idx, const Object & value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the specified value at the specified parameter name.
     */
-    void NameBind(CSStr name, Object & value);
+    void NameBind(CSStr name, const Object & value);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind the specified value at the specified parameter.
+    */
+    void Bind(const Object & param, const Object & value);
 
     /* --------------------------------------------------------------------------------------------
      * Fetch the value at the specifie column index.
@@ -408,6 +413,11 @@ public:
      * Fetch the value at the specifie column name.
     */
     Object FetchColumnName(CSStr name) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Fetch the value at the specifie column.
+    */
+    Object FetchColumn(const Object & column) const;
 
     /* --------------------------------------------------------------------------------------------
      * Fetch the row as an array container.
@@ -483,6 +493,11 @@ public:
      * Retrieve the column with the specified name.
     */
     Object GetColumnByName(CSStr name) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the column with the specified name or index.
+    */
+    Object GetColumn(const Object & column) const;
 };
 
 } // Namespace:: SqMod
