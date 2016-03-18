@@ -6,8 +6,9 @@
 #include "Library/Time.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 
 // ------------------------------------------------------------------------------------------------
 #include <sqstdio.h>
@@ -31,8 +32,12 @@ static HSQAPI GetSquirrelAPI()
 // ------------------------------------------------------------------------------------------------
 static HSQUIRRELVM GetSquirrelVM()
 {
+    // Do we even have a core instance?
     if (_Core)
+    {
         return _Core->GetVM();
+    }
+    // No idea ho we got here but we have to return something!
     return NULL;
 }
 
@@ -41,7 +46,9 @@ static SQRESULT SqEx_LoadScript(const SQChar * filepath)
 {
     // Attempt to add the specified script to the load queue
     if (_Core->LoadScript(filepath))
+    {
         return SQ_OK; // The script as added or already existed
+    }
     // The path was invalied or was unable to pool the script
     return SQ_ERROR;
 }
@@ -51,16 +58,21 @@ static SQRESULT SqEx_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 {
     // Validate the specified number pointer and value type
     if (!num)
-        return SQ_ERROR; /* Nowhere to save */
+    {
+        return SQ_ERROR; // Nowhere to save!
+    }
+    // Is this an instance that we can treat as a SLongInt type?
     else if (sq_gettype(vm, idx) == OT_INSTANCE)
     {
-        // Attempt to obtain the long instance from the stack
-        Var< SLongInt * > inst(vm, idx);
-        // Validate the instance
-        if (!inst.value)
-            return SQ_ERROR; /* Invalid instance */
-        else
-            *num = (Int64)inst.value->GetNum();
+        // Attempt to obtain the long instance and it's value from the stack
+        try
+        {
+            *num =  static_cast< Int64 >(Var< const SLongInt & >(vm, idx).value.GetNum());
+        }
+        catch (...)
+        {
+            return SQ_ERROR; // Unable to obtain the value!
+        }
     }
     // Is this a pure integer value?
     else if(sq_gettype(vm, idx) == OT_INTEGER)
@@ -69,7 +81,7 @@ static SQRESULT SqEx_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
         // Attempt to get the value from the stack
         sq_getinteger(vm, idx, &val);
         // Save it into the specified memory location
-        *num = (Int64)val;
+        *num = static_cast< Int64 >(val);
     }
     // Is this a pure floating point value?
     else if(sq_gettype(vm, idx) == OT_FLOAT)
@@ -78,7 +90,7 @@ static SQRESULT SqEx_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
         // Attempt to get the value from the stack
         sq_getfloat(vm, idx, &val);
         // Save it into the specified memory location
-        *num = (Int64)val;
+        *num = static_cast< Int64 >(std::llround(val));
     }
     // Is this a pure boolean value?
     else if(sq_gettype(vm, idx) == OT_BOOL)
@@ -87,11 +99,13 @@ static SQRESULT SqEx_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
         // Attempt to get the value from the stack
         sq_getbool(vm, idx, &val);
         // Save it into the specified memory location
-        *num = (Int64)val;
+        *num = static_cast< Int64 >(val);
     }
     // Unrecognized value
     else
+    {
         return SQ_ERROR;
+    }
     // Value retrieved
     return SQ_OK;
 }
@@ -107,16 +121,21 @@ static SQRESULT SqEx_GetULongValue(HSQUIRRELVM vm, SQInteger idx, Uint64 * num)
 {
     // Validate the specified number pointer and value type
     if (!num)
-        return SQ_ERROR; /* Nowhere to save */
+    {
+        return SQ_ERROR; // Nowhere to save
+    }
+    // Is this an instance that we can treat as a ULongInt type?
     else if (sq_gettype(vm, idx) == OT_INSTANCE)
     {
-        // Attempt to obtain the long instance from the stack
-        Var< ULongInt * > inst(vm, idx);
-        // Validate the instance
-        if (!inst.value)
-            return SQ_ERROR; /* Invalid instance */
-        else
-            *num = (Uint64)inst.value->GetNum();
+        // Attempt to obtain the long instance and it's value from the stack
+        try
+        {
+            *num =  static_cast< Uint64 >(Var< const ULongInt & >(vm, idx).value.GetNum());
+        }
+        catch (...)
+        {
+            return SQ_ERROR; // Unable to obtain the value!
+        }
     }
     // Is this a pure integer value?
     else if(sq_gettype(vm, idx) == OT_INTEGER)
@@ -125,7 +144,7 @@ static SQRESULT SqEx_GetULongValue(HSQUIRRELVM vm, SQInteger idx, Uint64 * num)
         // Attempt to get the value from the stack
         sq_getinteger(vm, idx, &val);
         // Save it into the specified memory location
-        *num = val < 0 ? 0L : (Uint64)val;
+        *num = val ? static_cast< Uint64 >(val) : 0L;
     }
     // Is this a pure floating point value?
     else if(sq_gettype(vm, idx) == OT_FLOAT)
@@ -134,7 +153,7 @@ static SQRESULT SqEx_GetULongValue(HSQUIRRELVM vm, SQInteger idx, Uint64 * num)
         // Attempt to get the value from the stack
         sq_getfloat(vm, idx, &val);
         // Save it into the specified memory location
-        *num = EpsLt(val, SQFloat(0.0)) ? 0L : (Uint64)val;
+        *num = EpsLt(val, SQFloat(0.0)) ? 0L : static_cast< Uint64 >(std::llround(val));
     }
     // Is this a pure boolean value?
     else if(sq_gettype(vm, idx) == OT_BOOL)
@@ -143,11 +162,13 @@ static SQRESULT SqEx_GetULongValue(HSQUIRRELVM vm, SQInteger idx, Uint64 * num)
         // Attempt to get the value from the stack
         sq_getbool(vm, idx, &val);
         // Save it into the specified memory location
-        *num = (Uint64)val;
+        *num = static_cast< Uint64 >(val);
     }
     // Unrecognized value
     else
+    {
         return SQ_ERROR;
+    }
     // Value retrieved
     return SQ_OK;
 }
@@ -163,16 +184,21 @@ static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 {
     // Validate the specified number pointer and value type
     if (!num)
-        return SQ_ERROR; /* Nowhere to save */
+    {
+        return SQ_ERROR; // Nowhere to save
+    }
+    // Is this an instance that we can treat as a Timestamp type?
     else if (sq_gettype(vm, idx) == OT_INSTANCE)
     {
-        // Attempt to obtain the long instance from the stack
-        Var< Timestamp * > inst(vm, idx);
-        // Validate the instance
-        if (!inst.value)
-            return SQ_ERROR; /* Invalid instance */
-        else
-            *num = (Int64)inst.value->GetNum();
+        // Attempt to obtain the time-stamp and it's value from the stack
+        try
+        {
+            *num =  static_cast< Int64 >(Var< const Timestamp & >(vm, idx).value.GetNum());
+        }
+        catch (...)
+        {
+            return SQ_ERROR; // Unable to obtain the value!
+        }
     }
     // Is this a pure integer value?
     else if(sq_gettype(vm, idx) == OT_INTEGER)
@@ -181,7 +207,7 @@ static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
         // Attempt to get the value from the stack
         sq_getinteger(vm, idx, &val);
         // Save it into the specified memory location
-        *num = (Int64)val;
+        *num = static_cast< Int64 >(val);
     }
     // Is this a pure floating point value?
     else if(sq_gettype(vm, idx) == OT_FLOAT)
@@ -190,7 +216,7 @@ static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
         // Attempt to get the value from the stack
         sq_getfloat(vm, idx, &val);
         // Save it into the specified memory location
-        *num = (Int64)val;
+        *num = static_cast< Int64 >(std::llround(val));
     }
     // Is this a pure boolean value?
     else if(sq_gettype(vm, idx) == OT_BOOL)
@@ -199,11 +225,13 @@ static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
         // Attempt to get the value from the stack
         sq_getbool(vm, idx, &val);
         // Save it into the specified memory location
-        *num = (Int64)val;
+        *num = static_cast< Int64 >(val);
     }
     // Unrecognized value
     else
+    {
         return SQ_ERROR;
+    }
     // Value retrieved
     return SQ_OK;
 }
