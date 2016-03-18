@@ -256,7 +256,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <typename T>
-    void GetArray(T* array, int size)
+    void GetArray(T* array, int size) const
     {
         HSQOBJECT value = GetObject();
         sq_pushobject(vm, value);
