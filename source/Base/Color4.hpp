@@ -8,6 +8,16 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Extract the values for components of the Color4 type from a string.
+*/
+const Color4 & GetColor4(CSStr str);
+
+/* ------------------------------------------------------------------------------------------------
+ * Extract the values for components of the Color4 type from a string.
+*/
+const Color4 & GetColor4(CSStr str, SQChar delim);
+
+/* ------------------------------------------------------------------------------------------------
  * Class used to represent a transparent RGBA color.
 */
 struct Color4

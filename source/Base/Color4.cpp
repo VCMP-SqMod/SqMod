@@ -5,6 +5,9 @@
 #include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <limits>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -576,7 +579,7 @@ void Color4::Generate()
 void Color4::Generate(Value min, Value max)
 {
     if (max < min)
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     r = GetRandomUint8(min, max);
     g = GetRandomUint8(min, max);
@@ -587,7 +590,7 @@ void Color4::Generate(Value min, Value max)
 void Color4::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax, Value amin, Value amax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin || amax < amin)
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     r = GetRandomUint8(rmin, rmax);
     g = GetRandomUint8(gmin, gmax);
@@ -608,6 +611,45 @@ void Color4::Inverse()
     g = static_cast< Value >(~g);
     b = static_cast< Value >(~b);
     a = static_cast< Value >(~a);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Color4 & GetColor4(CSStr str)
+{
+    return GetColor4(str, Color4::Delim);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Color4 & GetColor4(CSStr str, SQChar delim)
+{
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %u , %u , %u , %u ");
+    static Color4 col;
+    // The minimum and maximum values supported by the Color4 type
+    static const Uint32 min = std::numeric_limits< Color4::Value >::min();
+    static const Uint32 max = std::numeric_limits< Color4::Value >::max();
+    // Clear previous values, if any
+    col.Clear();
+    // Is the specified string empty?
+    if (!str || *str == '\0')
+    {
+        return col; // Return the value as is!
+    }
+    // Assign the specified delimiter
+    fs[4] = delim;
+    fs[9] = delim;
+    fs[14] = delim;
+    // The sscanf function requires at least 32 bit integers
+    Uint32 r = 0, g = 0, b = 0, a = 0;
+    // Attempt to extract the component values from the specified string
+    sscanf(str, fs, &r, &g, &b, &a);
+    // Cast the extracted integers to the value used by the Color4 type
+    col.r = static_cast< Color4::Value >(Clamp(r, min, max));
+    col.g = static_cast< Color4::Value >(Clamp(g, min, max));
+    col.b = static_cast< Color4::Value >(Clamp(b, min, max));
+    col.a = static_cast< Color4::Value >(Clamp(a, min, max));
+    // Return the resulted value
+    return col;
 }
 
 // ================================================================================================
@@ -719,6 +761,9 @@ void Register_Color4(HSQUIRRELVM vm)
         .Func<bool (Color4::*)(const Color4 &) const>(_SC("opGreaterThan"), &Color4::operator >)
         .Func<bool (Color4::*)(const Color4 &) const>(_SC("opLessEqual"), &Color4::operator <=)
         .Func<bool (Color4::*)(const Color4 &) const>(_SC("opGreaterEqual"), &Color4::operator >=)
+        // Static Overloads
+        .StaticOverload< const Color4 & (*)(CSStr) >(_SC("FromStr"), &GetColor4)
+        .StaticOverload< const Color4 & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetColor4)
     );
 }
 

@@ -280,7 +280,7 @@ static const Object & Blip_FindByID(Int32 id)
 {
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
-        SqThrowF("The specified blip identifier is invalid: %d", id);
+        STHROWF("The specified blip identifier is invalid: %d", id);
     // Obtain the ends of the entity pool
     Core::Blips::const_iterator itr = _Core->GetBlips().cbegin();
     Core::Blips::const_iterator end = _Core->GetBlips().cend();
@@ -302,7 +302,7 @@ static const Object & Blip_FindByTag(CSStr tag)
     // Perform a validity check on the specified tag
     if (!tag || *tag == '\0')
     {
-        SqThrowF("The specified blip tag is invalid: null/empty");
+        STHROWF("The specified blip tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
     Core::Blips::const_iterator itr = _Core->GetBlips().cbegin();
@@ -326,7 +326,7 @@ static const Object & Blip_FindBySprID(Int32 sprid)
     // Perform a range check on the specified identifier
     if (sprid < 0)
     {
-        SqThrowF("The specified sprite identifier is invalid: %d", sprid);
+        STHROWF("The specified sprite identifier is invalid: %d", sprid);
     }
     // Obtain the ends of the entity pool
     Core::Blips::const_iterator itr = _Core->GetBlips().cbegin();

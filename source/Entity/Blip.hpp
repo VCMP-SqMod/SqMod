@@ -76,7 +76,7 @@ public:
     {
         if (INVALID_ENTITY(m_ID))
         {
-            SqThrowF("Invalid blip reference [%s]", m_Tag.c_str());
+            STHROWF("Invalid blip reference [%s]", m_Tag.c_str());
         }
     }
 

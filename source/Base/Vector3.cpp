@@ -353,7 +353,7 @@ void Vector3::Generate()
 void Vector3::Generate(Value min, Value max)
 {
     if (EpsLt(max, min))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     x = GetRandomFloat32(min, max);
     y = GetRandomFloat32(min, max);
@@ -363,7 +363,7 @@ void Vector3::Generate(Value min, Value max)
 void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     x = GetRandomFloat32(xmin, xmax);
     y = GetRandomFloat32(ymin, ymax);
@@ -374,6 +374,34 @@ void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
 Vector3 Vector3::Abs() const
 {
     return Vector3(fabs(x), fabs(y), fabs(z));
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector3 & GetVector3(CSStr str)
+{
+    return GetVector3(str, Vector3::Delim);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector3 & GetVector3(CSStr str, SQChar delim)
+{
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %f , %f , %f ");
+    static Vector3 vec;
+    // Clear previous values, if any
+    vec.Clear();
+    // Is the specified string empty?
+    if (!str || *str == '\0')
+    {
+        return vec; // Return the value as is!
+    }
+    // Assign the specified delimiter
+    fs[4] = delim;
+    fs[9] = delim;
+    // Attempt to extract the component values from the specified string
+    sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z);
+    // Return the resulted value
+    return vec;
 }
 
 // ================================================================================================
@@ -457,6 +485,9 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func<bool (Vector3::*)(const Vector3 &) const>(_SC("opGreaterThan"), &Vector3::operator >)
         .Func<bool (Vector3::*)(const Vector3 &) const>(_SC("opLessEqual"), &Vector3::operator <=)
         .Func<bool (Vector3::*)(const Vector3 &) const>(_SC("opGreaterEqual"), &Vector3::operator >=)
+        // Static Overloads
+        .StaticOverload< const Vector3 & (*)(CSStr) >(_SC("FromStr"), &GetVector3)
+        .StaticOverload< const Vector3 & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetVector3)
     );
 }
 

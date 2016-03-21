@@ -9,6 +9,16 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Extract the values for components of the Sphere type from a string.
+*/
+const Sphere & GetSphere(CSStr str);
+
+/* ------------------------------------------------------------------------------------------------
+ * Extract the values for components of the Sphere type from a string.
+*/
+const Sphere & GetSphere(CSStr str, SQChar delim);
+
+/* ------------------------------------------------------------------------------------------------
  * Class used to represent a three-dimensional sphere.
 */
 struct Sphere

@@ -360,7 +360,7 @@ SysPath & SysPath::Assign(CSStr path, Style style)
             ParseDynamic(path, path + strlen(path));
         break;
         default:
-            SqThrowF("Unknown system path style");
+            STHROWF("Unknown system path style");
         }
     }
     // Allow chaining
@@ -394,7 +394,7 @@ SysPath & SysPath::Assign(const Buffer & path, Int32 size)
     }
     else
     {
-        SqThrowF("The specified path size is out of range: %u >= %u", size, path.Capacity());
+        STHROWF("The specified path size is out of range: %u >= %u", size, path.Capacity());
     }
     // Allow chaining
     return *this;
@@ -434,7 +434,7 @@ SysPath & SysPath::Assign(const Buffer & path, Style style, Int32 size)
             ParseDynamic(path.Data(), &path.Cursor());
         break;
         default:
-            SqThrowF("Unknown system path style");
+            STHROWF("Unknown system path style");
         }
     }
     else if (static_cast< Uint32 >(size) < path.Capacity())
@@ -462,12 +462,12 @@ SysPath & SysPath::Assign(const Buffer & path, Style style, Int32 size)
             ParseDynamic(path.Data(), path.Data() + size);
         break;
         default:
-            SqThrowF("Unknown system path style");
+            STHROWF("Unknown system path style");
         }
     }
     else
     {
-        SqThrowF("The specified path size is out of range: %u >= %u", size, path.Capacity());
+        STHROWF("The specified path size is out of range: %u >= %u", size, path.Capacity());
     }
     // Allow chaining
     return *this;
@@ -528,7 +528,7 @@ SysPath & SysPath::Assign(const String & path, Style style)
             ParseDynamic(path.data(), path.data() + path.size());
         break;
         default:
-            SqThrowF("Unknown system path style");
+            STHROWF("Unknown system path style");
         }
     }
     // Allow chaining

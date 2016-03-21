@@ -358,6 +358,37 @@ AABB AABB::Abs() const
     return AABB(min.Abs(), max.Abs());
 }
 
+// ------------------------------------------------------------------------------------------------
+const AABB & GetAABB(CSStr str)
+{
+    return GetAABB(str, AABB::Delim);
+}
+
+// ------------------------------------------------------------------------------------------------
+const AABB & GetAABB(CSStr str, SQChar delim)
+{
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %f , %f , %f , %f , %f , %f ");
+    static AABB box;
+    // Clear previous values, if any
+    box.Clear();
+    // Is the specified string empty?
+    if (!str || *str == '\0')
+    {
+        return box; // Return the value as is!
+    }
+    // Assign the specified delimiter
+    fs[4] = delim;
+    fs[9] = delim;
+    fs[14] = delim;
+    fs[19] = delim;
+    fs[24] = delim;
+    // Attempt to extract the component values from the specified string
+    std::sscanf(str, fs, &box.min.x, &box.min.y, &box.min.z, &box.max.x, &box.max.y, &box.max.z);
+    // Return the resulted value
+    return box;
+}
+
 // ================================================================================================
 void Register_AABB(HSQUIRRELVM vm)
 {
@@ -438,6 +469,9 @@ void Register_AABB(HSQUIRRELVM vm)
         .Func<bool (AABB::*)(const AABB &) const>(_SC("opGreaterThan"), &AABB::operator >)
         .Func<bool (AABB::*)(const AABB &) const>(_SC("opLessEqual"), &AABB::operator <=)
         .Func<bool (AABB::*)(const AABB &) const>(_SC("opGreaterEqual"), &AABB::operator >=)
+        // Static Overloads
+        .StaticOverload< const AABB & (*)(CSStr) >(_SC("FromStr"), &GetAABB)
+        .StaticOverload< const AABB & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetAABB)
     );
 }
 

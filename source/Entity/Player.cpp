@@ -114,7 +114,7 @@ bool CPlayer::IsStreamedFor(CPlayer & player) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     // Validate the managed identifier
     Validate();
     // Return the requested information
@@ -997,7 +997,7 @@ void CPlayer::SetSpectator(CPlayer & target) const
     // Is the specified player even valid?
     if (!target.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -1082,7 +1082,7 @@ void CPlayer::Embark(CVehicle & vehicle) const
     // Is the specified vehicle even valid?
     if (!vehicle.IsActive())
     {
-        SqThrowF("Invalid vehicle argument: null");
+        STHROWF("Invalid vehicle argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -1096,7 +1096,7 @@ void CPlayer::Embark(CVehicle & vehicle, Int32 slot, bool allocate, bool warp) c
     // Is the specified vehicle even valid?
     if (!vehicle.IsActive())
     {
-        SqThrowF("Invalid vehicle argument: null");
+        STHROWF("Invalid vehicle argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -1146,7 +1146,7 @@ CSStr CPlayer::GetMessagePrefix(Uint32 index) const
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
     {
-        SqThrowF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
+        STHROWF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
     }
     // Validate the managed identifier
     Validate();
@@ -1160,7 +1160,7 @@ void CPlayer::SetMessagePrefix(Uint32 index, CSStr prefix) const
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
     {
-        SqThrowF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
+        STHROWF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
     }
     // Validate the managed identifier
     Validate();
@@ -1704,7 +1704,7 @@ static const Object & Player_FindByID(Int32 id)
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
     {
-        SqThrowF("The specified player identifier is invalid: %d", id);
+        STHROWF("The specified player identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
     Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();
@@ -1727,7 +1727,7 @@ static const Object & Player_FindByTag(CSStr tag)
     // Perform a validity check on the specified tag
     if (!tag || *tag == '\0')
     {
-        SqThrowF("The specified player tag is invalid: null/empty");
+        STHROWF("The specified player tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
     Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();

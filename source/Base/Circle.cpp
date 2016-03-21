@@ -382,7 +382,7 @@ void Circle::Generate()
 void Circle::Generate(Value min, Value max, bool r)
 {
     if (EpsLt(max, min))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
     else if (r)
         rad = GetRandomFloat32(min, max);
     else
@@ -392,7 +392,7 @@ void Circle::Generate(Value min, Value max, bool r)
 void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     pos.Generate(xmin, xmax, ymin, ymax);
 }
@@ -400,7 +400,7 @@ void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(rmax, rmin))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     pos.Generate(xmin, xmax, ymin, ymax);
     rad = GetRandomFloat32(rmin, rmax);
@@ -410,6 +410,34 @@ void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin
 Circle Circle::Abs() const
 {
     return Circle(pos.Abs(), fabs(rad));
+}
+
+// ------------------------------------------------------------------------------------------------
+const Circle & GetCircle(CSStr str)
+{
+    return GetCircle(str, Circle::Delim);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Circle & GetCircle(CSStr str, SQChar delim)
+{
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %f , %f , %f ");
+    static Circle circle;
+    // Clear previous values, if any
+    circle.Clear();
+    // Is the specified string empty?
+    if (!str || *str == '\0')
+    {
+        return circle; // Return the value as is!
+    }
+    // Assign the specified delimiter
+    fs[4] = delim;
+    fs[9] = delim;
+    // Attempt to extract the component values from the specified string
+    std::sscanf(str, fs, &circle.pos.x, &circle.pos.y, &circle.rad);
+    // Return the resulted value
+    return circle;
 }
 
 // ================================================================================================
@@ -502,6 +530,9 @@ void Register_Circle(HSQUIRRELVM vm)
         .Func<bool (Circle::*)(const Circle &) const>(_SC("opGreaterThan"), &Circle::operator >)
         .Func<bool (Circle::*)(const Circle &) const>(_SC("opLessEqual"), &Circle::operator <=)
         .Func<bool (Circle::*)(const Circle &) const>(_SC("opGreaterEqual"), &Circle::operator >=)
+        // Static Overloads
+        .StaticOverload< const Circle & (*)(CSStr) >(_SC("FromStr"), &GetCircle)
+        .StaticOverload< const Circle & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetCircle)
     );
 }
 

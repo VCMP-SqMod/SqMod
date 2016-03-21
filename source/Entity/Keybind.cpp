@@ -174,7 +174,7 @@ static const Object & Keybind_FindByID(Int32 id)
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
     {
-        SqThrowF("The specified keybind identifier is invalid: %d", id);
+        STHROWF("The specified keybind identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
     Core::Keybinds::const_iterator itr = _Core->GetKeybinds().cbegin();
@@ -197,7 +197,7 @@ static const Object & Keybind_FindByTag(CSStr tag)
     // Perform a validity check on the specified tag
     if (!tag || *tag == '\0')
     {
-        SqThrowF("The specified keybind tag is invalid: null/empty");
+        STHROWF("The specified keybind tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
     Core::Keybinds::const_iterator itr = _Core->GetKeybinds().cbegin();

@@ -263,9 +263,13 @@ Object BufferToStrObj(const Buffer & b, Uint32 size);
 */
 template < typename T > Object MakeObject(const T & v)
 {
+    // Transform the specified value into a script object
     PushVar< T >(DefaultVM::Get(), v);
+    // Get the object from the stack to obtain a strong reference to it
     Var< Object > var(DefaultVM::Get(), -1);
+    // Now it's safe to pop the object from the stack
     sq_pop(DefaultVM::Get(), 1);
+    // Return the resulted script object
     return var.value;
 }
 
@@ -274,9 +278,13 @@ template < typename T > Object MakeObject(const T & v)
 */
 template < typename T > Object MakeObject(HSQUIRRELVM vm, const T & v)
 {
+    // Transform the specified value into a script object
     PushVar< T >(vm, v);
+    // Get the object from the stack to obtain a strong reference to it
     Var< Object > var(vm, -1);
+    // Now it's safe to pop the object from the stack
     sq_pop(vm, 1);
+    // Return the resulted script object
     return var.value;
 }
 
@@ -311,60 +319,9 @@ const Color3 & GetRandomColor();
 Color3 GetColor(CSStr name);
 
 /* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the AABB type from a string.
-*/
-const AABB & GetAABB(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Circle type from a string.
-*/
-const Circle & GetCircle(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Color3 type from a string.
-*/
-const Color3 & GetColor3(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Color4 type from a string.
-*/
-const Color4 & GetColor4(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Quaternion type from a string.
-*/
-const Quaternion & GetQuaternion(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Sphere type from a string.
-*/
-const Sphere & GetSphere(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector2 type from a string.
-*/
-const Vector2 & GetVector2(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector2i type from a string.
-*/
-const Vector2i & GetVector2i(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector3 type from a string.
-*/
-const Vector3 & GetVector3(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector4 type from a string.
-*/
-const Vector4 & GetVector4(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
  * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Primary logging functions.
 */
-
-// ------------------------------------------------------------------------------------------------
 void LogDbg(CCStr fmt, ...);
 void LogUsr(CCStr fmt, ...);
 void LogScs(CCStr fmt, ...);
@@ -373,7 +330,10 @@ void LogWrn(CCStr fmt, ...);
 void LogErr(CCStr fmt, ...);
 void LogFtl(CCStr fmt, ...);
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Secondary logging functions.
+*/
 void LogSDbg(CCStr fmt, ...);
 void LogSUsr(CCStr fmt, ...);
 void LogSScs(CCStr fmt, ...);
@@ -382,7 +342,10 @@ void LogSWrn(CCStr fmt, ...);
 void LogSErr(CCStr fmt, ...);
 void LogSFtl(CCStr fmt, ...);
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Primary conditional logging functions.
+*/
 bool cLogDbg(bool cond, CCStr fmt, ...);
 bool cLogUsr(bool cond, CCStr fmt, ...);
 bool cLogScs(bool cond, CCStr fmt, ...);
@@ -391,7 +354,10 @@ bool cLogWrn(bool cond, CCStr fmt, ...);
 bool cLogErr(bool cond, CCStr fmt, ...);
 bool cLogFtl(bool cond, CCStr fmt, ...);
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Secondary conditional logging functions.
+*/
 bool cLogSDbg(bool cond, CCStr fmt, ...);
 bool cLogSUsr(bool cond, CCStr fmt, ...);
 bool cLogSScs(bool cond, CCStr fmt, ...);

@@ -17,10 +17,11 @@
 #include "Base/Vector4.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <time.h>
-#include <float.h>
-#include <limits.h>
-#include <stdarg.h>
+#include <ctime>
+#include <cfloat>
+#include <limits>
+#include <cstdarg>
+#include <cstring>
 #include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
@@ -113,7 +114,7 @@ Object BufferToStrObj(const Buffer & b, Uint32 size)
     // Perform a range check on the specified buffer
     if (size > b.Capacity())
     {
-        SqThrowF("The specified buffer size is out of range: %u >= %u", size, b.Capacity());
+        STHROWF("The specified buffer size is out of range: %u >= %u", size, b.Capacity());
     }
     // Obtain the initial stack size
     const StackGuard sg(DefaultVM::Get());
@@ -138,7 +139,9 @@ void SqThrowF(CCStr fmt, ...)
     va_start (args, fmt);
     // Write the requested contents
     if (snprintf(g_Buffer, sizeof(g_Buffer), fmt, args) < 0)
+    {
         strcpy(g_Buffer, "Unknown error has occurred");
+    }
     // Release the argument list
     va_end(args);
     // Throw the exception with the resulted message
@@ -155,7 +158,9 @@ CSStr ToStrF(CCStr fmt, ...)
     int ret =  vsnprintf(g_Buffer, sizeof(g_Buffer), fmt, args);
     // See if the format function failed
     if (ret < 0)
-        SqThrowF("Failed to run the specified string format");
+    {
+        STHROWF("Failed to run the specified string format");
+    }
     // Finalized the arguments list
     va_end(args);
     // Return the resulted string
@@ -172,8 +177,10 @@ CSStr ToStringF(CCStr fmt, ...)
     va_start (args, fmt);
     // Attempt to run the specified format
     if (b.WriteF(0, fmt, args) == 0)
+    {
         // Make sure the string is null terminated
         b.At(0) = 0;
+    }
     // Finalized the arguments list
     va_end(args);
     // Return the resulted string
@@ -336,15 +343,19 @@ Color3 GetColor(CSStr name)
 {
     // See if we actually have something to search for
     if(!name || *name == 0)
-        SqThrowF("Cannot extract values from an empty string");
+    {
+        STHROWF("Cannot extract values from an empty string");
+    }
     // Clone the string into an editable version
     CCStr str = StrJustAlphaNum(name);
     str = StrToLowercase(str);
     // See if we still have a valid name after the cleanup
-    if(!str || *str == 0)
-        SqThrowF("Cannot extract values from an invalid string: %s", name);
+    if(!str || *str == '\0')
+    {
+        STHROWF("Cannot extract values from an invalid string: %s", name);
+    }
     // Calculate the name length
-    const Uint32 len = strlen(str);
+    const Uint32 len = std::strlen(str);
     // Get the most significant characters used to identify a weapon
     SQChar a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
@@ -933,283 +944,6 @@ Color3 GetColor(CSStr name)
     }
 }
 
-// ------------------------------------------------------------------------------------------------
-const AABB & GetAABB(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %f , %f , %f , %f , %f , %f ");
-    static AABB box;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-
-    box.Clear();
-
-    if (delim != AABB::Delim)
-    {
-        fs[4] = delim;
-        fs[9] = delim;
-        fs[14] = delim;
-        fs[19] = delim;
-        fs[24] = delim;
-    }
-    else
-    {
-        fs[4] = AABB::Delim;
-        fs[9] = AABB::Delim;
-        fs[14] = AABB::Delim;
-        fs[19] = AABB::Delim;
-        fs[24] = AABB::Delim;
-    }
-
-    sscanf(str, &fs[0], &box.min.x, &box.min.y, &box.min.z, &box.max.x, &box.max.y, &box.max.z);
-
-    return box;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Circle & GetCircle(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %f , %f , %f ");
-    static Circle circle;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-
-    circle.Clear();
-
-    if (delim != Circle::Delim)
-    {
-        fs[4] = delim;
-        fs[9] = delim;
-    }
-    else
-    {
-        fs[4] = Circle::Delim;
-        fs[9] = Circle::Delim;
-    }
-
-    sscanf(str, &fs[0], &circle.pos.x, &circle.pos.y, &circle.rad);
-
-    return circle;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Color3 & GetColor3(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %u , %u , %u ");
-    static Color3 col;
-
-    Uint32 r = 0, g = 0, b = 0;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-    else if (delim != Color3::Delim)
-    {
-        fs[4] = delim;
-        fs[9] = delim;
-    }
-    else
-    {
-        fs[4] = Color3::Delim;
-        fs[9] = Color3::Delim;
-    }
-
-    sscanf(str, &fs[0], &r, &g, &b);
-
-    col.r = static_cast< Color4::Value >(r);
-    col.g = static_cast< Color4::Value >(g);
-    col.b = static_cast< Color4::Value >(b);
-
-    return col;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Color4 & GetColor4(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %u , %u , %u , %u ");
-    static Color4 col;
-
-    Uint32 r = 0, g = 0, b = 0, a = 0;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-    else if (delim != Color4::Delim)
-    {
-        fs[4] = delim;
-        fs[9] = delim;
-        fs[14] = delim;
-    }
-    else
-    {
-        fs[4] = Color4::Delim;
-        fs[9] = Color4::Delim;
-        fs[14] = Color4::Delim;
-    }
-
-    sscanf(str, &fs[0], &r, &g, &b, &a);
-
-    col.r = static_cast< Color4::Value >(r);
-    col.g = static_cast< Color4::Value >(g);
-    col.b = static_cast< Color4::Value >(b);
-    col.a = static_cast< Color4::Value >(a);
-
-    return col;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Quaternion & GetQuaternion(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %f , %f , %f , %f ");
-    static Quaternion quat;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-
-    quat.Clear();
-
-    if (delim != Quaternion::Delim)
-    {
-        fs[4] = delim;
-        fs[9] = delim;
-        fs[14] = delim;
-    }
-    else
-    {
-        fs[4] = Quaternion::Delim;
-        fs[9] = Quaternion::Delim;
-        fs[14] = Quaternion::Delim;
-    }
-
-    sscanf(str, &fs[0], &quat.x, &quat.y, &quat.z, &quat.w);
-
-    return quat;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Sphere & GetSphere(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %f , %f , %f , %f ");
-    static Sphere sphere;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-
-    sphere.Clear();
-
-    if (delim != Sphere::Delim)
-    {
-        fs[4] = delim;
-        fs[9] = delim;
-        fs[14] = delim;
-    }
-    else
-    {
-        fs[4] = Sphere::Delim;
-        fs[9] = Sphere::Delim;
-        fs[14] = Sphere::Delim;
-    }
-
-    sscanf(str, &fs[0], &sphere.pos.x, &sphere.pos.y, &sphere.pos.z, &sphere.rad);
-
-    return sphere;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector2 & GetVector2(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %f , %f ");
-    static Vector2 vec;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-
-    vec.Clear();
-
-    if (delim != Vector2::Delim)
-        fs[4] = delim;
-    else
-        fs[4] = Vector2::Delim;
-
-    sscanf(str, &fs[0], &vec.x, &vec.y);
-
-    return vec;
-}
-
-const Vector2i & GetVector2i(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %d , %d ");
-    static Vector2i vec;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-
-    vec.Clear();
-
-    if (delim != Vector2i::Delim)
-        fs[4] = delim;
-    else
-        fs[4] = Vector2i::Delim;
-
-    sscanf(str, &fs[0], &vec.x, &vec.y);
-
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector3 & GetVector3(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %f , %f , %f ");
-    static Vector3 vec;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-
-    vec.Clear();
-
-    if (delim != Vector3::Delim)
-    {
-        fs[4] = delim;
-        fs[9] = delim;
-    }
-    else
-    {
-        fs[4] = Vector3::Delim;
-        fs[9] = Vector3::Delim;
-    }
-
-    sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z);
-
-    return vec;
-}
-
-const Vector4 & GetVector4(CSStr str, SQChar delim)
-{
-    static SQChar fs[] = _SC(" %f , %f , %f , %f ");
-    static Vector4 vec;
-
-    if (!str || *str == 0)
-        SqThrowF("Cannot extract values from an empty string");
-
-    vec.Clear();
-
-    if (delim != Vector4::Delim)
-    {
-        fs[4] = delim;
-        fs[9] = delim;
-        fs[14] = delim;
-    }
-    else
-    {
-        fs[4] = Vector4::Delim;
-        fs[9] = Vector4::Delim;
-        fs[14] = Vector4::Delim;
-    }
-
-    sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z, &vec.w);
-
-    return vec;
-}
-
 // ================================================================================================
 void Register_Base(HSQUIRRELVM vm)
 {
@@ -1232,17 +966,7 @@ void Register_Base(HSQUIRRELVM vm)
     .Func(_SC("IsGraph"), &isgraph)
     .Func(_SC("IsBlank"), &isblank)
     .Func(_SC("SToB"), &SToB)
-    .Func(_SC("GetColor"), &GetColor)
-    .Func(_SC("GetCircle"), &GetCircle)
-    .Func(_SC("GetAABB"), &GetAABB)
-    .Func(_SC("GetColor3"), &GetColor3)
-    .Func(_SC("GetColor4"), &GetColor4)
-    .Func(_SC("GetQuaternion"), &GetQuaternion)
-    .Func(_SC("GetSphere"), &GetSphere)
-    .Func(_SC("GetVector2"), &GetVector2)
-    .Func(_SC("GetVector2i"), &GetVector2i)
-    .Func(_SC("GetVector3"), &GetVector3)
-    .Func(_SC("GetVector4"), &GetVector4);
+    .Func(_SC("GetColor"), &GetColor);
 }
 
 } // Namespace:: SqMod

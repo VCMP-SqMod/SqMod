@@ -503,6 +503,31 @@ enum CmdError
 #endif
 
 /* ------------------------------------------------------------------------------------------------
+ * LOGGING LOCATION
+*/
+
+#define SQMOD_TRUESTRINGIZE(x) #x
+#define SQMOD_STRINGIZEWRAP(x) SQMOD_TRUESTRINGIZE(x)
+
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    #define SQMOD_MSGLOC(m) (m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] ")
+#else
+    #define SQMOD_MSGLOC(m) (m)
+#endif // _DEBUG
+
+/* ------------------------------------------------------------------------------------------------
+ * EXCEPTION THROWING
+*/
+
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    #define STHROW(e, m, ...) throw e(m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] ", ##__VA_ARGS__)
+    #define STHROWF(m, ...) SqThrowF(m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] ", ##__VA_ARGS__)
+#else
+    #define STHROW(e, m, ...) throw e(m, ##__VA_ARGS__)
+    #define STHROWF(m, ...) SqThrowF(m, ##__VA_ARGS__)
+#endif // _DEBUG
+
+/* ------------------------------------------------------------------------------------------------
  * VARIOUS DEFINES
 */
 

@@ -322,7 +322,7 @@ void Vector2::Generate()
 void Vector2::Generate(Value min, Value max)
 {
     if (EpsLt(max, min))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     x = GetRandomFloat32(min, max);
     y = GetRandomFloat32(min, max);
@@ -331,7 +331,7 @@ void Vector2::Generate(Value min, Value max)
 void Vector2::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     x = GetRandomFloat32(ymin, ymax);
     y = GetRandomFloat32(xmin, xmax);
@@ -341,6 +341,33 @@ void Vector2::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 Vector2 Vector2::Abs() const
 {
     return Vector2(fabs(x), fabs(y));
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector2 & GetVector2(CSStr str)
+{
+    return GetVector2(str, Vector2::Delim);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector2 & GetVector2(CSStr str, SQChar delim)
+{
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %f , %f ");
+    static Vector2 vec;
+    // Clear previous values, if any
+    vec.Clear();
+    // Is the specified string empty?
+    if (!str || *str == '0')
+    {
+        return vec; // Return the value as is!
+    }
+    // Assign the specified delimiter
+    fs[4] = delim;
+    // Attempt to extract the component values from the specified string
+    sscanf(str, fs, &vec.x, &vec.y);
+    // Return the resulted value
+    return vec;
 }
 
 // ================================================================================================
@@ -422,6 +449,9 @@ void Register_Vector2(HSQUIRRELVM vm)
         .Func<bool (Vector2::*)(const Vector2 &) const>(_SC("opGreaterThan"), &Vector2::operator >)
         .Func<bool (Vector2::*)(const Vector2 &) const>(_SC("opLessEqual"), &Vector2::operator <=)
         .Func<bool (Vector2::*)(const Vector2 &) const>(_SC("opGreaterEqual"), &Vector2::operator >=)
+        // Static Overloads
+        .StaticOverload< const Vector2 & (*)(CSStr) >(_SC("FromStr"), &GetVector2)
+        .StaticOverload< const Vector2 & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetVector2)
     );
 }
 

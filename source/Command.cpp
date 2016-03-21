@@ -30,7 +30,7 @@ static void ValidateName(CSStr name)
     // Is the name empty?
     if (!name || *name == '\0')
     {
-        SqThrowF("Invalid or empty command name");
+        STHROWF("Invalid or empty command name");
     }
     // Inspect name characters
     while (*name != '\0')
@@ -38,7 +38,7 @@ static void ValidateName(CSStr name)
         // Does it contain spaces?
         if (isspace(*name) != 0)
         {
-            SqThrowF("Command names cannot contain spaces");
+            STHROWF("Command names cannot contain spaces");
         }
         // Move to the next character
         ++name;
@@ -112,7 +112,7 @@ Object & CmdManager::Attach(const String & name, CmdListener * ptr, bool autorel
             }
             // Now it's safe to throw the exception
             // (include information necessary to help identify hash collisions!)
-            SqThrowF("Command (%s:%zu) already exists as (%s:%zu)",
+            STHROWF("Command (%s:%zu) already exists as (%s:%zu)",
                         name.c_str(), hash, cmd.mName.c_str(), cmd.mHash);
         }
     }
@@ -915,12 +915,12 @@ void CmdListener::Attach()
     // Is the associated name even valid?
     if (m_Name.empty())
     {
-        SqThrowF("Invalid or empty command name");
+        STHROWF("Invalid or empty command name");
     }
     // Are we already attached?
     else if (_Cmd->Attached(this))
     {
-        SqThrowF("Command is already attached");
+        STHROWF("Command is already attached");
     }
     // Attempt to attach this command
     _Cmd->Attach(m_Name, this, false);
@@ -1019,7 +1019,7 @@ void CmdListener::SetArgTags(Array & tags)
     }
     else
     {
-        SqThrowF("Argument tag (%u) is out of range (%u)", max, SQMOD_MAX_CMD_ARGS);
+        STHROWF("Argument tag (%u) is out of range (%u)", max, SQMOD_MAX_CMD_ARGS);
     }
 }
 
@@ -1113,11 +1113,11 @@ void CmdListener::SetMinArgC(Uint8 val)
     // Perform a range check on the specified argument index
     if (val >= SQMOD_MAX_CMD_ARGS)
     {
-        SqThrowF("Argument (%u) is out of total range (%u)", val, SQMOD_MAX_CMD_ARGS);
+        STHROWF("Argument (%u) is out of total range (%u)", val, SQMOD_MAX_CMD_ARGS);
     }
     else if (val > m_MaxArgc)
     {
-        SqThrowF("Minimum argument (%u) exceeds maximum (%u)", val, m_MaxArgc);
+        STHROWF("Minimum argument (%u) exceeds maximum (%u)", val, m_MaxArgc);
     }
     // Apply the specified value
     m_MinArgc = val;
@@ -1135,11 +1135,11 @@ void CmdListener::SetMaxArgC(Uint8 val)
     // Perform a range check on the specified argument index
     if (val >= SQMOD_MAX_CMD_ARGS)
     {
-        SqThrowF("Argument (%u) is out of total range (%u)", val, SQMOD_MAX_CMD_ARGS);
+        STHROWF("Argument (%u) is out of total range (%u)", val, SQMOD_MAX_CMD_ARGS);
     }
     else if (val < m_MinArgc)
     {
-        SqThrowF("Minimum argument (%u) exceeds maximum (%u)", m_MinArgc, val);
+        STHROWF("Minimum argument (%u) exceeds maximum (%u)", m_MinArgc, val);
     }
     // Apply the specified value
     m_MaxArgc = val;
@@ -1157,7 +1157,7 @@ void CmdListener::SetOnExec(Object & env, Function & func)
     // Make sure that we are allowed to store script resources
     if (m_Name.empty())
     {
-        SqThrowF("Invalid commands cannot store script resources");
+        STHROWF("Invalid commands cannot store script resources");
     }
     // Apply the specified information
     m_OnExec = Function(env.GetVM(), env.GetObject(), func.GetFunc());
@@ -1175,7 +1175,7 @@ void CmdListener::SetOnAuth(Object & env, Function & func)
     // Make sure that we are allowed to store script resources
     if (m_Name.empty())
     {
-        SqThrowF("Invalid commands cannot store script resources");
+        STHROWF("Invalid commands cannot store script resources");
     }
     // Apply the specified information
     m_OnAuth = Function(env.GetVM(), env.GetObject(), func.GetFunc());
@@ -1193,7 +1193,7 @@ void CmdListener::SetOnPost(Object & env, Function & func)
     // Make sure that we are allowed to store script resources
     if (m_Name.empty())
     {
-        SqThrowF("Invalid commands cannot store script resources");
+        STHROWF("Invalid commands cannot store script resources");
     }
     // Apply the specified information
     m_OnPost = Function(env.GetVM(), env.GetObject(), func.GetFunc());
@@ -1211,7 +1211,7 @@ void CmdListener::SetOnFail(Object & env, Function & func)
     // Make sure that we are allowed to store script resources
     if (m_Name.empty())
     {
-        SqThrowF("Invalid commands cannot store script resources");
+        STHROWF("Invalid commands cannot store script resources");
     }
     // Apply the specified information
     m_OnFail = Function(env.GetVM(), env.GetObject(), func.GetFunc());
@@ -1223,7 +1223,7 @@ CSStr CmdListener::GetArgTag(Uint32 arg) const
     // Perform a range check on the specified argument index
     if (arg >= SQMOD_MAX_CMD_ARGS)
     {
-        SqThrowF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+        STHROWF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
     }
     // Return the requested information
     return m_ArgTags[arg].c_str();
@@ -1235,7 +1235,7 @@ void CmdListener::SetArgTag(Uint32 arg, CSStr name)
     // Perform a range check on the specified argument index
     if (arg >= SQMOD_MAX_CMD_ARGS)
     {
-        SqThrowF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+        STHROWF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
     }
     // The string type doesn't appreciate null values
     else if (name)
@@ -1368,7 +1368,7 @@ bool CmdListener::ArgCheck(Uint32 arg, Uint8 flag) const
     // Perform a range check on the specified argument index
     if (arg >= SQMOD_MAX_CMD_ARGS)
     {
-        SqThrowF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+        STHROWF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
     }
     // Retrieve the argument flags
     const Uint8 f = m_ArgSpec[arg];
@@ -1460,7 +1460,7 @@ void CmdListener::ProcSpec(CSStr str)
             {
                 if (idx >= SQMOD_MAX_CMD_ARGS)
                 {
-                    SqThrowF("Extraneous type specifiers: %d >= %d", idx, SQMOD_MAX_CMD_ARGS);
+                    STHROWF("Extraneous type specifiers: %d >= %d", idx, SQMOD_MAX_CMD_ARGS);
                 }
                 // Move to the next character
                 ++str;
@@ -1549,7 +1549,7 @@ void CmdListener::ProcSpec(CSStr str)
                         }
                     } break;
                     // Unknown type!
-                    default: SqThrowF("Unknown type specifier (%c) at argument: %u", *str, idx);
+                    default: STHROWF("Unknown type specifier (%c) at argument: %u", *str, idx);
                 }
             }
         }

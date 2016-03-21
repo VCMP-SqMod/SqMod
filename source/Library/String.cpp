@@ -25,7 +25,7 @@ CSStr LeftStr(CSStr t, SQChar f, Uint32 w)
     if (!w)
         return _SC("");
     // Allocate a buffer with the requested width
-    Buffer b(w);
+    Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
     if (!t || *t == 0)
         // Insert only the fill character
@@ -52,9 +52,9 @@ CSStr LeftStr(CSStr t, SQChar f, Uint32 w, Uint32 o)
         return _SC("");
     // Is the specified offset within width range?
     else if (o > w)
-        SqThrowF("Offset is out of bounds");
+        STHROWF("Offset is out of bounds");
     // Allocate a buffer with the requested width
-    Buffer b(w);
+    Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
     if (!t || *t == 0)
         // Insert only the fill character
@@ -81,7 +81,7 @@ CSStr RightStr(CSStr t, SQChar f, Uint32 w)
     if (!w)
         return _SC("");
     // Allocate a buffer with the requested width
-    Buffer b(w);
+    Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
     if (!t || *t == 0)
         // Insert only the fill character
@@ -111,9 +111,9 @@ CSStr RightStr(CSStr t, SQChar f, Uint32 w, Uint32 o)
         return _SC("");
     // Is the specified offset within width range?
     else if (o > w)
-        SqThrowF("Offset is out of bounds");
+        STHROWF("Offset is out of bounds");
     // Allocate a buffer with the requested width
-    Buffer b(w);
+    Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
     if (!t || *t == 0)
         // Insert only the fill character
@@ -143,7 +143,7 @@ CSStr CenterStr(CSStr t, SQChar f, Uint32 w)
     if (!w)
         return _SC("");
     // Allocate a buffer with the requested width
-    Buffer b(w);
+    Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
     if (!t || *t == 0)
         // Insert only the fill character
@@ -172,13 +172,13 @@ CSStr StrJustAlphaNum(CSStr str)
     // Calculate the string length
     Uint32 size = strlen(str);
     // Obtain a temporary buffer
-    Buffer b(size);
+    Buffer b(size + 1); // + null terminator
     // Resulted string size
     Uint32 n = 0;
     // Currently processed character
     SQChar c = 0;
     // Process characters
-    while ((c = *(str++)) != 0)
+    while ((c = *(str++)) != '\0')
     {
         // Is this an alpha-numeric character?
         if (isalnum(c) != 0)
@@ -200,13 +200,13 @@ CSStr StrToLowercase(CSStr str)
     // Calculate the string length
     Uint32 size = strlen(str);
     // Obtain a temporary buffer
-    Buffer b(size);
+    Buffer b(size + 1); // + null terminator
     // Resulted string size
     Uint32 n = 0;
     // Currently processed character
     SQChar c = 0;
     // Process characters
-    while ((c = *(str++)) != 0)
+    while ((c = *(str++)) != '\0')
         // Convert it and move to the next one
         b.At(n++) = tolower(c);
     // End the resulted string
@@ -222,9 +222,9 @@ CSStr StrToUppercase(CSStr str)
     if(!str || *str == 0)
         return _SC("");
     // Calculate the string length
-    Uint32 size = strlen(str);
+    Uint32 size = strlen(str); // + null terminator
     // Obtain a temporary buffer
-    Buffer b(size);
+    Buffer b(size + 1); // + null terminator
     // Resulted string size
     Uint32 n = 0;
     // Currently processed character

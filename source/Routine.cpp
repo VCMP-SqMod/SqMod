@@ -96,7 +96,7 @@ Object Routine::Associate(Routine * routine)
         if (itr == s_Objects.end())
         {
             // NOTE: Routine instance is destroyed by the script object if necessary!
-            SqThrowF("Unable to remember routine instance");
+            STHROWF("Unable to remember routine instance");
         }
     }
     // Does this routine still keep a strong reference to it self?
@@ -438,7 +438,7 @@ void Routine::Terminate()
     // Was the routine already terminated?
     if (m_Terminated)
     {
-        SqThrowF("Routine was already terminated");
+        STHROWF("Routine was already terminated");
     }
     // Detach from the associated bucket
     Detach();
@@ -468,7 +468,7 @@ Routine & Routine::SetArg(Uint8 num, Object & val)
         case 12: m_Arg12 = val; break;
         case 13: m_Arg13 = val; break;
         case 14: m_Arg14 = val; break;
-        default: SqThrowF("Argument is out of range: %d", num);
+        default: STHROWF("Argument is out of range: %d", num);
     }
     // Allow chaining
     return *this;
@@ -496,7 +496,7 @@ Object & Routine::GetArg(Uint8 num)
         case 12: return m_Arg12;
         case 13: return m_Arg13;
         case 14: return m_Arg14;
-        default: SqThrowF("Argument is out of range: %d", num);
+        default: STHROWF("Argument is out of range: %d", num);
     }
     // Shouldn't really reach this point
     return NullObject();
@@ -516,7 +516,7 @@ void Routine::SetInterval(Interval interval)
     // Is the specified interval valid?
     if (!interval)
     {
-        SqThrowF("Invalid routine interval");
+        STHROWF("Invalid routine interval");
     }
     // Detach from the current bucket
     Detach();
@@ -554,7 +554,7 @@ void Routine::SetArguments(Uint8 num)
     // Is the specified argument count valid?
     if (num > 14)
     {
-        SqThrowF("Argument is out of range: %d", num);
+        STHROWF("Argument is out of range: %d", num);
     }
     // Perform the requested operation
     m_Arguments = num;
@@ -634,12 +634,12 @@ void Routine::Create()
     // Do we even have a valid interval?
     if (!m_Interval)
     {
-        SqThrowF("Invalid routine interval");
+        STHROWF("Invalid routine interval");
     }
     // Is the specified callback even valid?
     else if (m_Callback.IsNull())
     {
-        SqThrowF("Invalid routine callback");
+        STHROWF("Invalid routine callback");
     }
     // Always use the command queue to attach the routine when created
     s_Queue.emplace_back(this, m_Interval, CMD_ATTACH);
@@ -704,7 +704,7 @@ void Routine::Execute()
     // Make sure that we have a known number of arguments
     else if (m_Arguments > 14)
     {
-        SqThrowF("Routine [%s] => Out of range argument count [%d]", m_Tag.c_str(), m_Arguments);
+        STHROWF("Routine [%s] => Out of range argument count [%d]", m_Tag.c_str(), m_Arguments);
     }
     // Attempt to forward the call
     try
@@ -854,7 +854,7 @@ void Routine::Flush()
     // Make sure the buckets are not locked
     if (s_Lock)
     {
-        SqThrowF("Buckets are under active lock");
+        STHROWF("Buckets are under active lock");
     }
     // Process commands in queue
     ProcQueue();
@@ -928,7 +928,7 @@ Object Routine::FindByTag(CSStr tag)
     // Perform a validity check on the specified tag
     if (!tag || *tag == '\0')
     {
-        SqThrowF("The specified routine tag is invalid: null/empty");
+        STHROWF("The specified routine tag is invalid: null/empty");
     }
     // Process each routine in the pool
     for (const auto & elem : s_Objects)

@@ -741,7 +741,7 @@ Object & FindPlayer(Object & by)
                 _Core->GetPlayer(id).mObj;
         } break;
         default:
-            SqThrowF("Unsupported search identifier");
+            STHROWF("Unsupported search identifier");
     }
     return NullObject();
 }

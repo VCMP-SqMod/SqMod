@@ -122,7 +122,7 @@ void CSprite::ShowFor(CPlayer & player) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -137,7 +137,7 @@ void CSprite::ShowRange(Int32 first, Int32 last) const
     // Validate the specified range
     if (first > last)
     {
-        SqThrowF("Invalid player range: %d > %d", first, last);
+        STHROWF("Invalid player range: %d > %d", first, last);
     }
     // Validate the managed identifier
     Validate();
@@ -168,7 +168,7 @@ void CSprite::HideFor(CPlayer & player) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -182,7 +182,7 @@ void CSprite::HideRange(Int32 first, Int32 last) const
     // Validate the specified range
     if (first > last)
     {
-        SqThrowF("Invalid player range: %d > %d", first, last);
+        STHROWF("Invalid player range: %d > %d", first, last);
     }
     // Validate the managed identifier
     Validate();
@@ -222,7 +222,7 @@ void CSprite::SetPositionFor(CPlayer & player, const Vector2i & pos) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -236,7 +236,7 @@ void CSprite::SetPositionForEx(CPlayer & player, Int32 x, Int32 y) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -250,7 +250,7 @@ void CSprite::SetPositionRange(Int32 first, Int32 last, const Vector2i & pos) co
     // Validate the specified range
     if (first > last)
     {
-        SqThrowF("Invalid player range: %d > %d", first, last);
+        STHROWF("Invalid player range: %d > %d", first, last);
     }
     // Validate the managed identifier
     Validate();
@@ -290,7 +290,7 @@ void CSprite::SetCenterFor(CPlayer & player, const Vector2i & pos) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -304,7 +304,7 @@ void CSprite::SetCenterForEx(CPlayer & player, Int32 x, Int32 y) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -318,7 +318,7 @@ void CSprite::SetCenterRange(Int32 first, Int32 last, const Vector2i & pos) cons
     // Validate the specified range
     if (first > last)
     {
-        SqThrowF("Invalid player range: %d > %d", first, last);
+        STHROWF("Invalid player range: %d > %d", first, last);
     }
     // Validate the managed identifier
     Validate();
@@ -349,7 +349,7 @@ void CSprite::SetRotationFor(CPlayer & player, Float32 rot) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -363,7 +363,7 @@ void CSprite::SetRotationRange(Int32 first, Int32 last, Float32 rot) const
     // Validate the specified range
     if (first > last)
     {
-        SqThrowF("Invalid player range: %d > %d", first, last);
+        STHROWF("Invalid player range: %d > %d", first, last);
     }
     // Validate the managed identifier
     Validate();
@@ -394,7 +394,7 @@ void CSprite::SetAlphaFor(CPlayer & player, Uint8 alpha) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -408,7 +408,7 @@ void CSprite::SetAlphaRange(Int32 first, Int32 last, Uint8 alpha) const
     // Validate the specified range
     if (first > last)
     {
-        SqThrowF("Invalid player range: %d > %d", first, last);
+        STHROWF("Invalid player range: %d > %d", first, last);
     }
     // Validate the managed identifier
     Validate();
@@ -499,7 +499,7 @@ static const Object & Sprite_FindByID(Int32 id)
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_SPRITE_POOL))
     {
-        SqThrowF("The specified sprite identifier is invalid: %d", id);
+        STHROWF("The specified sprite identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
     Core::Sprites::const_iterator itr = _Core->GetSprites().cbegin();
@@ -522,7 +522,7 @@ static const Object & Sprite_FindByTag(CSStr tag)
     // Perform a validity check on the specified tag
     if (!tag || *tag == '\0')
     {
-        SqThrowF("The specified sprite tag is invalid: null/empty");
+        STHROWF("The specified sprite tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
     Core::Sprites::const_iterator itr = _Core->GetSprites().cbegin();

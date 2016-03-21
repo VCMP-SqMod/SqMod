@@ -116,7 +116,7 @@ bool CPickup::IsStreamedFor(CPlayer & player) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -362,7 +362,7 @@ static const Object & Pickup_FindByID(Int32 id)
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
     {
-        SqThrowF("The specified pickup identifier is invalid: %d", id);
+        STHROWF("The specified pickup identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
     Core::Pickups::const_iterator itr = _Core->GetPickups().cbegin();
@@ -385,7 +385,7 @@ static const Object & Pickup_FindByTag(CSStr tag)
     // Perform a validity check on the specified tag
     if (!tag || *tag == '0')
     {
-        SqThrowF("The specified pickup tag is invalid: null/empty");
+        STHROWF("The specified pickup tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
     Core::Pickups::const_iterator itr = _Core->GetPickups().cbegin();

@@ -124,7 +124,7 @@ bool CCheckpoint::IsStreamedFor(CPlayer & player) const
     // Is the specified player even valid?
     if (!player.IsActive())
     {
-        SqThrowF("Invalid player argument: null");
+        STHROWF("Invalid player argument: null");
     }
     // Validate the managed identifier
     Validate();
@@ -455,7 +455,7 @@ static const Object & Checkpoint_FindByID(Int32 id)
     // Perform a range check on the specified identifier
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
     {
-        SqThrowF("The specified checkpoint identifier is invalid: %d", id);
+        STHROWF("The specified checkpoint identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
     Core::Checkpoints::const_iterator itr = _Core->GetCheckpoints().cbegin();
@@ -478,7 +478,7 @@ static const Object & Checkpoint_FindByTag(CSStr tag)
     // Perform a validity check on the specified tag
     if (!tag || *tag == '\0')
     {
-        SqThrowF("The specified checkpoint tag is invalid: null/empty");
+        STHROWF("The specified checkpoint tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
     Core::Checkpoints::const_iterator itr = _Core->GetCheckpoints().cbegin();

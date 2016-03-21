@@ -390,7 +390,7 @@ void Vector4::Generate()
 void Vector4::Generate(Value min, Value max)
 {
     if (max < min)
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     x = GetRandomFloat32(min, max);
     y = GetRandomFloat32(min, max);
@@ -401,7 +401,7 @@ void Vector4::Generate(Value min, Value max)
 void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(wmax, wmin))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     x = GetRandomFloat32(xmin, xmax);
     y = GetRandomFloat32(ymin, ymax);
@@ -413,6 +413,35 @@ void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
 Vector4 Vector4::Abs() const
 {
     return Vector4(fabs(x), fabs(y), fabs(z), fabs(w));
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector4 & GetVector4(CSStr str)
+{
+    return GetVector4(str, Vector4::Delim);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector4 & GetVector4(CSStr str, SQChar delim)
+{
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %f , %f , %f , %f ");
+    static Vector4 vec;
+    // Clear previous values, if any
+    vec.Clear();
+    // Is the specified string empty?
+    if (!str || *str == '\0')
+    {
+        return vec; // Return the value as is!
+    }
+    // Assign the specified delimiter
+    fs[4] = delim;
+    fs[9] = delim;
+    fs[14] = delim;
+    // Attempt to extract the component values from the specified string
+    sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z, &vec.w);
+    // Return the resulted value
+    return vec;
 }
 
 // ================================================================================================
@@ -499,6 +528,9 @@ void Register_Vector4(HSQUIRRELVM vm)
         .Func<bool (Vector4::*)(const Vector4 &) const>(_SC("opGreaterThan"), &Vector4::operator >)
         .Func<bool (Vector4::*)(const Vector4 &) const>(_SC("opLessEqual"), &Vector4::operator <=)
         .Func<bool (Vector4::*)(const Vector4 &) const>(_SC("opGreaterEqual"), &Vector4::operator >=)
+        // Static Overloads
+        .StaticOverload< const Vector4 & (*)(CSStr) >(_SC("FromStr"), &GetVector4)
+        .StaticOverload< const Vector4 & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetVector4)
     );
 }
 

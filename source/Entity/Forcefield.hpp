@@ -83,7 +83,7 @@ public:
     {
         if (INVALID_ENTITY(m_ID))
         {
-            SqThrowF("Invalid forcefield reference [%s]", m_Tag.c_str());
+            STHROWF("Invalid forcefield reference [%s]", m_Tag.c_str());
         }
     }
 

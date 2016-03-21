@@ -8,6 +8,16 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Extract the values for components of the Vector2 type from a string.
+*/
+const Vector2 & GetVector2(CSStr str);
+
+/* ------------------------------------------------------------------------------------------------
+ * Extract the values for components of the Vector2 type from a string.
+*/
+const Vector2 & GetVector2(CSStr str, SQChar delim);
+
+/* ------------------------------------------------------------------------------------------------
  * Class used to represent a two-dimensional vector.
 */
 struct Vector2

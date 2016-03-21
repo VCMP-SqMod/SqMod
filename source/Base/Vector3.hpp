@@ -8,6 +8,16 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Extract the values for components of the Vector3 type from a string.
+*/
+const Vector3 & GetVector3(CSStr str);
+
+/* ------------------------------------------------------------------------------------------------
+ * Extract the values for components of the Vector3 type from a string.
+*/
+const Vector3 & GetVector3(CSStr str, SQChar delim);
+
+/* ------------------------------------------------------------------------------------------------
  * Class used to represent a three-dimensional vector.
 */
 struct Vector3

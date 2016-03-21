@@ -382,7 +382,7 @@ void Sphere::Generate()
 void Sphere::Generate(Value min, Value max, bool r)
 {
     if (EpsLt(max, min))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
     else if (r)
         rad = GetRandomFloat32(min, max);
     else
@@ -392,7 +392,7 @@ void Sphere::Generate(Value min, Value max, bool r)
 void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
 }
@@ -400,7 +400,7 @@ void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin
 void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(rmax, rmin))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
     rad = GetRandomFloat32(rmin, rmax);
@@ -410,6 +410,35 @@ void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin
 Sphere Sphere::Abs() const
 {
     return Sphere(pos.Abs(), fabs(rad));
+}
+
+// ------------------------------------------------------------------------------------------------
+const Sphere & GetSphere(CSStr str)
+{
+    return GetSphere(str, Sphere::Delim);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Sphere & GetSphere(CSStr str, SQChar delim)
+{
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %f , %f , %f , %f ");
+    static Sphere sphere;
+    // Clear previous values, if any
+    sphere.Clear();
+    // Is the specified string empty?
+    if (!str || *str == '\0')
+    {
+        return sphere; // Return the value as is!
+    }
+    // Assign the specified delimiter
+    fs[4] = delim;
+    fs[9] = delim;
+    fs[14] = delim;
+    // Attempt to extract the component values from the specified string
+    sscanf(str, fs, &sphere.pos.x, &sphere.pos.y, &sphere.pos.z, &sphere.rad);
+    // Return the resulted value
+    return sphere;
 }
 
 // ================================================================================================
@@ -502,6 +531,9 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Func<bool (Sphere::*)(const Sphere &) const>(_SC("opGreaterThan"), &Sphere::operator >)
         .Func<bool (Sphere::*)(const Sphere &) const>(_SC("opLessEqual"), &Sphere::operator <=)
         .Func<bool (Sphere::*)(const Sphere &) const>(_SC("opGreaterEqual"), &Sphere::operator >=)
+        // Static Overloads
+        .StaticOverload< const Sphere & (*)(CSStr) >(_SC("FromStr"), &GetSphere)
+        .StaticOverload< const Sphere & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetSphere)
     );
 }
 

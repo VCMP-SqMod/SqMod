@@ -5,6 +5,9 @@
 #include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <limits>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -530,7 +533,7 @@ void Color3::Generate()
 void Color3::Generate(Value min, Value max)
 {
     if (max < min)
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     r = GetRandomUint8(min, max);
     g = GetRandomUint8(min, max);
@@ -540,7 +543,7 @@ void Color3::Generate(Value min, Value max)
 void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin)
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     r = GetRandomUint8(rmin, rmax);
     g = GetRandomUint8(gmin, gmax);
@@ -559,6 +562,43 @@ void Color3::Inverse()
     r = static_cast< Value >(~r);
     g = static_cast< Value >(~g);
     b = static_cast< Value >(~b);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Color3 & GetColor3(CSStr str)
+{
+    return GetColor3(str, Color3::Delim);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Color3 & GetColor3(CSStr str, SQChar delim)
+{
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %u , %u , %u ");
+    static Color3 col;
+    // The minimum and maximum values supported by the Color3 type
+    static const Uint32 min = std::numeric_limits< Color3::Value >::min();
+    static const Uint32 max = std::numeric_limits< Color3::Value >::max();
+    // Clear previous values, if any
+    col.Clear();
+    // Is the specified string empty?
+    if (!str || *str == '\0')
+    {
+        return col; // Return the value as is!
+    }
+    // Assign the specified delimiter
+    fs[4] = delim;
+    fs[9] = delim;
+    // The sscanf function requires at least 32 bit integers
+    Uint32 r = 0, g = 0, b = 0;
+    // Attempt to extract the component values from the specified string
+    std::sscanf(str, fs, &r, &g, &b);
+    // Cast the extracted integers to the value used by the Color3 type
+    col.r = static_cast< Color3::Value >(Clamp(r, min, max));
+    col.g = static_cast< Color3::Value >(Clamp(g, min, max));
+    col.b = static_cast< Color3::Value >(Clamp(b, min, max));
+    // Return the resulted value
+    return col;
 }
 
 // ================================================================================================
@@ -667,6 +707,9 @@ void Register_Color3(HSQUIRRELVM vm)
         .Func<bool (Color3::*)(const Color3 &) const>(_SC("opGreaterThan"), &Color3::operator >)
         .Func<bool (Color3::*)(const Color3 &) const>(_SC("opLessEqual"), &Color3::operator <=)
         .Func<bool (Color3::*)(const Color3 &) const>(_SC("opGreaterEqual"), &Color3::operator >=)
+        // Static Overloads
+        .StaticOverload< const Color3 & (*)(CSStr) >(_SC("FromStr"), &GetColor3)
+        .StaticOverload< const Color3 & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetColor3)
     );
 }
 

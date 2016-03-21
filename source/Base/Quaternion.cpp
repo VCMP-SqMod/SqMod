@@ -393,7 +393,7 @@ void Quaternion::Generate()
 void Quaternion::Generate(Value min, Value max)
 {
     if (EpsLt(max, min))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     x = GetRandomFloat32(min, max);
     y = GetRandomFloat32(min, max);
@@ -404,7 +404,7 @@ void Quaternion::Generate(Value min, Value max)
 void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(wmax, wmin))
-        SqThrowF("max value is lower than min value");
+        STHROWF("max value is lower than min value");
 
     x = GetRandomFloat32(xmin, xmax);
     y = GetRandomFloat32(ymin, ymax);
@@ -416,6 +416,35 @@ void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value 
 Quaternion Quaternion::Abs() const
 {
     return Quaternion(fabs(x), fabs(y), fabs(z), fabs(w));
+}
+
+// ------------------------------------------------------------------------------------------------
+const Quaternion & GetQuaternion(CSStr str)
+{
+    return GetQuaternion(str, Quaternion::Delim);
+}
+
+// ------------------------------------------------------------------------------------------------
+const Quaternion & GetQuaternion(CSStr str, SQChar delim)
+{
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %f , %f , %f , %f ");
+    static Quaternion quat;
+    // Clear previous values, if any
+    quat.Clear();
+    // Is the specified string empty?
+    if (!str || *str == '\0')
+    {
+        return quat; // Return the value as is!
+    }
+    // Assign the specified delimiter
+    fs[4] = delim;
+    fs[9] = delim;
+    fs[14] = delim;
+    // Attempt to extract the component values from the specified string
+    sscanf(str, fs, &quat.x, &quat.y, &quat.z, &quat.w);
+    // Return the resulted value
+    return quat;
 }
 
 // ================================================================================================
@@ -502,6 +531,9 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Func<bool (Quaternion::*)(const Quaternion &) const>(_SC("opGreaterThan"), &Quaternion::operator >)
         .Func<bool (Quaternion::*)(const Quaternion &) const>(_SC("opLessEqual"), &Quaternion::operator <=)
         .Func<bool (Quaternion::*)(const Quaternion &) const>(_SC("opGreaterEqual"), &Quaternion::operator >=)
+        // Static Overloads
+        .StaticOverload< const Quaternion & (*)(CSStr) >(_SC("FromStr"), &GetQuaternion)
+        .StaticOverload< const Quaternion & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetQuaternion)
     );
 }
 

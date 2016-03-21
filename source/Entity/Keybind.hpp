@@ -76,7 +76,7 @@ public:
     {
         if (INVALID_ENTITY(m_ID))
         {
-            SqThrowF("Invalid keybind reference [%s]", m_Tag.c_str());
+            STHROWF("Invalid keybind reference [%s]", m_Tag.c_str());
         }
     }
 

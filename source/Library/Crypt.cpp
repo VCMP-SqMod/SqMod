@@ -72,7 +72,7 @@ void AES256::Init(CSStr key)
     const Uint32 size = (strlen(key) * sizeof(SQChar));
     // See if the key size is accepted
     if (size > sizeof(m_Buffer))
-        SqThrowF("The specified key is out of bounds: %u > %u", size, sizeof(m_Buffer));
+        STHROWF("The specified key is out of bounds: %u > %u", size, sizeof(m_Buffer));
     // Initialize the key buffer to 0
     memset(m_Buffer, 0, sizeof(m_Buffer));
     // Copy the key into the key buffer
