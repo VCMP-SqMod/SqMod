@@ -801,6 +801,12 @@ Object & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload
     {
         inst.mFlags ^= ENF_OWNED;
     }
+    // Retrieve the associated tracking instance
+    VehicleTrack & track = m_VehicleTrack[id];
+    // Initialize the position
+    _Func->GetVehiclePos(id, &track.mPosition.x, &track.mPosition.y, &track.mPosition.z);
+    // Initialize the remaining components
+    track.mHealth = _Func->GetVehicleHealth(id);
     // Let the script callbacks know about this entity
     EmitVehicleCreated(id, header, payload);
     // Return the script object
@@ -1419,6 +1425,14 @@ void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
     }
     // Assign the specified entity identifier
     inst.mID = id;
+    // Retrieve the associated tracking instance
+    PlayerTrack & track = m_PlayerTrack[id];
+    // Initialize the position
+    _Func->GetPlayerPos(id, &track.mPosition.x, &track.mPosition.y, &track.mPosition.z);
+    // Initialize the remaining components
+    track.mHealth = _Func->GetPlayerHealth(id);
+    track.mArmour = _Func->GetPlayerArmour(id);
+    track.mWeapon = _Func->GetPlayerWeapon(id);
     // Let the script callbacks know about this entity
     EmitPlayerCreated(id, header, payload);
 }
@@ -2197,16 +2211,95 @@ void Core::EmitScriptUnload()
     Emit(mOnScriptUnload);
 }
 
-void Core::EmitPlayerUpdate(Int32 /*player*/, Int32 /*type*/)
+// ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerUpdate(Int32 player, Int32 /*type*/)
 {
-
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(player, SQMOD_PLAYER_POOL))
+    {
+        STHROWF("Cannot update player with invalid identifier: %d", player);
+    }
+    // We allocate a dummy vector upfront to retrieve the position
+    Vector3 pos;
+    // Retrieve the associated tracking instance
+    PlayerTrack & inst = m_PlayerTrack[player];
+    // Obtain the current position of this instance
+    _Func->GetPlayerPos(player, &pos.x, &pos.y, &pos.z);
+    // Did the position change since the last tracked value?
+    if (pos != inst.mPosition)
+    {
+        // Trigger the event specific to this change
+        EmitPlayerMove(player, inst.mPosition, pos);
+        // Update the tracked value
+        inst.mPosition = pos;
+    }
+    // Obtain the current health of this instance
+    Float32 health = _Func->GetPlayerHealth(player);
+    // Did the health change since the last tracked value?
+    if (!EpsEq(health, inst.mHealth))
+    {
+        // Trigger the event specific to this change
+        EmitPlayerHealth(player, inst.mHealth, health);
+        // Update the tracked value
+        inst.mHealth = health;
+    }
+    // Obtain the current armor of this instance
+    Float32 armour = _Func->GetPlayerArmour(player);
+    // Did the armor change since the last tracked value?
+    if (!EpsEq(armour, inst.mArmour))
+    {
+        // Trigger the event specific to this change
+        EmitPlayerArmour(player, inst.mArmour, armour);
+        // Update the tracked value
+        inst.mArmour = armour;
+    }
+    // Obtain the current weapon of this instance
+    SQInteger wep = _Func->GetPlayerWeapon(player);
+    // Did the weapon change since the last tracked value?
+    if (wep != inst.mWeapon)
+    {
+        // Trigger the event specific to this change
+        EmitPlayerWeapon(player, inst.mWeapon, wep);
+        // Update the tracked value
+        inst.mWeapon = wep;
+    }
 }
 
-void Core::EmitVehicleUpdate(Int32 /*vehicle*/, Int32 /*type*/)
+// ------------------------------------------------------------------------------------------------
+void Core::EmitVehicleUpdate(Int32 vehicle, Int32 /*type*/)
 {
-
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(vehicle, SQMOD_VEHICLE_POOL))
+    {
+        STHROWF("Cannot update vehicle with invalid identifier: %d", vehicle);
+    }
+    // We allocate a dummy vector upfront to retrieve the position
+    Vector3 pos;
+    // Retrieve the associated tracking instance
+    VehicleTrack & inst = m_VehicleTrack[vehicle];
+    // Obtain the current position of this instance
+    _Func->GetVehiclePos(vehicle, &pos.x, &pos.y, &pos.z);
+    // Did the position change since the last tracked value?
+    if (pos != inst.mPosition)
+    {
+        // Trigger the event specific to this change
+        EmitVehicleMove(vehicle, inst.mPosition, pos);
+        // Update the tracked value
+        inst.mPosition = pos;
+    }
+    // Obtain the current health of this instance
+    Float32 health = _Func->GetVehicleHealth(vehicle);
+    // Did the health change since the last tracked value?
+    if (!EpsEq(health, inst.mHealth))
+    {
+        // Trigger the event specific to this change
+        EmitVehicleHealth(vehicle, inst.mHealth, health);
+        // Update the tracked value
+        inst.mHealth = health;
+    }
 }
 
+// ------------------------------------------------------------------------------------------------
 void Core::EmitEntityPool(Int32 type, Int32 id, bool deleted)
 {
     // See what type of change happened in the entity pool
@@ -2285,9 +2378,9 @@ void Core::EmitEntityPool(Int32 type, Int32 id, bool deleted)
                     STHROWF("Cannot allocate blip that already exists: %d", id);
                 }
                 // Information about the blip entity
-                SQInt32 world, scale, sprid;
-                SQUint32 color;
-                SQFloat x, y, z;
+                Int32 world, scale, sprid;
+                Uint32 color;
+                Float32 x, y, z;
                 // Get the blip information from the server
                 _Func->GetCoordBlipInfo(id, &world, &x, &y, &z, &scale, &color, &sprid);
                 // Assign the obtain information
