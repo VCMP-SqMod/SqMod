@@ -211,7 +211,7 @@ void Session::Validate() const
 {
     // Do we have a valid session handle?
     if (!m_Session)
-        SqThrowF("Invalid IRC session");
+        STHROWF("Invalid IRC session");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -219,10 +219,10 @@ void Session::ValidateConnection() const
 {
     // Do we have a valid session handle?
     if (!m_Session)
-        SqThrowF("Invalid IRC session");
+        STHROWF("Invalid IRC session");
     // Is the session connected?
     else if (!irc_is_connected(m_Session))
-        SqThrowF("Session is not connected");
+        STHROWF("Session is not connected");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ void Session::IsNotConnected() const
 {
     // Do we have a session that is not connected or trying to connect?
     if (m_Session && (irc_is_connected(m_Session) || m_Reconnect))
-        SqThrowF("Already connected or trying connect to IRC server");
+        STHROWF("Already connected or trying connect to IRC server");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ Session::Session()
         // Explicitly make sure no further calls can be made to this session
         m_Session = NULL;
         // Now it's safe to throw the error
-        SqThrowF("Unable to create an IRC session");
+        STHROWF("Unable to create an IRC session");
     }
     else
     {
@@ -312,7 +312,7 @@ void Session::SetNick(CSStr nick)
     Validate();
     // Validate the specified nick name
     if (!nick || strlen(nick) <= 0)
-        SqThrowF("Invalid IRC nickname");
+        STHROWF("Invalid IRC nickname");
     // Do we have to issue a nickname command?
     else if (Connected())
         irc_cmd_nick(m_Session, nick);
@@ -328,7 +328,7 @@ void Session::SetPort(Uint32 num)
     IsNotConnected();
     // Validate the specified port number
     if (num > 0xFFFF)
-        SqThrowF("Port number is out of range: %u > %u", num, 0xFFFF);
+        STHROWF("Port number is out of range: %u > %u", num, 0xFFFF);
     // Assign the specified port number
     m_Port = num;
 }
@@ -340,7 +340,7 @@ Int32 Session::CmdNick(CSStr nick)
     ValidateConnection();
     // Validate the specified nick name
     if (!nick || strlen(nick) <= 0)
-        SqThrowF("Invalid IRC nickname");
+        STHROWF("Invalid IRC nickname");
     // Issue the command and return the result
     return irc_cmd_nick(m_Session, nick);
 }
@@ -367,7 +367,7 @@ void Session::SetNextTry(Object & tm)
     Int64 microseconds = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetTimestamp(_SqVM, -1, &microseconds)))
-        SqThrowF("Invalid time-stamp specified");
+        STHROWF("Invalid time-stamp specified");
     // Assign the specified timestamp value
     m_NextTry = microseconds;
 }
@@ -396,10 +396,10 @@ Int32 Session::Connect()
     IsNotConnected();
     // Validate the specified server
     if (!m_Server.empty())
-        SqThrowF("Attempting to connect IRC without specifying a server");
+        STHROWF("Attempting to connect IRC without specifying a server");
     // Validate the specified nickname
     else if (!m_Nick.empty())
-        SqThrowF("Attempting to connect IRC without specifying a nickname");
+        STHROWF("Attempting to connect IRC without specifying a nickname");
     // Enable the reconnection system
     m_Reconnect = true;
     // Reset the number of tries
@@ -426,13 +426,13 @@ Int32 Session::Connect(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSSt
     IsNotConnected();
     // Validate the specified port
     if (port > 0xFFFF)
-        SqThrowF("Port number is out of range: %u > %u", port, 0xFFFF);
+        STHROWF("Port number is out of range: %u > %u", port, 0xFFFF);
     // Validate the specified server
     else if (!server || strlen(server) <= 0)
-        SqThrowF("Attempting to connect IRC without specifying a server");
+        STHROWF("Attempting to connect IRC without specifying a server");
     // Validate the specified nickname
     else if (!nick || strlen(nick) <= 0)
-        SqThrowF("Attempting to connect IRC without specifying a nickname");
+        STHROWF("Attempting to connect IRC without specifying a nickname");
     // Save the specified port
     m_Port = port;
     // Save the specified server
@@ -471,10 +471,10 @@ Int32 Session::Connect6()
     IsNotConnected();
     // Validate the specified server
     if (!m_Server.empty())
-        SqThrowF("Attempting to connect IRC without specifying a server");
+        STHROWF("Attempting to connect IRC without specifying a server");
     // Validate the specified nickname
     else if (!m_Nick.empty())
-        SqThrowF("Attempting to connect IRC without specifying a nickname");
+        STHROWF("Attempting to connect IRC without specifying a nickname");
     // Enable the reconnection system
     m_Reconnect = true;
     // Reset the number of tries
@@ -501,13 +501,13 @@ Int32 Session::Connect6(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSS
     IsNotConnected();
     // Validate the specified port
     if (port > 0xFFFF)
-        SqThrowF("Port number is out of range: %u > %u", port, 0xFFFF);
+        STHROWF("Port number is out of range: %u > %u", port, 0xFFFF);
     // Validate the specified server
     else if (!server || strlen(server) <= 0)
-        SqThrowF("Attempting to connect IRC without specifying a server");
+        STHROWF("Attempting to connect IRC without specifying a server");
     // Validate the specified nickname
     else if (!nick || strlen(nick) <= 0)
-        SqThrowF("Attempting to connect IRC without specifying a nickname");
+        STHROWF("Attempting to connect IRC without specifying a nickname");
     // Save the specified port
     m_Port = port;
     // Save the specified server
