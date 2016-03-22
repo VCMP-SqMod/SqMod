@@ -150,7 +150,7 @@ public:
     void SetName(CSStr name)
     {
         if (!m_Attr.set_name(name))
-            SqThrowF("Unable to set xml attribute name");
+            STHROWF("Unable to set xml attribute name");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ public:
     void SetValue(CSStr name)
     {
         if (!m_Attr.set_value(name))
-            SqThrowF("Unable to set xml attribute value");
+            STHROWF("Unable to set xml attribute value");
     }
 
     /* --------------------------------------------------------------------------------------------

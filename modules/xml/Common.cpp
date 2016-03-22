@@ -82,14 +82,14 @@ void ParseResult::Validate() const
 {
     // Is the documen handle valid?
     if (!m_Doc)
-        SqThrowF("Invalid XML document reference");
+        STHROWF("Invalid XML document reference");
 }
 
 // ------------------------------------------------------------------------------------------------
 void ParseResult::Check() const
 {
     if (m_Result.status != status_ok)
-        SqThrowF("XML parse error [%s]", m_Result.description());
+        STHROWF("XML parse error [%s]", m_Result.description());
 }
 
 } // Namespace:: SqMod

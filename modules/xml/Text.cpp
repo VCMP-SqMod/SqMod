@@ -23,7 +23,7 @@ void Text::Validate() const
 {
     // Validate the document handle
     if (!m_Doc)
-        SqThrowF("Invalid XML document reference");
+        STHROWF("Invalid XML document reference");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ Object Text::AsLong(Object & def) const
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetSLongValue(_SqVM, -1, &longint)))
-        SqThrowF("Invalid long integer specified");
+        STHROWF("Invalid long integer specified");
     // Push a long integer instance with the requested value on the stack
     _SqMod->PushSLongObject(_SqVM, m_Text.as_llong(longint));
     // Obtain the object from the stack and return it
@@ -66,7 +66,7 @@ Object Text::AsUlong(Object & def) const
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetULongValue(_SqVM, -1, &longint)))
-        SqThrowF("Invalid long integer specified");
+        STHROWF("Invalid long integer specified");
     // Push a long integer instance with the requested value on the stack
     _SqMod->PushULongObject(_SqVM, m_Text.as_ullong(longint));
     // Obtain the object from the stack and return it
@@ -84,7 +84,7 @@ bool Text::ApplyLong(Object & value)
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetSLongValue(_SqVM, -1, &longint)))
-        SqThrowF("Invalid long integer specified");
+        STHROWF("Invalid long integer specified");
     // Assign the obtained value and return the result
     return m_Text.set(longint);
 }
@@ -100,7 +100,7 @@ bool Text::ApplyUlong(Object & value)
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetULongValue(_SqVM, -1, &longint)))
-        SqThrowF("Invalid long integer specified");
+        STHROWF("Invalid long integer specified");
     // Assign the obtained value and return the result
     return m_Text.set(longint);
 }
@@ -127,7 +127,7 @@ void Text::SetLong(Object & value)
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetSLongValue(_SqVM, -1, &longint)))
-        SqThrowF("Invalid long integer specified");
+        STHROWF("Invalid long integer specified");
     // Assign the obtained value
     m_Text = longint;
 }
@@ -154,7 +154,7 @@ void Text::SetUlong(Object & value)
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetULongValue(_SqVM, -1, &longint)))
-        SqThrowF("Invalid long integer specified");
+        STHROWF("Invalid long integer specified");
     // Assign the obtained value
     m_Text = longint;
 }

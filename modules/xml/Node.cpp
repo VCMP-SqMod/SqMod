@@ -20,7 +20,7 @@ void Node::Validate() const
 {
     // Validate the document handle
     if (!m_Doc)
-        SqThrowF("Invalid XML document reference");
+        STHROWF("Invalid XML document reference");
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -19,7 +19,7 @@ void Document::Validate() const
 {
     // Validate the document handle
     if (!m_Doc)
-        SqThrowF("Invalid XML document reference");
+        STHROWF("Invalid XML document reference");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -27,11 +27,11 @@ void Document::CanLoad() const
 {
     // Is the document even valid?
     if (!m_Doc)
-        SqThrowF("Invalid XML document reference");
+        STHROWF("Invalid XML document reference");
     // Are there any other references?
     else if (m_Doc.Count() > 1)
         // To load new values now, would mean to cause undefined behavior in existing references
-        SqThrowF("Loading is disabled while document is referenced");
+        STHROWF("Loading is disabled while document is referenced");
 }
 
 // ------------------------------------------------------------------------------------------------

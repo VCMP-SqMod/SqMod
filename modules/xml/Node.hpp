@@ -167,7 +167,7 @@ public:
     void SetName(CSStr name)
     {
         if (!m_Node.set_name(name))
-            SqThrowF("Unable to set XML node name");
+            STHROWF("Unable to set XML node name");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ public:
     void SetValue(CSStr name)
     {
         if (!m_Node.set_value(name))
-            SqThrowF("Unable to set XML node value");
+            STHROWF("Unable to set XML node value");
     }
 
     /* --------------------------------------------------------------------------------------------
