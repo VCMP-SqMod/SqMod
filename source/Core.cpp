@@ -384,10 +384,8 @@ bool Core::LoadScript(CSStr filepath)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PrintFunc(HSQUIRRELVM vm, CSStr msg, ...)
+void Core::PrintFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
 {
-    SQMOD_UNUSED_VAR(vm);
-
     va_list args;
     va_start(args, msg);
     _Log->Send(LL_USR, false, msg, args);
@@ -407,14 +405,20 @@ void Core::ErrorFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
 SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
 {
     if (sq_gettop(vm) < 1)
+    {
         return 0;
+    }
 
     CSStr err_msg = NULL;
 
     if (SQ_SUCCEEDED(sq_getstring(vm, 2, &err_msg)))
+    {
         _Log->Debug("%s", err_msg);
+    }
     else
+    {
         _Log->Debug(_SC("unknown runtime error has occurred"));
+    }
 
     return SQ_OK;
 }
@@ -2203,9 +2207,102 @@ void Core::EmitVehicleUpdate(Int32 /*vehicle*/, Int32 /*type*/)
 
 }
 
-void Core::EmitEntityPool(Int32 /*type*/, Int32 /*id*/, bool /*deleted*/)
+void Core::EmitEntityPool(Int32 type, Int32 id, bool deleted)
 {
-
+    // See what type of change happened in the entity pool
+    switch (type)
+    {
+        case SQMOD_ENTITY_POOL_VEHICLE:
+            if (deleted)
+            {
+                DeallocVehicle(id, false, SQMOD_DESTROY_POOL, NullObject());
+            }
+            else
+            {
+                AllocVehicle(id, false, SQMOD_CREATE_POOL, NullObject());
+            }
+        break;
+        case SQMOD_ENTITY_POOL_OBJECT:
+            if (deleted)
+            {
+                DeallocObject(id, false, SQMOD_DESTROY_POOL, NullObject());
+            }
+            else
+            {
+                AllocObject(id, false, SQMOD_CREATE_POOL, NullObject());
+            }
+        break;
+        case SQMOD_ENTITY_POOL_PICKUP:
+            if (deleted)
+            {
+                DeallocPickup(id, false, SQMOD_DESTROY_POOL, NullObject());
+            }
+            else
+            {
+                AllocPickup(id, false, SQMOD_CREATE_POOL, NullObject());
+            }
+        break;
+        case SQMOD_ENTITY_POOL_RADIO:
+            // @TODO Implement...
+        break;
+        case SQMOD_ENTITY_POOL_SPRITE:
+            if (deleted)
+            {
+                DeallocPickup(id, false, SQMOD_DESTROY_POOL, NullObject());
+            }
+            else
+            {
+                AllocPickup(id, false, SQMOD_CREATE_POOL, NullObject());
+            }
+        break;
+        case SQMOD_ENTITY_POOL_TEXTDRAW:
+            if (deleted)
+            {
+                DeallocTextdraw(id, false, SQMOD_DESTROY_POOL, NullObject());
+            }
+            else
+            {
+                AllocTextdraw(id, false, SQMOD_CREATE_POOL, NullObject());
+            }
+        break;
+        case SQMOD_ENTITY_POOL_BLIP:
+            if (deleted)
+            {
+                DeallocBlip(id, false, SQMOD_DESTROY_POOL, NullObject());
+            }
+            else
+            {
+                // Make sure that the specified entity identifier is valid
+                if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
+                {
+                    STHROWF("Cannot allocate blip with invalid identifier: %d", id);
+                }
+                // Retrieve the specified entity instance
+                BlipInst & inst = m_Blips[id];
+                // Make sure that the instance isn't already allocated
+                if (VALID_ENTITY(inst.mID))
+                {
+                    STHROWF("Cannot allocate blip that already exists: %d", id);
+                }
+                // Information about the blip entity
+                SQInt32 world, scale, sprid;
+                SQUint32 color;
+                SQFloat x, y, z;
+                // Get the blip information from the server
+                _Func->GetCoordBlipInfo(id, &world, &x, &y, &z, &scale, &color, &sprid);
+                // Assign the obtain information
+                inst.mWorld = world;
+                inst.mScale = scale;
+                inst.mSprID = sprid;
+                inst.mColor.SetRGBA(color);
+                inst.mPosition.Set(x, y, z);
+                // Now we can allocate the instance after we have all the information
+                AllocBlip(id, false, SQMOD_CREATE_POOL, NullObject());
+            }
+        break;
+        default:
+            LogErr("Unknown change in the entity pool of type: %d", type);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
