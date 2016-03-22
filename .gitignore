@@ -4,9 +4,9 @@
 *.so
 
 # Directories
-bin/
-lib/
-obj/
+/bin/
+/lib/
+/obj/
 sandbox/*.*
 
 # Projects
