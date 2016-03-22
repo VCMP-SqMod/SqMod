@@ -84,20 +84,20 @@ void IniResult::Check() const
     switch (m_Result)
     {
         case SI_FAIL:
-            SqThrowF("Unable to %s. Probably invalid", m_Action.c_str());
+            STHROWF("Unable to %s. Probably invalid", m_Action.c_str());
         break;
         case SI_NOMEM:
-            SqThrowF("Unable to %s. Ran out of memory", m_Action.c_str());
+            STHROWF("Unable to %s. Ran out of memory", m_Action.c_str());
         break;
         case SI_FILE:
-            SqThrowF("Unable to %s. %s", strerror(errno));
+            STHROWF("Unable to %s. %s", strerror(errno));
         break;
         case SI_OK:
         case SI_UPDATED:
         case SI_INSERTED:
             break; /* These are not error messahes. */
         default:
-            SqThrowF("Unable to %s for some unforeseen reason", m_Action.c_str());
+            STHROWF("Unable to %s for some unforeseen reason", m_Action.c_str());
     }
 }
 

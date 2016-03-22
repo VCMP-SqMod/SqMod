@@ -25,7 +25,7 @@ void Document::Validate() const
 {
     // Is the document handle valid?
     if (!m_Doc)
-        SqThrowF("Invalid INI document reference");
+        STHROWF("Invalid INI document reference");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ Object Document::SaveData(bool signature)
     String source;
     // Attempt to save the data to string
     if (m_Doc->Save(source, signature) < 0)
-        SqThrowF("Unable to save INI document");
+        STHROWF("Unable to save INI document");
     // Obtain the initial stack size
     const StackGuard sg(_SqVM);
     // Transform it into a script object
