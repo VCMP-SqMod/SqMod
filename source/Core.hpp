@@ -543,6 +543,19 @@ protected:
     Object & AllocTextdraw(Int32 id, bool owned, Int32 header, Object & payload);
     Object & AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload);
 
+    /* --------------------------------------------------------------------------------------------
+     * Instance deallocators.
+    */
+    void DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload);
+    void DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payload);
+    void DeallocForcefield(Int32 id, bool destroy, Int32 header, Object & payload);
+    void DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload);
+    void DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload);
+    void DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload);
+    void DeallocSprite(Int32 id, bool destroy, Int32 header, Object & payload);
+    void DeallocTextdraw(Int32 id, bool destroy, Int32 header, Object & payload);
+    void DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload);
+
 public:
 
     /* --------------------------------------------------------------------------------------------
@@ -714,7 +727,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Global event binder.
     */
-    bool BindEvent(Int32 id, Object & env, Function & func);
+    void BindEvent(Int32 id, Object & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * Player lifetime management.

@@ -67,9 +67,9 @@ static bool DelVehicle(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool BindEvent(Int32 id, Object & env, Function & func)
+static void BindEvent(Int32 id, Object & env, Function & func)
 {
-    return _Core->BindEvent(id, env, func);
+    _Core->BindEvent(id, env, func);
 }
 
 // ------------------------------------------------------------------------------------------------

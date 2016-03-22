@@ -434,9 +434,9 @@ Object & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
         STHROWF("Cannot allocate blip with invalid identifier: %d", id);
     }
     // Retrieve the specified entity instance
-    BlipInst & inst = m_Blips.at(id);
+    BlipInst & inst = m_Blips[id];
     // Make sure that the instance isn't already allocated
-    if (VALID_ENTITY(m_Blips[id].mID))
+    if (VALID_ENTITY(inst.mID))
     {
         STHROWF("Cannot allocate blip that already exists: %d", id);
     }
@@ -461,7 +461,7 @@ Object & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
     {
         inst.mFlags ^= ENF_OWNED;
     }
-    // Let the script listeners know about this entity
+    // Let the script callbacks know about this entity
     EmitBlipCreated(id, header, payload);
     // Return the script object
     return inst.mObj;
@@ -476,9 +476,9 @@ Object & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payl
         STHROWF("Cannot allocate checkpoint with invalid identifier: %d", id);
     }
     // Retrieve the specified entity instance
-    CheckpointInst & inst = m_Checkpoints.at(id);
+    CheckpointInst & inst = m_Checkpoints[id];
     // Make sure that the instance isn't already allocated
-    if (VALID_ENTITY(m_Checkpoints[id].mID))
+    if (VALID_ENTITY(inst.mID))
     {
         STHROWF("Cannot allocate checkpoint that already exists: %d", id);
     }
@@ -503,7 +503,7 @@ Object & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payl
     {
         inst.mFlags ^= ENF_OWNED;
     }
-    // Let the script listeners know about this entity
+    // Let the script callbacks know about this entity
     EmitCheckpointCreated(id, header, payload);
     // Return the script object
     return inst.mObj;
@@ -518,9 +518,9 @@ Object & Core::AllocForcefield(Int32 id, bool owned, Int32 header, Object & payl
         STHROWF("Cannot allocate forcefield with invalid identifier: %d", id);
     }
     // Retrieve the specified entity instance
-    ForcefieldInst & inst = m_Forcefields.at(id);
+    ForcefieldInst & inst = m_Forcefields[id];
     // Make sure that the instance isn't already allocated
-    if (VALID_ENTITY(m_Forcefields[id].mID))
+    if (VALID_ENTITY(inst.mID))
     {
         STHROWF("Cannot allocate forcefield that already exists: %d", id);
     }
@@ -545,7 +545,7 @@ Object & Core::AllocForcefield(Int32 id, bool owned, Int32 header, Object & payl
     {
         inst.mFlags ^= ENF_OWNED;
     }
-    // Let the script listeners know about this entity
+    // Let the script callbacks know about this entity
     EmitForcefieldCreated(id, header, payload);
     // Return the script object
     return inst.mObj;
@@ -560,9 +560,9 @@ Object & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload
         STHROWF("Cannot allocate keybind with invalid identifier: %d", id);
     }
     // Retrieve the specified entity instance
-    KeybindInst & inst = m_Keybinds.at(id);
+    KeybindInst & inst = m_Keybinds[id];
     // Make sure that the instance isn't already allocated
-    if (VALID_ENTITY(m_Keybinds[id].mID))
+    if (VALID_ENTITY(inst.mID))
     {
         STHROWF("Cannot allocate keybind that already exists: %d", id);
     }
@@ -587,7 +587,7 @@ Object & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload
     {
         inst.mFlags ^= ENF_OWNED;
     }
-    // Let the script listeners know about this entity
+    // Let the script callbacks know about this entity
     EmitKeybindCreated(id, header, payload);
     // Return the script object
     return inst.mObj;
@@ -602,9 +602,9 @@ Object & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
         STHROWF("Cannot allocate object with invalid identifier: %d", id);
     }
     // Retrieve the specified entity instance
-    ObjectInst & inst = m_Objects.at(id);
+    ObjectInst & inst = m_Objects[id];
     // Make sure that the instance isn't already allocated
-    if (VALID_ENTITY(m_Objects[id].mID))
+    if (VALID_ENTITY(inst.mID))
     {
         STHROWF("Cannot allocate object that already exists: %d", id);
     }
@@ -629,7 +629,7 @@ Object & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
     {
         inst.mFlags ^= ENF_OWNED;
     }
-    // Let the script listeners know about this entity
+    // Let the script callbacks know about this entity
     EmitObjectCreated(id, header, payload);
     // Return the script object
     return inst.mObj;
@@ -644,9 +644,9 @@ Object & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
         STHROWF("Cannot allocate pickup with invalid identifier: %d", id);
     }
     // Retrieve the specified entity instance
-    PickupInst & inst = m_Pickups.at(id);
+    PickupInst & inst = m_Pickups[id];
     // Make sure that the instance isn't already allocated
-    if (VALID_ENTITY(m_Pickups[id].mID))
+    if (VALID_ENTITY(inst.mID))
     {
         STHROWF("Cannot allocate pickup that already exists: %d", id);
     }
@@ -671,7 +671,7 @@ Object & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
     {
         inst.mFlags ^= ENF_OWNED;
     }
-    // Let the script listeners know about this entity
+    // Let the script callbacks know about this entity
     EmitPickupCreated(id, header, payload);
     // Return the script object
     return inst.mObj;
@@ -686,9 +686,9 @@ Object & Core::AllocSprite(Int32 id, bool owned, Int32 header, Object & payload)
         STHROWF("Cannot allocate sprite with invalid identifier: %d", id);
     }
     // Retrieve the specified entity instance
-    SpriteInst & inst = m_Sprites.at(id);
+    SpriteInst & inst = m_Sprites[id];
     // Make sure that the instance isn't already allocated
-    if (VALID_ENTITY(m_Sprites[id].mID))
+    if (VALID_ENTITY(inst.mID))
     {
         STHROWF("Cannot allocate sprite that already exists: %d", id);
     }
@@ -713,7 +713,7 @@ Object & Core::AllocSprite(Int32 id, bool owned, Int32 header, Object & payload)
     {
         inst.mFlags ^= ENF_OWNED;
     }
-    // Let the script listeners know about this entity
+    // Let the script callbacks know about this entity
     EmitSpriteCreated(id, header, payload);
     // Return the script object
     return inst.mObj;
@@ -728,9 +728,9 @@ Object & Core::AllocTextdraw(Int32 id, bool owned, Int32 header, Object & payloa
         STHROWF("Cannot allocate textdraw with invalid identifier: %d", id);
     }
     // Retrieve the specified entity instance
-    TextdrawInst & inst = m_Textdraws.at(id);
+    TextdrawInst & inst = m_Textdraws[id];
     // Make sure that the instance isn't already allocated
-    if (VALID_ENTITY(m_Textdraws[id].mID))
+    if (VALID_ENTITY(inst.mID))
     {
         STHROWF("Cannot allocate textdraw that already exists: %d", id);
     }
@@ -755,7 +755,7 @@ Object & Core::AllocTextdraw(Int32 id, bool owned, Int32 header, Object & payloa
     {
         inst.mFlags ^= ENF_OWNED;
     }
-    // Let the script listeners know about this entity
+    // Let the script callbacks know about this entity
     EmitTextdrawCreated(id, header, payload);
     // Return the script object
     return inst.mObj;
@@ -770,9 +770,9 @@ Object & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload
         STHROWF("Cannot allocate vehicle with invalid identifier: %d", id);
     }
     // Retrieve the specified entity instance
-    VehicleInst & inst = m_Vehicles.at(id);
+    VehicleInst & inst = m_Vehicles[id];
     // Make sure that the instance isn't already allocated
-    if (VALID_ENTITY(m_Vehicles[id].mID))
+    if (VALID_ENTITY(inst.mID))
     {
         STHROWF("Cannot allocate vehicle that already exists: %d", id);
     }
@@ -797,10 +797,370 @@ Object & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload
     {
         inst.mFlags ^= ENF_OWNED;
     }
-    // Let the script listeners know about this entity
+    // Let the script callbacks know about this entity
     EmitVehicleCreated(id, header, payload);
     // Return the script object
     return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
+    {
+        STHROWF("Cannot deallocate blip with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    BlipInst & inst = m_Blips[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate blip that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
+    EmitBlipDestroyed(id, header, payload);
+    // Is there a manager instance associated with this entity?
+    if (inst.mInst)
+    {
+        // Prevent further use of this entity
+        inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
+        inst.mInst->m_Data.Release();
+    }
+    // Should we delete this entity from the server as well?
+    if (destroy || (inst.mFlags & ENF_OWNED))
+    {
+        _Func->DestroyCoordBlip(inst.mID);
+    }
+    // Reset the entity instance
+    ResetInst(inst);
+    // Release associated script callbacks
+    ResetFunc(inst);
+    // Prevent further use of the manager instance
+    inst.mInst = NULL;
+    // Release the script object, if any
+    inst.mObj.Release();
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
+    {
+        STHROWF("Cannot deallocate checkpoint with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    CheckpointInst & inst = m_Checkpoints[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate checkpoint that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
+    EmitCheckpointDestroyed(id, header, payload);
+    // Is there a manager instance associated with this entity?
+    if (inst.mInst)
+    {
+        // Prevent further use of this entity
+        inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
+        inst.mInst->m_Data.Release();
+    }
+    // Should we delete this entity from the server as well?
+    if (destroy || (inst.mFlags & ENF_OWNED))
+    {
+        _Func->DeleteCheckpoint(inst.mID);
+    }
+    // Reset the entity instance
+    ResetInst(inst);
+    // Release associated script callbacks
+    ResetFunc(inst);
+    // Prevent further use of the manager instance
+    inst.mInst = NULL;
+    // Release the script object, if any
+    inst.mObj.Release();
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocForcefield(Int32 id, bool destroy, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_FORCEFIELD_POOL))
+    {
+        STHROWF("Cannot deallocate forcefield with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    ForcefieldInst & inst = m_Forcefields[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate forcefield that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
+    EmitForcefieldDestroyed(id, header, payload);
+    // Is there a manager instance associated with this entity?
+    if (inst.mInst)
+    {
+        // Prevent further use of this entity
+        inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
+        inst.mInst->m_Data.Release();
+    }
+    // Should we delete this entity from the server as well?
+    if (destroy || (inst.mFlags & ENF_OWNED))
+    {
+        _Func->DeleteSphere(inst.mID);
+    }
+    // Reset the entity instance
+    ResetInst(inst);
+    // Release associated script callbacks
+    ResetFunc(inst);
+    // Prevent further use of the manager instance
+    inst.mInst = NULL;
+    // Release the script object, if any
+    inst.mObj.Release();
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
+    {
+        STHROWF("Cannot deallocate keybind with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    KeybindInst & inst = m_Keybinds[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate keybind that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
+    EmitKeybindDestroyed(id, header, payload);
+    // Is there a manager instance associated with this entity?
+    if (inst.mInst)
+    {
+        // Prevent further use of this entity
+        inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
+        inst.mInst->m_Data.Release();
+    }
+    // Should we delete this entity from the server as well?
+    if (destroy || (inst.mFlags & ENF_OWNED))
+    {
+        _Func->RemoveKeyBind(inst.mID);
+    }
+    // Reset the entity instance
+    ResetInst(inst);
+    // Release associated script callbacks
+    ResetFunc(inst);
+    // Prevent further use of the manager instance
+    inst.mInst = NULL;
+    // Release the script object, if any
+    inst.mObj.Release();
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+    {
+        STHROWF("Cannot deallocate object with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    ObjectInst & inst = m_Objects[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate object that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
+    EmitObjectDestroyed(id, header, payload);
+    // Is there a manager instance associated with this entity?
+    if (inst.mInst)
+    {
+        // Prevent further use of this entity
+        inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
+        inst.mInst->m_Data.Release();
+    }
+    // Should we delete this entity from the server as well?
+    if (destroy || (inst.mFlags & ENF_OWNED))
+    {
+        _Func->DeleteObject(inst.mID);
+    }
+    // Reset the entity instance
+    ResetInst(inst);
+    // Release associated script callbacks
+    ResetFunc(inst);
+    // Prevent further use of the manager instance
+    inst.mInst = NULL;
+    // Release the script object, if any
+    inst.mObj.Release();
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
+    {
+        STHROWF("Cannot deallocate pickup with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    PickupInst & inst = m_Pickups[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate pickup that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
+    EmitPickupDestroyed(id, header, payload);
+    // Is there a manager instance associated with this entity?
+    if (inst.mInst)
+    {
+        // Prevent further use of this entity
+        inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
+        inst.mInst->m_Data.Release();
+    }
+    // Should we delete this entity from the server as well?
+    if (destroy || (inst.mFlags & ENF_OWNED))
+    {
+        _Func->DeletePickup(inst.mID);
+    }
+    // Reset the entity instance
+    ResetInst(inst);
+    // Release associated script callbacks
+    ResetFunc(inst);
+    // Prevent further use of the manager instance
+    inst.mInst = NULL;
+    // Release the script object, if any
+    inst.mObj.Release();
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocSprite(Int32 id, bool destroy, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_SPRITE_POOL))
+    {
+        STHROWF("Cannot deallocate sprite with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    SpriteInst & inst = m_Sprites[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate sprite that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
+    EmitSpriteDestroyed(id, header, payload);
+    // Is there a manager instance associated with this entity?
+    if (inst.mInst)
+    {
+        // Prevent further use of this entity
+        inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
+        inst.mInst->m_Data.Release();
+    }
+    // Should we delete this entity from the server as well?
+    if (destroy || (inst.mFlags & ENF_OWNED))
+    {
+        _Func->DestroySprite(inst.mID);
+    }
+    // Reset the entity instance
+    ResetInst(inst);
+    // Release associated script callbacks
+    ResetFunc(inst);
+    // Prevent further use of the manager instance
+    inst.mInst = NULL;
+    // Release the script object, if any
+    inst.mObj.Release();
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocTextdraw(Int32 id, bool destroy, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_TEXTDRAW_POOL))
+    {
+        STHROWF("Cannot deallocate textdraw with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    TextdrawInst & inst = m_Textdraws[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate textdraw that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
+    EmitTextdrawDestroyed(id, header, payload);
+    // Is there a manager instance associated with this entity?
+    if (inst.mInst)
+    {
+        // Prevent further use of this entity
+        inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
+        inst.mInst->m_Data.Release();
+    }
+    // Should we delete this entity from the server as well?
+    if (destroy || (inst.mFlags & ENF_OWNED))
+    {
+        _Func->DestroyTextdraw(inst.mID);
+    }
+    // Reset the entity instance
+    ResetInst(inst);
+    // Release associated script callbacks
+    ResetFunc(inst);
+    // Prevent further use of the manager instance
+    inst.mInst = NULL;
+    // Release the script object, if any
+    inst.mObj.Release();
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        STHROWF("Cannot deallocate vehicle with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    VehicleInst & inst = m_Vehicles[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate vehicle that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
+    EmitVehicleDestroyed(id, header, payload);
+    // Is there a manager instance associated with this entity?
+    if (inst.mInst)
+    {
+        // Prevent further use of this entity
+        inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
+        inst.mInst->m_Data.Release();
+    }
+    // Should we delete this entity from the server as well?
+    if (destroy || (inst.mFlags & ENF_OWNED))
+    {
+        _Func->DeleteVehicle(inst.mID);
+    }
+    // Reset the entity instance
+    ResetInst(inst);
+    // Release associated script callbacks
+    ResetFunc(inst);
+    // Prevent further use of the manager instance
+    inst.mInst = NULL;
+    // Release the script object, if any
+    inst.mObj.Release();
 }
 
 // --------------------------------------------------------------------------------------------
@@ -958,252 +1318,156 @@ Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float3
 // --------------------------------------------------------------------------------------------
 bool Core::DelBlip(Int32 id, Int32 header, Object & payload)
 {
-    BlipInst & inst = m_Blips.at(id);
-    EmitBlipDestroyed(id, header, payload);
-
-    if (inst.mInst)
-    {
-        inst.mInst->m_ID = -1;
-        inst.mInst->m_Data.Release();
-    }
-
-    _Func->DestroyCoordBlip(inst.mID);
-
-    ResetInst(inst);
-    ResetFunc(inst);
-
-    inst.mInst = NULL;
-    inst.mObj.Release();
-
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocBlip(id, true, header, payload);
+    // The entity could be destroyed
     return true;
 }
 
 bool Core::DelCheckpoint(Int32 id, Int32 header, Object & payload)
 {
-    CheckpointInst & inst = m_Checkpoints.at(id);
-    EmitCheckpointDestroyed(id, header, payload);
-
-    if (inst.mInst)
-    {
-        inst.mInst->m_ID = -1;
-        inst.mInst->m_Data.Release();
-    }
-
-    _Func->DeleteCheckpoint(inst.mID);
-
-    ResetInst(inst);
-    ResetFunc(inst);
-
-    inst.mInst = NULL;
-    inst.mObj.Release();
-
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocCheckpoint(id, true, header, payload);
+    // The entity could be destroyed
     return true;
 }
 
 bool Core::DelForcefield(Int32 id, Int32 header, Object & payload)
 {
-    ForcefieldInst & inst = m_Forcefields.at(id);
-    EmitForcefieldDestroyed(id, header, payload);
-
-    if (inst.mInst)
-    {
-        inst.mInst->m_ID = -1;
-        inst.mInst->m_Data.Release();
-    }
-
-    _Func->DeleteSphere(inst.mID);
-
-    ResetInst(inst);
-    ResetFunc(inst);
-
-    inst.mInst = NULL;
-    inst.mObj.Release();
-
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocForcefield(id, true, header, payload);
+    // The entity could be destroyed
     return true;
 }
 
 bool Core::DelKeybind(Int32 id, Int32 header, Object & payload)
 {
-    KeybindInst & inst = m_Keybinds.at(id);
-    EmitKeybindDestroyed(id, header, payload);
-
-    if (inst.mInst)
-    {
-        inst.mInst->m_ID = -1;
-        inst.mInst->m_Data.Release();
-    }
-
-    _Func->RemoveKeyBind(inst.mID);
-
-    ResetInst(inst);
-    ResetFunc(inst);
-
-    inst.mInst = NULL;
-    inst.mObj.Release();
-
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocKeybind(id, true, header, payload);
+    // The entity could be destroyed
     return true;
 }
 
 bool Core::DelObject(Int32 id, Int32 header, Object & payload)
 {
-    ObjectInst & inst = m_Objects.at(id);
-    EmitObjectDestroyed(id, header, payload);
-
-    if (inst.mInst)
-    {
-        inst.mInst->m_ID = -1;
-        inst.mInst->m_Data.Release();
-    }
-
-    _Func->DeleteObject(inst.mID);
-
-    ResetInst(inst);
-    ResetFunc(inst);
-
-    inst.mInst = NULL;
-    inst.mObj.Release();
-
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocObject(id, true, header, payload);
+    // The entity could be destroyed
     return true;
 }
 
 bool Core::DelPickup(Int32 id, Int32 header, Object & payload)
 {
-    PickupInst & inst = m_Pickups.at(id);
-    EmitPickupDestroyed(id, header, payload);
-
-    if (inst.mInst)
-    {
-        inst.mInst->m_ID = -1;
-        inst.mInst->m_Data.Release();
-    }
-
-    _Func->DeletePickup(inst.mID);
-
-    ResetInst(inst);
-    ResetFunc(inst);
-
-    inst.mInst = NULL;
-    inst.mObj.Release();
-
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocPickup(id, true, header, payload);
+    // The entity could be destroyed
     return true;
 }
 
 bool Core::DelSprite(Int32 id, Int32 header, Object & payload)
 {
-    SpriteInst & inst = m_Sprites.at(id);
-    EmitSpriteDestroyed(id, header, payload);
-
-    if (inst.mInst)
-    {
-        inst.mInst->m_ID = -1;
-        inst.mInst->m_Data.Release();
-    }
-
-    _Func->DestroySprite(inst.mID);
-
-    ResetInst(inst);
-    ResetFunc(inst);
-
-    inst.mInst = NULL;
-    inst.mObj.Release();
-
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocSprite(id, true, header, payload);
+    // The entity could be destroyed
     return true;
 }
 
 bool Core::DelTextdraw(Int32 id, Int32 header, Object & payload)
 {
-    TextdrawInst & inst = m_Textdraws.at(id);
-    EmitTextdrawDestroyed(id, header, payload);
-
-    if (inst.mInst)
-    {
-        inst.mInst->m_ID = -1;
-        inst.mInst->m_Data.Release();
-    }
-
-    _Func->DestroyTextdraw(inst.mID);
-
-    ResetInst(inst);
-    ResetFunc(inst);
-
-    inst.mInst = NULL;
-    inst.mObj.Release();
-
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocTextdraw(id, true, header, payload);
+    // The entity could be destroyed
     return true;
 }
 
 bool Core::DelVehicle(Int32 id, Int32 header, Object & payload)
 {
-    VehicleInst & inst = m_Vehicles.at(id);
-    EmitVehicleDestroyed(id, header, payload);
-
-    if (inst.mInst)
-    {
-        inst.mInst->m_ID = -1;
-        inst.mInst->m_Data.Release();
-    }
-
-    _Func->DeleteVehicle(inst.mID);
-
-    ResetInst(inst);
-    ResetFunc(inst);
-
-    inst.mInst = NULL;
-    inst.mObj.Release();
-
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocVehicle(id, true, header, payload);
+    // The entity could be destroyed
     return true;
 }
 
 // --------------------------------------------------------------------------------------------
 void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
 {
-    PlayerInst & inst = m_Players.at(id);
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+    {
+        STHROWF("Cannot allocate player with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    PlayerInst & inst = m_Players[id];
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot allocate player that already exists: %d", id);
+    }
+    // Instantiate the entity manager
     inst.mInst = new CPlayer(id);
+    // Create the script object
     inst.mObj = Object(inst.mInst, m_VM);
-
+    // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a player instance for: %d", id);
+        ResetInst(inst);
+        STHROWF("Unable to create a player instance for: %d", id);
     }
-    else
-    {
-        inst.mID = id;
-        EmitPlayerCreated(id, header, payload);
-    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Let the script callbacks know about this entity
+    EmitPlayerCreated(id, header, payload);
 }
 
 void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
 {
-    if (static_cast< Uint32 >(id) >= m_Players.size())
-        return;
-
-    PlayerInst & inst = m_Players.at(id);
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+    {
+        STHROWF("Cannot deallocate player with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    PlayerInst & inst = m_Players[id];
+    // Make sure that the instance is even allocated
+    if (INVALID_ENTITY(inst.mID))
+    {
+        STHROWF("Cannot deallocate player that doesn't exists: %d", id);
+    }
+    // Let the script callbacks know this entity should no longer be used
     EmitPlayerDestroyed(id, header, payload);
-
+    // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
+        // Prevent further use of this entity
         inst.mInst->m_ID = -1;
+        // Release user data to avoid dangling references
         inst.mInst->m_Data.Release();
     }
-
+    // Reset the entity instance
     ResetInst(inst);
+    // Release associated script callbacks
     ResetFunc(inst);
-
+    // Prevent further use of the manager instance
     inst.mInst = NULL;
+    // Release the script object, if any
     inst.mObj.Release();
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::BindEvent(Int32 id, Object & env, Function & func)
+void Core::BindEvent(Int32 id, Object & env, Function & func)
 {
+    // Obtain the function instance called for this event
     Function & event = GetEvent(id);
-
+    // Is the specified callback function null?
     if (func.IsNull())
-        event.Release();
+    {
+        event.Release(); // Then release the current callback
+    }
+    // Assign the specified environment and function
     else
+    {
         event = Function(env.GetVM(), env, func.GetFunc());
-
-    return true;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
