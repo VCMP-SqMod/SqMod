@@ -64,6 +64,22 @@ Int64 GetEpochTimeMicro()
     return Int64(time);
 }
 
+// ------------------------------------------------------------------------------------------------
+Uint32 GetTickCount()
+{
+    return GetTickCount();
+}
+
+// ------------------------------------------------------------------------------------------------
+Int64 GetTickCount64()
+{
+#ifdef _SQ64
+    return GetTickCount64();
+#else
+    return 0;
+#endif // _SQ64
+}
+
 #else
 
 // ------------------------------------------------------------------------------------------------
@@ -82,6 +98,29 @@ Int64 GetEpochTimeMicro()
     timespec time;
     clock_gettime(CLOCK_REALTIME, &time);
     return Int64(Uint64(time.tv_sec) * 1000000 + time.tv_nsec / 1000);
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 GetTickCount()
+{
+    // POSIX implementation
+    struct timespec time;
+    if (clock_gettime(CLOCK_MONOTONIC, &time))
+    {
+        return 0;
+    }
+    return now.tv_sec * 1000.0 + now.tv_nsec / 1000000.0;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int64 GetTickCount64()
+{
+    struct timespec time;
+    if (clock_gettime(CLOCK_MONOTONIC, &time))
+    {
+        return 0;
+    }
+    return now.tv_sec * 1000.0 + now.tv_nsec / 1000000.0;
 }
 
 #endif // SQMOD_OS_WINDOWS
@@ -276,6 +315,18 @@ static Timestamp SqGetYears(SQFloat ammount)
     return Timestamp(Int64(Float64(ammount) * 31557600000000LL));
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqGetTickCount()
+{
+    return GetTickCount();
+}
+
+// ------------------------------------------------------------------------------------------------
+static SLongInt SqGetTickCount64()
+{
+    return SLongInt(GetTickCount64());
+}
+
 // ================================================================================================
 void Register_Time(HSQUIRRELVM vm)
 {
@@ -340,7 +391,9 @@ void Register_Time(HSQUIRRELVM vm)
     .Func(_SC("Minutes"), &SqGetMinutes)
     .Func(_SC("Hours"), &SqGetHours)
     .Func(_SC("Days"), &SqGetDays)
-    .Func(_SC("Years"), &SqGetYears);
+    .Func(_SC("Years"), &SqGetYears)
+    .Func(_SC("TickCount"), &SqGetTickCount)
+    .Func(_SC("TickCount64"), &SqGetTickCount64);
 
     RootTable(vm).Bind(_SC("SqTime"), timens);
 }
