@@ -131,10 +131,10 @@ void ConnHnd::Handle::Create(CSStr name, Int32 flags, CSStr vfs)
 {
     // Make sure a previous connection doesn't exist
     if (mPtr)
-        SqThrowF("Unable to connect to database. Database already connected");
+        STHROWF("Unable to connect to database. Database already connected");
     // Make sure the name is valid
     else if (!name || strlen(name) <= 0)
-        SqThrowF("Unable to connect to database. The name is invalid");
+        STHROWF("Unable to connect to database. The name is invalid");
     // Attempt to create the database connection
     else if ((mStatus = sqlite3_open_v2(name, &mPtr, flags, vfs)) != SQLITE_OK)
     {
@@ -143,7 +143,7 @@ void ConnHnd::Handle::Create(CSStr name, Int32 flags, CSStr vfs)
         // Explicitly make sure it's null
         mPtr = NULL;
         // Now its safe to throw the error
-        SqThrowF("Unable to connect to database [%s]", sqlite3_errstr(mStatus));
+        STHROWF("Unable to connect to database [%s]", sqlite3_errstr(mStatus));
     }
     // Let's save the specified information
     mName.assign(name);
@@ -179,7 +179,7 @@ Int32 ConnHnd::Handle::Flush(Uint32 num, Object & env, Function & func)
     // Attempt to begin the flush transaction
     if ((mStatus = sqlite3_exec(mPtr, "BEGIN", NULL, NULL, NULL)) != SQLITE_OK)
     {
-        SqThrowF("Unable to begin flush transaction [%s]", sqlite3_errmsg(mPtr));
+        STHROWF("Unable to begin flush transaction [%s]", sqlite3_errmsg(mPtr));
     }
     // Process all queries within range of selection
     for (; itr != end; ++itr)
@@ -233,12 +233,12 @@ Int32 ConnHnd::Handle::Flush(Uint32 num, Object & env, Function & func)
     // Attempt to roll back erroneous changes
     else if ((mStatus = sqlite3_exec(mPtr, "ROLLBACK", NULL, NULL, NULL)) != SQLITE_OK)
     {
-        SqThrowF("Unable to rollback flush transaction [%s]", sqlite3_errmsg(mPtr));
+        STHROWF("Unable to rollback flush transaction [%s]", sqlite3_errmsg(mPtr));
     }
     // The transaction failed somehow but we managed to rollback
     else
     {
-        SqThrowF("Unable to commit flush transaction [%s]", sqlite3_errmsg(mPtr));
+        STHROWF("Unable to commit flush transaction [%s]", sqlite3_errmsg(mPtr));
     }
     // Operation failed
     return -1;
@@ -267,15 +267,15 @@ void StmtHnd::Handle::Create(CSStr query)
 {
     // Make sure a previous statement doesn't exist
     if (mPtr)
-        SqThrowF("Unable to prepare statement. Statement already prepared");
+        STHROWF("Unable to prepare statement. Statement already prepared");
     // Is the specified database connection is valid?
     else if (!mConn)
-        SqThrowF("Unable to prepare statement. Invalid connection handle");
+        STHROWF("Unable to prepare statement. Invalid connection handle");
     // Save the query string and therefore multiple strlen(...) calls
     mQuery.assign(query ? query : _SC(""));
     // Is the specified query string we just saved, valid?
     if (mQuery.empty())
-        SqThrowF("Unable to prepare statement. Invalid query string");
+        STHROWF("Unable to prepare statement. Invalid query string");
     // Attempt to prepare a statement with the specified query string
     else if ((mStatus = sqlite3_prepare_v2(mConn, mQuery.c_str(), (Int32)mQuery.size(),
                                             &mPtr, NULL)) != SQLITE_OK)
@@ -285,7 +285,7 @@ void StmtHnd::Handle::Create(CSStr query)
         // Explicitly make sure the handle is null
         mPtr = NULL;
         // Now it's safe to throw the error
-        SqThrowF("Unable to prepare statement [%s]", mConn.ErrMsg());
+        STHROWF("Unable to prepare statement [%s]", mConn.ErrMsg());
     }
     else
         // Obtain the number of available columns
@@ -297,7 +297,7 @@ Int32 StmtHnd::Handle::GetColumnIndex(CSStr name)
 {
     // Validate the handle
     if (!mPtr)
-        SqThrowF("Invalid SQLite statement");
+        STHROWF("Invalid SQLite statement");
     // Are the names cached?
     else if (mIndexes.empty())
     {
@@ -307,7 +307,7 @@ Int32 StmtHnd::Handle::GetColumnIndex(CSStr name)
             CSStr name = (CSStr)sqlite3_column_name(mPtr, i);
             // Validate the name
             if (!name)
-                SqThrowF("Unable to retrieve column name for index (%d)", i);
+                STHROWF("Unable to retrieve column name for index (%d)", i);
             // Save it to guarantee the same lifetime as this instance
             else
                 mIndexes[name] = i;
@@ -382,7 +382,7 @@ CCStr EscapeStringEx(SQChar spec, CCStr str)
     // Validate the specified format specifier
     if (spec != 'q' && spec != 'Q' && spec != 'w' && spec != 's')
     {
-        SqThrowF("Unknown format specifier: %c", spec);
+        STHROWF("Unknown format specifier: %c", spec);
         // Default to empty string
         return _SC("");
     }
@@ -418,7 +418,7 @@ CCStr ArrayToQueryColumns(Array & arr)
     {
         // Is the name valid?
         if (itr->empty())
-            SqThrowF("Invalid column name");
+            STHROWF("Invalid column name");
         // Attempt to append the column name to the buffer
         sqlite3_snprintf(sizeof(g_Buffer) - offset, g_Buffer + offset, "[%q], ", itr->c_str());
         // Add the column name size to the offset
@@ -451,7 +451,7 @@ CCStr TableToQueryColumns(Table & tbl)
         name.assign(itr.getName());
         // Is the name valid?
         if (name.empty())
-            SqThrowF("Invalid or empty column name");
+            STHROWF("Invalid or empty column name");
         // Attempt to append the column name to the buffer
         sqlite3_snprintf(sizeof(g_Buffer) - offset, g_Buffer + offset, "[%q], ", name.c_str());
         // Add the column name size to the offset

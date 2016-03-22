@@ -23,10 +23,10 @@ void Column::Validate() const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
-        SqThrowF("Invalid column index");
+        STHROWF("Invalid column index");
     // Do we belong to a valid statement?
     else if (!m_Stmt)
-        SqThrowF("Invalid SQLite statement reference");
+        STHROWF("Invalid SQLite statement reference");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -34,13 +34,13 @@ void Column::ValidateRow() const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
-        SqThrowF("Invalid column index");
+        STHROWF("Invalid column index");
     // Do we belong to a valid statement?
     else if (!m_Stmt)
-        SqThrowF("Invalid SQLite statement reference");
+        STHROWF("Invalid SQLite statement reference");
     // Do we have any rows available?
     else if (!m_Stmt->mGood)
-        SqThrowF("No row available");
+        STHROWF("No row available");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ Object Column::GetBlob() const
     const void * b = sqlite3_column_blob(m_Stmt, m_Index);
     // Could the memory blob be allocated?
     if (!p)
-        SqThrowF("Unable to allocate space for column blob value");
+        STHROWF("Unable to allocate space for column blob value");
     // Is there any data to read?
     else if (!b)
     {
@@ -195,7 +195,7 @@ CSStr Column::GetOriginName() const
     // Return the requested information
     return sqlite3_column_origin_name(m_Stmt, m_Index);
 #else
-    SqThrowF("The module was compiled without this feature");
+    STHROWF("The module was compiled without this feature");
 #endif
     // Request failed
     return _SC("");

@@ -22,7 +22,7 @@ void Connection::Validate() const
 {
     // Is the handle valid?
     if (!m_Handle)
-        SqThrowF("Invalid SQLite connection reference");
+        STHROWF("Invalid SQLite connection reference");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ Int32 Connection::Exec(CSStr str)
     Validate();
     // Attempt to execute the specified query
     if ((m_Handle = sqlite3_exec(m_Handle, str, NULL, NULL, NULL)) != SQLITE_OK)
-        SqThrowF("Unable to execute query [%s]", m_Handle.ErrMsg());
+        STHROWF("Unable to execute query [%s]", m_Handle.ErrMsg());
     // Return rows affected by this query
     return sqlite3_changes(m_Handle);
 }
@@ -84,7 +84,7 @@ void Connection::Queue(CSStr str)
     Validate();
     // Is there a query to commit?
     if (IsQueryEmpty(str))
-        SqThrowF("No query string to queue");
+        STHROWF("No query string to queue");
     // Add the specified string to the queue
     m_Handle->mQueue.push_back(str);
 }
@@ -98,7 +98,7 @@ bool Connection::IsReadOnly() const
     const int result = sqlite3_db_readonly(m_Handle, "main");
     // Verify the result
     if (result == -1)
-        SqThrowF("'main' is not the name of a database on connection");
+        STHROWF("'main' is not the name of a database on connection");
     // Return the requested information
     return (result != 1);
 }
@@ -143,7 +143,7 @@ void Connection::SetBusyTimeout(Int32 millis)
     Validate();
     // Apply requested timeout
     if ((m_Handle = sqlite3_busy_timeout(m_Handle, millis)) != SQLITE_OK)
-        SqThrowF("Unable to set busy timeout [%s]", m_Handle.ErrMsg());
+        STHROWF("Unable to set busy timeout [%s]", m_Handle.ErrMsg());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ Int32 Connection::GetInfo(Int32 operation, bool highwater, bool reset)
     Int32 hiwtr_value;
     // Attempt to retrieve the specified information
     if ((m_Handle = sqlite3_db_status(m_Handle, operation, &cur_value, &hiwtr_value, reset)) != SQLITE_OK)
-        SqThrowF("Unable to get runtime status information", m_Handle.ErrMsg());
+        STHROWF("Unable to get runtime status information", m_Handle.ErrMsg());
     // Return the high-water value if requested
     else if (highwater)
         return hiwtr_value;
@@ -171,7 +171,7 @@ Connection Connection::CopyToMemory()
     Validate();
     // Is the database already in memory?
     if (m_Handle->mMemory)
-        SqThrowF("The database is already in memory");
+        STHROWF("The database is already in memory");
     // Destination database
     ConnHnd db(_SC(""));
     // Attempt to open the in-memory database
@@ -180,7 +180,7 @@ Connection Connection::CopyToMemory()
     GetTempBuff()[0] = 0;
     // Begin a transaction to replicate the schema of origin database
     if ((m_Handle = sqlite3_exec(m_Handle, "BEGIN", NULL, NULL, NULL)) != SQLITE_OK)
-        SqThrowF("Unable to begin schema replication [%s]", m_Handle.ErrMsg());
+        STHROWF("Unable to begin schema replication [%s]", m_Handle.ErrMsg());
     // Attempt to replicate the schema of origin database to the in-memory one
     else if ((m_Handle = sqlite3_exec(m_Handle,
                 "SELECT [sql] FROM [sqlite_master] WHERE [sql] NOT NULL AND [tbl_name] != 'sqlite_sequence'",
@@ -189,21 +189,21 @@ Connection Connection::CopyToMemory()
         // Did the error occurred from the DDL process function?
         if (GetTempBuff()[0] != 0)
             // Throw the resulted message but also include the point where it failed
-            SqThrowF("Unable to replicate schema [%s]", GetTempBuff());
+            STHROWF("Unable to replicate schema [%s]", GetTempBuff());
         // Obtain the message from the connection handle if possible
         else
-            SqThrowF("Unable to replicate schema [%s]", m_Handle.ErrMsg());
+            STHROWF("Unable to replicate schema [%s]", m_Handle.ErrMsg());
     }
     // Attempt to commit the changes to the database schema replication
     else if ((m_Handle = sqlite3_exec(m_Handle, "COMMIT", NULL, NULL, NULL)) != SQLITE_OK)
-        SqThrowF("Unable to commit schema replication [%s]", m_Handle.ErrMsg());
+        STHROWF("Unable to commit schema replication [%s]", m_Handle.ErrMsg());
     // Attempt to attach the origin database to the in-memory one
     else if ((db = sqlite3_exec(db, QFmtStr("ATTACH DATABASE '%q' as origin", m_Handle->mName.c_str()),
                                         NULL, NULL, NULL)) != SQLITE_OK)
-        SqThrowF("Unable to attach origin [%s]", db.ErrMsg());
+        STHROWF("Unable to attach origin [%s]", db.ErrMsg());
     // Begin a transaction to replicate the data of origin database
     else if ((db = sqlite3_exec(db, "BEGIN", NULL, NULL, NULL) != SQLITE_OK))
-        SqThrowF("Unable to begin data replication [%s]", db.ErrMsg());
+        STHROWF("Unable to begin data replication [%s]", db.ErrMsg());
     // Attempt to replicate the data of origin database to the in-memory one
     else if ((db = sqlite3_exec(db, "SELECT [name] FROM [origin.sqlite_master] WHERE [type]='table'",
                     &Connection::ProcessDMLRow, db->mPtr, NULL)) != SQLITE_OK)
@@ -212,23 +212,23 @@ Connection Connection::CopyToMemory()
         if (GetTempBuff()[0] != 0)
         {
             // Throw the resulted message but also include the point where it failed
-            SqThrowF("Unable to replicate data [%s]", GetTempBuff());
+            STHROWF("Unable to replicate data [%s]", GetTempBuff());
         }
         // Obtain the message from the connection handle if possible
         else
-            SqThrowF("Unable to replicate data [%s]", db.ErrMsg());
+            STHROWF("Unable to replicate data [%s]", db.ErrMsg());
     }
     // Attempt to commit the changes to the database data replication
     else if ((db = sqlite3_exec(db, "COMMIT", NULL, NULL, NULL)) != SQLITE_OK)
     {
         // Attempt to rollback changes from the data copy operation
         if ((db = sqlite3_exec(db, "ROLLBACK", NULL, NULL, NULL)) != SQLITE_OK)
-            SqThrowF("Unable to rollback data replication [%s]", db.ErrMsg());
+            STHROWF("Unable to rollback data replication [%s]", db.ErrMsg());
         // Attempt to detach the disk origin from in-memory database
         else if ((db = sqlite3_exec(db, "DETACH DATABASE origin", NULL, NULL, NULL)) != SQLITE_OK)
-            SqThrowF("Unable to detach origin [%s]", db.ErrMsg());
+            STHROWF("Unable to detach origin [%s]", db.ErrMsg());
         // Operation failed
-        SqThrowF("Unable to commit data replication [%s]", db.ErrMsg());
+        STHROWF("Unable to commit data replication [%s]", db.ErrMsg());
     }
     // At this point everything went fine and the database instance should be returned
     return Connection(db);
@@ -326,18 +326,18 @@ void Connection::TakeSnapshot(const ConnHnd & destination)
     sqlite3_backup * backup = sqlite3_backup_init(destination, "main", m_Handle, "main");
     // See if the backup structure could be created
     if (!backup)
-        SqThrowF("Unable to initialize the backup structure [%s]", destination.ErrMsg());
+        STHROWF("Unable to initialize the backup structure [%s]", destination.ErrMsg());
     // -1 to copy the entire source database to the destination
     if ((m_Handle = sqlite3_backup_step(backup, -1)) != SQLITE_DONE)
     {
         // Finalize the backup structure first
         sqlite3_backup_finish(backup);
         // Now it's safe to throw the error
-        SqThrowF("Unable to copy source [%s]", m_Handle.ErrStr());
+        STHROWF("Unable to copy source [%s]", m_Handle.ErrStr());
     }
     // Clean up resources allocated by sqlite3_backup_init()
     if ((m_Handle = sqlite3_backup_finish(backup)) != SQLITE_OK)
-        SqThrowF("Unable to finalize backup [%s]", m_Handle.ErrStr());
+        STHROWF("Unable to finalize backup [%s]", m_Handle.ErrStr());
 }
 
 // ------------------------------------------------------------------------------------------------

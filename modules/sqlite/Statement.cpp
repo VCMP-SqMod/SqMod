@@ -11,8 +11,10 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CSStr Statement::s_BadParamI = "Unable to bind [%s] parameter at (%d) because [%s]";
-CSStr Statement::s_BadParamS = "Unable to bind [%s] parameter at (%s:%d) because [%s]";
+// Error message when failed to bind value to parameter index.
+#define SQMOD_BADPARAMI "Unable to bind [%s] parameter at (%d) because [%s]"
+// Error message when failed to bind value to parameter name.
+#define SQMOD_BADPARAMS "Unable to bind [%s] parameter at (%s:%d) because [%s]"
 
 // ------------------------------------------------------------------------------------------------
 SQInteger Statement::Typename(HSQUIRRELVM vm)
@@ -28,7 +30,7 @@ void Statement::Validate() const
     // Is the handle valid?
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference");
+        STHROWF("Invalid SQLite statement reference");
     }
 }
 
@@ -38,12 +40,12 @@ void Statement::ValidateIndex(Int32 idx) const
     // Is the handle valid?
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference");
+        STHROWF("Invalid SQLite statement reference");
     }
     // Is the specified index in range?
     else if (!m_Handle->CheckIndex(idx))
     {
-        SqThrowF("Column index is out of range: %d", idx);
+        STHROWF("Column index is out of range: %d", idx);
     }
 }
 
@@ -53,12 +55,12 @@ void Statement::ValidateRow() const
     // Is the handle valid?
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference");
+        STHROWF("Invalid SQLite statement reference");
     }
     // Do we have any rows available?
     else if (!m_Handle->mGood)
     {
-        SqThrowF("No row available");
+        STHROWF("No row available");
     }
 }
 
@@ -81,7 +83,7 @@ Statement::Statement(const ConnHnd & connection, CSStr query)
     // We just failed to obtain a valid handle
     else
     {
-        SqThrowF("Unable to create the statement reference");
+        STHROWF("Unable to create the statement reference");
     }
 }
 
@@ -97,7 +99,7 @@ Statement::Statement(const Connection & connection, CSStr query)
     // We just failed to obtain a valid handle
     else
     {
-        SqThrowF("Unable to create the statement reference");
+        STHROWF("Unable to create the statement reference");
     }
 }
 
@@ -123,7 +125,7 @@ void Statement::Reset()
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF("Unable to reset statement [%s]", m_Handle.ErrStr());
+        STHROWF("Unable to reset statement [%s]", m_Handle.ErrStr());
     }
 }
 
@@ -140,7 +142,7 @@ void Statement::Clear()
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF("Unable to clear statement [%s]", m_Handle.ErrStr());
+        STHROWF("Unable to clear statement [%s]", m_Handle.ErrStr());
     }
 }
 
@@ -152,7 +154,7 @@ Int32 Statement::Exec()
     // Did we reset first?
     if (m_Handle->mDone)
     {
-        SqThrowF("Executed without resetting first");
+        STHROWF("Executed without resetting first");
     }
     // Attempt to step the statement
     m_Handle = sqlite3_step(m_Handle);
@@ -172,11 +174,11 @@ Int32 Statement::Exec()
     switch (m_Handle->mStatus)
     {
         // We don't expect any rows to be returned in this case!
-        case SQLITE_ROW:    SqThrowF("Results were found");
-        case SQLITE_BUSY:   SqThrowF("Database was busy");
-        case SQLITE_ERROR:  SqThrowF("Runtime error occurred");
-        case SQLITE_MISUSE: SqThrowF("Statement misuse");
-        default:            SqThrowF("Unknown failure");
+        case SQLITE_ROW:    STHROWF("Results were found");
+        case SQLITE_BUSY:   STHROWF("Database was busy");
+        case SQLITE_ERROR:  STHROWF("Runtime error occurred");
+        case SQLITE_MISUSE: STHROWF("Statement misuse");
+        default:            STHROWF("Unknown failure");
     }
     // Operation failed (shouldn't reach this point!)
     return -1;
@@ -190,7 +192,7 @@ bool Statement::Step()
     // Did we reset first?
     if (m_Handle->mDone)
     {
-        SqThrowF("Stepped without resetting first");
+        STHROWF("Stepped without resetting first");
     }
     // Attempt to step the statement
     m_Handle = sqlite3_step(m_Handle);
@@ -214,10 +216,10 @@ bool Statement::Step()
     // Inspect the result
     switch (m_Handle->mStatus)
     {
-        case SQLITE_BUSY:   SqThrowF("Database was busy");
-        case SQLITE_ERROR:  SqThrowF("Runtime error occurred");
-        case SQLITE_MISUSE: SqThrowF("Statement misuse");
-        default:            SqThrowF("Unknown failure");
+        case SQLITE_BUSY:   STHROWF("Database was busy");
+        case SQLITE_ERROR:  STHROWF("Runtime error occurred");
+        case SQLITE_MISUSE: STHROWF("Statement misuse");
+        default:            STHROWF("Unknown failure");
     }
     // Operation failed (shouldn't reach this point!)
     return false;
@@ -233,7 +235,7 @@ void Statement::IndexBindA(Int32 idx, const Array & arr)
     // Make sure that we are at least in bounds
     if (idx >= max)
     {
-        SqThrowF("Parameter index out of range: %d >= %d", idx, max);
+        STHROWF("Parameter index out of range: %d >= %d", idx, max);
     }
     // Should we clear onward parameters?
     else if (arr.Length() <= 0)
@@ -271,7 +273,7 @@ void Statement::IndexBindI(Int32 idx, Int32 value)
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamI, "int", idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMI, "int", idx, m_Handle.ErrMsg());
     }
 }
 
@@ -289,14 +291,14 @@ void Statement::IndexBindL(Int32 idx, const Object & value)
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetSLongValue(DefaultVM::Get(), -1, &longint)))
     {
-        SqThrowF("Invalid long integer specified");
+        STHROWF("Invalid long integer specified");
     }
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_int(m_Handle, idx, longint);
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamI, "long", idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMI, "long", idx, m_Handle.ErrMsg());
     }
 }
 
@@ -314,7 +316,7 @@ void Statement::IndexBindV(Int32 idx, SQInteger value)
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamI, "value", idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMI, "value", idx, m_Handle.ErrMsg());
     }
 }
 
@@ -328,7 +330,7 @@ void Statement::IndexBindF(Int32 idx, SQFloat value)
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamI, "float", idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMI, "float", idx, m_Handle.ErrMsg());
     }
 }
 
@@ -342,7 +344,7 @@ void Statement::IndexBindS(Int32 idx, CSStr value)
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamI, "string", idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMI, "string", idx, m_Handle.ErrMsg());
     }
 }
 
@@ -356,7 +358,7 @@ void Statement::IndexBindB(Int32 idx, bool value)
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamI, "boolean", idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMI, "boolean", idx, m_Handle.ErrMsg());
     }
 }
 
@@ -370,7 +372,7 @@ void Statement::IndexBindN(Int32 idx)
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamI, "null", idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMI, "null", idx, m_Handle.ErrMsg());
     }
 }
 
@@ -412,14 +414,14 @@ void Statement::NameBindI(CSStr name, Int32 value)
     // Validate the obtained index
     if (!idx)
     {
-        SqThrowF("Unknown parameter named (%s)", name);
+        STHROWF("Unknown parameter named (%s)", name);
     }
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_int(m_Handle, idx, value);
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamS, "int", name, idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMS, "int", name, idx, m_Handle.ErrMsg());
     }
 }
 
@@ -433,7 +435,7 @@ void Statement::NameBindL(CSStr name, const Object & value)
     // Validate the obtained index
     if (!idx)
     {
-        SqThrowF("Unknown parameter named (%s)", name);
+        STHROWF("Unknown parameter named (%s)", name);
     }
     // Obtain the initial stack size
     const StackGuard sg(DefaultVM::Get());
@@ -444,14 +446,14 @@ void Statement::NameBindL(CSStr name, const Object & value)
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetULongValue(DefaultVM::Get(), -1, &longint)))
     {
-        SqThrowF("Invalid long integer specified");
+        STHROWF("Invalid long integer specified");
     }
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_int(m_Handle, idx, longint);
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamS, "long", name, idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMS, "long", name, idx, m_Handle.ErrMsg());
     }
 }
 
@@ -465,7 +467,7 @@ void Statement::NameBindV(CSStr name, SQInteger value)
     // Validate the obtained index
     if (!idx)
     {
-        SqThrowF("Unknown parameter named (%s)", name);
+        STHROWF("Unknown parameter named (%s)", name);
     }
     // Attempt to bind the specified value
 #ifdef _SQ64
@@ -476,7 +478,7 @@ void Statement::NameBindV(CSStr name, SQInteger value)
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamS, "value", name, idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMS, "value", name, idx, m_Handle.ErrMsg());
     }
 }
 
@@ -490,14 +492,14 @@ void Statement::NameBindF(CSStr name, SQFloat value)
     // Validate the obtained index
     if (!idx)
     {
-        SqThrowF("Unknown parameter named (%s)", name);
+        STHROWF("Unknown parameter named (%s)", name);
     }
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_double(m_Handle, idx, value);
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamS, "float", name, idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMS, "float", name, idx, m_Handle.ErrMsg());
     }
 }
 
@@ -511,14 +513,14 @@ void Statement::NameBindS(CSStr name, CSStr value)
     // Validate the obtained index
     if (!idx)
     {
-        SqThrowF("Unknown parameter named (%s)", name);
+        STHROWF("Unknown parameter named (%s)", name);
     }
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_text(m_Handle, idx, value, -1, SQLITE_TRANSIENT);
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamS, "string", name, idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMS, "string", name, idx, m_Handle.ErrMsg());
     }
 }
 
@@ -532,14 +534,14 @@ void Statement::NameBindB(CSStr name, bool value)
     // Validate the obtained index
     if (!idx)
     {
-        SqThrowF("Unknown parameter named (%s)", name);
+        STHROWF("Unknown parameter named (%s)", name);
     }
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_int(m_Handle, idx, value);
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamS, "boolean", name, idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMS, "boolean", name, idx, m_Handle.ErrMsg());
     }
 }
 
@@ -553,14 +555,14 @@ void Statement::NameBindN(CSStr name)
     // Validate the obtained index
     if (!idx)
     {
-        SqThrowF("Unknown parameter named (%s)", name);
+        STHROWF("Unknown parameter named (%s)", name);
     }
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_null(m_Handle, idx);
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamS, "null", name, idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMS, "null", name, idx, m_Handle.ErrMsg());
     }
 }
 
@@ -612,19 +614,19 @@ void Statement::IndexBind(Int32 idx, const Object & value)
             // Attempt to get the numeric value inside the specified object
             if (SQ_FAILED(_SqMod->GetSLongValue(DefaultVM::Get(), -1, &longint)))
             {
-                SqThrowF("Invalid long integer specified (%d)", idx);
+                STHROWF("Invalid long integer specified (%d)", idx);
             }
             // Now bind the resulted long integer
             m_Handle = sqlite3_bind_int64(m_Handle, idx, longint);
         } break;
         // We don't recognize this kind of value!
         default:
-            SqThrowF("Attempting to bind unknown value type (%d)", idx);
+            STHROWF("Attempting to bind unknown value type (%d)", idx);
     }
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamI, "auto", idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMI, "auto", idx, m_Handle.ErrMsg());
     }
 }
 
@@ -638,7 +640,7 @@ void Statement::NameBind(CSStr name, const Object & value)
     // Validate the obtained index
     if (!idx)
     {
-        SqThrowF("Unknown parameter named (%s)", name);
+        STHROWF("Unknown parameter named (%s)", name);
     }
     // Attempt to identify the specified type
     switch (value.GetType())
@@ -683,19 +685,19 @@ void Statement::NameBind(CSStr name, const Object & value)
             // Attempt to get the numeric value inside the specified object
             if (SQ_FAILED(_SqMod->GetSLongValue(DefaultVM::Get(), -1, &longint)))
             {
-                SqThrowF("Invalid long integer specified (%s:%d)", name, idx);
+                STHROWF("Invalid long integer specified (%s:%d)", name, idx);
             }
             // Now bind the resulted long integer
             m_Handle = sqlite3_bind_int64(m_Handle, idx, longint);
         } break;
         // We don't recognize this kind of value!
         default:
-            SqThrowF("Attempting to bind unknown value type (%s:%d)", name, idx);
+            STHROWF("Attempting to bind unknown value type (%s:%d)", name, idx);
     }
     // Validate the result
     if (m_Handle != SQLITE_OK)
     {
-        SqThrowF(s_BadParamS, "auto", name, idx, m_Handle.ErrMsg());
+        STHROWF(SQMOD_BADPARAMS, "auto", name, idx, m_Handle.ErrMsg());
     }
 }
 
@@ -715,7 +717,7 @@ void Statement::Bind(const Object & param, const Object & value)
     // We don't recognize this kind of value!
     else
     {
-        SqThrowF("Unknown parameter index type");
+        STHROWF("Unknown parameter index type");
     }
 }
 
@@ -726,7 +728,7 @@ Object Statement::FetchColumnIndex(Int32 idx) const
     ValidateRow();
     // Is the specified index valid?
     if (!m_Handle->CheckIndex(idx))
-        SqThrowF("Column index is out of range: %d", idx);
+        STHROWF("Column index is out of range: %d", idx);
     // Obtain the initial stack size
     const StackGuard sg(DefaultVM::Get());
     // Identify which type of value must be pushed on the stack
@@ -764,7 +766,7 @@ Object Statement::FetchColumnIndex(Int32 idx) const
             const void * b = sqlite3_column_blob(m_Handle, idx);
             // Could the memory blob be allocated?
             if (!p)
-                SqThrowF("Unable to allocate space for column blob value");
+                STHROWF("Unable to allocate space for column blob value");
             // Is there any data to read?
             else if (!b)
             {
@@ -779,7 +781,7 @@ Object Statement::FetchColumnIndex(Int32 idx) const
         } break;
         // Unknown type
         default:
-            SqThrowF("Unknown value to fetch at index: %d", idx);
+            STHROWF("Unknown value to fetch at index: %d", idx);
     }
     // Obtain the object with the value from the stack and return it
     return Var< Object >(DefaultVM::Get(), -1).value;
@@ -808,7 +810,7 @@ Object Statement::FetchColumn(const Object & column) const
         return FetchColumnIndex(column.Cast< SQInteger >());
     }
     // We don't recognize this kind of value!
-    SqThrowF("Unknown column identifier type");
+    STHROWF("Unknown column identifier type");
     // We have to return something!
     return Object();
 }
@@ -844,17 +846,17 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
     // Is the minimum actually the minimum?
     else if (min > max)
     {
-        SqThrowF("Minimum is higher than maximum");
+        STHROWF("Minimum is higher than maximum");
     }
     // Is the minimum in range>
     else if (!m_Handle->CheckIndex(min))
     {
-        SqThrowF("Minimum is out of range");
+        STHROWF("Minimum is out of range");
     }
     // Is the maximum in range?
     else if (!m_Handle->CheckIndex(max))
     {
-        SqThrowF("Maximum is out of range");
+        STHROWF("Maximum is out of range");
     }
     // Allocate an array large enough to hold the values from selected columns
     Array arr(DefaultVM::Get(), max-min);
@@ -898,7 +900,7 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
                 // Could the memory blob be allocated?
                 if (!p)
                 {
-                    SqThrowF("Unable to allocate space for column blob value");
+                    STHROWF("Unable to allocate space for column blob value");
                 }
                 // Is there any data to read?
                 else if (!b)
@@ -920,7 +922,7 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
             } break;
             // Unknown type
             default:
-                SqThrowF("Unknown value to fetch at index: %d", idx);
+                STHROWF("Unknown value to fetch at index: %d", idx);
         }
     }
     // Return the resulted array
@@ -958,17 +960,17 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
     // Is the minimum actually the minimum?
     else if (min > max)
     {
-        SqThrowF("Minimum is higher than maximum");
+        STHROWF("Minimum is higher than maximum");
     }
     // Is the minimum in range>
     else if (!m_Handle->CheckIndex(min))
     {
-        SqThrowF("Minimum is out of range");
+        STHROWF("Minimum is out of range");
     }
     // Is the maximum in range?
     else if (!m_Handle->CheckIndex(max))
     {
-        SqThrowF("Maximum is out of range");
+        STHROWF("Maximum is out of range");
     }
     // Create a table to hold the selected column values
     Table tbl(DefaultVM::Get());
@@ -981,7 +983,7 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
         CSStr name = sqlite3_column_name(m_Handle, idx);
         // Validate the obtained name
         if (!name)
-            SqThrowF("Unable to retrieve name of column (%d)", idx);
+            STHROWF("Unable to retrieve name of column (%d)", idx);
         // Identify the type of value that must be assigned
         switch (sqlite3_column_type(m_Handle, idx))
         {
@@ -1023,7 +1025,7 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
                 // Could the memory blob be allocated?
                 if (!p)
                 {
-                    SqThrowF("Unable to allocate space for column blob value");
+                    STHROWF("Unable to allocate space for column blob value");
                 }
                 // Is there any data to read?
                 else if (!b)
@@ -1045,7 +1047,7 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
             } break;
             // Unknown type
             default:
-                SqThrowF("Unknown value to fetch at index: %d", idx);
+                STHROWF("Unknown value to fetch at index: %d", idx);
         }
     }
     // Return the resulted table
@@ -1100,7 +1102,7 @@ CSStr Statement::GetColumnOriginName(Int32 idx) const
     // The compiler moans when extra warnings are enabled
     SQMOD_UNUSED_VAR(idx);
     // Stop the execution here!
-    SqThrowF("The module was compiled without this feature");
+    STHROWF("The module was compiled without this feature");
     // We have to return something
     return _SC("");
 #endif
@@ -1143,7 +1145,7 @@ Object Statement::GetColumnByName(CSStr name) const
     // Validate the obtained index
     if (idx < 0)
     {
-        SqThrowF("Unknown column named (%s)", name);
+        STHROWF("Unknown column named (%s)", name);
     }
     // Return the requested column
     return Object(new Column(m_Handle, idx));
@@ -1163,7 +1165,7 @@ Object Statement::GetColumn(const Object & column) const
         return GetColumnByIndex(column.Cast< SQInteger >());
     }
     // We don't recognize this kind of value!
-    SqThrowF("Unknown column identifier type");
+    STHROWF("Unknown column identifier type");
     // We have to return something!
     return Object();
 }

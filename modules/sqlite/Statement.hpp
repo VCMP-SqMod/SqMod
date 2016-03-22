@@ -18,10 +18,6 @@ private:
     // --------------------------------------------------------------------------------------------
     StmtHnd m_Handle; /* The handle to the managed database statement resource. */
 
-    // --------------------------------------------------------------------------------------------
-    static CSStr    s_BadParamI; /* Error message when failed to bind value to parameter index. */
-    static CSStr    s_BadParamS; /* Error message when failed to bind value to parameter name. */
-
 protected:
 
     /* --------------------------------------------------------------------------------------------
