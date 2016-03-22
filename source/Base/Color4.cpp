@@ -12,8 +12,8 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 const Color4 Color4::NIL = Color4();
-const Color4 Color4::MIN = Color4(NumLimit< Color4::Value >::Min);
-const Color4 Color4::MAX = Color4(NumLimit< Color4::Value >::Max);
+const Color4 Color4::MIN = Color4(std::numeric_limits< Color4::Value >::min());
+const Color4 Color4::MAX = Color4(std::numeric_limits< Color4::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Color4::Delim = ',';

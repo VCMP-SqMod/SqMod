@@ -42,38 +42,6 @@ PluginInfo*         _Info = NULL;
 static SQChar g_Buffer[4096];
 
 // ------------------------------------------------------------------------------------------------
-const char NumLimit< char >::Min = CHAR_MIN;
-const signed char NumLimit< signed char >::Min = SCHAR_MIN;
-const unsigned char NumLimit< unsigned char >::Min = 0;
-const signed short NumLimit< signed short >::Min = SHRT_MIN;
-const unsigned short NumLimit< unsigned short >::Min = 0;
-const signed int NumLimit< signed int >::Min = INT_MIN;
-const unsigned int NumLimit< unsigned int >::Min = 0;
-const signed long NumLimit< signed long >::Min = LONG_MIN;
-const unsigned long NumLimit< unsigned long >::Min = 0;
-const signed long long NumLimit< signed long long >::Min = LLONG_MIN;
-const unsigned long long NumLimit< unsigned long long >::Min = 0;
-const float NumLimit< float >::Min = FLT_MIN;
-const double NumLimit< double >::Min = DBL_MIN;
-const long double NumLimit< long double >::Min = LDBL_MIN;
-
-// ------------------------------------------------------------------------------------------------
-const char NumLimit< char >::Max = CHAR_MAX;
-const signed char NumLimit< signed char >::Max = SCHAR_MAX;
-const unsigned char NumLimit< unsigned char >::Max = UCHAR_MAX;
-const signed short NumLimit< signed short >::Max = SHRT_MAX;
-const unsigned short NumLimit< unsigned short >::Max = USHRT_MAX;
-const signed int NumLimit< signed int >::Max = INT_MAX;
-const unsigned int NumLimit< unsigned int >::Max = UINT_MAX;
-const signed long NumLimit< signed long >::Max = LONG_MAX;
-const unsigned long NumLimit< unsigned long >::Max = ULONG_MAX;
-const signed long long NumLimit< signed long long >::Max = LLONG_MAX;
-const unsigned long long NumLimit< unsigned long long >::Max = ULLONG_MAX;
-const float NumLimit< float >::Max = FLT_MAX;
-const double NumLimit< double >::Max = DBL_MAX;
-const long double NumLimit< long double >::Max = LDBL_MAX;
-
-// ------------------------------------------------------------------------------------------------
 Object & NullObject()
 {
     static Object o;
@@ -335,7 +303,7 @@ static const Color3 SQ_Color_List[] =
 // ------------------------------------------------------------------------------------------------
 const Color3 & GetRandomColor()
 {
-    return SQ_Color_List[GetRandomUint8(0, (sizeof(SQ_Color_List) / sizeof(Color3))-1)];
+    return SQ_Color_List[GetRandomUint8(0, (sizeof(SQ_Color_List) / sizeof(Color3)) - 1)];
 }
 
 // ------------------------------------------------------------------------------------------------

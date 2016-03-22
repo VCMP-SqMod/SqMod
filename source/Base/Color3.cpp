@@ -12,8 +12,8 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 const Color3 Color3::NIL = Color3();
-const Color3 Color3::MIN = Color3(NumLimit< Color3::Value >::Min);
-const Color3 Color3::MAX = Color3(NumLimit< Color3::Value >::Max);
+const Color3 Color3::MIN = Color3(std::numeric_limits< Color3::Value >::min());
+const Color3 Color3::MAX = Color3(std::numeric_limits< Color3::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Color3::Delim = ',';

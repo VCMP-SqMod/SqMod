@@ -4,12 +4,15 @@
 #include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <limits>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 const Circle Circle::NIL = Circle();
 const Circle Circle::MIN = Circle(0.0);
-const Circle Circle::MAX = Circle(NumLimit< Circle::Value >::Max);
+const Circle Circle::MAX = Circle(std::numeric_limits< Circle::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Circle::Delim = ',';

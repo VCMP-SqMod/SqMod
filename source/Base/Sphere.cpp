@@ -4,12 +4,15 @@
 #include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <limits>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 const Sphere Sphere::NIL = Sphere();
 const Sphere Sphere::MIN = Sphere(0.0);
-const Sphere Sphere::MAX = Sphere(NumLimit< Sphere::Value >::Max);
+const Sphere Sphere::MAX = Sphere(std::numeric_limits< Sphere::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Sphere::Delim = ',';

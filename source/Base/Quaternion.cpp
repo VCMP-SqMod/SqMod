@@ -6,12 +6,15 @@
 #include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <limits>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 const Quaternion Quaternion::NIL = Quaternion(0);
-const Quaternion Quaternion::MIN = Quaternion(NumLimit< Quaternion::Value >::Min);
-const Quaternion Quaternion::MAX = Quaternion(NumLimit< Quaternion::Value >::Max);
+const Quaternion Quaternion::MIN = Quaternion(std::numeric_limits< Quaternion::Value >::min());
+const Quaternion Quaternion::MAX = Quaternion(std::numeric_limits< Quaternion::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Quaternion::Delim = ',';

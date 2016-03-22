@@ -5,12 +5,15 @@
 #include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <limits>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 const Vector2i Vector2i::NIL = Vector2i(0);
-const Vector2i Vector2i::MIN = Vector2i(NumLimit< Vector2i::Value >::Min);
-const Vector2i Vector2i::MAX = Vector2i(NumLimit< Vector2i::Value >::Max);
+const Vector2i Vector2i::MIN = Vector2i(std::numeric_limits< Vector2i::Value >::min());
+const Vector2i Vector2i::MAX = Vector2i(std::numeric_limits< Vector2i::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Vector2i::Delim = ',';

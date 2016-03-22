@@ -25,27 +25,6 @@ extern PluginFuncs*         _Func;
 extern PluginCallbacks*     _Clbk;
 extern PluginInfo*          _Info;
 
-// ------------------------------------------------------------------------------------------------
-template < typename T > struct NumLimit;
-
-/* ------------------------------------------------------------------------------------------------
- * Basic minimum and maximum values for primitive numeric types.
-*/
-template <> struct NumLimit< char > { static const char Min, Max; };
-template <> struct NumLimit< signed char > { static const signed char Min, Max; };
-template <> struct NumLimit< unsigned char > { static const unsigned char Min, Max; };
-template <> struct NumLimit< signed short > { static const signed short Min, Max; };
-template <> struct NumLimit< unsigned short > { static const unsigned short Min, Max; };
-template <> struct NumLimit< signed int > { static const signed int Min, Max; };
-template <> struct NumLimit< unsigned int > { static const unsigned int Min, Max; };
-template <> struct NumLimit< signed long > { static const signed long Min, Max; };
-template <> struct NumLimit< unsigned long > { static const unsigned long Min, Max; };
-template <> struct NumLimit< signed long long > { static const signed long long Min, Max; };
-template <> struct NumLimit< unsigned long long > { static const unsigned long long Min, Max; };
-template <> struct NumLimit< float > { static const float Min, Max; };
-template <> struct NumLimit< double > { static const double Min, Max; };
-template <> struct NumLimit< long double > { static const long double Min, Max; };
-
 /* ------------------------------------------------------------------------------------------------
  * Implements RAII to restore the VM stack to it's initial size on function exit.
 */

@@ -2,6 +2,9 @@
 #include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <limits>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -14,18 +17,26 @@ void Register_Constants(HSQUIRRELVM vm)
         .Const(_SC("Unknown"),      SQMOD_UNKNOWN)
         .Const(_SC("Arch"),         SQMOD_ARCHITECTURE)
         .Const(_SC("Platform"),     SQMOD_PLATFORM)
-        .Const(_SC("MinChar"),      NumLimit< SQChar>::Min)
-        .Const(_SC("MaxChar"),      NumLimit< SQChar >::Max)
-        .Const(_SC("MinShort"),     NumLimit< Int16>::Min)
-        .Const(_SC("MaxShort"),     NumLimit< Int16 >::Max)
-        .Const(_SC("MinUshort"),    NumLimit< Uint16>::Min)
-        .Const(_SC("MaxUshort"),    NumLimit< Uint16 >::Max)
-        .Const(_SC("MinInt"),       NumLimit< SQInteger>::Min)
-        .Const(_SC("MaxInt"),       NumLimit< SQInteger >::Max)
-        .Const(_SC("MinInt32"),     NumLimit< SQInt32>::Min)
-        .Const(_SC("MaxInt32"),     NumLimit< SQInt32 >::Max)
-        .Const(_SC("MinFloat"),     NumLimit< SQFloat>::Min)
-        .Const(_SC("MaxFloat"),     NumLimit< SQFloat >::Max)
+        .Const(_SC("MinChar"),      std::numeric_limits< SQChar >::min())
+        .Const(_SC("MaxChar"),      std::numeric_limits< SQChar >::max())
+        .Const(_SC("MinAchar"),     std::numeric_limits< Int8 >::min())
+        .Const(_SC("MaxAchar"),     std::numeric_limits< Int8 >::max())
+        .Const(_SC("MinByte"),      std::numeric_limits< Uint8 >::min())
+        .Const(_SC("MaxByte"),      std::numeric_limits< Uint8 >::max())
+        .Const(_SC("MinShort"),     std::numeric_limits< Int16 >::min())
+        .Const(_SC("MaxShort"),     std::numeric_limits< Int16 >::max())
+        .Const(_SC("MinUshort"),    std::numeric_limits< Uint16 >::min())
+        .Const(_SC("MaxUshort"),    std::numeric_limits< Uint16 >::max())
+        .Const(_SC("MinInt"),       std::numeric_limits< SQInteger >::min())
+        .Const(_SC("MaxInt"),       std::numeric_limits< SQInteger >::max())
+        .Const(_SC("MinInteger"),   std::numeric_limits< SQInteger >::min())
+        .Const(_SC("MaxInteger"),   std::numeric_limits< SQInteger >::max())
+        .Const(_SC("MinInt32"),     std::numeric_limits< SQInt32 >::min())
+        .Const(_SC("MaxInt32"),     std::numeric_limits< SQInt32 >::max())
+        .Const(_SC("MinFloat"),     std::numeric_limits< SQFloat >::min())
+        .Const(_SC("MaxFloat"),     std::numeric_limits< SQFloat >::max())
+        .Const(_SC("MinFloat32"),   std::numeric_limits< Float32 >::min())
+        .Const(_SC("MaxFloat32"),   std::numeric_limits< Float32 >::max())
     );
 
     ConstTable(vm).Enum(_SC("SqArchitectre"), Enumeration(vm)
