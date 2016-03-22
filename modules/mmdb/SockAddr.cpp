@@ -18,7 +18,7 @@ void SockAddr::Validate() const
 {
     // Is the document handle valid?
     if (!m_Handle)
-        SqThrowF("Invalid sockaddr structure handle");
+        STHROWF("Invalid sockaddr structure handle");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ SockAddr::SockAddr(CSStr addr)
         if (m_Handle)
             freeaddrinfo(m_Handle);
         // Now it's safe to throw the error
-        SqThrowF("Unable to query the specified address for information [%s]", gai_strerror(status));
+        STHROWF("Unable to query the specified address for information [%s]", gai_strerror(status));
     }
     // Save the specified string address
     m_Addres.assign(addr ? addr : _SC(""));

@@ -25,10 +25,10 @@ void EntryDataList::Validate() const
 {
     // Is the document handle valid?
     if (!m_Db)
-        SqThrowF("Invalid Maxmind database reference");
+        STHROWF("Invalid Maxmind database reference");
     // Do we have a valid list?
     else if (!m_List)
-        SqThrowF("Invalid entry data list");
+        STHROWF("Invalid entry data list");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -36,13 +36,13 @@ void EntryDataList::ValidateElem() const
 {
     // Is the document handle valid?
     if (!m_Db)
-        SqThrowF("Invalid Maxmind database reference");
+        STHROWF("Invalid Maxmind database reference");
     // Do we have a valid list?
     else if (!m_List)
-        SqThrowF("Invalid entry data list");
+        STHROWF("Invalid entry data list");
     // Do we have a valid element?
     else if (!m_Elem)
-        SqThrowF("Invalid entry data element");
+        STHROWF("Invalid entry data element");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -50,16 +50,16 @@ void EntryDataList::ValidateData() const
 {
     // Is the document handle valid?
     if (!m_Db)
-        SqThrowF("Invalid Maxmind database reference");
+        STHROWF("Invalid Maxmind database reference");
     // Do we have a valid list?
     else if (!m_List)
-        SqThrowF("Invalid entry data list");
+        STHROWF("Invalid entry data list");
     // Do we have a valid element?
     else if (!m_Elem)
-        SqThrowF("Invalid entry data element");
+        STHROWF("Invalid entry data element");
     // Do we have some valid data?
     else if (!m_Elem->entry_data.has_data)
-        SqThrowF("Entry data element has no data");
+        STHROWF("Entry data element has no data");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ CSStr EntryDataList::GetString() const
         case MMDB_DATA_TYPE_FLOAT:
             return FmtStr("%f", m_Elem->entry_data.float_value);
         default:
-            SqThrowF("Unsupported conversion from (%s) to (string)", AsTypeStr(m_Elem->entry_data.type));
+            STHROWF("Unsupported conversion from (%s) to (string)", AsTypeStr(m_Elem->entry_data.type));
     }
     // Shouldn't really reach this point
     return _SC("");
@@ -213,7 +213,7 @@ SQInteger EntryDataList::GetInteger() const
         case MMDB_DATA_TYPE_FLOAT:
             return llround(m_Elem->entry_data.float_value);
         default:
-            SqThrowF("Unsupported conversion from (%s) to (int32)", AsTypeStr(m_Elem->entry_data.type));
+            STHROWF("Unsupported conversion from (%s) to (int32)", AsTypeStr(m_Elem->entry_data.type));
 #else
         case MMDB_DATA_TYPE_UTF8_STRING:
             return strtol(m_Elem->entry_data.utf8_string, NULL, 10);
@@ -232,7 +232,7 @@ SQInteger EntryDataList::GetInteger() const
         case MMDB_DATA_TYPE_FLOAT:
             return lround(m_Elem->entry_data.float_value);
         default:
-            SqThrowF("Unsupported conversion from (%s) to (int64)", AsTypeStr(m_Elem->entry_data.type));
+            STHROWF("Unsupported conversion from (%s) to (int64)", AsTypeStr(m_Elem->entry_data.type));
 #endif // _SQ64
     }
     // Shouldn't really reach this point
@@ -268,7 +268,7 @@ SQFloat EntryDataList::GetFloat() const
         case MMDB_DATA_TYPE_FLOAT:
             return static_cast< SQFloat >(m_Elem->entry_data.float_value);
         default:
-            SqThrowF("Unsupported conversion from (%s) to (float)", AsTypeStr(m_Elem->entry_data.type));
+            STHROWF("Unsupported conversion from (%s) to (float)", AsTypeStr(m_Elem->entry_data.type));
     }
     // Shouldn't really reach this point
     return 0.0;
@@ -315,7 +315,7 @@ Object EntryDataList::GetLong() const
         }
         break;
         default:
-            SqThrowF("Unsupported conversion from (%s) to (uint64)", AsTypeStr(m_Elem->entry_data.type));
+            STHROWF("Unsupported conversion from (%s) to (uint64)", AsTypeStr(m_Elem->entry_data.type));
     }
     // Obtain the initial stack size
     const StackGuard sg(_SqVM);
@@ -350,7 +350,7 @@ bool EntryDataList::GetBool() const
         case MMDB_DATA_TYPE_FLOAT:
             return EpsGt(m_Elem->entry_data.float_value, 0.0f);
         default:
-            SqThrowF("Unsupported conversion from (%s) to (boolean)", AsTypeStr(m_Elem->entry_data.type));
+            STHROWF("Unsupported conversion from (%s) to (boolean)", AsTypeStr(m_Elem->entry_data.type));
     }
     // Shouldn't really reach this point
     return false;
@@ -363,12 +363,12 @@ void EntryDataList::DumpTo(CSStr filepath, Int32 indent) const
     Validate();
     // Validate the specified file path
     if (!filepath || strlen(filepath) <= 0)
-        SqThrowF("Invalid file path");
+        STHROWF("Invalid file path");
     // Attempt to open the specified file
     FILE * fp = fopen(filepath, "w");
     // Validate the file handle
     if (!fp)
-        SqThrowF("Unable to open file %s", filepath);
+        STHROWF("Unable to open file %s", filepath);
     // Attempt to dump the entry data list
     Int32 status = MMDB_dump_entry_data_list(fp, m_List, indent);
     // Close the file handle
@@ -376,7 +376,7 @@ void EntryDataList::DumpTo(CSStr filepath, Int32 indent) const
     // Validate the result of the operation
     if (status != MMDB_SUCCESS)
         // Now it's safe to throw the error
-        SqThrowF("Unable to dump the list [%s]", MMDB_strerror(status));
+        STHROWF("Unable to dump the list [%s]", MMDB_strerror(status));
 }
 
 } // Namespace:: SqMod

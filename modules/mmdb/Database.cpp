@@ -23,7 +23,7 @@ void Database::Validate() const
 {
     // Is the document handle valid?
     if (!m_Db)
-        SqThrowF("Invalid Maxmind database reference");
+        STHROWF("Invalid Maxmind database reference");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -51,14 +51,14 @@ void Database::Open(CSStr filepath, Uint32 flags)
         m_Db = DbRef(true); // Create a database handle
     // Check if the database handle could be allocated one more time
     if (!m_Db)
-        SqThrowF("Unable to create a Maxmind database reference");
+        STHROWF("Unable to create a Maxmind database reference");
     // Are there any other references?
     else if (m_Db.Count() > 1)
         // To load new values now, would mean to cause undefined behavior in existing references
-        SqThrowF("Loading is disabled while database is referenced");
+        STHROWF("Loading is disabled while database is referenced");
     // Validate the specified file path
     else if (!filepath || strlen(filepath) <= 0)
-        SqThrowF("Invalid database file path");
+        STHROWF("Invalid database file path");
     // Let's attempt to open the specified database
     const Int32 status = MMDB_open(filepath, flags, m_Db.m_Ptr);
     // Validate the result of the operation
@@ -67,7 +67,7 @@ void Database::Open(CSStr filepath, Uint32 flags)
         // Release the database reference
         m_Db.Drop();
         // Now it's safe to throw the error
-        SqThrowF("Unable to open the specified database [%s]", MMDB_strerror(status));
+        STHROWF("Unable to open the specified database [%s]", MMDB_strerror(status));
     }
 }
 
@@ -78,17 +78,17 @@ LookupResult Database::LookupString(CSStr addr)
     Validate();
     // Validate the specified string
     if (!addr || strlen(addr) <= 0)
-        SqThrowF("Invalid address string");
+        STHROWF("Invalid address string");
     // Dummy variables to obtain the status codes
     int gai_error, mmdb_error;
     // Attempt to perform the actual lookup
     MMDB_lookup_result_s result = MMDB_lookup_string(m_Db, addr, &gai_error, &mmdb_error);
     // Validate the result of the getaddrinfo() function call
     if (gai_error != 0)
-        SqThrowF("Unable to resolve address (%s) because [%s]", addr, gai_strerror(gai_error));
+        STHROWF("Unable to resolve address (%s) because [%s]", addr, gai_strerror(gai_error));
     // Validate the lookup status code
     else if (mmdb_error != MMDB_SUCCESS)
-        SqThrowF("Unable to lookup address (%s) because [%s]", addr, MMDB_strerror(mmdb_error));
+        STHROWF("Unable to lookup address (%s) because [%s]", addr, MMDB_strerror(mmdb_error));
     // Now it's safe to return the lookup result
     return LookupResult(m_Db, result);
 }
@@ -100,14 +100,14 @@ LookupResult Database::LookupSockAddr(SockAddr & addr)
     Validate();
     // Validate the specified socket address
     if (!addr.IsValid())
-        SqThrowF("Invalid address instance");
+        STHROWF("Invalid address instance");
     // Dummy variable to obtain the status codes
     int mmdb_error;
     // Attempt to perform the actual lookup
     MMDB_lookup_result_s result = MMDB_lookup_sockaddr(m_Db, addr.GetHandle()->ai_addr, &mmdb_error);
     // Validate the lookup status code
     if (mmdb_error != MMDB_SUCCESS)
-        SqThrowF("Unable to lookup address (%s) because [%s]",
+        STHROWF("Unable to lookup address (%s) because [%s]",
                     addr.GetAddress(), MMDB_strerror(mmdb_error));
     // Now it's safe to return the lookup result
     return LookupResult(m_Db, result);

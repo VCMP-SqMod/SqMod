@@ -395,7 +395,7 @@
 		<Unit filename="../modules/mmdb/Module.cpp" />
 		<Unit filename="../modules/mmdb/Module.hpp" />
 		<Unit filename="../modules/mmdb/SockAddr.cpp" />
-		<Unit filename="../modules/mmdb/SockAddr.hpp" />
+		<Unit filename="../modules/mmdb/Sockaddr.hpp" />
 		<Unit filename="../shared/SqMod.cpp" />
 		<Extensions>
 			<code_completion />

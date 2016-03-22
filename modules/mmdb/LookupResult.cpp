@@ -18,7 +18,7 @@ void LookupResult::Validate() const
 {
     // Is the document handle valid?
     if (!m_Db)
-        SqThrowF("Invalid Maxmind database reference");
+        STHROWF("Invalid Maxmind database reference");
 }
 
 // ------------------------------------------------------------------------------------------------
