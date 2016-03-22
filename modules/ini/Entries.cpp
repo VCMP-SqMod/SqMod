@@ -65,7 +65,7 @@ CSStr Entries::GetItem() const
 {
     // is the current element valid?
     if (m_List.empty() || m_Elem == m_List.end())
-        SqThrowF("Invalid INI entry [item]");
+        STHROWF("Invalid INI entry [item]");
     // Return the requested information
     return m_Elem->pItem;
 }
@@ -75,7 +75,7 @@ CSStr Entries::GetComment() const
 {
     // is the current element valid?
     if (m_List.empty() || m_Elem == m_List.end())
-        SqThrowF("Invalid INI entry [comment]");
+        STHROWF("Invalid INI entry [comment]");
     // Return the requested information
     return m_Elem->pComment;
 }
@@ -85,7 +85,7 @@ Int32 Entries::GetOrder() const
 {
     // is the current element valid?
     if (m_List.empty() || m_Elem == m_List.end())
-        SqThrowF("Invalid INI entry [order]");
+        STHROWF("Invalid INI entry [order]");
     // Return the requested information
     return m_Elem->nOrder;
 }
