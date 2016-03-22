@@ -434,8 +434,7 @@ Object & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z
 
     if (INVALID_ENTITY(id))
     {
-        LogErr("Server returned invalid blip: %d", id);
-        return NullObject();
+        STHROWF("Server returned invalid blip: %d", id);
     }
 
     BlipInst & inst = m_Blips.at(id);
@@ -445,10 +444,8 @@ Object & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z
 
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a blip instance for: %d", id);
         ResetInst(inst);
-
-        return NullObject();
+        STHROWF("Unable to create a blip instance for: %d", id);
     }
 
     inst.mID = id;
@@ -458,22 +455,21 @@ Object & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z
     return inst.mObj;
 }
 
+// --------------------------------------------------------------------------------------------
 Object & Core::NewCheckpoint(Int32 player, Int32 world, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
                             Int32 header, Object & payload)
 {
     if (INVALID_ENTITY(m_Players.at(player).mID))
     {
-        LogErr("Invalid player reference: %d", player);
-        return NullObject();
+        STHROWF("Invalid player reference: %d", player);
     }
 
     Int32 id = _Func->CreateCheckpoint(player, world, x, y, z, r, g, b, a, radius);
 
     if (INVALID_ENTITY(id))
     {
-        LogErr("Server returned invalid checkpoint: %d", id);
-        return NullObject();
+        STHROWF("Server returned invalid checkpoint: %d", id);
     }
 
     CheckpointInst & inst = m_Checkpoints.at(id);
@@ -483,10 +479,8 @@ Object & Core::NewCheckpoint(Int32 player, Int32 world, Float32 x, Float32 y, Fl
 
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a checkpoint instance for: %d", id);
         ResetInst(inst);
-
-        return NullObject();
+        STHROWF("Unable to create a checkpoint instance for: %d", id);
     }
 
     inst.mID = id;
@@ -496,22 +490,21 @@ Object & Core::NewCheckpoint(Int32 player, Int32 world, Float32 x, Float32 y, Fl
     return inst.mObj;
 }
 
+// --------------------------------------------------------------------------------------------
 Object & Core::NewForcefield(Int32 player, Int32 world, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Float32 radius,
                             Int32 header, Object & payload)
 {
     if (INVALID_ENTITY(m_Players.at(player).mID))
     {
-        LogErr("Invalid player reference: %d", player);
-        return NullObject();
+        STHROWF("Invalid player reference: %d", player);
     }
 
     Int32 id = _Func->CreateSphere(player, world, x, y, z, r, g, b, radius);
 
     if (INVALID_ENTITY(id))
     {
-        LogErr("Server returned invalid forcefield: %d", id);
-        return NullObject();
+        STHROWF("Server returned invalid forcefield: %d", id);
     }
 
     ForcefieldInst & inst = m_Forcefields.at(id);
@@ -521,10 +514,8 @@ Object & Core::NewForcefield(Int32 player, Int32 world, Float32 x, Float32 y, Fl
 
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a forcefield instance for: %d", id);
         ResetInst(inst);
-
-        return NullObject();
+        STHROWF("Unable to create a forcefield instance for: %d", id);
     }
 
     inst.mID = id;
@@ -534,6 +525,7 @@ Object & Core::NewForcefield(Int32 player, Int32 world, Float32 x, Float32 y, Fl
     return inst.mObj;
 }
 
+// --------------------------------------------------------------------------------------------
 Object & Core::NewKeybind(Int32 slot, bool release,
                             Int32 primary, Int32 secondary, Int32 alternative,
                             Int32 header, Object & payload)
@@ -542,8 +534,7 @@ Object & Core::NewKeybind(Int32 slot, bool release,
 
     if (INVALID_ENTITY(id))
     {
-        LogErr("Server returned invalid keybind: %d", id);
-        return NullObject();
+        STHROWF("Server returned invalid keybind: %d", id);
     }
 
     KeybindInst & inst = m_Keybinds.at(id);
@@ -553,10 +544,8 @@ Object & Core::NewKeybind(Int32 slot, bool release,
 
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a keybind instance for: %d", id);
         ResetInst(inst);
-
-        return NullObject();
+        STHROWF("Unable to create a keybind instance for: %d", id);
     }
 
     inst.mID = id;
@@ -566,6 +555,7 @@ Object & Core::NewKeybind(Int32 slot, bool release,
     return inst.mObj;
 }
 
+// --------------------------------------------------------------------------------------------
 Object & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
                             Int32 alpha, Int32 header, Object & payload)
 {
@@ -573,8 +563,7 @@ Object & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32
 
     if (INVALID_ENTITY(id))
     {
-        LogErr("Server returned invalid object: %d", id);
-        return NullObject();
+        STHROWF("Server returned invalid object: %d", id);
     }
 
     ObjectInst & inst = m_Objects.at(id);
@@ -584,10 +573,8 @@ Object & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32
 
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a object instance for: %d", id);
         ResetInst(inst);
-
-        return NullObject();
+        STHROWF("Unable to create a object instance for: %d", id);
     }
 
     inst.mID = id;
@@ -597,6 +584,7 @@ Object & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32
     return inst.mObj;
 }
 
+// --------------------------------------------------------------------------------------------
 Object & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
                             Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic,
                             Int32 header, Object & payload)
@@ -605,8 +593,7 @@ Object & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
 
     if (INVALID_ENTITY(id))
     {
-        LogErr("Server returned invalid pickup: %d", id);
-        return NullObject();
+        STHROWF("Server returned invalid pickup: %d", id);
     }
 
     PickupInst & inst = m_Pickups.at(id);
@@ -616,10 +603,8 @@ Object & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
 
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a pickup instance for: %d", id);
         ResetInst(inst);
-
-        return NullObject();
+        STHROWF("Unable to create a pickup instance for: %d", id);
     }
 
     inst.mID = id;
@@ -629,6 +614,7 @@ Object & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
     return inst.mObj;
 }
 
+// --------------------------------------------------------------------------------------------
 Object & Core::NewSprite(Int32 index, CSStr file, Int32 xp, Int32 yp,
                             Int32 xr, Int32 yr, Float32 angle, Int32 alpha, bool rel,
                             Int32 header, Object & payload)
@@ -637,8 +623,7 @@ Object & Core::NewSprite(Int32 index, CSStr file, Int32 xp, Int32 yp,
 
     if (INVALID_ENTITY(id))
     {
-        LogErr("Server returned invalid sprite: %d", id);
-        return NullObject();
+        STHROWF("Server returned invalid sprite: %d", id);
     }
 
     SpriteInst & inst = m_Sprites.at(id);
@@ -648,10 +633,8 @@ Object & Core::NewSprite(Int32 index, CSStr file, Int32 xp, Int32 yp,
 
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a sprite instance for: %d", id);
         ResetInst(inst);
-
-        return NullObject();
+        STHROWF("Unable to create a sprite instance for: %d", id);
     }
 
     inst.mID = id;
@@ -661,6 +644,7 @@ Object & Core::NewSprite(Int32 index, CSStr file, Int32 xp, Int32 yp,
     return inst.mObj;
 }
 
+// --------------------------------------------------------------------------------------------
 Object & Core::NewTextdraw(Int32 index, CSStr text, Int32 xp, Int32 yp,
                             Uint32 color, bool rel, Int32 header, Object & payload)
 {
@@ -668,8 +652,7 @@ Object & Core::NewTextdraw(Int32 index, CSStr text, Int32 xp, Int32 yp,
 
     if (INVALID_ENTITY(id))
     {
-        LogErr("Server returned invalid textdraw: %d", id);
-        return NullObject();
+        STHROWF("Server returned invalid textdraw: %d", id);
     }
 
     TextdrawInst & inst = m_Textdraws.at(id);
@@ -679,10 +662,8 @@ Object & Core::NewTextdraw(Int32 index, CSStr text, Int32 xp, Int32 yp,
 
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a textdraw instance for: %d", id);
         ResetInst(inst);
-
-        return NullObject();
+        STHROWF("Unable to create a textdraw instance for: %d", id);
     }
 
     inst.mID = id;
@@ -692,6 +673,7 @@ Object & Core::NewTextdraw(Int32 index, CSStr text, Int32 xp, Int32 yp,
     return inst.mObj;
 }
 
+// --------------------------------------------------------------------------------------------
 Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
                             Float32 angle, Int32 primary, Int32 secondary,
                             Int32 header, Object & payload)
@@ -700,8 +682,7 @@ Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float3
 
     if (INVALID_ENTITY(id))
     {
-        LogErr("Server returned invalid vehicle: %d", id);
-        return NullObject();
+        STHROWF("Server returned invalid vehicle: %d", id);
     }
 
     VehicleInst & inst = m_Vehicles.at(id);
@@ -711,10 +692,8 @@ Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float3
 
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        LogErr("Unable to create a vehicle instance for: %d", id);
         ResetInst(inst);
-
-        return NullObject();
+        STHROWF("Unable to create a vehicle instance for: %d", id);
     }
 
     inst.mID = id;
