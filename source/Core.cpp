@@ -426,33 +426,397 @@ void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInt
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
-                            Int32 scale, Uint32 color, Int32 sprid,
-                            Int32 header, Object & payload)
+Object & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
 {
-    Int32 id = _Func->CreateCoordBlip(index, world, x, y, z, scale, color, sprid);
-
-    if (INVALID_ENTITY(id))
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
     {
-        STHROWF("Server returned invalid blip: %d", id);
+        STHROWF("Cannot allocate blip with invalid identifier: %d", id);
     }
-
+    // Retrieve the specified entity instance
     BlipInst & inst = m_Blips.at(id);
-
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(m_Blips[id].mID))
+    {
+        STHROWF("Cannot allocate blip that already exists: %d", id);
+    }
+    // Instantiate the entity manager
     inst.mInst = new CBlip(id);
+    // Create the script object
     inst.mObj = Object(inst.mInst, m_VM);
-
+    // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
         ResetInst(inst);
         STHROWF("Unable to create a blip instance for: %d", id);
     }
-
+    // Assign the specified entity identifier
     inst.mID = id;
-    inst.mFlags |= ENF_OWNED;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Let the script listeners know about this entity
     EmitBlipCreated(id, header, payload);
-
+    // Return the script object
     return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+Object & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
+    {
+        STHROWF("Cannot allocate checkpoint with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    CheckpointInst & inst = m_Checkpoints.at(id);
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(m_Checkpoints[id].mID))
+    {
+        STHROWF("Cannot allocate checkpoint that already exists: %d", id);
+    }
+    // Instantiate the entity manager
+    inst.mInst = new CCheckpoint(id);
+    // Create the script object
+    inst.mObj = Object(inst.mInst, m_VM);
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        ResetInst(inst);
+        STHROWF("Unable to create a checkpoint instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Let the script listeners know about this entity
+    EmitCheckpointCreated(id, header, payload);
+    // Return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+Object & Core::AllocForcefield(Int32 id, bool owned, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_FORCEFIELD_POOL))
+    {
+        STHROWF("Cannot allocate forcefield with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    ForcefieldInst & inst = m_Forcefields.at(id);
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(m_Forcefields[id].mID))
+    {
+        STHROWF("Cannot allocate forcefield that already exists: %d", id);
+    }
+    // Instantiate the entity manager
+    inst.mInst = new CForcefield(id);
+    // Create the script object
+    inst.mObj = Object(inst.mInst, m_VM);
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        ResetInst(inst);
+        STHROWF("Unable to create a forcefield instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Let the script listeners know about this entity
+    EmitForcefieldCreated(id, header, payload);
+    // Return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+Object & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
+    {
+        STHROWF("Cannot allocate keybind with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    KeybindInst & inst = m_Keybinds.at(id);
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(m_Keybinds[id].mID))
+    {
+        STHROWF("Cannot allocate keybind that already exists: %d", id);
+    }
+    // Instantiate the entity manager
+    inst.mInst = new CKeybind(id);
+    // Create the script object
+    inst.mObj = Object(inst.mInst, m_VM);
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        ResetInst(inst);
+        STHROWF("Unable to create a keybind instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Let the script listeners know about this entity
+    EmitKeybindCreated(id, header, payload);
+    // Return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+Object & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+    {
+        STHROWF("Cannot allocate object with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    ObjectInst & inst = m_Objects.at(id);
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(m_Objects[id].mID))
+    {
+        STHROWF("Cannot allocate object that already exists: %d", id);
+    }
+    // Instantiate the entity manager
+    inst.mInst = new CObject(id);
+    // Create the script object
+    inst.mObj = Object(inst.mInst, m_VM);
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        ResetInst(inst);
+        STHROWF("Unable to create a object instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Let the script listeners know about this entity
+    EmitObjectCreated(id, header, payload);
+    // Return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+Object & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
+    {
+        STHROWF("Cannot allocate pickup with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    PickupInst & inst = m_Pickups.at(id);
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(m_Pickups[id].mID))
+    {
+        STHROWF("Cannot allocate pickup that already exists: %d", id);
+    }
+    // Instantiate the entity manager
+    inst.mInst = new CPickup(id);
+    // Create the script object
+    inst.mObj = Object(inst.mInst, m_VM);
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        ResetInst(inst);
+        STHROWF("Unable to create a pickup instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Let the script listeners know about this entity
+    EmitPickupCreated(id, header, payload);
+    // Return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+Object & Core::AllocSprite(Int32 id, bool owned, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_SPRITE_POOL))
+    {
+        STHROWF("Cannot allocate sprite with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    SpriteInst & inst = m_Sprites.at(id);
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(m_Sprites[id].mID))
+    {
+        STHROWF("Cannot allocate sprite that already exists: %d", id);
+    }
+    // Instantiate the entity manager
+    inst.mInst = new CSprite(id);
+    // Create the script object
+    inst.mObj = Object(inst.mInst, m_VM);
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        ResetInst(inst);
+        STHROWF("Unable to create a sprite instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Let the script listeners know about this entity
+    EmitSpriteCreated(id, header, payload);
+    // Return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+Object & Core::AllocTextdraw(Int32 id, bool owned, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_TEXTDRAW_POOL))
+    {
+        STHROWF("Cannot allocate textdraw with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    TextdrawInst & inst = m_Textdraws.at(id);
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(m_Textdraws[id].mID))
+    {
+        STHROWF("Cannot allocate textdraw that already exists: %d", id);
+    }
+    // Instantiate the entity manager
+    inst.mInst = new CTextdraw(id);
+    // Create the script object
+    inst.mObj = Object(inst.mInst, m_VM);
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        ResetInst(inst);
+        STHROWF("Unable to create a textdraw instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Let the script listeners know about this entity
+    EmitTextdrawCreated(id, header, payload);
+    // Return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+Object & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        STHROWF("Cannot allocate vehicle with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    VehicleInst & inst = m_Vehicles.at(id);
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(m_Vehicles[id].mID))
+    {
+        STHROWF("Cannot allocate vehicle that already exists: %d", id);
+    }
+    // Instantiate the entity manager
+    inst.mInst = new CVehicle(id);
+    // Create the script object
+    inst.mObj = Object(inst.mInst, m_VM);
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        ResetInst(inst);
+        STHROWF("Unable to create a vehicle instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Let the script listeners know about this entity
+    EmitVehicleCreated(id, header, payload);
+    // Return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+Object & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
+                            Int32 scale, Uint32 color, Int32 sprid,
+                            Int32 header, Object & payload)
+{
+    // Request the server to create this entity
+    Int32 id = _Func->CreateCoordBlip(index, world, x, y, z, scale, color, sprid);
+    // Validate the identifier returned by the server
+    if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
+    {
+        STHROWF("Server returned invalid blip: %d", id);
+    }
+    // Attempt to allocate this entity and return the result
+    return AllocBlip(id, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------
@@ -460,34 +824,20 @@ Object & Core::NewCheckpoint(Int32 player, Int32 world, Float32 x, Float32 y, Fl
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
                             Int32 header, Object & payload)
 {
+    // Is the specified player instance even valid?
     if (INVALID_ENTITY(m_Players.at(player).mID))
     {
         STHROWF("Invalid player reference: %d", player);
     }
-
+    // Request the server to create this entity
     Int32 id = _Func->CreateCheckpoint(player, world, x, y, z, r, g, b, a, radius);
-
-    if (INVALID_ENTITY(id))
+    // Validate the identifier returned by the server
+    if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
     {
         STHROWF("Server returned invalid checkpoint: %d", id);
     }
-
-    CheckpointInst & inst = m_Checkpoints.at(id);
-
-    inst.mInst = new CCheckpoint(id);
-    inst.mObj = Object(inst.mInst, m_VM);
-
-    if (!inst.mInst || inst.mObj.IsNull())
-    {
-        ResetInst(inst);
-        STHROWF("Unable to create a checkpoint instance for: %d", id);
-    }
-
-    inst.mID = id;
-    inst.mFlags |= ENF_OWNED;
-    EmitCheckpointCreated(id, header, payload);
-
-    return inst.mObj;
+    // Attempt to allocate this entity and return the result
+    return AllocCheckpoint(id, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------
@@ -495,34 +845,20 @@ Object & Core::NewForcefield(Int32 player, Int32 world, Float32 x, Float32 y, Fl
                             Uint8 r, Uint8 g, Uint8 b, Float32 radius,
                             Int32 header, Object & payload)
 {
+    // Is the specified player instance even valid?
     if (INVALID_ENTITY(m_Players.at(player).mID))
     {
         STHROWF("Invalid player reference: %d", player);
     }
-
+    // Request the server to create this entity
     Int32 id = _Func->CreateSphere(player, world, x, y, z, r, g, b, radius);
-
-    if (INVALID_ENTITY(id))
+    // Validate the identifier returned by the server
+    if (INVALID_ENTITYEX(id, SQMOD_FORCEFIELD_POOL))
     {
         STHROWF("Server returned invalid forcefield: %d", id);
     }
-
-    ForcefieldInst & inst = m_Forcefields.at(id);
-
-    inst.mInst = new CForcefield(id);
-    inst.mObj = Object(inst.mInst, m_VM);
-
-    if (!inst.mInst || inst.mObj.IsNull())
-    {
-        ResetInst(inst);
-        STHROWF("Unable to create a forcefield instance for: %d", id);
-    }
-
-    inst.mID = id;
-    inst.mFlags |= ENF_OWNED;
-    EmitForcefieldCreated(id, header, payload);
-
-    return inst.mObj;
+    // Attempt to allocate this entity and return the result
+    return AllocForcefield(id, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------
@@ -530,58 +866,30 @@ Object & Core::NewKeybind(Int32 slot, bool release,
                             Int32 primary, Int32 secondary, Int32 alternative,
                             Int32 header, Object & payload)
 {
+    // Request the server to create this entity
     Int32 id = _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
-
-    if (INVALID_ENTITY(id))
+    // Validate the identifier returned by the server
+    if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
     {
         STHROWF("Server returned invalid keybind: %d", id);
     }
-
-    KeybindInst & inst = m_Keybinds.at(id);
-
-    inst.mInst = new CKeybind(id);
-    inst.mObj = Object(inst.mInst, m_VM);
-
-    if (!inst.mInst || inst.mObj.IsNull())
-    {
-        ResetInst(inst);
-        STHROWF("Unable to create a keybind instance for: %d", id);
-    }
-
-    inst.mID = id;
-    inst.mFlags |= ENF_OWNED;
-    EmitKeybindCreated(id, header, payload);
-
-    return inst.mObj;
+    // Attempt to allocate this entity and return the result
+    return AllocKeybind(id, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------
 Object & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
                             Int32 alpha, Int32 header, Object & payload)
 {
+    // Request the server to create this entity
     Int32 id = _Func->CreateObject(model, world, x, y, z, alpha);
-
-    if (INVALID_ENTITY(id))
+    // Validate the identifier returned by the server
+    if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
     {
         STHROWF("Server returned invalid object: %d", id);
     }
-
-    ObjectInst & inst = m_Objects.at(id);
-
-    inst.mInst = new CObject(id);
-    inst.mObj = Object(inst.mInst, m_VM);
-
-    if (!inst.mInst || inst.mObj.IsNull())
-    {
-        ResetInst(inst);
-        STHROWF("Unable to create a object instance for: %d", id);
-    }
-
-    inst.mID = id;
-    inst.mFlags |= ENF_OWNED;
-    EmitObjectCreated(id, header, payload);
-
-    return inst.mObj;
+    // Attempt to allocate this entity and return the result
+    return AllocObject(id, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------
@@ -589,29 +897,15 @@ Object & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
                             Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic,
                             Int32 header, Object & payload)
 {
+    // Request the server to create this entity
     Int32 id = _Func->CreatePickup(model, world, quantity, x, y, z, alpha, automatic);
-
-    if (INVALID_ENTITY(id))
+    // Validate the identifier returned by the server
+    if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
     {
         STHROWF("Server returned invalid pickup: %d", id);
     }
-
-    PickupInst & inst = m_Pickups.at(id);
-
-    inst.mInst = new CPickup(id);
-    inst.mObj = Object(inst.mInst, m_VM);
-
-    if (!inst.mInst || inst.mObj.IsNull())
-    {
-        ResetInst(inst);
-        STHROWF("Unable to create a pickup instance for: %d", id);
-    }
-
-    inst.mID = id;
-    inst.mFlags |= ENF_OWNED;
-    EmitPickupCreated(id, header, payload);
-
-    return inst.mObj;
+    // Attempt to allocate this entity and return the result
+    return AllocPickup(id, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------
@@ -619,58 +913,30 @@ Object & Core::NewSprite(Int32 index, CSStr file, Int32 xp, Int32 yp,
                             Int32 xr, Int32 yr, Float32 angle, Int32 alpha, bool rel,
                             Int32 header, Object & payload)
 {
+    // Request the server to create this entity
     Int32 id = _Func->CreateSprite(index, file, xp, yp, xr, yr, angle, alpha, rel);
-
-    if (INVALID_ENTITY(id))
+    // Validate the identifier returned by the server
+    if (INVALID_ENTITYEX(id, SQMOD_SPRITE_POOL))
     {
         STHROWF("Server returned invalid sprite: %d", id);
     }
-
-    SpriteInst & inst = m_Sprites.at(id);
-
-    inst.mInst = new CSprite(id);
-    inst.mObj = Object(inst.mInst, m_VM);
-
-    if (!inst.mInst || inst.mObj.IsNull())
-    {
-        ResetInst(inst);
-        STHROWF("Unable to create a sprite instance for: %d", id);
-    }
-
-    inst.mID = id;
-    inst.mFlags |= ENF_OWNED;
-    EmitSpriteCreated(id, header, payload);
-
-    return inst.mObj;
+    // Attempt to allocate this entity and return the result
+    return AllocSprite(id, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------
 Object & Core::NewTextdraw(Int32 index, CSStr text, Int32 xp, Int32 yp,
                             Uint32 color, bool rel, Int32 header, Object & payload)
 {
+    // Request the server to create this entity
     Int32 id = _Func->CreateTextdraw(index, text, xp, yp, color, rel);
-
-    if (INVALID_ENTITY(id))
+    // Validate the identifier returned by the server
+    if (INVALID_ENTITYEX(id, SQMOD_TEXTDRAW_POOL))
     {
         STHROWF("Server returned invalid textdraw: %d", id);
     }
-
-    TextdrawInst & inst = m_Textdraws.at(id);
-
-    inst.mInst = new CTextdraw(id);
-    inst.mObj = Object(inst.mInst, m_VM);
-
-    if (!inst.mInst || inst.mObj.IsNull())
-    {
-        ResetInst(inst);
-        STHROWF("Unable to create a textdraw instance for: %d", id);
-    }
-
-    inst.mID = id;
-    inst.mFlags |= ENF_OWNED;
-    EmitTextdrawCreated(id, header, payload);
-
-    return inst.mObj;
+    // Attempt to allocate this entity and return the result
+    return AllocTextdraw(id, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------
@@ -678,29 +944,15 @@ Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float3
                             Float32 angle, Int32 primary, Int32 secondary,
                             Int32 header, Object & payload)
 {
+    // Request the server to create this entity
     Int32 id = _Func->CreateVehicle(model, world, x, y, z, angle, primary, secondary);
-
-    if (INVALID_ENTITY(id))
+    // Validate the identifier returned by the server
+    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
     {
         STHROWF("Server returned invalid vehicle: %d", id);
     }
-
-    VehicleInst & inst = m_Vehicles.at(id);
-
-    inst.mInst = new CVehicle(id);
-    inst.mObj = Object(inst.mInst, m_VM);
-
-    if (!inst.mInst || inst.mObj.IsNull())
-    {
-        ResetInst(inst);
-        STHROWF("Unable to create a vehicle instance for: %d", id);
-    }
-
-    inst.mID = id;
-    inst.mFlags |= ENF_OWNED;
-    EmitVehicleCreated(id, header, payload);
-
-    return inst.mObj;
+    // Attempt to allocate this entity and return the result
+    return AllocVehicle(id, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------

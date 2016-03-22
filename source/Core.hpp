@@ -530,6 +530,19 @@ protected:
     static void CompilerErrorHandler(HSQUIRRELVM vm, CSStr desc, CSStr src,
                                         SQInteger line, SQInteger column);
 
+    /* --------------------------------------------------------------------------------------------
+     * Instance allocators.
+    */
+    Object & AllocBlip(Int32 id, bool owned, Int32 header, Object & payload);
+    Object & AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payload);
+    Object & AllocForcefield(Int32 id, bool owned, Int32 header, Object & payload);
+    Object & AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload);
+    Object & AllocObject(Int32 id, bool owned, Int32 header, Object & payload);
+    Object & AllocPickup(Int32 id, bool owned, Int32 header, Object & payload);
+    Object & AllocSprite(Int32 id, bool owned, Int32 header, Object & payload);
+    Object & AllocTextdraw(Int32 id, bool owned, Int32 header, Object & payload);
+    Object & AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload);
+
 public:
 
     /* --------------------------------------------------------------------------------------------
