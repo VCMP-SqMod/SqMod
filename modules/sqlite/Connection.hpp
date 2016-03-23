@@ -488,20 +488,36 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Remove all queries from the queue without executing them.
+     * Reserve space upfront for the specified amount of queries in the query queue.
     */
-    void ClearQueue() const
+    void ReserveQueue(Uint32 num);
+
+    /* --------------------------------------------------------------------------------------------
+     * Release memory that is not occupied from the query queue.
+    */
+    void CompactQueue()
     {
         // Validate the handle
         Validate();
-        // Return the requested information
+        // Perform the requested operation
+        m_Handle->mQueue.shrink_to_fit();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove all queries from the queue without executing them.
+    */
+    void ClearQueue()
+    {
+        // Validate the handle
+        Validate();
+        // Perform the requested operation
         m_Handle->mQueue.clear();
     }
 
     /* --------------------------------------------------------------------------------------------
      * Remove the last query from the queue.
     */
-    void PopQueue() const
+    void PopQueue()
     {
         // Validate the handle
         Validate();

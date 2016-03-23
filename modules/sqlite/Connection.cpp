@@ -245,6 +245,15 @@ void Connection::CopyToDatabase(const Connection & db)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Connection::ReserveQueue(Uint32 num)
+{
+    // Validate the handle
+    Validate();
+    // Perform the requested operation
+    m_Handle->mQueue.reserve(m_Handle->mQueue.size() + num);
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 Connection::Flush(Uint32 num)
 {
     // Validate the handle
