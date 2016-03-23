@@ -170,16 +170,16 @@ void RegisterAPI(HSQUIRRELVM vm)
     Table sqlns(vm);
 
     sqlns.Bind(_SC("Connection"), Class< Connection >(vm, _SC("SqSQLiteConnection"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< CCStr >()
         .Ctor< CCStr, Int32 >()
         .Ctor< CCStr, Int32, CCStr >()
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &Connection::Cmp)
         .SquirrelFunc(_SC("_typename"), &Connection::Typename)
         .Func(_SC("_tostring"), &Connection::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Connection::IsValid)
         .Prop(_SC("Refs"), &Connection::GetRefCount)
         .Prop(_SC("Connected"), &Connection::IsValid)
@@ -201,7 +201,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("Profile"), &Connection::GetProfiling, &Connection::SetProfiling)
         .Prop(_SC("BusyTimeout"), (Int32 (Connection::*)(void) const)(NULL), &Connection::SetBusyTimeout)
         .Prop(_SC("QueueSize"), &Connection::QueueSize)
-        /* Functions */
+        // Member Methods
         .Func(_SC("Release"), &Connection::Release)
         .Overload< void (Connection::*)(CSStr) >(_SC("Open"), &Connection::Open)
         .Overload< void (Connection::*)(CSStr, Int32) >(_SC("Open"), &Connection::Open)
@@ -229,15 +229,15 @@ void RegisterAPI(HSQUIRRELVM vm)
     );
 
     sqlns.Bind(_SC("Statement"), Class< Statement >(vm, _SC("SqSQLiteStatement"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< const Connection &, CCStr >()
         .Ctor< const Statement & >()
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &Statement::Cmp)
         .SquirrelFunc(_SC("_typename"), &Statement::Typename)
         .Func(_SC("_tostring"), &Statement::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Statement::IsValid)
         .Prop(_SC("Refs"), &Statement::GetRefCount)
         .Prop(_SC("Conn"), &Statement::GetConnection)
@@ -252,7 +252,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("Query"), &Statement::GetQuery)
         .Prop(_SC("Good"), &Statement::GetGood)
         .Prop(_SC("Done"), &Statement::GetDone)
-        /* Functions */
+        // Member Methods
         .Func(_SC("Release"), &Statement::Release)
         .Func(_SC("Reset"), &Statement::Reset)
         .Func(_SC("Clear"), &Statement::Clear)
@@ -299,14 +299,14 @@ void RegisterAPI(HSQUIRRELVM vm)
     );
 
     sqlns.Bind(_SC("Column"), Class< Column >(vm, _SC("SqSQLiteColumn"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< const Column & >()
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &Column::Cmp)
         .SquirrelFunc(_SC("_typename"), &Column::Typename)
         .Func(_SC("_tostring"), &Column::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Column::IsValid)
         .Prop(_SC("Refs"), &Column::GetRefCount)
         .Prop(_SC("Index"), &Column::GetIndex)
@@ -325,8 +325,17 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("OriginName"), &Column::GetOriginName)
         .Prop(_SC("Type"), &Column::GetType)
         .Prop(_SC("Bytes"), &Column::GetBytes)
-        /* Functions */
+        // Member Methods
         .Func(_SC("Release"), &Column::Release)
+    );
+
+    sqlns.Bind(_SC("Transaction"), Class< Transaction, NoCopy< Transaction > >(vm, _SC("SqSQLiteTransaction"))
+        // Constructors
+        .Ctor< const Connection & >()
+        // Properties
+        .Prop(_SC("Committed"), &Transaction::Commited)
+        // Member Methods
+        .Func(_SC("Commit"), &Transaction::Commit)
     );
 
     sqlns.Func(_SC("IsQueryEmpty"), &IsQueryEmpty);
@@ -343,7 +352,7 @@ void RegisterAPI(HSQUIRRELVM vm)
 
     RootTable(vm).Bind(_SC("SQLite"), sqlns);
 
-/*
+
     ConstTable(vm).Enum(_SC("ESQLite"), Enumeration(vm)
         .Const(_SC("ABORT"),                            SQLITE_ABORT)
         .Const(_SC("ABORT_ROLLBACK"),                   SQLITE_ABORT_ROLLBACK)
@@ -682,7 +691,6 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Const(_SC("WARNING"),                          SQLITE_WARNING)
         .Const(_SC("WARNING_AUTOINDEX"),                SQLITE_WARNING_AUTOINDEX)
     );
-*/
 }
 
 // --------------------------------------------------------------------------------------------

@@ -386,7 +386,14 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
         // Attempt to execute the specified query
         else if ((conn->m_Handle = sqlite3_exec(conn->m_Handle, sql, NULL, NULL, NULL)) != SQLITE_OK)
         {
-            return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", conn->m_Handle.ErrMsg()));
+            // Generate the query message first
+            String msg("Unable to execute query ");
+            // (we can't use FmtStr here because Squirrel doesn't make a copy of the message)
+            msg.push_back('[');
+            msg.append(conn->m_Handle.ErrMsg());
+            msg.push_back(']');
+            // Now throw the message
+            return sq_throwerror(vm, msg.c_str());
         }
     }
     else
@@ -401,7 +408,14 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
         // Attempt to execute the specified query
         else if ((conn->m_Handle = sqlite3_exec(conn->m_Handle, sql.value, NULL, NULL, NULL)) != SQLITE_OK)
         {
-            return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", conn->m_Handle.ErrMsg()));
+            // Generate the query message first
+            String msg("Unable to execute query ");
+            // (we can't use FmtStr here because Squirrel doesn't make a copy of the message)
+            msg.push_back('[');
+            msg.append(conn->m_Handle.ErrMsg());
+            msg.push_back(']');
+            // Now throw the message
+            return sq_throwerror(vm, msg.c_str());
         }
     }
     // Push the number of changes onto the stack

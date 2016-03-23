@@ -212,7 +212,9 @@ private:
     void Grab()
     {
         if (m_Hnd)
+        {
             ++(m_Hnd->mRef);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -221,7 +223,9 @@ private:
     void Drop()
     {
         if (m_Hnd && --(m_Hnd->mRef) == 0)
+        {
             delete m_Hnd; // Let the destructor take care of cleaning up (if necessary)
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -304,7 +308,9 @@ public:
     ConnHnd & operator = (Int32 status)
     {
         if (m_Hnd)
+        {
             m_Hnd->mStatus = status;
+        }
         return *this;
     }
 
@@ -330,7 +336,9 @@ public:
     bool operator == (Int32 status) const
     {
         if (m_Hnd)
+        {
             return (m_Hnd->mStatus == status);
+        }
         return false;
     }
 
@@ -340,7 +348,9 @@ public:
     bool operator != (Int32 status) const
     {
         if (m_Hnd)
+        {
             return (m_Hnd->mStatus != status);
+        }
         return false;
     }
 
@@ -429,13 +439,23 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the last known status code.
+    */
+    Int32 Status() const
+    {
+        return m_Hnd ? m_Hnd->mStatus : SQLITE_NOMEM;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the message of the last received error code.
     */
     CCStr ErrStr() const
     {
         // SQLite does it's null pointer validations internally
         if (m_Hnd)
+        {
             return sqlite3_errstr(sqlite3_errcode(m_Hnd->mPtr));
+        }
         return _SC("");
     }
 
@@ -446,7 +466,9 @@ public:
     {
         // SQLite does it's null pointer validations internally
         if (m_Hnd)
+        {
             return sqlite3_errmsg(m_Hnd->mPtr);
+        }
         return _SC("");
     }
 
@@ -457,7 +479,9 @@ public:
     {
         // SQLite does it's null pointer validations internally
         if (m_Hnd)
+        {
             return sqlite3_errcode(m_Hnd->mPtr);
+        }
         return SQLITE_NOMEM;
     }
 
@@ -468,7 +492,9 @@ public:
     {
         // SQLite does it's null pointer validations internally
         if (m_Hnd)
+        {
             return sqlite3_extended_errcode(m_Hnd->mPtr);
+        }
         return SQLITE_NOMEM;
     }
 };
@@ -581,7 +607,9 @@ private:
     void Grab()
     {
         if (m_Hnd)
+        {
             ++(m_Hnd->mRef);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -590,7 +618,9 @@ private:
     void Drop()
     {
         if (m_Hnd && --(m_Hnd->mRef) == 0)
+        {
             delete m_Hnd; // Let the destructor take care of cleaning up (if necessary)
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -674,7 +704,9 @@ public:
     StmtHnd & operator = (Int32 status)
     {
         if (m_Hnd)
+        {
             m_Hnd->mStatus = status;
+        }
         return *this;
     }
 
@@ -700,7 +732,9 @@ public:
     bool operator == (Int32 status) const
     {
         if (m_Hnd)
+        {
             return (m_Hnd->mStatus == status);
+        }
         return false;
     }
 
@@ -710,7 +744,9 @@ public:
     bool operator != (Int32 status) const
     {
         if (m_Hnd)
+        {
             return (m_Hnd->mStatus != status);
+        }
         return false;
     }
 
@@ -799,12 +835,22 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the last known status code.
+    */
+    Int32 Status() const
+    {
+        return m_Hnd ? m_Hnd->mStatus : SQLITE_NOMEM;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the message of the last received error code.
     */
     CCStr ErrStr() const
     {
         if (m_Hnd)
+        {
             return m_Hnd->mConn.ErrStr();
+        }
         return _SC("");
     }
 
@@ -814,7 +860,9 @@ public:
     CCStr ErrMsg() const
     {
         if (m_Hnd)
+        {
             return m_Hnd->mConn.ErrMsg();
+        }
         return _SC("");
     }
 
@@ -824,7 +872,9 @@ public:
     Int32 ErrNo() const
     {
         if (m_Hnd)
+        {
             return m_Hnd->mConn.ErrNo();
+        }
         return SQLITE_NOMEM;
     }
 
@@ -834,9 +884,73 @@ public:
     Int32 ExErrNo() const
     {
         if (m_Hnd)
+        {
             return m_Hnd->mConn.ExErrNo();
+        }
         return SQLITE_NOMEM;
     }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Implements the RAII pattern for database transactions.
+*/
+class Transaction
+{
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct by taking the handle from a connection.
+    */
+    Transaction(const Connection & db);
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct using the direct connection handle.
+    */
+    Transaction(const ConnHnd & db);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    Transaction(const Transaction & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    Transaction(Transaction && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~Transaction();
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    Transaction & operator = (const Transaction & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    Transaction & operator = (Transaction && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to commit changes to the database.
+    */
+    bool Commit();
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the change during this transaction were successfully committed.
+    */
+    bool Commited() const
+    {
+        return m_Committed;
+    }
+
+private:
+
+    // --------------------------------------------------------------------------------------------
+    ConnHnd     m_Connection; // The database connection handle where the transaction began.
+    bool        m_Committed; // Whether changes were successfully committed to the database.
 };
 
 /* ------------------------------------------------------------------------------------------------
