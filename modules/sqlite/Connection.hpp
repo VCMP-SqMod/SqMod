@@ -446,16 +446,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Move the whole database into memory.
-    */
-    Connection CopyToMemory();
-
-    /* --------------------------------------------------------------------------------------------
-     * Takes a snapshot of a database which is located in memory and saves it to a database file.
-    */
-    void CopyToDatabase(const Connection & db);
-
-    /* --------------------------------------------------------------------------------------------
      * Returns internal runtime status information associated with the current database connection.
     */
     Int32 GetInfo(Int32 operation)
@@ -584,21 +574,6 @@ protected:
      * Callback function for ActivateProfiling()
     */
     static void ProfileOutput(void * ptr, const char * sql, sqlite3_uint64 time);
-
-    /* --------------------------------------------------------------------------------------------
-     * Build and modify the structure of tables and other objects in the memory database.
-    */
-    static int ProcessDDLRow(void * db, int columns_count, char ** values, char ** columns);
-
-    /* --------------------------------------------------------------------------------------------
-     * Insert all data from the origin database into the memory database.
-    */
-    static int ProcessDMLRow(void * db, int columns_count, char ** values, char ** columns);
-
-    /* --------------------------------------------------------------------------------------------
-     * Takes and saves a snapshot of the memory database in a file.
-    */
-    void TakeSnapshot(const ConnHnd & destination);
 };
 
 } // Namespace:: SqMod
