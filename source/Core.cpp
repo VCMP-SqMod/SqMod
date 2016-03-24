@@ -337,6 +337,19 @@ bool Core::Load()
         // At this point the script should be completely loaded
         LogScs("Successfully executed script: %s", itr->first.c_str());
     }
+
+    // Import already existing entities
+    ImportPlayers();
+    ImportBlips();
+    ImportCheckpoints();
+    ImportForcefields();
+    ImportKeybinds();
+    ImportObjects();
+    ImportPickups();
+    ImportSprites();
+    ImportTextdraws();
+    ImportVehicles();
+
     // Successfully loaded
     return true;
 }
@@ -462,6 +475,181 @@ void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInt
 {
     LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %d\n=>Column: %d\n]", desc, src, line, column);
 }
+
+// --------------------------------------------------------------------------------------------
+void Core::ImportBlips()
+{
+    for (Int32 i = 0; i < SQMOD_BLIP_POOL; ++i)
+    {
+        // Information about the blip entity
+        Int32 world = -1, scale = -1, sprid = -1;
+        Uint32 color = 0;
+        Float32 x = 0.0, y = 0.0, z = 0.0;
+        // See if this entity exists on the server
+        if (!_Func->GetCoordBlipInfo(i, &world, &x, &y, &z, &scale, &color, &sprid))
+        {
+            continue; // Nothing to import!
+        }
+        // Make sure this entity was not allocated already
+        else if (INVALID_ENTITY(m_Blips[i].mID))
+        {
+            AllocBlip(i, false, SQMOD_CREATE_IMPORT, NullObject());
+            // Assign the instance values
+            m_Blips[i].mWorld = world;
+            m_Blips[i].mScale = scale;
+            m_Blips[i].mSprID = sprid;
+            m_Blips[i].mPosition.Set(x, y, z);
+            m_Blips[i].mColor.SetRGBA(color);
+        }
+    }
+}
+
+void Core::ImportCheckpoints()
+{
+    for (Int32 i = 0; i < SQMOD_CHECKPOINT_POOL; ++i)
+    {
+        // See if this entity exists on the server
+        if (_Func->GetCheckpointWorld(i) < 0)
+        {
+            continue; // Nothing to import!
+        }
+        // Make sure this entity was not allocated already
+        else if (INVALID_ENTITY(m_Checkpoints[i].mID))
+        {
+            AllocCheckpoint(i, false, SQMOD_CREATE_IMPORT, NullObject());
+        }
+    }
+}
+
+void Core::ImportForcefields()
+{
+    for (Int32 i = 0; i < SQMOD_FORCEFIELD_POOL; ++i)
+    {
+        // See if this entity exists on the server
+        if (_Func->GetSphereWorld(i) < 0)
+        {
+            continue; // Nothing to import!
+        }
+        // Make sure this entity was not allocated already
+        else if (INVALID_ENTITY(m_Forcefields[i].mID))
+        {
+            AllocForcefield(i, false, SQMOD_CREATE_IMPORT, NullObject());
+        }
+    }
+}
+
+void Core::ImportKeybinds()
+{
+    for (Int32 i = 0; i < SQMOD_KEYBIND_POOL; ++i)
+    {
+        Uint32 release = 0;
+        Int32 first = -1, second = -1, third = -1;
+        // See if this entity exists on the server
+        if (!_Func->GetKeyBindData(i, &release, &first, &second, &third))
+        {
+            continue; // Nothing to import!
+        }
+        // Make sure this entity was not allocated already
+        else if (INVALID_ENTITY(m_Keybinds[i].mID))
+        {
+            AllocKeybind(i, false, SQMOD_CREATE_IMPORT, NullObject());
+            // Assign the instance values
+            m_Keybinds[i].mFirst = first;
+            m_Keybinds[i].mSecond = second;
+            m_Keybinds[i].mThird = third;
+            m_Keybinds[i].mRelease = static_cast< bool >(release);
+        }
+    }
+}
+
+void Core::ImportObjects()
+{
+    for (Int32 i = 0; i < SQMOD_OBJECT_POOL; ++i)
+    {
+        // See if this entity exists on the server
+        if (_Func->GetObjectModel(i) <= 0)
+        {
+            continue; // Nothing to import!
+        }
+        // Make sure this entity was not allocated already
+        else if (INVALID_ENTITY(m_Objects[i].mID))
+        {
+            AllocObject(i, false, SQMOD_CREATE_IMPORT, NullObject());
+        }
+    }
+}
+
+void Core::ImportPickups()
+{
+    for (Int32 i = 0; i < SQMOD_PICKUP_POOL; ++i)
+    {
+        // See if this entity exists on the server
+        if (_Func->PickupGetModel(i) <= 0)
+        {
+            continue; // Nothing to import!
+        }
+        // Make sure this entity was not allocated already
+        else if (INVALID_ENTITY(m_Pickups[i].mID))
+        {
+            AllocPickup(i, false, SQMOD_CREATE_IMPORT, NullObject());
+        }
+    }
+}
+
+void Core::ImportPlayers()
+{
+    for (Int32 i = 0; i < SQMOD_PLAYER_POOL; ++i)
+    {
+        // See if this entity exists on the server
+        if (!_Func->IsPlayerConnected(i))
+        {
+            continue; // Nothing to import!
+        }
+        // Make sure this entity was not allocated already
+        else if (INVALID_ENTITY(m_Players[i].mID))
+        {
+            ConnectPlayer(i, SQMOD_CREATE_IMPORT, NullObject());
+        }
+    }
+}
+
+void Core::ImportSprites()
+{
+    /*
+    for (Int32 i = 0; i < SQMOD_SPRITE_POOL; ++i)
+    {
+        // Not possible to detect with current SDK
+    }
+    */
+}
+
+void Core::ImportTextdraws()
+{
+    /*
+    for (Int32 i = 0; i < SQMOD_TEXTDRAW_POOL; ++i)
+    {
+        // Not possible to detect with current SDK
+    }
+    */
+}
+
+void Core::ImportVehicles()
+{
+    for (Int32 i = 0; i < SQMOD_VEHICLE_POOL; ++i)
+    {
+        // See if this entity exists on the server
+        if (_Func->GetVehicleModel(i) <= 0)
+        {
+            continue; // Nothing to import!
+        }
+        // Make sure this entity was not allocated already
+        else if (INVALID_ENTITY(m_Vehicles[i].mID))
+        {
+            AllocVehicle(i, false, SQMOD_CREATE_IMPORT, NullObject());
+        }
+    }
+}
+
 
 // --------------------------------------------------------------------------------------------
 Object & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)

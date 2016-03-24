@@ -168,7 +168,7 @@ void Register_Constants(HSQUIRRELVM vm)
         .Const(_SC("Pool"),         SQMOD_CREATE_POOL)
         .Const(_SC("Automatic"),    SQMOD_CREATE_AUTOMATIC)
         .Const(_SC("Overwrite"),    SQMOD_CREATE_OVERWRITE)
-        .Const(_SC("Resurect"),     SQMOD_CREATE_RESURECT)
+        .Const(_SC("Import"),       SQMOD_CREATE_IMPORT)
     );
 
     ConstTable(vm).Enum(_SC("SqDestroy"), Enumeration(vm)

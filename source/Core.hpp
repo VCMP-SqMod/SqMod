@@ -533,6 +533,20 @@ protected:
                                         SQInteger line, SQInteger column);
 
     /* --------------------------------------------------------------------------------------------
+     * Entity instance scaners.
+    */
+    void ImportBlips();
+    void ImportCheckpoints();
+    void ImportForcefields();
+    void ImportKeybinds();
+    void ImportObjects();
+    void ImportPickups();
+    void ImportPlayers();
+    void ImportSprites();
+    void ImportTextdraws();
+    void ImportVehicles();
+
+    /* --------------------------------------------------------------------------------------------
      * Instance allocators.
     */
     Object & AllocBlip(Int32 id, bool owned, Int32 header, Object & payload);
