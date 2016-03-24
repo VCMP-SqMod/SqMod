@@ -46,7 +46,7 @@ extern Int32 RunCommand(Int32 invoker, CSStr command);
 extern void TerminateCommand();
 
 // ------------------------------------------------------------------------------------------------
-Core * _Core = NULL;
+SQMOD_MANAGEDPTR_TYPE(Core) _Core = SQMOD_MANAGEDPTR_MAKE(Core, nullptr);
 
 /* ------------------------------------------------------------------------------------------------
  * Utility class used to release the destroy lock if unable to complete the process.
@@ -56,7 +56,7 @@ struct EntLockGuard
 private:
 
     // --------------------------------------------------------------------------------------------
-    Uint16 & m_Flags;
+    Uint16 & m_Flags; // Reference to the guarded entity flags.
 
 public:
 
@@ -84,7 +84,7 @@ public:
 // ------------------------------------------------------------------------------------------------
 Core::Core()
     : m_State(0)
-    , m_VM(NULL)
+    , m_VM(nullptr)
     , m_Scripts()
     , m_Options()
     , m_Blips()
@@ -371,7 +371,7 @@ void Core::Terminate()
         m_Scripts.clear();
         // Assertions during close may cause double delete!
         HSQUIRRELVM sq_vm = m_VM;
-        m_VM = NULL;
+        m_VM = nullptr;
         // Attempt to close the VM
         sq_close(sq_vm);
     }
@@ -442,7 +442,7 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
         return 0;
     }
 
-    CSStr err_msg = NULL;
+    CSStr err_msg = nullptr;
 
     if (SQ_SUCCEEDED(sq_getstring(vm, 2, &err_msg)))
     {
@@ -890,7 +890,7 @@ void Core::DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload)
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -939,7 +939,7 @@ void Core::DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payl
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -988,7 +988,7 @@ void Core::DeallocForcefield(Int32 id, bool destroy, Int32 header, Object & payl
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -1037,7 +1037,7 @@ void Core::DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -1086,7 +1086,7 @@ void Core::DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload)
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -1135,7 +1135,7 @@ void Core::DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload)
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -1184,7 +1184,7 @@ void Core::DeallocSprite(Int32 id, bool destroy, Int32 header, Object & payload)
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -1233,7 +1233,7 @@ void Core::DeallocTextdraw(Int32 id, bool destroy, Int32 header, Object & payloa
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -1282,7 +1282,7 @@ void Core::DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -1580,7 +1580,7 @@ void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
     // Release associated script callbacks
     ResetFunc(inst);
     // Prevent further use of the manager instance
-    inst.mInst = NULL;
+    inst.mInst = nullptr;
     // Release the script object, if any
     inst.mObj.Release();
 }
@@ -2565,7 +2565,7 @@ void Core::ResetInst(PlayerInst & inst)
     inst.mAuthority = 0;
     for (unsigned n = 0; n < SQMOD_PLAYER_MSG_PREFIXES; ++n)
     {
-        inst.mPrefixes[n].clear();
+        inst.mPrefixes[n].assign("");
     }
     inst.mMessageColor = 0x6599FFFF;
     inst.mAnnounceStyle = 1;
@@ -2594,247 +2594,247 @@ void Core::ResetInst(VehicleInst & inst)
 // ------------------------------------------------------------------------------------------------
 void Core::ResetFunc(BlipInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
 }
 
 void Core::ResetFunc(CheckpointInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
-    inst.mOnEntered.Release();
-    inst.mOnExited.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
+    inst.mOnEntered.ReleaseGently();
+    inst.mOnExited.ReleaseGently();
 }
 
 void Core::ResetFunc(ForcefieldInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
-    inst.mOnEntered.Release();
-    inst.mOnExited.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
+    inst.mOnEntered.ReleaseGently();
+    inst.mOnExited.ReleaseGently();
 }
 
 void Core::ResetFunc(KeybindInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
-    inst.mOnKeyPress.Release();
-    inst.mOnKeyRelease.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
+    inst.mOnKeyPress.ReleaseGently();
+    inst.mOnKeyRelease.ReleaseGently();
 }
 
 void Core::ResetFunc(ObjectInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
-    inst.mOnShot.Release();
-    inst.mOnBump.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
+    inst.mOnShot.ReleaseGently();
+    inst.mOnBump.ReleaseGently();
 }
 
 void Core::ResetFunc(PickupInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
-    inst.mOnRespawn.Release();
-    inst.mOnClaimed.Release();
-    inst.mOnCollected.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
+    inst.mOnRespawn.ReleaseGently();
+    inst.mOnClaimed.ReleaseGently();
+    inst.mOnCollected.ReleaseGently();
 }
 
 void Core::ResetFunc(PlayerInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
-    inst.mOnAway.Release();
-    inst.mOnGameKeys.Release();
-    inst.mOnRename.Release();
-    inst.mOnRequestClass.Release();
-    inst.mOnRequestSpawn.Release();
-    inst.mOnSpawn.Release();
-    inst.mOnStartTyping.Release();
-    inst.mOnStopTyping.Release();
-    inst.mOnChat.Release();
-    inst.mOnCommand.Release();
-    inst.mOnMessage.Release();
-    inst.mOnHealth.Release();
-    inst.mOnArmour.Release();
-    inst.mOnWeapon.Release();
-    inst.mOnMove.Release();
-    inst.mOnWasted.Release();
-    inst.mOnKilled.Release();
-    inst.mOnTeamKill.Release();
-    inst.mOnSpectate.Release();
-    inst.mOnCrashreport.Release();
-    inst.mOnBurning.Release();
-    inst.mOnCrouching.Release();
-    inst.mOnState.Release();
-    inst.mOnAction.Release();
-    inst.mOnStateNone.Release();
-    inst.mOnStateNormal.Release();
-    inst.mOnStateShooting.Release();
-    inst.mOnStateDriver.Release();
-    inst.mOnStatePassenger.Release();
-    inst.mOnStateEnterDriver.Release();
-    inst.mOnStateEnterPassenger.Release();
-    inst.mOnStateExitVehicle.Release();
-    inst.mOnStateUnspawned.Release();
-    inst.mOnActionNone.Release();
-    inst.mOnActionNormal.Release();
-    inst.mOnActionAiming.Release();
-    inst.mOnActionShooting.Release();
-    inst.mOnActionJumping.Release();
-    inst.mOnActionLieDown.Release();
-    inst.mOnActionGettingUp.Release();
-    inst.mOnActionJumpVehicle.Release();
-    inst.mOnActionDriving.Release();
-    inst.mOnActionDying.Release();
-    inst.mOnActionWasted.Release();
-    inst.mOnActionEmbarking.Release();
-    inst.mOnActionDisembarking.Release();
-    inst.mOnKeyPress.Release();
-    inst.mOnKeyRelease.Release();
-    inst.mOnEmbarking.Release();
-    inst.mOnEmbarked.Release();
-    inst.mOnDisembark.Release();
-    inst.mOnPickupClaimed.Release();
-    inst.mOnPickupCollected.Release();
-    inst.mOnObjectShot.Release();
-    inst.mOnObjectBump.Release();
-    inst.mOnCheckpointEntered.Release();
-    inst.mOnCheckpointExited.Release();
-    inst.mOnForcefieldEntered.Release();
-    inst.mOnForcefieldExited.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
+    inst.mOnAway.ReleaseGently();
+    inst.mOnGameKeys.ReleaseGently();
+    inst.mOnRename.ReleaseGently();
+    inst.mOnRequestClass.ReleaseGently();
+    inst.mOnRequestSpawn.ReleaseGently();
+    inst.mOnSpawn.ReleaseGently();
+    inst.mOnStartTyping.ReleaseGently();
+    inst.mOnStopTyping.ReleaseGently();
+    inst.mOnChat.ReleaseGently();
+    inst.mOnCommand.ReleaseGently();
+    inst.mOnMessage.ReleaseGently();
+    inst.mOnHealth.ReleaseGently();
+    inst.mOnArmour.ReleaseGently();
+    inst.mOnWeapon.ReleaseGently();
+    inst.mOnMove.ReleaseGently();
+    inst.mOnWasted.ReleaseGently();
+    inst.mOnKilled.ReleaseGently();
+    inst.mOnTeamKill.ReleaseGently();
+    inst.mOnSpectate.ReleaseGently();
+    inst.mOnCrashreport.ReleaseGently();
+    inst.mOnBurning.ReleaseGently();
+    inst.mOnCrouching.ReleaseGently();
+    inst.mOnState.ReleaseGently();
+    inst.mOnAction.ReleaseGently();
+    inst.mOnStateNone.ReleaseGently();
+    inst.mOnStateNormal.ReleaseGently();
+    inst.mOnStateShooting.ReleaseGently();
+    inst.mOnStateDriver.ReleaseGently();
+    inst.mOnStatePassenger.ReleaseGently();
+    inst.mOnStateEnterDriver.ReleaseGently();
+    inst.mOnStateEnterPassenger.ReleaseGently();
+    inst.mOnStateExitVehicle.ReleaseGently();
+    inst.mOnStateUnspawned.ReleaseGently();
+    inst.mOnActionNone.ReleaseGently();
+    inst.mOnActionNormal.ReleaseGently();
+    inst.mOnActionAiming.ReleaseGently();
+    inst.mOnActionShooting.ReleaseGently();
+    inst.mOnActionJumping.ReleaseGently();
+    inst.mOnActionLieDown.ReleaseGently();
+    inst.mOnActionGettingUp.ReleaseGently();
+    inst.mOnActionJumpVehicle.ReleaseGently();
+    inst.mOnActionDriving.ReleaseGently();
+    inst.mOnActionDying.ReleaseGently();
+    inst.mOnActionWasted.ReleaseGently();
+    inst.mOnActionEmbarking.ReleaseGently();
+    inst.mOnActionDisembarking.ReleaseGently();
+    inst.mOnKeyPress.ReleaseGently();
+    inst.mOnKeyRelease.ReleaseGently();
+    inst.mOnEmbarking.ReleaseGently();
+    inst.mOnEmbarked.ReleaseGently();
+    inst.mOnDisembark.ReleaseGently();
+    inst.mOnPickupClaimed.ReleaseGently();
+    inst.mOnPickupCollected.ReleaseGently();
+    inst.mOnObjectShot.ReleaseGently();
+    inst.mOnObjectBump.ReleaseGently();
+    inst.mOnCheckpointEntered.ReleaseGently();
+    inst.mOnCheckpointExited.ReleaseGently();
+    inst.mOnForcefieldEntered.ReleaseGently();
+    inst.mOnForcefieldExited.ReleaseGently();
 }
 
 void Core::ResetFunc(SpriteInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
 }
 
 void Core::ResetFunc(TextdrawInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
 }
 
 void Core::ResetFunc(VehicleInst & inst)
 {
-    inst.mOnDestroyed.Release();
-    inst.mOnCustom.Release();
-    inst.mOnRespawn.Release();
-    inst.mOnExplode.Release();
-    inst.mOnHealth.Release();
-    inst.mOnMove.Release();
-    inst.mOnEmbarking.Release();
-    inst.mOnEmbarked.Release();
-    inst.mOnDisembark.Release();
+    inst.mOnDestroyed.ReleaseGently();
+    inst.mOnCustom.ReleaseGently();
+    inst.mOnRespawn.ReleaseGently();
+    inst.mOnExplode.ReleaseGently();
+    inst.mOnHealth.ReleaseGently();
+    inst.mOnMove.ReleaseGently();
+    inst.mOnEmbarking.ReleaseGently();
+    inst.mOnEmbarked.ReleaseGently();
+    inst.mOnDisembark.ReleaseGently();
 }
 
 void Core::ResetFunc()
 {
-    mOnBlipCreated.Release();
-    mOnCheckpointCreated.Release();
-    mOnForcefieldCreated.Release();
-    mOnKeybindCreated.Release();
-    mOnObjectCreated.Release();
-    mOnPickupCreated.Release();
-    mOnPlayerCreated.Release();
-    mOnSpriteCreated.Release();
-    mOnTextdrawCreated.Release();
-    mOnVehicleCreated.Release();
-    mOnBlipDestroyed.Release();
-    mOnCheckpointDestroyed.Release();
-    mOnForcefieldDestroyed.Release();
-    mOnKeybindDestroyed.Release();
-    mOnObjectDestroyed.Release();
-    mOnPickupDestroyed.Release();
-    mOnPlayerDestroyed.Release();
-    mOnSpriteDestroyed.Release();
-    mOnTextdrawDestroyed.Release();
-    mOnVehicleDestroyed.Release();
-    mOnBlipCustom.Release();
-    mOnCheckpointCustom.Release();
-    mOnForcefieldCustom.Release();
-    mOnKeybindCustom.Release();
-    mOnObjectCustom.Release();
-    mOnPickupCustom.Release();
-    mOnPlayerCustom.Release();
-    mOnSpriteCustom.Release();
-    mOnTextdrawCustom.Release();
-    mOnVehicleCustom.Release();
-    mOnPlayerAway.Release();
-    mOnPlayerGameKeys.Release();
-    mOnPlayerRename.Release();
-    mOnPlayerRequestClass.Release();
-    mOnPlayerRequestSpawn.Release();
-    mOnPlayerSpawn.Release();
-    mOnPlayerStartTyping.Release();
-    mOnPlayerStopTyping.Release();
-    mOnPlayerChat.Release();
-    mOnPlayerCommand.Release();
-    mOnPlayerMessage.Release();
-    mOnPlayerHealth.Release();
-    mOnPlayerArmour.Release();
-    mOnPlayerWeapon.Release();
-    mOnPlayerMove.Release();
-    mOnPlayerWasted.Release();
-    mOnPlayerKilled.Release();
-    mOnPlayerTeamKill.Release();
-    mOnPlayerSpectate.Release();
-    mOnPlayerCrashreport.Release();
-    mOnPlayerBurning.Release();
-    mOnPlayerCrouching.Release();
-    mOnPlayerState.Release();
-    mOnPlayerAction.Release();
-    mOnStateNone.Release();
-    mOnStateNormal.Release();
-    mOnStateShooting.Release();
-    mOnStateDriver.Release();
-    mOnStatePassenger.Release();
-    mOnStateEnterDriver.Release();
-    mOnStateEnterPassenger.Release();
-    mOnStateExitVehicle.Release();
-    mOnStateUnspawned.Release();
-    mOnActionNone.Release();
-    mOnActionNormal.Release();
-    mOnActionAiming.Release();
-    mOnActionShooting.Release();
-    mOnActionJumping.Release();
-    mOnActionLieDown.Release();
-    mOnActionGettingUp.Release();
-    mOnActionJumpVehicle.Release();
-    mOnActionDriving.Release();
-    mOnActionDying.Release();
-    mOnActionWasted.Release();
-    mOnActionEmbarking.Release();
-    mOnActionDisembarking.Release();
-    mOnVehicleRespawn.Release();
-    mOnVehicleExplode.Release();
-    mOnVehicleHealth.Release();
-    mOnVehicleMove.Release();
-    mOnPickupRespawn.Release();
-    mOnKeybindKeyPress.Release();
-    mOnKeybindKeyRelease.Release();
-    mOnVehicleEmbarking.Release();
-    mOnVehicleEmbarked.Release();
-    mOnVehicleDisembark.Release();
-    mOnPickupClaimed.Release();
-    mOnPickupCollected.Release();
-    mOnObjectShot.Release();
-    mOnObjectBump.Release();
-    mOnCheckpointEntered.Release();
-    mOnCheckpointExited.Release();
-    mOnForcefieldEntered.Release();
-    mOnForcefieldExited.Release();
-    mOnServerFrame.Release();
-    mOnServerStartup.Release();
-    mOnServerShutdown.Release();
-    mOnInternalCommand.Release();
-    mOnLoginAttempt.Release();
-    mOnCustomEvent.Release();
-    mOnWorldOption.Release();
-    mOnWorldToggle.Release();
-    mOnScriptReload.Release();
-    mOnScriptUnload.Release();
+    mOnBlipCreated.ReleaseGently();
+    mOnCheckpointCreated.ReleaseGently();
+    mOnForcefieldCreated.ReleaseGently();
+    mOnKeybindCreated.ReleaseGently();
+    mOnObjectCreated.ReleaseGently();
+    mOnPickupCreated.ReleaseGently();
+    mOnPlayerCreated.ReleaseGently();
+    mOnSpriteCreated.ReleaseGently();
+    mOnTextdrawCreated.ReleaseGently();
+    mOnVehicleCreated.ReleaseGently();
+    mOnBlipDestroyed.ReleaseGently();
+    mOnCheckpointDestroyed.ReleaseGently();
+    mOnForcefieldDestroyed.ReleaseGently();
+    mOnKeybindDestroyed.ReleaseGently();
+    mOnObjectDestroyed.ReleaseGently();
+    mOnPickupDestroyed.ReleaseGently();
+    mOnPlayerDestroyed.ReleaseGently();
+    mOnSpriteDestroyed.ReleaseGently();
+    mOnTextdrawDestroyed.ReleaseGently();
+    mOnVehicleDestroyed.ReleaseGently();
+    mOnBlipCustom.ReleaseGently();
+    mOnCheckpointCustom.ReleaseGently();
+    mOnForcefieldCustom.ReleaseGently();
+    mOnKeybindCustom.ReleaseGently();
+    mOnObjectCustom.ReleaseGently();
+    mOnPickupCustom.ReleaseGently();
+    mOnPlayerCustom.ReleaseGently();
+    mOnSpriteCustom.ReleaseGently();
+    mOnTextdrawCustom.ReleaseGently();
+    mOnVehicleCustom.ReleaseGently();
+    mOnPlayerAway.ReleaseGently();
+    mOnPlayerGameKeys.ReleaseGently();
+    mOnPlayerRename.ReleaseGently();
+    mOnPlayerRequestClass.ReleaseGently();
+    mOnPlayerRequestSpawn.ReleaseGently();
+    mOnPlayerSpawn.ReleaseGently();
+    mOnPlayerStartTyping.ReleaseGently();
+    mOnPlayerStopTyping.ReleaseGently();
+    mOnPlayerChat.ReleaseGently();
+    mOnPlayerCommand.ReleaseGently();
+    mOnPlayerMessage.ReleaseGently();
+    mOnPlayerHealth.ReleaseGently();
+    mOnPlayerArmour.ReleaseGently();
+    mOnPlayerWeapon.ReleaseGently();
+    mOnPlayerMove.ReleaseGently();
+    mOnPlayerWasted.ReleaseGently();
+    mOnPlayerKilled.ReleaseGently();
+    mOnPlayerTeamKill.ReleaseGently();
+    mOnPlayerSpectate.ReleaseGently();
+    mOnPlayerCrashreport.ReleaseGently();
+    mOnPlayerBurning.ReleaseGently();
+    mOnPlayerCrouching.ReleaseGently();
+    mOnPlayerState.ReleaseGently();
+    mOnPlayerAction.ReleaseGently();
+    mOnStateNone.ReleaseGently();
+    mOnStateNormal.ReleaseGently();
+    mOnStateShooting.ReleaseGently();
+    mOnStateDriver.ReleaseGently();
+    mOnStatePassenger.ReleaseGently();
+    mOnStateEnterDriver.ReleaseGently();
+    mOnStateEnterPassenger.ReleaseGently();
+    mOnStateExitVehicle.ReleaseGently();
+    mOnStateUnspawned.ReleaseGently();
+    mOnActionNone.ReleaseGently();
+    mOnActionNormal.ReleaseGently();
+    mOnActionAiming.ReleaseGently();
+    mOnActionShooting.ReleaseGently();
+    mOnActionJumping.ReleaseGently();
+    mOnActionLieDown.ReleaseGently();
+    mOnActionGettingUp.ReleaseGently();
+    mOnActionJumpVehicle.ReleaseGently();
+    mOnActionDriving.ReleaseGently();
+    mOnActionDying.ReleaseGently();
+    mOnActionWasted.ReleaseGently();
+    mOnActionEmbarking.ReleaseGently();
+    mOnActionDisembarking.ReleaseGently();
+    mOnVehicleRespawn.ReleaseGently();
+    mOnVehicleExplode.ReleaseGently();
+    mOnVehicleHealth.ReleaseGently();
+    mOnVehicleMove.ReleaseGently();
+    mOnPickupRespawn.ReleaseGently();
+    mOnKeybindKeyPress.ReleaseGently();
+    mOnKeybindKeyRelease.ReleaseGently();
+    mOnVehicleEmbarking.ReleaseGently();
+    mOnVehicleEmbarked.ReleaseGently();
+    mOnVehicleDisembark.ReleaseGently();
+    mOnPickupClaimed.ReleaseGently();
+    mOnPickupCollected.ReleaseGently();
+    mOnObjectShot.ReleaseGently();
+    mOnObjectBump.ReleaseGently();
+    mOnCheckpointEntered.ReleaseGently();
+    mOnCheckpointExited.ReleaseGently();
+    mOnForcefieldEntered.ReleaseGently();
+    mOnForcefieldExited.ReleaseGently();
+    mOnServerFrame.ReleaseGently();
+    mOnServerStartup.ReleaseGently();
+    mOnServerShutdown.ReleaseGently();
+    mOnInternalCommand.ReleaseGently();
+    mOnLoginAttempt.ReleaseGently();
+    mOnCustomEvent.ReleaseGently();
+    mOnWorldOption.ReleaseGently();
+    mOnWorldToggle.ReleaseGently();
+    mOnScriptReload.ReleaseGently();
+    mOnScriptUnload.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------

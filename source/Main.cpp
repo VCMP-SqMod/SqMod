@@ -25,20 +25,20 @@ void DestroyComponents()
     // Destroy command component
     if (_Cmd)
     {
-        delete _Cmd;
-        _Cmd = NULL;
+        SQMOD_MANAGEDPTR_DEL(CmdManager, _Cmd);
+        SQMOD_MANAGEDPTR_MAKE(CmdManager, nullptr);
     }
     // Destroy core component
     if (_Core)
     {
-        delete _Core;
-        _Core = NULL;
+        SQMOD_MANAGEDPTR_DEL(Core, _Core);
+        SQMOD_MANAGEDPTR_MAKE(Core, nullptr);
     }
     // Destroy logger component
     if (_Log)
     {
-        delete _Log;
-        _Log = NULL;
+        SQMOD_MANAGEDPTR_DEL(Logger, _Log);
+        SQMOD_MANAGEDPTR_MAKE(Logger, nullptr);
     }
 }
 
@@ -54,22 +54,19 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     OutputMessage("--------------------------------------------------------------------");
     puts("");
 
-    _Log = Logger::Get();
     // Verify that core components are working
-    if (!_Log)
+    if (!Logger::Get())
     {
         puts("[SQMOD] Unable to start because the logging class could not be instantiated");
         return SQMOD_FAILURE;
     }
-    _Core = Core::Get();
-    if (!_Core)
+    if (!Core::Get())
     {
         DestroyComponents();
         puts("[SQMOD] Unable to start because the central core class could not be instantiated");
         return SQMOD_FAILURE;
     }
-    _Cmd = CmdManager::Get();
-    if (!_Cmd)
+    if (!CmdManager::Get())
     {
         DestroyComponents();
         puts("[SQMOD] Unable to start because the command class could not be instantiated");
@@ -594,7 +591,7 @@ static void VC_PlayerState(int player, int previous, int current)
             case SQMOD_PLAYER_STATE_UNSPAWNED:
                 _Core->EmitStateUnspawned(player, previous);
             break;
-        } 
+        }
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerState)
 }
@@ -775,49 +772,49 @@ void BindCallbacks()
 // ------------------------------------------------------------------------------------------------
 void UnbindCallbacks()
 {
-    _Clbk->OnInitServer                 = NULL;
-    _Clbk->OnShutdownServer             = NULL;
-    _Clbk->OnFrame                      = NULL;
-    _Clbk->OnPlayerConnect              = NULL;
-    _Clbk->OnPlayerDisconnect           = NULL;
-    _Clbk->OnPlayerBeginTyping          = NULL;
-    _Clbk->OnPlayerEndTyping            = NULL;
-    _Clbk->OnPlayerRequestClass         = NULL;
-    _Clbk->OnPlayerRequestSpawn         = NULL;
-    _Clbk->OnPlayerSpawn                = NULL;
-    _Clbk->OnPlayerDeath                = NULL;
-    _Clbk->OnPlayerUpdate               = NULL;
-    _Clbk->OnPlayerRequestEnter         = NULL;
-    _Clbk->OnPlayerEnterVehicle         = NULL;
-    _Clbk->OnPlayerExitVehicle          = NULL;
-    _Clbk->OnPickupClaimPicked          = NULL;
-    _Clbk->OnPickupPickedUp             = NULL;
-    _Clbk->OnPickupRespawn              = NULL;
-    _Clbk->OnVehicleUpdate              = NULL;
-    _Clbk->OnVehicleExplode             = NULL;
-    _Clbk->OnVehicleRespawn             = NULL;
-    _Clbk->OnObjectShot                 = NULL;
-    _Clbk->OnObjectBump                 = NULL;
-    _Clbk->OnPublicMessage              = NULL;
-    _Clbk->OnCommandMessage             = NULL;
-    _Clbk->OnPrivateMessage             = NULL;
-    _Clbk->OnInternalCommand            = NULL;
-    _Clbk->OnLoginAttempt               = NULL;
-    _Clbk->OnEntityPoolChange           = NULL;
-    _Clbk->OnKeyBindDown                = NULL;
-    _Clbk->OnKeyBindUp                  = NULL;
-    _Clbk->OnPlayerAwayChange           = NULL;
-    _Clbk->OnPlayerSpectate             = NULL;
-    _Clbk->OnPlayerCrashReport          = NULL;
-    _Clbk->OnServerPerformanceReport    = NULL;
-    _Clbk->OnPlayerNameChange           = NULL;
-    _Clbk->OnPlayerStateChange          = NULL;
-    _Clbk->OnPlayerActionChange         = NULL;
-    _Clbk->OnPlayerOnFireChange         = NULL;
-    _Clbk->OnPlayerCrouchChange         = NULL;
-    _Clbk->OnPlayerGameKeysChange       = NULL;
-    _Clbk->OnCheckpointEntered          = NULL;
-    _Clbk->OnCheckpointExited           = NULL;
-    _Clbk->OnSphereEntered              = NULL;
-    _Clbk->OnSphereExited               = NULL;
+    _Clbk->OnInitServer                 = nullptr;
+    _Clbk->OnShutdownServer             = nullptr;
+    _Clbk->OnFrame                      = nullptr;
+    _Clbk->OnPlayerConnect              = nullptr;
+    _Clbk->OnPlayerDisconnect           = nullptr;
+    _Clbk->OnPlayerBeginTyping          = nullptr;
+    _Clbk->OnPlayerEndTyping            = nullptr;
+    _Clbk->OnPlayerRequestClass         = nullptr;
+    _Clbk->OnPlayerRequestSpawn         = nullptr;
+    _Clbk->OnPlayerSpawn                = nullptr;
+    _Clbk->OnPlayerDeath                = nullptr;
+    _Clbk->OnPlayerUpdate               = nullptr;
+    _Clbk->OnPlayerRequestEnter         = nullptr;
+    _Clbk->OnPlayerEnterVehicle         = nullptr;
+    _Clbk->OnPlayerExitVehicle          = nullptr;
+    _Clbk->OnPickupClaimPicked          = nullptr;
+    _Clbk->OnPickupPickedUp             = nullptr;
+    _Clbk->OnPickupRespawn              = nullptr;
+    _Clbk->OnVehicleUpdate              = nullptr;
+    _Clbk->OnVehicleExplode             = nullptr;
+    _Clbk->OnVehicleRespawn             = nullptr;
+    _Clbk->OnObjectShot                 = nullptr;
+    _Clbk->OnObjectBump                 = nullptr;
+    _Clbk->OnPublicMessage              = nullptr;
+    _Clbk->OnCommandMessage             = nullptr;
+    _Clbk->OnPrivateMessage             = nullptr;
+    _Clbk->OnInternalCommand            = nullptr;
+    _Clbk->OnLoginAttempt               = nullptr;
+    _Clbk->OnEntityPoolChange           = nullptr;
+    _Clbk->OnKeyBindDown                = nullptr;
+    _Clbk->OnKeyBindUp                  = nullptr;
+    _Clbk->OnPlayerAwayChange           = nullptr;
+    _Clbk->OnPlayerSpectate             = nullptr;
+    _Clbk->OnPlayerCrashReport          = nullptr;
+    _Clbk->OnServerPerformanceReport    = nullptr;
+    _Clbk->OnPlayerNameChange           = nullptr;
+    _Clbk->OnPlayerStateChange          = nullptr;
+    _Clbk->OnPlayerActionChange         = nullptr;
+    _Clbk->OnPlayerOnFireChange         = nullptr;
+    _Clbk->OnPlayerCrouchChange         = nullptr;
+    _Clbk->OnPlayerGameKeysChange       = nullptr;
+    _Clbk->OnCheckpointEntered          = nullptr;
+    _Clbk->OnCheckpointExited           = nullptr;
+    _Clbk->OnSphereEntered              = nullptr;
+    _Clbk->OnSphereExited               = nullptr;
 }

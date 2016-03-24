@@ -21,7 +21,7 @@ class CmdListener;
 CSStr CmdArgSpecToStr(Uint8 spec);
 
 // ------------------------------------------------------------------------------------------------
-extern CmdManager * _Cmd;
+extern SQMOD_MANAGEDPTR_TYPE(CmdManager) _Cmd;
 
 /* ------------------------------------------------------------------------------------------------
  * Manages command instances and processes executed commands.
@@ -188,10 +188,10 @@ public:
     {
         if (!_Cmd)
         {
-            _Cmd = new CmdManager();
+            _Cmd = SQMOD_MANAGEDPTR_MAKE(CmdManager, new CmdManager());
         }
 
-        return _Cmd;
+        return SQMOD_MANAGEDPTR_GET(_Cmd);
     }
 
     /* --------------------------------------------------------------------------------------------

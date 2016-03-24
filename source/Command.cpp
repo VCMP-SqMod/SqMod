@@ -14,7 +14,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CmdManager * _Cmd = nullptr;
+SQMOD_MANAGEDPTR_TYPE(CmdManager) _Cmd = SQMOD_MANAGEDPTR_MAKE(CmdManager, nullptr);
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CmdListener::Typename(HSQUIRRELVM vm)

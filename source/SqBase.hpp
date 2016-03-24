@@ -5,7 +5,8 @@
 #include <sqconfig.h>
 
 // ------------------------------------------------------------------------------------------------
-#include <stddef.h>
+#include <cstddef>
+#include <cassert>
 #include <string>
 
 /* ------------------------------------------------------------------------------------------------
@@ -268,6 +269,143 @@ typedef LongInt< Uint64 > ULongInt;
  * ...
 */
 typedef std::basic_string< SQChar > String;
+
+#ifdef _DEBUG
+
+/* ------------------------------------------------------------------------------------------------
+ * A simple managed pointer used to identify if components are still used after shutdown.
+*/
+template < typename T > class ManagedPtr
+{
+private:
+
+    T * m_Ptr;
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    ManagedPtr(T * ptr)
+        : m_Ptr(ptr)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    ManagedPtr(const ManagedPtr & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    ManagedPtr(ManagedPtr && o)
+        : m_Ptr(o.m_Ptr)
+    {
+        o.m_Ptr = nullptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~ManagedPtr()
+    {
+        if (m_Ptr)
+        {
+            delete m_Ptr;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    ManagedPtr & operator = (const ManagedPtr & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    ManagedPtr & operator = (ManagedPtr && o)
+    {
+        if (m_Ptr != o.m_Ptr)
+        {
+            if (m_Ptr)
+            {
+                delete m_Ptr;
+            }
+            m_Ptr = o.m_Ptr;
+            o.m_Ptr = nullptr;
+        }
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit conversion to boolean for use in boolean operations.
+    */
+    operator bool () const
+    {
+        return m_Ptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit conversion to the managed pointer type.
+    */
+    operator T * () const
+    {
+        return m_Ptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit conversion to the managed pointer type.
+    */
+    operator const T * () const
+    {
+        return m_Ptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Member operator for dereferencing the managed pointer.
+    */
+    T * operator -> () const
+    {
+        assert(m_Ptr != nullptr);
+        return m_Ptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Indirection operator for obtaining a reference of the managed pointer.
+    */
+    T & operator * () const
+    {
+        assert(m_Ptr != nullptr);
+        return *m_Ptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the managed pointer in it's raw form.
+    */
+    T * Get() const
+    {
+        return m_Ptr;
+    }
+
+};
+
+#define SQMOD_MANAGEDPTR_TYPE(t) ManagedPtr< t >
+#define SQMOD_MANAGEDPTR_REF(t) ManagedPtr< t > &
+#define SQMOD_MANAGEDPTR_MAKE(t, p) ManagedPtr< t >(p)
+#define SQMOD_MANAGEDPTR_DEL(t, p) p = ManagedPtr< t >(nullptr)
+#define SQMOD_MANAGEDPTR_GET(p) p.Get();
+
+#else
+
+#define SQMOD_MANAGEDPTR_TYPE(t) t *
+#define SQMOD_MANAGEDPTR_REF(t) t *
+#define SQMOD_MANAGEDPTR_MAKE(t, p) p
+#define SQMOD_MANAGEDPTR_DEL(t, p) delete p
+#define SQMOD_MANAGEDPTR_GET(p) p
+
+#endif // _DEBUG
 
 /* ------------------------------------------------------------------------------------------------
  * FORWARD DECLARATIONS

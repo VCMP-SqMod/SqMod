@@ -23,7 +23,7 @@ enum LogLvl
 };
 
 // --------------------------------------------------------------------------------------------
-extern Logger * _Log;
+extern SQMOD_MANAGEDPTR_TYPE(Logger) _Log;
 
 // ------------------------------------------------------------------------------------------------
 class Logger
@@ -49,10 +49,10 @@ public:
     {
         if (!_Log)
         {
-            return _Log = new Logger();
+            return _Log = SQMOD_MANAGEDPTR_MAKE(Logger, new Logger());
         }
 
-        return _Log;
+        return SQMOD_MANAGEDPTR_GET(_Log);
     }
 
     // --------------------------------------------------------------------------------------------
