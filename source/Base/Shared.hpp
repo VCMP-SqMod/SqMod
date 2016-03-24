@@ -83,6 +83,49 @@ private:
 };
 
 /* ------------------------------------------------------------------------------------------------
+ * Helper structure for retrieving a value from the stack as a string or a formatted string.
+*/
+struct StackStrF
+{
+    // --------------------------------------------------------------------------------------------
+    CSStr       mPtr; // Pointer to the C string that was retrieved.
+    SQInteger   mLen; // The string length if it could be retrieved.
+    SQRESULT    mRes; // The result of the retrieval attempts.
+    HSQOBJECT   mObj; // Strong reference to the string object.
+    HSQUIRRELVM mVM; // The associated virtual machine.
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt = true);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF(const StackStrF & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF(StackStrF && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~StackStrF();
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF & operator = (const StackStrF & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF & operator = (StackStrF && o) = delete;
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Perform an equality comparison between two values taking into account floating point issues.
 */
 template< typename T > inline bool EpsEq(const T a, const T b)
@@ -241,14 +284,12 @@ Object BufferToStrObj(const Buffer & b, Uint32 size);
 */
 template < typename T > Object MakeObject(const T & v)
 {
+    // Remember the current stack size
+    const StackGuard sg;
     // Transform the specified value into a script object
     PushVar< T >(DefaultVM::Get(), v);
-    // Get the object from the stack to obtain a strong reference to it
-    Var< Object > var(DefaultVM::Get(), -1);
-    // Now it's safe to pop the object from the stack
-    sq_pop(DefaultVM::Get(), 1);
-    // Return the resulted script object
-    return var.value;
+    // Get the object from the stack and return it
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -256,14 +297,12 @@ template < typename T > Object MakeObject(const T & v)
 */
 template < typename T > Object MakeObject(HSQUIRRELVM vm, const T & v)
 {
+    // Remember the current stack size
+    const StackGuard sg;
     // Transform the specified value into a script object
     PushVar< T >(vm, v);
-    // Get the object from the stack to obtain a strong reference to it
-    Var< Object > var(vm, -1);
-    // Now it's safe to pop the object from the stack
-    sq_pop(vm, 1);
-    // Return the resulted script object
-    return var.value;
+    // Get the object from the stack and return it
+    return Var< Object >(vm, -1).value;
 }
 
 /* ------------------------------------------------------------------------------------------------
