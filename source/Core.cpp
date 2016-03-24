@@ -35,6 +35,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+extern void DisableReload();
 extern bool RegisterAPI(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
@@ -350,6 +351,9 @@ bool Core::Load()
     ImportTextdraws();
     ImportVehicles();
 
+    // Notify the script callback that the script was loaded
+    EmitScriptLoaded();
+
     // Successfully loaded
     return true;
 }
@@ -376,6 +380,8 @@ void Core::Terminate()
     TerminateRoutine();
     // Release all resources from command manager
     TerminateCommand();
+    // In case there's a payload for reload
+    DisableReload();
     // Is there a VM to close?
     if (m_VM)
     {
@@ -2518,9 +2524,9 @@ void Core::EmitScriptReload(Int32 header, Object & payload)
     Emit(mOnScriptReload, header, payload);
 }
 
-void Core::EmitScriptUnload()
+void Core::EmitScriptLoaded()
 {
-    Emit(mOnScriptUnload);
+    Emit(mOnScriptLoaded);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -3032,7 +3038,7 @@ void Core::ResetFunc()
     mOnWorldOption.ReleaseGently();
     mOnWorldToggle.ReleaseGently();
     mOnScriptReload.ReleaseGently();
-    mOnScriptUnload.ReleaseGently();
+    mOnScriptLoaded.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -3143,7 +3149,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_WORLDOPTION:           return mOnWorldOption;
         case EVT_WORLDTOGGLE:           return mOnWorldToggle;
         case EVT_SCRIPTRELOAD:          return mOnScriptReload;
-        case EVT_SCRIPTUNLOAD:          return mOnScriptUnload;
+        case EVT_SCRIPTLOADED:          return mOnScriptLoaded;
         default:                        return NullFunction();
     }
 }

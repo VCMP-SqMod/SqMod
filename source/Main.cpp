@@ -9,7 +9,38 @@
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
+
+// ------------------------------------------------------------------------------------------------
+static bool     g_Reload        = false;
+static Int32    g_ReloadHeader  = -1;
+static Object   g_ReloadPayload;
+
+// ------------------------------------------------------------------------------------------------
 extern void InitExports();
+
+// ------------------------------------------------------------------------------------------------
+void EnableReload(Int32 header, Object & payload)
+{
+    g_Reload = true;
+    g_ReloadHeader = header;
+    g_ReloadPayload = payload;
+}
+
+void DisableReload()
+{
+    g_Reload = false;
+    g_ReloadHeader = -1;
+    g_ReloadPayload.Release();
+}
+
+// ------------------------------------------------------------------------------------------------
+bool ReloadEnabled()
+{
+    return g_Reload;
+}
+
+// ------------------------------------------------------------------------------------------------
+
 } // Namespace:: SqMod
 
 // ------------------------------------------------------------------------------------------------
@@ -18,6 +49,38 @@ using namespace SqMod;
 // ------------------------------------------------------------------------------------------------
 void BindCallbacks();
 void UnbindCallbacks();
+
+// ------------------------------------------------------------------------------------------------
+void DoReload()
+{
+    // Disable reloading in case of failure
+    g_Reload = false;
+    // Allow reloading by default
+    _Core->SetState(1);
+    // Emit the reload event
+    _Core->EmitScriptReload(g_ReloadHeader, g_ReloadPayload);
+    // Release the specified payload, if any
+    DisableReload();
+    // Are we allowed to reload?
+    if (!_Core->GetState())
+    {
+        return;
+    }
+    // Terminate the current VM and release resources
+    _Core->Terminate();
+    // Attempt to initialize it the central core
+    if (!_Core->Init())
+    {
+        throw std::runtime_error("Unable to initialize plugin central core");
+    }
+    // Attempt to load resources
+    else if (!_Core->Load())
+    {
+        throw std::runtime_error("Unable to load plugin central core");
+    }
+    // Prevent recursive reloading
+    DisableReload();
+}
 
 // ------------------------------------------------------------------------------------------------
 void DestroyComponents()
@@ -106,6 +169,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     return SQMOD_SUCCESS;
 }
 
+// --------------------------------------------------------------------------------------------
 #define SQMOD_CATCH_EVENT_EXCEPTION(ev) /*
 */ catch (const Sqrat::Exception & e) /*
 */ { /*
@@ -122,6 +186,9 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
 */  LogErr("Unknown exception caught during (" #ev ") event"); /*
 */ } /*
 */
+
+// --------------------------------------------------------------------------------------------
+#define SQMOD_RELOAD_CHECK if (g_Reload) DoReload();
 
 // --------------------------------------------------------------------------------------------
 static int VC_InitServer(void)
@@ -152,6 +219,8 @@ static int VC_InitServer(void)
         }
     }
     SQMOD_CATCH_EVENT_EXCEPTION(InitServer)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -175,6 +244,8 @@ static void VC_ShutdownServer(void)
         DestroyComponents();
     }
     SQMOD_CATCH_EVENT_EXCEPTION(ShutdownServer)
+    // See if a reload was requested (quite useless here but why not)
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_Frame(float delta)
@@ -185,6 +256,8 @@ static void VC_Frame(float delta)
         _Core->EmitServerFrame(delta);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(Frame)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerConnect(int player)
@@ -195,6 +268,8 @@ static void VC_PlayerConnect(int player)
         _Core->ConnectPlayer(player, SQMOD_CREATE_AUTOMATIC, NullObject());
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerConnect)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerDisconnect(int player, int reason)
@@ -205,6 +280,8 @@ static void VC_PlayerDisconnect(int player, int reason)
         _Core->DisconnectPlayer(player, reason, NullObject());
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerDisconnect)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerBeginTyping(int player)
@@ -215,6 +292,8 @@ static void VC_PlayerBeginTyping(int player)
         _Core->EmitPlayerStartTyping(player);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerBeginTyping)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerEndTyping(int player)
@@ -225,6 +304,8 @@ static void VC_PlayerEndTyping(int player)
         _Core->EmitPlayerStopTyping(player);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerEndTyping)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static int VC_PlayerRequestClass(int player, int offset)
@@ -237,6 +318,8 @@ static int VC_PlayerRequestClass(int player, int offset)
         _Core->EmitPlayerRequestClass(player, offset);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerEndTyping)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -251,6 +334,8 @@ static int VC_PlayerRequestSpawn(int player)
         _Core->EmitPlayerRequestSpawn(player);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerRequestSpawn)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -263,6 +348,8 @@ static void VC_PlayerSpawn(int player)
         _Core->EmitPlayerSpawn(player);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerSpawn)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerDeath(int player, int killer, int reason, int body_part)
@@ -280,6 +367,8 @@ static void VC_PlayerDeath(int player, int killer, int reason, int body_part)
         }
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerDeath)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerUpdate(int player, int type)
@@ -290,6 +379,8 @@ static void VC_PlayerUpdate(int player, int type)
         _Core->EmitPlayerUpdate(player, type);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerUpdate)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static int VC_PlayerRequestEnter(int player, int vehicle, int slot)
@@ -302,6 +393,8 @@ static int VC_PlayerRequestEnter(int player, int vehicle, int slot)
         _Core->EmitPlayerEmbarking(player, vehicle, slot);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerRequestEnter)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -314,6 +407,8 @@ static void VC_PlayerEnterVehicle(int player, int vehicle, int slot)
         _Core->EmitPlayerEmbarked(player, vehicle, slot);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerEnterVehicle)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerExitVehicle(int player, int vehicle)
@@ -324,6 +419,8 @@ static void VC_PlayerExitVehicle(int player, int vehicle)
         _Core->EmitPlayerDisembark(player, vehicle);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerExitVehicle)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static int VC_PickupClaimPicked(int pickup, int player)
@@ -336,6 +433,8 @@ static int VC_PickupClaimPicked(int pickup, int player)
         _Core->EmitPickupClaimed(player, pickup);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PickupClaimPicked)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -348,6 +447,8 @@ static void VC_PickupPickedUp(int pickup, int player)
         _Core->EmitPickupCollected(player, pickup);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PickupPickedUp)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PickupRespawn(int pickup)
@@ -358,6 +459,8 @@ static void VC_PickupRespawn(int pickup)
         _Core->EmitPickupRespawn(pickup);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PickupRespawn)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_VehicleUpdate(int vehicle, int type)
@@ -368,6 +471,8 @@ static void VC_VehicleUpdate(int vehicle, int type)
         _Core->EmitVehicleUpdate(vehicle, type);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(VehicleUpdate)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_VehicleExplode(int vehicle)
@@ -378,6 +483,8 @@ static void VC_VehicleExplode(int vehicle)
         _Core->EmitVehicleExplode(vehicle);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(VehicleExplode)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_VehicleRespawn(int vehicle)
@@ -388,6 +495,8 @@ static void VC_VehicleRespawn(int vehicle)
         _Core->EmitVehicleRespawn(vehicle);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(VehicleRespawn)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_ObjectShot(int object, int player, int weapon)
@@ -398,6 +507,8 @@ static void VC_ObjectShot(int object, int player, int weapon)
         _Core->EmitObjectShot(player, object, weapon);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(ObjectShot)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_ObjectBump(int object, int player)
@@ -408,6 +519,8 @@ static void VC_ObjectBump(int object, int player)
         _Core->EmitObjectBump(player, object);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(ObjectBump)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static int VC_PublicMessage(int player, const char * text)
@@ -420,6 +533,8 @@ static int VC_PublicMessage(int player, const char * text)
         _Core->EmitPlayerChat(player, text);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PublicMessage)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -434,6 +549,8 @@ static int VC_CommandMessage(int player, const char * text)
         _Core->EmitPlayerCommand(player, text);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(CommandMessage)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -448,6 +565,8 @@ static int VC_PrivateMessage(int player, int target, const char * text)
         _Core->EmitPlayerMessage(player, target, text);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PrivateMessage)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -462,6 +581,8 @@ static int VC_InternalCommand(unsigned int type, const char * text)
         _Core->EmitInternalCommand(type, text);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(InternalCommand)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -476,6 +597,8 @@ static int VC_LoginAttempt(char * name, const char * passwd, const char * addres
         _Core->EmitLoginAttempt(name, passwd, address);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(LoginAttempt)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
     // Return the last known plug-in state
     return _Core->GetState();
 }
@@ -488,6 +611,8 @@ static void VC_EntityPool(int type, int id, unsigned int deleted)
         _Core->EmitEntityPool(type, id, static_cast< bool >(deleted));
     }
     SQMOD_CATCH_EVENT_EXCEPTION(EntityPool)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_KeyBindDown(int player, int bind)
@@ -498,6 +623,8 @@ static void VC_KeyBindDown(int player, int bind)
         _Core->EmitPlayerKeyPress(player, bind);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(KeyBindDown)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_KeyBindUp(int player, int bind)
@@ -508,6 +635,8 @@ static void VC_KeyBindUp(int player, int bind)
         _Core->EmitPlayerKeyRelease(player, bind);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(KeyBindUp)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerAway(int player, unsigned int status)
@@ -518,6 +647,8 @@ static void VC_PlayerAway(int player, unsigned int status)
         _Core->EmitPlayerAway(player, static_cast< bool >(status));
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerAway)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerSpectate(int player, int target)
@@ -528,6 +659,8 @@ static void VC_PlayerSpectate(int player, int target)
         _Core->EmitPlayerSpectate(player, target);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerSpectate)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerCrashReport(int player, const char * report)
@@ -538,6 +671,8 @@ static void VC_PlayerCrashReport(int player, const char * report)
         _Core->EmitPlayerCrashreport(player, report);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerCrashReport)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_ServerPerformanceReport(int /*count*/, const char ** /*description*/, unsigned long long * /*millis*/)
@@ -553,6 +688,8 @@ static void VC_PlayerName(int player, const char * previous, const char * curren
         _Core->EmitPlayerRename(player, previous, current);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerName)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerState(int player, int previous, int current)
@@ -594,6 +731,8 @@ static void VC_PlayerState(int player, int previous, int current)
         }
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerState)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerAction(int player, int previous, int current)
@@ -647,6 +786,8 @@ static void VC_PlayerAction(int player, int previous, int current)
         }
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerAction)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerOnFire(int player, unsigned int state)
@@ -657,6 +798,8 @@ static void VC_PlayerOnFire(int player, unsigned int state)
         _Core->EmitPlayerBurning(player, static_cast< bool >(state));
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerOnFire)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerCrouch(int player, unsigned int state)
@@ -667,6 +810,8 @@ static void VC_PlayerCrouch(int player, unsigned int state)
         _Core->EmitPlayerCrouching(player, static_cast< bool >(state));
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerCrouch)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_PlayerGameKeys(int player, int previous, int current)
@@ -677,6 +822,8 @@ static void VC_PlayerGameKeys(int player, int previous, int current)
         _Core->EmitPlayerGameKeys(player, previous, current);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerGameKeys)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_OnCheckpointEntered(int checkpoint, int player)
@@ -687,6 +834,8 @@ static void VC_OnCheckpointEntered(int checkpoint, int player)
         _Core->EmitCheckpointEntered(player, checkpoint);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(CheckpointEntered)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_OnCheckpointExited(int checkpoint, int player)
@@ -697,6 +846,8 @@ static void VC_OnCheckpointExited(int checkpoint, int player)
         _Core->EmitCheckpointExited(player, checkpoint);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(CheckpointExited)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_OnSphereEntered(int sphere, int player)
@@ -707,6 +858,8 @@ static void VC_OnSphereEntered(int sphere, int player)
         _Core->EmitForcefieldEntered(player, sphere);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(SphereEntered)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 static void VC_OnSphereExited(int sphere, int player)
@@ -717,6 +870,8 @@ static void VC_OnSphereExited(int sphere, int player)
         _Core->EmitForcefieldExited(player, sphere);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(SphereExited)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK
 }
 
 // ------------------------------------------------------------------------------------------------

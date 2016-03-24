@@ -857,7 +857,7 @@ public:
     void EmitWorldOption(Int32 option, Object & value);
     void EmitWorldToggle(Int32 option, bool value);
     void EmitScriptReload(Int32 header, Object & payload);
-    void EmitScriptUnload();
+    void EmitScriptLoaded();
     void EmitPlayerUpdate(Int32 player, Int32 type);
     void EmitVehicleUpdate(Int32 vehicle, Int32 type);
     void EmitEntityPool(Int32 type, Int32 id, bool deleted);
@@ -989,7 +989,7 @@ private:
     Function    mOnWorldOption;
     Function    mOnWorldToggle;
     Function    mOnScriptReload;
-    Function    mOnScriptUnload;
+    Function    mOnScriptLoaded;
 };
 
 } // Namespace:: SqMod

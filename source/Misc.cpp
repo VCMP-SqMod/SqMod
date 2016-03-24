@@ -9,6 +9,11 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+extern void EnableReload(Int32 header, Object & payload);
+extern void DisableReload();
+extern bool ReloadEnabled();
+
+// ------------------------------------------------------------------------------------------------
 static Object & GetBlip(Int32 id) { return _Core->GetBlip(id).mObj; }
 static Object & GetCheckpoint(Int32 id) { return _Core->GetCheckpoint(id).mObj; }
 static Object & GetForcefield(Int32 id) { return _Core->GetForcefield(id).mObj; }
@@ -99,12 +104,40 @@ static void SetOption(CSStr name, CSStr value)
     return _Core->SetOption(name, value);
 }
 
+// ------------------------------------------------------------------------------------------------
+static void SetReload(bool toggle)
+{
+    if (toggle)
+    {
+        EnableReload(0, NullObject());
+    }
+    else
+    {
+        DisableReload();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SetReloadBecause(Int32 header, Object & payload)
+{
+    EnableReload(header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool IsReloading()
+{
+    return ReloadEnabled();
+}
+
 // ================================================================================================
 void Register_Core(HSQUIRRELVM vm)
 {
     RootTable(vm)
     .Bind(_SC("SqCore"), Table(vm)
         .Func(_SC("Bind"), &BindEvent)
+        .Func(_SC("Reload"), &SetReload)
+        .Func(_SC("ReloadBecause"), &SetReloadBecause)
+        .Func(_SC("Reloading"), &IsReloading)
         .Func(_SC("GetState"), &GetState)
         .Func(_SC("SetState"), &SetState)
         .Func(_SC("GetOption"), &GetOption)

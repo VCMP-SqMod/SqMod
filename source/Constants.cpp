@@ -158,7 +158,7 @@ void Register_Constants(HSQUIRRELVM vm)
         .Const(_SC("WorldOption"),              EVT_WORLDOPTION)
         .Const(_SC("WorldToggle"),              EVT_WORLDTOGGLE)
         .Const(_SC("ScriptReload"),             EVT_SCRIPTRELOAD)
-        .Const(_SC("ScriptUnload"),             EVT_SCRIPTUNLOAD)
+        .Const(_SC("ScriptLoaded"),             EVT_SCRIPTLOADED)
         .Const(_SC("Max"),                      EVT_MAX)
     );
 
