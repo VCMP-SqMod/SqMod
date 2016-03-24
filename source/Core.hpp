@@ -67,7 +67,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CBlip *         mInst;
         Object          mObj;
 
@@ -101,7 +101,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CCheckpoint *   mInst;
         Object          mObj;
 
@@ -126,7 +126,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CForcefield *   mInst;
         Object          mObj;
         // ----------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CKeybind *      mInst;
         Object          mObj;
 
@@ -181,7 +181,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CObject *       mInst;
         Object          mObj;
 
@@ -206,7 +206,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CPickup *       mInst;
         Object          mObj;
 
@@ -228,9 +228,11 @@ protected:
         PlayerInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
         { /* ... */ }
 
+        ~PlayerInst();
+
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CPlayer *       mInst;
         Object          mObj;
 
@@ -322,7 +324,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CSprite *       mInst;
         Object          mObj;
 
@@ -348,7 +350,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CTextdraw *     mInst;
         Object          mObj;
 
@@ -374,7 +376,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
-        Int16           mFlags;
+        Uint16          mFlags;
         CVehicle *      mInst;
         Object          mObj;
 

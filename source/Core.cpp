@@ -48,6 +48,39 @@ extern void TerminateCommand();
 // ------------------------------------------------------------------------------------------------
 Core * _Core = NULL;
 
+/* ------------------------------------------------------------------------------------------------
+ * Utility class used to release the destroy lock if unable to complete the process.
+*/
+struct EntLockGuard
+{
+private:
+
+    // --------------------------------------------------------------------------------------------
+    Uint16 & m_Flags;
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    EntLockGuard(Uint16 & ref)
+        : m_Flags(ref)
+    {
+        m_Flags |= ENF_LOCKED;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~EntLockGuard()
+    {
+        if (m_Flags & ENF_LOCKED)
+        {
+            m_Flags ^= ENF_LOCKED;
+        }
+    }
+};
+
 // ------------------------------------------------------------------------------------------------
 Core::Core()
     : m_State(0)
@@ -314,12 +347,12 @@ void Core::Terminate()
     // Signal outside plugins to do their monkey business
     _Func->SendCustomCommand(0xDEADC0DE, "");
     // Release all entity resources by clearing the containers
+    m_Players.clear();
     m_Blips.clear();
     m_Checkpoints.clear();
     m_Keybinds.clear();
     m_Objects.clear();
     m_Pickups.clear();
-    m_Players.clear();
     m_Forcefields.clear();
     m_Sprites.clear();
     m_Textdraws.clear();
@@ -824,18 +857,27 @@ void Core::DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload)
     // Retrieve the specified entity instance
     BlipInst & inst = m_Blips[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitBlipDestroyed(id, header, payload);
+    try
+    {
+        EmitBlipDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was probably dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Should we delete this entity from the server as well?
@@ -864,18 +906,27 @@ void Core::DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payl
     // Retrieve the specified entity instance
     CheckpointInst & inst = m_Checkpoints[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitCheckpointDestroyed(id, header, payload);
+    try
+    {
+        EmitCheckpointDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was probably dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Should we delete this entity from the server as well?
@@ -904,18 +955,27 @@ void Core::DeallocForcefield(Int32 id, bool destroy, Int32 header, Object & payl
     // Retrieve the specified entity instance
     ForcefieldInst & inst = m_Forcefields[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitForcefieldDestroyed(id, header, payload);
+    try
+    {
+        EmitForcefieldDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was probably dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Should we delete this entity from the server as well?
@@ -944,18 +1004,27 @@ void Core::DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload
     // Retrieve the specified entity instance
     KeybindInst & inst = m_Keybinds[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitKeybindDestroyed(id, header, payload);
+    try
+    {
+        EmitBlipDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Should we delete this entity from the server as well?
@@ -984,18 +1053,27 @@ void Core::DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload)
     // Retrieve the specified entity instance
     ObjectInst & inst = m_Objects[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitObjectDestroyed(id, header, payload);
+    try
+    {
+        EmitObjectDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was probably dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Should we delete this entity from the server as well?
@@ -1024,18 +1102,27 @@ void Core::DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload)
     // Retrieve the specified entity instance
     PickupInst & inst = m_Pickups[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitPickupDestroyed(id, header, payload);
+    try
+    {
+        EmitPickupDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was probably dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Should we delete this entity from the server as well?
@@ -1064,18 +1151,27 @@ void Core::DeallocSprite(Int32 id, bool destroy, Int32 header, Object & payload)
     // Retrieve the specified entity instance
     SpriteInst & inst = m_Sprites[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitSpriteDestroyed(id, header, payload);
+    try
+    {
+        EmitSpriteDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was probably dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Should we delete this entity from the server as well?
@@ -1104,18 +1200,27 @@ void Core::DeallocTextdraw(Int32 id, bool destroy, Int32 header, Object & payloa
     // Retrieve the specified entity instance
     TextdrawInst & inst = m_Textdraws[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitTextdrawDestroyed(id, header, payload);
+    try
+    {
+        EmitTextdrawDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was probably dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Should we delete this entity from the server as well?
@@ -1144,18 +1249,27 @@ void Core::DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload
     // Retrieve the specified entity instance
     VehicleInst & inst = m_Vehicles[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitVehicleDestroyed(id, header, payload);
+    try
+    {
+        EmitVehicleDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was probably dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Should we delete this entity from the server as well?
@@ -1449,7 +1563,7 @@ void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        return; // Nothing to dealocate!
+        return; // Nothing to deallocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitPlayerDestroyed(id, header, payload);
@@ -1458,7 +1572,7 @@ void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
     {
         // Prevent further use of this entity
         inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling references
+        // Release user data to avoid dangling or circular references
         inst.mInst->m_Data.Release();
     }
     // Reset the entity instance
@@ -3038,81 +3152,215 @@ Function & Core::GetVehicleEvent(Int32 id, Int32 evid)
 // ------------------------------------------------------------------------------------------------
 Core::BlipInst::~BlipInst()
 {
-    if (mID >=0 && (mFlags & ENF_OWNED))
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
     {
         _Core->EmitBlipDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
+    }
+    // Are we supposed to clean up this entity?
+    if (mID >= 0 && (mFlags & ENF_OWNED))
+    {
         _Func->DestroyCoordBlip(mID);
     }
 }
 
 Core::CheckpointInst::~CheckpointInst()
 {
-    if (mID >=0 && (mFlags & ENF_OWNED))
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
     {
         _Core->EmitCheckpointDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
+    }
+    // Are we supposed to clean up this entity?
+    if (mID >= 0 && (mFlags & ENF_OWNED))
+    {
         _Func->DeleteCheckpoint(mID);
     }
 }
 
 Core::ForcefieldInst::~ForcefieldInst()
 {
-    if (mID >=0 && (mFlags & ENF_OWNED))
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
     {
         _Core->EmitForcefieldDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
+    }
+    // Are we supposed to clean up this entity?
+    if (mID >= 0 && (mFlags & ENF_OWNED))
+    {
         _Func->DeleteSphere(mID);
     }
 }
 
 Core::KeybindInst::~KeybindInst()
 {
-    if (mID >=0 && (mFlags & ENF_OWNED))
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
     {
         _Core->EmitKeybindDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
+    }
+    // Are we supposed to clean up this entity?
+    if (mID >= 0 && (mFlags & ENF_OWNED))
+    {
         _Func->RemoveKeyBind(mID);
     }
 }
 
 Core::ObjectInst::~ObjectInst()
 {
-    if (mID >=0 && (mFlags & ENF_OWNED))
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
     {
         _Core->EmitObjectDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
+    }
+    // Are we supposed to clean up this entity?
+    if (mID >= 0 && (mFlags & ENF_OWNED))
+    {
         _Func->DeleteObject(mID);
     }
 }
 
 Core::PickupInst::~PickupInst()
 {
-    if (mID >=0 && (mFlags & ENF_OWNED))
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
     {
         _Core->EmitPickupDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
+    }
+    // Are we supposed to clean up this entity?
+    if (mID >= 0 && (mFlags & ENF_OWNED))
+    {
         _Func->DeletePickup(mID);
+    }
+}
+
+Core::PlayerInst::~PlayerInst()
+{
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
+    {
+        _Core->EmitPlayerDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
     }
 }
 
 Core::SpriteInst::~SpriteInst()
 {
-    if (mID >=0 && (mFlags & ENF_OWNED))
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
     {
         _Core->EmitSpriteDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
+    }
+    // Are we supposed to clean up this entity?
+    if (mID >= 0 && (mFlags & ENF_OWNED))
+    {
         _Func->DestroySprite(mID);
     }
 }
 
 Core::TextdrawInst::~TextdrawInst()
 {
-    if (mID >=0 && (mFlags & ENF_OWNED))
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
     {
         _Core->EmitTextdrawDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
+    }
+    // Are we supposed to clean up this entity?
+    if (mID >= 0 && (mFlags & ENF_OWNED))
+    {
         _Func->DestroyTextdraw(mID);
     }
 }
 
 Core::VehicleInst::~VehicleInst()
 {
-    if (mID >=0 && (mFlags & ENF_OWNED))
+    // Should we notify that this entity is being cleaned up?
+    if (mID >= 0)
     {
         _Core->EmitVehicleDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+    }
+    // Is there a manager instance associated with this entity?
+    if (mInst)
+    {
+        // Prevent further use of this entity
+        mInst->m_ID = -1;
+        // Release user data to avoid dangling or circular references
+        mInst->m_Data.Release();
+    }
+    // Are we supposed to clean up this entity?
+    if (mID >= 0 && (mFlags & ENF_OWNED))
+    {
         _Func->DeleteVehicle(mID);
     }
 }
