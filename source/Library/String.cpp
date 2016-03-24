@@ -519,13 +519,11 @@ Buffer StrToLowercaseB(CSStr str)
     Buffer b(size + 1); // + null terminator
     // Resulted string size
     Uint32 n = 0;
-    // Currently processed character
-    SQChar c = 0;
     // Process characters
-    while ((c = *(str++)) != '\0')
+    while (*str != '\0')
     {
         // Convert it and move to the next one
-        b.At(n++) = std::tolower(c);
+        b.At(n++) = std::tolower(*(str++));
     }
     // End the resulted string
     b.At(n) = '\0';
@@ -1196,8 +1194,8 @@ void Register_String(HSQUIRRELVM vm)
     .SquirrelFunc(_SC("Right"), &SqRightStr)
     .SquirrelFunc(_SC("LeftOffset"), &SqLeftOffsetStr)
     .SquirrelFunc(_SC("RightOffset"), &SqRightOffsetStr)
-    .SquirrelFunc(_SC("Lower"), &SqToLowercase)
-    .SquirrelFunc(_SC("Upper"), &SqToUppercase)
+    .SquirrelFunc(_SC("ToLower"), &SqToLowercase)
+    .SquirrelFunc(_SC("ToUpper"), &SqToUppercase)
     .SquirrelFunc(_SC("Lowercase"), &SqToLowercase)
     .SquirrelFunc(_SC("Uppercase"), &SqToUppercase)
     .SquirrelFunc(_SC("AreAllSpace"), &StrCType< CharClassSpec< CharClass::IsSpace > >::AllChars)
