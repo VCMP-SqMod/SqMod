@@ -104,7 +104,8 @@ Core::Core()
 // ------------------------------------------------------------------------------------------------
 Core::~Core()
 {
-    /* ... */
+    // Don't release the callbacks abruptly in destructor
+    ResetFunc();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -3170,6 +3171,8 @@ Core::BlipInst::~BlipInst()
     {
         _Func->DestroyCoordBlip(mID);
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 Core::CheckpointInst::~CheckpointInst()
@@ -3192,6 +3195,8 @@ Core::CheckpointInst::~CheckpointInst()
     {
         _Func->DeleteCheckpoint(mID);
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 Core::ForcefieldInst::~ForcefieldInst()
@@ -3214,6 +3219,8 @@ Core::ForcefieldInst::~ForcefieldInst()
     {
         _Func->DeleteSphere(mID);
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 Core::KeybindInst::~KeybindInst()
@@ -3236,6 +3243,8 @@ Core::KeybindInst::~KeybindInst()
     {
         _Func->RemoveKeyBind(mID);
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 Core::ObjectInst::~ObjectInst()
@@ -3258,6 +3267,8 @@ Core::ObjectInst::~ObjectInst()
     {
         _Func->DeleteObject(mID);
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 Core::PickupInst::~PickupInst()
@@ -3280,6 +3291,8 @@ Core::PickupInst::~PickupInst()
     {
         _Func->DeletePickup(mID);
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 Core::PlayerInst::~PlayerInst()
@@ -3297,6 +3310,8 @@ Core::PlayerInst::~PlayerInst()
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 Core::SpriteInst::~SpriteInst()
@@ -3319,6 +3334,8 @@ Core::SpriteInst::~SpriteInst()
     {
         _Func->DestroySprite(mID);
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 Core::TextdrawInst::~TextdrawInst()
@@ -3341,6 +3358,8 @@ Core::TextdrawInst::~TextdrawInst()
     {
         _Func->DestroyTextdraw(mID);
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 Core::VehicleInst::~VehicleInst()
@@ -3363,6 +3382,8 @@ Core::VehicleInst::~VehicleInst()
     {
         _Func->DeleteVehicle(mID);
     }
+    // Don't release the callbacks abruptly in destructor
+    _Core->ResetFunc(*this);
 }
 
 } // Namespace:: SqMod
