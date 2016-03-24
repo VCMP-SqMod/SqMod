@@ -102,18 +102,21 @@ bool SToB(CSStr str)
 // ------------------------------------------------------------------------------------------------
 void SqThrowF(CCStr fmt, ...)
 {
+    // Acquire a moderately sized buffer
+    Buffer b(128);
     // Initialize the argument list
     va_list args;
     va_start (args, fmt);
-    // Write the requested contents
-    if (snprintf(g_Buffer, sizeof(g_Buffer), fmt, args) < 0)
+    // Attempt to run the specified format
+    if (b.WriteF(0, fmt, args) == 0)
     {
-        strcpy(g_Buffer, "Unknown error has occurred");
+        // Attempt to write a generic message at least
+        b.At(b.WriteS(0, "Unknown error has occurred")) = '\0';
     }
     // Release the argument list
     va_end(args);
     // Throw the exception with the resulted message
-    throw Sqrat::Exception(g_Buffer);
+    throw Sqrat::Exception(b.Get< SQChar >());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -121,7 +124,7 @@ CSStr ToStrF(CCStr fmt, ...)
 {
     // Prepare the arguments list
     va_list args;
-    va_start (args, fmt);
+    va_start(args, fmt);
     // Attempt to run the specified format
     int ret =  vsnprintf(g_Buffer, sizeof(g_Buffer), fmt, args);
     // See if the format function failed
