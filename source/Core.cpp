@@ -1562,12 +1562,21 @@ void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
     // Retrieve the specified entity instance
     PlayerInst & inst = m_Players[id];
     // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID))
+    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
     {
         return; // Nothing to deallocate!
     }
+    // Prevent further attempts to delete this entity
+    const EntLockGuard elg(inst.mFlags);
     // Let the script callbacks know this entity should no longer be used
-    EmitPlayerDestroyed(id, header, payload);
+    try
+    {
+        EmitPlayerDestroyed(id, header, payload);
+    }
+    catch (...)
+    {
+        // The error was probably dealt with already
+    }
     // Is there a manager instance associated with this entity?
     if (inst.mInst)
     {
