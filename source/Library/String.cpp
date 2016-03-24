@@ -283,6 +283,358 @@ CSStr StrToUppercase(CSStr str)
     return b.Get< SQChar >();
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Known character clasifications
+*/
+enum struct CharClass
+{
+    IsSpace = 0,
+    IsPrint,
+    IsCntrl,
+    IsUpper,
+    IsLower,
+    IsAlpha,
+    IsDigit,
+    IsPunct,
+    IsXdigit,
+    IsAlnum,
+    IsGraph,
+    IsBlank
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization for the character classifications.
+*/
+template < CharClass > struct CharClassSpec;
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsSpace >
+{
+    static inline int Fn(int c) { return std::isspace(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsPrint >
+{
+    static inline int Fn(int c) { return std::isprint(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsCntrl >
+{
+    static inline int Fn(int c) { return std::iscntrl(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsUpper >
+{
+    static inline int Fn(int c) { return std::isupper(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsLower >
+{
+    static inline int Fn(int c) { return std::islower(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsAlpha >
+{
+    static inline int Fn(int c) { return std::isalpha(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsDigit >
+{
+    static inline int Fn(int c) { return std::isdigit(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsPunct >
+{
+    static inline int Fn(int c) { return std::ispunct(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsXdigit >
+{
+    static inline int Fn(int c) { return std::isxdigit(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsAlnum >
+{
+    static inline int Fn(int c) { return std::isalnum(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsGraph >
+{
+    static inline int Fn(int c) { return std::isgraph(c); }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> struct CharClassSpec< CharClass::IsBlank >
+{
+    static inline int Fn(int c) { return std::isblank(c); }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Templated functions for working with character classification functions.
+*/
+template < class T > struct StrCType
+{
+    /* --------------------------------------------------------------------------------------------
+     * Checks if all the characters in the specified string are of the specified class.
+    */
+    static bool AllCharsImpl(CSStr str)
+    {
+        // See if we actually have something to search for
+        if(!str || *str == '\0')
+        {
+            return false; // Subject to change!
+        }
+        // Start iterating characters and find the first that doesn't match
+        while (*str != '\0')
+        {
+            // Call the predicate with the current character
+            if (T::Fn(*(str++)) == 0)
+            {
+                return false; // This character did not pass the test
+            }
+        }
+        // All characters passed the test
+        return true;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Extracts and forwards the string argument to the actual implementation.
+    */
+    static SQInteger AllChars(HSQUIRRELVM vm)
+    {
+        // Attempt to retrieve the value from the stack as a string
+        StackStrF val(vm, 2);
+        // Have we failed to retrieve the string?
+        if (SQ_FAILED(val.mRes))
+        {
+            return val.mRes; // Propagate the error!
+        }
+        // Perform the actual check and push the result on the stack
+        sq_pushbool(vm, AllCharsImpl(val.mPtr));
+        // We have a value to return on the stack
+        return 1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Find the position of the first character that matches the specified class.
+    */
+    static SQInteger FirstCharImpl(CSStr str)
+    {
+        // See if we actually have something to search for
+        if(!str || *str == '\0')
+        {
+            return -1; // Subject to change!
+        }
+        // Start iterating characters and find the first that matches
+        for (Uint32 n = 0; *str != '\0'; ++n, ++str)
+        {
+            // Call the predicate with the current character
+            if (T::Fn(*str) != 0)
+            {
+                // This character passed our test
+                return static_cast< SQInteger >(n);
+            }
+        }
+        // Unable to locate such character
+        return -1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Extracts and forwards the string argument to the actual implementation.
+    */
+    static SQInteger FirstChar(HSQUIRRELVM vm)
+    {
+        // Attempt to retrieve the value from the stack as a string
+        StackStrF val(vm, 2);
+        // Have we failed to retrieve the string?
+        if (SQ_FAILED(val.mRes))
+        {
+            return val.mRes; // Propagate the error!
+        }
+        // Perform the actual check and store the resulted value
+        SQInteger ret = FirstCharImpl(val.mPtr);
+        // Have we found anything?
+        if (ret >= 0)
+        {
+            sq_pushinteger(vm, ret);
+        }
+        else
+        {
+            sq_pushnull(vm);
+        }
+        // We have a value to return on the stack
+        return 1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Find the position of the first character that doesn't match the specified class.
+    */
+    static SQInteger FirstNotCharImpl(CSStr str)
+    {
+        // See if we actually have something to search for
+        if(!str || *str == '\0')
+        {
+            return -1; // Subject to change!
+        }
+        // Start iterating characters and find the first that doesn't match
+        for (Uint32 n = 0; *str != '\0'; ++n, ++str)
+        {
+            // Call the predicate with the current character
+            if (T::Fn(*str) == 0)
+            {
+                // This character passed our test
+                return static_cast< SQInteger >(n);
+            }
+        }
+        // Unable to locate such character
+        return -1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Extracts and forwards the string argument to the actual implementation.
+    */
+    static SQInteger FirstNotChar(HSQUIRRELVM vm)
+    {
+        // Attempt to retrieve the value from the stack as a string
+        StackStrF val(vm, 2);
+        // Have we failed to retrieve the string?
+        if (SQ_FAILED(val.mRes))
+        {
+            return val.mRes; // Propagate the error!
+        }
+        // Perform the actual check and store the resulted value
+        SQInteger ret = FirstNotCharImpl(val.mPtr);
+        // Have we found anything?
+        if (ret >= 0)
+        {
+            sq_pushinteger(vm, ret);
+        }
+        else
+        {
+            sq_pushnull(vm);
+        }
+        // We have a value to return on the stack
+        return 1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Find the position of the last character that matches the specified class.
+    */
+    static SQInteger LastCharImpl(CSStr str)
+    {
+        // See if we actually have something to search for
+        if(!str || *str == '\0')
+        {
+            return -1; // Subject to change!
+        }
+        // Find the end of the string
+        CSStr end = std::strchr(str, '\0') - 1;
+        // Start iterating characters and find the first that matches
+        for (; end >= str; --end)
+        {
+            // Call the predicate with the current character
+            if (T::Fn(*end) != 0)
+            {
+                // This character passed our test
+                return static_cast< SQInteger >(end - str);
+            }
+        }
+        // Unable to locate such character
+        return -1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Extracts and forwards the string argument to the actual implementation.
+    */
+    static SQInteger LastChar(HSQUIRRELVM vm)
+    {
+        // Attempt to retrieve the value from the stack as a string
+        StackStrF val(vm, 2);
+        // Have we failed to retrieve the string?
+        if (SQ_FAILED(val.mRes))
+        {
+            return val.mRes; // Propagate the error!
+        }
+        // Perform the actual check and store the resulted value
+        SQInteger ret = LastCharImpl(val.mPtr);
+        // Have we found anything?
+        if (ret >= 0)
+        {
+            sq_pushinteger(vm, ret);
+        }
+        else
+        {
+            sq_pushnull(vm);
+        }
+        // We have a value to return on the stack
+        return 1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Find the position of the last character that doesn't match the specified class.
+    */
+    static SQInteger LastNotCharImpl(CSStr str)
+    {
+        // See if we actually have something to search for
+        if(!str || *str == '\0')
+        {
+            return -1; // Subject to change!
+        }
+        // Find the end of the string
+        CSStr end = std::strchr(str, '\0') - 1;
+        // Start iterating characters and find the first that matches
+        for (; end >= str; --end)
+        {
+            // Call the predicate with the current character
+            if (T::Fn(*end) == 0)
+            {
+                // This character passed our test
+                return static_cast< SQInteger >(end - str);
+            }
+        }
+        // Unable to locate such character
+        return -1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Extracts and forwards the string argument to the actual implementation.
+    */
+    static SQInteger LastNotChar(HSQUIRRELVM vm)
+    {
+        // Attempt to retrieve the value from the stack as a string
+        StackStrF val(vm, 2);
+        // Have we failed to retrieve the string?
+        if (SQ_FAILED(val.mRes))
+        {
+            return val.mRes; // Propagate the error!
+        }
+        // Perform the actual check and store the resulted value
+        SQInteger ret = LastNotCharImpl(val.mPtr);
+        // Have we found anything?
+        if (ret >= 0)
+        {
+            sq_pushinteger(vm, ret);
+        }
+        else
+        {
+            sq_pushnull(vm);
+        }
+        // We have a value to return on the stack
+        return 1;
+    }
+
+};
+
 // ------------------------------------------------------------------------------------------------
 static bool OnlyDelimiter(CSStr str, SQChar chr)
 {
@@ -487,7 +839,67 @@ void Register_String(HSQUIRRELVM vm)
     .Func(_SC("Lowercase"), &StrToLowercase)
     .Func(_SC("Uppercase"), &StrToUppercase)
     .Func(_SC("Explode"), &StrExplode)
-    .Func(_SC("Implode"), &StrImplode);
+    .Func(_SC("Implode"), &StrImplode)
+    .SquirrelFunc(_SC("IsAllSpace"), &StrCType< CharClassSpec< CharClass::IsSpace > >::AllChars)
+    .SquirrelFunc(_SC("IsAllPrint"), &StrCType< CharClassSpec< CharClass::IsPrint > >::AllChars)
+    .SquirrelFunc(_SC("IsAllCntrl"), &StrCType< CharClassSpec< CharClass::IsCntrl > >::AllChars)
+    .SquirrelFunc(_SC("IsAllUpper"), &StrCType< CharClassSpec< CharClass::IsUpper > >::AllChars)
+    .SquirrelFunc(_SC("IsAllLower"), &StrCType< CharClassSpec< CharClass::IsLower > >::AllChars)
+    .SquirrelFunc(_SC("IsAllAlpha"), &StrCType< CharClassSpec< CharClass::IsAlpha > >::AllChars)
+    .SquirrelFunc(_SC("IsAllDigit"), &StrCType< CharClassSpec< CharClass::IsDigit > >::AllChars)
+    .SquirrelFunc(_SC("IsAllPunct"), &StrCType< CharClassSpec< CharClass::IsPunct > >::AllChars)
+    .SquirrelFunc(_SC("IsAllXdigit"), &StrCType< CharClassSpec< CharClass::IsXdigit > >::AllChars)
+    .SquirrelFunc(_SC("IsAllAlnum"), &StrCType< CharClassSpec< CharClass::IsAlnum > >::AllChars)
+    .SquirrelFunc(_SC("IsAllGraph"), &StrCType< CharClassSpec< CharClass::IsGraph > >::AllChars)
+    .SquirrelFunc(_SC("IsAllBlank"), &StrCType< CharClassSpec< CharClass::IsBlank > >::AllChars)
+    .SquirrelFunc(_SC("FirstSpace"), &StrCType< CharClassSpec< CharClass::IsSpace > >::FirstChar)
+    .SquirrelFunc(_SC("FirstPrint"), &StrCType< CharClassSpec< CharClass::IsPrint > >::FirstChar)
+    .SquirrelFunc(_SC("FirstCntrl"), &StrCType< CharClassSpec< CharClass::IsCntrl > >::FirstChar)
+    .SquirrelFunc(_SC("FirstUpper"), &StrCType< CharClassSpec< CharClass::IsUpper > >::FirstChar)
+    .SquirrelFunc(_SC("FirstLower"), &StrCType< CharClassSpec< CharClass::IsLower > >::FirstChar)
+    .SquirrelFunc(_SC("FirstAlpha"), &StrCType< CharClassSpec< CharClass::IsAlpha > >::FirstChar)
+    .SquirrelFunc(_SC("FirstDigit"), &StrCType< CharClassSpec< CharClass::IsDigit > >::FirstChar)
+    .SquirrelFunc(_SC("FirstPunct"), &StrCType< CharClassSpec< CharClass::IsPunct > >::FirstChar)
+    .SquirrelFunc(_SC("FirstXdigit"), &StrCType< CharClassSpec< CharClass::IsXdigit > >::FirstChar)
+    .SquirrelFunc(_SC("FirstAlnum"), &StrCType< CharClassSpec< CharClass::IsAlnum > >::FirstChar)
+    .SquirrelFunc(_SC("FirstGraph"), &StrCType< CharClassSpec< CharClass::IsGraph > >::FirstChar)
+    .SquirrelFunc(_SC("FirstBlank"), &StrCType< CharClassSpec< CharClass::IsBlank > >::FirstChar)
+    .SquirrelFunc(_SC("FirstNotSpace"), &StrCType< CharClassSpec< CharClass::IsSpace > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotPrint"), &StrCType< CharClassSpec< CharClass::IsPrint > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotCntrl"), &StrCType< CharClassSpec< CharClass::IsCntrl > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotUpper"), &StrCType< CharClassSpec< CharClass::IsUpper > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotLower"), &StrCType< CharClassSpec< CharClass::IsLower > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotAlpha"), &StrCType< CharClassSpec< CharClass::IsAlpha > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotDigit"), &StrCType< CharClassSpec< CharClass::IsDigit > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotPunct"), &StrCType< CharClassSpec< CharClass::IsPunct > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotXdigit"), &StrCType< CharClassSpec< CharClass::IsXdigit > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotAlnum"), &StrCType< CharClassSpec< CharClass::IsAlnum > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotGraph"), &StrCType< CharClassSpec< CharClass::IsGraph > >::FirstNotChar)
+    .SquirrelFunc(_SC("FirstNotBlank"), &StrCType< CharClassSpec< CharClass::IsBlank > >::FirstNotChar)
+    .SquirrelFunc(_SC("LastSpace"), &StrCType< CharClassSpec< CharClass::IsSpace > >::LastChar)
+    .SquirrelFunc(_SC("LastPrint"), &StrCType< CharClassSpec< CharClass::IsPrint > >::LastChar)
+    .SquirrelFunc(_SC("LastCntrl"), &StrCType< CharClassSpec< CharClass::IsCntrl > >::LastChar)
+    .SquirrelFunc(_SC("LastUpper"), &StrCType< CharClassSpec< CharClass::IsUpper > >::LastChar)
+    .SquirrelFunc(_SC("LastLower"), &StrCType< CharClassSpec< CharClass::IsLower > >::LastChar)
+    .SquirrelFunc(_SC("LastAlpha"), &StrCType< CharClassSpec< CharClass::IsAlpha > >::LastChar)
+    .SquirrelFunc(_SC("LastDigit"), &StrCType< CharClassSpec< CharClass::IsDigit > >::LastChar)
+    .SquirrelFunc(_SC("LastPunct"), &StrCType< CharClassSpec< CharClass::IsPunct > >::LastChar)
+    .SquirrelFunc(_SC("LastXdigit"), &StrCType< CharClassSpec< CharClass::IsXdigit > >::LastChar)
+    .SquirrelFunc(_SC("LastAlnum"), &StrCType< CharClassSpec< CharClass::IsAlnum > >::LastChar)
+    .SquirrelFunc(_SC("LastGraph"), &StrCType< CharClassSpec< CharClass::IsGraph > >::LastChar)
+    .SquirrelFunc(_SC("LastBlank"), &StrCType< CharClassSpec< CharClass::IsBlank > >::LastChar)
+    .SquirrelFunc(_SC("LastNotSpace"), &StrCType< CharClassSpec< CharClass::IsSpace > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotPrint"), &StrCType< CharClassSpec< CharClass::IsPrint > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotCntrl"), &StrCType< CharClassSpec< CharClass::IsCntrl > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotUpper"), &StrCType< CharClassSpec< CharClass::IsUpper > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotLower"), &StrCType< CharClassSpec< CharClass::IsLower > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotAlpha"), &StrCType< CharClassSpec< CharClass::IsAlpha > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotDigit"), &StrCType< CharClassSpec< CharClass::IsDigit > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotPunct"), &StrCType< CharClassSpec< CharClass::IsPunct > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotXdigit"), &StrCType< CharClassSpec< CharClass::IsXdigit > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotAlnum"), &StrCType< CharClassSpec< CharClass::IsAlnum > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotGraph"), &StrCType< CharClassSpec< CharClass::IsGraph > >::LastNotChar)
+    .SquirrelFunc(_SC("LastNotBlank"), &StrCType< CharClassSpec< CharClass::IsBlank > >::LastNotChar);
 
     RootTable(vm).Bind(_SC("SqStr"), strns);
     RootTable(vm).SquirrelFunc(_SC("printf"), &StdPrintF);
