@@ -442,7 +442,7 @@ Object & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate blip that already exists: %d", id);
+        return inst.mObj; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CBlip(id);
@@ -484,7 +484,7 @@ Object & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payl
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate checkpoint that already exists: %d", id);
+        return inst.mObj; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CCheckpoint(id);
@@ -526,7 +526,7 @@ Object & Core::AllocForcefield(Int32 id, bool owned, Int32 header, Object & payl
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate forcefield that already exists: %d", id);
+        return inst.mObj; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CForcefield(id);
@@ -568,7 +568,7 @@ Object & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate keybind that already exists: %d", id);
+        return inst.mObj; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CKeybind(id);
@@ -610,7 +610,7 @@ Object & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate object that already exists: %d", id);
+        return inst.mObj; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CObject(id);
@@ -652,7 +652,7 @@ Object & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate pickup that already exists: %d", id);
+        return inst.mObj; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CPickup(id);
@@ -694,7 +694,7 @@ Object & Core::AllocSprite(Int32 id, bool owned, Int32 header, Object & payload)
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate sprite that already exists: %d", id);
+        return inst.mObj; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CSprite(id);
@@ -736,7 +736,7 @@ Object & Core::AllocTextdraw(Int32 id, bool owned, Int32 header, Object & payloa
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate textdraw that already exists: %d", id);
+        return inst.mObj; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CTextdraw(id);
@@ -778,7 +778,7 @@ Object & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate vehicle that already exists: %d", id);
+        return inst.mObj; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CVehicle(id);
@@ -826,7 +826,7 @@ void Core::DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload)
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate blip that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitBlipDestroyed(id, header, payload);
@@ -866,7 +866,7 @@ void Core::DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payl
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate checkpoint that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitCheckpointDestroyed(id, header, payload);
@@ -906,7 +906,7 @@ void Core::DeallocForcefield(Int32 id, bool destroy, Int32 header, Object & payl
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate forcefield that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitForcefieldDestroyed(id, header, payload);
@@ -946,7 +946,7 @@ void Core::DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate keybind that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitKeybindDestroyed(id, header, payload);
@@ -986,7 +986,7 @@ void Core::DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload)
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate object that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitObjectDestroyed(id, header, payload);
@@ -1026,7 +1026,7 @@ void Core::DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload)
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate pickup that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitPickupDestroyed(id, header, payload);
@@ -1066,7 +1066,7 @@ void Core::DeallocSprite(Int32 id, bool destroy, Int32 header, Object & payload)
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate sprite that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitSpriteDestroyed(id, header, payload);
@@ -1106,7 +1106,7 @@ void Core::DeallocTextdraw(Int32 id, bool destroy, Int32 header, Object & payloa
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate textdraw that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitTextdrawDestroyed(id, header, payload);
@@ -1146,7 +1146,7 @@ void Core::DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate vehicle that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitVehicleDestroyed(id, header, payload);
@@ -1411,7 +1411,7 @@ void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot allocate player that already exists: %d", id);
+        return; // Nothing to allocate!
     }
     // Instantiate the entity manager
     inst.mInst = new CPlayer(id);
@@ -1449,7 +1449,7 @@ void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
     // Make sure that the instance is even allocated
     if (INVALID_ENTITY(inst.mID))
     {
-        STHROWF("Cannot deallocate player that doesn't exists: %d", id);
+        return; // Nothing to dealocate!
     }
     // Let the script callbacks know this entity should no longer be used
     EmitPlayerDestroyed(id, header, payload);
@@ -2306,31 +2306,31 @@ void Core::EmitEntityPool(Int32 type, Int32 id, bool deleted)
     switch (type)
     {
         case SQMOD_ENTITY_POOL_VEHICLE:
-            if (deleted)
+            if (deleted && VALID_ENTITY(m_Vehicles[id].mID))
             {
                 DeallocVehicle(id, false, SQMOD_DESTROY_POOL, NullObject());
             }
-            else
+            else if (INVALID_ENTITY(m_Vehicles[id].mID))
             {
                 AllocVehicle(id, false, SQMOD_CREATE_POOL, NullObject());
             }
         break;
         case SQMOD_ENTITY_POOL_OBJECT:
-            if (deleted)
+            if (deleted && VALID_ENTITY(m_Objects[id].mID))
             {
                 DeallocObject(id, false, SQMOD_DESTROY_POOL, NullObject());
             }
-            else
+            else if (INVALID_ENTITY(m_Objects[id].mID))
             {
                 AllocObject(id, false, SQMOD_CREATE_POOL, NullObject());
             }
         break;
         case SQMOD_ENTITY_POOL_PICKUP:
-            if (deleted)
+            if (deleted && VALID_ENTITY(m_Pickups[id].mID))
             {
                 DeallocPickup(id, false, SQMOD_DESTROY_POOL, NullObject());
             }
-            else
+            else if (INVALID_ENTITY(m_Pickups[id].mID))
             {
                 AllocPickup(id, false, SQMOD_CREATE_POOL, NullObject());
             }
@@ -2339,31 +2339,31 @@ void Core::EmitEntityPool(Int32 type, Int32 id, bool deleted)
             // @TODO Implement...
         break;
         case SQMOD_ENTITY_POOL_SPRITE:
-            if (deleted)
+            if (deleted && VALID_ENTITY(m_Sprites[id].mID))
             {
                 DeallocPickup(id, false, SQMOD_DESTROY_POOL, NullObject());
             }
-            else
+            else if (INVALID_ENTITY(m_Sprites[id].mID))
             {
                 AllocPickup(id, false, SQMOD_CREATE_POOL, NullObject());
             }
         break;
         case SQMOD_ENTITY_POOL_TEXTDRAW:
-            if (deleted)
+            if (deleted && VALID_ENTITY(m_Textdraws[id].mID))
             {
                 DeallocTextdraw(id, false, SQMOD_DESTROY_POOL, NullObject());
             }
-            else
+            else if (INVALID_ENTITY(m_Textdraws[id].mID))
             {
                 AllocTextdraw(id, false, SQMOD_CREATE_POOL, NullObject());
             }
         break;
         case SQMOD_ENTITY_POOL_BLIP:
-            if (deleted)
+            if (deleted && VALID_ENTITY(m_Blips[id].mID))
             {
                 DeallocBlip(id, false, SQMOD_DESTROY_POOL, NullObject());
             }
-            else
+            else if (INVALID_ENTITY(m_Blips[id].mID))
             {
                 // Make sure that the specified entity identifier is valid
                 if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
