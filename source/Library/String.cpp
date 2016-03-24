@@ -474,12 +474,12 @@ static SQInteger SqCenterStr(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr StrJustAlphaNum(CSStr str)
+Buffer StrJustAlphaNumB(CSStr str)
 {
     // See if we actually have something to search for
     if(!str || *str == '\0')
     {
-        return _SC(""); // Default to an empty string!
+        return Buffer(); // Default to an empty buffer!
     }
     // Calculate the string length
     Uint32 size = std::strlen(str);
@@ -501,8 +501,49 @@ CSStr StrJustAlphaNum(CSStr str)
     }
     // End the resulted string
     b.At(n) = '\0';
-    // Return the string
-    return b.Get< SQChar >();
+    // Move the cursor to the end
+    b.Move(n);
+    // Return ownership of the buffer
+    return std::move(b);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr StrJustAlphaNum(CSStr str)
+{
+    // See if we actually have something to search for
+    if(!str || *str == '\0')
+    {
+        return _SC(""); // Default to an empty string!
+    }
+    // Attempt to convert and return the result
+    return StrJustAlphaNumB(str).Get< SQChar >();
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqJustAlphaNum(HSQUIRRELVM vm)
+{
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Forward the call to the actual implementation and store the buffer
+    Buffer b(StrJustAlphaNumB(val.mPtr));
+    // Is there anything in the buffer?
+    if (!b)
+    {
+        // Default to an empty string
+        sq_pushstring(vm, _SC(""), 0);
+    }
+    else
+    {
+        // Push the buffer data as a string
+        sq_pushstring(vm, b.Data(), b.Position());
+    }
+    // We have a value to return on the stack
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1186,7 +1227,6 @@ void Register_String(HSQUIRRELVM vm)
     Table strns(vm);
 
     strns.Func(_SC("FromArray"), &FromArray)
-    .Func(_SC("JustAlphaNum"), &StrJustAlphaNum)
     .Func(_SC("Explode"), &StrExplode)
     .Func(_SC("Implode"), &StrImplode)
     .SquirrelFunc(_SC("Center"), &SqCenterStr)
@@ -1198,6 +1238,7 @@ void Register_String(HSQUIRRELVM vm)
     .SquirrelFunc(_SC("ToUpper"), &SqToUppercase)
     .SquirrelFunc(_SC("Lowercase"), &SqToLowercase)
     .SquirrelFunc(_SC("Uppercase"), &SqToUppercase)
+    .SquirrelFunc(_SC("JustAlnum"), &SqJustAlphaNum)
     .SquirrelFunc(_SC("AreAllSpace"), &StrCType< CharClassSpec< CharClass::IsSpace > >::AllChars)
     .SquirrelFunc(_SC("AreAllPrint"), &StrCType< CharClassSpec< CharClass::IsPrint > >::AllChars)
     .SquirrelFunc(_SC("AreAllCntrl"), &StrCType< CharClassSpec< CharClass::IsCntrl > >::AllChars)
