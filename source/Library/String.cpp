@@ -19,7 +19,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CSStr LeftStr(CSStr t, SQChar f, Uint32 w)
+CSStr LeftStr(CSStr s, SQChar f, Uint32 w)
 {
     // Is the specified width valid?
     if (!w)
@@ -29,7 +29,7 @@ CSStr LeftStr(CSStr t, SQChar f, Uint32 w)
     // Allocate a buffer with the requested width
     Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
-    if (!t || *t == '\0')
+    if (!s || *s == '\0')
     {
         // Insert only the fill character
         std::memset(b.Data(), f, w);
@@ -37,11 +37,11 @@ CSStr LeftStr(CSStr t, SQChar f, Uint32 w)
     else
     {
         // Calculate the string length
-        const Uint32 n = strlen(t);
+        const Uint32 n = std::strlen(s);
         // Insert only the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
-        std::strncpy(b.Data(), t, n);
+        std::strncpy(b.Data(), s, n);
     }
     // End the resulted string
     b.At(w) = '\0';
@@ -49,7 +49,57 @@ CSStr LeftStr(CSStr t, SQChar f, Uint32 w)
     return b.Get< SQChar >();
 }
 
-CSStr LeftStr(CSStr t, SQChar f, Uint32 w, Uint32 o)
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqLeftStr(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the fill character specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing fill character");
+    }
+    // Was the string width specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing string boundaries");
+    }
+    // Was the string value specified?
+    else if (top <= 3)
+    {
+        return sq_throwerror(vm, "Missing string value");
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 4);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // The fill character and string boundaries
+    SQChar fchar = 0;
+    Uint32 width = 0;
+    // Attempt to retrieve the remaining arguments from the stack
+    try
+    {
+        fchar = Var< SQChar >(vm, 2).value;
+        width = Var< Uint32 >(vm, 3).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        return sq_throwerror(vm, e.Message().c_str());
+    }
+    catch (...)
+    {
+        return sq_throwerror(vm, "Unable to retrieve arguments");
+    }
+    // Forward the call to the actual implementation
+    sq_pushstring(vm, LeftStr(val.mPtr, fchar, width), -1);
+    // We have an argument on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr LeftStr(CSStr s, SQChar f, Uint32 w, Uint32 o)
 {
     // Is the specified width valid?
     if (!w)
@@ -64,19 +114,26 @@ CSStr LeftStr(CSStr t, SQChar f, Uint32 w, Uint32 o)
     // Allocate a buffer with the requested width
     Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
-    if (!t || *t == '\0')
+    if (!s || *s == '\0')
     {
         // Insert only the fill character
         std::memset(b.Data(), f, w);
     }
     else
     {
-        // Clculate the string length
-        const Uint32 n = strlen(t);
+        // Calculate the string length
+        const Uint32 n = std::strlen(s);
         // Insert the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
-        std::strncpy(b.Data() + o, t, w - n);
+        if (n > (w - o))
+        {
+            std::strncpy(b.Data() + o, s, n);
+        }
+        else
+        {
+            std::memcpy(b.Data() + o, s, (n) * sizeof(SQChar));
+        }
     }
     // End the resulted string
     b.At(w) = '\0';
@@ -85,7 +142,68 @@ CSStr LeftStr(CSStr t, SQChar f, Uint32 w, Uint32 o)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr RightStr(CSStr t, SQChar f, Uint32 w)
+static SQInteger SqLeftOffsetStr(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the fill character specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing fill character");
+    }
+    // Was the string width specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing string boundaries");
+    }
+    // Was the string offset specified?
+    else if (top <= 3)
+    {
+        return sq_throwerror(vm, "Missing string offset");
+    }
+    // Was the string value specified?
+    else if (top <= 4)
+    {
+        return sq_throwerror(vm, "Missing string value");
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 5);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // The fill character and string boundaries
+    SQChar fchar = 0;
+    Uint32 width = 0;
+    Uint32 offset = 0;
+    // Attempt to retrieve the remaining arguments from the stack
+    try
+    {
+        fchar = Var< SQChar >(vm, 2).value;
+        width = Var< Uint32 >(vm, 3).value;
+        offset = Var< Uint32 >(vm, 4).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        return sq_throwerror(vm, e.Message().c_str());
+    }
+    catch (...)
+    {
+        return sq_throwerror(vm, "Unable to retrieve arguments");
+    }
+    // Is the specified offset within width range?
+    if (offset > width)
+    {
+        return sq_throwerror(vm, "Offset is out of bounds");
+    }
+    // Forward the call to the actual implementation
+    sq_pushstring(vm, LeftStr(val.mPtr, fchar, width, offset), -1);
+    // We have an argument on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr RightStr(CSStr s, SQChar f, Uint32 w)
 {
     // Is the specified width valid?
     if (!w)
@@ -95,7 +213,7 @@ CSStr RightStr(CSStr t, SQChar f, Uint32 w)
     // Allocate a buffer with the requested width
     Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
-    if (!t || *t == '\0')
+    if (!s || *s == '\0')
     {
         // Insert only the fill character
         std::memset(b.Data(), f, w);
@@ -103,17 +221,17 @@ CSStr RightStr(CSStr t, SQChar f, Uint32 w)
     else
     {
         // Calculate the string length
-        const Uint32 n = strlen(t);
+        const Uint32 n = std::strlen(s);
         // Insert the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
         if (n >= w)
         {
-            std::strncpy(b.Data(), t, w);
+            std::strncpy(b.Data(), s, w);
         }
         else
         {
-            std::strncpy(b.Data() + (w - n), t, n);
+            std::strncpy(b.Data() + (w - n), s, n);
         }
     }
     // End the resulted string
@@ -122,7 +240,57 @@ CSStr RightStr(CSStr t, SQChar f, Uint32 w)
     return b.Get< SQChar >();
 }
 
-CSStr RightStr(CSStr t, SQChar f, Uint32 w, Uint32 o)
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqRightStr(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the fill character specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing fill character");
+    }
+    // Was the string width specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing string boundaries");
+    }
+    // Was the string value specified?
+    else if (top <= 3)
+    {
+        return sq_throwerror(vm, "Missing string value");
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 4);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // The fill character and string boundaries
+    SQChar fchar = 0;
+    Uint32 width = 0;
+    // Attempt to retrieve the remaining arguments from the stack
+    try
+    {
+        fchar = Var< SQChar >(vm, 2).value;
+        width = Var< Uint32 >(vm, 3).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        return sq_throwerror(vm, e.Message().c_str());
+    }
+    catch (...)
+    {
+        return sq_throwerror(vm, "Unable to retrieve arguments");
+    }
+    // Forward the call to the actual implementation
+    sq_pushstring(vm, RightStr(val.mPtr, fchar, width), -1);
+    // We have an argument on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr RightStr(CSStr s, SQChar f, Uint32 w, Uint32 o)
 {
     // Is the specified width valid?
     if (!w)
@@ -137,7 +305,7 @@ CSStr RightStr(CSStr t, SQChar f, Uint32 w, Uint32 o)
     // Allocate a buffer with the requested width
     Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
-    if (!t || *t == '\0')
+    if (!s || *s == '\0')
     {
         // Insert only the fill character
         std::memset(b.Data(), f, w);
@@ -145,17 +313,17 @@ CSStr RightStr(CSStr t, SQChar f, Uint32 w, Uint32 o)
     else
     {
         // Calculate the string length
-        const Uint32 n = strlen(t);
+        const Uint32 n = std::strlen(s);
         // Insert the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
         if (n >= w || (n + o) >= w)
         {
-            std::strncpy(b.Data(), t, w - o);
+            std::strncpy(b.Data(), s, w - o);
         }
         else
         {
-            std::strncpy(b.Data() + ((w - n) - o), t, n);
+            std::strncpy(b.Data() + ((w - n) - o), s, n);
         }
     }
     // End the resulted string
@@ -165,7 +333,68 @@ CSStr RightStr(CSStr t, SQChar f, Uint32 w, Uint32 o)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CenterStr(CSStr t, SQChar f, Uint32 w)
+static SQInteger SqRightOffsetStr(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the fill character specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing fill character");
+    }
+    // Was the string width specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing string boundaries");
+    }
+    // Was the string offset specified?
+    else if (top <= 3)
+    {
+        return sq_throwerror(vm, "Missing string offset");
+    }
+    // Was the string value specified?
+    else if (top <= 4)
+    {
+        return sq_throwerror(vm, "Missing string value");
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 5);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // The fill character and string boundaries
+    SQChar fchar = 0;
+    Uint32 width = 0;
+    Uint32 offset = 0;
+    // Attempt to retrieve the remaining arguments from the stack
+    try
+    {
+        fchar = Var< SQChar >(vm, 2).value;
+        width = Var< Uint32 >(vm, 3).value;
+        offset = Var< Uint32 >(vm, 4).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        return sq_throwerror(vm, e.Message().c_str());
+    }
+    catch (...)
+    {
+        return sq_throwerror(vm, "Unable to retrieve arguments");
+    }
+    // Is the specified offset within width range?
+    if (offset > width)
+    {
+        return sq_throwerror(vm, "Offset is out of bounds");
+    }
+    // Forward the call to the actual implementation
+    sq_pushstring(vm, RightStr(val.mPtr, fchar, width, offset), -1);
+    // We have an argument on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr CenterStr(CSStr s, SQChar f, Uint32 w)
 {
     // Is the specified width valid?
     if (!w)
@@ -175,7 +404,7 @@ CSStr CenterStr(CSStr t, SQChar f, Uint32 w)
     // Allocate a buffer with the requested width
     Buffer b(w + 1); // + null terminator
     // Is the specified string valid?
-    if (!t || *t == '\0')
+    if (!s || *s == '\0')
     {
         // Insert only the fill character
         std::memset(b.Data(), f, w);
@@ -183,16 +412,65 @@ CSStr CenterStr(CSStr t, SQChar f, Uint32 w)
     else
     {
         // Calculate the string length
-        const Uint32 n = strlen(t);
+        const Uint32 n = std::strlen(s);
         // Insert only the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
-        std::strncpy(b.Data() + ((w/2) - (n/2)), t, n);
+        std::strncpy(b.Data() + ((w/2) - (n/2)), s, n);
     }
     // End the resulted string
     b.At(w) = '\0';
     // Return the resulted string
     return b.Get< SQChar >();
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqCenterStr(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the fill character specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing fill character");
+    }
+    // Was the string width specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing string boundaries");
+    }
+    // Was the string value specified?
+    else if (top <= 3)
+    {
+        return sq_throwerror(vm, "Missing string value");
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 4);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // The fill character and string boundaries
+    SQChar fchar = 0;
+    Uint32 width = 0;
+    // Attempt to retrieve the remaining arguments from the stack
+    try
+    {
+        fchar = Var< SQChar >(vm, 2).value;
+        width = Var< Uint32 >(vm, 3).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        return sq_throwerror(vm, e.Message().c_str());
+    }
+    catch (...)
+    {
+        return sq_throwerror(vm, "Unable to retrieve arguments");
+    }
+    // Forward the call to the actual implementation
+    sq_pushstring(vm, CenterStr(val.mPtr, fchar, width), -1);
+    // We have an argument on the stack
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -228,12 +506,12 @@ CSStr StrJustAlphaNum(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr StrToLowercase(CSStr str)
+Buffer StrToLowercaseB(CSStr str)
 {
     // See if we actually have something to search for
     if(!str || *str == '\0')
     {
-        return _SC(""); // Default to an empty string!
+        return Buffer(); // Default to an empty buffer!
     }
     // Calculate the string length
     Uint32 size = std::strlen(str);
@@ -251,8 +529,77 @@ CSStr StrToLowercase(CSStr str)
     }
     // End the resulted string
     b.At(n) = '\0';
-    // Return the string
-    return b.Get< SQChar >();
+    // Move the cursor to the end
+    b.Move(n);
+    // Return ownership of the buffer
+    return std::move(b);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr StrToLowercase(CSStr str)
+{
+    // See if we actually have something to search for
+    if(!str || *str == '\0')
+    {
+        return _SC(""); // Default to an empty string!
+    }
+    // Attempt to convert and return the result
+    return StrToLowercaseB(str).Get< SQChar >();
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqToLowercase(HSQUIRRELVM vm)
+{
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Forward the call to the actual implementation and store the buffer
+    Buffer b(StrToLowercaseB(val.mPtr));
+    // Is there anything in the buffer?
+    if (!b)
+    {
+        // Default to an empty string
+        sq_pushstring(vm, _SC(""), 0);
+    }
+    else
+    {
+        // Push the buffer data as a string
+        sq_pushstring(vm, b.Data(), b.Position());
+    }
+    // We have a value to return on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Buffer StrToUppercaseB(CSStr str)
+{
+    // See if we actually have something to search for
+    if(!str || *str == '\0')
+    {
+        return Buffer(); // Default to an empty buffer!
+    }
+    // Calculate the string length
+    Uint32 size = std::strlen(str); // + null terminator
+    // Obtain a temporary buffer
+    Buffer b(size + 1); // + null terminator
+    // Resulted string size
+    Uint32 n = 0;
+    // Process characters
+    while (*str != '\0')
+    {
+        // Convert it and move to the next one
+        b.At(n++) = std::toupper(*(str++));
+    }
+    // End the resulted string
+    b.At(n) = '\0';
+    // Move the cursor to the end
+    b.Move(n);
+    // Return ownership of the buffer
+    return std::move(b);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -263,28 +610,39 @@ CSStr StrToUppercase(CSStr str)
     {
         return _SC(""); // Default to an empty string!
     }
-    // Calculate the string length
-    Uint32 size = std::strlen(str); // + null terminator
-    // Obtain a temporary buffer
-    Buffer b(size + 1); // + null terminator
-    // Resulted string size
-    Uint32 n = 0;
-    // Currently processed character
-    SQChar c = 0;
-    // Process characters
-    while ((c = *(str++)) != '\0')
+    // Attempt to convert and return the result
+    return StrToUppercaseB(str).Get< SQChar >();
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqToUppercase(HSQUIRRELVM vm)
+{
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
     {
-        // Convert it and move to the next one
-        b.At(n++) = std::toupper(c);
+        return val.mRes; // Propagate the error!
     }
-    // End the resulted string
-    b.At(n) = '\0';
-    // Return the string
-    return b.Get< SQChar >();
+    // Forward the call to the actual implementation and store the buffer
+    Buffer b(StrToUppercaseB(val.mPtr));
+    // Is there anything in the buffer?
+    if (!b)
+    {
+        // Default to an empty string
+        sq_pushstring(vm, _SC(""), 0);
+    }
+    else
+    {
+        // Push the buffer data as a string
+        sq_pushstring(vm, b.Data(), b.Position());
+    }
+    // We have a value to return on the stack
+    return 1;
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Known character clasifications
+ * Known character classifications
 */
 enum struct CharClass
 {
@@ -830,16 +1188,18 @@ void Register_String(HSQUIRRELVM vm)
     Table strns(vm);
 
     strns.Func(_SC("FromArray"), &FromArray)
-    .Overload< CSStr (*)(CSStr, SQChar, Uint32) >(_SC("Left"), &LeftStr)
-    .Overload< CSStr (*)(CSStr, SQChar, Uint32, Uint32) >(_SC("Left"), &LeftStr)
-    .Overload< CSStr (*)(CSStr, SQChar, Uint32) >(_SC("Right"), &RightStr)
-    .Overload< CSStr (*)(CSStr, SQChar, Uint32, Uint32) >(_SC("Right"), &RightStr)
-    .Func(_SC("Center"), &CenterStr)
     .Func(_SC("JustAlphaNum"), &StrJustAlphaNum)
-    .Func(_SC("Lowercase"), &StrToLowercase)
-    .Func(_SC("Uppercase"), &StrToUppercase)
     .Func(_SC("Explode"), &StrExplode)
     .Func(_SC("Implode"), &StrImplode)
+    .SquirrelFunc(_SC("Center"), &SqCenterStr)
+    .SquirrelFunc(_SC("Left"), &SqLeftStr)
+    .SquirrelFunc(_SC("Right"), &SqRightStr)
+    .SquirrelFunc(_SC("LeftOffset"), &SqLeftOffsetStr)
+    .SquirrelFunc(_SC("RightOffset"), &SqRightOffsetStr)
+    .SquirrelFunc(_SC("Lower"), &SqToLowercase)
+    .SquirrelFunc(_SC("Upper"), &SqToUppercase)
+    .SquirrelFunc(_SC("Lowercase"), &SqToLowercase)
+    .SquirrelFunc(_SC("Uppercase"), &SqToUppercase)
     .SquirrelFunc(_SC("AreAllSpace"), &StrCType< CharClassSpec< CharClass::IsSpace > >::AllChars)
     .SquirrelFunc(_SC("AreAllPrint"), &StrCType< CharClassSpec< CharClass::IsPrint > >::AllChars)
     .SquirrelFunc(_SC("AreAllCntrl"), &StrCType< CharClassSpec< CharClass::IsCntrl > >::AllChars)
