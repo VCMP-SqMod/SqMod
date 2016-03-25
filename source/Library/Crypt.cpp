@@ -67,12 +67,16 @@ void AES256::Init(CSStr key)
     aes256_done(&m_Context);
     // Is the specified key empty?
     if (!key || *key == 0)
+    {
         return; // Leave the context with an empty key
+    }
     // Obtain the specified key size
     const Uint32 size = (strlen(key) * sizeof(SQChar));
     // See if the key size is accepted
     if (size > sizeof(m_Buffer))
+    {
         STHROWF("The specified key is out of bounds: %u > %u", size, sizeof(m_Buffer));
+    }
     // Initialize the key buffer to 0
     memset(m_Buffer, 0, sizeof(m_Buffer));
     // Copy the key into the key buffer
@@ -92,15 +96,21 @@ String AES256::Encrypt(CSStr data)
 {
     // Is there any data to encrypt?
     if (!data || *data == 0)
+    {
         return String();
+    }
     // Copy the data into an editable string
     String str(data);
     // Make sure that we have a size with a multiple of 16
     if ((str.size() % 16) != 0)
+    {
         str.resize(str.size() - (str.size() % 16) + 16);
+    }
     // Encrypt in chunks of 16 characters
     for (Uint32 n = 0; n < str.size(); n += 16)
+    {
         aes256_encrypt_ecb(&m_Context, reinterpret_cast< Uint8 * >(&str[n]));
+    }
     // Return ownership of the encrypted string
     return std::move(str);
 }
@@ -110,18 +120,26 @@ String AES256::Decrypt(CSStr data)
 {
     // Is there any data to decrypt?
     if (!data || *data == 0)
+    {
         return String();
+    }
     // Copy the data into an editable string
     String str(data);
     // Make sure that we have a size with a multiple of 16
     if ((str.size() % 16) != 0)
+    {
         str.resize(str.size() - (str.size() % 16) + 16);
+    }
     // Decrypt inc chunks of 16 characters
     for (Uint32 n = 0; n < str.size(); n += 16)
+    {
         aes256_decrypt_ecb(&m_Context, reinterpret_cast< Uint8 * >(&str[n]));
+    }
     // Remove null characters in case the string was not a multiple of 16 when encrypted
     while (!str.empty() && str.back() == 0)
+    {
         str.pop_back();
+    }
     // Return ownership of the encrypted string
     return std::move(str);
 }
@@ -142,37 +160,17 @@ template < class T > T BaseHash< T >::Algo;
 */
 template < class T > static SQInteger HashF(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
-    // Was the hash value specified?
-    if (top <= 1)
-        return sq_throwerror(vm, "Missing hash value");
-    // Do we have enough values to call the format function?
-    else if (top > 2)
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
     {
-        SStr val = NULL;
-        SQInteger len = 0;
-        // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 2, &len, &val);
-        // Did the format failed?
-        if (SQ_FAILED(ret))
-            return ret; // Propagate the exception
-        // Hash the resulted string
-        String str(BaseHash< T >::Algo(val));
-        // Push the string on the stack
-        sq_pushstring(vm, str.data(), str.size());
+        return val.mRes; // Propagate the error!
     }
-    else
-    {
-        // Attempt to retrieve the value from the stack as a string
-        Var< CSStr > val(vm, 2);
-        // See if the obtained value is a valid string
-        if (!val.value)
-            return sq_throwerror(vm, "Unable to retrieve the value");
-        // Hash the resulted string
-        String str(BaseHash< T >::Algo(val.value));
-        // Push the string on the stack
-        sq_pushstring(vm, str.data(), str.size());
-    }
+    // Forward the call to the actual implementation and store the string
+    String str(BaseHash< T >::Algo(val.mPtr));
+    // Push the string on the stack
+    sq_pushstring(vm, str.data(), str.size());
     // At this point we have a valid string on the stack
     return 1;
 }
