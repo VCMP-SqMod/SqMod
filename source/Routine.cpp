@@ -71,8 +71,8 @@ void Routine::Detach(Routine * routine, Interval interval)
     {
         bitr->mRoutines.erase(ritr); // Then erase it and move on
     }
-    // Any reason to keep this bucket?
-    if (bitr->mRoutines.empty())
+    // Any reason to keep this bucket? (don't immediate routines with interval of 1)
+    if (interval != 1 && bitr->mRoutines.empty())
     {
         s_Buckets.erase(bitr); // Remove the bucket as well
     }
