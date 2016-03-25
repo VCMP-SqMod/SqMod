@@ -4,9 +4,6 @@
 #include "Base/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <sqstdstring.h>
-
-// ------------------------------------------------------------------------------------------------
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
@@ -1206,17 +1203,15 @@ static CSStr FromArray(Array & arr)
 // ------------------------------------------------------------------------------------------------
 static SQInteger StdPrintF(HSQUIRRELVM vm)
 {
-    CStr msg = nullptr;
-    SQInteger length = 0;
-    // Attempt to run the specified format and save the result
-    const SQRESULT res = sqstd_format(vm, 2, &length, &msg);
-    // Validate the result for errors and propagate them to the VM
-    if(SQ_FAILED(res))
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
     {
-        return res; // Return the error!
+        return val.mRes; // Propagate the error!
     }
     // Send the resulted string to console as a user message
-    LogUsr("%s", msg);
+    LogUsr("%s", val.mPtr);
     // This function doesn't return anything
     return 0;
 }
