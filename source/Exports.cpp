@@ -3,7 +3,8 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Library/Numeric.hpp"
-#include "Library/Time.hpp"
+#include "Library/Chrono.hpp"
+#include "Library/Chrono/Timestamp.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cmath>
