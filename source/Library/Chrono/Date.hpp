@@ -14,6 +14,12 @@ class Date
 {
 public:
 
+    // ------------------------------------------------------------------------------------------------
+    static SQChar       Delimiter;
+
+    // ------------------------------------------------------------------------------------------------
+    static const Uint8  MonthLengths[12];
+
     /* ------------------------------------------------------------------------------------------------
      * Default constructor.
     */
@@ -21,6 +27,7 @@ public:
         : m_Year(1970)
         , m_Month(1)
         , m_Day(1)
+        , m_Delimiter(Delimiter)
     {
         /* ... */
     }
@@ -29,6 +36,7 @@ public:
      * Base constructor.
     */
     Date(Uint16 year)
+        : m_Delimiter(Delimiter)
     {
         Set(year, 1, 1);
     }
@@ -37,6 +45,7 @@ public:
      * Base constructor.
     */
     Date(Uint16 year, Uint8 month)
+        : m_Delimiter(Delimiter)
     {
         Set(year, month, 1);
     }
@@ -45,6 +54,7 @@ public:
      * Base constructor.
     */
     Date(Uint16 year, Uint8 month, Uint8 day)
+        : m_Delimiter(Delimiter)
     {
         Set(year, month, day);
     }
@@ -53,6 +63,7 @@ public:
      * String constructor.
     */
     Date(CSStr str)
+        : m_Delimiter(Delimiter)
     {
         SetStr(str);
     }
@@ -169,6 +180,22 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* ------------------------------------------------------------------------------------------------
+     * Retrieve the local delimiter character.
+    */
+    SQChar GetDelimiter() const
+    {
+        return m_Delimiter;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Modify the local delimiter character.
+    */
+    void SetDelimiter(SQChar c)
+    {
+        m_Delimiter = c;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
     void Set(Uint16 year)
@@ -253,6 +280,30 @@ public:
     */
     Date AddDays(Int32 days);
 
+    /* ------------------------------------------------------------------------------------------------
+     * See whether the associated year is a leap year.
+    */
+    bool IsThisLeapYear() const
+    {
+        return IsLeapYear(m_Year);
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Retrieve the number of days in the associated year.
+    */
+    Uint16 GetYearDays() const
+    {
+        return DaysInYear(m_Year);
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Retrieve the number of days in the associated month.
+    */
+    Uint8 GetMonthDays() const
+    {
+        return DaysInMonth(m_Year, m_Month);
+    }
+
 protected:
 
     /* ------------------------------------------------------------------------------------------------
@@ -263,9 +314,45 @@ protected:
 private:
 
     // ------------------------------------------------------------------------------------------------
-    Uint16  m_Year; // Year
-    Uint8   m_Month; // Month
-    Uint8   m_Day; // Day
+    Uint16          m_Year; // Year
+    Uint8           m_Month; // Month
+    Uint8           m_Day; // Day
+
+    // ------------------------------------------------------------------------------------------------
+    SQChar          m_Delimiter; // Component delimiter when generating strings.
+
+public:
+
+    /* ------------------------------------------------------------------------------------------------
+     * See whether the specified year is a leap year.
+    */
+    static bool IsLeapYear(Uint16 year)
+    {
+        return !(year % 400) || (!(year % 4) && (year % 100));
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * See whether the specified date is valid.
+    */
+    static bool ValidDate(Uint16 year, Uint8 month, Uint8 day);
+
+    /* ------------------------------------------------------------------------------------------------
+     * retrieve the number of days in the specified year.
+    */
+    static Uint16 DaysInYear(Uint16 year)
+    {
+        return IsLeapYear(year) ? 366 : 365;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Retrieve the number of days in the specified month.
+    */
+    static Uint8 DaysInMonth(Uint16 year, Uint8 month);
+
+    /* ------------------------------------------------------------------------------------------------
+     * Retrieve the number/position of the specified day in the specified year and month.
+    */
+    static Uint16 DayOfYear(Uint16 year, Uint8 month, Uint8 day);
 };
 
 } // Namespace:: SqMod

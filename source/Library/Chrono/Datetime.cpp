@@ -10,7 +10,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 
 // ================================================================================================
-void Register_ChronoDatetime(HSQUIRRELVM vm, Table & cns)
+void Register_ChronoDatetime(HSQUIRRELVM vm, Table & /*cns*/)
 {
 
 }

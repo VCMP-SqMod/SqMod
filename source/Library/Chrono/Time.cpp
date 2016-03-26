@@ -8,6 +8,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQChar Time::Delimiter = ':';
+
+// ------------------------------------------------------------------------------------------------
 SQInteger Time::Typename(HSQUIRRELVM vm)
 {
     static SQChar name[] = _SC("SqChronoTime");
@@ -76,9 +79,35 @@ CSStr Time::GetStr() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Time::SetStr(CSStr /*str*/)
+void Time::SetStr(CSStr str)
 {
-
+    // The format specifications that will be used to scan the string
+    static SQChar fs[] = _SC(" %u , %u , %u, %u ");
+    // Is the specified string empty?
+    if (!str || *str == '\0')
+    {
+        // Clear the values
+        m_Hour = 0;
+        m_Minute = 0;
+        m_Second = 0;
+        m_Millisecond = 0;
+        // We're done here
+        return;
+    }
+    // Assign the specified delimiter
+    fs[4] = m_Delimiter;
+    fs[9] = m_Delimiter;
+    fs[14] = m_Delimiter;
+    // The sscanf function requires at least 32 bit integers
+    Uint32 hour = 0, minute = 0, second = 0, milli = 0;
+    // Attempt to extract the component values from the specified string
+    sscanf(str, fs, &hour, &minute, &second, &milli);
+    // Clamp the extracted values to the boundaries of associated type and assign them
+    Set(ClampL< Uint32, Uint8 >(hour),
+        ClampL< Uint32, Uint8 >(minute),
+        ClampL< Uint32, Uint8 >(second),
+        ClampL< Uint32, Uint16 >(milli)
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -125,7 +154,12 @@ Int32 Time::Compare(const Time & o) const
 // ------------------------------------------------------------------------------------------------
 CSStr Time::ToString() const
 {
-    return ToStrF("%02u:%02u:%02u:%u", m_Hour, m_Minute, m_Second, m_Millisecond);
+    return ToStrF("%02u%c%02u%c%02u%c%u"
+        , m_Delimiter, m_Hour
+        , m_Delimiter, m_Minute
+        , m_Delimiter, m_Second
+        , m_Delimiter, m_Millisecond
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -297,7 +331,7 @@ Time Time::AddMilliseconds(Int32 milliseconds)
 }
 
 // ================================================================================================
-void Register_ChronoTime(HSQUIRRELVM vm, Table & cns)
+void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
 {
     RootTable(vm).Bind(_SC("SqTime"), Class< Time >(vm, _SC("SqChronoTime"))
         // Constructors
@@ -306,6 +340,8 @@ void Register_ChronoTime(HSQUIRRELVM vm, Table & cns)
         .Ctor< Uint8, Uint8 >()
         .Ctor< Uint8, Uint8, Uint8 >()
         .Ctor< Uint8, Uint8, Uint8, Uint16 >()
+        // Static Properties
+        .SetStaticValue(_SC("GlobalDelimiter"), &Time::Delimiter)
         // Core Metamethods
         .Func(_SC("_tostring"), &Time::ToString)
         .SquirrelFunc(_SC("_typename"), &Time::Typename)
@@ -321,6 +357,7 @@ void Register_ChronoTime(HSQUIRRELVM vm, Table & cns)
         .Prop(_SC("Second"), &Time::GetSecond, &Time::SetSecond)
         .Prop(_SC("Millisecond"), &Time::GetMillisecond, &Time::SetMillisecond)
         .Prop(_SC("Str"), &Time::GetStr, &Time::SetStr)
+        .Prop(_SC("Delimiter"), &Date::GetDelimiter, &Date::SetDelimiter)
         // Member Methods
         .Func(_SC("AddHours"), &Time::AddHours)
         .Func(_SC("AddMinutes"), &Time::AddMinutes)

@@ -14,6 +14,9 @@ class Time
 {
 public:
 
+    // ------------------------------------------------------------------------------------------------
+    static SQChar   Delimiter;
+
     /* ------------------------------------------------------------------------------------------------
      * Default constructor.
     */
@@ -22,6 +25,7 @@ public:
         , m_Minute(0)
         , m_Second(0)
         , m_Millisecond(0)
+        , m_Delimiter(Delimiter)
     {
         /* ... */
     }
@@ -30,6 +34,7 @@ public:
      * Base constructor.
     */
     Time(Uint8 hour)
+        : m_Delimiter(Delimiter)
     {
         Set(hour, 0, 0, 0);
     }
@@ -38,6 +43,7 @@ public:
      * Base constructor.
     */
     Time(Uint8 hour, Uint8 minute)
+        : m_Delimiter(Delimiter)
     {
         Set(hour, minute, 0, 0);
     }
@@ -46,6 +52,7 @@ public:
      * Base constructor.
     */
     Time(Uint8 hour, Uint8 minute, Uint8 second)
+        : m_Delimiter(Delimiter)
     {
         Set(hour, minute, second, 0);
     }
@@ -54,6 +61,7 @@ public:
      * Base constructor.
     */
     Time(Uint8 hour, Uint8 minute, Uint8 second, Uint16 millisecond)
+        : m_Delimiter(Delimiter)
     {
         Set(hour, minute, second, millisecond);
     }
@@ -62,6 +70,7 @@ public:
      * String constructor.
     */
     Time(CSStr str)
+        : m_Delimiter(Delimiter)
     {
         SetStr(str);
     }
@@ -176,6 +185,22 @@ public:
      * Used by the script engine to retrieve the name from instances of this type.
     */
     static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* ------------------------------------------------------------------------------------------------
+     * Retrieve the local delimiter character.
+    */
+    SQChar GetDelimiter() const
+    {
+        return m_Delimiter;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Modify the local delimiter character.
+    */
+    void SetDelimiter(SQChar c)
+    {
+        m_Delimiter = c;
+    }
 
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
@@ -298,10 +323,13 @@ protected:
 private:
 
     // ------------------------------------------------------------------------------------------------
-    Uint8  m_Hour; // Hour
-    Uint8  m_Minute; // Minute
-    Uint8  m_Second; // Second
-    Uint16 m_Millisecond; // Millisecond
+    Uint8   m_Hour; // Hour
+    Uint8   m_Minute; // Minute
+    Uint8   m_Second; // Second
+    Uint16  m_Millisecond; // Millisecond
+
+    // ------------------------------------------------------------------------------------------------
+    SQChar  m_Delimiter; // Component selimiter when generating strings.
 };
 
 } // Namespace:: SqMod
