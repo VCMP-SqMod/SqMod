@@ -473,6 +473,7 @@ static const Object & Checkpoint_FindByID(Int32 id)
     return NullObject();
 }
 
+// ------------------------------------------------------------------------------------------------
 static const Object & Checkpoint_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
@@ -494,6 +495,35 @@ static const Object & Checkpoint_FindByTag(CSStr tag)
     }
     // Unable to locate a checkpoint matching the specified tag
     return NullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
+static Array Checkpoint_FindActive()
+{
+    // Remember the initial stack size
+    StackGuard sg;
+    // Obtain the ends of the entity pool
+    Core::Checkpoints::const_iterator itr = _Core->GetCheckpoints().cbegin();
+    Core::Checkpoints::const_iterator end = _Core->GetCheckpoints().cend();
+    // Allocate an empty array on the stack
+    sq_newarray(DefaultVM::Get(), 0);
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Is this entity instance active?
+        if (VALID_ENTITY(itr->mID))
+        {
+            // Push the script object on the stack
+            sq_pushobject(DefaultVM::Get(), (HSQOBJECT &)((*itr).mObj));
+            // Append the object at the back of the array
+            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -1)))
+            {
+                STHROWF("Unable to append entity instance to the list");
+            }
+        }
+    }
+    // Return the array at the top of the stack
+    return Var< Array >(DefaultVM::Get(), -1).value;
 }
 
 // ================================================================================================
@@ -541,6 +571,7 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         // Static Functions
         .StaticFunc(_SC("FindByID"), &Checkpoint_FindByID)
         .StaticFunc(_SC("FindByTag"), &Checkpoint_FindByTag)
+        .StaticFunc(_SC("FindActive"), &Checkpoint_FindActive)
         // Static Overloads
         .StaticOverload< Object & (*)(CPlayer &, Int32, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
             (_SC("CreateEx"), &Checkpoint_CreateEx)
