@@ -517,6 +517,7 @@ static const Object & Sprite_FindByID(Int32 id)
     return NullObject();
 }
 
+// ------------------------------------------------------------------------------------------------
 static const Object & Sprite_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
@@ -538,6 +539,35 @@ static const Object & Sprite_FindByTag(CSStr tag)
     }
     // Unable to locate a sprite matching the specified tag
     return NullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
+static Array Sprite_FindActive()
+{
+    // Remember the initial stack size
+    StackGuard sg;
+    // Obtain the ends of the entity pool
+    Core::Sprites::const_iterator itr = _Core->GetSprites().cbegin();
+    Core::Sprites::const_iterator end = _Core->GetSprites().cend();
+    // Allocate an empty array on the stack
+    sq_newarray(DefaultVM::Get(), 0);
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Is this entity instance active?
+        if (VALID_ENTITY(itr->mID))
+        {
+            // Push the script object on the stack
+            sq_pushobject(DefaultVM::Get(), (HSQOBJECT &)((*itr).mObj));
+            // Append the object at the back of the array
+            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -1)))
+            {
+                STHROWF("Unable to append entity instance to the list");
+            }
+        }
+    }
+    // Return the array at the top of the stack
+    return Var< Array >(DefaultVM::Get(), -1).value;
 }
 
 // ================================================================================================
@@ -601,6 +631,7 @@ void Register_CSprite(HSQUIRRELVM vm)
         // Static Functions
         .StaticFunc(_SC("FindByID"), &Sprite_FindByID)
         .StaticFunc(_SC("FindByTag"), &Sprite_FindByTag)
+        .StaticFunc(_SC("FindActive"), &Sprite_FindActive)
         // Static Overloads
         .StaticOverload< Object & (*)(CSStr, Int32, Int32, Int32, Int32, Float32, Int32, bool rel) >
             (_SC("CreateEx"), &Sprite_CreateEx)
