@@ -1722,6 +1722,7 @@ static const Object & Player_FindByID(Int32 id)
     return NullObject();
 }
 
+// ------------------------------------------------------------------------------------------------
 static const Object & Player_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
@@ -1743,6 +1744,35 @@ static const Object & Player_FindByTag(CSStr tag)
     }
     // Unable to locate a player matching the specified tag
     return NullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
+static Array Player_FindActive()
+{
+    // Remember the initial stack size
+    StackGuard sg;
+    // Obtain the ends of the entity pool
+    Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();
+    Core::Players::const_iterator end = _Core->GetPlayers().cend();
+    // Allocate an empty array on the stack
+    sq_newarray(DefaultVM::Get(), 0);
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Is this entity instance active?
+        if (VALID_ENTITY(itr->mID))
+        {
+            // Push the script object on the stack
+            sq_pushobject(DefaultVM::Get(), (HSQOBJECT &)((*itr).mObj));
+            // Append the object at the back of the array
+            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -1)))
+            {
+                STHROWF("Unable to append entity instance to the list");
+            }
+        }
+    }
+    // Return the array at the top of the stack
+    return Var< Array >(DefaultVM::Get(), -1).value;
 }
 
 // ================================================================================================
@@ -1877,6 +1907,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         // Static Functions
         .StaticFunc(_SC("FindByID"), &Player_FindByID)
         .StaticFunc(_SC("FindByTag"), &Player_FindByTag)
+        .StaticFunc(_SC("FindActive"), &Player_FindActive)
     );
 }
 
