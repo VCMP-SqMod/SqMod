@@ -380,6 +380,7 @@ static const Object & Pickup_FindByID(Int32 id)
     return NullObject();
 }
 
+// ------------------------------------------------------------------------------------------------
 static const Object & Pickup_FindByTag(CSStr tag)
 {
     // Perform a validity check on the specified tag
@@ -401,6 +402,35 @@ static const Object & Pickup_FindByTag(CSStr tag)
     }
     // Unable to locate a pickup matching the specified tag
     return NullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
+static Array Pickup_FindActive()
+{
+    // Remember the initial stack size
+    StackGuard sg;
+    // Obtain the ends of the entity pool
+    Core::Pickups::const_iterator itr = _Core->GetPickups().cbegin();
+    Core::Pickups::const_iterator end = _Core->GetPickups().cend();
+    // Allocate an empty array on the stack
+    sq_newarray(DefaultVM::Get(), 0);
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Is this entity instance active?
+        if (VALID_ENTITY(itr->mID))
+        {
+            // Push the script object on the stack
+            sq_pushobject(DefaultVM::Get(), (HSQOBJECT &)((*itr).mObj));
+            // Append the object at the back of the array
+            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -1)))
+            {
+                STHROWF("Unable to append entity instance to the list");
+            }
+        }
+    }
+    // Return the array at the top of the stack
+    return Var< Array >(DefaultVM::Get(), -1).value;
 }
 
 // ================================================================================================
@@ -447,6 +477,7 @@ void Register_CPickup(HSQUIRRELVM vm)
         // Static Functions
         .StaticFunc(_SC("FindByID"), &Pickup_FindByID)
         .StaticFunc(_SC("FindByTag"), &Pickup_FindByTag)
+        .StaticFunc(_SC("FindActive"), &Pickup_FindActive)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, Int32, Int32, Float32, Float32, Float32, Int32, bool) >
             (_SC("CreateEx"), &Pickup_CreateEx)
