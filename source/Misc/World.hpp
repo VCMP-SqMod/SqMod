@@ -90,6 +90,7 @@ void CreateExplosionEx(Int32 world, Int32 type, Float32 x, Float32 y, Float32 z,
 // ------------------------------------------------------------------------------------------------
 void HideMapObject(Int32 model, const Vector3 & pos);
 void HideMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z);
+void HideMapObjectRaw(Int32 model, Int32 x, Int32 y, Int32 z);
 
 // ------------------------------------------------------------------------------------------------
 void ShowMapObject(Int32 model, const Vector3 & pos);

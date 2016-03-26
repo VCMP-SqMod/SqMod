@@ -171,9 +171,29 @@ void CreateExplosionEx(Int32 world, Int32 type, Float32 x, Float32 y, Float32 z,
 
 // ------------------------------------------------------------------------------------------------
 void HideMapObject(Int32 model, const Vector3 & pos)
-{ _Func->HideMapObject(model, pos.x, pos.y, pos.z); }
+{
+    _Func->HideMapObject(model,
+        static_cast< Int32 >(std::floor(pos.x * 10.0f) + 0.5f),
+        static_cast< Int32 >(std::floor(pos.y * 10.0f) + 0.5f),
+        static_cast< Int32 >(std::floor(pos.z * 10.0f) + 0.5f)
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
 void HideMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z)
-{ _Func->HideMapObject(model, x, y, z); }
+{
+    _Func->HideMapObject(model,
+        static_cast< Int32 >(std::floor(x * 10.0f) + 0.5f),
+        static_cast< Int32 >(std::floor(y * 10.0f) + 0.5f),
+        static_cast< Int32 >(std::floor(z * 10.0f) + 0.5f)
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+void HideMapObjectRaw(Int32 model, Int32 x, Int32 y, Int32 z)
+{
+    _Func->HideMapObject(model, x, y, z);
+}
 
 // ------------------------------------------------------------------------------------------------
 void ShowMapObject(Int32 model, const Vector3 & pos)
