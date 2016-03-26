@@ -19,7 +19,6 @@
 // ------------------------------------------------------------------------------------------------
 #include <ctime>
 #include <cfloat>
-#include <limits>
 #include <cstdarg>
 #include <cstring>
 #include <algorithm>

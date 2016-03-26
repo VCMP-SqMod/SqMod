@@ -6,6 +6,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <cmath>
+#include <limits>
 
 // ------------------------------------------------------------------------------------------------
 #include <vcmp.h>
@@ -223,6 +224,25 @@ template <> inline bool EpsGtEq(const Float64 a, const Float64 b)
 template< typename T > inline T Clamp(T val, T min, T max)
 {
     return val < min ? min : (val > max ? max : val);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Force a value to be the boundaries of the specified type.
+*/
+template< typename T, typename U > inline U ClampL(T val)
+{
+    // Is the specified value bellow the minimum?
+    if (val < std::numeric_limits< U >::min())
+    {
+        return std::numeric_limits< U >::min();
+    }
+    // Is the specified value above the maximum?
+    else if (val > std::numeric_limits< U >::max())
+    {
+        return std::numeric_limits< U >::max();
+    }
+    // Return the value as is
+    return static_cast< U >(val);
 }
 
 /* ------------------------------------------------------------------------------------------------
