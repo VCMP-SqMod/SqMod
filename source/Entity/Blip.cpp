@@ -344,6 +344,35 @@ static const Object & Blip_FindBySprID(Int32 sprid)
     return NullObject();
 }
 
+// ------------------------------------------------------------------------------------------------
+static Array Blip_FindActive()
+{
+    // Remember the initial stack size
+    StackGuard sg;
+    // Obtain the ends of the entity pool
+    Core::Blips::const_iterator itr = _Core->GetBlips().cbegin();
+    Core::Blips::const_iterator end = _Core->GetBlips().cend();
+    // Allocate an empty array on the stack
+    sq_newarray(DefaultVM::Get(), 0);
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Is this entity instance active?
+        if (VALID_ENTITY(itr->mID))
+        {
+            // Push the script object on the stack
+            sq_pushobject(DefaultVM::Get(), (HSQOBJECT &)((*itr).mObj));
+            // Append the object at the back of the array
+            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -1)))
+            {
+                STHROWF("Unable to append entity instance to the list");
+            }
+        }
+    }
+    // Return the array at the top of the stack
+    return Var< Array >(DefaultVM::Get(), -1).value;
+}
+
 // ================================================================================================
 void Register_CBlip(HSQUIRRELVM vm)
 {
@@ -383,6 +412,7 @@ void Register_CBlip(HSQUIRRELVM vm)
         // Static Functions
         .StaticFunc(_SC("FindByID"), &Blip_FindByID)
         .StaticFunc(_SC("FindByTag"), &Blip_FindByTag)
+        .StaticFunc(_SC("FindActive"), &Blip_FindActive)
         .StaticFunc(_SC("FindBySprID"), &Blip_FindBySprID)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
