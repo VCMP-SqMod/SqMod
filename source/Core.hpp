@@ -11,7 +11,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -20,7 +20,7 @@ namespace SqMod {
 extern SQMOD_MANAGEDPTR_TYPE(Core) _Core;
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Core module class responsible for managing resources.
 */
 class Core
 {
@@ -413,8 +413,8 @@ public:
     typedef VehicleTrack                        VehicleInstTrack[SQMOD_VEHICLE_POOL];
 
     // --------------------------------------------------------------------------------------------
-    typedef std::map< String, Script >          Scripts;
-    typedef std::map< String, String >          Options;
+    typedef std::unordered_map< String, Script >    Scripts;
+    typedef std::unordered_map< String, String >    Options;
 
 private:
 

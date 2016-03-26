@@ -113,7 +113,9 @@ Core::~Core()
 bool Core::Init()
 {
     if (cLogWrn(m_VM, "Already initialized"))
+    {
         return true;
+    }
 
     LogDbg("Resizing the entity containers");
     // Make sure the entity containers have the proper size
@@ -172,9 +174,13 @@ bool Core::Init()
         Ulong num = conf.GetLongValue("Config", "StackSize", SQMOD_STACK_SIZE);
         // Make sure that the retrieved number is within range
         if (!num)
+        {
             throw std::out_of_range("stack size too small");
+        }
         else if (num >= std::numeric_limits< Uint16 >::max())
+        {
             throw std::out_of_range("stack size too big");
+        }
         // Save the port number
         stack_size = static_cast< Uint16 >(num);
     }
@@ -226,7 +232,9 @@ bool Core::Init()
     LogDbg("Registering the plug-in API");
     // Attempt to register the plugin API
     if (cLogFtl(!RegisterAPI(m_VM), "Unable to register the plug-in API"))
+    {
         return false; // Can't execute scripts without a valid API!
+    }
 
     // Attempt to retrieve the list of strings specified in the config
     CSimpleIniA::TNamesDepend scripts;
@@ -244,8 +252,10 @@ bool Core::Init()
         scripts.sort(CSimpleIniA::Entry::LoadOrder());
         // Process each specified script paths
         for (const auto & script : scripts)
+        {
             // Attempt to queue the specified script path for loading
             LoadScript(script.pItem);
+        }
     }
     // See if any script could be queued for loading
     if (m_Scripts.empty() && !conf.GetBoolValue("Config", "EmptyInit", false))
@@ -266,33 +276,53 @@ bool Core::Init()
             CSimpleIniA::TNamesDepend values;
             // Get the values of all keys with the same name
             if (!conf.GetAllValues("Options", option.pItem, values))
+            {
                 continue;
+            }
             // Sort the keys in their original order
             values.sort(CSimpleIniA::Entry::LoadOrder());
             // Save each option option and overwrite existing value
             for (const auto & value : values)
+            {
                 m_Options[option.pItem] = value.pItem;
+            }
         }
     }
     else
+    {
         LogInf("No options specified in the configuration file");
+    }
 
     LogDbg("Applying the specified logging filters");
     // Apply the specified logging filters only after initialization was completed
     if (!conf.GetBoolValue("Log", "Debug", true))
+    {
         _Log->DisableLevel(LL_DBG);
+    }
     if (!conf.GetBoolValue("Log", "User", true))
+    {
         _Log->DisableLevel(LL_USR);
+    }
     if (!conf.GetBoolValue("Log", "Success", true))
+    {
         _Log->DisableLevel(LL_SCS);
+    }
     if (!conf.GetBoolValue("Log", "Info", true))
+    {
         _Log->DisableLevel(LL_INF);
+    }
     if (!conf.GetBoolValue("Log", "Warning", true))
+    {
         _Log->DisableLevel(LL_WRN);
+    }
     if (!conf.GetBoolValue("Log", "Error", true))
+    {
         _Log->DisableLevel(LL_ERR);
+    }
     if (!conf.GetBoolValue("Log", "Fatal", true))
+    {
         _Log->DisableLevel(LL_FTL);
+    }
 
     // Initialization successful
     return true;
@@ -422,16 +452,22 @@ bool Core::LoadScript(CSStr filepath)
 {
     // Is the specified path empty?
     if (!filepath || *filepath == 0)
+    {
         return false; // Simply ignore it
+    }
     // Get the file path as a string
     String path(filepath);
     // See if it wasn't already loaded
     if (m_Scripts.find(path) != m_Scripts.end())
+    {
         LogWrn("Script was specified before: %s", path.c_str());
+    }
     // We don't compile the scripts yet. We just store their path and prepare the objects.
     else
+    {
         // Create a new script container and insert it into the script pool
         m_Scripts.emplace(std::move(path), Script(m_VM));
+    }
     // At this point the script exists in the pool
     return true;
 }
