@@ -89,19 +89,19 @@ void DestroyComponents()
     if (_Cmd)
     {
         SQMOD_MANAGEDPTR_DEL(CmdManager, _Cmd);
-        SQMOD_MANAGEDPTR_MAKE(CmdManager, nullptr);
+        _Cmd = SQMOD_MANAGEDPTR_MAKE(CmdManager, nullptr);
     }
     // Destroy core component
     if (_Core)
     {
         SQMOD_MANAGEDPTR_DEL(Core, _Core);
-        SQMOD_MANAGEDPTR_MAKE(Core, nullptr);
+        _Core = SQMOD_MANAGEDPTR_MAKE(Core, nullptr);
     }
     // Destroy logger component
     if (_Log)
     {
         SQMOD_MANAGEDPTR_DEL(Logger, _Log);
-        SQMOD_MANAGEDPTR_MAKE(Logger, nullptr);
+        _Log = SQMOD_MANAGEDPTR_MAKE(Logger, nullptr);
     }
 }
 
