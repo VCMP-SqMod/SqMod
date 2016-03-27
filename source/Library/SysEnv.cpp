@@ -12,6 +12,7 @@
     #include <windows.h>
     #include <shlobj.h>
 #else
+    #include <linux/limits.h>
     #include <sys/utsname.h>
     #include <unistd.h>
     #include <pwd.h>
@@ -71,7 +72,7 @@ void SysEnv::Get(Buffer & b, CCStr name, CCStr fallback)
         if (!val)
         {
             // Write the fall-back value into the buffer instead
-            Buffer.AppendS(fallback);
+            b.AppendS(fallback);
         }
         else
         {
@@ -728,7 +729,7 @@ void SysEnv::HomeDir(Buffer & b)
             b.AppendS(pwd->pw_dir);
         }
         // Fall back to the system environment variables
-        else if (Has("HOME");)
+        else if (Has("HOME"))
         {
             // Append the contents of the HOME environment variable
             Get(b, "HOME", nullptr);
@@ -984,7 +985,7 @@ void SysEnv::ConfigDir(Buffer & b)
     }
 #else
     // Default to "/etc" directory
-    b.WriteS("/etc/");
+    b.AppendS("/etc/");
 #endif // SQMOD_OS_WINDOWS
     // Make sure that the path is properly terminated
     TerminatePath(b);
@@ -1031,7 +1032,7 @@ void SysEnv::SystemDir(Buffer & b)
     b.Advance(len);
 #else
     // Use a dummy directory for now
-    b.WriteS("/sys/");
+    b.AppendS("/sys/");
 #endif // SQMOD_OS_WINDOWS
     // Make sure that the path is properly terminated
     TerminatePath(b);
