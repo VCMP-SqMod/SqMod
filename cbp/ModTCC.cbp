@@ -17,6 +17,7 @@
 					<Add option="-g" />
 					<Add option="-D_DEBUG" />
 					<Add option="-DTCC_TARGET_I386" />
+					<Add option="-DTCC_TARGET_PE" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
@@ -38,6 +39,7 @@
 					<Add option="-m32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DTCC_TARGET_I386" />
+					<Add option="-DTCC_TARGET_PE" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
@@ -61,6 +63,7 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_SQ64" />
 					<Add option="-DTCC_TARGET_X86_64" />
+					<Add option="-DTCC_TARGET_PE" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
 				<Linker>
@@ -83,6 +86,7 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_SQ64" />
 					<Add option="-DTCC_TARGET_X86_64" />
+					<Add option="-DTCC_TARGET_PE" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
 				<Linker>
@@ -188,6 +192,7 @@
 					<Add option="-enable-static" />
 					<Add option="-D_DEBUG" />
 					<Add option="-DTCC_TARGET_I386" />
+					<Add option="-DTCC_TARGET_PE" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
@@ -213,6 +218,7 @@
 					<Add option="-enable-static" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DTCC_TARGET_I386" />
+					<Add option="-DTCC_TARGET_PE" />
 					<Add directory="../config/mingw32" />
 				</Compiler>
 				<Linker>
@@ -240,6 +246,7 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_SQ64" />
 					<Add option="-DTCC_TARGET_X86_64" />
+					<Add option="-DTCC_TARGET_PE" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
 				<Linker>
@@ -266,6 +273,7 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_SQ64" />
 					<Add option="-DTCC_TARGET_X86_64" />
+					<Add option="-DTCC_TARGET_PE" />
 					<Add directory="../config/mingw64" />
 				</Compiler>
 				<Linker>
@@ -392,7 +400,7 @@
 		</Compiler>
 		<Unit filename="../external/TCC/libtcc.c">
 			<Option compilerVar="CC" />
-			<Option compiler="gcc" use="1" buildCommand="$compiler -Wno-unused-parameter -Wno-unused-function -Wno-sign-compare -Wno-pointer-sign -Wno-missing-field-initializers -Wno-maybe-uninitialized -Wno-return-type $options $includes -c $file -o $object" />
+			<Option compiler="gcc" use="1" buildCommand="$compiler -Wno-unused-parameter -Wno-unused-function -Wno-sign-compare -Wno-pointer-sign -Wno-missing-field-initializers -Wno-maybe-uninitialized -Wno-return-type -Wno-format $options $includes -c $file -o $object" />
 		</Unit>
 		<Unit filename="../modules/tcc/API.cpp" />
 		<Unit filename="../modules/tcc/Common.cpp" />
