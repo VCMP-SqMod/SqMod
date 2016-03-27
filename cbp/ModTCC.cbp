@@ -382,8 +382,7 @@
 			<Add option="-DSQMOD_PLUGIN_API" />
 			<Add option="-DSCRAT_USE_EXCEPTIONS" />
 			<Add option="-DSCRAT_USE_CXX11_OPTIMIZATIONS" />
-			<Add option="-DTCC_IS_NATIVE" />
-			<Add option="-DTCC_TARGET_PE" />
+			<Add option="-DONE_SOURCE" />
 			<Add option="-DCONFIG_TCC_STATIC" />
 			<Add directory="../modules/tcc" />
 			<Add directory="../shared" />
@@ -391,9 +390,10 @@
 			<Add directory="../config/common" />
 			<Add directory="../external/TCC" />
 		</Compiler>
-		<Linker>
-			<Add library="tcc" />
-		</Linker>
+		<Unit filename="../external/TCC/libtcc.c">
+			<Option compilerVar="CC" />
+			<Option compiler="gcc" use="1" buildCommand="$compiler -Wno-unused-parameter -Wno-unused-function -Wno-sign-compare -Wno-pointer-sign -Wno-missing-field-initializers -Wno-maybe-uninitialized -Wno-return-type $options $includes -c $file -o $object" />
+		</Unit>
 		<Unit filename="../modules/tcc/API.cpp" />
 		<Unit filename="../modules/tcc/Common.cpp" />
 		<Unit filename="../modules/tcc/Common.hpp" />
