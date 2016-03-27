@@ -122,7 +122,7 @@ CCStr GetServerName()
 // ------------------------------------------------------------------------------------------------
 ULongInt GetTime()
 {
-    Uint64 time = 0;
+    std::uint64_t time = 0;
     _Func->GetTime(&time);
     return ULongInt(time);
 }
