@@ -12,8 +12,12 @@
 #ifdef SQMOD_OS_WINDOWS
     #include <windows.h>
 #else
+    #include <linux/limits.h>
     #include <unistd.h>
 #endif
+
+// ------------------------------------------------------------------------------------------------
+namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
@@ -27,9 +31,6 @@
     // Character to be used when working with path
     typedef CharT PChar;
 #endif // SQMOD_OS_WINDOWS
-
-// ------------------------------------------------------------------------------------------------
-namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 SQInteger SysPath::Typename(HSQUIRRELVM vm)
