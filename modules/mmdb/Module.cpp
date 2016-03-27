@@ -185,7 +185,7 @@ void OutputMessageImpl(const char * msg, va_list args)
 
     SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
 #else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27, msg);
+    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
     vprintf(msg, args);
     puts("");
 #endif
@@ -208,7 +208,7 @@ void OutputErrorImpl(const char * msg, va_list args)
 
     SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
 #else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27, msg);
+    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
     vprintf(msg, args);
     puts("");
 #endif
