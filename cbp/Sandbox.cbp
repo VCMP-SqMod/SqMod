@@ -161,7 +161,6 @@
 		<Linker>
 			<Add library="squirrel" />
 		</Linker>
-		<Unit filename="../external/Common/aes256.cpp" />
 		<Unit filename="../sandbox/main.cpp" />
 		<Extensions>
 			<code_completion />
