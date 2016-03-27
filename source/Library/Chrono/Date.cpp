@@ -196,7 +196,7 @@ Uint8 Date::DaysInMonth(Uint16 year, Uint8 month)
         STHROWF("Month value is out of range: %u > 12", month);
     }
     // Obtain the days in this month
-    Uint8 days = MonthLengths[month - 1];
+    Uint8 days = *(MonthLengths + month);
     // Should we account for January?
     if (month == 2 && IsLeapYear(year))
     {
