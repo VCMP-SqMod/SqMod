@@ -114,7 +114,7 @@ Uint32 GetTickCount()
     {
         return 0;
     }
-    return now.tv_sec * 1000.0 + now.tv_nsec / 1000000.0;
+    return time.tv_sec * 1000.0 + time.tv_nsec / 1000000.0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ Int64 GetTickCount64()
     {
         return 0;
     }
-    return now.tv_sec * 1000.0 + now.tv_nsec / 1000000.0;
+    return time.tv_sec * 1000.0 + time.tv_nsec / 1000000.0;
 }
 
 #endif // SQMOD_OS_WINDOWS
