@@ -28,6 +28,8 @@
 #if !defined(_SQ_MOD_H_)
 #define _SQ_MOD_H_
 
+#include <stddef.h>
+
 #include "SqAPI.h"
 #include "vcmp.h"
 
