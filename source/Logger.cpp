@@ -103,7 +103,7 @@ inline Uint16 GetLevelColor(Uint8 type)
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-inline CCStr GetLevelColor(Uint8 type)
+inline CCStr GetLevelColor(Uint8 /*type*/)
 {
     return g_EmptyStr;
 }
@@ -383,7 +383,7 @@ void OutputMessageImpl(const char * msg, va_list args)
 
     SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
 #else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27, msg);
+    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
     vprintf(msg, args);
     puts("");
 #endif
@@ -406,7 +406,7 @@ void OutputErrorImpl(const char * msg, va_list args)
 
     SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
 #else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27, msg);
+    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
     vprintf(msg, args);
     puts("");
 #endif
