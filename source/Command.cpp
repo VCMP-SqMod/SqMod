@@ -112,8 +112,8 @@ Object & CmdManager::Attach(const String & name, CmdListener * ptr, bool autorel
             }
             // Now it's safe to throw the exception
             // (include information necessary to help identify hash collisions!)
-            STHROWF("Command (%s:%zu) already exists as (%s:%zu)",
-                        name.c_str(), hash, cmd.mName.c_str(), cmd.mHash);
+            STHROWF("Command '%s' already exists as '%s' for hash (%zu)",
+                        name.c_str(), cmd.mName.c_str(), hash);
         }
     }
     // Obtain the initial stack size
