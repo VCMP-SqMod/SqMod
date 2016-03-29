@@ -403,6 +403,72 @@ bool cLogSWrn(bool cond, CCStr fmt, ...);
 bool cLogSErr(bool cond, CCStr fmt, ...);
 bool cLogSFtl(bool cond, CCStr fmt, ...);
 
+/* ------------------------------------------------------------------------------------------------
+ * Helper class allows the use of functions with ctype style as predicate for algorithms.
+*/
+struct IsCType
+{
+    // ------------------------------------------------------------------------------------------------
+    typedef int (*CTypeFn)(int); // The signature of a ctype function.
+
+private:
+
+    // ------------------------------------------------------------------------------------------------
+    CTypeFn m_Fn; // Pointer to the actual function that does the comparison.
+
+public:
+
+    /* ------------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    IsCType(CTypeFn fn)
+        : m_Fn(fn)
+    {
+        /* ... */
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Function call operator.
+    */
+    template < typename T > bool operator () (T c)
+    {
+        return (m_Fn(static_cast< int >(c)) != 0);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Helper class allows the use of functions with ctype style as predicate for algorithms.
+*/
+struct IsNotCType
+{
+    // ------------------------------------------------------------------------------------------------
+    typedef int (*CTypeFn)(int); // The signature of a ctype function.
+
+private:
+
+    // ------------------------------------------------------------------------------------------------
+    CTypeFn m_Fn; // Pointer to the actual function that does the comparison.
+
+public:
+
+    /* ------------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    IsNotCType(CTypeFn fn)
+        : m_Fn(fn)
+    {
+        /* ... */
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Function call operator.
+    */
+    template < typename T > bool operator () (T c)
+    {
+        return (m_Fn(static_cast< int >(c)) == 0);
+    }
+};
+
 } // Namespace:: SqMod
 
 #endif // _BASE_SHARED_HPP_

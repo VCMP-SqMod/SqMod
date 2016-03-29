@@ -33,7 +33,7 @@ namespace SqMod {
 static const SQChar EMPTY_STR_CHAR = 0;
 const SQChar * g_EmptyStr = &EMPTY_STR_CHAR;
 
-// --------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 PluginFuncs*        _Func = NULL;
 PluginCallbacks*    _Clbk = NULL;
 PluginInfo*         _Info = NULL;
