@@ -67,6 +67,11 @@ CSStr FmtStr(CSStr str, ...);
 struct StackGuard
 {
     /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    StackGuard();
+
+    /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
     StackGuard(HSQUIRRELVM vm);
@@ -101,8 +106,8 @@ private:
 private:
 
     // --------------------------------------------------------------------------------------------
-    Int32       m_Top; /* The top of the stack when this instance was created. */
-    HSQUIRRELVM m_VM; /* The VM where the stack should be restored. */
+    HSQUIRRELVM m_VM; // The VM where the stack should be restored.
+    Int32       m_Top; // The top of the stack when this instance was created.
 };
 
 /* ------------------------------------------------------------------------------------------------

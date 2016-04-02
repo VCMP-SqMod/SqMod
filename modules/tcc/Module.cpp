@@ -107,7 +107,7 @@ void OnSquirrelTerminate()
 bool CheckAPIVer(CCStr ver)
 {
     // Obtain the numeric representation of the API version
-    long vernum = strtol(ver, nullptr, 10);
+    long vernum = std::strtol(ver, nullptr, 10);
     // Check against version mismatch
     if (vernum == SQMOD_API_VER)
     {
@@ -492,7 +492,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs* functions, PluginCallb
     _Info = info;
     // Assign plugin information
     _Info->uPluginVer = SQTCC_VERSION;
-    strcpy(_Info->szName, SQTCC_HOST_NAME);
+    std::strcpy(_Info->szName, SQTCC_HOST_NAME);
     // Bind callbacks
     BindCallbacks();
     // Notify that the plugin was successfully loaded

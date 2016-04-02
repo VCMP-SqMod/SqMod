@@ -40,9 +40,9 @@ void SqThrowF(CSStr str, ...)
     va_list args;
     va_start (args, str);
     // Write the requested contents
-    if (vsnprintf(g_Buffer, sizeof(g_Buffer), str, args) < 0)
+    if (std::vsnprintf(g_Buffer, sizeof(g_Buffer), str, args) < 0)
     {
-        strcpy(g_Buffer, "Unknown error has occurred");
+        std::strcpy(g_Buffer, "Unknown error has occurred");
     }
     // Release the argument list
     va_end(args);
@@ -57,8 +57,10 @@ CSStr FmtStr(CSStr str, ...)
     va_list args;
     va_start (args, str);
     // Write the requested contents
-    if (snprintf(g_Buffer, sizeof(g_Buffer), str, args) < 0)
-        g_Buffer[0] = 0; /* make sure the string is terminated */
+    if (std::vsnprintf(g_Buffer, sizeof(g_Buffer), str, args) < 0)
+    {
+        g_Buffer[0] = 0; // Make sure the string is terminated
+    }
     // Release the argument list
     va_end(args);
     // Return the data from the buffer
@@ -66,8 +68,15 @@ CSStr FmtStr(CSStr str, ...)
 }
 
 // ------------------------------------------------------------------------------------------------
+StackGuard::StackGuard()
+    : m_VM(_SqVM), m_Top(sq_gettop(m_VM))
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
 StackGuard::StackGuard(HSQUIRRELVM vm)
-    : m_Top(sq_gettop(vm)), m_VM(vm)
+    : m_VM(vm), m_Top(sq_gettop(vm))
 {
     /* ... */
 }
