@@ -16,14 +16,9 @@ class Statement
 private:
 
     // --------------------------------------------------------------------------------------------
-    StmtHnd m_Handle; /* The handle to the managed database statement resource. */
+    StmtHnd m_Handle; // The handle to the managed database statement resource.
 
 protected:
-
-    /* --------------------------------------------------------------------------------------------
-     * Validate the statement reference and throw an error if invalid.
-    */
-    void Validate() const;
 
     /* --------------------------------------------------------------------------------------------
      * Validate the statement reference and index, and throw an error if they're invalid.
@@ -125,11 +120,17 @@ public:
     Int32 Cmp(const Statement & o) const
     {
         if (m_Handle.m_Hnd == o.m_Handle.m_Hnd)
+        {
             return 0;
+        }
         else if (m_Handle.m_Hnd > o.m_Handle.m_Hnd)
+        {
             return 1;
+        }
         else
+        {
             return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -139,7 +140,9 @@ public:
     {
         // Validate the handle
         if (m_Handle)
+        {
             return m_Handle->mQuery.c_str();
+        }
         // Request failed
         return _SC("");
     }
@@ -154,7 +157,7 @@ public:
     */
     bool IsValid() const
     {
-        return (bool)m_Handle;
+        return m_Handle;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -192,7 +195,7 @@ public:
     Int32 GetStatus() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mStatus;
     }
@@ -203,7 +206,7 @@ public:
     Int32 GetErrorCode() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle.ErrNo();
     }
@@ -214,7 +217,7 @@ public:
     Int32 GetExtendedErrorCode() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle.ExErrNo();
     }
@@ -225,7 +228,7 @@ public:
     CSStr GetErrStr() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle.ErrStr();
     }
@@ -236,7 +239,7 @@ public:
     CSStr GetErrMsg() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle.ErrMsg();
     }
@@ -247,7 +250,7 @@ public:
     Int32 GetColumns() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mColumns;
     }
@@ -258,7 +261,7 @@ public:
     CSStr GetQuery() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mQuery.c_str();
     }
@@ -269,7 +272,7 @@ public:
     bool GetGood() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mGood;
     }
@@ -280,7 +283,7 @@ public:
     bool GetDone() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mDone;
     }

@@ -13,6 +13,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <sqlite3.h>
+#include <squirrel.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -74,6 +75,11 @@ bool IsQueryEmpty(CSStr str);
 struct StackGuard
 {
     /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    StackGuard();
+
+    /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
     StackGuard(HSQUIRRELVM vm);
@@ -108,8 +114,51 @@ private:
 private:
 
     // --------------------------------------------------------------------------------------------
-    Int32       m_Top; /* The top of the stack when this instance was created. */
-    HSQUIRRELVM m_VM; /* The VM where the stack should be restored. */
+    HSQUIRRELVM m_VM; // The VM where the stack should be restored.
+    Int32       m_Top; // The top of the stack when this instance was created.
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Helper structure for retrieving a value from the stack as a string or a formatted string.
+*/
+struct StackStrF
+{
+    // --------------------------------------------------------------------------------------------
+    CSStr       mPtr; // Pointer to the C string that was retrieved.
+    SQInteger   mLen; // The string length if it could be retrieved.
+    SQRESULT    mRes; // The result of the retrieval attempts.
+    HSQOBJECT   mObj; // Strong reference to the string object.
+    HSQUIRRELVM mVM; // The associated virtual machine.
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt = true);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF(const StackStrF & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF(StackStrF && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~StackStrF();
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF & operator = (const StackStrF & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF & operator = (StackStrF && o) = delete;
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -136,6 +185,11 @@ public:
 
     // --------------------------------------------------------------------------------------------
     typedef unsigned int    Counter; // Reference counter type.
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the connection handle and throw an error if invalid.
+    */
+    void Validate() const;
 
 protected:
 
@@ -171,7 +225,7 @@ protected:
          * Base constructor.
         */
         Handle(Counter counter)
-            : mPtr(NULL)
+            : mPtr(nullptr)
             , mRef(counter)
             , mStatus(SQLITE_OK)
             , mQueue()
@@ -232,7 +286,7 @@ private:
      * Base constructor.
     */
     ConnHnd(CSStr name)
-        : m_Hnd(name ? new Handle(1) : NULL)
+        : m_Hnd(name ? new Handle(1) : nullptr)
     {
         /* ... */
     }
@@ -243,7 +297,7 @@ public:
      * Default constructor (null).
     */
     ConnHnd()
-        : m_Hnd(NULL)
+        : m_Hnd(nullptr)
     {
         /* ... */
     }
@@ -263,7 +317,7 @@ public:
     ConnHnd(ConnHnd && o)
         : m_Hnd(o.m_Hnd)
     {
-        o.m_Hnd = NULL;
+        o.m_Hnd = nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -296,7 +350,7 @@ public:
         if (m_Hnd != o.m_Hnd)
         {
             m_Hnd = o.m_Hnd;
-            o.m_Hnd = NULL;
+            o.m_Hnd = nullptr;
         }
 
         return *this;
@@ -367,7 +421,7 @@ public:
     */
     operator Pointer ()
     {
-        return m_Hnd ? m_Hnd->mPtr : NULL;
+        return m_Hnd ? m_Hnd->mPtr : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -375,7 +429,7 @@ public:
     */
     operator Pointer () const
     {
-        return m_Hnd ? m_Hnd->mPtr : NULL;
+        return m_Hnd ? m_Hnd->mPtr : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -524,6 +578,11 @@ public:
     // --------------------------------------------------------------------------------------------
     typedef unsigned int    Counter; // Reference counter type.
 
+    /* --------------------------------------------------------------------------------------------
+     * Validate the statement handle and throw an error if invalid.
+    */
+    void Validate() const;
+
 protected:
 
     // --------------------------------------------------------------------------------------------
@@ -559,7 +618,7 @@ protected:
          * Base constructor.
         */
         Handle(const ConnHnd & conn, Counter counter)
-            : mPtr(NULL)
+            : mPtr(nullptr)
             , mRef(counter)
             , mStatus(SQLITE_OK)
             , mConn(conn)
@@ -638,7 +697,7 @@ public:
      * Default constructor (null).
     */
     StmtHnd()
-        : m_Hnd(NULL)
+        : m_Hnd(nullptr)
     {
         /* ... */
     }
@@ -659,7 +718,7 @@ public:
     StmtHnd(StmtHnd && o)
         : m_Hnd(o.m_Hnd)
     {
-        o.m_Hnd = NULL;
+        o.m_Hnd = nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -692,7 +751,7 @@ public:
         if (m_Hnd != o.m_Hnd)
         {
             m_Hnd = o.m_Hnd;
-            o.m_Hnd = NULL;
+            o.m_Hnd = nullptr;
         }
 
         return *this;
@@ -763,7 +822,7 @@ public:
     */
     operator Pointer ()
     {
-        return m_Hnd ? m_Hnd->mPtr : NULL;
+        return m_Hnd ? m_Hnd->mPtr : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -771,7 +830,7 @@ public:
     */
     operator Pointer () const
     {
-        return m_Hnd ? m_Hnd->mPtr : NULL;
+        return m_Hnd ? m_Hnd->mPtr : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------

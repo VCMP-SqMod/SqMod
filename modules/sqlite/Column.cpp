@@ -5,6 +5,9 @@
 #include "Module.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <cstring>
+
+// ------------------------------------------------------------------------------------------------
 #include <sqrat.h>
 
 // ------------------------------------------------------------------------------------------------
@@ -23,10 +26,11 @@ void Column::Validate() const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
+    {
         STHROWF("Invalid column index");
+    }
     // Do we belong to a valid statement?
-    else if (!m_Stmt)
-        STHROWF("Invalid SQLite statement reference");
+    m_Stmt.Validate();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -34,13 +38,16 @@ void Column::ValidateRow() const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
+    {
         STHROWF("Invalid column index");
+    }
     // Do we belong to a valid statement?
-    else if (!m_Stmt)
-        STHROWF("Invalid SQLite statement reference");
+    m_Stmt.Validate();
     // Do we have any rows available?
-    else if (!m_Stmt->mGood)
+    if (!m_Stmt->mGood)
+    {
         STHROWF("No row available");
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -89,7 +96,7 @@ SQFloat Column::GetFloat() const
     // Validate the column and statement row
     ValidateRow();
     // Return the requested information
-    return (SQFloat)sqlite3_column_double(m_Stmt, m_Index);
+    return static_cast< SQFloat >(sqlite3_column_double(m_Stmt, m_Index));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -113,8 +120,8 @@ Object Column::GetString() const
     // Obtain the initial stack size
     const StackGuard sg(_SqVM);
     // Push the column text on the stack
-    sq_pushstring(_SqVM, (CSStr)sqlite3_column_text(m_Stmt, m_Index),
-                                sqlite3_column_bytes(m_Stmt, m_Index));
+    sq_pushstring(_SqVM, reinterpret_cast< CSStr >(sqlite3_column_text(m_Stmt, m_Index)),
+                            sqlite3_column_bytes(m_Stmt, m_Index));
     // Get the object from the stack and return it
     return Var< Object >(_SqVM, -1).value;
 }
@@ -143,7 +150,9 @@ Object Column::GetBlob() const
     const void * b = sqlite3_column_blob(m_Stmt, m_Index);
     // Could the memory blob be allocated?
     if (!p)
+    {
         STHROWF("Unable to allocate space for column blob value");
+    }
     // Is there any data to read?
     else if (!b)
     {
@@ -154,7 +163,9 @@ Object Column::GetBlob() const
     }
     // Copy the data into the memory blob
     else
-        memcpy(p, b, sz);
+    {
+        std::memcpy(p, b, sz);
+    }
     // Get the object from the stack and return it
     return Var< Object >(_SqVM, -1).value;
 }
@@ -196,9 +207,9 @@ CSStr Column::GetOriginName() const
     return sqlite3_column_origin_name(m_Stmt, m_Index);
 #else
     STHROWF("The module was compiled without this feature");
-#endif
     // Request failed
     return _SC("");
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------

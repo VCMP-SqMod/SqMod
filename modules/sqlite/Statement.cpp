@@ -5,6 +5,9 @@
 #include "Module.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <cstring>
+
+// ------------------------------------------------------------------------------------------------
 #include <sqrat.h>
 
 // ------------------------------------------------------------------------------------------------
@@ -22,16 +25,6 @@ SQInteger Statement::Typename(HSQUIRRELVM vm)
     static SQChar name[] = _SC("SqSQLiteStatement");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Statement::Validate() const
-{
-    // Is the handle valid?
-    if (!m_Handle)
-    {
-        STHROWF("Invalid SQLite statement reference");
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -107,7 +100,7 @@ Statement::Statement(const Connection & connection, CSStr query)
 Object Statement::GetConnection() const
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Return the requested information
     return Object(new Connection(m_Handle->mConn));
 }
@@ -116,7 +109,7 @@ Object Statement::GetConnection() const
 void Statement::Reset()
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Specify that we don't have a row available and we haven't finished stepping
     m_Handle->mGood = false;
     m_Handle->mDone = false;
@@ -133,7 +126,7 @@ void Statement::Reset()
 void Statement::Clear()
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Specify that we don't have a row available and we haven't finished stepping
     m_Handle->mGood = false;
     m_Handle->mDone = false;
@@ -150,7 +143,7 @@ void Statement::Clear()
 Int32 Statement::Exec()
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Did we reset first?
     if (m_Handle->mDone)
     {
@@ -188,7 +181,7 @@ Int32 Statement::Exec()
 bool Statement::Step()
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Did we reset first?
     if (m_Handle->mDone)
     {
@@ -229,7 +222,7 @@ bool Statement::Step()
 void Statement::IndexBindA(Int32 idx, const Array & arr)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Know when to stop trying to bind values
     const Int32 max = sqlite3_bind_parameter_count(m_Handle);
     // Make sure that we are at least in bounds
@@ -267,7 +260,7 @@ void Statement::IndexBindA(Int32 idx, const Array & arr)
 void Statement::IndexBindI(Int32 idx, Int32 value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_int(m_Handle, idx, value);
     // Validate the result
@@ -281,7 +274,7 @@ void Statement::IndexBindI(Int32 idx, Int32 value)
 void Statement::IndexBindL(Int32 idx, const Object & value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Obtain the initial stack size
     const StackGuard sg(DefaultVM::Get());
     // Push the specified object onto the stack
@@ -306,7 +299,7 @@ void Statement::IndexBindL(Int32 idx, const Object & value)
 void Statement::IndexBindV(Int32 idx, SQInteger value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to bind the specified value
 #ifdef _SQ64
     m_Handle = sqlite3_bind_int64(m_Handle, idx, value);
@@ -324,7 +317,7 @@ void Statement::IndexBindV(Int32 idx, SQInteger value)
 void Statement::IndexBindF(Int32 idx, SQFloat value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_double(m_Handle, idx, value);
     // Validate the result
@@ -338,7 +331,7 @@ void Statement::IndexBindF(Int32 idx, SQFloat value)
 void Statement::IndexBindS(Int32 idx, CSStr value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_text(m_Handle, idx, value, -1, SQLITE_TRANSIENT);
     // Validate the result
@@ -352,7 +345,7 @@ void Statement::IndexBindS(Int32 idx, CSStr value)
 void Statement::IndexBindB(Int32 idx, bool value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_int(m_Handle, idx, value);
     // Validate the result
@@ -366,7 +359,7 @@ void Statement::IndexBindB(Int32 idx, bool value)
 void Statement::IndexBindN(Int32 idx)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to bind the specified value
     m_Handle = sqlite3_bind_null(m_Handle, idx);
     // Validate the result
@@ -380,7 +373,7 @@ void Statement::IndexBindN(Int32 idx)
 void Statement::NameBindT(const Table & tbl)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Should we clear the all the parameters?
     if (tbl.GetSize() <= 0)
     {
@@ -408,7 +401,7 @@ void Statement::NameBindT(const Table & tbl)
 void Statement::NameBindI(CSStr name, Int32 value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to obtain the index of the specified parameter name
     const Int32 idx = sqlite3_bind_parameter_index(m_Handle, name);
     // Validate the obtained index
@@ -429,7 +422,7 @@ void Statement::NameBindI(CSStr name, Int32 value)
 void Statement::NameBindL(CSStr name, const Object & value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to obtain the index of the specified parameter name
     const Int32 idx = sqlite3_bind_parameter_index(m_Handle, name);
     // Validate the obtained index
@@ -461,7 +454,7 @@ void Statement::NameBindL(CSStr name, const Object & value)
 void Statement::NameBindV(CSStr name, SQInteger value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to obtain the index of the specified parameter name
     const Int32 idx = sqlite3_bind_parameter_index(m_Handle, name);
     // Validate the obtained index
@@ -486,7 +479,7 @@ void Statement::NameBindV(CSStr name, SQInteger value)
 void Statement::NameBindF(CSStr name, SQFloat value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to obtain the index of the specified parameter name
     const Int32 idx = sqlite3_bind_parameter_index(m_Handle, name);
     // Validate the obtained index
@@ -507,7 +500,7 @@ void Statement::NameBindF(CSStr name, SQFloat value)
 void Statement::NameBindS(CSStr name, CSStr value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to obtain the index of the specified parameter name
     const Int32 idx = sqlite3_bind_parameter_index(m_Handle, name);
     // Validate the obtained index
@@ -528,7 +521,7 @@ void Statement::NameBindS(CSStr name, CSStr value)
 void Statement::NameBindB(CSStr name, bool value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to obtain the index of the specified parameter name
     const Int32 idx = sqlite3_bind_parameter_index(m_Handle, name);
     // Validate the obtained index
@@ -549,7 +542,7 @@ void Statement::NameBindB(CSStr name, bool value)
 void Statement::NameBindN(CSStr name)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to obtain the index of the specified parameter name
     const Int32 idx = sqlite3_bind_parameter_index(m_Handle, name);
     // Validate the obtained index
@@ -570,7 +563,7 @@ void Statement::NameBindN(CSStr name)
 void Statement::IndexBind(Int32 idx, const Object & value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to identify the specified type
     switch (value.GetType())
     {
@@ -620,8 +613,7 @@ void Statement::IndexBind(Int32 idx, const Object & value)
             m_Handle = sqlite3_bind_int64(m_Handle, idx, longint);
         } break;
         // We don't recognize this kind of value!
-        default:
-            STHROWF("Attempting to bind unknown value type (%d)", idx);
+        default: STHROWF("Attempting to bind unknown value type (%d)", idx);
     }
     // Validate the result
     if (m_Handle != SQLITE_OK)
@@ -634,7 +626,7 @@ void Statement::IndexBind(Int32 idx, const Object & value)
 void Statement::NameBind(CSStr name, const Object & value)
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to obtain the index of the specified parameter name
     const Int32 idx = sqlite3_bind_parameter_index(m_Handle, name);
     // Validate the obtained index
@@ -691,8 +683,7 @@ void Statement::NameBind(CSStr name, const Object & value)
             m_Handle = sqlite3_bind_int64(m_Handle, idx, longint);
         } break;
         // We don't recognize this kind of value!
-        default:
-            STHROWF("Attempting to bind unknown value type (%s:%d)", name, idx);
+        default: STHROWF("Attempting to bind unknown value type (%s:%d)", name, idx);
     }
     // Validate the result
     if (m_Handle != SQLITE_OK)
@@ -766,7 +757,9 @@ Object Statement::FetchColumnIndex(Int32 idx) const
             const void * b = sqlite3_column_blob(m_Handle, idx);
             // Could the memory blob be allocated?
             if (!p)
+            {
                 STHROWF("Unable to allocate space for column blob value");
+            }
             // Is there any data to read?
             else if (!b)
             {
@@ -777,11 +770,12 @@ Object Statement::FetchColumnIndex(Int32 idx) const
             }
             // Copy the data into the memory blob
             else
-                memcpy(p, b, sz);
+            {
+                std::memcpy(p, b, sz);
+            }
         } break;
         // Unknown type
-        default:
-            STHROWF("Unknown value to fetch at index: %d", idx);
+        default: STHROWF("Unknown value to fetch at index: %d", idx);
     }
     // Obtain the object with the value from the stack and return it
     return Var< Object >(DefaultVM::Get(), -1).value;
@@ -819,7 +813,7 @@ Object Statement::FetchColumn(const Object & column) const
 Array Statement::FetchArray() const
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Return the requested information
     return FetchArray(0, m_Handle->mColumns);
 }
@@ -828,7 +822,7 @@ Array Statement::FetchArray() const
 Array Statement::FetchArray(Int32 min) const
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Return the requested information
     return FetchArray(min, m_Handle->mColumns);
 }
@@ -913,7 +907,7 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
                 // Copy the data into the memory blob
                 else
                 {
-                    memcpy(p, b, sz);
+                    std::memcpy(p, b, sz);
                 }
                 // Obtain the object from the stack
                 Var< Object > obj(DefaultVM::Get(), -1);
@@ -921,8 +915,7 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
                 arr.Bind(elem, obj.value);
             } break;
             // Unknown type
-            default:
-                STHROWF("Unknown value to fetch at index: %d", idx);
+            default: STHROWF("Unknown value to fetch at index: %d", idx);
         }
     }
     // Return the resulted array
@@ -933,7 +926,7 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
 Table Statement::FetchTable() const
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Return the requested information
     return FetchTable(0, m_Handle->mColumns);
 }
@@ -942,7 +935,7 @@ Table Statement::FetchTable() const
 Table Statement::FetchTable(Int32 min) const
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Return the requested information
     return FetchTable(min, m_Handle->mColumns);
 }
@@ -983,7 +976,9 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
         CSStr name = sqlite3_column_name(m_Handle, idx);
         // Validate the obtained name
         if (!name)
+        {
             STHROWF("Unable to retrieve name of column (%d)", idx);
+        }
         // Identify the type of value that must be assigned
         switch (sqlite3_column_type(m_Handle, idx))
         {
@@ -1038,7 +1033,7 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
                 // Copy the data into the memory blob
                 else
                 {
-                    memcpy(p, b, sz);
+                    std::memcpy(p, b, sz);
                 }
                 // Obtain the object from the stack
                 Var< Object > obj(DefaultVM::Get(), -1);
@@ -1046,8 +1041,7 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
                 tbl.Bind(name, obj.value);
             } break;
             // Unknown type
-            default:
-                STHROWF("Unknown value to fetch at index: %d", idx);
+            default: STHROWF("Unknown value to fetch at index: %d", idx);
         }
     }
     // Return the resulted table
@@ -1058,7 +1052,7 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
 bool Statement::CheckIndex(Int32 idx) const
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Return the requested information
     return m_Handle->CheckIndex(idx);
 }
@@ -1076,7 +1070,7 @@ bool Statement::IsColumnNull(Int32 idx) const
 Int32 Statement::GetColumnIndex(CSStr name) const
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Return the requested information
     return m_Handle->GetColumnIndex(name);
 }
@@ -1139,7 +1133,7 @@ Object Statement::GetColumnByIndex(Int32 idx) const
 Object Statement::GetColumnByName(CSStr name) const
 {
     // Validate the handle
-    Validate();
+    m_Handle.Validate();
     // Attempt to obtain the requested column index
     const Int32 idx = m_Handle->GetColumnIndex(name);
     // Validate the obtained index
@@ -1166,7 +1160,7 @@ Object Statement::GetColumn(const Object & column) const
     }
     // We don't recognize this kind of value!
     STHROWF("Unknown column identifier type");
-    // We have to return something!
+    // We have to return something even if we don't rach this point!
     return Object();
 }
 

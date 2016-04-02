@@ -20,15 +20,10 @@ protected:
     */
     void Create(CSStr name, Int32 flags, CSStr vfs);
 
-    /* --------------------------------------------------------------------------------------------
-     * Validate the document reference and throw an error if invalid.
-    */
-    void Validate() const;
-
 private:
 
     // --------------------------------------------------------------------------------------------
-    ConnHnd m_Handle; /* The handle to the managed database connection resource. */
+    ConnHnd m_Handle; // The handle to the managed database connection resource.
 
 public:
 
@@ -125,11 +120,17 @@ public:
     Int32 Cmp(const Connection & o) const
     {
         if (m_Handle == m_Handle)
+        {
             return 0;
+        }
         else if (m_Handle.m_Hnd > o.m_Handle.m_Hnd)
+        {
             return 1;
+        }
         else
+        {
             return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -138,7 +139,7 @@ public:
     CSStr ToString() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mName.c_str();
     }
@@ -186,7 +187,7 @@ public:
     Int32 GetStatus() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mStatus;
     }
@@ -197,7 +198,7 @@ public:
     Int32 GetFlags() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mFlags;
     }
@@ -208,7 +209,7 @@ public:
     CSStr GetName() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mName.c_str();
     }
@@ -219,7 +220,7 @@ public:
     CSStr GetVFS() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mVFS.c_str();
     }
@@ -230,7 +231,7 @@ public:
     Int32 GetErrorCode() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle.ErrNo();
     }
@@ -241,7 +242,7 @@ public:
     Int32 GetExtendedErrorCode() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle.ExErrNo();
     }
@@ -252,7 +253,7 @@ public:
     CSStr GetErrStr() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle.ErrStr();
     }
@@ -263,7 +264,7 @@ public:
     CSStr GetErrMsg() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle.ErrMsg();
     }
@@ -274,7 +275,9 @@ public:
     void Open(CSStr name)
     {
         if (m_Handle.m_Hnd)
-            m_Handle->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+        {
+            m_Handle->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -283,7 +286,9 @@ public:
     void Open(CSStr name, Int32 flags)
     {
         if (m_Handle.m_Hnd)
-            m_Handle->Create(name, flags, NULL);
+        {
+            m_Handle->Create(name, flags, nullptr);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -292,7 +297,9 @@ public:
     void Open(CSStr name, Int32 flags, CSStr vfs)
     {
         if (m_Handle.m_Hnd)
+        {
             m_Handle->Create(name, flags, vfs);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -326,7 +333,7 @@ public:
     bool GetAutoCommit() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return sqlite3_get_autocommit(m_Handle);
     }
@@ -343,7 +350,7 @@ public:
     Int32 GetChanges() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return sqlite3_changes(m_Handle);
     }
@@ -355,7 +362,7 @@ public:
     Int32 GetTotalChanges() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return sqlite3_total_changes(m_Handle);
     }
@@ -366,7 +373,7 @@ public:
     bool GetTracing() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mTrace;
     }
@@ -377,16 +384,22 @@ public:
     void SetTracing(bool toggle)
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Check whether changes are necessary
         if (m_Handle->mTrace == toggle)
-            return; /* No point in proceeding */
+        {
+            return; // No point in proceeding
+        }
         // Do we have to disable it?
         else if (m_Handle->mTrace)
-            sqlite3_trace(m_Handle, NULL, NULL);
+        {
+            sqlite3_trace(m_Handle, nullptr, nullptr);
+        }
         // Go ahead and enable tracing
         else
-            sqlite3_trace(m_Handle, &Connection::TraceOutput, NULL);
+        {
+            sqlite3_trace(m_Handle, &Connection::TraceOutput, nullptr);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -395,7 +408,7 @@ public:
     bool GetProfiling() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return m_Handle->mProfile;
     }
@@ -406,16 +419,22 @@ public:
     void SetProfiling(bool toggle)
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Check whether changes are necessary
         if (m_Handle->mProfile == toggle)
-            return; /* No point in proceeding */
+        {
+            return; // No point in proceeding
+        }
         // Do we have to disable it?
         else if (m_Handle->mProfile)
-            sqlite3_profile(m_Handle, NULL, NULL);
+        {
+            sqlite3_profile(m_Handle, nullptr, nullptr);
+        }
         // Go ahead and enable profiling
         else
-            sqlite3_profile(m_Handle, &Connection::ProfileOutput, NULL);
+        {
+            sqlite3_profile(m_Handle, &Connection::ProfileOutput, nullptr);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -429,7 +448,7 @@ public:
     void InterruptOperation() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Perform the requested action
         sqlite3_interrupt(m_Handle);
     }
@@ -440,7 +459,7 @@ public:
     void ReleaseMemory() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Perform the requested action
         sqlite3_db_release_memory(m_Handle);
     }
@@ -472,7 +491,7 @@ public:
     Uint32 QueueSize() const
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return (Uint32)m_Handle->mQueue.size();
     }
@@ -488,7 +507,7 @@ public:
     void CompactQueue()
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Perform the requested operation
         m_Handle->mQueue.shrink_to_fit();
     }
@@ -499,7 +518,7 @@ public:
     void ClearQueue()
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Perform the requested operation
         m_Handle->mQueue.clear();
     }
@@ -510,10 +529,12 @@ public:
     void PopQueue()
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Perform the requested action
         if (!m_Handle->mQueue.empty())
+        {
             m_Handle->mQueue.pop_back();
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -522,7 +543,7 @@ public:
     Int32 Flush()
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return Flush(m_Handle->mQueue.size());
     }
@@ -538,7 +559,7 @@ public:
     Int32 Flush(Object & env, Function & func)
     {
         // Validate the handle
-        Validate();
+        m_Handle.Validate();
         // Return the requested information
         return Flush(m_Handle->mQueue.size(), env, func);
     }

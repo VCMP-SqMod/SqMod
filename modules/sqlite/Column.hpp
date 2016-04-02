@@ -111,11 +111,17 @@ public:
     Int32 Cmp(const Column & o) const
     {
         if (m_Stmt == o.m_Stmt)
+        {
             return 0;
+        }
         else if (m_Stmt.HndPtr() > o.m_Stmt.HndPtr())
+        {
             return 1;
+        }
         else
+        {
             return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
