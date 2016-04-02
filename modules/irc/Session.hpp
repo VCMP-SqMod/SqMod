@@ -200,11 +200,17 @@ public:
     Int32 Cmp(const Session & o) const
     {
         if (m_Session == o.m_Session)
+        {
             return 0;
+        }
         else if (m_Session > o.m_Session)
+        {
             return 1;
+        }
         else
+        {
             return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -485,7 +491,7 @@ public:
     */
     Int32 Connect(CSStr server, Uint32 port, CSStr nick)
     {
-        return Connect(server, port, nick, NULL, NULL, NULL);
+        return Connect(server, port, nick, nullptr, nullptr, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -493,7 +499,7 @@ public:
     */
     Int32 Connect(CSStr server, Uint32 port, CSStr nick, CSStr passwd)
     {
-        return Connect(server, port, nick, passwd, NULL, NULL);
+        return Connect(server, port, nick, passwd, nullptr, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -501,7 +507,7 @@ public:
     */
     Int32 Connect(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSStr user)
     {
-        return Connect(server, port, nick, passwd, user, NULL);
+        return Connect(server, port, nick, passwd, user, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -519,7 +525,7 @@ public:
     */
     Int32 Connect6(CSStr server, Uint32 port, CSStr nick)
     {
-        return Connect(server, port, nick, NULL, NULL, NULL);
+        return Connect(server, port, nick, nullptr, nullptr, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -527,7 +533,7 @@ public:
     */
     Int32 Connect6(CSStr server, Uint32 port, CSStr nick, CSStr passwd)
     {
-        return Connect(server, port, nick, passwd, NULL, NULL);
+        return Connect(server, port, nick, passwd, nullptr, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -535,7 +541,7 @@ public:
     */
     Int32 Connect6(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSStr user)
     {
-        return Connect(server, port, nick, passwd, user, NULL);
+        return Connect(server, port, nick, passwd, user, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -564,7 +570,7 @@ public:
         // Validate the connection status
         ValidateConnection();
         // Send the specified command and return the result
-        return irc_cmd_join(m_Session, channel, NULL);
+        return irc_cmd_join(m_Session, channel, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -619,7 +625,7 @@ public:
         // Validate the connection status
         ValidateConnection();
         // Send the specified command and return the result
-        return irc_cmd_list(m_Session, NULL);
+        return irc_cmd_list(m_Session, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -641,7 +647,7 @@ public:
         // Validate the connection status
         ValidateConnection();
         // Send the specified command and return the result
-        return irc_cmd_topic(m_Session, channel, NULL);
+        return irc_cmd_topic(m_Session, channel, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -663,7 +669,7 @@ public:
         // Validate the connection status
         ValidateConnection();
         // Send the specified command and return the result
-        return irc_cmd_channel_mode(m_Session, channel, NULL);
+        return irc_cmd_channel_mode(m_Session, channel, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -685,7 +691,7 @@ public:
         // Validate the connection status
         ValidateConnection();
         // Send the specified command and return the result
-        return irc_cmd_user_mode(m_Session, NULL);
+        return irc_cmd_user_mode(m_Session, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -707,7 +713,7 @@ public:
         // Validate the connection status
         ValidateConnection();
         // Send the specified command and return the result
-        return irc_cmd_kick(m_Session, nick, channel, NULL);
+        return irc_cmd_kick(m_Session, nick, channel, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -800,7 +806,7 @@ public:
         // Validate the connection status
         ValidateConnection();
         // Send the specified command and return the result
-        return irc_cmd_quit(m_Session, NULL);
+        return irc_cmd_quit(m_Session, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1054,9 +1060,13 @@ public:
     void BindOnConnect(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnConnect.ReleaseGently();
+        }
         else
+        {
             m_OnConnect = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1073,9 +1083,13 @@ public:
     void BindOnNick(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnNick.ReleaseGently();
+        }
         else
+        {
             m_OnNick = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1092,9 +1106,13 @@ public:
     void BindOnQuit(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnQuit.ReleaseGently();
+        }
         else
+        {
             m_OnQuit = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1111,9 +1129,13 @@ public:
     void BindOnJoin(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnJoin.ReleaseGently();
+        }
         else
+        {
             m_OnJoin = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1130,9 +1152,13 @@ public:
     void BindOnPart(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnPart.ReleaseGently();
+        }
         else
+        {
             m_OnPart = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1149,9 +1175,13 @@ public:
     void BindOnMode(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnMode.ReleaseGently();
+        }
         else
+        {
             m_OnMode = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1168,9 +1198,13 @@ public:
     void BindOnUmode(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnUmode.ReleaseGently();
+        }
         else
+        {
             m_OnUmode = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1187,9 +1221,13 @@ public:
     void BindOnTopic(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnTopic.ReleaseGently();
+        }
         else
+        {
             m_OnTopic = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1206,9 +1244,13 @@ public:
     void BindOnKick(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnKick.ReleaseGently();
+        }
         else
+        {
             m_OnKick = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1225,9 +1267,13 @@ public:
     void BindOnChannel(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnChannel.ReleaseGently();
+        }
         else
+        {
             m_OnChannel = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1244,9 +1290,13 @@ public:
     void BindOnPrivMsg(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnPrivMsg.ReleaseGently();
+        }
         else
+        {
             m_OnPrivMsg = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1263,9 +1313,13 @@ public:
     void BindOnNotice(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnNotice.ReleaseGently();
+        }
         else
+        {
             m_OnNotice = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1282,9 +1336,13 @@ public:
     void BindOnChannelNotice(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnChannelNotice.ReleaseGently();
+        }
         else
+        {
             m_OnChannelNotice = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1301,9 +1359,13 @@ public:
     void BindOnInvite(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnInvite.ReleaseGently();
+        }
         else
+        {
             m_OnInvite = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1320,9 +1382,13 @@ public:
     void BindOnCtcpReq(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnCtcpReq.ReleaseGently();
+        }
         else
+        {
             m_OnCtcpReq = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1339,9 +1405,13 @@ public:
     void BindOnCtcpRep(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnCtcpRep.ReleaseGently();
+        }
         else
+        {
             m_OnCtcpRep = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1358,9 +1428,13 @@ public:
     void BindOnCtcpAction(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnCtcpAction.ReleaseGently();
+        }
         else
+        {
             m_OnCtcpAction = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1377,9 +1451,13 @@ public:
     void BindOnUnknown(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnUnknown.ReleaseGently();
+        }
         else
+        {
             m_OnUnknown = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1396,9 +1474,13 @@ public:
     void BindOnNumeric(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnNumeric.ReleaseGently();
+        }
         else
+        {
             m_OnNumeric = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1415,9 +1497,13 @@ public:
     void BindOnDccChatReq(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnDccChatReq.ReleaseGently();
+        }
         else
+        {
             m_OnDccChatReq = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1434,9 +1520,13 @@ public:
     void BindOnDccSendReq(Object & env, Function & func)
     {
         if (func.IsNull())
+        {
             m_OnDccSendReq.ReleaseGently();
+        }
         else
+        {
             m_OnDccSendReq = Function(env.GetVM(), env, func.GetFunc());
+        }
     }
 };
 

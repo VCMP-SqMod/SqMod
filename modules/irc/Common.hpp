@@ -5,6 +5,9 @@
 #include "ModBase.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <squirrel.h>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -51,6 +54,11 @@ CSStr FmtStr(CSStr str, ...);
 struct StackGuard
 {
     /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    StackGuard();
+
+    /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
     StackGuard(HSQUIRRELVM vm);
@@ -85,8 +93,51 @@ private:
 private:
 
     // --------------------------------------------------------------------------------------------
-    Int32       m_Top; /* The top of the stack when this instance was created. */
-    HSQUIRRELVM m_VM; /* The VM where the stack should be restored. */
+    HSQUIRRELVM m_VM; // The VM where the stack should be restored.
+    Int32       m_Top; // The top of the stack when this instance was created.
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Helper structure for retrieving a value from the stack as a string or a formatted string.
+*/
+struct StackStrF
+{
+    // --------------------------------------------------------------------------------------------
+    CSStr       mPtr; // Pointer to the C string that was retrieved.
+    SQInteger   mLen; // The string length if it could be retrieved.
+    SQRESULT    mRes; // The result of the retrieval attempts.
+    HSQOBJECT   mObj; // Strong reference to the string object.
+    HSQUIRRELVM mVM; // The associated virtual machine.
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt = true);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF(const StackStrF & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF(StackStrF && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~StackStrF();
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF & operator = (const StackStrF & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    StackStrF & operator = (StackStrF && o) = delete;
 };
 
 /* ------------------------------------------------------------------------------------------------

@@ -4,12 +4,12 @@
 #include "Session.hpp"
 
 // --------------------------------------------------------------------------------------------
-#include <sqrat.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 
 // --------------------------------------------------------------------------------------------
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <sqrat.h>
 
 // --------------------------------------------------------------------------------------------
 #if defined(WIN32) || defined(_WIN32)
@@ -20,14 +20,14 @@
 namespace SqMod {
 
 // --------------------------------------------------------------------------------------------
-PluginFuncs*        _Func = NULL;
-PluginCallbacks*    _Clbk = NULL;
-PluginInfo*         _Info = NULL;
+PluginFuncs*        _Func = nullptr;
+PluginCallbacks*    _Clbk = nullptr;
+PluginInfo*         _Info = nullptr;
 
 // --------------------------------------------------------------------------------------------
-HSQAPI              _SqAPI = NULL;
-HSQEXPORTS          _SqMod = NULL;
-HSQUIRRELVM         _SqVM = NULL;
+HSQAPI              _SqAPI = nullptr;
+HSQEXPORTS          _SqMod = nullptr;
+HSQUIRRELVM         _SqVM = nullptr;
 
 /* ------------------------------------------------------------------------------------------------
  * Bind speciffic functions to certain server events.
@@ -53,7 +53,9 @@ void OnSquirrelInitialize()
     _SqMod = sq_api_import(_Func);
     // Did we failed to obtain the plugin exports?
     if(!_SqMod)
+    {
         OutputError("Failed to attach [%s] on host plugin.", SQIRC_NAME);
+    }
     else
     {
         // Obtain the Squirrel API
@@ -70,12 +72,16 @@ void OnSquirrelLoad()
 {
     // Make sure that we have a valid plugin API
     if (!_SqMod)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed!
+    }
     // Obtain the Squirrel API and VM
     _SqVM = _SqMod->GetSquirrelVM();
     // Make sure that a valid virtual machine exists
     if (!_SqVM)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed!
+    }
     // Set this as the default database
     DefaultVM::Set(_SqVM);
     // Register the module API
@@ -93,7 +99,7 @@ void OnSquirrelTerminate()
     // Terminate all session and release script resources
     Session::Terminate();
     // Release the current database (if any)
-    DefaultVM::Set(NULL);
+    DefaultVM::Set(nullptr);
 }
 
 /* --------------------------------------------------------------------------------------------
@@ -111,10 +117,12 @@ static void OnFrame(float /*delta*/)
 bool CheckAPIVer(CCStr ver)
 {
     // Obtain the numeric representation of the API version
-    long vernum = strtol(ver, NULL, 10);
+    long vernum = std::strtol(ver, nullptr, 10);
     // Check against version mismatch
     if (vernum == SQMOD_API_VER)
+    {
         return true;
+    }
     // Log the incident
     OutputError("API version mismatch on %s", SQIRC_NAME);
     OutputMessage("=> Requested: %ld Have: %ld", vernum, SQMOD_API_VER);
@@ -131,7 +139,9 @@ static int OnInternalCommand(unsigned int type, const char * text)
     {
         case SQMOD_INITIALIZE_CMD:
             if (CheckAPIVer(text))
+            {
                 OnSquirrelInitialize();
+            }
         break;
         case SQMOD_LOAD_CMD:
             OnSquirrelLoad();
@@ -170,10 +180,10 @@ void BindCallbacks()
 // ------------------------------------------------------------------------------------------------
 void UnbindCallbacks()
 {
-    _Clbk->OnInitServer             = NULL;
-    _Clbk->OnFrame                  = NULL;
-    _Clbk->OnInternalCommand        = NULL;
-    _Clbk->OnShutdownServer         = NULL;
+    _Clbk->OnInitServer             = nullptr;
+    _Clbk->OnFrame                  = nullptr;
+    _Clbk->OnInternalCommand        = nullptr;
+    _Clbk->OnShutdownServer         = nullptr;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -182,13 +192,13 @@ void RegisterAPI(HSQUIRRELVM vm)
     Table ircns(vm);
 
     ircns.Bind(_SC("Session"), Class< Session, NoCopy< Session > >(vm, _SC("SqIrcSession"))
-        /* Constructors */
+        // Constructors
         .Ctor()
-        /* Core Metamethods */
+        // Core Metamethods
         .Func(_SC("_cmp"), &Session::Cmp)
         .SquirrelFunc(_SC("_typename"), &Session::Typename)
         .Func(_SC("_tostring"), &Session::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Session::IsValid)
         .Prop(_SC("Connected"), &Session::IsConnected)
         .Prop(_SC("Tag"), &Session::GetTag, &Session::SetTag)
@@ -209,7 +219,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("Reconnecting"), &Session::GetReconnect)
         .Prop(_SC("IPv6"), &Session::GetIPv6)
         .Prop(_SC("Server"), &Session::GetServer, &Session::SetServer)
-        .Prop(_SC("CtcpVersion"), (void (Session::*)(void))(NULL), &Session::SetCtcpVersion)
+        .Prop(_SC("CtcpVersion"), (void (Session::*)(void))(nullptr), &Session::SetCtcpVersion)
         .Prop(_SC("ErrNo"), &Session::GetErrNo)
         .Prop(_SC("ErrStr"), &Session::GetErrStr)
         .Prop(_SC("OnConnect"), &Session::GetOnConnect)
@@ -233,7 +243,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("OnNumeric"), &Session::GetOnNumeric)
         .Prop(_SC("OnDccChatReq"), &Session::GetOnDccChatReq)
         .Prop(_SC("OnDccSendReq"), &Session::GetOnDccSendReq)
-        /* Functions */
+        // Member Methods
         .Overload< Int32 (Session::*)(void) >(_SC("Connect"), &Session::Connect)
         .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr) >(_SC("Connect"), &Session::Connect)
         .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr, CSStr) >(_SC("Connect"), &Session::Connect)
@@ -295,6 +305,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("BindNumeric"), &Session::BindOnNumeric)
         .Func(_SC("BindDccChatReq"), &Session::BindOnDccChatReq)
         .Func(_SC("BindDccSendReq"), &Session::BindOnDccSendReq)
+        // Squirrel Methods
         .SquirrelFunc(_SC("CmdMsgF"), &Session::CmdMsgF)
         .SquirrelFunc(_SC("CmdMeF"), &Session::CmdMeF)
         .SquirrelFunc(_SC("CmdNoticeF"), &Session::CmdNoticeF)
