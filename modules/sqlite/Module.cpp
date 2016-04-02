@@ -74,14 +74,14 @@ void OnSquirrelLoad()
     // Make sure that we have a valid plugin API
     if (!_SqMod)
     {
-        return; // Unable to proceed.
+        return; // Unable to proceed!
     }
     // Obtain the Squirrel API and VM
     _SqVM = _SqMod->GetSquirrelVM();
     // Make sure that a valid virtual machine exists
     if (!_SqVM)
     {
-        return; // Unable to proceed.
+        return; // Unable to proceed!
     }
     // Set this as the default database
     DefaultVM::Set(_SqVM);
@@ -107,7 +107,7 @@ void OnSquirrelTerminate()
 bool CheckAPIVer(CCStr ver)
 {
     // Obtain the numeric representation of the API version
-    long vernum = strtol(ver, nullptr, 10);
+    long vernum = std::strtol(ver, nullptr, 10);
     // Check against version mismatch
     if (vernum == SQMOD_API_VER)
     {
