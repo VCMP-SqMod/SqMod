@@ -58,6 +58,11 @@ CSStr FmtStr(CSStr str, ...);
 struct StackGuard
 {
     /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    StackGuard();
+
+    /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
     StackGuard(HSQUIRRELVM vm);
@@ -92,8 +97,8 @@ private:
 private:
 
     // --------------------------------------------------------------------------------------------
-    Int32       m_Top; /* The top of the stack when this instance was created. */
-    HSQUIRRELVM m_VM; /* The VM where the stack should be restored. */
+    HSQUIRRELVM m_VM; // The VM where the stack should be restored.
+    Int32       m_Top; // The top of the stack when this instance was created.
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -120,6 +125,11 @@ public:
     // --------------------------------------------------------------------------------------------
     typedef unsigned int    Counter; // Reference counter type.
 
+    /* --------------------------------------------------------------------------------------------
+     * Validate the document reference and throw an error if invalid.
+    */
+    void Validate() const;
+
 private:
 
     // --------------------------------------------------------------------------------------------
@@ -132,7 +142,9 @@ private:
     void Grab()
     {
         if (m_Ptr)
+        {
             ++(*m_Ref);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -420,11 +432,17 @@ public:
     Int32 Cmp(const IniResult & o) const
     {
         if (m_Result == o.m_Result)
+        {
             return 0;
+        }
         else if (m_Result > o.m_Result)
+        {
             return 1;
+        }
         else
+        {
             return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------

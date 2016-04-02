@@ -5,12 +5,12 @@
 #include "Document.hpp"
 
 // --------------------------------------------------------------------------------------------
-#include <sqrat.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 
 // --------------------------------------------------------------------------------------------
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <sqrat.h>
 
 // --------------------------------------------------------------------------------------------
 #if defined(WIN32) || defined(_WIN32)
@@ -20,14 +20,14 @@
 namespace SqMod {
 
 // --------------------------------------------------------------------------------------------
-PluginFuncs*        _Func = NULL;
-PluginCallbacks*    _Clbk = NULL;
-PluginInfo*         _Info = NULL;
+PluginFuncs*        _Func = nullptr;
+PluginCallbacks*    _Clbk = nullptr;
+PluginInfo*         _Info = nullptr;
 
 // --------------------------------------------------------------------------------------------
-HSQAPI              _SqAPI = NULL;
-HSQEXPORTS          _SqMod = NULL;
-HSQUIRRELVM         _SqVM = NULL;
+HSQAPI              _SqAPI = nullptr;
+HSQEXPORTS          _SqMod = nullptr;
+HSQUIRRELVM         _SqVM = nullptr;
 
 /* ------------------------------------------------------------------------------------------------
  * Bind speciffic functions to certain server events.
@@ -53,7 +53,9 @@ void OnSquirrelInitialize()
     _SqMod = sq_api_import(_Func);
     // Did we failed to obtain the plugin exports?
     if(!_SqMod)
+    {
         OutputError("Failed to attach [%s] on host plugin.", SQINI_NAME);
+    }
     else
     {
         // Obtain the Squirrel API
@@ -70,12 +72,16 @@ void OnSquirrelLoad()
 {
     // Make sure that we have a valid plugin API
     if (!_SqMod)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed!
+    }
     // Obtain the Squirrel API and VM
     _SqVM = _SqMod->GetSquirrelVM();
     // Make sure that a valid virtual machine exists
     if (!_SqVM)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed!
+    }
     // Set this as the default database
     DefaultVM::Set(_SqVM);
     // Register the module API
@@ -91,7 +97,7 @@ void OnSquirrelTerminate()
 {
     OutputMessage("Terminating: %s", SQINI_NAME);
     // Release the current database (if any)
-    DefaultVM::Set(NULL);
+    DefaultVM::Set(nullptr);
 }
 
 /* --------------------------------------------------------------------------------------------
@@ -100,10 +106,12 @@ void OnSquirrelTerminate()
 bool CheckAPIVer(CCStr ver)
 {
     // Obtain the numeric representation of the API version
-    long vernum = strtol(ver, NULL, 10);
+    long vernum = std::strtol(ver, nullptr, 10);
     // Check against version mismatch
     if (vernum == SQMOD_API_VER)
+    {
         return true;
+    }
     // Log the incident
     OutputError("API version mismatch on %s", SQINI_NAME);
     OutputMessage("=> Requested: %ld Have: %ld", vernum, SQMOD_API_VER);
@@ -120,7 +128,9 @@ static int OnInternalCommand(unsigned int type, const char * text)
     {
         case SQMOD_INITIALIZE_CMD:
             if (CheckAPIVer(text))
+            {
                 OnSquirrelInitialize();
+            }
         break;
         case SQMOD_LOAD_CMD:
             OnSquirrelLoad();
@@ -158,9 +168,9 @@ void BindCallbacks()
 // ------------------------------------------------------------------------------------------------
 void UnbindCallbacks()
 {
-    _Clbk->OnInitServer             = NULL;
-    _Clbk->OnInternalCommand        = NULL;
-    _Clbk->OnShutdownServer         = NULL;
+    _Clbk->OnInitServer             = nullptr;
+    _Clbk->OnInternalCommand        = nullptr;
+    _Clbk->OnShutdownServer         = nullptr;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -169,31 +179,31 @@ void RegisterAPI(HSQUIRRELVM vm)
     Table inins(vm);
 
     inins.Bind(_SC("Result"), Class< IniResult >(vm, _SC("SqIniResult"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< CSStr, SQInteger >()
         .Ctor< const IniResult & >()
-        /* Core Metamethods */
+        // Core Metamethods
         .Func(_SC("_cmp"), &IniResult::Cmp)
         .SquirrelFunc(_SC("_typename"), &IniResult::Typename)
         .Func(_SC("_tostring"), &IniResult::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &IniResult::IsValid)
         .Prop(_SC("Action"), &IniResult::GetAction)
         .Prop(_SC("Result"), &IniResult::GetResult)
-        /* Functions */
+        // Member Methods
         .Func(_SC("Check"), &IniResult::Check)
     );
 
     inins.Bind(_SC("Entries"), Class< Entries >(vm, _SC("SqIniEntries"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< const Entries & >()
-        /* Core Metamethods */
+        // Core Metamethods
         .Func(_SC("_cmp"), &Entries::Cmp)
         .SquirrelFunc(_SC("_typename"), &Entries::Typename)
         .Func(_SC("_tostring"), &Entries::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Entries::IsValid)
         .Prop(_SC("Empty"), &Entries::IsEmpty)
         .Prop(_SC("References"), &Entries::GetRefCount)
@@ -201,7 +211,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("Item"), &Entries::GetItem)
         .Prop(_SC("Comment"), &Entries::GetComment)
         .Prop(_SC("Order"), &Entries::GetOrder)
-        /* Functions */
+        // Member Methods
         .Func(_SC("Reset"), &Entries::Reset)
         .Func(_SC("Next"), &Entries::Next)
         .Func(_SC("Prev"), &Entries::Prev)
@@ -213,16 +223,16 @@ void RegisterAPI(HSQUIRRELVM vm)
     );
 
     inins.Bind(_SC("Document"), Class< Document, NoCopy< Document > >(vm, _SC("SqIniDocument"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< bool >()
         .Ctor< bool, bool >()
         .Ctor< bool, bool, bool >()
-        /* Core Metamethods */
+        // Core Metamethods
         .Func(_SC("_cmp"), &Document::Cmp)
         .SquirrelFunc(_SC("_typename"), &Document::Typename)
         .Func(_SC("_tostring"), &Document::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Document::IsValid)
         .Prop(_SC("Empty"), &Document::IsEmpty)
         .Prop(_SC("References"), &Document::GetRefCount)
@@ -230,7 +240,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("MultiKey"), &Document::GetMultiKey, &Document::SetMultiKey)
         .Prop(_SC("MultiLine"), &Document::GetMultiLine, &Document::SetMultiLine)
         .Prop(_SC("Spaces"), &Document::GetSpaces, &Document::SetSpaces)
-        /* Functions */
+        // Member Methods
         .Func(_SC("Reset"), &Document::Reset)
         .Func(_SC("LoadFile"), &Document::LoadFile)
         .Overload< IniResult (Document::*)(CSStr) >(_SC("LoadString"), &Document::LoadData)
@@ -400,7 +410,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs* functions, PluginCallb
     _Info = info;
     // Assign plugin information
     _Info->uPluginVer = SQINI_VERSION;
-    strcpy(_Info->szName, SQINI_HOST_NAME);
+    std::strcpy(_Info->szName, SQINI_HOST_NAME);
     // Bind callbacks
     BindCallbacks();
     // Notify that the plugin was successfully loaded

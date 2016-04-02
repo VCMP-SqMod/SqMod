@@ -57,7 +57,7 @@ CSStr FmtStr(CSStr str, ...)
     // Write the requested contents
     if (std::vsnprintf(g_Buffer, sizeof(g_Buffer), str, args) < 0)
     {
-        g_Buffer[0] = 0; // make sure the string is terminated
+        g_Buffer[0] = 0; // Make sure the string is terminated
     }
     // Release the argument list
     va_end(args);

@@ -27,11 +27,6 @@ protected:
     */
     Document & operator = (const Document & o);
 
-    /* --------------------------------------------------------------------------------------------
-     * Validate the document reference and throw an error if invalid.
-    */
-    void Validate() const;
-
 private:
 
     // ---------------------------------------------------------------------------------------------
@@ -283,7 +278,7 @@ public:
     */
     IniResult SetValue(CSStr section, CSStr key, CSStr value)
     {
-        return SetValue(section, key, value, false, NULL);
+        return SetValue(section, key, value, false, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -291,7 +286,7 @@ public:
     */
     IniResult SetValue(CSStr section, CSStr key, CSStr value, bool force)
     {
-        return SetValue(section, key, value, force, NULL);
+        return SetValue(section, key, value, force, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -304,7 +299,7 @@ public:
     */
     IniResult SetInteger(CSStr section, CSStr key, SQInteger value)
     {
-        return SetInteger(section, key, value, false, false, NULL);
+        return SetInteger(section, key, value, false, false, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -312,7 +307,7 @@ public:
     */
     IniResult SetInteger(CSStr section, CSStr key, SQInteger value, bool hex)
     {
-        return SetInteger(section, key, value, hex, false, NULL);
+        return SetInteger(section, key, value, hex, false, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -320,7 +315,7 @@ public:
     */
     IniResult SetInteger(CSStr section, CSStr key, SQInteger value, bool hex, bool force)
     {
-        return SetInteger(section, key, value, hex, force, NULL);
+        return SetInteger(section, key, value, hex, force, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -333,7 +328,7 @@ public:
     */
     IniResult SetFloat(CSStr section, CSStr key, SQFloat value)
     {
-        return SetFloat(section, key, value, false, NULL);
+        return SetFloat(section, key, value, false, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -341,7 +336,7 @@ public:
     */
     IniResult SetFloat(CSStr section, CSStr key, SQFloat value, bool force)
     {
-        return SetFloat(section, key, value, force, NULL);
+        return SetFloat(section, key, value, force, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -354,7 +349,7 @@ public:
     */
     IniResult SetBoolean(CSStr section, CSStr key, bool value)
     {
-        return SetBoolean(section, key, value, false, NULL);
+        return SetBoolean(section, key, value, false, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -362,7 +357,7 @@ public:
     */
     IniResult SetBoolean(CSStr section, CSStr key, bool value, bool force)
     {
-        return SetBoolean(section, key, value, force, NULL);
+        return SetBoolean(section, key, value, force, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -375,7 +370,7 @@ public:
     */
     bool DeleteValue(CSStr section)
     {
-        return DeleteValue(section, NULL, NULL, false);
+        return DeleteValue(section, nullptr, nullptr, false);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -383,7 +378,7 @@ public:
     */
     bool DeleteValue(CSStr section, CSStr key)
     {
-        return DeleteValue(section, key, NULL, false);
+        return DeleteValue(section, key, nullptr, false);
     }
 
     /* --------------------------------------------------------------------------------------------

@@ -36,9 +36,9 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef     m_Doc; /* The document that contains the elements. */
-    Container       m_List; /* The list of elements to iterate. */
-    Iterator        m_Elem; /* The currently processed element. */
+    DocumentRef     m_Doc; // The document that contains the elements.
+    Container       m_List; // The list of elements to iterate.
+    Iterator        m_Elem; // The currently processed element.
 
 public:
 
@@ -126,7 +126,7 @@ public:
     */
     Int32 GetSize() const
     {
-        return (Int32)m_List.size();
+        return static_cast< Int32 >(m_List.size());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -135,9 +135,13 @@ public:
     void Reset()
     {
         if (m_List.empty())
+        {
             m_Elem = m_List.end();
+        }
         else
+        {
             m_Elem = m_List.begin();
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -166,7 +170,9 @@ public:
     void Sort()
     {
         if (!m_List.empty())
+        {
             m_List.sort(DocumentRef::Type::Entry::KeyOrder());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -175,7 +181,9 @@ public:
     void SortByKeyOrder()
     {
         if (!m_List.empty())
+        {
             m_List.sort(DocumentRef::Type::Entry::KeyOrder());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -184,7 +192,9 @@ public:
     void SortByLoadOrder()
     {
         if (!m_List.empty())
+        {
             m_List.sort(DocumentRef::Type::Entry::LoadOrder());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
