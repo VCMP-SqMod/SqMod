@@ -689,12 +689,12 @@ enum CmdError
  * COLOR PACKING
 */
 
-#define SQMOD_PACK_RGB(r, g, b) (Uint32)(r << 16 | g << 8 | b)
-#define SQMOD_PACK_RGBA(r, g, b, a) (Uint32)(r << 24 | g << 16 | b << 8 | a)
-#define SQMOD_PACK_ARGB(a, r, g, b) (Uint32)(a << 24 | r << 16 | g << 8 | b)
+#define SQMOD_PACK_RGB(r, g, b) static_cast< Uint32 >(r << 16 | g << 8 | b)
+#define SQMOD_PACK_RGBA(r, g, b, a) static_cast< Uint32 >(r << 24 | g << 16 | b << 8 | a)
+#define SQMOD_PACK_ARGB(a, r, g, b) static_cast< Uint32 >(a << 24 | r << 16 | g << 8 | b)
 
-#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) (Uint32)(r << 24 | g << 16 | b << 8 | 0)
-#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) (Uint32)(0 << 24 | r << 16 | g << 8 | b)
+#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) static_cast< Uint32 >(r << 24 | g << 16 | b << 8 | 0)
+#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) static_cast< Uint32 >(0 << 24 | r << 16 | g << 8 | b)
 
 /* ------------------------------------------------------------------------------------------------
  * GENERAL RESPONSES
