@@ -7,12 +7,12 @@
 #include "Document.hpp"
 
 // --------------------------------------------------------------------------------------------
-#include <sqrat.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 
 // --------------------------------------------------------------------------------------------
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <sqrat.h>
 
 // --------------------------------------------------------------------------------------------
 #if defined(WIN32) || defined(_WIN32)
@@ -55,7 +55,9 @@ void OnSquirrelInitialize()
     _SqMod = sq_api_import(_Func);
     // Did we failed to obtain the plugin exports?
     if(!_SqMod)
+    {
         OutputError("Failed to attach [%s] on host plugin.", SQXML_NAME);
+    }
     else
     {
         // Obtain the Squirrel API
@@ -72,12 +74,16 @@ void OnSquirrelLoad()
 {
     // Make sure that we have a valid plugin API
     if (!_SqMod)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed.
+    }
     // Obtain the Squirrel API and VM
     _SqVM = _SqMod->GetSquirrelVM();
     // Make sure that a valid virtual machine exists
     if (!_SqVM)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed.
+    }
     // Set this as the default database
     DefaultVM::Set(_SqVM);
     // Register the module API
@@ -105,7 +111,9 @@ bool CheckAPIVer(CCStr ver)
     long vernum = strtol(ver, NULL, 10);
     // Check against version mismatch
     if (vernum == SQMOD_API_VER)
+    {
         return true;
+    }
     // Log the incident
     OutputError("API version mismatch on %s", SQXML_NAME);
     OutputMessage("=> Requested: %ld Have: %ld", vernum, SQMOD_API_VER);
@@ -122,7 +130,9 @@ static int OnInternalCommand(unsigned int type, const char * text)
     {
         case SQMOD_INITIALIZE_CMD:
             if (CheckAPIVer(text))
+            {
                 OnSquirrelInitialize();
+            }
         break;
         case SQMOD_LOAD_CMD:
             OnSquirrelLoad();
@@ -171,14 +181,14 @@ void RegisterAPI(HSQUIRRELVM vm)
     Table xmlns(vm);
 
     xmlns.Bind(_SC("ParseResult"), Class< ParseResult >(vm, _SC("SqXmlParseResult"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< const ParseResult & >()
-        /* Core Metamethods */
+        // Core Metamethods
         .Func(_SC("_cmp"), &ParseResult::Cmp)
         .SquirrelFunc(_SC("_typename"), &ParseResult::Typename)
         .Func(_SC("_tostring"), &ParseResult::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &ParseResult::IsValid)
         .Prop(_SC("References"), &ParseResult::GetRefCount)
         .Prop(_SC("Ok"), &ParseResult::IsOk)
@@ -186,19 +196,19 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("Offset"), &ParseResult::GetOffset)
         .Prop(_SC("Encoding"), &ParseResult::GetEncoding)
         .Prop(_SC("Description"), &ParseResult::GetDescription)
-        /* Functions */
+        // Member Methods
         .Func(_SC("Check"), &ParseResult::Check)
     );
 
     xmlns.Bind(_SC("Attribute"), Class< Attribute >(vm, _SC("SqXmlAttribute"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< const Attribute & >()
-        /* Core Metamethods */
+        // Core Metamethods
         .Func(_SC("_cmp"), &Attribute::Cmp)
         .SquirrelFunc(_SC("_typename"), &Attribute::Typename)
         .Func(_SC("_tostring"), &Attribute::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Attribute::IsValid)
         .Prop(_SC("References"), &Attribute::GetRefCount)
         .Prop(_SC("Empty"), &Attribute::IsEmpty)
@@ -214,7 +224,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("Bool"), &Attribute::GetBool, &Attribute::SetBool)
         .Prop(_SC("Next"), &Attribute::NextAttribute)
         .Prop(_SC("Prev"), &Attribute::PrevAttribute)
-        /* Functions */
+        // Member Methods
         .Func(_SC("SetName"), &Attribute::ApplyName)
         .Func(_SC("SetValue"), &Attribute::ApplyValue)
         .Func(_SC("AsString"), &Attribute::AsString)
@@ -236,14 +246,14 @@ void RegisterAPI(HSQUIRRELVM vm)
     );
 
     xmlns.Bind(_SC("Text"), Class< Text >(vm, _SC("SqXmlText"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< const Text & >()
-        /* Core Metamethods */
+        // Core Metamethods
         .Func(_SC("_cmp"), &Text::Cmp)
         .SquirrelFunc(_SC("_typename"), &Text::Typename)
         .Func(_SC("_tostring"), &Text::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Text::IsValid)
         .Prop(_SC("References"), &Text::GetRefCount)
         .Prop(_SC("Empty"), &Text::IsEmpty)
@@ -256,7 +266,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("Ulong"), &Text::GetUlong, &Text::SetUlong)
         .Prop(_SC("Bool"), &Text::GetBool, &Text::SetBool)
         .Prop(_SC("Data"), &Text::GetData)
-        /* Functions */
+        // Member Methods
         .Func(_SC("AsString"), &Text::AsString)
         .Func(_SC("AsInt"), &Text::AsInt)
         .Func(_SC("AsUint"), &Text::AsUint)
@@ -276,14 +286,14 @@ void RegisterAPI(HSQUIRRELVM vm)
     );
 
     xmlns.Bind(_SC("Node"), Class< Node >(vm, _SC("SqXmlNode"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< const Node & >()
-        /* Core Metamethods */
+        // Core Metamethods
         .Func(_SC("_cmp"), &Node::Cmp)
         .SquirrelFunc(_SC("_typename"), &Node::Typename)
         .Func(_SC("_tostring"), &Node::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Node::IsValid)
         .Prop(_SC("References"), &Node::GetRefCount)
         .Prop(_SC("Empty"), &Node::IsEmpty)
@@ -302,7 +312,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Prop(_SC("Root"), &Node::GetRoot)
         .Prop(_SC("Text"), &Node::GetText)
         .Prop(_SC("ChildValue"), &Node::GetChildValue)
-        /* Functions */
+        // Member Methods
         .Overload< ParseResult (Node::*)(CSStr) >(_SC("AppendBuffer"), &Node::AppendBuffer)
         .Overload< ParseResult (Node::*)(CSStr, Uint32) >(_SC("AppendBuffer"), &Node::AppendBuffer)
         .Overload< ParseResult (Node::*)(CSStr, Uint32, Int32) >(_SC("AppendBuffer"), &Node::AppendBuffer)
@@ -352,17 +362,17 @@ void RegisterAPI(HSQUIRRELVM vm)
     );
 
     xmlns.Bind(_SC("Document"), Class< Document, NoCopy< Document > >(vm, _SC("SqXmlDocument"))
-        /* Constructors */
+        // Constructors
         .Ctor()
-        /* Core Metamethods */
+        // Core Metamethods
         .Func(_SC("_cmp"), &Document::Cmp)
         .SquirrelFunc(_SC("_typename"), &Document::Typename)
         .Func(_SC("_tostring"), &Document::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Valid"), &Document::IsValid)
         .Prop(_SC("References"), &Document::GetRefCount)
         .Prop(_SC("Node"), &Document::GetNode)
-        /* Functions */
+        // Member Methods
         .Overload< void (Document::*)(void) >(_SC("Reset"), &Document::Reset)
         .Overload< void (Document::*)(const Document &) >(_SC("Reset"), &Document::Reset)
         .Overload< ParseResult (Document::*)(CSStr) >(_SC("LoadString"), &Document::LoadData)
@@ -379,87 +389,87 @@ void RegisterAPI(HSQUIRRELVM vm)
     RootTable(vm).Bind(_SC("SqXml"), xmlns);
 
     ConstTable(vm).Enum(_SC("SqXmlNodeType"), Enumeration(vm)
-        .Const(_SC("Null"),                     Int32(node_null))
-        .Const(_SC("Document"),                 Int32(node_document))
-        .Const(_SC("Element"),                  Int32(node_element))
-        .Const(_SC("PCData"),                   Int32(node_pcdata))
-        .Const(_SC("CData"),                    Int32(node_cdata))
-        .Const(_SC("Comment"),                  Int32(node_comment))
-        .Const(_SC("Pi"),                       Int32(node_pi))
-        .Const(_SC("Declaration"),              Int32(node_declaration))
-        .Const(_SC("Doctype"),                  Int32(node_doctype))
+        .Const(_SC("Null"),                     static_cast< Int32 >(node_null))
+        .Const(_SC("Document"),                 static_cast< Int32 >(node_document))
+        .Const(_SC("Element"),                  static_cast< Int32 >(node_element))
+        .Const(_SC("PCData"),                   static_cast< Int32 >(node_pcdata))
+        .Const(_SC("CData"),                    static_cast< Int32 >(node_cdata))
+        .Const(_SC("Comment"),                  static_cast< Int32 >(node_comment))
+        .Const(_SC("Pi"),                       static_cast< Int32 >(node_pi))
+        .Const(_SC("Declaration"),              static_cast< Int32 >(node_declaration))
+        .Const(_SC("Doctype"),                  static_cast< Int32 >(node_doctype))
     );
 
     ConstTable(vm).Enum(_SC("SqXmlParse"), Enumeration(vm)
-        .Const(_SC("Minimal"),                  Int32(parse_minimal))
-        .Const(_SC("Default"),                  Int32(parse_default))
-        .Const(_SC("Full"),                     Int32(parse_full))
-        .Const(_SC("Pi"),                       Int32(parse_pi))
-        .Const(_SC("Comments"),                 Int32(parse_comments))
-        .Const(_SC("CData"),                    Int32(parse_cdata))
-        .Const(_SC("WSPCData"),                 Int32(parse_ws_pcdata))
-        .Const(_SC("Escapes"),                  Int32(parse_escapes))
-        .Const(_SC("EOL"),                      Int32(parse_eol))
-        .Const(_SC("WConvAttribute"),           Int32(parse_wconv_attribute))
-        .Const(_SC("WNormAttribute"),           Int32(parse_wnorm_attribute))
-        .Const(_SC("Declaration"),              Int32(parse_declaration))
-        .Const(_SC("Doctype"),                  Int32(parse_doctype))
-        .Const(_SC("WSPCDataSingle"),           Int32(parse_ws_pcdata_single))
-        .Const(_SC("TrimPCData"),               Int32(parse_trim_pcdata))
-        .Const(_SC("Fragment"),                 Int32(parse_fragment))
-        .Const(_SC("EmbedPCData"),              Int32(parse_embed_pcdata))
+        .Const(_SC("Minimal"),                  static_cast< Int32 >(parse_minimal))
+        .Const(_SC("Default"),                  static_cast< Int32 >(parse_default))
+        .Const(_SC("Full"),                     static_cast< Int32 >(parse_full))
+        .Const(_SC("Pi"),                       static_cast< Int32 >(parse_pi))
+        .Const(_SC("Comments"),                 static_cast< Int32 >(parse_comments))
+        .Const(_SC("CData"),                    static_cast< Int32 >(parse_cdata))
+        .Const(_SC("WSPCData"),                 static_cast< Int32 >(parse_ws_pcdata))
+        .Const(_SC("Escapes"),                  static_cast< Int32 >(parse_escapes))
+        .Const(_SC("EOL"),                      static_cast< Int32 >(parse_eol))
+        .Const(_SC("WConvAttribute"),           static_cast< Int32 >(parse_wconv_attribute))
+        .Const(_SC("WNormAttribute"),           static_cast< Int32 >(parse_wnorm_attribute))
+        .Const(_SC("Declaration"),              static_cast< Int32 >(parse_declaration))
+        .Const(_SC("Doctype"),                  static_cast< Int32 >(parse_doctype))
+        .Const(_SC("WSPCDataSingle"),           static_cast< Int32 >(parse_ws_pcdata_single))
+        .Const(_SC("TrimPCData"),               static_cast< Int32 >(parse_trim_pcdata))
+        .Const(_SC("Fragment"),                 static_cast< Int32 >(parse_fragment))
+        .Const(_SC("EmbedPCData"),              static_cast< Int32 >(parse_embed_pcdata))
     );
 
     ConstTable(vm).Enum(_SC("SqXmlEncoding"), Enumeration(vm)
-        .Const(_SC("Auto"),                     Int32(encoding_auto))
-        .Const(_SC("Utf8"),                     Int32(encoding_utf8))
-        .Const(_SC("Utf16LE"),                  Int32(encoding_utf16_le))
-        .Const(_SC("Utf16BE"),                  Int32(encoding_utf16_be))
-        .Const(_SC("Utf16"),                    Int32(encoding_utf16))
-        .Const(_SC("Utf32LE"),                  Int32(encoding_utf32_le))
-        .Const(_SC("Utf32BE"),                  Int32(encoding_utf32_be))
-        .Const(_SC("Utf32"),                    Int32(encoding_utf32))
-        .Const(_SC("WChar"),                    Int32(encoding_wchar))
-        .Const(_SC("Latin1"),                   Int32(encoding_latin1))
+        .Const(_SC("Auto"),                     static_cast< Int32 >(encoding_auto))
+        .Const(_SC("Utf8"),                     static_cast< Int32 >(encoding_utf8))
+        .Const(_SC("Utf16LE"),                  static_cast< Int32 >(encoding_utf16_le))
+        .Const(_SC("Utf16BE"),                  static_cast< Int32 >(encoding_utf16_be))
+        .Const(_SC("Utf16"),                    static_cast< Int32 >(encoding_utf16))
+        .Const(_SC("Utf32LE"),                  static_cast< Int32 >(encoding_utf32_le))
+        .Const(_SC("Utf32BE"),                  static_cast< Int32 >(encoding_utf32_be))
+        .Const(_SC("Utf32"),                    static_cast< Int32 >(encoding_utf32))
+        .Const(_SC("WChar"),                    static_cast< Int32 >(encoding_wchar))
+        .Const(_SC("Latin1"),                   static_cast< Int32 >(encoding_latin1))
     );
 
     ConstTable(vm).Enum(_SC("SqXmlFormat"), Enumeration(vm)
-        .Const(_SC("Indent"),                   Int32(format_indent))
-        .Const(_SC("WriteBOM"),                 Int32(format_write_bom))
-        .Const(_SC("Raw"),                      Int32(format_raw))
-        .Const(_SC("NoDeclaration"),            Int32(format_no_declaration))
-        .Const(_SC("NoEscapes"),                Int32(format_no_escapes))
-        .Const(_SC("SaveFileText"),             Int32(format_save_file_text))
-        .Const(_SC("IndentAttributes"),         Int32(format_indent_attributes))
-        .Const(_SC("Default"),                  Int32(format_default))
+        .Const(_SC("Indent"),                   static_cast< Int32 >(format_indent))
+        .Const(_SC("WriteBOM"),                 static_cast< Int32 >(format_write_bom))
+        .Const(_SC("Raw"),                      static_cast< Int32 >(format_raw))
+        .Const(_SC("NoDeclaration"),            static_cast< Int32 >(format_no_declaration))
+        .Const(_SC("NoEscapes"),                static_cast< Int32 >(format_no_escapes))
+        .Const(_SC("SaveFileText"),             static_cast< Int32 >(format_save_file_text))
+        .Const(_SC("IndentAttributes"),         static_cast< Int32 >(format_indent_attributes))
+        .Const(_SC("Default"),                  static_cast< Int32 >(format_default))
     );
 
     ConstTable(vm).Enum(_SC("SqXmlParseStatus"), Enumeration(vm)
-        .Const(_SC("Ok"),                       Int32(status_ok))
-        .Const(_SC("FileNotFound"),             Int32(status_file_not_found))
-        .Const(_SC("IOError"),                  Int32(status_io_error))
-        .Const(_SC("OutOfMemory"),              Int32(status_out_of_memory))
-        .Const(_SC("InternalError"),            Int32(status_internal_error))
-        .Const(_SC("UnrecognizedTag"),          Int32(status_unrecognized_tag))
-        .Const(_SC("BadPi"),                    Int32(status_bad_pi))
-        .Const(_SC("BadComment"),               Int32(status_bad_comment))
-        .Const(_SC("BadCData"),                 Int32(status_bad_cdata))
-        .Const(_SC("BadDoctype"),               Int32(status_bad_doctype))
-        .Const(_SC("BadPCData"),                Int32(status_bad_pcdata))
-        .Const(_SC("BadStartElement"),          Int32(status_bad_start_element))
-        .Const(_SC("BadAttribute"),             Int32(status_bad_attribute))
-        .Const(_SC("BadEndElement"),            Int32(status_bad_end_element))
-        .Const(_SC("EndElementMismatch"),       Int32(status_end_element_mismatch))
-        .Const(_SC("AppendInvalidRoot"),        Int32(status_append_invalid_root))
-        .Const(_SC("NoDocumentElement"),        Int32(status_no_document_element))
+        .Const(_SC("Ok"),                       static_cast< Int32 >(status_ok))
+        .Const(_SC("FileNotFound"),             static_cast< Int32 >(status_file_not_found))
+        .Const(_SC("IOError"),                  static_cast< Int32 >(status_io_error))
+        .Const(_SC("OutOfMemory"),              static_cast< Int32 >(status_out_of_memory))
+        .Const(_SC("InternalError"),            static_cast< Int32 >(status_internal_error))
+        .Const(_SC("UnrecognizedTag"),          static_cast< Int32 >(status_unrecognized_tag))
+        .Const(_SC("BadPi"),                    static_cast< Int32 >(status_bad_pi))
+        .Const(_SC("BadComment"),               static_cast< Int32 >(status_bad_comment))
+        .Const(_SC("BadCData"),                 static_cast< Int32 >(status_bad_cdata))
+        .Const(_SC("BadDoctype"),               static_cast< Int32 >(status_bad_doctype))
+        .Const(_SC("BadPCData"),                static_cast< Int32 >(status_bad_pcdata))
+        .Const(_SC("BadStartElement"),          static_cast< Int32 >(status_bad_start_element))
+        .Const(_SC("BadAttribute"),             static_cast< Int32 >(status_bad_attribute))
+        .Const(_SC("BadEndElement"),            static_cast< Int32 >(status_bad_end_element))
+        .Const(_SC("EndElementMismatch"),       static_cast< Int32 >(status_end_element_mismatch))
+        .Const(_SC("AppendInvalidRoot"),        static_cast< Int32 >(status_append_invalid_root))
+        .Const(_SC("NoDocumentElement"),        static_cast< Int32 >(status_no_document_element))
     );
 
     ConstTable(vm).Enum(_SC("SqXmlXpathValueType"), Enumeration(vm)
-        .Const(_SC("None"),                     Int32(xpath_type_none))
-        .Const(_SC("NodeSet"),                  Int32(xpath_type_node_set))
-        .Const(_SC("Number"),                   Int32(xpath_type_number))
-        .Const(_SC("String"),                   Int32(xpath_type_string))
-        .Const(_SC("Boolean"),                  Int32(xpath_type_boolean))
+        .Const(_SC("None"),                     static_cast< Int32 >(xpath_type_none))
+        .Const(_SC("NodeSet"),                  static_cast< Int32 >(xpath_type_node_set))
+        .Const(_SC("Number"),                   static_cast< Int32 >(xpath_type_number))
+        .Const(_SC("String"),                   static_cast< Int32 >(xpath_type_string))
+        .Const(_SC("Boolean"),                  static_cast< Int32 >(xpath_type_boolean))
     );
 }
 

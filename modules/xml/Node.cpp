@@ -16,14 +16,6 @@ SQInteger Node::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Node::Validate() const
-{
-    // Validate the document handle
-    if (!m_Doc)
-        STHROWF("Invalid XML document reference");
-}
-
-// ------------------------------------------------------------------------------------------------
 Attribute Node::GetFirstAttr() const
 {
     return Attribute(m_Doc, m_Node.first_attribute());

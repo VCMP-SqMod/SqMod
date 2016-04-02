@@ -15,31 +15,25 @@ SQInteger Document::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Document::Validate() const
-{
-    // Validate the document handle
-    if (!m_Doc)
-        STHROWF("Invalid XML document reference");
-}
-
-// ------------------------------------------------------------------------------------------------
 void Document::CanLoad() const
 {
     // Is the document even valid?
-    if (!m_Doc)
-        STHROWF("Invalid XML document reference");
+    m_Doc.Validate();
     // Are there any other references?
-    else if (m_Doc.Count() > 1)
+    if (m_Doc.Count() > 1)
+    {
         // To load new values now, would mean to cause undefined behavior in existing references
         STHROWF("Loading is disabled while document is referenced");
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 Node Document::GetNode() const
 {
-    if (m_Doc)
-        return Node(m_Doc, m_Doc->document_element());
-    return Node();
+    // Validate the document handle
+    m_Doc.Validate();
+    // Return the requested information
+    return Node(m_Doc, m_Doc->document_element());
 }
 
 } // Namespace:: SqMod

@@ -28,11 +28,6 @@ protected:
     Document & operator = (const Document & o);
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the document reference and throw an error if invalid.
-    */
-    void Validate() const;
-
-    /* --------------------------------------------------------------------------------------------
      * See if the document is allowed to overwrite its contents and throw an error if not.
     */
     void CanLoad() const;
@@ -40,7 +35,7 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef  m_Doc; /* The main xml document instance. */
+    DocumentRef  m_Doc; // The main xml document instance.
 
 public:
 
@@ -48,7 +43,7 @@ public:
      * Default constructor.
     */
     Document()
-        : m_Doc(NULL)
+        : m_Doc(nullptr)
     {
         /* ... */
     }
@@ -67,17 +62,29 @@ public:
     Int32 Cmp(const Document & o) const
     {
         if (m_Doc && !o.m_Doc)
+        {
             return 1;
+        }
         else if (!m_Doc && o.m_Doc)
+        {
             return -1;
+        }
         else if (!m_Doc && !o.m_Doc)
+        {
             return 0;
+        }
         else if (*m_Doc == *o.m_Doc)
+        {
             return 0;
+        }
         else if (*m_Doc > *o.m_Doc)
+        {
             return 1;
+        }
         else
+        {
             return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -85,8 +92,12 @@ public:
     */
     CSStr ToString() const
     {
+        // Do we manage a valid document?
         if (m_Doc)
+        {
             return m_Doc->name();
+        }
+        // Default to an empty name
         return _SC("");
     }
 
@@ -117,7 +128,7 @@ public:
     void Reset()
     {
         // Validate the document handle
-        Validate();
+        m_Doc.Validate();
         // Perform the requested operation
         m_Doc->reset();
     }
@@ -128,10 +139,10 @@ public:
     void Reset(const Document & doc)
     {
         // Validate the document handles
-        Validate();
-        doc.Validate();
+        m_Doc.Validate();
+        doc.m_Doc.Validate();
         // Perform the requested operation
-        m_Doc->reset(*doc.m_Doc);
+        m_Doc->reset(*(doc.m_Doc));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -186,7 +197,8 @@ public:
         // Make sure that we are allowed to load in data
         CanLoad();
         // Perform the requested operation and return the result
-        return ParseResult(m_Doc, m_Doc->load_file(filepath, options, (xml_encoding)encoding));
+        return ParseResult(m_Doc, m_Doc->load_file(filepath, options,
+                                    static_cast< xml_encoding >(encoding)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -195,7 +207,7 @@ public:
     void SaveFile(CSStr filepath)
     {
         // Validate the document handle
-        Validate();
+        m_Doc.Validate();
         // Perform the requested operation
         m_Doc->save_file(filepath);
     }
@@ -206,7 +218,7 @@ public:
     void SaveFile(CSStr filepath, CSStr indent)
     {
         // Validate the document handle
-        Validate();
+        m_Doc.Validate();
         // Perform the requested operation
         m_Doc->save_file(filepath, indent);
     }
@@ -217,7 +229,7 @@ public:
     void SaveFile(CSStr filepath, CSStr indent, Uint32 format)
     {
         // Validate the document handle
-        Validate();
+        m_Doc.Validate();
         // Perform the requested operation
         m_Doc->save_file(filepath, indent, format);
     }
@@ -228,9 +240,9 @@ public:
     void SaveFile(CSStr filepath, CSStr indent, Uint32 format, Int32 encoding)
     {
         // Validate the document handle
-        Validate();
+        m_Doc.Validate();
         // Perform the requested operation
-        m_Doc->save_file(filepath, indent, format, (xml_encoding)encoding);
+        m_Doc->save_file(filepath, indent, format, static_cast< xml_encoding >(encoding));
     }
 
     /* --------------------------------------------------------------------------------------------

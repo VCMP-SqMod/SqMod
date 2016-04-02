@@ -29,16 +29,11 @@ protected:
         /* ... */
     }
 
-    /* --------------------------------------------------------------------------------------------
-     * Validate the document reference and throw an error if invalid.
-    */
-    void Validate() const;
-
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef m_Doc; /* The main xml document instance. */
-    Type        m_Text; /* The managed document node. */
+    DocumentRef m_Doc; // The main xml document instance.
+    Type        m_Text; // The managed document node.
 
 public:
 
@@ -156,7 +151,7 @@ public:
     */
     SQFloat AsFloat(SQFloat def) const
     {
-        return (SQFloat)m_Text.as_float(def);
+        return static_cast< SQFloat >(m_Text.as_float(static_cast< Float32 >(def)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -164,7 +159,7 @@ public:
     */
     SQFloat AsDouble(SQFloat def) const
     {
-        return (SQFloat)m_Text.as_double(def);
+        return static_cast< SQFloat >(m_Text.as_double(static_cast< Float64 >(def)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -296,7 +291,7 @@ public:
     */
     SQFloat GetFloat() const
     {
-        return (SQFloat)m_Text.as_float();
+        return static_cast< SQFloat >(m_Text.as_float());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -312,7 +307,7 @@ public:
     */
     SQFloat GetDouble() const
     {
-        return (SQFloat)m_Text.as_double();
+        return static_cast< SQFloat >(m_Text.as_double());
     }
 
     /* --------------------------------------------------------------------------------------------

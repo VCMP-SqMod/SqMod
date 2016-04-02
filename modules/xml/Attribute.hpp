@@ -29,16 +29,11 @@ protected:
         /* ... */
     }
 
-    /* --------------------------------------------------------------------------------------------
-     * Validate the document reference and throw an error if invalid.
-    */
-    void Validate() const;
-
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef m_Doc; /* The main xml document instance. */
-    Type        m_Attr; /* The managed node attribute. */
+    DocumentRef m_Doc; // The main xml document instance.
+    Type        m_Attr; // The managed node attribute.
 
 public:
 
@@ -84,11 +79,17 @@ public:
     Int32 Cmp(const Attribute & o)
     {
         if (m_Attr == o.m_Attr)
+        {
             return 0;
+        }
         else if (m_Attr > o.m_Attr)
+        {
             return 1;
+        }
         else
+        {
             return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -150,7 +151,9 @@ public:
     void SetName(CSStr name)
     {
         if (!m_Attr.set_name(name))
-            STHROWF("Unable to set xml attribute name");
+        {
+            STHROWF("Unable to set XML attribute name");
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -175,7 +178,9 @@ public:
     void SetValue(CSStr name)
     {
         if (!m_Attr.set_value(name))
-            STHROWF("Unable to set xml attribute value");
+        {
+            STHROWF("Unable to set XML attribute value");
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -355,7 +360,7 @@ public:
     */
     SQFloat GetFloat() const
     {
-        return (SQFloat)m_Attr.as_float();
+        return static_cast< SQFloat >(m_Attr.as_float());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -371,7 +376,7 @@ public:
     */
     SQFloat GetDouble() const
     {
-        return (SQFloat)m_Attr.as_double();
+        return static_cast< SQFloat >(m_Attr.as_double());
     }
 
     /* --------------------------------------------------------------------------------------------

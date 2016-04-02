@@ -30,16 +30,11 @@ protected:
         /* ... */
     }
 
-    /* --------------------------------------------------------------------------------------------
-     * Validate the document reference and throw an error if invalid.
-    */
-    void Validate() const;
-
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef  m_Doc; /* The main xml document instance. */
-    Type         m_Node; /* The managed document node. */
+    DocumentRef  m_Doc; // The main xml document instance.
+    Type         m_Node; // The managed document node.
 
 public:
 
@@ -85,11 +80,17 @@ public:
     Int32 Cmp(const Node & o)
     {
         if (m_Node == o.m_Node)
+        {
             return 0;
+        }
         else if (m_Node > o.m_Node)
+        {
             return 1;
+        }
         else
+        {
             return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -134,7 +135,7 @@ public:
     */
     SQInteger GetHashValue() const
     {
-        return (SQInteger)m_Node.hash_value();
+        return static_cast< SQInteger >(m_Node.hash_value());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -142,7 +143,7 @@ public:
     */
     SQInteger GetOffsetDebug() const
     {
-        return (SQInteger)m_Node.offset_debug();
+        return static_cast< SQInteger >(m_Node.offset_debug());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -150,7 +151,7 @@ public:
     */
     Int32 GetType() const
     {
-        return (Int32)m_Node.type();
+        return static_cast< Int32 >(m_Node.type());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -167,7 +168,9 @@ public:
     void SetName(CSStr name)
     {
         if (!m_Node.set_name(name))
+        {
             STHROWF("Unable to set XML node name");
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -192,7 +195,9 @@ public:
     void SetValue(CSStr name)
     {
         if (!m_Node.set_value(name))
+        {
             STHROWF("Unable to set XML node value");
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -208,9 +213,13 @@ public:
     */
     ParseResult AppendBuffer(CSStr source)
     {
+        // Is the specified source buffer even valid?
         if (source)
+        {
             return ParseResult(m_Doc, m_Node.append_buffer(source,
                     std::char_traits< SQChar >::length(source) * sizeof(SQChar)));
+        }
+        // Return the default result
         return ParseResult();
     }
 
@@ -219,9 +228,13 @@ public:
     */
     ParseResult AppendBuffer(CSStr source, Uint32 options)
     {
+        // Is the specified source buffer even valid?
         if (source)
+        {
             return ParseResult(m_Doc, m_Node.append_buffer(source,
                     std::char_traits< SQChar >::length(source) * sizeof(SQChar), options));
+        }
+        // Return the default result
         return ParseResult();
     }
 
@@ -230,10 +243,14 @@ public:
     */
     ParseResult AppendBuffer(CSStr source, Uint32 options, Int32 encoding)
     {
+        // Is the specified source buffer even valid?
         if (source)
+        {
             return ParseResult(m_Doc, m_Node.append_buffer(source,
-                    std::char_traits< SQChar >::length(source) * sizeof(SQChar)
-                    , options, (xml_encoding)encoding));
+                    std::char_traits< SQChar >::length(source) * sizeof(SQChar),
+                    options, (xml_encoding)encoding));
+        }
+        // Return the default result
         return ParseResult();
     }
 
@@ -427,7 +444,7 @@ public:
     */
     Node AppendChildType(Int32 type)
     {
-        return Node(m_Doc, m_Node.append_child((xml_node_type)type));
+        return Node(m_Doc, m_Node.append_child(static_cast< xml_node_type >(type)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -435,7 +452,7 @@ public:
     */
     Node PrependChildType(Int32 type)
     {
-        return Node(m_Doc, m_Node.prepend_child((xml_node_type)type));
+        return Node(m_Doc, m_Node.prepend_child(static_cast< xml_node_type >(type)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -459,7 +476,8 @@ public:
     */
     Node InsertChildTypeAfter(Int32 type, const Node & node)
     {
-        return Node(m_Doc, m_Node.insert_child_after((xml_node_type)type, node.m_Node));
+        return Node(m_Doc, m_Node.insert_child_after(static_cast< xml_node_type >(type),
+                                                        node.m_Node));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -467,7 +485,8 @@ public:
     */
     Node InsertChildTypeBefore(Int32 type, const Node & node)
     {
-        return Node(m_Doc, m_Node.insert_child_before((xml_node_type)type, node.m_Node));
+        return Node(m_Doc, m_Node.insert_child_before(static_cast< xml_node_type >(type),
+                                                        node.m_Node));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -503,7 +522,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Append the specified node as a child and take ownersip of it.
+     * Append the specified node as a child and take ownership of it.
     */
     Node AppendMove(const Node & proto)
     {
@@ -511,7 +530,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Prepend the specified node as a child and take ownersip of it.
+     * Prepend the specified node as a child and take ownership of it.
     */
     Node PrependMove(const Node & proto)
     {
@@ -519,7 +538,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Insert the specified node as a child after the specified node and take ownersip of it.
+     * Insert the specified node as a child after the specified node and take ownership of it.
     */
     Node InsertMoveAfter(const Node & proto, const Node & node)
     {
@@ -527,7 +546,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Insert the specified node as a child before the specified node and take ownersip of it.
+     * Insert the specified node as a child before the specified node and take ownership of it.
     */
     Node InsertMoveBefore(const Node & proto, const Node & node)
     {

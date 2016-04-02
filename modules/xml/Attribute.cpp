@@ -17,14 +17,6 @@ SQInteger Attribute::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Attribute::Validate() const
-{
-    // Validate the document handle
-    if (!m_Doc)
-        STHROWF("Invalid XML document reference");
-}
-
-// ------------------------------------------------------------------------------------------------
 Object Attribute::AsLong(Object & def) const
 {
     // Obtain the initial stack size
@@ -35,7 +27,9 @@ Object Attribute::AsLong(Object & def) const
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetSLongValue(_SqVM, -1, &longint)))
+    {
         STHROWF("Invalid long integer specified");
+    }
     // Push a long integer instance with the requested value on the stack
     _SqMod->PushSLongObject(_SqVM, m_Attr.as_llong(longint));
     // Obtain the object from the stack and return it
@@ -53,7 +47,9 @@ Object Attribute::AsUlong(Object & def) const
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetULongValue(_SqVM, -1, &longint)))
+    {
         STHROWF("Invalid long integer specified");
+    }
     // Push a long integer instance with the requested value on the stack
     _SqMod->PushULongObject(_SqVM, m_Attr.as_ullong(longint));
     // Obtain the object from the stack and return it
@@ -71,7 +67,9 @@ bool Attribute::ApplyLong(Object & value)
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetSLongValue(_SqVM, -1, &longint)))
+    {
         STHROWF("Invalid long integer specified");
+    }
     // Assign the obtained value and return the result
     return m_Attr.set_value(longint);
 }
@@ -87,7 +85,9 @@ bool Attribute::ApplyUlong(Object & value)
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetULongValue(_SqVM, -1, &longint)))
+    {
         STHROWF("Invalid long integer specified");
+    }
     // Assign the obtained value and return the result
     return m_Attr.set_value(longint);
 }
@@ -114,7 +114,9 @@ void Attribute::SetLong(Object & value)
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetSLongValue(_SqVM, -1, &longint)))
+    {
         STHROWF("Invalid long integer specified");
+    }
     // Assign the obtained value
     m_Attr = longint;
 }
@@ -141,7 +143,9 @@ void Attribute::SetUlong(Object & value)
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
     if (SQ_FAILED(_SqMod->GetULongValue(_SqVM, -1, &longint)))
+    {
         STHROWF("Invalid long integer specified");
+    }
     // Assign the obtained value
     m_Attr = longint;
 }
