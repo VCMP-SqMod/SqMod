@@ -34,7 +34,7 @@ struct StackGuard
      * Default constructor.
     */
     StackGuard()
-        : m_Top(sq_gettop(DefaultVM::Get())), m_VM(DefaultVM::Get())
+        : m_VM(DefaultVM::Get()), m_Top(sq_gettop(m_VM))
     {
         /* ... */
     }
@@ -43,7 +43,7 @@ struct StackGuard
      * Base constructor.
     */
     StackGuard(HSQUIRRELVM vm)
-        : m_Top(sq_gettop(vm)), m_VM(vm)
+        : m_VM(vm), m_Top(sq_gettop(vm))
     {
         /* ... */
     }
@@ -79,8 +79,8 @@ struct StackGuard
 private:
 
     // --------------------------------------------------------------------------------------------
-    Int32       m_Top; /* The top of the stack when this instance was created. */
-    HSQUIRRELVM m_VM; /* The VM where the stack should be restored. */
+    HSQUIRRELVM m_VM; // The VM where the stack should be restored.
+    Int32       m_Top; // The top of the stack when this instance was created.
 };
 
 /* ------------------------------------------------------------------------------------------------
