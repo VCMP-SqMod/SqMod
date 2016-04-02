@@ -595,7 +595,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs* functions, PluginCallb
     _Info = info;
     // Assign plugin information
     _Info->uPluginVer = SQXML_VERSION;
-    strcpy(_Info->szName, SQXML_HOST_NAME);
+    std::strcpy(_Info->szName, SQXML_HOST_NAME);
     // Bind callbacks
     BindCallbacks();
     // Notify that the plugin was successfully loaded

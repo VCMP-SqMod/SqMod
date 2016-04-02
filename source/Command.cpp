@@ -550,8 +550,10 @@ bool CmdManager::Parse()
         // Extract the current characters before advancing
         prev = elem, elem = *itr;
         // See if there's anything left to parse
-        if (elem == 0)
+        if (elem == '\0')
+		{
             break;
+		}
         // Early check to prevent parsing extraneous arguments
         else if (m_Argc >= max_arg)
         {
