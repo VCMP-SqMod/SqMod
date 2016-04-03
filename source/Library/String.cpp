@@ -1322,7 +1322,9 @@ void Register_String(HSQUIRRELVM vm)
     .Func(_SC("IsXdigit"), &CharClassSpec< CharClass::IsXdigit >::Eq)
     .Func(_SC("IsAlnum"), &CharClassSpec< CharClass::IsAlnum >::Eq)
     .Func(_SC("IsGraph"), &CharClassSpec< CharClass::IsGraph >::Eq)
-    .Func(_SC("IsBlank"), &CharClassSpec< CharClass::IsBlank >::Eq);
+    .Func(_SC("IsBlank"), &CharClassSpec< CharClass::IsBlank >::Eq)
+    .Func(_SC("ToLower"), &tolower)
+    .Func(_SC("ToUpper"), &toupper);
 }
 
 } // Namespace:: SqMod
