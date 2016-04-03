@@ -192,7 +192,7 @@ bool SToB(CSStr str)
     // The currently processed character
     unsigned i = 0;
     // Convert only the necessary characters to lowercase
-    while (i < 8 && *str != '\0')
+    while (i < 7 && *str != '\0')
     {
         buffer[i++] = static_cast< SQChar >(std::tolower(*(str++)));
     }
