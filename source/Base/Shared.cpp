@@ -187,8 +187,20 @@ StackStrF::~StackStrF()
 // ------------------------------------------------------------------------------------------------
 bool SToB(CSStr str)
 {
-    return (strcmp(str, "true") == 0 || strcmp(str, "yes") == 0 ||
-            strcmp(str, "on") == 0 || strcmp(str, "1") == 0) ? true : false;
+    // Temporary buffer to store the lowercase string
+    SQChar buffer[8];
+    // The currently processed character
+    unsigned i = 0;
+    // Convert only the necessary characters to lowercase
+    while (i < 8 && *str != '\0')
+    {
+        buffer[i++] = static_cast< SQChar >(std::tolower(*(str++)));
+    }
+    // Add the null terminator
+    buffer[i] = '\0';
+    // Compare the lowercase string and return the result
+    return (std::strcmp(buffer, "true") == 0 || std::strcmp(buffer, "yes") == 0 ||
+            std::strcmp(buffer, "on") == 0 || std::strcmp(buffer, "1") == 0) ? true : false;
 }
 
 // ------------------------------------------------------------------------------------------------
