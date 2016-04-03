@@ -410,10 +410,12 @@ CSStr CenterStr(CSStr s, SQChar f, Uint32 w)
     {
         // Calculate the string length
         const Uint32 n = std::strlen(s);
+        // Calculate the insert position
+        const Int32 p = ((w/2) - (n/2));
         // Insert only the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
-        std::strncpy(b.Data() + ((w/2) - (n/2)), s, n);
+        std::strncpy(b.Data() + (p < 0 ? 0 : p), s, n);
     }
     // End the resulted string
     b.At(w) = '\0';
