@@ -705,72 +705,84 @@ template < CharClass > struct CharClassSpec;
 template <> struct CharClassSpec< CharClass::IsSpace >
 {
     static inline int Fn(int c) { return std::isspace(c); }
+    static inline bool Eq(int c) { return std::isspace(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsPrint >
 {
     static inline int Fn(int c) { return std::isprint(c); }
+    static inline bool Eq(int c) { return std::isprint(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsCntrl >
 {
     static inline int Fn(int c) { return std::iscntrl(c); }
+    static inline bool Eq(int c) { return std::iscntrl(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsUpper >
 {
     static inline int Fn(int c) { return std::isupper(c); }
+    static inline bool Eq(int c) { return std::isupper(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsLower >
 {
     static inline int Fn(int c) { return std::islower(c); }
+    static inline bool Eq(int c) { return std::islower(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsAlpha >
 {
     static inline int Fn(int c) { return std::isalpha(c); }
+    static inline bool Eq(int c) { return std::isalpha(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsDigit >
 {
     static inline int Fn(int c) { return std::isdigit(c); }
+    static inline bool Eq(int c) { return std::isdigit(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsPunct >
 {
     static inline int Fn(int c) { return std::ispunct(c); }
+    static inline bool Eq(int c) { return std::ispunct(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsXdigit >
 {
     static inline int Fn(int c) { return std::isxdigit(c); }
+    static inline bool Eq(int c) { return std::isxdigit(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsAlnum >
 {
     static inline int Fn(int c) { return std::isalnum(c); }
+    static inline bool Eq(int c) { return std::isalnum(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsGraph >
 {
     static inline int Fn(int c) { return std::isgraph(c); }
+    static inline bool Eq(int c) { return std::isgraph(c) != 0; }
 };
 
 // ------------------------------------------------------------------------------------------------
 template <> struct CharClassSpec< CharClass::IsBlank >
 {
     static inline int Fn(int c) { return std::isblank(c); }
+    static inline bool Eq(int c) { return std::isblank(c) != 0; }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -1297,6 +1309,20 @@ void Register_String(HSQUIRRELVM vm)
 
     RootTable(vm).Bind(_SC("SqStr"), strns);
     RootTable(vm).SquirrelFunc(_SC("printf"), &StdPrintF);
+
+    RootTable(vm)
+    .Func(_SC("IsSpace"), &CharClassSpec< CharClass::IsSpace >::Eq)
+    .Func(_SC("IsPrint"), &CharClassSpec< CharClass::IsPrint >::Eq)
+    .Func(_SC("IsCntrl"), &CharClassSpec< CharClass::IsCntrl >::Eq)
+    .Func(_SC("IsUpper"), &CharClassSpec< CharClass::IsUpper >::Eq)
+    .Func(_SC("IsLower"), &CharClassSpec< CharClass::IsLower >::Eq)
+    .Func(_SC("IsAlpha"), &CharClassSpec< CharClass::IsAlpha >::Eq)
+    .Func(_SC("IsDigit"), &CharClassSpec< CharClass::IsDigit >::Eq)
+    .Func(_SC("IsPunct"), &CharClassSpec< CharClass::IsPunct >::Eq)
+    .Func(_SC("IsXdigit"), &CharClassSpec< CharClass::IsXdigit >::Eq)
+    .Func(_SC("IsAlnum"), &CharClassSpec< CharClass::IsAlnum >::Eq)
+    .Func(_SC("IsGraph"), &CharClassSpec< CharClass::IsGraph >::Eq)
+    .Func(_SC("IsBlank"), &CharClassSpec< CharClass::IsBlank >::Eq);
 }
 
 } // Namespace:: SqMod
