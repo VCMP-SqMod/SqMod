@@ -1075,7 +1075,7 @@ static SQInteger SqDigits1(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Wrong number of arguments");
     }
     // Fetch the integer value from the stack
-    Int64 n = PopStackLong(vm, 2);
+    Int64 n = std::llabs(PopStackLong(vm, 2));
     // Start with 0 digits
     Uint8 d = 0;
     // Identify the number of digits
@@ -1099,7 +1099,7 @@ static SQInteger SqDigits0(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Wrong number of arguments");
     }
     // Fetch the integer value from the stack
-    Int64 n = PopStackLong(vm, 2);
+    Int64 n = std::llabs(PopStackLong(vm, 2));
     // Start with 0 digits
     Uint8 d = 0;
     // Identify the number of digits
