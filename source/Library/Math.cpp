@@ -1144,7 +1144,6 @@ SQFloat SqIToF(Int64 sigv, Int64 expv, Int32 padn, Int32 padc, bool negf)
     {
         fstr = ToStrF("%lld.%s%lld", sigv, padb, expv);
     }
-    printf("'%s'\n", fstr);
     // Now transform the resulted string to a floating point value
 #ifdef SQUSEDOUBLE
     return std::strtod(fstr, nullptr);
