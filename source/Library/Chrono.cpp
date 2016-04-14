@@ -173,7 +173,7 @@ extern void Register_ChronoTime(HSQUIRRELVM vm, Table & cns);
 extern void Register_ChronoTimer(HSQUIRRELVM vm, Table & cns);
 extern void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & cns);
 
-// ------------------------------------------------------------------------------------------------
+// ================================================================================================
 void Register_Chrono(HSQUIRRELVM vm)
 {
     Table cns(vm);

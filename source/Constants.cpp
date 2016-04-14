@@ -38,6 +38,20 @@ void Register_Constants(HSQUIRRELVM vm)
         .Const(_SC("MaxFloat"),     std::numeric_limits< SQFloat >::max())
         .Const(_SC("MinFloat32"),   std::numeric_limits< Float32 >::min())
         .Const(_SC("MaxFloat32"),   std::numeric_limits< Float32 >::max())
+        .Const(_SC("FpNormal"),     FP_NORMAL)
+        .Const(_SC("FpSubnormal"),  FP_SUBNORMAL)
+        .Const(_SC("FpZero"),       FP_ZERO)
+        .Const(_SC("FpInfinite"),   FP_INFINITE)
+        .Const(_SC("FpNan"),        FP_NAN)
+#ifdef SQUSEDOUBLE
+        .Const(_SC("HugeVal"),      HUGE_VAL)
+#else
+        .Const(_SC("HugeVal"),      HUGE_VALF)
+#endif // SQUSEDOUBLE
+        .Const(_SC("Infinity"),     static_cast< float >(INFINITY))
+        .Const(_SC("Inf"),          static_cast< float >(INFINITY))
+        .Const(_SC("Nan"),          static_cast< float >(NAN))
+
     );
 
     ConstTable(vm).Enum(_SC("SqArchitectre"), Enumeration(vm)

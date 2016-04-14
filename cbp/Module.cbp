@@ -431,6 +431,8 @@
 		<Unit filename="../source/Base/Shared.hpp" />
 		<Unit filename="../source/Base/Sphere.cpp" />
 		<Unit filename="../source/Base/Sphere.hpp" />
+		<Unit filename="../source/Base/Stack.cpp" />
+		<Unit filename="../source/Base/Stack.hpp" />
 		<Unit filename="../source/Base/Vector2.cpp" />
 		<Unit filename="../source/Base/Vector2.hpp" />
 		<Unit filename="../source/Base/Vector2i.cpp" />

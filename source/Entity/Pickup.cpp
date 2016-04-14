@@ -2,6 +2,7 @@
 #include "Entity/Pickup.hpp"
 #include "Entity/Player.hpp"
 #include "Base/Vector3.hpp"
+#include "Base/Stack.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------

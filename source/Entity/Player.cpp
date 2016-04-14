@@ -3,6 +3,7 @@
 #include "Entity/Vehicle.hpp"
 #include "Base/Color3.hpp"
 #include "Base/Vector3.hpp"
+#include "Base/Stack.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------

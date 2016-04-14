@@ -54,7 +54,7 @@ LongInt< Uint64 > & LongInt< Uint64 >::operator = (CSStr text)
 // ------------------------------------------------------------------------------------------------
 CSStr LongInt< Uint64 >::ToString()
 {
-    if (snprintf(m_Text, sizeof(m_Text), "%llu", m_Data) < 0)
+    if (std::snprintf(m_Text, sizeof(m_Text), "%llu", m_Data) < 0)
     {
         m_Text[0] = 0;
     }
@@ -82,6 +82,12 @@ void Register_Numeric(HSQUIRRELVM vm)
         .Func(_SC("_tostring"), &SLongInt::ToString)
         .Func(_SC("_typename"), &SLongInt::Typename)
         .Func(_SC("_cmp"), &SLongInt::Cmp)
+        /* Core Functions */
+        .Func(_SC("tointeger"), &SLongInt::ToSqInteger)
+        .Func(_SC("tofloat"), &SLongInt::ToSqFloat)
+        .Func(_SC("tostring"), &SLongInt::ToSqString)
+        .Func(_SC("tobool"), &SLongInt::ToSqBool)
+        .Func(_SC("tochar"), &SLongInt::ToSqChar)
         /* Metamethods */
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_add"), &SLongInt::operator +)
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_sub"), &SLongInt::operator -)
@@ -112,6 +118,12 @@ void Register_Numeric(HSQUIRRELVM vm)
         .Func(_SC("_tostring"), &ULongInt::ToString)
         .Func(_SC("_typename"), &ULongInt::Typename)
         .Func(_SC("_cmp"), &ULongInt::Cmp)
+        /* Core Functions */
+        .Func(_SC("tointeger"), &ULongInt::ToSqInteger)
+        .Func(_SC("tofloat"), &ULongInt::ToSqFloat)
+        .Func(_SC("tostring"), &ULongInt::ToSqString)
+        .Func(_SC("tobool"), &ULongInt::ToSqBool)
+        .Func(_SC("tochar"), &ULongInt::ToSqChar)
         /* Metamethods */
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_add"), &ULongInt::operator +)
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_sub"), &ULongInt::operator -)

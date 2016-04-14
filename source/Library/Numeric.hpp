@@ -199,7 +199,7 @@ public:
     */
     SQInteger GetSNum() const
     {
-        return (SQInteger)(m_Data);
+        return ClampL< Type, SQInteger >(m_Data);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -221,6 +221,46 @@ public:
     void Random();
     void Random(Type n);
     void Random(Type m, Type n);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel integer.
+    */
+    SQInteger ToSqInteger() const
+    {
+        return ClampL< Type, SQInteger >(m_Data);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel float.
+    */
+    SQFloat ToSqFloat() const
+    {
+        return ClampL< Float64, SQFloat >(static_cast< Float64 >(m_Data));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel string.
+    */
+    CSStr ToSqString()
+    {
+        return ToString();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel boolean.
+    */
+    bool ToSqBool() const
+    {
+        return (m_Data > 0);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel character.
+    */
+    SQChar ToSqChar() const
+    {
+        return ClampL< Type, SQChar >(m_Data);
+    }
 
 private:
 
@@ -440,6 +480,46 @@ public:
     void Random();
     void Random(Type n);
     void Random(Type m, Type n);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel integer.
+    */
+    SQInteger ToSqInteger() const
+    {
+        return ClampL< Type, SQInteger >(m_Data);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel float.
+    */
+    SQFloat ToSqFloat() const
+    {
+        return ClampL< Float64, SQFloat >(static_cast< Float64 >(m_Data));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel string.
+    */
+    CSStr ToSqString()
+    {
+        return ToString();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel boolean.
+    */
+    bool ToSqBool() const
+    {
+        return (m_Data > 0);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to convert the long integer to a squirrel character.
+    */
+    SQChar ToSqChar() const
+    {
+        return ClampL< Type, SQChar >(m_Data);
+    }
 
 private:
 

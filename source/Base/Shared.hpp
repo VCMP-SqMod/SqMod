@@ -26,107 +26,6 @@ extern PluginCallbacks*     _Clbk;
 extern PluginInfo*          _Info;
 
 /* ------------------------------------------------------------------------------------------------
- * Implements RAII to restore the VM stack to it's initial size on function exit.
-*/
-struct StackGuard
-{
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor.
-    */
-    StackGuard()
-        : m_VM(DefaultVM::Get()), m_Top(sq_gettop(m_VM))
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Base constructor.
-    */
-    StackGuard(HSQUIRRELVM vm)
-        : m_VM(vm), m_Top(sq_gettop(vm))
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    StackGuard(const StackGuard &) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor. (disabled)
-    */
-    StackGuard(StackGuard &&) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~StackGuard()
-    {
-        sq_pop(m_VM, sq_gettop(m_VM) - m_Top);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    StackGuard & operator = (const StackGuard &) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator. (disabled)
-    */
-    StackGuard & operator = (StackGuard &&) = delete;
-
-private:
-
-    // --------------------------------------------------------------------------------------------
-    HSQUIRRELVM m_VM; // The VM where the stack should be restored.
-    Int32       m_Top; // The top of the stack when this instance was created.
-};
-
-/* ------------------------------------------------------------------------------------------------
- * Helper structure for retrieving a value from the stack as a string or a formatted string.
-*/
-struct StackStrF
-{
-    // --------------------------------------------------------------------------------------------
-    CSStr       mPtr; // Pointer to the C string that was retrieved.
-    SQInteger   mLen; // The string length if it could be retrieved.
-    SQRESULT    mRes; // The result of the retrieval attempts.
-    HSQOBJECT   mObj; // Strong reference to the string object.
-    HSQUIRRELVM mVM; // The associated virtual machine.
-
-    /* --------------------------------------------------------------------------------------------
-     * Base constructor.
-    */
-    StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt = true);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    StackStrF(const StackStrF & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    StackStrF(StackStrF && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~StackStrF();
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    StackStrF & operator = (const StackStrF & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    StackStrF & operator = (StackStrF && o) = delete;
-};
-
-/* ------------------------------------------------------------------------------------------------
  * Perform an equality comparison between two values taking into account floating point issues.
 */
 template< typename T > inline bool EpsEq(const T a, const T b)
@@ -219,30 +118,548 @@ template <> inline bool EpsGtEq(const Float64 a, const Float64 b)
 }
 
 /* ------------------------------------------------------------------------------------------------
+ *
+*/
+template < typename T > struct ConvTo
+{
+    // --------------------------------------------------------------------------------------------
+    static constexpr T Min = std::numeric_limits< T >::min();
+    static constexpr T Max = std::numeric_limits< T >::max();
+
+    // --------------------------------------------------------------------------------------------
+    template < typename U > static inline T From(U v)
+    {
+        if (v > Max)
+        {
+            return Max;
+        }
+        else if (v < Min)
+        {
+            return Min;
+        }
+        return static_cast< T >(v);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int8 ConvTo< Int8 >::From< Uint8 >(Uint8 v)
+{
+    return (v >= static_cast< Uint8 >(Max)) ? Max : static_cast< Int8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int8 ConvTo< Int8 >::From< Uint16 >(Uint16 v)
+{
+    return (v >= static_cast< Uint16 >(Max)) ? Max : static_cast< Int8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int8 ConvTo< Int8 >::From< Uint32 >(Uint32 v)
+{
+    return (v >= static_cast< Uint32 >(Max)) ? Max : static_cast< Int8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int8 ConvTo< Int8 >::From< Uint64 >(Uint64 v)
+{
+    return (v >= static_cast< Uint64 >(Max)) ? Max : static_cast< Int8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int16 ConvTo< Int16 >::From< Uint8 >(Uint8 v)
+{
+    return static_cast< Int16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int16 ConvTo< Int16 >::From< Uint16 >(Uint16 v)
+{
+    return (v >= static_cast< Uint16 >(Max)) ? Max : static_cast< Int16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int16 ConvTo< Int16 >::From< Uint32 >(Uint32 v)
+{
+    return (v >= static_cast< Uint32 >(Max)) ? Max : static_cast< Int16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int16 ConvTo< Int16 >::From< Uint64 >(Uint64 v)
+{
+    return (v >= static_cast< Uint64 >(Max)) ? Max : static_cast< Int16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int32 ConvTo< Int32 >::From< Uint8 >(Uint8 v)
+{
+    return static_cast< Int32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int32 ConvTo< Int32 >::From< Uint16 >(Uint16 v)
+{
+    return static_cast< Int32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int32 ConvTo< Int32 >::From< Uint32 >(Uint32 v)
+{
+    return (v >= static_cast< Uint32 >(Max)) ? Max : static_cast< Int32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int32 ConvTo< Int32 >::From< Uint64 >(Uint64 v)
+{
+    return (v >= static_cast< Uint64 >(Max)) ? Max : static_cast< Int32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint8 ConvTo< Uint8 >::From< Int8 >(Int8 v)
+{
+    return (v <= 0) ? 0 : static_cast< Uint8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint8 ConvTo< Uint8 >::From< Int16 >(Int16 v)
+{
+    if (v <= 0)
+    {
+        return 0;
+    }
+    else if (v >= static_cast< Int16 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Uint8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint8 ConvTo< Uint8 >::From< Int32 >(Int32 v)
+{
+    if (v <= 0)
+    {
+        return 0;
+    }
+    else if (v >= static_cast< Int32 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Uint8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint8 ConvTo< Uint8 >::From< Int64 >(Int64 v)
+{
+    if (v <= 0)
+    {
+        return 0;
+    }
+    else if (v >= static_cast< Int64 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Uint8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint16 ConvTo< Uint16 >::From< Int8 >(Int8 v)
+{
+    return (v <= 0) ? 0 : static_cast< Uint16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint16 ConvTo< Uint16 >::From< Int16 >(Int16 v)
+{
+    return (v <= 0) ? 0 : static_cast< Uint16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint16 ConvTo< Uint16 >::From< Int32 >(Int32 v)
+{
+    if (v <= 0)
+    {
+        return 0;
+    }
+    else if (v >= static_cast< Int32 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Uint16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint16 ConvTo< Uint16 >::From< Int64 >(Int64 v)
+{
+    if (v <= 0)
+    {
+        return 0;
+    }
+    else if (v >= static_cast< Int64 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Uint16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint32 ConvTo< Uint32 >::From< Int8 >(Int8 v)
+{
+    return (v <= 0) ? 0 : static_cast< Uint32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint32 ConvTo< Uint32 >::From< Int16 >(Int16 v)
+{
+    return (v <= 0) ? 0 : static_cast< Uint32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint32 ConvTo< Uint32 >::From< Int32 >(Int32 v)
+{
+    return (v <= 0) ? 0 : static_cast< Uint32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint32 ConvTo< Uint32 >::From< Int64 >(Int64 v)
+{
+    if (v <= 0)
+    {
+        return 0;
+    }
+    else if (v >= static_cast< Int64 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Uint32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int8 ConvTo< Int8 >::From< Float32 >(Float32 v)
+{
+    if (EpsLt(v, static_cast< Float32 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Int8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int16 ConvTo< Int16 >::From< Float32 >(Float32 v)
+{
+    if (EpsLt(v, static_cast< Float32 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Int16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int32 ConvTo< Int32 >::From< Float32 >(Float32 v)
+{
+    if (EpsLt(v, static_cast< Float32 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Int32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int8 ConvTo< Int8 >::From< Float64 >(Float64 v)
+{
+    if (EpsLt(v, static_cast< Float64 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Int8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int16 ConvTo< Int16 >::From< Float64 >(Float64 v)
+{
+    if (EpsLt(v, static_cast< Float64 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Int16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int32 ConvTo< Int32 >::From< Float64 >(Float64 v)
+{
+    if (EpsLt(v, static_cast< Float64 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Int32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float32 >(Float32 v)
+{
+    if (EpsLt(v, static_cast< Float32 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Uint8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float32 >(Float32 v)
+{
+    if (EpsLt(v, static_cast< Float32 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Uint16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint32 ConvTo< Uint32 >::From< Float32 >(Float32 v)
+{
+    if (EpsLt(v, static_cast< Float32 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Uint32 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float64 >(Float64 v)
+{
+    if (EpsLt(v, static_cast< Float64 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Uint8 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float64 >(Float64 v)
+{
+    if (EpsLt(v, static_cast< Float64 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Uint16 >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint32 ConvTo< Uint32 >::From< Float64 >(Float64 v)
+{
+    if (EpsLt(v, static_cast< Float64 >(Min)))
+    {
+        return Min;
+    }
+    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    {
+        return Max;
+    }
+    return static_cast< Uint32 >(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert other numeric values to signed long long integer.
+*/
+template <> struct ConvTo< Int64 >
+{
+    // --------------------------------------------------------------------------------------------
+    static constexpr Int64 Min = std::numeric_limits< Int64 >::min();
+    static constexpr Int64 Max = std::numeric_limits< Int64 >::max();
+
+    // --------------------------------------------------------------------------------------------
+    template < typename T > static inline Int64 From(T v)
+    {
+        return static_cast< Int64 >(v);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Int64 ConvTo< Int64 >::From< Uint64 >(Uint64 v)
+{
+    return (v >= static_cast< Uint64 >(Max)) ? Max : static_cast< Int64 >(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert other numeric values to unsigned long long integer.
+*/
+template <> struct ConvTo< Uint64 >
+{
+    // --------------------------------------------------------------------------------------------
+    static constexpr Uint64 Min = std::numeric_limits< Uint64 >::min();
+    static constexpr Uint64 Max = std::numeric_limits< Uint64 >::max();
+
+    // --------------------------------------------------------------------------------------------
+    template < typename T > static inline Uint64 From(T v)
+    {
+        return (v <= static_cast< T >(0)) ? 0 : static_cast< Uint64 >(v);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Uint64 ConvTo< Uint64 >::From< Float32 >(Float32 v)
+{
+    return From(ConvTo< Int64 >::From(v));
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Uint64 ConvTo< Uint64 >::From< Float64 >(Float64 v)
+{
+    return From(ConvTo< Int64 >::From(v));
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert other numeric values to a floating point value.
+*/
+template <> struct ConvTo< Float32 >
+{
+    // --------------------------------------------------------------------------------------------
+    static constexpr Float32 Min = std::numeric_limits< Float32 >::min();
+    static constexpr Float32 Max = std::numeric_limits< Float32 >::max();
+
+    // --------------------------------------------------------------------------------------------
+    template < typename T > static inline Float32 From(T v)
+    {
+        return static_cast< Float32 >(v);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Float32 ConvTo< Float32 >::From< Float64 >(Float64 v)
+{
+    if (EpsGt(v, static_cast< Float64 >(Max)))
+    {
+        return Max;
+    }
+    else if (EpsLt(v, static_cast< Float64 >(Min)))
+    {
+        return Min;
+    }
+    return static_cast< Float32 >(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert other numeric values to a double floating point value.
+*/
+template <> struct ConvTo< Float64 >
+{
+    // --------------------------------------------------------------------------------------------
+    static constexpr Float64 Min = std::numeric_limits< Float64 >::min();
+    static constexpr Float64 Max = std::numeric_limits< Float64 >::max();
+
+    // --------------------------------------------------------------------------------------------
+    template < typename T > static inline Float64 From(T v)
+    {
+        return static_cast< Float64 >(v);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Force a value to be within a certain range.
 */
 template< typename T > inline T Clamp(T val, T min, T max)
 {
-    return val < min ? min : (val > max ? max : val);
+    // Is the specified value bellow the minimum?
+    if (val < min)
+    {
+        return min;
+    }
+    // Is the specified value above the maximum?
+    else if (val > max)
+    {
+        return max;
+    }
+    // Return the value as is
+    return val;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Force a value to be within a certain range.
+*/
+template<> inline Float32 Clamp(Float32 val, Float32 min, Float32 max)
+{
+    // Is the specified value bellow the minimum?
+    if (EpsLt(val, min))
+    {
+        return min;
+    }
+    // Is the specified value above the maximum?
+    else if (EpsGt(val, max))
+    {
+        return max;
+    }
+    // Return the value as is
+    return val;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Force a value to be within a certain range.
+*/
+template<> inline Float64 Clamp(Float64 val, Float64 min, Float64 max)
+{
+    // Is the specified value bellow the minimum?
+    if (EpsLt(val, min))
+    {
+        return min;
+    }
+    // Is the specified value above the maximum?
+    else if (EpsGt(val, max))
+    {
+        return max;
+    }
+    // Return the value as is
+    return val;
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Force a value to be the boundaries of the specified type.
 */
-template< typename T, typename U > inline U ClampL(T val)
+template < typename T, typename U > inline U ClampL(T v)
 {
-    // Is the specified value bellow the minimum?
-    if (val < std::numeric_limits< U >::min())
-    {
-        return std::numeric_limits< U >::min();
-    }
-    // Is the specified value above the maximum?
-    else if (val > std::numeric_limits< U >::max())
-    {
-        return std::numeric_limits< U >::max();
-    }
-    // Return the value as is
-    return static_cast< U >(val);
+    return ConvTo< U >::From(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -288,42 +705,6 @@ Array & NullArray();
  * Retrieve a reference to a null script function.
 */
 Function & NullFunction();
-
-/* ------------------------------------------------------------------------------------------------
- * Create a script string object from a buffer.
-*/
-Object BufferToStrObj(const Buffer & b);
-
-/* ------------------------------------------------------------------------------------------------
- * Create a script string object from a portion of a buffer.
-*/
-Object BufferToStrObj(const Buffer & b, Uint32 size);
-
-/* ------------------------------------------------------------------------------------------------
- * Create a script object from the specified value on the default VM.
-*/
-template < typename T > Object MakeObject(const T & v)
-{
-    // Remember the current stack size
-    const StackGuard sg;
-    // Transform the specified value into a script object
-    PushVar< T >(DefaultVM::Get(), v);
-    // Get the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Create a script object from the specified value on the specified VM.
-*/
-template < typename T > Object MakeObject(HSQUIRRELVM vm, const T & v)
-{
-    // Remember the current stack size
-    const StackGuard sg;
-    // Transform the specified value into a script object
-    PushVar< T >(vm, v);
-    // Get the object from the stack and return it
-    return Var< Object >(vm, -1).value;
-}
 
 /* ------------------------------------------------------------------------------------------------
  * Simple function to check whether the specified string can be considered as a boolean value

@@ -2,6 +2,7 @@
 #include "Library/String.hpp"
 #include "Base/Shared.hpp"
 #include "Base/Buffer.hpp"
+#include "Base/Stack.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cctype>

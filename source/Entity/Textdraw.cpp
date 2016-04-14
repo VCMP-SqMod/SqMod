@@ -2,6 +2,7 @@
 #include "Entity/Textdraw.hpp"
 #include "Entity/Player.hpp"
 #include "Base/Vector2i.hpp"
+#include "Base/Stack.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
