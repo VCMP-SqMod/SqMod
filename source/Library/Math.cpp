@@ -5,6 +5,8 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <cmath>
+#include <cstdlib>
+#include <cstring>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -1064,6 +1066,93 @@ static SQInteger SqIsUnordered(HSQUIRRELVM vm)
     return 1;
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqDigits1(HSQUIRRELVM vm)
+{
+    // Do we have the correct number of arguments?
+    if (sq_gettop(vm) <= 1)
+    {
+        return sq_throwerror(vm, "Wrong number of arguments");
+    }
+    // Fetch the integer value from the stack
+    Int64 n = PopStackLong(vm, 2);
+    // Start with 0 digits
+    Uint8 d = 0;
+    // Identify the number of digits
+    while (n != 0)
+    {
+        n /= 10;
+        ++d;
+    }
+    // Push the number of digits on the stack
+    sq_pushinteger(vm, d);
+    // Specify that we have a value on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqDigits0(HSQUIRRELVM vm)
+{
+    // Do we have the correct number of arguments?
+    if (sq_gettop(vm) <= 1)
+    {
+        return sq_throwerror(vm, "Wrong number of arguments");
+    }
+    // Fetch the integer value from the stack
+    Int64 n = PopStackLong(vm, 2);
+    // Start with 0 digits
+    Uint8 d = 0;
+    // Identify the number of digits
+    do
+    {
+        n /= 10;
+        ++d;
+    } while (n != 0);
+    // Push the number of digits on the stack
+    sq_pushinteger(vm, d);
+    // Specify that we have a value on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQFloat SqIToF(Int64 sigv, Int64 expv, Int32 padn, Int32 padc, bool negf)
+{
+    // The number of characters to add before the exponent
+    static CharT padb[64];
+    // Is the number of pad characters out of range?
+    if (padn >= 64)
+    {
+        STHROWF("Pad characters out of range: %d >= 64", padn);
+    }
+    // Is the pad character invalid?
+    else if (padc > 9 || padc < 0)
+    {
+        STHROWF("Invalid padding value: %d", padc);
+    }
+    // Write the padding characters
+    std::memset(padb, 48 + padc, padn);
+    // Add the null terminator
+    padb[padn] = '\0';
+    // The obtained string containing the floating point
+    CSStr fstr = nullptr;
+    // Generate the floating point value
+    if (negf)
+    {
+        fstr = ToStrF("-%lld.%s%lld", sigv, padb, expv);
+    }
+    else
+    {
+        fstr = ToStrF("%lld.%s%lld", sigv, padb, expv);
+    }
+    printf("'%s'\n", fstr);
+    // Now transform the resulted string to a floating point value
+#ifdef SQUSEDOUBLE
+    return std::strtod(fstr, nullptr);
+#else
+    return std::strtof(fstr, nullptr);
+#endif // SQUSEDOUBLE
+}
+
 // ================================================================================================
 void Register_Math(HSQUIRRELVM vm)
 {
@@ -1133,9 +1222,13 @@ void Register_Math(HSQUIRRELVM vm)
     .SquirrelFunc(_SC("IsLess"), &SqIsLess)
     .SquirrelFunc(_SC("IsLessEqual"), &SqIsLessEqual)
     .SquirrelFunc(_SC("IsLessGreater"), &SqIsLessGreater)
-    .SquirrelFunc(_SC("IsUnordered"), &SqIsUnordered);
+    .SquirrelFunc(_SC("IsUnordered"), &SqIsUnordered)
+    .SquirrelFunc(_SC("Digits1"), &SqDigits1)
+    .SquirrelFunc(_SC("Digits0"), &SqDigits0);
 
     RootTable(vm).Bind(_SC("SqMath"), mns);
+
+    RootTable(vm).Func(_SC("IToF"), &SqIToF);
 }
 
 
