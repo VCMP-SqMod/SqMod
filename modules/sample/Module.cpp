@@ -3,12 +3,13 @@
 #include "Common.hpp"
 
 // --------------------------------------------------------------------------------------------
-#include <sqrat.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstdarg>
 
 // --------------------------------------------------------------------------------------------
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <sqrat.h>
 
 // --------------------------------------------------------------------------------------------
 #if defined(WIN32) || defined(_WIN32)
@@ -18,14 +19,14 @@
 namespace SqMod {
 
 // --------------------------------------------------------------------------------------------
-PluginFuncs*        _Func = NULL;
-PluginCallbacks*    _Clbk = NULL;
-PluginInfo*         _Info = NULL;
+PluginFuncs*        _Func = nullptr;
+PluginCallbacks*    _Clbk = nullptr;
+PluginInfo*         _Info = nullptr;
 
 // --------------------------------------------------------------------------------------------
-HSQAPI              _SqAPI = NULL;
-HSQEXPORTS          _SqMod = NULL;
-HSQUIRRELVM         _SqVM = NULL;
+HSQAPI              _SqAPI = nullptr;
+HSQEXPORTS          _SqMod = nullptr;
+HSQUIRRELVM         _SqVM = nullptr;
 
 /* ------------------------------------------------------------------------------------------------
  * Bind speciffic functions to certain server events.
@@ -51,7 +52,9 @@ void OnSquirrelInitialize()
     _SqMod = sq_api_import(_Func);
     // Did we failed to obtain the plugin exports?
     if(!_SqMod)
+    {
         OutputError("Failed to attach [%s] on host plugin.", SQSAMPLE_NAME);
+    }
     else
     {
         // Obtain the Squirrel API
@@ -68,12 +71,16 @@ void OnSquirrelLoad()
 {
     // Make sure that we have a valid plugin API
     if (!_SqMod)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed.
+    }
     // Obtain the Squirrel API and VM
     _SqVM = _SqMod->GetSquirrelVM();
     // Make sure that a valid virtual machine exists
     if (!_SqVM)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed.
+    }
     // Set this as the default database
     DefaultVM::Set(_SqVM);
     // Register the module API
@@ -89,7 +96,7 @@ void OnSquirrelTerminate()
 {
     OutputMessage("Terminating: %s", SQSAMPLE_NAME);
     // Release the current database (if any)
-    DefaultVM::Set(NULL);
+    DefaultVM::Set(nullptr);
     // Release script resources...
 }
 
@@ -99,10 +106,12 @@ void OnSquirrelTerminate()
 bool CheckAPIVer(CCStr ver)
 {
     // Obtain the numeric representation of the API version
-    long vernum = strtol(ver, NULL, 10);
+    long vernum = std::strtol(ver, nullptr, 10);
     // Check against version mismatch
     if (vernum == SQMOD_API_VER)
+    {
         return true;
+    }
     // Log the incident
     OutputError("API version mismatch on %s", SQSAMPLE_NAME);
     OutputMessage("=> Requested: %ld Have: %ld", vernum, SQMOD_API_VER);
@@ -119,7 +128,9 @@ static int OnInternalCommand(unsigned int type, const char * text)
     {
         case SQMOD_INITIALIZE_CMD:
             if (CheckAPIVer(text))
+            {
                 OnSquirrelInitialize();
+            }
         break;
         case SQMOD_LOAD_CMD:
             OnSquirrelLoad();
@@ -157,9 +168,9 @@ void BindCallbacks()
 // ------------------------------------------------------------------------------------------------
 void UnbindCallbacks()
 {
-    _Clbk->OnInitServer             = NULL;
-    _Clbk->OnInternalCommand        = NULL;
-    _Clbk->OnShutdownServer         = NULL;
+    _Clbk->OnInitServer             = nullptr;
+    _Clbk->OnInternalCommand        = nullptr;
+    _Clbk->OnShutdownServer         = nullptr;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -185,17 +196,17 @@ void OutputMessageImpl(const char * msg, va_list args)
     CONSOLE_SCREEN_BUFFER_INFO csb_before;
     GetConsoleScreenBufferInfo( hstdout, &csb_before);
     SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN);
-    printf("[SQMOD] ");
+    std::printf("[SQMOD] ");
 
     SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    vprintf(msg, args);
-    puts("");
+    std::vprintf(msg, args);
+    std::puts("");
 
     SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
 #else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
-    vprintf(msg, args);
-    puts("");
+    std::printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
+    std::vprintf(msg, args);
+    std::puts("");
 #endif
 }
 
@@ -208,17 +219,17 @@ void OutputErrorImpl(const char * msg, va_list args)
     CONSOLE_SCREEN_BUFFER_INFO csb_before;
     GetConsoleScreenBufferInfo( hstdout, &csb_before);
     SetConsoleTextAttribute(hstdout, FOREGROUND_RED | FOREGROUND_INTENSITY);
-    printf("[SQMOD] ");
+    std::printf("[SQMOD] ");
 
     SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    vprintf(msg, args);
-    puts("");
+    std::vprintf(msg, args);
+    std::puts("");
 
     SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
 #else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
-    vprintf(msg, args);
-    puts("");
+    std::printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
+    std::vprintf(msg, args);
+    std::puts("");
 #endif
 }
 
@@ -269,13 +280,13 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs* functions, PluginCallb
 {
     using namespace SqMod;
     // Output plugin header
-    puts("");
+    std::puts("");
     OutputMessage("--------------------------------------------------------------------");
     OutputMessage("Plugin: %s", SQSAMPLE_NAME);
     OutputMessage("Author: %s", SQSAMPLE_AUTHOR);
     OutputMessage("Legal: %s", SQSAMPLE_COPYRIGHT);
     OutputMessage("--------------------------------------------------------------------");
-    puts("");
+    std::puts("");
     // Attempt to find the host plugin ID
     int host_plugin_id = functions->FindPlugin((char *)(SQMOD_HOST_NAME));
     // See if our plugin was loaded after the host plugin
@@ -298,13 +309,13 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs* functions, PluginCallb
     _Info = info;
     // Assign plugin information
     _Info->uPluginVer = SQSAMPLE_VERSION;
-    strcpy(_Info->szName, SQSAMPLE_HOST_NAME);
+    std::strcpy(_Info->szName, SQSAMPLE_HOST_NAME);
     // Bind callbacks
     BindCallbacks();
     // Notify that the plugin was successfully loaded
     OutputMessage("Successfully loaded %s", SQSAMPLE_NAME);
     // Dummy spacing
-    puts("");
+    std::puts("");
     // Done!
     return SQMOD_SUCCESS;
 }
