@@ -34,10 +34,12 @@ protected:
     Logger();
 
     // --------------------------------------------------------------------------------------------
-    Logger(Logger const &);
+    Logger(const Logger & o) = delete;
+    Logger(Logger && o) = delete;
 
     // --------------------------------------------------------------------------------------------
-    Logger & operator= (Logger const &);
+    Logger & operator= (const Logger & o) = delete;
+    Logger & operator= (Logger && o) = delete;
 
 public:
 
