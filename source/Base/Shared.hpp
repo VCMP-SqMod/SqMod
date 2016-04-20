@@ -26,6 +26,22 @@ extern PluginCallbacks*     _Clbk;
 extern PluginInfo*          _Info;
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve the maximum value of a fundamental type.
+*/
+template < typename T > constexpr T MaxOf() noexcept
+{
+    return std::numeric_limits< T >::max();
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the minimum value of a fundamental type.
+*/
+template < typename T > constexpr T MinOf() noexcept
+{
+    return std::numeric_limits< T >::min();
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Perform an equality comparison between two values taking into account floating point issues.
 */
 template< typename T > inline bool EpsEq(const T a, const T b)
@@ -118,7 +134,107 @@ template <> inline bool EpsGtEq(const Float64 a, const Float64 b)
 }
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Utility used to convert strings to numeric values and/or backwards.
+*/
+template < typename T > struct ConvNum;
+
+/* ------------------------------------------------------------------------------------------------
+ * Specializations for each numeric type conversion to string and/or backwards.
+*/
+
+template <> struct ConvNum< Int8 >
+{
+    static CCStr ToStr(Int8 v);
+    static Int8 FromStr(CCStr s);
+    static Int8 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Uint8 >
+{
+    static CCStr ToStr(Uint8 v);
+    static Uint8 FromStr(CCStr s);
+    static Uint8 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Int16 >
+{
+    static CCStr ToStr(Int16 v);
+    static Int16 FromStr(CCStr s);
+    static Int16 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Uint16 >
+{
+    static CCStr ToStr(Uint16 v);
+    static Uint16 FromStr(CCStr s);
+    static Uint16 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Int32 >
+{
+    static CCStr ToStr(Int32 v);
+    static Int32 FromStr(CCStr s);
+    static Int32 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Uint32 >
+{
+    static CCStr ToStr(Uint32 v);
+    static Uint32 FromStr(CCStr s);
+    static Uint32 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Int64 >
+{
+    static CCStr ToStr(Int64 v);
+    static Int64 FromStr(CCStr s);
+    static Int64 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Uint64 >
+{
+    static CCStr ToStr(Uint64 v);
+    static Uint64 FromStr(CCStr s);
+    static Uint64 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< LongI >
+{
+    static CCStr ToStr(LongI v);
+    static LongI FromStr(CCStr s);
+    static LongI FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Ulong >
+{
+    static CCStr ToStr(Ulong v);
+    static Ulong FromStr(CCStr s);
+    static Ulong FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Float32 >
+{
+    static CCStr ToStr(Float32 v);
+    static Float32 FromStr(CCStr s);
+    static Float32 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< Float64 >
+{
+    static CCStr ToStr(Float64 v);
+    static Float64 FromStr(CCStr s);
+    static Float64 FromStr(CCStr s, Int32 base);
+};
+
+template <> struct ConvNum< bool >
+{
+    static CCStr ToStr(bool v);
+    static bool FromStr(CCStr s);
+    static bool FromStr(CCStr s, Int32 base);
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Utility used to cast between specialized types and perform proper conversion.
 */
 template < typename T > struct ConvTo
 {
@@ -141,85 +257,134 @@ template < typename T > struct ConvTo
     }
 };
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Convert a string to 8/16/32 bit signed integers.
+*/
+template <> template <> inline Int8 ConvTo< Int8 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Int8 >::FromStr(v);
+}
+
+template <> template <> inline Int16 ConvTo< Int16 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Int16 >::FromStr(v);
+}
+
+template <> template <> inline Int32 ConvTo< Int32 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Int32 >::FromStr(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert a string to 8/16/32 bit unsigned integers.
+*/
+template <> template <> inline Uint8 ConvTo< Uint8 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Uint8 >::FromStr(v);
+}
+
+template <> template <> inline Uint16 ConvTo< Uint16 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Uint16 >::FromStr(v);
+}
+
+template <> template <> inline Uint32 ConvTo< Uint32 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Uint32 >::FromStr(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert to 8 bit signed integer from any unsigned integer.
+*/
 template <> template <> inline Int8 ConvTo< Int8 >::From< Uint8 >(Uint8 v)
 {
     return (v >= static_cast< Uint8 >(Max)) ? Max : static_cast< Int8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int8 ConvTo< Int8 >::From< Uint16 >(Uint16 v)
 {
-    return (v >= static_cast< Uint16 >(Max)) ? Max : static_cast< Int8 >(v);
+    return (v >= static_cast< Uint8 >(Max)) ? Max : static_cast< Int8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int8 ConvTo< Int8 >::From< Uint32 >(Uint32 v)
 {
-    return (v >= static_cast< Uint32 >(Max)) ? Max : static_cast< Int8 >(v);
+    return (v >= static_cast< Uint8 >(Max)) ? Max : static_cast< Int8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int8 ConvTo< Int8 >::From< Uint64 >(Uint64 v)
 {
-    return (v >= static_cast< Uint64 >(Max)) ? Max : static_cast< Int8 >(v);
+    return (v >= static_cast< Uint8 >(Max)) ? Max : static_cast< Int8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int8 ConvTo< Int8 >::From< Ulong >(Ulong v)
+{
+    return (v >= static_cast< Uint8 >(Max)) ? Max : static_cast< Int8 >(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert to 16 bit signed integer from any unsigned integer.
+*/
 template <> template <> inline Int16 ConvTo< Int16 >::From< Uint8 >(Uint8 v)
 {
     return static_cast< Int16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int16 ConvTo< Int16 >::From< Uint16 >(Uint16 v)
 {
     return (v >= static_cast< Uint16 >(Max)) ? Max : static_cast< Int16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int16 ConvTo< Int16 >::From< Uint32 >(Uint32 v)
 {
-    return (v >= static_cast< Uint32 >(Max)) ? Max : static_cast< Int16 >(v);
+    return (v >= static_cast< Uint16 >(Max)) ? Max : static_cast< Int16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int16 ConvTo< Int16 >::From< Uint64 >(Uint64 v)
 {
-    return (v >= static_cast< Uint64 >(Max)) ? Max : static_cast< Int16 >(v);
+    return (v >= static_cast< Uint16 >(Max)) ? Max : static_cast< Int16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int16 ConvTo< Int16 >::From< Ulong >(Ulong v)
+{
+    return (v >= static_cast< Uint16 >(Max)) ? Max : static_cast< Int16 >(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert to 32 bit signed integer from any unsigned integer.
+*/
 template <> template <> inline Int32 ConvTo< Int32 >::From< Uint8 >(Uint8 v)
 {
     return static_cast< Int32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int32 ConvTo< Int32 >::From< Uint16 >(Uint16 v)
 {
     return static_cast< Int32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int32 ConvTo< Int32 >::From< Uint32 >(Uint32 v)
 {
     return (v >= static_cast< Uint32 >(Max)) ? Max : static_cast< Int32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int32 ConvTo< Int32 >::From< Uint64 >(Uint64 v)
 {
-    return (v >= static_cast< Uint64 >(Max)) ? Max : static_cast< Int32 >(v);
+    return (v >= static_cast< Uint32 >(Max)) ? Max : static_cast< Int32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
+template <> template <> inline Int32 ConvTo< Int32 >::From< Ulong >(Ulong v)
+{
+    return (v >= static_cast< Uint32 >(Max)) ? Max : static_cast< Int32 >(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert to 8 bit unsigned integer from any signed integer.
+*/
 template <> template <> inline Uint8 ConvTo< Uint8 >::From< Int8 >(Int8 v)
 {
     return (v <= 0) ? 0 : static_cast< Uint8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint8 ConvTo< Uint8 >::From< Int16 >(Int16 v)
 {
     if (v <= 0)
@@ -233,47 +398,58 @@ template <> template <> inline Uint8 ConvTo< Uint8 >::From< Int16 >(Int16 v)
     return static_cast< Uint8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint8 ConvTo< Uint8 >::From< Int32 >(Int32 v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< Int32 >(Max))
+    else if (v >= static_cast< Int16 >(Max))
     {
         return Max;
     }
     return static_cast< Uint8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint8 ConvTo< Uint8 >::From< Int64 >(Int64 v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< Int64 >(Max))
+    else if (v >= static_cast< Int16 >(Max))
     {
         return Max;
     }
     return static_cast< Uint8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint8 ConvTo< Uint8 >::From< LongI >(LongI v)
+{
+    if (v <= 0)
+    {
+        return 0;
+    }
+    else if (v >= static_cast< Int16 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Uint8 >(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert to 16 bit unsigned integer from any signed integer.
+*/
 template <> template <> inline Uint16 ConvTo< Uint16 >::From< Int8 >(Int8 v)
 {
     return (v <= 0) ? 0 : static_cast< Uint16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint16 ConvTo< Uint16 >::From< Int16 >(Int16 v)
 {
     return (v <= 0) ? 0 : static_cast< Uint16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint16 ConvTo< Uint16 >::From< Int32 >(Int32 v)
 {
     if (v <= 0)
@@ -287,39 +463,50 @@ template <> template <> inline Uint16 ConvTo< Uint16 >::From< Int32 >(Int32 v)
     return static_cast< Uint16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint16 ConvTo< Uint16 >::From< Int64 >(Int64 v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< Int64 >(Max))
+    else if (v >= static_cast< Int32 >(Max))
     {
         return Max;
     }
     return static_cast< Uint16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint16 ConvTo< Uint16 >::From< LongI >(LongI v)
+{
+    if (v <= 0)
+    {
+        return 0;
+    }
+    else if (v >= static_cast< Int32 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Uint16 >(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert to 32 bit unsigned integer from any signed integer.
+*/
 template <> template <> inline Uint32 ConvTo< Uint32 >::From< Int8 >(Int8 v)
 {
     return (v <= 0) ? 0 : static_cast< Uint32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint32 ConvTo< Uint32 >::From< Int16 >(Int16 v)
 {
     return (v <= 0) ? 0 : static_cast< Uint32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint32 ConvTo< Uint32 >::From< Int32 >(Int32 v)
 {
     return (v <= 0) ? 0 : static_cast< Uint32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint32 ConvTo< Uint32 >::From< Int64 >(Int64 v)
 {
     if (v <= 0)
@@ -333,7 +520,29 @@ template <> template <> inline Uint32 ConvTo< Uint32 >::From< Int64 >(Int64 v)
     return static_cast< Uint32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
+template <> template <> inline Uint32 ConvTo< Uint32 >::From< LongI >(LongI v)
+{
+#if (ULONG_MAX > UINT_MAX)
+
+    if (v <= 0)
+    {
+        return 0;
+    }
+    else if (v >= static_cast< Int64 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Uint32 >(v);
+
+#else
+    return (v <= 0) ? 0 : static_cast< Uint32 >(v);
+#endif
+}
+
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert to signed integer from 32 bit floating point number.
+*/
 template <> template <> inline Int8 ConvTo< Int8 >::From< Float32 >(Float32 v)
 {
     if (EpsLt(v, static_cast< Float32 >(Min)))
@@ -347,7 +556,6 @@ template <> template <> inline Int8 ConvTo< Int8 >::From< Float32 >(Float32 v)
     return static_cast< Int8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int16 ConvTo< Int16 >::From< Float32 >(Float32 v)
 {
     if (EpsLt(v, static_cast< Float32 >(Min)))
@@ -361,7 +569,6 @@ template <> template <> inline Int16 ConvTo< Int16 >::From< Float32 >(Float32 v)
     return static_cast< Int16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int32 ConvTo< Int32 >::From< Float32 >(Float32 v)
 {
     if (EpsLt(v, static_cast< Float32 >(Min)))
@@ -375,7 +582,9 @@ template <> template <> inline Int32 ConvTo< Int32 >::From< Float32 >(Float32 v)
     return static_cast< Int32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Convert to signed integer from 64 bit floating point number.
+*/
 template <> template <> inline Int8 ConvTo< Int8 >::From< Float64 >(Float64 v)
 {
     if (EpsLt(v, static_cast< Float64 >(Min)))
@@ -389,7 +598,6 @@ template <> template <> inline Int8 ConvTo< Int8 >::From< Float64 >(Float64 v)
     return static_cast< Int8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int16 ConvTo< Int16 >::From< Float64 >(Float64 v)
 {
     if (EpsLt(v, static_cast< Float64 >(Min)))
@@ -403,7 +611,6 @@ template <> template <> inline Int16 ConvTo< Int16 >::From< Float64 >(Float64 v)
     return static_cast< Int16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Int32 ConvTo< Int32 >::From< Float64 >(Float64 v)
 {
     if (EpsLt(v, static_cast< Float64 >(Min)))
@@ -417,7 +624,9 @@ template <> template <> inline Int32 ConvTo< Int32 >::From< Float64 >(Float64 v)
     return static_cast< Int32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Convert to unsigned integer from 32 bit floating point number.
+*/
 template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float32 >(Float32 v)
 {
     if (EpsLt(v, static_cast< Float32 >(Min)))
@@ -431,7 +640,6 @@ template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float32 >(Float32 v)
     return static_cast< Uint8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float32 >(Float32 v)
 {
     if (EpsLt(v, static_cast< Float32 >(Min)))
@@ -445,7 +653,6 @@ template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float32 >(Float32 
     return static_cast< Uint16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint32 ConvTo< Uint32 >::From< Float32 >(Float32 v)
 {
     if (EpsLt(v, static_cast< Float32 >(Min)))
@@ -459,7 +666,9 @@ template <> template <> inline Uint32 ConvTo< Uint32 >::From< Float32 >(Float32 
     return static_cast< Uint32 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Convert to unsigned integer from 64 bit floating point number.
+*/
 template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float64 >(Float64 v)
 {
     if (EpsLt(v, static_cast< Float64 >(Min)))
@@ -473,7 +682,6 @@ template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float64 >(Float64 v)
     return static_cast< Uint8 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float64 >(Float64 v)
 {
     if (EpsLt(v, static_cast< Float64 >(Min)))
@@ -487,7 +695,6 @@ template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float64 >(Float64 
     return static_cast< Uint16 >(v);
 }
 
-// ------------------------------------------------------------------------------------------------
 template <> template <> inline Uint32 ConvTo< Uint32 >::From< Float64 >(Float64 v)
 {
     if (EpsLt(v, static_cast< Float64 >(Min)))
@@ -502,7 +709,7 @@ template <> template <> inline Uint32 ConvTo< Uint32 >::From< Float64 >(Float64 
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Convert other numeric values to signed long long integer.
+ * Convert other numeric values to 64 bit signed integer.
 */
 template <> struct ConvTo< Int64 >
 {
@@ -518,13 +725,29 @@ template <> struct ConvTo< Int64 >
 };
 
 // ------------------------------------------------------------------------------------------------
+template <> inline Int64 ConvTo< Int64 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Int64 >::FromStr(v);
+}
+
+// ------------------------------------------------------------------------------------------------
 template <> inline Int64 ConvTo< Int64 >::From< Uint64 >(Uint64 v)
 {
     return (v >= static_cast< Uint64 >(Max)) ? Max : static_cast< Int64 >(v);
 }
 
+#if (ULONG_MAX > UINT_MAX)
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Int64 ConvTo< Int64 >::From< Ulong >(Ulong v)
+{
+    return (v >= static_cast< Ulong >(Max)) ? Max : static_cast< Int64 >(v);
+}
+
+#endif
+
 /* ------------------------------------------------------------------------------------------------
- * Convert other numeric values to unsigned long long integer.
+ * Convert other numeric values to 64 bit unsigned integer.
 */
 template <> struct ConvTo< Uint64 >
 {
@@ -540,6 +763,12 @@ template <> struct ConvTo< Uint64 >
 };
 
 // ------------------------------------------------------------------------------------------------
+template <> inline Uint64 ConvTo< Uint64 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Uint64 >::FromStr(v);
+}
+
+// ------------------------------------------------------------------------------------------------
 template <> inline Uint64 ConvTo< Uint64 >::From< Float32 >(Float32 v)
 {
     return From(ConvTo< Int64 >::From(v));
@@ -552,7 +781,108 @@ template <> inline Uint64 ConvTo< Uint64 >::From< Float64 >(Float64 v)
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Convert other numeric values to a floating point value.
+ * Convert other numeric values to signed long integer.
+*/
+template <> struct ConvTo< LongI >
+{
+    // --------------------------------------------------------------------------------------------
+    static constexpr LongI Min = std::numeric_limits< LongI >::min();
+    static constexpr LongI Max = std::numeric_limits< LongI >::max();
+
+    // --------------------------------------------------------------------------------------------
+    template < typename T > static inline LongI From(T v)
+    {
+        return static_cast< LongI >(v);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> inline LongI ConvTo< LongI >::From< CCStr >(CCStr v)
+{
+    return ConvNum< LongI >::FromStr(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+#if (ULONG_MAX <= UINT_MAX)
+
+template <> inline LongI ConvTo< LongI >::From< Uint32 >(Uint32 v)
+{
+    return (v >= static_cast< Uint32 >(Max)) ? Max : static_cast< LongI >(v);
+}
+
+#endif
+
+// ------------------------------------------------------------------------------------------------
+template <> inline LongI ConvTo< LongI >::From< Uint64 >(Uint64 v)
+{
+    return (v >= static_cast< Uint64 >(Max)) ? Max : static_cast< LongI >(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> inline LongI ConvTo< LongI >::From< Ulong >(Ulong v)
+{
+    return (v >= static_cast< Ulong >(Max)) ? Max : static_cast< LongI >(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert other numeric values to unsigned long integer.
+*/
+template <> struct ConvTo< Ulong >
+{
+    // --------------------------------------------------------------------------------------------
+    static constexpr Ulong Min = std::numeric_limits< Ulong >::min();
+    static constexpr Ulong Max = std::numeric_limits< Ulong >::max();
+
+    // --------------------------------------------------------------------------------------------
+    template < typename T > static inline Ulong From(T v)
+    {
+        return (v <= static_cast< T >(0)) ? 0 : static_cast< Ulong >(v);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Ulong ConvTo< Ulong >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Ulong >::FromStr(v);
+}
+
+// ------------------------------------------------------------------------------------------------
+#if (ULONG_MAX <= UINT_MAX)
+
+template <> inline Ulong ConvTo< Ulong >::From< Int64 >(Int64 v)
+{
+    if (v <= 0)
+    {
+        return Min;
+    }
+    else if (v >= static_cast< Int64 >(Max))
+    {
+        return Max;
+    }
+    return static_cast< Ulong >(v);
+}
+
+template <> inline Ulong ConvTo< Ulong >::From< Uint64 >(Uint64 v)
+{
+    return (v >= Max) ? Max : static_cast< Ulong >(v);
+}
+
+#endif
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Ulong ConvTo< Ulong >::From< Float32 >(Float32 v)
+{
+    return From(ConvTo< LongI >::From(v));
+}
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Ulong ConvTo< Ulong >::From< Float64 >(Float64 v)
+{
+    return From(ConvTo< LongI >::From(v));
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert other numeric values to 32 bit floating point value.
 */
 template <> struct ConvTo< Float32 >
 {
@@ -566,6 +896,12 @@ template <> struct ConvTo< Float32 >
         return static_cast< Float32 >(v);
     }
 };
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Float32 ConvTo< Float32 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Float32 >::FromStr(v);
+}
 
 // ------------------------------------------------------------------------------------------------
 template <> inline Float32 ConvTo< Float32 >::From< Float64 >(Float64 v)
@@ -582,7 +918,7 @@ template <> inline Float32 ConvTo< Float32 >::From< Float64 >(Float64 v)
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Convert other numeric values to a double floating point value.
+ * Convert other numeric values to 64 bit floating point value.
 */
 template <> struct ConvTo< Float64 >
 {
@@ -594,6 +930,54 @@ template <> struct ConvTo< Float64 >
     template < typename T > static inline Float64 From(T v)
     {
         return static_cast< Float64 >(v);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> inline Float64 ConvTo< Float64 >::From< CCStr >(CCStr v)
+{
+    return ConvNum< Float64 >::FromStr(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert other numeric values to boolean value.
+*/
+template <> struct ConvTo< bool >
+{
+    // --------------------------------------------------------------------------------------------
+    template < typename T > static inline bool From(T v)
+    {
+        return static_cast< bool >(v);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+template <> inline bool ConvTo< bool >::From< CCStr >(CCStr v)
+{
+    return ConvNum< bool >::FromStr(v);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert other numeric values to string value.
+*/
+template <> struct ConvTo< CStr >
+{
+    // --------------------------------------------------------------------------------------------
+    template < typename T > static inline CStr From(T v)
+    {
+        return const_cast< CStr >(ConvNum< T >::ToStr(v));
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert other numeric values to string value.
+*/
+template <> struct ConvTo< CCStr >
+{
+    // --------------------------------------------------------------------------------------------
+    template < typename T > static inline CCStr From(T v)
+    {
+        return ConvNum< T >::ToStr(v);
     }
 };
 

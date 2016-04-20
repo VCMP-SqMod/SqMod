@@ -10,9 +10,13 @@
 // ------------------------------------------------------------------------------------------------
 #include <ctime>
 #include <cfloat>
-#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <algorithm>
+
+// ------------------------------------------------------------------------------------------------
+#include <format.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -30,6 +34,7 @@ PluginInfo*         _Info = NULL;
  * Common buffer to reduce memory allocations. To be immediately copied upon return!
 */
 static SQChar g_Buffer[4096];
+static SQChar g_NumBuff[1024];
 
 // ------------------------------------------------------------------------------------------------
 Object & NullObject()
@@ -75,7 +80,7 @@ bool SToB(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqThrowF(CCStr fmt, ...)
+void SqThrowF(CSStr fmt, ...)
 {
     // Acquire a moderately sized buffer
     Buffer b(128);
@@ -95,7 +100,7 @@ void SqThrowF(CCStr fmt, ...)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr ToStrF(CCStr fmt, ...)
+CSStr ToStrF(CSStr fmt, ...)
 {
     // Prepare the arguments list
     va_list args;
@@ -114,7 +119,7 @@ CSStr ToStrF(CCStr fmt, ...)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr ToStringF(CCStr fmt, ...)
+CSStr ToStringF(CSStr fmt, ...)
 {
     // Acquire a moderately sized buffer
     Buffer b(128);
@@ -293,7 +298,7 @@ Color3 GetColor(CSStr name)
         STHROWF("Cannot extract values from an empty string");
     }
     // Clone the string into an editable version
-    CCStr str = StrJustAlphaNum(name);
+    CSStr str = StrJustAlphaNum(name);
     str = StrToLowercase(str);
     // See if we still have a valid name after the cleanup
     if(!str || *str == '\0')
@@ -888,6 +893,297 @@ Color3 GetColor(CSStr name)
         // Default to blank
         default: return Color3::NIL;
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Int8 >::ToStr(Int8 v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+Int8 ConvNum< Int8 >::FromStr(CSStr s)
+{
+    return ConvTo< Int8 >::From(std::strtol(s, nullptr, 10));
+}
+
+Int8 ConvNum< Int8 >::FromStr(CSStr s, Int32 base)
+{
+    return ConvTo< Int8 >::From(std::strtol(s, nullptr, base));
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Uint8 >::ToStr(Uint8 v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+Uint8 ConvNum< Uint8 >::FromStr(CSStr s)
+{
+    return ConvTo< Uint8 >::From(std::strtoul(s, nullptr, 10));
+}
+
+Uint8 ConvNum< Uint8 >::FromStr(CSStr s, Int32 base)
+{
+    return ConvTo< Uint8 >::From(std::strtoul(s, nullptr, base));
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Int16 >::ToStr(Int16 v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+Int16 ConvNum< Int16 >::FromStr(CSStr s)
+{
+    return ConvTo< Int16 >::From(std::strtol(s, nullptr, 10));
+}
+
+Int16 ConvNum< Int16 >::FromStr(CSStr s, Int32 base)
+{
+    return ConvTo< Int16 >::From(std::strtol(s, nullptr, base));
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Uint16 >::ToStr(Uint16 v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+Uint16 ConvNum< Uint16 >::FromStr(CSStr s)
+{
+    return ConvTo< Uint16 >::From(std::strtoul(s, nullptr, 10));
+}
+
+Uint16 ConvNum< Uint16 >::FromStr(CSStr s, Int32 base)
+{
+    return ConvTo< Uint16 >::From(std::strtoul(s, nullptr, base));
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Int32 >::ToStr(Int32 v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+Int32 ConvNum< Int32 >::FromStr(CSStr s)
+{
+    return ConvTo< Int32 >::From(std::strtol(s, nullptr, 10));
+}
+
+Int32 ConvNum< Int32 >::FromStr(CSStr s, Int32 base)
+{
+    return ConvTo< Int32 >::From(std::strtol(s, nullptr, base));
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Uint32 >::ToStr(Uint32 v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+Uint32 ConvNum< Uint32 >::FromStr(CSStr s)
+{
+    return ConvTo< Uint32 >::From(std::strtoul(s, nullptr, 10));
+}
+
+Uint32 ConvNum< Uint32 >::FromStr(CSStr s, Int32 base)
+{
+    return ConvTo< Uint32 >::From(std::strtoul(s, nullptr, base));
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Int64 >::ToStr(Int64 v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+Int64 ConvNum< Int64 >::FromStr(CSStr s)
+{
+    return std::strtoll(s, nullptr, 10);
+}
+
+Int64 ConvNum< Int64 >::FromStr(CSStr s, Int32 base)
+{
+    return std::strtoll(s, nullptr, base);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Uint64 >::ToStr(Uint64 v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+Uint64 ConvNum< Uint64 >::FromStr(CSStr s)
+{
+    return std::strtoull(s, nullptr, 10);
+}
+
+Uint64 ConvNum< Uint64 >::FromStr(CSStr s, Int32 base)
+{
+    return std::strtoull(s, nullptr, base);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< LongI >::ToStr(LongI v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+LongI ConvNum< LongI >::FromStr(CSStr s)
+{
+    return std::strtol(s, nullptr, 10);
+}
+
+LongI ConvNum< LongI >::FromStr(CSStr s, Int32 base)
+{
+    return std::strtol(s, nullptr, base);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Ulong >::ToStr(Ulong v)
+{
+    // Obtain a pointer to the start of the common buffer
+    CStr b = &g_NumBuff[0];
+    // Write the numeric value to the buffer
+    fmt::format_decimal(b, v);
+    // Terminate the string in the buffer
+    *b = '\0';
+    // Return the beginning of the buffer
+    return g_NumBuff;
+}
+
+Ulong ConvNum< Ulong >::FromStr(CSStr s)
+{
+    return std::strtoul(s, nullptr, 10);
+}
+
+Ulong ConvNum< Ulong >::FromStr(CSStr s, Int32 base)
+{
+    return std::strtoul(s, nullptr, base);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Float32 >::ToStr(Float32 v)
+{
+    // Attempt to convert the value to a string
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%f", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
+    // Return the data from the buffer
+    return g_NumBuff;
+}
+
+Float32 ConvNum< Float32 >::FromStr(CSStr s)
+{
+    return std::strtof(s, nullptr);
+}
+
+Float32 ConvNum< Float32 >::FromStr(CSStr s, Int32 /*base*/)
+{
+    return std::strtof(s, nullptr);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< Float64 >::ToStr(Float64 v)
+{
+    // Attempt to convert the value to a string
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%f", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
+    // Return the data from the buffer
+    return g_NumBuff;
+}
+
+Float64 ConvNum< Float64 >::FromStr(CSStr s)
+{
+    return std::strtod(s, nullptr);
+}
+
+Float64 ConvNum< Float64 >::FromStr(CSStr s, Int32 /*base*/)
+{
+    return std::strtod(s, nullptr);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ConvNum< bool >::ToStr(bool v)
+{
+    reinterpret_cast< Uint64 * >(g_NumBuff)[0] = v ? 1702195828LLU : 435728179558LLU;
+    return g_NumBuff;
+}
+
+bool ConvNum< bool >::FromStr(CSStr s)
+{
+    return (std::strcmp(s, "true") == 0) ? true : false;
+}
+
+bool ConvNum< bool >::FromStr(CSStr s, Int32 /*base*/)
+{
+    return (std::strcmp(s, "true") == 0) ? true : false;
 }
 
 // ================================================================================================
