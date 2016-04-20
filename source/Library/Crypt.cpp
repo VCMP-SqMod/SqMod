@@ -21,7 +21,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger AES256::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqAES");
+    static SQChar name[] = _SC("SqAES256");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -43,7 +43,7 @@ AES256::AES256(CSStr key)
 // ------------------------------------------------------------------------------------------------
 Int32 AES256::Cmp(const AES256 & o) const
 {
-    return memcmp(m_Buffer, o.m_Buffer, sizeof(m_Buffer));
+    return std::memcmp(m_Buffer, o.m_Buffer, sizeof(m_Buffer));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -59,28 +59,30 @@ CSStr AES256::GetKey() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void AES256::Init(CSStr key)
+bool AES256::Init(CSStr key)
 {
     // Clear current key, if any
     aes256_done(&m_Context);
     // Is the specified key empty?
-    if (!key || *key == 0)
+    if (!key || *key == '\0')
     {
-        return; // Leave the context with an empty key
+        return false; // Leave the context with an empty key
     }
     // Obtain the specified key size
-    const Uint32 size = (strlen(key) * sizeof(SQChar));
+    const Uint32 size = (std::strlen(key) * sizeof(SQChar));
     // See if the key size is accepted
     if (size > sizeof(m_Buffer))
     {
         STHROWF("The specified key is out of bounds: %u > %u", size, sizeof(m_Buffer));
     }
     // Initialize the key buffer to 0
-    memset(m_Buffer, 0, sizeof(m_Buffer));
+    std::memset(m_Buffer, 0, sizeof(m_Buffer));
     // Copy the key into the key buffer
-    memcpy(m_Buffer, key, size);
+    std::memcpy(m_Buffer, key, size);
     // Initialize the context with the specified key
     aes256_init(&m_Context, m_Buffer);
+    // This context was successfully initialized
+    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -178,13 +180,13 @@ template < class T > static void RegisterWrapper(Table & hashns, CCStr cname)
 {
     typedef HashWrapper< T > Hash;
     hashns.Bind(cname, Class< Hash >(hashns.GetVM(), cname)
-        /* Constructors */
+        // Constructors
         .Ctor()
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_tostring"), &Hash::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Hash"), &Hash::GetHash)
-        /* Functions */
+        // Functions
         .Func(_SC("Reset"), &Hash::Reset)
         .Func(_SC("Compute"), &Hash::Compute)
         .Func(_SC("GetHash"), &Hash::GetHash)
@@ -215,10 +217,10 @@ void Register_Crypt(HSQUIRRELVM vm)
     RootTable(vm).Bind(_SC("SqHash"), hashns);
 
     RootTable(vm).Bind("SqAES256", Class< AES256 >(vm, "SqAES256")
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< CSStr >()
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &AES256::Cmp)
         .SquirrelFunc(_SC("_typename"), &AES256::Typename)
         .Func(_SC("_tostring"), &AES256::ToString)
