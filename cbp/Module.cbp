@@ -400,6 +400,7 @@
 			<Add library="squirrel" />
 		</Linker>
 		<Unit filename="../external/Common/aes256.cpp" />
+		<Unit filename="../external/CppFormat/format.cc" />
 		<Unit filename="../external/Hash/crc32.cpp" />
 		<Unit filename="../external/Hash/crc32.h" />
 		<Unit filename="../external/Hash/digest.cpp" />
