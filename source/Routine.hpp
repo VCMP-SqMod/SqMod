@@ -5,8 +5,9 @@
 #include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <vector>
-#include <map>
+#include <array>
+#include <utility>
+#include <unordered_map>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -21,9 +22,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Simplify future changes to a single point of change.
     */
-    typedef SQInteger                   Interval;
-    typedef Uint32                      Iterate;
-    typedef std::vector< Routine * >    Routines;
+    typedef Int64                                       Time;
+    typedef SQInteger                                   Interval;
+    typedef Uint32                                      Iterator;
+    typedef std::pair< Interval, Routine * >            Element;
+    typedef std::array< Element, SQMOD_MAX_ROUTINES >   Routines;
+    typedef std::unordered_map< Routine *, Object >     Objects;
 
     /* --------------------------------------------------------------------------------------------
      * Process all active routines and update elapsed time.
@@ -31,173 +35,24 @@ public:
     static void Process();
 
     /* --------------------------------------------------------------------------------------------
+     * Initialize all resources and prepare for startup.
+    */
+    static void Initialize();
+
+    /* --------------------------------------------------------------------------------------------
      * Release all resources and prepare for shutdown.
     */
-    static void TerminateAll();
+    static void Deinitialize();
 
 protected:
 
-    /* --------------------------------------------------------------------------------------------
-     * Commands that can be performed when the buckets are unlocked.
-    */
-    enum
-    {
-        CMD_REMOVE = 1,
-        CMD_DETACH = 2,
-        CMD_ATTACH = 3
-    };
-
-    /* --------------------------------------------------------------------------------------------
-     * Group of routines that have the same interval.
-    */
-    struct Bucket
-    {
-        // ----------------------------------------------------------------------------------------
-        Interval    mInterval; /* The interval of time between calls. */
-        Interval    mElapsed; /* Time elapsed since the last pulse. */
-        Routines    mRoutines; /* Routines to trigger on completion. */
-
-        /* ----------------------------------------------------------------------------------------
-         * Default constructor.
-        */
-        Bucket(Interval interval)
-            : mInterval(interval), mElapsed(0), mRoutines()
-        {
-            /* ... */
-        }
-
-        /* ----------------------------------------------------------------------------------------
-         * Copy constructor.
-        */
-        Bucket(const Bucket & o) = default;
-
-        /* ----------------------------------------------------------------------------------------
-         * Move constructor.
-        */
-        Bucket(Bucket && o) = default;
-
-        /* ----------------------------------------------------------------------------------------
-         * Destructor.
-        */
-        ~Bucket() = default;
-
-        /* ----------------------------------------------------------------------------------------
-         * Copy assignment operator.
-        */
-        Bucket & operator = (const Bucket & o) = default;
-
-        /* ----------------------------------------------------------------------------------------
-         * Move assignment operator.
-        */
-        Bucket & operator = (Bucket && o) = default;
-    };
-
-    /* --------------------------------------------------------------------------------------------
-     * A command to perform certain actions when the buckets are unlocked.
-    */
-    struct Cmd
-    {
-        // ----------------------------------------------------------------------------------------
-        Routine*    mRoutine; /* The routine to which this command applies */
-        Interval    mInterval; /* The bucket where this routine is stored. */
-        Uint16      mCommand; /* The command that must be performed. */
-
-        /* ----------------------------------------------------------------------------------------
-         * Base constructor.
-        */
-        Cmd(Routine * routine, Interval interval, Uint16 command)
-            : mRoutine(routine), mInterval(interval), mCommand(command)
-        {
-            /* ... */
-        }
-
-        /* ----------------------------------------------------------------------------------------
-         * Copy constructor.
-        */
-        Cmd(const Cmd & o) = default;
-
-        /* ----------------------------------------------------------------------------------------
-         * Move constructor.
-        */
-        Cmd(Cmd && o) = default;
-
-        /* ----------------------------------------------------------------------------------------
-         * Destructor.
-        */
-        ~Cmd() = default;
-
-        /* ----------------------------------------------------------------------------------------
-         * Copy assignment operator.
-        */
-        Cmd & operator = (const Cmd & o) = default;
-
-        /* ----------------------------------------------------------------------------------------
-         * Move assignment operator.
-        */
-        Cmd & operator = (Cmd && o) = default;
-    };
-
     // --------------------------------------------------------------------------------------------
-    typedef Int64                                   Time;
-    typedef std::vector< Cmd >                      Queue;
-    typedef std::vector< Bucket >                   Buckets;
-    typedef std::unordered_map< Routine *, Object > Objects;
+    static Time         s_Last; // Last time point.
+    static Time         s_Prev; // Previous time point.
+    static Routines     s_Routines; // Buckets of routines grouped by similar intervals.
+    static Objects      s_Objects; // List of existing routines and their associated object.
 
-    /* --------------------------------------------------------------------------------------------
-     * Functor used to search for buckets with a certain interval.
-    */
-    struct IntrvFunc
-    {
-    private:
-
-        // ----------------------------------------------------------------------------------------
-        const Interval m_Interval; /* The interval to be matched. */
-
-    public:
-
-        /* ----------------------------------------------------------------------------------------
-         * Base constructor.
-        */
-        IntrvFunc(Interval interval)
-            : m_Interval(interval)
-        {
-            /* ... */
-        }
-
-        /* ----------------------------------------------------------------------------------------
-         * Function call operator.
-        */
-        bool operator () (Buckets::reference elem) const
-        {
-            return (elem.mInterval == m_Interval);
-        }
-
-        /* ----------------------------------------------------------------------------------------
-         * Function call operator.
-        */
-        bool operator () (Buckets::const_reference elem) const
-        {
-            return (elem.mInterval == m_Interval);
-        }
-    };
-
-    // --------------------------------------------------------------------------------------------
-    static bool         s_Lock; /* Avoid further changes to the bucket pool. */
-    static Time         s_Last; /* Last time point. */
-    static Time         s_Prev; /* Previous time point. */
-    static Queue        s_Queue; /* Actions to be performed when the buckets aren't locked */
-    static Buckets      s_Buckets; /* Buckets of routines grouped by similar intervals. */
-    static Objects      s_Objects; /* List of existing routines and their associated object. */
-
-    /* --------------------------------------------------------------------------------------------
-     * Attach a routine to a certain bucket.
-    */
-    static void Attach(Routine * routine, Interval interval);
-
-    /* --------------------------------------------------------------------------------------------
-     * Detach a routine from a certain bucket.
-    */
-    static void Detach(Routine * routine, Interval interval);
+protected:
 
     /* --------------------------------------------------------------------------------------------
      * Create or locate the object for the specified routine and keep a strong reference to it.
@@ -220,9 +75,24 @@ protected:
     static void Forget(Routine * routine);
 
     /* --------------------------------------------------------------------------------------------
-     * Process queue commands.
+     * Insert a routine instance into the pool to be processed.
     */
-    static void ProcQueue();
+    static void Insert(Routine * routine, bool associate = true);
+
+    /* --------------------------------------------------------------------------------------------
+     * Insert a routine instance from the pool to not be processed.
+    */
+    static void Remove(Routine * routine);
+
+    /* --------------------------------------------------------------------------------------------
+     * Release routine resources.
+    */
+    void Release();
+
+    /* --------------------------------------------------------------------------------------------
+     * Execute the binded callback.
+    */
+    void Execute();
 
     /* --------------------------------------------------------------------------------------------
      * See whether this routine is valid otherwise throw an exception.
@@ -245,73 +115,88 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Constructor with just an interval and explicit iterations.
     */
-    Routine(Object & env, Function & func, Interval interval, Iterate iterations);
+    Routine(Object & env, Function & func, Interval interval, Iterator iterations);
 
     /* --------------------------------------------------------------------------------------------
      * Constructor with just an interval, explicit iterations and arguments.
     */
-    Routine(Object & env, Function & func, Interval interval, Iterate iterations
+    Routine(Object & env, Function & func, Interval interval, Iterator iterations
             , Object & a1);
 
     /* --------------------------------------------------------------------------------------------
      * Constructor with just an interval, explicit iterations and arguments.
     */
-    Routine(Object & env, Function & func, Interval interval, Iterate iterations
+    Routine(Object & env, Function & func, Interval interval, Iterator iterations
             , Object & a1, Object & a2);
 
     /* --------------------------------------------------------------------------------------------
      * Constructor with just an interval, explicit iterations and arguments.
     */
-    Routine(Object & env, Function & func, Interval interval, Iterate iterations
+    Routine(Object & env, Function & func, Interval interval, Iterator iterations
             , Object & a1, Object & a2, Object & a3);
 
     /* --------------------------------------------------------------------------------------------
      * Constructor with just an interval, explicit iterations and arguments.
     */
-    Routine(Object & env, Function & func, Interval interval, Iterate iterations
+    Routine(Object & env, Function & func, Interval interval, Iterator iterations
             , Object & a1, Object & a2, Object & a3, Object & a4);
 
     /* --------------------------------------------------------------------------------------------
      * Constructor with just an interval, explicit iterations and arguments.
     */
-    Routine(Object & env, Function & func, Interval interval, Iterate iterations
+    Routine(Object & env, Function & func, Interval interval, Iterator iterations
             , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    Routine(const Routine &);
+    Routine(const Routine & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    Routine(Routine && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    Routine & operator = (const Routine &);
+    Routine & operator = (const Routine & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    Routine & operator = (Routine && o) = delete;
 
 private:
 
     /* --------------------------------------------------------------------------------------------
      * Number of iterations before self destruct.
-    */    
-    Iterate     m_Iterations;
+    */
+    Iterator     m_Iterations;
 
     /* --------------------------------------------------------------------------------------------
      * Interval between calls.
-    */  
+    */
     Interval    m_Interval;
 
     /* --------------------------------------------------------------------------------------------
+     * The index of the slot in the pool.
+    */
+    Uint16       m_Slot;
+
+    /* --------------------------------------------------------------------------------------------
      * Number of arguments to forward.
-    */  
-    Uint8       m_Arguments;
+    */
+    Uint16       m_Arguments;
 
     /* --------------------------------------------------------------------------------------------
      * Whether calls should be ignored.
-    */  
+    */
     bool        m_Suspended;
 
     /* --------------------------------------------------------------------------------------------
      * Whether the routine was terminated.
-    */  
+    */
     bool        m_Terminated;
 
     /* --------------------------------------------------------------------------------------------
@@ -388,19 +273,34 @@ public:
     Routine & ApplyData(Object & data);
 
     /* --------------------------------------------------------------------------------------------
-     * Terminate this routine by releasing all resources and scheduling it for detachment.
+     * Activate the routine instance.
     */
-    void Terminate();
+    Routine & Activate();
+
+    /* --------------------------------------------------------------------------------------------
+     * Deactivate the routine instance.
+    */
+    Routine & Deactivate();
+
+    /* --------------------------------------------------------------------------------------------
+     * Terminate this routine by deactivating and releasing all resources.
+    */
+    Routine & Terminate();
+
+    /* --------------------------------------------------------------------------------------------
+     * Unmark this routine as terminated and allow to be activated.
+    */
+    Routine & Reanimate();
 
     /* --------------------------------------------------------------------------------------------
      * Modify an explicit value to be passed as the specified argument.
     */
-    Routine & SetArg(Uint8 num, Object & val);
+    Routine & SetArg(Uint16 num, Object & val);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value that is passed as the specified argument.
     */
-    Object & GetArg(Uint8 num);
+    Object & GetArg(Uint16 num);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of time required to wait between calls to the routine.
@@ -415,22 +315,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of times that the routine can be called before terminating itself.
     */
-    Iterate GetIterations() const;
+    Iterator GetIterations() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the number of times that the routine can be called before terminating itself.
     */
-    void SetIterations(Iterate iterations);
+    void SetIterations(Iterator iterations);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of arguments that are forwarded when executing the callback.
     */
-    Uint8 GetArguments() const;
+    Uint16 GetArguments() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the number of arguments that are forwarded when executing the callback.
     */
-    void SetArguments(Uint8 num);
+    void SetArguments(Uint16 num);
 
     /* --------------------------------------------------------------------------------------------
      * See whether the routine is suspended from further calls.
@@ -457,33 +357,6 @@ public:
     */
     void SetCallback(Object & env, Function & func);
 
-protected:
-
-    /* --------------------------------------------------------------------------------------------
-     * Release routine resources.
-    */
-    void Release();
-
-    /* --------------------------------------------------------------------------------------------
-     * Create the routine for the first time.
-    */
-    void Create();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attach the routine to the associated bucket.
-    */
-    void Attach();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attach the routine from the associated bucket.
-    */
-    void Detach();
-
-    /* --------------------------------------------------------------------------------------------
-     * Execute the binded callback.
-    */
-    void Execute();
-
 public:
 
     /* --------------------------------------------------------------------------------------------
@@ -494,78 +367,42 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create a routine with just an interval and explicit iterations.
     */
-    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations);
+    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations);
 
     /* --------------------------------------------------------------------------------------------
      * Create a routine with just an interval, explicit iterations and arguments.
     */
-    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
                             , Object & a1);
 
     /* --------------------------------------------------------------------------------------------
      * Create a routine with just an interval, explicit iterations and arguments.
     */
-    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
                             , Object & a1, Object & a2);
 
     /* --------------------------------------------------------------------------------------------
      * Create a routine with just an interval, explicit iterations and arguments.
     */
-    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
                             , Object & a1, Object & a2, Object & a3);
 
     /* --------------------------------------------------------------------------------------------
      * Create a routine with just an interval, explicit iterations and arguments.
     */
-    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
                             , Object & a1, Object & a2, Object & a3, Object & a4);
 
     /* --------------------------------------------------------------------------------------------
      * Create a routine with just an interval, explicit iterations and arguments.
     */
-    static Object Create(Object & env, Function & func, Interval interval, Iterate iterations
+    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
                             , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5);
-
-    /* --------------------------------------------------------------------------------------------
-     * Flush queued commands manually.
-    */
-    static void Flush();
-
-    /* --------------------------------------------------------------------------------------------
-     * Return the number of queued commands.
-    */
-    static Uint32 QueueSize();
-
-    /* --------------------------------------------------------------------------------------------
-     * Return the number of known routines.
-    */
-    static Uint32 GetCount();
-
-    /* --------------------------------------------------------------------------------------------
-     * Return the number of known buckets.
-    */
-    static Uint32 GetBuckets();
-
-    /* --------------------------------------------------------------------------------------------
-     * Return the number of known routines in bucket.
-    */
-    static Uint32 GetInBucket(Interval interval);
-
-    /* --------------------------------------------------------------------------------------------
-     * Return the number of known buckets.
-    */
-    static Array GetBucketsList();
-
-    /* --------------------------------------------------------------------------------------------
-     * Return the number of known buckets.
-    */
-    static Table GetBucketsTable();
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to find a certain routine by its associated tag.
     */
     static Object FindByTag(CSStr tag);
-
 };
 
 } // Namespace:: SqMod

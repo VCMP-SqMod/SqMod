@@ -5,9 +5,9 @@
 #include "Entity/Player.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cctype>
+#include <cstdlib>
+#include <cstring>
 #include <iterator>
 #include <algorithm>
 
@@ -15,12 +15,12 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMOD_MANAGEDPTR_TYPE(CmdManager) _Cmd = SQMOD_MANAGEDPTR_MAKE(CmdManager, nullptr);
+CmdManager CmdManager::s_Inst;
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CmdListener::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqCmdListener");
+    static const SQChar name[] = _SC("SqCmdListener");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -37,7 +37,7 @@ static void ValidateName(CSStr name)
     while (*name != '\0')
     {
         // Does it contain spaces?
-        if (isspace(*name) != 0)
+        if (std::isspace(*name) != 0)
         {
             STHROWF("Command names cannot contain spaces");
         }
@@ -63,36 +63,29 @@ CSStr CmdArgSpecToStr(Uint8 spec)
     }
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to initialize the command manager.
+*/
+void InitializeCmdManager()
+{
+    CmdManager::Get().Initialize();
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to terminate the command manager.
+*/
+void TerminateCmdManager()
+{
+    CmdManager::Get().Deinitialize();
+}
+
 // ------------------------------------------------------------------------------------------------
 CmdManager::Guard::~Guard()
 {
     // Release the command instance
-    _Cmd->m_Instance = nullptr;
+    CmdManager::Get().m_Instance = nullptr;
     // Release the reference to the script object
-    _Cmd->m_Object.Release();
-}
-
-// ------------------------------------------------------------------------------------------------
-CmdManager::CmdManager()
-    : m_Buffer(512)
-    , m_Commands()
-    , m_Invoker(SQMOD_UNKNOWN)
-    , m_Command(64, '\0')
-    , m_Argument(512, '\0')
-    , m_Instance(nullptr)
-    , m_Object()
-    , m_Argv()
-    , m_Argc(0)
-    , m_OnError()
-    , m_OnAuth()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-CmdManager::~CmdManager()
-{
-    /* ... */
+    CmdManager::Get().m_Object.Release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -206,6 +199,59 @@ bool CmdManager::Attached(const CmdListener * ptr) const
 }
 
 // ------------------------------------------------------------------------------------------------
+CmdManager::CmdManager()
+    : m_Buffer(512)
+    , m_Commands()
+    , m_Invoker(SQMOD_UNKNOWN)
+    , m_Command(64, '\0')
+    , m_Argument(512, '\0')
+    , m_Instance(nullptr)
+    , m_Object()
+    , m_Argv()
+    , m_Argc(0)
+    , m_OnFail()
+    , m_OnAuth()
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+CmdManager::~CmdManager()
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdManager::Initialize()
+{
+
+}
+
+// ------------------------------------------------------------------------------------------------
+void CmdManager::Deinitialize()
+{
+    // Release the script resources from command instances
+    for (const auto & cmd : m_Commands)
+    {
+        if (cmd.mPtr)
+        {
+            // Release the local command callbacks
+            cmd.mPtr->m_OnExec.ReleaseGently();
+            cmd.mPtr->m_OnAuth.ReleaseGently();
+            cmd.mPtr->m_OnPost.ReleaseGently();
+            cmd.mPtr->m_OnFail.ReleaseGently();
+        }
+    }
+    // Clear the command list and release all references
+    m_Commands.clear();
+    // Release the script resources from this class
+    m_Argv.clear();
+    // Release the global callbacks
+    m_OnFail.ReleaseGently();
+    m_OnAuth.ReleaseGently();
+}
+
+// ------------------------------------------------------------------------------------------------
 void CmdManager::Sort()
 {
     std::sort(m_Commands.begin(), m_Commands.end(),
@@ -233,30 +279,6 @@ const Object & CmdManager::FindByName(const String & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CmdManager::Terminate()
-{
-    // Release the script resources from command instances
-    for (const auto & cmd : m_Commands)
-    {
-        if (cmd.mPtr)
-        {
-            // Release the local command callbacks
-            cmd.mPtr->m_OnExec.ReleaseGently();
-            cmd.mPtr->m_OnAuth.ReleaseGently();
-            cmd.mPtr->m_OnPost.ReleaseGently();
-            cmd.mPtr->m_OnFail.ReleaseGently();
-        }
-    }
-    // Clear the command list and release all references
-    m_Commands.clear();
-    // Release the script resources from this class
-    m_Argv.clear();
-    // Release the global callbacks
-    m_OnError.ReleaseGently();
-    m_OnAuth.ReleaseGently();
-}
-
-// ------------------------------------------------------------------------------------------------
 Int32 CmdManager::Run(Int32 invoker, CCStr command)
 {
     // Validate the string command
@@ -270,7 +292,10 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     // Save the invoker identifier
     m_Invoker = invoker;
     // Skip white-space until the command name
-    while (isspace(*command)) ++command;
+    while (std::isspace(*command))
+    {
+        ++command;
+    }
     // Anything left to process?
     if (*command == '\0')
     {
@@ -282,14 +307,20 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     // Where the name ends and argument begins
     CCStr split = command;
     // Find where the command name ends
-    while (!isspace(*split) && *split != '\0') ++split;
+    while (*split != '\0' && !std::isspace(*split))
+    {
+        ++split;
+    }
     // Are there any arguments specified?
-    if (split != nullptr)
+    if (split != '\0')
     {
         // Save the command name
         m_Command.assign(command, (split - command));
         // Skip white space after command name
-        while (isspace(*split)) ++split;
+        while (std::isspace(*split))
+        {
+            ++split;
+        }
         // Save the command argument
         m_Argument.assign(split);
     }
@@ -299,12 +330,19 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
         // Save the command name
         m_Command.assign(command);
         // Leave argument empty
-        m_Argument.assign("");
+        m_Argument.assign(_SC(""));
     }
     // Do we have a valid command name?
     try
     {
         ValidateName(m_Command.c_str());
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Tell the script callback to deal with the error
+        SqError(CMDERR_INVALID_COMMAND, ToStrF("%s", e.Message().c_str()), invoker);
+        // Execution failed!
+        return -1;
     }
     catch (...)
     {
@@ -408,7 +446,7 @@ Int32 CmdManager::Exec()
     // Result of the command execution
     SQInteger result = -1;
     // Clear any data from the buffer to make room for the error message
-    m_Buffer.At(0) = 0;
+    m_Buffer.At(0) = '\0';
     // Whether the command execution failed
     bool failed = false;
     // Do we have to call the command with an associative container?
@@ -433,12 +471,19 @@ Int32 CmdManager::Exec()
         // Attempt to execute the command with the specified arguments
         try
         {
-            result = m_Instance->Execute(_Core->GetPlayer(m_Invoker).mObj, args);
+            result = m_Instance->Execute(Core::Get().GetPlayer(m_Invoker).mObj, args);
         }
         catch (const Sqrat::Exception & e)
         {
             // Let's store the exception message
             m_Buffer.Write(0, e.Message().c_str(), e.Message().size());
+            // Specify that the command execution failed
+            failed = true;
+        }
+        catch (const std::exception & e)
+        {
+            // Let's store the exception message
+            m_Buffer.WriteF(0, "Application exception occurred [%s]", e.what());
             // Specify that the command execution failed
             failed = true;
         }
@@ -455,12 +500,19 @@ Int32 CmdManager::Exec()
         // Attempt to execute the command with the specified arguments
         try
         {
-            result = m_Instance->Execute(_Core->GetPlayer(m_Invoker).mObj, args);
+            result = m_Instance->Execute(Core::Get().GetPlayer(m_Invoker).mObj, args);
         }
         catch (const Sqrat::Exception & e)
         {
             // Let's store the exception message
             m_Buffer.Write(0, e.Message().c_str(), e.Message().size());
+            // Specify that the command execution failed
+            failed = true;
+        }
+        catch (const std::exception & e)
+        {
+            // Let's store the exception message
+            m_Buffer.WriteF(0, "Application exception occurred [%s]", e.what());
             // Specify that the command execution failed
             failed = true;
         }
@@ -476,12 +528,17 @@ Int32 CmdManager::Exec()
             // Then attempt to relay the result to that function
             try
             {
-                m_Instance->m_OnFail.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
+                m_Instance->m_OnFail.Execute(Core::Get().GetPlayer(m_Invoker).mObj, result);
             }
             catch (const Sqrat::Exception & e)
             {
                 // Tell the script callback to deal with the error
                 SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.Message());
+            }
+            catch (const std::exception & e)
+            {
+                // Tell the script callback to deal with the error
+                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.what());
             }
         }
         // Result is invalid at this point
@@ -498,12 +555,17 @@ Int32 CmdManager::Exec()
             // Then attempt to relay the result to that function
             try
             {
-                m_Instance->m_OnFail.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
+                m_Instance->m_OnFail.Execute(Core::Get().GetPlayer(m_Invoker).mObj, result);
             }
             catch (const Sqrat::Exception & e)
             {
                 // Tell the script callback to deal with the error
                 SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.Message());
+            }
+            catch (const std::exception & e)
+            {
+                // Tell the script callback to deal with the error
+                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.what());
             }
         }
     }
@@ -513,16 +575,21 @@ Int32 CmdManager::Exec()
             // Then attempt to relay the result to that function
             try
             {
-                m_Instance->m_OnPost.Execute(_Core->GetPlayer(m_Invoker).mObj, result);
+                m_Instance->m_OnPost.Execute(Core::Get().GetPlayer(m_Invoker).mObj, result);
             }
             catch (const Sqrat::Exception & e)
             {
                 // Tell the script callback to deal with the error
                 SqError(CMDERR_POST_PROCESSING_FAILED, _SC("Unable to complete command post processing"), e.Message());
             }
+            catch (const std::exception & e)
+            {
+                // Tell the script callback to deal with the error
+                SqError(CMDERR_POST_PROCESSING_FAILED, _SC("Unable to complete command post processing"), e.what());
+            }
     }
     // Return the result
-    return static_cast< Int32 >(result);
+    return ConvTo< Int32 >::From(result);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -536,11 +603,11 @@ bool CmdManager::Parse()
     // Obtain the flags of the currently processed argument
     Uint8 arg_flags = m_Instance->m_ArgSpec[m_Argc];
     // Adjust the internal buffer if necessary (mostly never)
-    m_Buffer.Adjust< SQChar >(m_Argument.size());
+    m_Buffer.Adjust(m_Argument.size());
     // The iterator to the currently processed character
-    String::iterator itr = m_Argument.begin();
+    String::const_iterator itr = m_Argument.cbegin();
     // Previous and currently processed character
-    SQChar prev = 0, elem = 0;
+    String::value_type prev = 0, elem = 0;
     // Maximum arguments allowed to be processed
     const Uint8 max_arg = m_Instance->m_MaxArgc;
     // Process loop result
@@ -550,37 +617,31 @@ bool CmdManager::Parse()
     {
         // Extract the current characters before advancing
         prev = elem, elem = *itr;
-        // See if there's anything left to parse
-        if (elem == '\0')
-		{
-            break;
-		}
-        // Early check to prevent parsing extraneous arguments
-        else if (m_Argc >= max_arg)
+        // See if we have anything left to parse or we have what we need already
+        if (elem == '\0' || m_Argc >= max_arg)
         {
-            // Tell the script callback to deal with the error
-            SqError(CMDERR_EXTRANEOUS_ARGS, _SC("Extraneous command arguments"), max_arg);
-            // Parsing aborted
-            good = false;
-            // Stop parsing
-            break;
+            break; // We only parse what we need or what we have!
         }
         // Is this a greedy argument?
         else if (arg_flags & CMDARG_GREEDY)
         {
+            // Remember the current stack size
+            const StackGuard sg;
             // Skip white-space characters
-            while (itr != m_Argument.end() && isspace(*itr)) ++itr;
+            itr = std::find_if(itr, m_Argument.cend(), IsNotCType(std::isspace));
             // Anything left to copy to the argument?
             if (itr != m_Argument.end())
+            {
                 // Transform it into a script object
-                sq_pushstring(DefaultVM::Get(), &(*itr), std::distance(itr, m_Argument.end()));
+                sq_pushstring(DefaultVM::Get(), &(*itr), std::distance(itr, m_Argument.cend()));
+            }
             // Just push an empty string
             else
+            {
                 sq_pushstring(DefaultVM::Get(), _SC(""), 0);
+            }
             // Get the object from the stack and add it to the argument list along with it's type
             m_Argv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
-            // Pop the created object from the stack
-            sq_pop(DefaultVM::Get(), 1);
             // Include this argument into the count
             ++m_Argc;
             // Nothing left to parse
@@ -591,9 +652,9 @@ bool CmdManager::Parse()
         {
             // Obtain the beginning and ending of the internal buffer
             SStr str = m_Buffer.Begin< SQChar >();
-            CSStr end = (m_Buffer.End< SQChar >()-1); // + null terminator
+            SStr end = (m_Buffer.End< SQChar >() - 1); // + null terminator
             // Save the closing quote type
-            SQChar close = elem;
+            const SQChar close = elem;
             // Skip the opening quote
             ++itr;
             // Attempt to consume the string argument
@@ -602,7 +663,7 @@ bool CmdManager::Parse()
                 // Extract the current characters before advancing
                 prev = elem, elem = *itr;
                 // See if there's anything left to parse
-                if (elem == 0)
+                if (elem == '\0')
                 {
                     // Tell the script callback to deal with the error
                     SqError(CMDERR_SYNTAX_ERROR, _SC("String argument not closed properly"), m_Argc);
@@ -618,13 +679,15 @@ bool CmdManager::Parse()
                     if (prev != '\\')
                     {
                         // Terminate the string value in the internal buffer
-                        *str = 0;
+                        *str = '\0';
                         // Stop parsing
                         break;
                     }
                     // Overwrite last character when replicating
                     else
+                    {
                         --str;
+                    }
                 }
                 // See if the internal buffer needs to scale
                 else if  (str >= end)
@@ -637,157 +700,194 @@ bool CmdManager::Parse()
                     break;
                 }
                 // Simply replicate the character to the internal buffer
-                *(str++) = elem;
+                *str = elem;
                 // Advance to the next character
-                ++itr;
+                ++str, ++itr;
             }
             // See if the argument was valid
             if (!good)
-                // Propagate failure
-                break;
-            // Do we have to make the string lowercase?
-            else if (arg_flags & CMDARG_LOWER)
             {
-                for (SStr chr = m_Buffer.Begin< SQChar >(); chr <= str; ++chr)
-                    *chr = static_cast< SQChar >(tolower(*chr));
+                break; // Propagate the failure!
+            }
+            // Swap the beginning and ending of the extracted string
+            end = str, str = m_Buffer.Begin();
+            // Make sure the string is null terminated
+            *end = '\0';
+            // Do we have to make the string lowercase?
+            if (arg_flags & CMDARG_LOWER)
+            {
+                for (CStr chr = str; chr < end; ++chr)
+                {
+                    *chr = static_cast< SQChar >(std::tolower(*chr));
+                }
             }
             // Do we have to make the string uppercase?
             else if (arg_flags & CMDARG_UPPER)
             {
-                for (SStr chr = m_Buffer.Begin< SQChar >(); chr <= str; ++chr)
-                    *chr = static_cast< SQChar >(toupper(*chr));
+                for (CStr chr = str; chr < end; ++chr)
+                {
+                    *chr = static_cast< SQChar >(std::toupper(*chr));
+                }
             }
-            // Transform it into a script object
-            sq_pushstring(DefaultVM::Get(), m_Buffer.Get< SQChar >(), str - m_Buffer.Begin< SQChar >());
+            // Remember the current stack size
+            const StackGuard sg;
+            // Was the specified string empty?
+            if (str >= end)
+            {
+                // Just push an empty string
+                sq_pushstring(DefaultVM::Get(), _SC(""), 0);
+            }
+            // Add it to the argument list along with it's type
+            else
+            {
+                // Transform it into a script object
+                sq_pushstring(DefaultVM::Get(), str, end - str - 1);
+            }
             // Get the object from the stack and add it to the argument list along with it's type
             m_Argv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
-            // Pop the created object from the stack
-            sq_pop(DefaultVM::Get(), 1);
             // Advance to the next argument and obtain its flags
             arg_flags = m_Instance->m_ArgSpec[++m_Argc];
         }
         // Ignore white-space characters until another valid character is found
-        else if (!isspace(elem) && (isspace(prev) || prev == 0))
+        else if (!std::isspace(elem) && (std::isspace(prev) || prev == '\0'))
         {
             // Find the first space character that marks the end of the argument
-            String::iterator pos = std::find(String::iterator(itr), m_Argument.end(), ' ');
-            // Copy all characters within range into the internal buffer
-            const Uint32 sz = m_Buffer.Write(0, &(*itr), std::distance(itr, pos));
+            String::const_iterator pos = std::find_if(itr, m_Argument.cend(), IsCType(std::isspace));
+            // Obtain both ends of the argument string
+            CCStr str = &(*itr), end = &(*pos);
+            // Compute the argument string size
+            const Uint32 sz = std::distance(itr, pos);
             // Update the main iterator position
             itr = pos;
-            // Update the current character
+            // Update the currently processed character
             elem = *itr;
-            // Make sure the argument string is null terminated
-            m_Buffer.At< SQChar >(sz) = 0;
             // Used to exclude all other checks when a valid type was identified
             bool identified = false;
-            // Attempt to treat the value as an integer number
-            if (!identified)
+            // Attempt to treat the value as an integer number if possible
+            if (!identified && (arg_flags & CMDARG_INTEGER))
             {
                 // Let's us know if the whole argument was part of the resulted value
                 CStr next = nullptr;
                 // Attempt to extract the integer value from the string
-                LongI value = strtol(m_Buffer.Data(), &next, 10);
+                const Int64 value = std::strtoll(str, &next, 10);
                 // See if this whole string was indeed an integer
-                if (next == &m_Buffer.At< SQChar >(sz))
+                if (next == end)
                 {
+                    // Remember the current stack size
+                    const StackGuard sg;
                     // Transform it into a script object
-                    sq_pushinteger(DefaultVM::Get(), static_cast< SQInteger >(value));
+                    sq_pushinteger(DefaultVM::Get(), ConvTo< SQInteger >::From(value));
                     // Get the object from the stack and add it to the argument list along with it's type
                     m_Argv.emplace_back(CMDARG_INTEGER, Var< Object >(DefaultVM::Get(), -1).value);
-                    // Pop the created object from the stack
-                    sq_pop(DefaultVM::Get(), 1);
-                    // We identified the correct value
-                    identified = true;
+                    // We've identified the correct value type
+                    identified = false;
                 }
             }
-            // Attempt to treat the value as an floating point number
-            if (!identified)
+            // Attempt to treat the value as an floating point number if possible
+            if (!identified && (arg_flags & CMDARG_FLOAT))
             {
                 // Let's us know if the whole argument was part of the resulted value
                 CStr next = nullptr;
-                // Attempt to extract the floating point value from the string
+                // Attempt to extract the integer value from the string
 #ifdef SQUSEDOUBLE
-                Float64 value = strtod(m_Buffer.Data(), &next);
+                const Float64 value = std::strtod(str, &next);
 #else
-                Float32 value = strtof(m_Buffer.Data(), &next);
+                const Float32 value = std::strtof(str, &next);
 #endif // SQUSEDOUBLE
-                // See if this whole string was indeed an floating point
-                if (next == &m_Buffer.At< SQChar >(sz))
+                // See if this whole string was indeed an integer
+                if (next == end)
                 {
+                    // Remember the current stack size
+                    const StackGuard sg;
                     // Transform it into a script object
-                    sq_pushfloat(DefaultVM::Get(), static_cast< SQFloat >(value));
+                    sq_pushfloat(DefaultVM::Get(), ConvTo< SQFloat >::From(value));
                     // Get the object from the stack and add it to the argument list along with it's type
                     m_Argv.emplace_back(CMDARG_FLOAT, Var< Object >(DefaultVM::Get(), -1).value);
-                    // Pop the created object from the stack
-                    sq_pop(DefaultVM::Get(), 1);
-                    // We identified the correct value
-                    identified = true;
+                    // We've identified the correct value type
+                    identified = false;
                 }
+
             }
             // Attempt to treat the value as a boolean if possible
-            if (!identified && sz <= 6)
+            if (!identified && (arg_flags & CMDARG_BOOLEAN) && sz <= 5)
             {
                 // Allocate memory for enough data to form a boolean value
-                SQChar lc[6];
+                CharT lc[6];
                 // Fill the temporary buffer with data from the internal buffer
-                snprintf (lc, 6, "%.5s", m_Buffer.Data());
+                std::snprintf(lc, 6, "%.5s", str);
                 // Convert all characters to lowercase
                 for (Uint32 i = 0; i < 5; ++i)
-                    lc[i] = tolower(lc[i]);
+                {
+                    lc[i] = std::tolower(lc[i]);
+                }
+                // Remember the current stack size
+                const StackGuard sg;
                 // Is this a boolean true value?
-                if (strcmp(m_Buffer.Data(), "true") == 0 || strcmp(m_Buffer.Data(), "on") == 0)
+                if (std::strcmp(lc, "true") == 0 || std::strcmp(lc, "on") == 0)
                 {
                     // Transform it into a script object
                     sq_pushbool(DefaultVM::Get(), true);
-                    // Get the object from the stack and add it to the argument list along with it's type
-                    m_Argv.emplace_back(CMDARG_BOOLEAN, Var< Object >(DefaultVM::Get(), -1).value);
-                    // Pop the created object from the stack
-                    sq_pop(DefaultVM::Get(), 1);
-                    // We identified the correct value
+                    // We've identified the correct value type
                     identified = true;
                 }
                 // Is this a boolean false value?
-                else if (strcmp(m_Buffer.Data(), "false") == 0 || strcmp(m_Buffer.Data(), "off") == 0)
+                else if (std::strcmp(lc, "false") == 0 || std::strcmp(lc, "off") == 0)
                 {
                     // Transform it into a script object
                     sq_pushbool(DefaultVM::Get(), false);
+                    // We've identified the correct value type
+                    identified = true;
+                }
+                // Could the value inside the string be interpreted as a boolean?
+                if (identified)
+                {
                     // Get the object from the stack and add it to the argument list along with it's type
                     m_Argv.emplace_back(CMDARG_BOOLEAN, Var< Object >(DefaultVM::Get(), -1).value);
-                    // Pop the created object from the stack
-                    sq_pop(DefaultVM::Get(), 1);
-                    // We identified the correct value
-                    identified = true;
                 }
             }
             // If everything else failed then simply treat the value as a string
             if (!identified)
             {
+                // Remember the current stack size
+                const StackGuard sg;
                 // Do we have to make the string lowercase?
                 if (arg_flags & CMDARG_LOWER)
                 {
-                    for (Uint32 n = 0; n < sz; ++n)
-                        m_Buffer.At< SQChar >(n) = static_cast< SQChar >(tolower(m_Buffer.At< SQChar >(n)));
+                    // Convert all characters from the argument string into the buffer
+                    for (CStr chr = m_Buffer.Data(); str < end; ++str, ++chr)
+                    {
+                        *chr = static_cast< CharT >(std::tolower(*str));
+                    }
+                    // Transform it into a script object
+                    sq_pushstring(DefaultVM::Get(), m_Buffer.Get< SQChar >(), sz);
                 }
                 // Do we have to make the string uppercase?
                 else if (arg_flags & CMDARG_UPPER)
                 {
-                    for (Uint32 n = 0; n < sz; ++n)
-                        m_Buffer.At< SQChar >(n) = static_cast< SQChar >(toupper(m_Buffer.At< SQChar >(n)));
+                    // Convert all characters from the argument string into the buffer
+                    for (CStr chr = m_Buffer.Data(); str < end; ++str, ++chr)
+                    {
+                        *chr = static_cast< CharT >(std::toupper(*str));
+                    }
+                    // Transform it into a script object
+                    sq_pushstring(DefaultVM::Get(), m_Buffer.Get< SQChar >(), sz);
                 }
-                // Transform it into a script object
-                sq_pushstring(DefaultVM::Get(), m_Buffer.Get< SQChar >(), sz);
+                else
+                {
+                    // Transform it into a script object
+                    sq_pushstring(DefaultVM::Get(), str, sz);
+                }
                 // Get the object from the stack and add it to the argument list along with it's type
                 m_Argv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
-                // Pop the created object from the stack
-                sq_pop(DefaultVM::Get(), 1);
             }
             // Advance to the next argument and obtain its flags
             arg_flags = m_Instance->m_ArgSpec[++m_Argc];
         }
         // Is there anything left to parse?
         if (itr >= m_Argument.end())
+        {
             break;
+        }
         // Advance to the next character
         ++itr;
     }
@@ -887,7 +987,7 @@ CmdListener::CmdListener(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 
 CmdListener::~CmdListener()
 {
     // Detach this command (shouldn't be necessary!)
-    _Cmd->Detach(this);
+    CmdManager::Get().Detach(this);
     // Release callbacks
     m_OnExec.ReleaseGently();
     m_OnAuth.ReleaseGently();
@@ -899,11 +999,17 @@ CmdListener::~CmdListener()
 Int32 CmdListener::Cmp(const CmdListener & o) const
 {
     if (m_Name == o.m_Name)
+    {
         return 0;
+    }
     else if (m_Name.size() > o.m_Name.size())
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -921,19 +1027,19 @@ void CmdListener::Attach()
         STHROWF("Invalid or empty command name");
     }
     // Are we already attached?
-    else if (_Cmd->Attached(this))
+    else if (CmdManager::Get().Attached(this))
     {
         STHROWF("Command is already attached");
     }
     // Attempt to attach this command
-    _Cmd->Attach(m_Name, this, false);
+    CmdManager::Get().Attach(m_Name, this, false);
 }
 
 // ------------------------------------------------------------------------------------------------
 void CmdListener::Detach()
 {
     // Detach this command
-    _Cmd->Detach(this);
+    CmdManager::Get().Detach(this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -956,14 +1062,14 @@ void CmdListener::SetName(CSStr name)
     // Validate the specified name
     ValidateName(name);
     // Is this command already attached to a name?
-    if (_Cmd->Attached(this))
+    if (CmdManager::Get().Attached(this))
     {
         // Detach from the current name if necessary
-        _Cmd->Detach(this);
+        CmdManager::Get().Detach(this);
         // Now it's safe to assign the new name
         m_Name.assign(name);
         // We know the new name is valid
-        _Cmd->Attach(m_Name, this, false);
+        CmdManager::Get().Attach(m_Name, this, false);
     }
     else
     {
@@ -1029,7 +1135,7 @@ void CmdListener::SetArgTags(Array & tags)
 // ------------------------------------------------------------------------------------------------
 bool CmdListener::Attached() const
 {
-    return _Cmd->Attached(this);
+    return CmdManager::Get().Attached(this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1401,22 +1507,22 @@ bool CmdListener::AuthCheckID(Int32 id)
     if (!m_OnAuth.IsNull())
     {
         // Ask the specified authority inspector if this execution should be allowed
-        SharedPtr< bool > ret = m_OnAuth.Evaluate< bool, Object & >(_Core->GetPlayer(id).mObj);
+        SharedPtr< bool > ret = m_OnAuth.Evaluate< bool, Object & >(Core::Get().GetPlayer(id).mObj);
         // See what the custom authority inspector said or default to disallow
         allow = (!ret ? false : *ret);
     }
     // Was there a global authority inspector specified?
-    else if (!_Cmd->GetOnAuth().IsNull())
+    else if (!CmdManager::Get().GetOnAuth().IsNull())
     {
         // Ask the specified authority inspector if this execution should be allowed
-        SharedPtr< bool > ret = _Cmd->GetOnAuth().Evaluate< bool, Object & >(_Core->GetPlayer(id).mObj);
+        SharedPtr< bool > ret = CmdManager::Get().GetOnAuth().Evaluate< bool, Object & >(Core::Get().GetPlayer(id).mObj);
         // See what the custom authority inspector said or default to disallow
         allow = (!ret ? false : *ret);
     }
     // Can we use the default authority system?
     else if (m_Authority >= 0)
     {
-        allow = (_Core->GetPlayer(id).mAuthority >= m_Authority);
+        allow = (Core::Get().GetPlayer(id).mAuthority >= m_Authority);
     }
     // Return result
     return allow;
@@ -1571,29 +1677,21 @@ void CmdListener::ProcSpec(CSStr str)
 /* ------------------------------------------------------------------------------------------------
  * Forward the call to run a command.
 */
-Int32 RunCommand(Int32 invoker, CSStr command)
+static Int32 Cmd_Run(Int32 invoker, CSStr command)
 {
-    return _Cmd->Run(invoker, command);
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Forward the call to terminate the command system.
-*/
-void TerminateCommand()
-{
-    _Cmd->Terminate();
+    return CmdManager::Get().Run(invoker, command);
 }
 
 // ------------------------------------------------------------------------------------------------
 static void Cmd_Sort()
 {
-    _Cmd->Sort();
+    CmdManager::Get().Sort();
 }
 
 // ------------------------------------------------------------------------------------------------
 static Uint32 Cmd_Count()
 {
-    return _Cmd->Count();
+    return CmdManager::Get().Count();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1602,87 +1700,87 @@ static const Object & Cmd_FindByName(CSStr name)
     // Validate the specified name
     ValidateName(name);
     // Now perform the requested search
-    return _Cmd->FindByName(name);
+    return CmdManager::Get().FindByName(name);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Function & Cmd_GetOnError()
+static Function & Cmd_GetOnFail()
 {
-    return _Cmd->GetOnError();
+    return CmdManager::Get().GetOnFail();
 }
 
 // ------------------------------------------------------------------------------------------------
-static void Cmd_SetOnError(Object & env, Function & func)
+static void Cmd_SetOnFail(Object & env, Function & func)
 {
-    _Cmd->SetOnError(env, func);
+    CmdManager::Get().SetOnFail(env, func);
 }
 
 // ------------------------------------------------------------------------------------------------
 static Function & Cmd_GetOnAuth()
 {
-    return _Cmd->GetOnAuth();
+    return CmdManager::Get().GetOnAuth();
 }
 
 // ------------------------------------------------------------------------------------------------
 static void Cmd_SetOnAuth(Object & env, Function & func)
 {
-    _Cmd->SetOnAuth(env, func);
+    CmdManager::Get().SetOnAuth(env, func);
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object & Cmd_GetInvoker()
 {
-    return _Core->GetPlayer(_Cmd->GetInvoker()).mObj;
+    return Core::Get().GetPlayer(CmdManager::Get().GetInvoker()).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
 static Int32 Cmd_GetInvokerID()
 {
-    return _Cmd->GetInvoker();
+    return CmdManager::Get().GetInvoker();
 }
 
 // ------------------------------------------------------------------------------------------------
 static const Object & Cmd_GetObject()
 {
-    return _Cmd->GetObject();
+    return CmdManager::Get().GetObject();
 }
 
 // ------------------------------------------------------------------------------------------------
 static const String & Cmd_GetCommand()
 {
-    return _Cmd->GetCommand();
+    return CmdManager::Get().GetCommand();
 }
 
 // ------------------------------------------------------------------------------------------------
 static const String & Cmd_GetArgument()
 {
-    return _Cmd->GetArgument();
+    return CmdManager::Get().GetArgument();
 }
 
 // ------------------------------------------------------------------------------------------------
 Object & Cmd_Create(CSStr name)
 {
-    return _Cmd->Create(name);
+    return CmdManager::Get().Create(name);
 }
 
 Object & Cmd_Create(CSStr name, CSStr spec)
 {
-    return _Cmd->Create(name, spec);
+    return CmdManager::Get().Create(name, spec);
 }
 
 Object & Cmd_Create(CSStr name, CSStr spec, Array & tags)
 {
-    return _Cmd->Create(name, spec, tags);
+    return CmdManager::Get().Create(name, spec, tags);
 }
 
 Object & Cmd_Create(CSStr name, CSStr spec, Uint8 min, Uint8 max)
 {
-    return _Cmd->Create(name,spec, min, max);
+    return CmdManager::Get().Create(name,spec, min, max);
 }
 
 Object & Cmd_Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max)
 {
-    return _Cmd->Create(name, spec, tags, min, max);
+    return CmdManager::Get().Create(name, spec, tags, min, max);
 }
 
 // ================================================================================================
@@ -1691,11 +1789,11 @@ void Register_Command(HSQUIRRELVM vm)
     Table cmdns(vm);
 
     cmdns.Bind(_SC("Listener"), Class< CmdListener, NoConstructor< CmdListener > >(vm, _SC("SqCmdListener"))
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &CmdListener::Cmp)
         .SquirrelFunc(_SC("_typename"), &CmdListener::Typename)
         .Func(_SC("_tostring"), &CmdListener::ToString)
-        /* Properties */
+        // Member Properties
         .Prop(_SC("Attached"), &CmdListener::Attached)
         .Prop(_SC("Name"), &CmdListener::GetName, &CmdListener::SetName)
         .Prop(_SC("Spec"), &CmdListener::GetSpec, &CmdListener::SetSpec)
@@ -1713,7 +1811,7 @@ void Register_Command(HSQUIRRELVM vm)
         .Prop(_SC("OnAuth"), &CmdListener::GetOnAuth)
         .Prop(_SC("OnPost"), &CmdListener::GetOnPost)
         .Prop(_SC("OnFail"), &CmdListener::GetOnFail)
-        /* Functions */
+        // Member Methods
         .Func(_SC("Attach"), &CmdListener::Attach)
         .Func(_SC("Detach"), &CmdListener::Detach)
         .Func(_SC("BindExec"), &CmdListener::SetOnExec)
@@ -1728,12 +1826,13 @@ void Register_Command(HSQUIRRELVM vm)
         .Func(_SC("AuthCheckID"), &CmdListener::AuthCheckID)
     );
 
+    cmdns.Func(_SC("Run"), &Cmd_Run);
     cmdns.Func(_SC("Sort"), &Cmd_Sort);
     cmdns.Func(_SC("Count"), &Cmd_Count);
     cmdns.Func(_SC("FindByName"), &Cmd_FindByName);
-    cmdns.Func(_SC("GetOnError"), &Cmd_GetOnError);
-    cmdns.Func(_SC("SetOnError"), &Cmd_SetOnError);
-    cmdns.Func(_SC("BindError"), &Cmd_SetOnError);
+    cmdns.Func(_SC("GetOnFail"), &Cmd_GetOnFail);
+    cmdns.Func(_SC("SetOnFail"), &Cmd_SetOnFail);
+    cmdns.Func(_SC("BindFail"), &Cmd_SetOnFail);
     cmdns.Func(_SC("GetOnAuth"), &Cmd_GetOnAuth);
     cmdns.Func(_SC("SetOnAuth"), &Cmd_SetOnAuth);
     cmdns.Func(_SC("BindAuth"), &Cmd_SetOnAuth);

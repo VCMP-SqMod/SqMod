@@ -166,11 +166,6 @@ public:
     bool IsStreamedFor(CPlayer & player) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the model of the managed pickup entity.
-    */
-    Int32 GetModel() const;
-
-    /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed pickup entity exists.
     */
     Int32 GetWorld() const;
@@ -231,6 +226,11 @@ public:
     void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the model of the managed pickup entity.
+    */
+    Int32 GetModel() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the quantity of the managed pickup entity.
     */
     Int32 GetQuantity() const;
@@ -238,32 +238,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed pickup entity.
     */
-    Float32 GetPosX() const;
+    Float32 GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the y axis of the managed pickup entity.
     */
-    Float32 GetPosY() const;
+    Float32 GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the z axis of the managed pickup entity.
     */
-    Float32 GetPosZ() const;
+    Float32 GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the x axis of the managed pickup entity.
     */
-    void SetPosX(Float32 x) const;
+    void SetPositionX(Float32 x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the y axis of the managed pickup entity.
     */
-    void SetPosY(Float32 y) const;
+    void SetPositionY(Float32 y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the z axis of the managed pickup entity.
     */
-    void SetPosZ(Float32 z) const;
+    void SetPositionZ(Float32 z) const;
 };
 
 } // Namespace:: SqMod

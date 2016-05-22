@@ -22,7 +22,7 @@ private:
     static Vector3      s_Vector3;
 
     // --------------------------------------------------------------------------------------------
-    static Uint32       s_ColorR, s_ColorG, s_ColorB, s_ColorA;
+    static Int32        s_ColorR, s_ColorG, s_ColorB, s_ColorA;
 
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
@@ -170,6 +170,11 @@ public:
     bool IsStreamedFor(CPlayer & player) const;
 
     /* --------------------------------------------------------------------------------------------
+     * See if the managed checkpoint entity of sphere type.
+    */
+    bool IsSphere() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed checkpoint entity exists.
     */
     Int32 GetWorld() const;
@@ -188,6 +193,11 @@ public:
      * Modify the color of the managed checkpoint entity.
     */
     void SetColor(const Color4 & col) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the color of the managed checkpoint entity.
+    */
+    void SetColorEx(Uint8 r, Uint8 g, Uint8 b) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the color of the managed checkpoint entity.
@@ -232,72 +242,72 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed checkpoint entity.
     */
-    Float32 GetPosX() const;
+    Float32 GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the y axis of the managed checkpoint entity.
     */
-    Float32 GetPosY() const;
+    Float32 GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the z axis of the managed checkpoint entity.
     */
-    Float32 GetPosZ() const;
+    Float32 GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the x axis of the managed checkpoint entity.
     */
-    void SetPosX(Float32 x) const;
+    void SetPositionX(Float32 x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the y axis of the managed checkpoint entity.
     */
-    void SetPosY(Float32 y) const;
+    void SetPositionY(Float32 y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the z axis of the managed checkpoint entity.
     */
-    void SetPosZ(Float32 z) const;
+    void SetPositionZ(Float32 z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the red color of the managed checkpoint entity.
     */
-    Uint32 GetColR() const;
+    Int32 GetColorR() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the green color of the managed checkpoint entity.
     */
-    Uint32 GetColG() const;
+    Int32 GetColorG() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the blue color of the managed checkpoint entity.
     */
-    Uint32 GetColB() const;
+    Int32 GetColorB() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the alpha transparency of the managed checkpoint entity.
     */
-    Uint32 GetColA() const;
+    Int32 GetColorA() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the red color of the managed checkpoint entity.
     */
-    void SetColR(Uint32 r) const;
+    void SetColorR(Int32 r) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the green color of the managed checkpoint entity.
     */
-    void SetColG(Uint32 g) const;
+    void SetColorG(Int32 g) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the blue color of the managed checkpoint entity.
     */
-    void SetColB(Uint32 b) const;
+    void SetColorB(Int32 b) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the alpha transparency of the managed checkpoint entity.
     */
-    void SetColA(Uint32 a) const;
+    void SetColorA(Int32 a) const;
 };
 
 } // Namespace:: SqMod

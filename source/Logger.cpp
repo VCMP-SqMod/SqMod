@@ -1,22 +1,26 @@
 // ------------------------------------------------------------------------------------------------
 #include "Logger.hpp"
-#include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <time.h>
-#include <stdio.h>
-#include <stdarg.h>
+#include <ctime>
+#include <cerrno>
+#include <cstring>
+#include <cstdarg>
 
 // ------------------------------------------------------------------------------------------------
-namespace {
+#include <sqrat.h>
 
+// ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
 #include <Windows.h>
 
+// ------------------------------------------------------------------------------------------------
+namespace {
+
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Common windows colors.
 */
 enum
 {
@@ -38,84 +42,188 @@ enum
 };
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Logging colors.
 */
 enum
 {
     LC_DBG  = LC_LIGHT_BLUE,
-    LC_USER  = LC_GRAY,
+    LC_USR  = LC_GRAY,
     LC_SCS  = LC_LIGHT_GREEN,
     LC_INF  = LC_LIGHT_CYAN,
     LC_WRN  = LC_LIGHT_YELLOW,
-    LC_ERR  = LC_LIGHT_MAGENTA,
-    LC_FTL  = LC_LIGHT_RED
+    LC_ERR  = LC_LIGHT_RED,
+    LC_FTL  = LC_LIGHT_MAGENTA
 };
 
-#endif // SQMOD_OS_WINDOWS
+/* ------------------------------------------------------------------------------------------------
+ * Identify the associated message color.
+*/
+inline WORD GetLevelColor(BYTE level)
+{
+    switch (level)
+    {
+        case SqMod::LOGL_DBG: return LC_DBG;
+        case SqMod::LOGL_USR: return LC_USR;
+        case SqMod::LOGL_SCS: return LC_SCS;
+        case SqMod::LOGL_INF: return LC_INF;
+        case SqMod::LOGL_WRN: return LC_WRN;
+        case SqMod::LOGL_ERR: return LC_ERR;
+        case SqMod::LOGL_FTL: return LC_FTL;
+        default: return LC_NORMAL;
+    }
+}
 
 } // Namespace::
+
+#endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// --------------------------------------------------------------------------------------------
-SQMOD_MANAGEDPTR_TYPE(Logger) _Log = SQMOD_MANAGEDPTR_MAKE(Logger, nullptr);
-
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Identify the message prefix.
 */
-inline CCStr GetLevelTag(Uint8 type)
+static inline CCStr GetLevelTag(Uint8 level)
 {
-    switch (type)
+    switch (level)
     {
-        case LL_DBG: return "[DBG]";
-        case LL_USR: return "[USR]";
-        case LL_SCS: return "[SCS]";
-        case LL_INF: return "[INF]";
-        case LL_WRN: return "[WRN]";
-        case LL_ERR: return "[ERR]";
-        case LL_FTL: return "[FTL]";
+        case LOGL_DBG: return "[DBG]";
+        case LOGL_USR: return "[USR]";
+        case LOGL_SCS: return "[SCS]";
+        case LOGL_INF: return "[INF]";
+        case LOGL_WRN: return "[WRN]";
+        case LOGL_ERR: return "[ERR]";
+        case LOGL_FTL: return "[FTL]";
         default: return "[UNK]";
     }
 }
 
-#ifdef SQMOD_OS_WINDOWS
-
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Identify the message prefix and color.
 */
-inline Uint16 GetLevelColor(Uint8 type)
+static inline CCStr GetColoredLevelTag(Uint8 level)
 {
-    switch (type)
+    switch (level)
     {
-        case LL_DBG: return LC_DBG;
-        case LL_USR: return LC_USER;
-        case LL_SCS: return LC_SCS;
-        case LL_INF: return LC_INF;
-        case LL_WRN: return LC_WRN;
-        case LL_ERR: return LC_ERR;
-        case LL_FTL: return LC_FTL;
-        default: return LC_NORMAL;
+        case LOGL_DBG: return "\033[21;94m[[DBG]\033[0m";
+        case LOGL_USR: return "\033[21;37m[[USR]\033[0m";
+        case LOGL_SCS: return "\033[21;92m[[SCS]\033[0m";
+        case LOGL_INF: return "\033[21;96m[[INF]\033[0m";
+        case LOGL_WRN: return "\033[21;93m[[WRN]\033[0m";
+        case LOGL_ERR: return "\033[21;91m[[ERR]\033[0m";
+        case LOGL_FTL: return "\033[21;95m[[FTL]\033[0m";
+        default: return "\033[21;0m[[UNK]\033[0m";
     }
 }
-#else
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Output a logging message to the console window.
 */
-inline CCStr GetLevelColor(Uint8 /*type*/)
+static inline void OutputConsoleMessage(Uint8 level, bool sub, CCStr tms, CCStr msg)
 {
-    return g_EmptyStr;
+#ifdef SQMOD_OS_WINDOWS
+    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csb_state;
+    GetConsoleScreenBufferInfo(hstdout, &csb_state);
+    SetConsoleTextAttribute(hstdout, GetLevelColor(level));
+    if (tms)
+    {
+        std::printf("%s %s ", GetLevelTag(level), tms);
+    }
+    else
+    {
+        std::printf("%s ", GetLevelTag(level));
+    }
+    SetConsoleTextAttribute(hstdout, sub ? LC_NORMAL : LC_WHITE);
+    std::puts(msg);
+    SetConsoleTextAttribute(hstdout, csb_state.wAttributes);
+#else
+    if (tms)
+    {
+        std::printf("%s %s ", GetColoredLevelTag(level), tms);
+    }
+    else
+    {
+        std::printf("%s ", GetColoredLevelTag(level));
+    }
+    std::puts(msg);
+#endif // SQMOD_OS_WINDOWS
 }
 
-#endif // SQMOD_OS_WINDOWS
+/* --------------------------------------------------------------------------------------------
+ * Raw console message output.
+*/
+static inline void OutputMessageImpl(CCStr msg, va_list args)
+{
+#if defined(WIN32) || defined(_WIN32)
+    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_SCREEN_BUFFER_INFO csb_before;
+    GetConsoleScreenBufferInfo( hstdout, &csb_before);
+    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN);
+    std::printf("[SQMOD] ");
+
+    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
+    std::vprintf(msg, args);
+    std::puts("");
+
+    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
+#else
+    std::printf("\033[21;32m[SQMOD]\033[0m");
+    std::vprintf(msg, args);
+    std::puts("");
+#endif
+}
+
+/* --------------------------------------------------------------------------------------------
+ * Raw console error output.
+*/
+static inline void OutputErrorImpl(CCStr msg, va_list args)
+{
+#if defined(WIN32) || defined(_WIN32)
+    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_SCREEN_BUFFER_INFO csb_before;
+    GetConsoleScreenBufferInfo( hstdout, &csb_before);
+    SetConsoleTextAttribute(hstdout, FOREGROUND_RED | FOREGROUND_INTENSITY);
+    std::printf("[SQMOD] ");
+
+    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
+    std::vprintf(msg, args);
+    std::puts("");
+
+    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
+#else
+    std::printf("\033[21;91m[SQMOD]\033[0m");
+    std::vprintf(msg, args);
+    std::puts("");
+#endif
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Identify the associated message color.
+*/
+static inline CCStr GetTimeStampStr()
+{
+    static CharT tmbuff[80];
+    std::time_t t = std::time(nullptr);
+    std::strftime(tmbuff, sizeof(tmbuff), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
+    // Return the resulted buffer
+    return tmbuff;
+}
+
+// ------------------------------------------------------------------------------------------------
+Logger Logger::s_Inst;
 
 // ------------------------------------------------------------------------------------------------
 Logger::Logger()
-    : m_Buffer(4096)
-    , m_TmBuff()
-    , m_Levels(LL_ANY)
-    , m_Time(false)
+    : m_Buffer()
+    , m_ConsoleLevels(LOGL_ANY)
+    , m_LogFileLevels(~LOGL_DBG)
+    , m_ConsoleTime(false)
+    , m_LogFileTime(true)
+    , m_File(nullptr)
+    , m_Filename()
 {
     /* ... */
 }
@@ -123,57 +231,174 @@ Logger::Logger()
 // ------------------------------------------------------------------------------------------------
 Logger::~Logger()
 {
-    /* ... */
+    Close();
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Send(Uint8 type, bool sub, CCStr fmt, va_list args)
+void Logger::Close()
 {
-    if (!(m_Levels & type))
-        return;
-    m_Buffer.WriteF(0, fmt, args);
-    Proccess(type, sub);
+    // Is there a file handle to close?
+    if (m_File)
+    {
+        // Flush buffered data
+        std::fflush(m_File);
+        // Close the file handle
+        std::fclose(m_File);
+        // Prevent further use of this file handle
+        m_File = nullptr;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Message(Uint8 type, bool sub, CCStr fmt, ...)
+void Logger::SetLogFilename(CCStr filename)
 {
-    if (!(m_Levels & type))
-        return;
-    va_list args;
-    va_start(args, fmt);
-    m_Buffer.WriteF(0, fmt, args);
-    Proccess(type, sub);
-    va_end(args);
+    // Close the current logging file, if any
+    Close();
+    // Clear the current name
+    m_Filename.clear();
+    // Was there a name specified?
+    if (!filename || *filename == '\0')
+    {
+        return; // We're done here!
+    }
+    // Make sure the internal buffer has some memory
+    m_Buffer.Adjust(1024);
+    // Generate the filename using the current timestamp
+    std::time_t t = std::time(nullptr);
+    std::strftime(m_Buffer.Data(), m_Buffer.Size(), filename, std::localtime(&t));
+    // Is the resulted filename valid?
+    if (m_Buffer.At(0) != '\0')
+    {
+        m_Filename.assign(m_Buffer.Data());
+    }
+    else
+    {
+        return; // We're done here!
+    }
+    // Attempt to open the file for writing
+    m_File = std::fopen(m_Filename.c_str(), "w");
+    // See if the file could be opened
+    if (!m_File)
+    {
+        OutputError("Unable to open the log file (%s) : %s", m_Filename.c_str(), std::strerror(errno));
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Logger::Initialize(CCStr filename)
+{
+    // Close the logging file
+    Close();
+    // Allocate some memory in the buffer
+    m_Buffer.Adjust(1024);
+    // Set the log file name and open the file if necessary
+    SetLogFilename(filename);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Logger::Terminate()
+{
+    // Release all the buffer resources and references
+    m_Buffer.ResetAll();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Logger::Proccess(Uint8 level, bool sub)
+{
+    // Obtain the time-stamp if necessary
+    CCStr tms = (m_ConsoleTime || m_LogFileTime) ? GetTimeStampStr() : nullptr;
+    // Are we allowed to send this message level to console?
+    if (m_ConsoleLevels & level)
+    {
+        OutputConsoleMessage(level, sub, (m_ConsoleTime ? tms : nullptr), m_Buffer.Get());
+    }
+    // Are we allowed to write it to a file?
+    if (m_File && (m_LogFileLevels & level))
+    {
+        // Write the level tag
+        std::fputs(GetLevelTag(level), m_File);
+        std::fputc(' ', m_File);
+        // Should we include the time-stamp?
+        if (m_LogFileTime && tms)
+        {
+            std::fputs(tms, m_File);
+            std::fputc(' ', m_File);
+        }
+        // Write the message
+        std::fputs(m_Buffer.Get(), m_File);
+        // Append a new line
+        std::fputc('\n', m_File);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Logger::Send(Uint8 level, bool sub, CCStr fmt, va_list args)
+{
+    // Is this level even allowed?
+    if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
+    {
+        // Generate the message in the buffer
+        m_Buffer.WriteF(0, fmt, args);
+        // Process the message in the buffer
+        Proccess(level, sub);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Logger::Write(Uint8 level, bool sub, CCStr fmt, ...)
+{
+    if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
+    {
+        // Initialize the variable argument list
+        va_list args;
+        va_start(args, fmt);
+        // Generate the message in the buffer
+        m_Buffer.WriteF(0, fmt, args);
+        // Finalize the variable argument list
+        va_end(args);
+        // Process the message in the buffer
+        Proccess(level, sub);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 void Logger::Debug(CCStr fmt, ...)
 {
+    // Initialize the variable argument list
     va_list args;
     va_start(args, fmt);
+    // Forward the call to the actual debug function
     Debug(fmt, args);
+    // Finalize the variable argument list
     va_end(args);
 }
 
 void Logger::Debug(CCStr fmt, va_list args)
 {
+    using namespace Sqrat;
+    // Retrieve the default Squirrel VM
     HSQUIRRELVM vm = DefaultVM::Get();
+    // Used to acquire
     SQStackInfos si;
+    // Write the message to the buffer
     Int32 ret = m_Buffer.WriteF(0, fmt, args);
-
+    // Obtain information about the current stack level
     if (SQ_SUCCEEDED(sq_stackinfos(vm, 1, &si)))
+    {
         m_Buffer.WriteF(ret, "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n]"
                 , si.source ? si.source : _SC("unknown")
                 , si.line
                 , si.funcname ? si.funcname : _SC("unknown"));
+    }
     else
+    {
         m_Buffer.WriteF(ret, "\n[\n=>Location: unknown\n=>Line: unknown\n=>Function: unknown\n]");
-
-    Proccess(LL_ERR, true);
-
+    }
+    // Process the message in the buffer
+    Proccess(LOGL_ERR, true);
+    // Begin the traceback process
     ret = m_Buffer.WriteF(0, "Traceback:\n[\n");
-
+    // Traceback the function call
     for (Int32 level = 1; SQ_SUCCEEDED(sq_stackinfos(vm, level, &si)); ++level)
     {
         ret += m_Buffer.WriteF(ret, "=> [%d] %s (%d) [%s]\n", level
@@ -181,20 +406,22 @@ void Logger::Debug(CCStr fmt, va_list args)
                                     , si.line
                                     , si.funcname ? si.funcname : _SC("unknown"));
     }
-
+    // End the function call traceback
     m_Buffer.WriteF(ret, "]");
-    Proccess(LL_INF, true);
-
-    CCStr s_ = 0, name = 0;
+    // Process the message in the buffer
+    Proccess(LOGL_INF, true);
+    // Temporary variables to retrieve stack information
+    CSStr s_ = 0, name = 0;
     SQInteger i_, seq = 0;
     SQFloat f_;
     SQUserPointer p_;
-
+    // Begin the local variables information
     ret = m_Buffer.WriteF(0, "Locals:\n[\n");
-
+    // Process each stack level
     for (Int32 level = 0; level < 10; level++)
     {
         seq = 0;
+        // Display all locals in the current stack level
         while((name = sq_getlocal(vm, level, seq)))
         {
             ++seq;
@@ -260,43 +487,10 @@ void Logger::Debug(CCStr fmt, va_list args)
             sq_pop(vm, 1);
         }
     }
-
+    // End the variables information
     m_Buffer.WriteF(ret, "]");
-    Proccess(LL_INF, true);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Logger::Proccess(Uint8 type, bool sub)
-{
-    if (m_Time)
-    {
-        time_t rawtime;
-        struct tm * timeinfo;
-        time(&rawtime);
-        timeinfo = localtime(&rawtime);
-        strftime(m_TmBuff, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
-    }
-    else
-        m_TmBuff[0] = 0;
-#ifdef SQMOD_OS_WINDOWS
-    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO csb_state;
-    GetConsoleScreenBufferInfo(hstdout, &csb_state);
-    SetConsoleTextAttribute(hstdout, GetLevelColor(type));
-    if (m_Time)
-        printf("%s %s ", GetLevelTag(type), m_TmBuff);
-    else
-        printf("%s ", GetLevelTag(type));
-    SetConsoleTextAttribute(hstdout, sub ? LC_NORMAL : LC_WHITE);
-    puts(m_Buffer.Data());
-    SetConsoleTextAttribute(hstdout, csb_state.wAttributes);
-#else
-    if (m_Time)
-        printf("%s %s ", GetLevelTag(type), m_TmBuff);
-    else
-        printf("%s ", GetLevelTag(type));
-    puts(m_Buffer.Data());
-#endif // SQMOD_OS_WINDOWS
+    // Process the message in the buffer
+    Proccess(LOGL_INF, true);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -305,115 +499,65 @@ void Logger::Proccess(Uint8 type, bool sub)
 */ { /*
 */  va_list args; /*
 */  va_start(args, fmt); /*
-*/  if (_Log) /*
-*/   _Log->Send(L_, S_, fmt, args); /*
-*/  else /*
-*/   vprintf(fmt, args); /*
+*/  Logger::Get().Send(L_, S_, fmt, args); /*
 */  va_end(args); /*
 */ } /*
 */
 
 // ------------------------------------------------------------------------------------------------
-SQMOD_LOG(LogDbg, LL_DBG, false)
-SQMOD_LOG(LogUsr, LL_USR, false)
-SQMOD_LOG(LogScs, LL_SCS, false)
-SQMOD_LOG(LogInf, LL_INF, false)
-SQMOD_LOG(LogWrn, LL_WRN, false)
-SQMOD_LOG(LogErr, LL_ERR, false)
-SQMOD_LOG(LogFtl, LL_FTL, false)
+SQMOD_LOG(LogDbg, LOGL_DBG, false)
+SQMOD_LOG(LogUsr, LOGL_USR, false)
+SQMOD_LOG(LogScs, LOGL_SCS, false)
+SQMOD_LOG(LogInf, LOGL_INF, false)
+SQMOD_LOG(LogWrn, LOGL_WRN, false)
+SQMOD_LOG(LogErr, LOGL_ERR, false)
+SQMOD_LOG(LogFtl, LOGL_FTL, false)
 
 // ------------------------------------------------------------------------------------------------
-SQMOD_LOG(LogSDbg, LL_DBG, true)
-SQMOD_LOG(LogSUsr, LL_USR, true)
-SQMOD_LOG(LogSScs, LL_SCS, true)
-SQMOD_LOG(LogSInf, LL_INF, true)
-SQMOD_LOG(LogSWrn, LL_WRN, true)
-SQMOD_LOG(LogSErr, LL_ERR, true)
-SQMOD_LOG(LogSFtl, LL_FTL, true)
+SQMOD_LOG(LogSDbg, LOGL_DBG, true)
+SQMOD_LOG(LogSUsr, LOGL_USR, true)
+SQMOD_LOG(LogSScs, LOGL_SCS, true)
+SQMOD_LOG(LogSInf, LOGL_INF, true)
+SQMOD_LOG(LogSWrn, LOGL_WRN, true)
+SQMOD_LOG(LogSErr, LOGL_ERR, true)
+SQMOD_LOG(LogSFtl, LOGL_FTL, true)
 
 // ------------------------------------------------------------------------------------------------
 #define SQMOD_CLOG(N_, L_, S_) /*
 */bool N_(bool c, CCStr fmt, ...) /*
 */ { /*
 */  if (!c) /*
-*/   return c; /*
+*/  { /*
+*/      return c; /*
+*/  } /*
 */  va_list args; /*
 */  va_start(args, fmt); /*
-*/  if (_Log) /*
-*/   _Log->Send(L_, S_, fmt, args); /*
-*/  else /*
-*/   vprintf(fmt, args); /*
+*/  Logger::Get().Send(L_, S_, fmt, args); /*
 */  va_end(args); /*
 */  return c; /*
 */ } /*
 */
 
 // ------------------------------------------------------------------------------------------------
-SQMOD_CLOG(cLogDbg, LL_DBG, false)
-SQMOD_CLOG(cLogUsr, LL_USR, false)
-SQMOD_CLOG(cLogScs, LL_SCS, false)
-SQMOD_CLOG(cLogInf, LL_INF, false)
-SQMOD_CLOG(cLogWrn, LL_WRN, false)
-SQMOD_CLOG(cLogErr, LL_ERR, false)
-SQMOD_CLOG(cLogFtl, LL_FTL, false)
+SQMOD_CLOG(cLogDbg, LOGL_DBG, false)
+SQMOD_CLOG(cLogUsr, LOGL_USR, false)
+SQMOD_CLOG(cLogScs, LOGL_SCS, false)
+SQMOD_CLOG(cLogInf, LOGL_INF, false)
+SQMOD_CLOG(cLogWrn, LOGL_WRN, false)
+SQMOD_CLOG(cLogErr, LOGL_ERR, false)
+SQMOD_CLOG(cLogFtl, LOGL_FTL, false)
 
 // ------------------------------------------------------------------------------------------------
-SQMOD_CLOG(cLogSDbg, LL_DBG, true)
-SQMOD_CLOG(cLogSUsr, LL_USR, true)
-SQMOD_CLOG(cLogSScs, LL_SCS, true)
-SQMOD_CLOG(cLogSInf, LL_INF, true)
-SQMOD_CLOG(cLogSWrn, LL_WRN, true)
-SQMOD_CLOG(cLogSErr, LL_ERR, true)
-SQMOD_CLOG(cLogSFtl, LL_FTL, true)
+SQMOD_CLOG(cLogSDbg, LOGL_DBG, true)
+SQMOD_CLOG(cLogSUsr, LOGL_USR, true)
+SQMOD_CLOG(cLogSScs, LOGL_SCS, true)
+SQMOD_CLOG(cLogSInf, LOGL_INF, true)
+SQMOD_CLOG(cLogSWrn, LOGL_WRN, true)
+SQMOD_CLOG(cLogSErr, LOGL_ERR, true)
+SQMOD_CLOG(cLogSFtl, LOGL_FTL, true)
 
 // --------------------------------------------------------------------------------------------
-void OutputMessageImpl(const char * msg, va_list args)
-{
-#if defined(WIN32) || defined(_WIN32)
-    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    CONSOLE_SCREEN_BUFFER_INFO csb_before;
-    GetConsoleScreenBufferInfo( hstdout, &csb_before);
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN);
-    printf("[SQMOD] ");
-
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    vprintf(msg, args);
-    puts("");
-
-    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
-#else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
-    vprintf(msg, args);
-    puts("");
-#endif
-}
-
-// --------------------------------------------------------------------------------------------
-void OutputErrorImpl(const char * msg, va_list args)
-{
-#if defined(WIN32) || defined(_WIN32)
-    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    CONSOLE_SCREEN_BUFFER_INFO csb_before;
-    GetConsoleScreenBufferInfo( hstdout, &csb_before);
-    SetConsoleTextAttribute(hstdout, FOREGROUND_RED | FOREGROUND_INTENSITY);
-    printf("[SQMOD] ");
-
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    vprintf(msg, args);
-    puts("");
-
-    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
-#else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
-    vprintf(msg, args);
-    puts("");
-#endif
-}
-
-// --------------------------------------------------------------------------------------------
-void OutputDebug(const char * msg, ...)
+void OutputDebug(CCStr msg, ...)
 {
 #ifdef _DEBUG
     // Initialize the arguments list
@@ -429,7 +573,7 @@ void OutputDebug(const char * msg, ...)
 }
 
 // --------------------------------------------------------------------------------------------
-void OutputMessage(const char * msg, ...)
+void OutputMessage(CCStr msg, ...)
 {
     // Initialize the arguments list
     va_list args;
@@ -441,7 +585,7 @@ void OutputMessage(const char * msg, ...)
 }
 
 // --------------------------------------------------------------------------------------------
-void OutputError(const char * msg, ...)
+void OutputError(CCStr msg, ...)
 {
     // Initialize the arguments list
     va_list args;

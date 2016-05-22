@@ -15,15 +15,182 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// ------------------------------------------------------------------------------------------------
-extern const SQChar * g_EmptyStr;
-
 /* ------------------------------------------------------------------------------------------------
  * Proxies to communicate with the server.
 */
 extern PluginFuncs*         _Func;
 extern PluginCallbacks*     _Clbk;
 extern PluginInfo*          _Info;
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Primary logging functions.
+*/
+extern void LogDbg(CCStr fmt, ...);
+extern void LogUsr(CCStr fmt, ...);
+extern void LogScs(CCStr fmt, ...);
+extern void LogInf(CCStr fmt, ...);
+extern void LogWrn(CCStr fmt, ...);
+extern void LogErr(CCStr fmt, ...);
+extern void LogFtl(CCStr fmt, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Secondary logging functions.
+*/
+extern void LogSDbg(CCStr fmt, ...);
+extern void LogSUsr(CCStr fmt, ...);
+extern void LogSScs(CCStr fmt, ...);
+extern void LogSInf(CCStr fmt, ...);
+extern void LogSWrn(CCStr fmt, ...);
+extern void LogSErr(CCStr fmt, ...);
+extern void LogSFtl(CCStr fmt, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Primary conditional logging functions.
+*/
+extern bool cLogDbg(bool exp, CCStr fmt, ...);
+extern bool cLogUsr(bool exp, CCStr fmt, ...);
+extern bool cLogScs(bool exp, CCStr fmt, ...);
+extern bool cLogInf(bool exp, CCStr fmt, ...);
+extern bool cLogWrn(bool exp, CCStr fmt, ...);
+extern bool cLogErr(bool exp, CCStr fmt, ...);
+extern bool cLogFtl(bool exp, CCStr fmt, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Secondary conditional logging functions.
+*/
+extern bool cLogSDbg(bool exp, CCStr fmt, ...);
+extern bool cLogSUsr(bool exp, CCStr fmt, ...);
+extern bool cLogSScs(bool exp, CCStr fmt, ...);
+extern bool cLogSInf(bool exp, CCStr fmt, ...);
+extern bool cLogSWrn(bool exp, CCStr fmt, ...);
+extern bool cLogSErr(bool exp, CCStr fmt, ...);
+extern bool cLogSFtl(bool exp, CCStr fmt, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Output a message only if the _DEBUG was defined.
+*/
+extern void OutputDebug(const char * msg, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Output a formatted user message to the console.
+*/
+extern void OutputMessage(const char * msg, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Output a formatted error message to the console.
+*/
+extern void OutputError(const char * msg, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent AABB instance with the given values.
+*/
+extern const AABB & GetAABB();
+extern const AABB & GetAABB(Float32 sv);
+extern const AABB & GetAABB(Float32 xv, Float32 yv, Float32 zv);
+extern const AABB & GetAABB(Float32 xmin, Float32 ymin, Float32 zmin, Float32 xmax, Float32 ymax, Float32 zmax);
+extern const AABB & GetAABB(const Vector3 & vmin, const Vector3 & vmax);
+extern const AABB & GetAABB(const AABB & o);
+extern const AABB & GetAABB(AABB && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent Circle instance with the given values.
+*/
+extern const Circle & GetCircle();
+extern const Circle & GetCircle(Float32 rv);
+extern const Circle & GetCircle(const Vector2 & pv, Float32 rv);
+extern const Circle & GetCircle(Float32 xv, Float32 yv, Float32 rv);
+extern const Circle & GetCircle(const Circle & o);
+extern const Circle & GetCircle(Circle && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent Color3 instance with the given values.
+*/
+extern const Color3 & GetColor3();
+extern const Color3 & GetColor3(Uint8 sv);
+extern const Color3 & GetColor3(Uint8 rv, Uint8 gv, Uint8 bv);
+extern const Color3 & GetColor3(const Color3 & o);
+extern const Color3 & GetColor3(Color3 && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent Color4 instance with the given values.
+*/
+extern const Color4 & GetColor4();
+extern const Color4 & GetColor4(Uint8 sv);
+extern const Color4 & GetColor4(Uint8 rv, Uint8 gv, Uint8 bv);
+extern const Color4 & GetColor4(Uint8 rv, Uint8 gv, Uint8 bv, Uint8 av);
+extern const Color4 & GetColor4(const Color4 & o);
+extern const Color4 & GetColor4(Color4 && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent Quaternion instance with the given values.
+*/
+extern const Quaternion & GetQuaternion();
+extern const Quaternion & GetQuaternion(Float32 sv);
+extern const Quaternion & GetQuaternion(Float32 xv, Float32 yv, Float32 zv);
+extern const Quaternion & GetQuaternion(Float32 xv, Float32 yv, Float32 zv, Float32 wv);
+extern const Quaternion & GetQuaternion(const Quaternion & o);
+extern const Quaternion & GetQuaternion(Quaternion && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent Sphere instance with the given values.
+*/
+extern const Sphere & GetSphere();
+extern const Sphere & GetSphere(Float32 rv);
+extern const Sphere & GetSphere(const Vector3 & pv, Float32 rv);
+extern const Sphere & GetSphere(Float32 xv, Float32 yv, Float32 zv, Float32 rv);
+extern const Sphere & GetSphere(const Sphere & o);
+extern const Sphere & GetSphere(Sphere && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent Vector2 instance with the given values.
+*/
+extern const Vector2 & GetVector2();
+extern const Vector2 & GetVector2(Float32 sv);
+extern const Vector2 & GetVector2(Float32 xv, Float32 yv);
+extern const Vector2 & GetVector2(const Vector2 & o);
+extern const Vector2 & GetVector2(Vector2 && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent Vector2i instance with the given values.
+*/
+extern const Vector2i & GetVector2i();
+extern const Vector2i & GetVector2i(Int32 sv);
+extern const Vector2i & GetVector2i(Int32 xv, Int32 yv);
+extern const Vector2i & GetVector2i(const Vector2i & o);
+extern const Vector2i & GetVector2i(Vector2i && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent Vector3 instance with the given values.
+*/
+extern const Vector3 & GetVector3();
+extern const Vector3 & GetVector3(Float32 sv);
+extern const Vector3 & GetVector3(Float32 xv, Float32 yv, Float32 zv);
+extern const Vector3 & GetVector3(const Vector3 & o);
+extern const Vector3 & GetVector3(Vector3 && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent Vector4 instance with the given values.
+*/
+extern const Vector4 & GetVector4();
+extern const Vector4 & GetVector4(Float32 sv);
+extern const Vector4 & GetVector4(Float32 xv, Float32 yv, Float32 zv);
+extern const Vector4 & GetVector4(Float32 xv, Float32 yv, Float32 zv, Float32 wv);
+extern const Vector4 & GetVector4(const Vector4 & o);
+extern const Vector4 & GetVector4(Vector4 && o);
+
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent LongInt instance with the given values.
+*/
+const SLongInt & GetSLongInt();
+const SLongInt & GetSLongInt(Int64 n);
+const SLongInt & GetSLongInt(CSStr s);
+const ULongInt & GetULongInt();
+const ULongInt & GetULongInt(Uint64 n);
+const ULongInt & GetULongInt(CSStr s);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the maximum value of a fundamental type.
@@ -1001,6 +1168,34 @@ template< typename T > inline T Clamp(T val, T min, T max)
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Force a value to be higher then than the imposed limit.
+*/
+template< typename T > inline T ClampMin(T val, T min)
+{
+    // Is the specified value bellow the minimum?
+    if (val < min)
+    {
+        return min;
+    }
+    // Return the value as is
+    return val;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Force a value to be smaller then than the imposed limit.
+*/
+template< typename T > inline T ClampMax(T val, T max)
+{
+    // Is the specified value above the maximum?
+    if (val > max)
+    {
+        return max;
+    }
+    // Return the value as is
+    return val;
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Force a value to be within a certain range.
 */
 template<> inline Float32 Clamp(Float32 val, Float32 min, Float32 max)
@@ -1061,24 +1256,14 @@ inline Uint32 NextPow2(Uint32 num)
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Output a message only if the _DEBUG was defined.
-*/
-void OutputDebug(const char * msg, ...);
-
-/* ------------------------------------------------------------------------------------------------
- * Output a formatted user message to the console.
-*/
-void OutputMessage(const char * msg, ...);
-
-/* ------------------------------------------------------------------------------------------------
- * Output a formatted error message to the console.
-*/
-void OutputError(const char * msg, ...);
-
-/* ------------------------------------------------------------------------------------------------
  * Retrieve a reference to a null script object.
 */
 Object & NullObject();
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve a reference to a null/empty script table.
+*/
+Table & NullTable();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve a reference to a null/empty script array.
@@ -1119,54 +1304,6 @@ const Color3 & GetRandomColor();
  * Attempt to identify the color in the specified name and return it.
 */
 Color3 GetColor(CSStr name);
-
-/* ------------------------------------------------------------------------------------------------
- * Forward declarations of the logging functions to avoid including the logger everywhere.
- * Primary logging functions.
-*/
-void LogDbg(CCStr fmt, ...);
-void LogUsr(CCStr fmt, ...);
-void LogScs(CCStr fmt, ...);
-void LogInf(CCStr fmt, ...);
-void LogWrn(CCStr fmt, ...);
-void LogErr(CCStr fmt, ...);
-void LogFtl(CCStr fmt, ...);
-
-/* ------------------------------------------------------------------------------------------------
- * Forward declarations of the logging functions to avoid including the logger everywhere.
- * Secondary logging functions.
-*/
-void LogSDbg(CCStr fmt, ...);
-void LogSUsr(CCStr fmt, ...);
-void LogSScs(CCStr fmt, ...);
-void LogSInf(CCStr fmt, ...);
-void LogSWrn(CCStr fmt, ...);
-void LogSErr(CCStr fmt, ...);
-void LogSFtl(CCStr fmt, ...);
-
-/* ------------------------------------------------------------------------------------------------
- * Forward declarations of the logging functions to avoid including the logger everywhere.
- * Primary conditional logging functions.
-*/
-bool cLogDbg(bool cond, CCStr fmt, ...);
-bool cLogUsr(bool cond, CCStr fmt, ...);
-bool cLogScs(bool cond, CCStr fmt, ...);
-bool cLogInf(bool cond, CCStr fmt, ...);
-bool cLogWrn(bool cond, CCStr fmt, ...);
-bool cLogErr(bool cond, CCStr fmt, ...);
-bool cLogFtl(bool cond, CCStr fmt, ...);
-
-/* ------------------------------------------------------------------------------------------------
- * Forward declarations of the logging functions to avoid including the logger everywhere.
- * Secondary conditional logging functions.
-*/
-bool cLogSDbg(bool cond, CCStr fmt, ...);
-bool cLogSUsr(bool cond, CCStr fmt, ...);
-bool cLogSScs(bool cond, CCStr fmt, ...);
-bool cLogSInf(bool cond, CCStr fmt, ...);
-bool cLogSWrn(bool cond, CCStr fmt, ...);
-bool cLogSErr(bool cond, CCStr fmt, ...);
-bool cLogSFtl(bool cond, CCStr fmt, ...);
 
 /* ------------------------------------------------------------------------------------------------
  * Helper class allows the use of functions with ctype style as predicate for algorithms.
@@ -1233,6 +1370,52 @@ public:
         return (m_Fn(static_cast< int >(c)) == 0);
     }
 };
+
+/* ------------------------------------------------------------------------------------------------
+ * Utility implementing RAII to toggle a bit mask on and off at all costs.
+*/
+template < typename T > struct BitGuard
+{
+private:
+
+    /* ------------------------------------------------------------------------------------------------
+     * The lock to be toggled.
+    */
+    T & m_Lock;
+
+    /* ------------------------------------------------------------------------------------------------
+     * The mask to be applied.
+    */
+    T   m_Mask;
+
+public:
+
+    /* ------------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    BitGuard(T & lock, T mask)
+        : m_Lock(lock), m_Mask(mask)
+    {
+        // Apply the specified mask
+        m_Lock |= m_Mask;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~BitGuard()
+    {
+        // In case one of the bits was turned off in the meantime
+        m_Lock |= m_Mask;
+        // Now turn off all the bits in the mask
+        m_Lock ^= m_Mask;
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+typedef BitGuard< Uint8 >    BitGuardU8;
+typedef BitGuard< Uint16 >   BitGuardU16;
+typedef BitGuard< Uint32 >   BitGuardU32;
 
 } // Namespace:: SqMod
 

@@ -161,6 +161,17 @@ public:
         assert(m_Ptr);
         return *m_Ptr;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the reference to the managed instance.
+    */
+    void Reset()
+    {
+        if (m_Ptr)
+        {
+            Drop();
+        }
+    }
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -206,7 +217,7 @@ private:
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Default constructor (null). Not null of a previous buffer was marked as movable.
+     * Default constructor. (null)
     */
     Buffer()
         : m_Ptr(nullptr)
@@ -365,20 +376,20 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the a certain element.
+     * Retrieve a certain element type at the specified position.
     */
     template < typename T = Value > T & At(SzType n)
     {
-        assert(n < m_Cap);
+        assert(n < static_cast< SzType >(m_Cap / sizeof(T)));
         return reinterpret_cast< T * >(m_Ptr)[n];
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the a certain element.
+     * Retrieve a certain element type at the specified position.
     */
     template < typename T = Value > const T & At(SzType n) const
     {
-        assert(n < m_Cap);
+        assert(n < static_cast< SzType >(m_Cap / sizeof(T)));
         return reinterpret_cast< const T * >(m_Ptr)[n];
     }
 
@@ -456,7 +467,7 @@ public:
     template < typename T = Value > T & Back()
     {
         assert(m_Cap >= sizeof(T));
-        return reinterpret_cast< T * >(m_Ptr)[m_Cap-1];
+        return reinterpret_cast< T * >(m_Ptr)[(m_Cap / sizeof(T))-1];
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -465,7 +476,7 @@ public:
     template < typename T = Value > const T & Back() const
     {
         assert(m_Cap >= sizeof(T));
-        return reinterpret_cast< const T * >(m_Ptr)[m_Cap-1];
+        return reinterpret_cast< const T * >(m_Ptr)[(m_Cap / sizeof(T))-1];
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -474,7 +485,7 @@ public:
     template < typename T = Value > T & Prev()
     {
         assert(m_Cap >= (sizeof(T) * 2));
-        return reinterpret_cast< T * >(m_Ptr)[m_Cap-2];
+        return reinterpret_cast< T * >(m_Ptr)[(m_Cap / sizeof(T))-2];
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -483,7 +494,7 @@ public:
     template < typename T = Value > const T & Prev() const
     {
         assert(m_Cap >= (sizeof(T) * 2));
-        return reinterpret_cast< const T * >(m_Ptr)[m_Cap-2];
+        return reinterpret_cast< const T * >(m_Ptr)[(m_Cap / sizeof(T))-2];
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -532,7 +543,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Reposition the edit cursor to a fixed position within the buffer.
+     * Append a value to the current cursor location and advance the cursor.
     */
     template < typename T = Value > void Push(T v)
     {
@@ -571,7 +582,7 @@ public:
     template < typename T = Value > T & Before()
     {
         assert(m_Cur >= sizeof(T));
-        return reinterpret_cast< T * >(m_Ptr)[m_Cur-1];
+        return reinterpret_cast< T * >(m_Ptr)[(m_Cur / sizeof(T))-1];
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -580,7 +591,7 @@ public:
     template < typename T = Value > const T & Before() const
     {
         assert(m_Cur >= sizeof(T));
-        return reinterpret_cast< const T * >(m_Ptr)[m_Cur-1];
+        return reinterpret_cast< const T * >(m_Ptr)[(m_Cur / sizeof(T))-1];
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -588,8 +599,8 @@ public:
     */
     template < typename T = Value > T & After()
     {
-        assert((m_Cur + sizeof(T)) <= (m_Cap - sizeof(T)));
-        return reinterpret_cast< T * >(m_Ptr)[m_Cur+1];
+        assert(m_Cap >= sizeof(T) && (m_Cur + sizeof(T)) <= (m_Cap - sizeof(T)));
+        return reinterpret_cast< T * >(m_Ptr)[(m_Cur / sizeof(T))+1];
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -597,8 +608,8 @@ public:
     */
     template < typename T = Value > const T & After() const
     {
-        assert((m_Cur + sizeof(T)) <= (m_Cap - sizeof(T)));
-        return reinterpret_cast< const T * >(m_Ptr)[m_Cur+1];
+        assert(m_Cap >= sizeof(T) && (m_Cur + sizeof(T)) <= (m_Cap - sizeof(T)));
+        return reinterpret_cast< const T * >(m_Ptr)[(m_Cur / sizeof(T))+1];
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -689,6 +700,18 @@ public:
         {
             Release();
         }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the managed memory and manager.
+    */
+    void ResetAll()
+    {
+        if (m_Ptr)
+        {
+            Release();
+        }
+        m_Mem.Reset();
     }
 
     /* --------------------------------------------------------------------------------------------

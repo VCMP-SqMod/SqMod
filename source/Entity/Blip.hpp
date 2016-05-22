@@ -185,17 +185,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed blip entity.
     */
-    Float32 GetPosX() const;
+    Float32 GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the y axis of the managed blip entity.
     */
-    Float32 GetPosY() const;
+    Float32 GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the z axis of the managed blip entity.
     */
-    Float32 GetPosZ() const;
+    Float32 GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the red color of the managed blip entity.

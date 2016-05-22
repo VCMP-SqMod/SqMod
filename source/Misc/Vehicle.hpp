@@ -7,10 +7,24 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// ------------------------------------------------------------------------------------------------
-CCStr GetAutomobileName(Uint32 id);
-void SetAutomobileName(Uint32 id, CCStr name);
-Int32 GetAutomobileID(CCStr name);
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the name associated with a vehicle model identifier.
+*/
+CSStr GetAutomobileName(Uint32 id);
+
+/* ------------------------------------------------------------------------------------------------
+ * Modify the name associated with a vehicle model identifier.
+*/
+void SetAutomobileName(Uint32 id, CSStr name);
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert a vehicle model name to a vehicle model identifier.
+*/
+Int32 GetAutomobileID(CSStr name);
+
+/* ------------------------------------------------------------------------------------------------
+ * See whether the specified vehicle model identifier is valid.
+*/
 bool IsAutomobileValid(Int32 id);
 
 } // Namespace:: SqMod

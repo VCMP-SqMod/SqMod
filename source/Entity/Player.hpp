@@ -3,9 +3,18 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
+#include "Base/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
+
+/* ------------------------------------------------------------------------------------------------
+ * Circular locks employed by the player manager.
+*/
+enum PlayerCircularLocks
+{
+    PCL_EMIT_PLAYER_OPTION = (1 << 0)
+};
 
 /* ------------------------------------------------------------------------------------------------
  * Manages a single player entity.
@@ -40,16 +49,79 @@ private:
     Object  m_Data;
 
     /* --------------------------------------------------------------------------------------------
+     * Buffer used to generate client data.
+    */
+    Buffer  m_Buffer;
+
+    /* --------------------------------------------------------------------------------------------
+     * Prevent events from triggering themselves.
+    */
+    Uint32  m_CircularLocks;
+
+    /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
     CPlayer(Int32 id);
 
 public:
 
+    // --------------------------------------------------------------------------------------------
+    typedef String MsgPrefix[SQMOD_PLAYER_MSG_PREFIXES];
+
     /* --------------------------------------------------------------------------------------------
      * Maximum possible number that could represent an identifier for this entity type.
     */
     static const Int32 Max;
+
+    /* --------------------------------------------------------------------------------------------
+     * The initial size of the allocated memory buffer when starting a new stream.
+    */
+    Uint32          mBufferInitSize;
+
+    /* --------------------------------------------------------------------------------------------
+     * Default color to use in client messages.
+    */
+    Uint32          mMessageColor;
+
+    /* --------------------------------------------------------------------------------------------
+     * Default style to use in client announcements.
+    */
+    Int32           mAnnounceStyle;
+
+    /* --------------------------------------------------------------------------------------------
+     * Default ammo to give to the managed player when not specifying any.
+    */
+    Int32           mDefaultAmmo;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set of strings to add before a client message automatically.
+    */
+    String          mMessagePrefix;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set of strings to add before a client message automatically.
+    */
+    String          mMessagePostfix;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set of strings to add before a client announcement automatically.
+    */
+    String          mAnnouncePrefix;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set of strings to add before a client announcement automatically.
+    */
+    String          mAnnouncePostfix;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set of strings to add before a client message automatically.
+    */
+    MsgPrefix       mMessagePrefixes;
+
+    /* --------------------------------------------------------------------------------------------
+     * Don't include the auto message prefix/postfix in already prefixed messages.
+    */
+    bool            mLimitPrefixPostfixMessage;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -144,14 +216,14 @@ public:
     void BindEvent(Int32 evid, Object & env, Function & func) const;
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the managed player entity is connected.
+    */
+    bool IsConnected() const;
+
+    /* --------------------------------------------------------------------------------------------
      * See if the managed player entity is streamed for the specified player.
     */
     bool IsStreamedFor(CPlayer & player) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the class of the managed player entity.
-    */
-    Int32 GetClass() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity has administrator privileges.
@@ -169,6 +241,16 @@ public:
     CSStr GetIP() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the unique user identifier of the managed player entity.
+    */
+    CSStr GetUID() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the unique user identifier version 2 of the managed player entity.
+    */
+    CSStr GetUID2() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Kick the managed player entity from the server.
     */
     void Kick() const;
@@ -179,19 +261,39 @@ public:
     void Ban() const;
 
     /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity is connected.
-    */
-    bool IsConnected() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity is spawned.
-    */
-    bool IsSpawned() const;
-
-    /* --------------------------------------------------------------------------------------------
      * Retrieve the key of the managed player entity.
     */
     Uint32 GetKey() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the nick name of the managed player entity.
+    */
+    CSStr GetName() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the nick name of the managed player entity.
+    */
+    void SetName(CSStr name) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current state of the managed player entity.
+    */
+    Int32 GetState() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current option value of the managed player entity.
+    */
+    Int32 GetOption(Int32 option_id) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the current option value of the managed player entity.
+    */
+    void SetOption(Int32 option_id, bool toggle);
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the current option value of the managed player entity.
+    */
+    void SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed player entity exists.
@@ -206,12 +308,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the secondary world of the managed player entity.
     */
-    Int32 GetSecWorld() const;
+    Int32 GetSecondaryWorld() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the secondary world of the managed player entity.
     */
-    void SetSecWorld(Int32 world) const;
+    void SetSecondaryWorld(Int32 world) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the unique world of the managed player entity.
@@ -224,14 +326,9 @@ public:
     bool IsWorldCompatible(Int32 world) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the nick name of the managed player entity.
+     * Retrieve the class of the managed player entity.
     */
-    CSStr GetName() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the nick name of the managed player entity.
-    */
-    void SetName(CSStr name) const;
+    Int32 GetClass() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the team of the managed player entity.
@@ -269,6 +366,11 @@ public:
     void SetColorEx(Uint8 r, Uint8 g, Uint8 b) const;
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the managed player entity is spawned.
+    */
+    bool IsSpawned() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Force the managed player entity to spawn in the game.
     */
     void ForceSpawn() const;
@@ -277,6 +379,11 @@ public:
      * Force the managed player entity to select a class.
     */
     void ForceSelect() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed player entity is typing.
+    */
+    bool IsTyping() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the money amount of the managed player entity.
@@ -304,6 +411,16 @@ public:
     void SetScore(Int32 score) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the wanted level of the managed player entity.
+    */
+    Int32 GetWantedLevel() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the wanted level of the managed player entity.
+    */
+    void SetWantedLevel(Int32 level) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the connection latency of the managed player entity.
     */
     Int32 GetPing() const;
@@ -312,21 +429,6 @@ public:
      * Retrieve the frames per second of the managed player entity.
     */
     Float32 GetFPS() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity is typing.
-    */
-    bool IsTyping() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the unique user identifier of the managed player entity.
-    */
-    CSStr GetUID() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the unique user identifier version 2 of the managed player entity.
-    */
-    CSStr GetUID2() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current health of the managed player entity.
@@ -419,6 +521,51 @@ public:
     void SetAlpha(Int32 alpha, Int32 fade) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the aim position of the managed player entity.
+    */
+    const Vector3 & GetAimPosition() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the aim direction of the managed player entity.
+    */
+    const Vector3 & GetAimDirection() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed player entity is burning.
+    */
+    bool IsBurning() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed player entity is crouched.
+    */
+    bool IsCrouched() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current action of the managed player entity.
+    */
+    Int32 GetAction() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the game keys of the managed player entity.
+    */
+    Int32 GetGameKeys() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Embark the managed player entity into the specified vehicle entity.
+    */
+    bool Embark(CVehicle & vehicle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Embark the managed player entity into the specified vehicle entity.
+    */
+    bool Embark(CVehicle & vehicle, Int32 slot, bool allocate, bool warp) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Disembark the managed player entity from the currently embarked vehicle entity.
+    */
+    void Disembark() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle status of the managed player entity.
     */
     Int32 GetVehicleStatus() const;
@@ -426,7 +573,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the occupied vehicle slot by the managed player entity.
     */
-    Int32 GetOccupiedSlot() const;
+    Int32 GetVehicleSlot() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle in which the managed player entity is embarked.
@@ -439,106 +586,6 @@ public:
     Int32 GetVehicleID() const;
 
     /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity can be controlled.
-    */
-    bool GetControllable() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity can be controlled.
-    */
-    void SetControllable(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity can driveby.
-    */
-    bool GetDriveby() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity can driveby.
-    */
-    void SetDriveby(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity has white scanlines.
-    */
-    bool GetWhiteScanlines() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity has white scanlines.
-    */
-    void SetWhiteScanlines(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity has green scanlines.
-    */
-    bool GetGreenScanlines() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity has green scanlines.
-    */
-    void SetGreenScanlines(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity has widescreen.
-    */
-    bool GetWidescreen() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity has widescreen.
-    */
-    void SetWidescreen(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity displays markers.
-    */
-    bool GetShowMarkers() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity displays markers.
-    */
-    void SetShowMarkers(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity has attacking privileges.
-    */
-    bool GetAttackPriv() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity has attacking privileges.
-    */
-    void SetAttackPriv(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity has markers.
-    */
-    bool GetHasMarker() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity has markers.
-    */
-    void SetHasMarker(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity has chat tags.
-    */
-    bool GetChatTags() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity has chat tags.
-    */
-    void SetChatTags(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity is under drunk effects.
-    */
-    bool GetDrunkEffects() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the managed player entity is under drunk effects.
-    */
-    void SetDrunkEffects(bool toggle) const;
-
-    /* --------------------------------------------------------------------------------------------
      * Retrieve the weapon identifier of the managed player entity.
     */
     Int32 GetWeapon() const;
@@ -546,12 +593,47 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the weapon of the managed player entity.
     */
-    void SetWeapon(Int32 wep, Int32 ammo) const;
+    void SetWeapon(Int32 wep) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the weapon of the managed player entity.
+    */
+    void SetWeaponEx(Int32 wep, Int32 ammo) const;
 
     /* --------------------------------------------------------------------------------------------
      * Give a weapon of the managed player entity.
     */
     void GiveWeapon(Int32 wep, Int32 ammo) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the active weapon ammo of the managed player entity.
+    */
+    Int32 GetAmmo() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the weapon slot of the managed player entity.
+    */
+    Int32 GetWeaponSlot() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the weapon slot of the managed player entity.
+    */
+    void SetWeaponSlot(Int32 slot) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the weapon identifier at the specified slot for the managed player entity.
+    */
+    Int32 GetWeaponAtSlot(Int32 slot) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the ammo from the weapon at the specified slot for the managed player entity.
+    */
+    Int32 GetAmmoAtSlot(Int32 slot) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove a certain weapon from the managed player entity.
+    */
+    void RemoveWeapon(Int32 wep) const;
 
     /* --------------------------------------------------------------------------------------------
      * Strip the managed player entity of all weapons.
@@ -584,16 +666,6 @@ public:
     void SetAnimation(Int32 group, Int32 anim) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the wanted level of the managed player entity.
-    */
-    Int32 GetWantedLevel() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the wanted level of the managed player entity.
-    */
-    void SetWantedLevel(Int32 level) const;
-
-    /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle that the managed player entity is standing on.
     */
     Object & StandingOnVehicle() const;
@@ -619,59 +691,9 @@ public:
     void SetSpectator(CPlayer & target) const;
 
     /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity is burning.
-    */
-    bool IsBurning() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the managed player entity is crouched.
-    */
-    bool IsCrouched() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the current state of the managed player entity.
-    */
-    Int32 GetState() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the current action of the managed player entity.
-    */
-    Int32 GetAction() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the game keys of the managed player entity.
-    */
-    Int32 GetGameKeys() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the aim position of the managed player entity.
-    */
-    const Vector3 & GetAimPos() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the aim direction of the managed player entity.
-    */
-    const Vector3 & GetAimDir() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Embark the managed player entity into the specified vehicle entity.
-    */
-    void Embark(CVehicle & vehicle) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Embark the managed player entity into the specified vehicle entity.
-    */
-    void Embark(CVehicle & vehicle, Int32 slot, bool allocate, bool warp) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Disembark the managed player entity from the currently embarked vehicle entity.
-    */
-    void Disembark() const;
-
-    /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.
     */
-    bool Redirect(CSStr ip, Uint32 port, CSStr nick, CSStr pass, CSStr user);
+    void Redirect(CSStr ip, Uint32 port, CSStr nick, CSStr server_pass, CSStr user_pass);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the authority level of the managed player entity.
@@ -686,61 +708,162 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the message prefix at the specified index for the managed player entity.
     */
-    CSStr GetMessagePrefix(Uint32 index) const;
+    const String & GetMessagePrefix(Uint32 index) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the message prefix at the specified index for the managed player entity.
     */
-    void SetMessagePrefix(Uint32 index, CSStr prefix) const;
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the message color for the managed player entity.
-    */
-    Uint32 GetMessageColor() const;
+    void SetMessagePrefix(Uint32 index, CSStr prefix);
 
     /* --------------------------------------------------------------------------------------------
-     * Modify the message color for the managed player entity.
+     * Retrieve the last known weapon for the managed player entity.
     */
-    void SetMessageColor(Uint32 color) const;
+    Int32 GetLastWeapon() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the announcement style for the managed player entity.
+     * Retrieve the last known health for the managed player entity.
     */
-    Int32 GetAnnounceStyle() const;
+    Float32 GetLastHealth() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Modify the announcement style for the managed player entity.
+     * Retrieve the last known armour for the managed player entity.
     */
-    void SetAnnounceStyle(Int32 style) const;
+    Float32 GetLastArmour() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the last known heading for the managed player entity.
+    */
+    Float32 GetLastHeading() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the last known position for the managed player entity.
+    */
+    const Vector3 & GetLastPosition() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Start a new stream with the default size.
+    */
+    void StartStream();
+
+    /* --------------------------------------------------------------------------------------------
+     * Start a new stream with a custom size.
+    */
+    void StartStream(Uint32 size);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current cursor position of the stream buffer.
+    */
+    Int32 GetBufferCursor() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current cursor position of the stream buffer.
+    */
+    void SetBufferCursor(Int32 pos);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a 8bit byte to the stream buffer.
+    */
+    void StreamByte(SQInteger val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a 16bit short to the stream buffer.
+    */
+    void StreamShort(SQInteger val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a 32bit integer to the stream buffer.
+    */
+    void StreamInt(SQInteger val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a 32bit float to the stream buffer.
+    */
+    void StreamFloat(SQFloat val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a string to the stream buffer.
+    */
+    void StreamString(CSStr val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a raw string to the stream buffer.
+    */
+    void StreamRawString(CSStr val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send the data in the stream buffer to the client.
+    */
+    void FlushStream(bool reset);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the total capacity of the buffer stream in bytes.
+    */
+    Uint32 GetBufferCapacity() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Send the specified buffer contents to the managed player entity.
+    */
+    void SendBuffer(const BufferWrapper & buffer) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed player entity.
     */
-    Float32 GetPosX() const;
+    Float32 GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the y axis of the managed player entity.
     */
-    Float32 GetPosY() const;
+    Float32 GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the z axis of the managed player entity.
     */
-    Float32 GetPosZ() const;
+    Float32 GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the x axis of the managed player entity.
     */
-    void SetPosX(Float32 x) const;
+    void SetPositionX(Float32 x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the y axis of the managed player entity.
     */
-    void SetPosY(Float32 y) const;
+    void SetPositionY(Float32 y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the z axis of the managed player entity.
     */
-    void SetPosZ(Float32 z) const;
+    void SetPositionZ(Float32 z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the red color of the managed player entity.
+    */
+    Int32 GetColorR() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the green color of the managed player entity.
+    */
+    Int32 GetColorG() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the blue color of the managed player entity.
+    */
+    Int32 GetColorB() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the red color of the managed player entity.
+    */
+    void SetColorR(Int32 r) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the green color of the managed player entity.
+    */
+    void SetColorG(Int32 g) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the blue color of the managed player entity.
+    */
+    void SetColorB(Int32 b) const;
 
     /* --------------------------------------------------------------------------------------------
      * Send a formatted colored message to the managed player entity.

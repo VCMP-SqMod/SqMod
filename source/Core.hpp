@@ -3,10 +3,8 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
 #include "Base/Vector3.hpp"
+#include "Base/Quaternion.hpp"
 #include "Base/Color4.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -16,51 +14,62 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// ------------------------------------------------------------------------------------------------
-extern SQMOD_MANAGEDPTR_TYPE(Core) _Core;
+/* ------------------------------------------------------------------------------------------------
+ * Circular locks employed by the central core.
+*/
+enum CoreCircularLocks
+{
+    CCL_EMIT_SERVER_OPTION = (1 << 0)
+};
 
 /* ------------------------------------------------------------------------------------------------
  * Core module class responsible for managing resources.
 */
 class Core
 {
+private:
+
+    // --------------------------------------------------------------------------------------------
+    static Core s_Inst; // Core instance.
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    Core();
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    Core(const Core & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    Core(Core && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~Core();
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    Core & operator = (const Core & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    Core & operator = (Core && o) = delete;
+
 protected:
 
     /* --------------------------------------------------------------------------------------------
-     * Helper structure meant to track changes in player instances.
-    */
-    struct PlayerTrack
-    {
-        PlayerTrack() : mWeapon(-1), mHealth(0), mArmour(0), mPosition()
-        { /* ... */ }
-
-        Int32       mWeapon; /* Last used player weapon. */
-        Float32     mHealth; /* Last known player health. */
-        Float32     mArmour; /* Last known player armour */
-        Vector3     mPosition; /* Last known player position. */
-    };
-
-    /* --------------------------------------------------------------------------------------------
-     * Helper structure meant to track changes in vehicle instances.
-    */
-    struct VehicleTrack
-    {
-        VehicleTrack() : mHealth(0), mPosition()
-        { /* ... */ }
-
-        Float32     mHealth; /* Last known vehicle health. */
-        Vector3     mPosition; /* Last known vehicle position. */
-    };
-
-    // --------------------------------------------------------------------------------------------
-    typedef String MsgPrefix[SQMOD_PLAYER_MSG_PREFIXES];
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
+     * Helper structure used to identify a blip entity instance on the server.
     */
     struct BlipInst
     {
-        BlipInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        BlipInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         { /* ... */ }
 
         ~BlipInst();
@@ -85,16 +94,14 @@ protected:
         // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
         Function        mOnCustom;
-
-        // ----------------------------------------------------------------------------------------
     };
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Helper structure used to identify a checkpoint entity instance on the server.
     */
     struct CheckpointInst
     {
-        CheckpointInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        CheckpointInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         { /* ... */ }
 
         ~CheckpointInst();
@@ -104,7 +111,6 @@ protected:
         Uint16          mFlags;
         CCheckpoint *   mInst;
         Object          mObj;
-
         // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
         Function        mOnCustom;
@@ -115,35 +121,11 @@ protected:
     };
 
     /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    struct ForcefieldInst
-    {
-        ForcefieldInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
-        { /* ... */ }
-
-        ~ForcefieldInst();
-
-        // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CForcefield *   mInst;
-        Object          mObj;
-        // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
-
-        // ----------------------------------------------------------------------------------------
-        Function        mOnEntered;
-        Function        mOnExited;
-    };
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
+     * Helper structure used to identify a keybind entity instance on the server.
     */
     struct KeybindInst
     {
-        KeybindInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        KeybindInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         { /* ... */ }
 
         ~KeybindInst();
@@ -170,11 +152,11 @@ protected:
     };
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Helper structure used to identify an object entity instance on the server.
     */
     struct ObjectInst
     {
-        ObjectInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        ObjectInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         { /* ... */ }
 
         ~ObjectInst();
@@ -191,15 +173,15 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Function        mOnShot;
-        Function        mOnBump;
+        Function        mOnTouched;
     };
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Helper structure used to identify a pickup entity instance on the server.
     */
     struct PickupInst
     {
-        PickupInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        PickupInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         { /* ... */ }
 
         ~PickupInst();
@@ -221,11 +203,11 @@ protected:
     };
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Helper structure used to identify a player entity instance on the server.
     */
     struct PlayerInst
     {
-        PlayerInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        PlayerInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         { /* ... */ }
 
         ~PlayerInst();
@@ -237,53 +219,40 @@ protected:
         Object          mObj;
 
         // ----------------------------------------------------------------------------------------
+        Int32           mLastWeapon;
+        Float32         mLastHealth;
+        Float32         mLastArmour;
+        Float32         mLastHeading;
+        Vector3         mLastPosition;
+
+        // ----------------------------------------------------------------------------------------
         Int32           mAuthority;
-
-        // ----------------------------------------------------------------------------------------
-        MsgPrefix       mPrefixes;
-
-        // ----------------------------------------------------------------------------------------
-        Uint32          mMessageColor;
-        Int32           mAnnounceStyle;
 
         // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
         Function        mOnCustom;
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnAway;
-        Function        mOnGameKeys;
-        Function        mOnRename;
         Function        mOnRequestClass;
         Function        mOnRequestSpawn;
         Function        mOnSpawn;
-        Function        mOnStartTyping;
-        Function        mOnStopTyping;
-        Function        mOnChat;
-        Function        mOnCommand;
-        Function        mOnMessage;
-        Function        mOnHealth;
-        Function        mOnArmour;
-        Function        mOnWeapon;
-        Function        mOnMove;
         Function        mOnWasted;
         Function        mOnKilled;
-        Function        mOnTeamKill;
-        Function        mOnSpectate;
-        Function        mOnCrashreport;
-        Function        mOnBurning;
-        Function        mOnCrouching;
+        Function        mOnEmbarking;
+        Function        mOnEmbarked;
+        Function        mOnDisembark;
+        Function        mOnRename;
         Function        mOnState;
-        Function        mOnAction;
         Function        mOnStateNone;
         Function        mOnStateNormal;
-        Function        mOnStateShooting;
+        Function        mOnStateAim;
         Function        mOnStateDriver;
         Function        mOnStatePassenger;
         Function        mOnStateEnterDriver;
         Function        mOnStateEnterPassenger;
-        Function        mOnStateExitVehicle;
+        Function        mOnStateExit;
         Function        mOnStateUnspawned;
+        Function        mOnAction;
         Function        mOnActionNone;
         Function        mOnActionNormal;
         Function        mOnActionAiming;
@@ -297,79 +266,41 @@ protected:
         Function        mOnActionWasted;
         Function        mOnActionEmbarking;
         Function        mOnActionDisembarking;
+        Function        mOnBurning;
+        Function        mOnCrouching;
+        Function        mOnGameKeys;
+        Function        mOnStartTyping;
+        Function        mOnStopTyping;
+        Function        mOnAway;
+        Function        mOnMessage;
+        Function        mOnCommand;
+        Function        mOnPrivateMessage;
         Function        mOnKeyPress;
         Function        mOnKeyRelease;
-        Function        mOnEmbarking;
-        Function        mOnEmbarked;
-        Function        mOnDisembark;
+        Function        mOnSpectate;
+        Function        mOnCrashreport;
+        Function        mOnObjectShot;
+        Function        mOnObjectTouched;
         Function        mOnPickupClaimed;
         Function        mOnPickupCollected;
-        Function        mOnObjectShot;
-        Function        mOnObjectBump;
         Function        mOnCheckpointEntered;
         Function        mOnCheckpointExited;
-        Function        mOnForcefieldEntered;
-        Function        mOnForcefieldExited;
+        Function        mOnClientScriptData;
+        Function        mOnUpdate;
+        Function        mOnHealth;
+        Function        mOnArmour;
+        Function        mOnWeapon;
+        Function        mOnHeading;
+        Function        mOnPosition;
+        Function        mOnOption;
     };
 
     /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    struct SpriteInst
-    {
-        SpriteInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
-        { /* ... */ }
-
-        ~SpriteInst();
-
-        // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CSprite *       mInst;
-        Object          mObj;
-
-        // ----------------------------------------------------------------------------------------
-        String          mPath;
-
-        // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
-
-        // ----------------------------------------------------------------------------------------
-    };
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    struct TextdrawInst
-    {
-        TextdrawInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
-        { /* ... */ }
-
-        ~TextdrawInst();
-
-        // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CTextdraw *     mInst;
-        Object          mObj;
-
-        // ----------------------------------------------------------------------------------------
-        String          mText;
-
-        // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
-
-        // ----------------------------------------------------------------------------------------
-    };
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
+     * Helper structure used to identify a vehicle entity instance on the server.
     */
     struct VehicleInst
     {
-        VehicleInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(NULL)
+        VehicleInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         { /* ... */ }
 
         ~VehicleInst();
@@ -381,17 +312,28 @@ protected:
         Object          mObj;
 
         // ----------------------------------------------------------------------------------------
+        Int32           mLastPrimaryColour;
+        Int32           mLastSecondaryColour;
+        Float32         mLastHealth;
+        Vector3         mLastPosition;
+        Quaternion      mLastRotation;
+
+        // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
         Function        mOnCustom;
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnRespawn;
-        Function        mOnExplode;
-        Function        mOnHealth;
-        Function        mOnMove;
         Function        mOnEmbarking;
         Function        mOnEmbarked;
         Function        mOnDisembark;
+        Function        mOnExplode;
+        Function        mOnRespawn;
+        Function        mOnUpdate;
+        Function        mOnColour;
+        Function        mOnHealth;
+        Function        mOnPosition;
+        Function        mOnRotation;
+        Function        mOnOption;
     };
 
 public:
@@ -399,18 +341,11 @@ public:
     // --------------------------------------------------------------------------------------------
     typedef std::vector< BlipInst >             Blips;
     typedef std::vector< CheckpointInst >       Checkpoints;
-    typedef std::vector< ForcefieldInst >       Forcefields;
     typedef std::vector< KeybindInst >          Keybinds;
     typedef std::vector< ObjectInst >           Objects;
     typedef std::vector< PickupInst >           Pickups;
     typedef std::vector< PlayerInst >           Players;
-    typedef std::vector< SpriteInst >           Sprites;
-    typedef std::vector< TextdrawInst >         Textdraws;
     typedef std::vector< VehicleInst >          Vehicles;
-
-    // --------------------------------------------------------------------------------------------
-    typedef PlayerTrack                         PlayerInstTrack[SQMOD_PLAYER_POOL];
-    typedef VehicleTrack                        VehicleInstTrack[SQMOD_VEHICLE_POOL];
 
     // --------------------------------------------------------------------------------------------
     typedef std::unordered_map< String, Script >    Scripts;
@@ -419,89 +354,81 @@ public:
 private:
 
     // --------------------------------------------------------------------------------------------
-    Int32                           m_State;
-    HSQUIRRELVM                     m_VM;
-    Scripts                         m_Scripts;
-    Options                         m_Options;
+    Int32                           m_State; // Current plugin state.
+    HSQUIRRELVM                     m_VM; // Script virtual machine.
+    Scripts                         m_Scripts; // Loaded scripts objects.
+    Options                         m_Options; // Custom configuration options.
 
     // --------------------------------------------------------------------------------------------
-    Blips                           m_Blips;
-    Checkpoints                     m_Checkpoints;
-    Forcefields                     m_Forcefields;
-    Keybinds                        m_Keybinds;
-    Objects                         m_Objects;
-    Pickups                         m_Pickups;
-    Players                         m_Players;
-    Sprites                         m_Sprites;
-    Textdraws                       m_Textdraws;
-    Vehicles                        m_Vehicles;
+    Blips                           m_Blips; // Blips pool.
+    Checkpoints                     m_Checkpoints; // Checkpoints pool.
+    Keybinds                        m_Keybinds; // Keybinds pool.
+    Objects                         m_Objects; // Objects pool.
+    Pickups                         m_Pickups; // Pickups pool.
+    Players                         m_Players; // Players pool.
+    Vehicles                        m_Vehicles; // Vehicles pool.
 
     // --------------------------------------------------------------------------------------------
-    PlayerInstTrack                 m_PlayerTrack;
-    VehicleInstTrack                m_VehicleTrack;
+    Uint32                          m_CircularLocks; // Prevent events from triggering themselves.
 
-protected:
-
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor.
-    */
-    Core();
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    Core(const Core &);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    Core & operator = (const Core &);
+    // --------------------------------------------------------------------------------------------
+    CStr                            m_IncomingNameBuffer; // Name of an incomming connection.
+    size_t                          m_IncomingNameCapacity; // Incomming connection name size.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Destructor.
+     * Retrieve the core instance.
     */
-    ~Core();
-
-    /* --------------------------------------------------------------------------------------------
-     * Singleton retriever.
-    */
-    static Core * Get()
+    static Core & Get()
     {
-        if (!_Core)
-        {
-            _Core = SQMOD_MANAGEDPTR_MAKE(Core, new Core());
-        }
-
-        return SQMOD_MANAGEDPTR_GET(_Core);
+        return s_Inst;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Lifetime managers.
+     * Initialize the plug-in core.
     */
-    bool Init();
-    bool Load();
+    bool Initialize();
+
+    /* --------------------------------------------------------------------------------------------
+     * Load and execute plug-in resources.
+    */
+    bool Execute();
+
+    /* --------------------------------------------------------------------------------------------
+     * Terminate the plug-in core.
+    */
     void Terminate();
 
     /* --------------------------------------------------------------------------------------------
-     * State mutators.
+     * Modify the current plug-in state.
     */
     void SetState(Int32 val)
     {
         m_State = val;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current plug-in state.
+    */
     Int32 GetState() const
     {
         return m_State;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Option mutators.
+     * Retrieve the value of the specified option.
     */
     CSStr GetOption(CSStr name) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value of the specified option or the fallback value if it doesn't exist.
+    */
     CSStr GetOption(CSStr name, CSStr value) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the value of the specified option.
+    */
     void SetOption(CSStr name, CSStr value);
 
     /* --------------------------------------------------------------------------------------------
@@ -513,9 +440,38 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the circular locks.
+    */
+    Uint32 & GetCircularLock()
+    {
+        return m_CircularLocks;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See if certain circular locks are enabled.
+    */
+    bool IsCircularLock(Uint32 lock) const
+    {
+        return (m_CircularLocks & lock);
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Adds a script to the load queue.
     */
     bool LoadScript(CSStr filepath);
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the name for the currently assigned incoming connection.
+    */
+    void SetIncomingName(CSStr name);
+
+    /* --------------------------------------------------------------------------------------------
+     * retrieve the name for the currently assigned incoming connection..
+    */
+    CSStr GetIncomingName()
+    {
+        return (!m_IncomingNameBuffer) ? _SC("") : m_IncomingNameBuffer;
+    }
 
 protected:
 
@@ -533,60 +489,47 @@ protected:
                                         SQInteger line, SQInteger column);
 
     /* --------------------------------------------------------------------------------------------
-     * Entity instance scaners.
+     * Entity scaners.
     */
     void ImportBlips();
     void ImportCheckpoints();
-    void ImportForcefields();
     void ImportKeybinds();
     void ImportObjects();
     void ImportPickups();
     void ImportPlayers();
-    void ImportSprites();
-    void ImportTextdraws();
     void ImportVehicles();
 
     /* --------------------------------------------------------------------------------------------
-     * Instance allocators.
+     * Entity allocators.
     */
     Object & AllocBlip(Int32 id, bool owned, Int32 header, Object & payload);
     Object & AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payload);
-    Object & AllocForcefield(Int32 id, bool owned, Int32 header, Object & payload);
     Object & AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload);
     Object & AllocObject(Int32 id, bool owned, Int32 header, Object & payload);
     Object & AllocPickup(Int32 id, bool owned, Int32 header, Object & payload);
-    Object & AllocSprite(Int32 id, bool owned, Int32 header, Object & payload);
-    Object & AllocTextdraw(Int32 id, bool owned, Int32 header, Object & payload);
     Object & AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
-     * Instance deallocators.
+     * Entity deallocators.
     */
     void DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload);
     void DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payload);
-    void DeallocForcefield(Int32 id, bool destroy, Int32 header, Object & payload);
     void DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload);
     void DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload);
     void DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload);
-    void DeallocSprite(Int32 id, bool destroy, Int32 header, Object & payload);
-    void DeallocTextdraw(Int32 id, bool destroy, Int32 header, Object & payload);
     void DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload);
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Instance creators.
+     * Entity creators.
     */
     Object & NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
                         Int32 scale, Uint32 color, Int32 sprid,
                         Int32 header, Object & payload);
 
-    Object & NewCheckpoint(Int32 player, Int32 world, Float32 x, Float32 y, Float32 z,
+    Object & NewCheckpoint(Int32 player, Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
-                        Int32 header, Object & payload);
-
-    Object & NewForcefield(Int32 player, Int32 world, Float32 x, Float32 y, Float32 z,
-                        Uint8 r, Uint8 g, Uint8 b, Float32 radius,
                         Int32 header, Object & payload);
 
     Object & NewKeybind(Int32 slot, bool release,
@@ -612,30 +555,24 @@ public:
                         Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
-     * Instance destroyers.
+     * Entity destroyers.
     */
     bool DelBlip(Int32 id, Int32 header, Object & payload);
     bool DelCheckpoint(Int32 id, Int32 header, Object & payload);
-    bool DelForcefield(Int32 id, Int32 header, Object & payload);
     bool DelKeybind(Int32 id, Int32 header, Object & payload);
     bool DelObject(Int32 id, Int32 header, Object & payload);
     bool DelPickup(Int32 id, Int32 header, Object & payload);
-    bool DelSprite(Int32 id, Int32 header, Object & payload);
-    bool DelTextdraw(Int32 id, Int32 header, Object & payload);
     bool DelVehicle(Int32 id, Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
-     * Instance retrievers.
+     * Entity retrievers.
     */
     BlipInst & GetBlip(Int32 id) { return m_Blips.at(id); }
     CheckpointInst & GetCheckpoint(Int32 id) { return m_Checkpoints.at(id); }
-    ForcefieldInst & GetForcefield(Int32 id) { return m_Forcefields.at(id); }
     KeybindInst & GetKeybind(Int32 id) { return m_Keybinds.at(id); }
     ObjectInst & GetObject(Int32 id) { return m_Objects.at(id); }
     PickupInst & GetPickup(Int32 id) { return m_Pickups.at(id); }
     PlayerInst & GetPlayer(Int32 id) { return m_Players.at(id); }
-    SpriteInst & GetSprite(Int32 id) { return m_Sprites.at(id); }
-    TextdrawInst & GetTextdraw(Int32 id) { return m_Textdraws.at(id); }
     VehicleInst & GetVehicle(Int32 id) { return m_Vehicles.at(id); }
 
     /* --------------------------------------------------------------------------------------------
@@ -643,13 +580,10 @@ public:
     */
     const Blips & GetBlips() const { return m_Blips; }
     const Checkpoints & GetCheckpoints() const { return m_Checkpoints; }
-    const Forcefields & GetForcefields() const { return m_Forcefields; }
     const Keybinds & GetKeybinds() const { return m_Keybinds; }
     const Objects & GetObjects() const { return m_Objects; }
     const Pickups & GetPickups() const { return m_Pickups; }
     const Players & GetPlayers() const { return m_Players; }
-    const Sprites & GetSprites() const { return m_Sprites; }
-    const Textdraws & GetTextdraws() const { return m_Textdraws; }
     const Vehicles & GetVehicles() const { return m_Vehicles; }
 
 protected:
@@ -657,85 +591,42 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Instance cleaners.
     */
-    void ResetInst(BlipInst & inst);
-    void ResetInst(CheckpointInst & inst);
-    void ResetInst(ForcefieldInst & inst);
-    void ResetInst(KeybindInst & inst);
-    void ResetInst(ObjectInst & inst);
-    void ResetInst(PickupInst & inst);
-    void ResetInst(PlayerInst & inst);
-    void ResetInst(SpriteInst & inst);
-    void ResetInst(TextdrawInst & inst);
-    void ResetInst(VehicleInst & inst);
+    static void ResetInst(BlipInst & inst);
+    static void ResetInst(CheckpointInst & inst);
+    static void ResetInst(KeybindInst & inst);
+    static void ResetInst(ObjectInst & inst);
+    static void ResetInst(PickupInst & inst);
+    static void ResetInst(PlayerInst & inst);
+    static void ResetInst(VehicleInst & inst);
 
     /* --------------------------------------------------------------------------------------------
      * Bindings cleaners.
     */
-    void ResetFunc(BlipInst & inst);
-    void ResetFunc(CheckpointInst & inst);
-    void ResetFunc(ForcefieldInst & inst);
-    void ResetFunc(KeybindInst & inst);
-    void ResetFunc(ObjectInst & inst);
-    void ResetFunc(PickupInst & inst);
-    void ResetFunc(PlayerInst & inst);
-    void ResetFunc(SpriteInst & inst);
-    void ResetFunc(TextdrawInst & inst);
-    void ResetFunc(VehicleInst & inst);
-    void ResetFunc();
+    static void ResetFunc(BlipInst & inst);
+    static void ResetFunc(CheckpointInst & inst);
+    static void ResetFunc(KeybindInst & inst);
+    static void ResetFunc(ObjectInst & inst);
+    static void ResetFunc(PickupInst & inst);
+    static void ResetFunc(PlayerInst & inst);
+    static void ResetFunc(VehicleInst & inst);
+    static void ResetFunc();
 
     // --------------------------------------------------------------------------------------------
     static void Emit(Function & func)
     {
         if (!func.IsNull())
+        {
             func.Execute();
+        }
     }
 
     // --------------------------------------------------------------------------------------------
-    template < typename A1 >
-    static void Emit(Function & func, A1 a1)
+    template < typename... Args > static void Emit(Function & func, Args&&... args)
     {
         if (!func.IsNull())
-            func.Execute(a1);
-    }
-
-    // --------------------------------------------------------------------------------------------
-    template < typename A1, typename A2 >
-    static void Emit(Function & func, A1 a1, A2 a2)
-    {
-        if (!func.IsNull())
-            func.Execute(a1, a2);
-    }
-
-    // --------------------------------------------------------------------------------------------
-    template < typename A1, typename A2, typename A3 >
-    static void Emit(Function & func, A1 a1, A2 a2, A3 a3)
-    {
-        if (!func.IsNull())
-            func.Execute(a1, a2, a3);
-    }
-
-    // --------------------------------------------------------------------------------------------
-    template < typename A1, typename A2, typename A3, typename A4 >
-    static void Emit(Function & func, A1 a1, A2 a2, A3 a3, A4 a4)
-    {
-        if (!func.IsNull())
-            func.Execute(a1, a2, a3, a4);
-    }
-
-    // --------------------------------------------------------------------------------------------
-    template < typename A1, typename A2, typename A3, typename A4, typename A5 >
-    static void Emit(Function & func, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
-    {
-        if (!func.IsNull())
-            func.Execute(a1, a2, a3, a4, a5);
-    }
-
-    // --------------------------------------------------------------------------------------------
-    template < typename A1, typename A2, typename A3, typename A4, typename A5, typename A6 >
-    static void Emit(Function & func, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)
-    {
-        if (!func.IsNull())
-            func.Execute(a1, a2, a3, a4, a5, a6);
+        {
+            func.Execute(std::forward< Args >(args)...);
+        }
     }
 
 public:
@@ -752,133 +643,138 @@ public:
     void DisconnectPlayer(Int32 id, Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
-     * Event propagators.
+     * Server events.
     */
     void EmitBlipCreated(Int32 blip, Int32 header, Object & payload);
-    void EmitCheckpointCreated(Int32 checkpoint, Int32 header, Object & payload);
-    void EmitForcefieldCreated(Int32 forcefield, Int32 header, Object & payload);
+    void EmitCheckpointCreated(Int32 forcefield, Int32 header, Object & payload);
     void EmitKeybindCreated(Int32 keybind, Int32 header, Object & payload);
     void EmitObjectCreated(Int32 object, Int32 header, Object & payload);
     void EmitPickupCreated(Int32 pickup, Int32 header, Object & payload);
     void EmitPlayerCreated(Int32 player, Int32 header, Object & payload);
-    void EmitSpriteCreated(Int32 sprite, Int32 header, Object & payload);
-    void EmitTextdrawCreated(Int32 textdraw, Int32 header, Object & payload);
     void EmitVehicleCreated(Int32 vehicle, Int32 header, Object & payload);
     void EmitBlipDestroyed(Int32 blip, Int32 header, Object & payload);
-    void EmitCheckpointDestroyed(Int32 checkpoint, Int32 header, Object & payload);
-    void EmitForcefieldDestroyed(Int32 forcefield, Int32 header, Object & payload);
+    void EmitCheckpointDestroyed(Int32 forcefield, Int32 header, Object & payload);
     void EmitKeybindDestroyed(Int32 keybind, Int32 header, Object & payload);
     void EmitObjectDestroyed(Int32 object, Int32 header, Object & payload);
     void EmitPickupDestroyed(Int32 pickup, Int32 header, Object & payload);
     void EmitPlayerDestroyed(Int32 player, Int32 header, Object & payload);
-    void EmitSpriteDestroyed(Int32 sprite, Int32 header, Object & payload);
-    void EmitTextdrawDestroyed(Int32 textdraw, Int32 header, Object & payload);
     void EmitVehicleDestroyed(Int32 vehicle, Int32 header, Object & payload);
     void EmitBlipCustom(Int32 blip, Int32 header, Object & payload);
-    void EmitCheckpointCustom(Int32 checkpoint, Int32 header, Object & payload);
-    void EmitForcefieldCustom(Int32 forcefield, Int32 header, Object & payload);
+    void EmitCheckpointCustom(Int32 forcefield, Int32 header, Object & payload);
     void EmitKeybindCustom(Int32 keybind, Int32 header, Object & payload);
     void EmitObjectCustom(Int32 object, Int32 header, Object & payload);
     void EmitPickupCustom(Int32 pickup, Int32 header, Object & payload);
     void EmitPlayerCustom(Int32 player, Int32 header, Object & payload);
-    void EmitSpriteCustom(Int32 sprite, Int32 header, Object & payload);
-    void EmitTextdrawCustom(Int32 textdraw, Int32 header, Object & payload);
     void EmitVehicleCustom(Int32 vehicle, Int32 header, Object & payload);
-    void EmitPlayerAway(Int32 player, bool status);
-    void EmitPlayerGameKeys(Int32 player, Int32 previous, Int32 current);
-    void EmitPlayerRename(Int32 player, CCStr previous, CCStr current);
-    void EmitPlayerRequestClass(Int32 player, Int32 offset);
-    void EmitPlayerRequestSpawn(Int32 player);
-    void EmitPlayerSpawn(Int32 player);
-    void EmitPlayerStartTyping(Int32 player);
-    void EmitPlayerStopTyping(Int32 player);
-    void EmitPlayerChat(Int32 player, CCStr message);
-    void EmitPlayerCommand(Int32 player, CCStr command);
-    void EmitPlayerMessage(Int32 player, Int32 receiver, CCStr message);
-    void EmitPlayerHealth(Int32 player, Float32 previous, Float32 current);
-    void EmitPlayerArmour(Int32 player, Float32 previous, Float32 current);
-    void EmitPlayerWeapon(Int32 player, Int32 previous, Int32 current);
-    void EmitPlayerMove(Int32 player, const Vector3 & previous, const Vector3 & current);
-    void EmitPlayerWasted(Int32 player, Int32 reason);
-    void EmitPlayerKilled(Int32 player, Int32 killer, Int32 reason, Int32 body_part);
-    void EmitPlayerTeamKill(Int32 player, Int32 killer, Int32 reason, Int32 body_part);
-    void EmitPlayerSpectate(Int32 player, Int32 target);
-    void EmitPlayerCrashreport(Int32 player, CCStr report);
-    void EmitPlayerBurning(Int32 player, bool state);
-    void EmitPlayerCrouching(Int32 player, bool state);
-    void EmitPlayerState(Int32 player, Int32 previous, Int32 current);
-    void EmitPlayerAction(Int32 player, Int32 previous, Int32 current);
-    void EmitStateNone(Int32 player, Int32 previous);
-    void EmitStateNormal(Int32 player, Int32 previous);
-    void EmitStateShooting(Int32 player, Int32 previous);
-    void EmitStateDriver(Int32 player, Int32 previous);
-    void EmitStatePassenger(Int32 player, Int32 previous);
-    void EmitStateEnterDriver(Int32 player, Int32 previous);
-    void EmitStateEnterPassenger(Int32 player, Int32 previous);
-    void EmitStateExitVehicle(Int32 player, Int32 previous);
-    void EmitStateUnspawned(Int32 player, Int32 previous);
-    void EmitActionNone(Int32 player, Int32 previous);
-    void EmitActionNormal(Int32 player, Int32 previous);
-    void EmitActionAiming(Int32 player, Int32 previous);
-    void EmitActionShooting(Int32 player, Int32 previous);
-    void EmitActionJumping(Int32 player, Int32 previous);
-    void EmitActionLieDown(Int32 player, Int32 previous);
-    void EmitActionGettingUp(Int32 player, Int32 previous);
-    void EmitActionJumpVehicle(Int32 player, Int32 previous);
-    void EmitActionDriving(Int32 player, Int32 previous);
-    void EmitActionDying(Int32 player, Int32 previous);
-    void EmitActionWasted(Int32 player, Int32 previous);
-    void EmitActionEmbarking(Int32 player, Int32 previous);
-    void EmitActionDisembarking(Int32 player, Int32 previous);
-    void EmitVehicleRespawn(Int32 vehicle);
-    void EmitVehicleExplode(Int32 vehicle);
-    void EmitVehicleHealth(Int32 vehicle, Float32 previous, Float32 current);
-    void EmitVehicleMove(Int32 vehicle, const Vector3 & previous, const Vector3 & current);
-    void EmitPickupRespawn(Int32 pickup);
-    void EmitPlayerKeyPress(Int32 player, Int32 keybind);
-    void EmitPlayerKeyRelease(Int32 player, Int32 keybind);
-    void EmitPlayerEmbarking(Int32 player, Int32 vehicle, Int32 slot);
-    void EmitPlayerEmbarked(Int32 player, Int32 vehicle, Int32 slot);
-    void EmitPlayerDisembark(Int32 player, Int32 vehicle);
-    void EmitPickupClaimed(Int32 player, Int32 pickup);
-    void EmitPickupCollected(Int32 player, Int32 pickup);
-    void EmitObjectShot(Int32 player, Int32 object, Int32 weapon);
-    void EmitObjectBump(Int32 player, Int32 object);
-    void EmitCheckpointEntered(Int32 player, Int32 checkpoint);
-    void EmitCheckpointExited(Int32 player, Int32 checkpoint);
-    void EmitForcefieldEntered(Int32 player, Int32 forcefield);
-    void EmitForcefieldExited(Int32 player, Int32 forcefield);
-    void EmitServerFrame(Float32 delta);
     void EmitServerStartup();
     void EmitServerShutdown();
-    void EmitInternalCommand(Int32 type, CCStr text);
-    void EmitLoginAttempt(CCStr name, CCStr passwd, CCStr ip);
-    void EmitCustomEvent(Int32 group, Int32 header, Object & payload);
-    void EmitWorldOption(Int32 option, Object & value);
-    void EmitWorldToggle(Int32 option, bool value);
-    void EmitScriptReload(Int32 header, Object & payload);
-    void EmitScriptLoaded();
-    void EmitPlayerUpdate(Int32 player, Int32 type);
-    void EmitVehicleUpdate(Int32 vehicle, Int32 type);
-    void EmitEntityPool(Int32 type, Int32 id, bool deleted);
+    void EmitServerFrame(Float32 elapsed_time);
+    void EmitPluginCommand(Uint32 command_identifier, CCStr message);
+    void EmitIncomingConnection(CStr player_name, size_t name_buffer_size, CCStr user_password, CCStr ip_address);
+    void EmitPlayerRequestClass(Int32 player_id, Int32 offset);
+    void EmitPlayerRequestSpawn(Int32 player_id);
+    void EmitPlayerSpawn(Int32 player_id);
+    void EmitPlayerWasted(Int32 player_id, Int32 reason);
+    void EmitPlayerKilled(Int32 player_id, Int32 killer_id, Int32 reason, vcmpBodyPart body_part, bool team_kill);
+    void EmitPlayerEmbarking(Int32 player_id, Int32 vehicle_id, Int32 slot_index);
+    void EmitPlayerEmbarked(Int32 player_id, Int32 vehicle_id, Int32 slot_index);
+    void EmitPlayerDisembark(Int32 player_id, Int32 vehicle_id);
+    void EmitPlayerRename(Int32 player_id, CCStr old_name, CCStr new_name);
+    void EmitPlayerState(Int32 player_id, Int32 old_state, Int32 new_state);
+    void EmitStateNone(Int32 player_id, Int32 old_state);
+    void EmitStateNormal(Int32 player_id, Int32 old_state);
+    void EmitStateAim(Int32 player_id, Int32 old_state);
+    void EmitStateDriver(Int32 player_id, Int32 old_state);
+    void EmitStatePassenger(Int32 player_id, Int32 old_state);
+    void EmitStateEnterDriver(Int32 player_id, Int32 old_state);
+    void EmitStateEnterPassenger(Int32 player_id, Int32 old_state);
+    void EmitStateExit(Int32 player_id, Int32 old_state);
+    void EmitStateUnspawned(Int32 player_id, Int32 old_state);
+    void EmitPlayerAction(Int32 player_id, Int32 old_action, Int32 new_action);
+    void EmitActionNone(Int32 player_id, Int32 old_action);
+    void EmitActionNormal(Int32 player_id, Int32 old_action);
+    void EmitActionAiming(Int32 player_id, Int32 old_action);
+    void EmitActionShooting(Int32 player_id, Int32 old_action);
+    void EmitActionJumping(Int32 player_id, Int32 old_action);
+    void EmitActionLieDown(Int32 player_id, Int32 old_action);
+    void EmitActionGettingUp(Int32 player_id, Int32 old_action);
+    void EmitActionJumpVehicle(Int32 player_id, Int32 old_action);
+    void EmitActionDriving(Int32 player_id, Int32 old_action);
+    void EmitActionDying(Int32 player_id, Int32 old_action);
+    void EmitActionWasted(Int32 player_id, Int32 old_action);
+    void EmitActionEmbarking(Int32 player_id, Int32 old_action);
+    void EmitActionDisembarking(Int32 player_id, Int32 old_action);
+    void EmitPlayerBurning(Int32 player_id, bool is_on_fire);
+    void EmitPlayerCrouching(Int32 player_id, bool is_crouching);
+    void EmitPlayerGameKeys(Int32 player_id, Uint32 old_keys, Uint32 new_keys);
+    void EmitPlayerStartTyping(Int32 player_id);
+    void EmitPlayerStopTyping(Int32 player_id);
+    void EmitPlayerAway(Int32 player_id, bool is_away);
+    void EmitPlayerMessage(Int32 player_id, CCStr message);
+    void EmitPlayerCommand(Int32 player_id, CCStr message);
+    void EmitPlayerPrivateMessage(Int32 player_id, Int32 target_player_id, CCStr message);
+    void EmitPlayerKeyPress(Int32 player_id, Int32 bind_id);
+    void EmitPlayerKeyRelease(Int32 player_id, Int32 bind_id);
+    void EmitPlayerSpectate(Int32 player_id, Int32 target_player_id);
+    void EmitPlayerCrashreport(Int32 player_id, CCStr report);
+    void EmitVehicleExplode(Int32 vehicle_id);
+    void EmitVehicleRespawn(Int32 vehicle_id);
+    void EmitObjectShot(Int32 object_id, Int32 player_id, Int32 weapon_id);
+    void EmitObjectTouched(Int32 object_id, Int32 player_id);
+    void EmitPickupClaimed(Int32 pickup_id, Int32 player_id);
+    void EmitPickupCollected(Int32 pickup_id, Int32 player_id);
+    void EmitPickupRespawn(Int32 pickup_id);
+    void EmitCheckpointEntered(Int32 forcefield_id, Int32 player_id);
+    void EmitCheckpointExited(Int32 forcefield_id, Int32 player_id);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrie global event bidings.
+     * Miscellaneous events.
+    */
+    void EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health);
+    void EmitPlayerArmour(Int32 player_id, Float32 old_armour, Float32 new_armour);
+    void EmitPlayerWeapon(Int32 player_id, Int32 old_weapon, Int32 new_weapon);
+    void EmitPlayerHeading(Int32 player_id, Float32 old_heading, Float32 new_heading);
+    void EmitPlayerPosition(Int32 player_id);
+    void EmitPlayerOption(Int32 player_id, Int32 option_id, bool value, Int32 header, Object & payload);
+    void EmitVehicleColour(Int32 vehicle_id, Int32 changed);
+    void EmitVehicleHealth(Int32 vehicle_id, Float32 old_health, Float32 new_health);
+    void EmitVehiclePosition(Int32 vehicle_id);
+    void EmitVehicleRotation(Int32 vehicle_id);
+    void EmitVehicleOption(Int32 vehicle_id, Int32 option_id, bool value, Int32 header, Object & payload);
+    void EmitServerOption(Int32 option, bool value, Int32 header, Object & payload);
+    void EmitScriptReload(Int32 header, Object & payload);
+    void EmitScriptLoaded();
+
+    /* --------------------------------------------------------------------------------------------
+     * Entity pool changes events.
+    */
+    void EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_deleted);
+
+    /* --------------------------------------------------------------------------------------------
+     * Entity update events.
+    */
+    void EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type);
+    void EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type);
+
+    /* --------------------------------------------------------------------------------------------
+     * Client data streams event.
+    */
+    void EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t size);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve global event bindings.
     */
     Function & GetEvent(Int32 evid);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrie local event bidings.
+     * Retrieve local event bindings.
     */
     Function & GetBlipEvent(Int32 id, Int32 evid);
     Function & GetCheckpointEvent(Int32 id, Int32 evid);
-    Function & GetForcefieldEvent(Int32 id, Int32 evid);
     Function & GetKeybindEvent(Int32 id, Int32 evid);
     Function & GetObjectEvent(Int32 id, Int32 evid);
     Function & GetPickupEvent(Int32 id, Int32 evid);
     Function & GetPlayerEvent(Int32 id, Int32 evid);
-    Function & GetSpriteEvent(Int32 id, Int32 evid);
-    Function & GetTextdrawEvent(Int32 id, Int32 evid);
     Function & GetVehicleEvent(Int32 id, Int32 evid);
 
 private:
@@ -886,69 +782,52 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Global event bindings.
     */
+    Function    mOnCustomEvent;
     Function    mOnBlipCreated;
     Function    mOnCheckpointCreated;
-    Function    mOnForcefieldCreated;
     Function    mOnKeybindCreated;
     Function    mOnObjectCreated;
     Function    mOnPickupCreated;
     Function    mOnPlayerCreated;
-    Function    mOnSpriteCreated;
-    Function    mOnTextdrawCreated;
     Function    mOnVehicleCreated;
     Function    mOnBlipDestroyed;
     Function    mOnCheckpointDestroyed;
-    Function    mOnForcefieldDestroyed;
     Function    mOnKeybindDestroyed;
     Function    mOnObjectDestroyed;
     Function    mOnPickupDestroyed;
     Function    mOnPlayerDestroyed;
-    Function    mOnSpriteDestroyed;
-    Function    mOnTextdrawDestroyed;
     Function    mOnVehicleDestroyed;
     Function    mOnBlipCustom;
     Function    mOnCheckpointCustom;
-    Function    mOnForcefieldCustom;
     Function    mOnKeybindCustom;
     Function    mOnObjectCustom;
     Function    mOnPickupCustom;
     Function    mOnPlayerCustom;
-    Function    mOnSpriteCustom;
-    Function    mOnTextdrawCustom;
     Function    mOnVehicleCustom;
-    Function    mOnPlayerAway;
-    Function    mOnPlayerGameKeys;
-    Function    mOnPlayerRename;
+    Function    mOnServerStartup;
+    Function    mOnServerShutdown;
+    Function    mOnServerFrame;
+    Function    mOnIncomingConnection;
     Function    mOnPlayerRequestClass;
     Function    mOnPlayerRequestSpawn;
     Function    mOnPlayerSpawn;
-    Function    mOnPlayerStartTyping;
-    Function    mOnPlayerStopTyping;
-    Function    mOnPlayerChat;
-    Function    mOnPlayerCommand;
-    Function    mOnPlayerMessage;
-    Function    mOnPlayerHealth;
-    Function    mOnPlayerArmour;
-    Function    mOnPlayerWeapon;
-    Function    mOnPlayerMove;
     Function    mOnPlayerWasted;
     Function    mOnPlayerKilled;
-    Function    mOnPlayerTeamKill;
-    Function    mOnPlayerSpectate;
-    Function    mOnPlayerCrashreport;
-    Function    mOnPlayerBurning;
-    Function    mOnPlayerCrouching;
+    Function    mOnPlayerEmbarking;
+    Function    mOnPlayerEmbarked;
+    Function    mOnPlayerDisembark;
+    Function    mOnPlayerRename;
     Function    mOnPlayerState;
-    Function    mOnPlayerAction;
     Function    mOnStateNone;
     Function    mOnStateNormal;
-    Function    mOnStateShooting;
+    Function    mOnStateAim;
     Function    mOnStateDriver;
     Function    mOnStatePassenger;
     Function    mOnStateEnterDriver;
     Function    mOnStateEnterPassenger;
-    Function    mOnStateExitVehicle;
+    Function    mOnStateExit;
     Function    mOnStateUnspawned;
+    Function    mOnPlayerAction;
     Function    mOnActionNone;
     Function    mOnActionNormal;
     Function    mOnActionAiming;
@@ -962,32 +841,44 @@ private:
     Function    mOnActionWasted;
     Function    mOnActionEmbarking;
     Function    mOnActionDisembarking;
-    Function    mOnVehicleRespawn;
+    Function    mOnPlayerBurning;
+    Function    mOnPlayerCrouching;
+    Function    mOnPlayerGameKeys;
+    Function    mOnPlayerStartTyping;
+    Function    mOnPlayerStopTyping;
+    Function    mOnPlayerAway;
+    Function    mOnPlayerMessage;
+    Function    mOnPlayerCommand;
+    Function    mOnPlayerPrivateMessage;
+    Function    mOnPlayerKeyPress;
+    Function    mOnPlayerKeyRelease;
+    Function    mOnPlayerSpectate;
+    Function    mOnPlayerCrashreport;
     Function    mOnVehicleExplode;
-    Function    mOnVehicleHealth;
-    Function    mOnVehicleMove;
-    Function    mOnPickupRespawn;
-    Function    mOnKeybindKeyPress;
-    Function    mOnKeybindKeyRelease;
-    Function    mOnVehicleEmbarking;
-    Function    mOnVehicleEmbarked;
-    Function    mOnVehicleDisembark;
+    Function    mOnVehicleRespawn;
+    Function    mOnObjectShot;
+    Function    mOnObjectTouched;
     Function    mOnPickupClaimed;
     Function    mOnPickupCollected;
-    Function    mOnObjectShot;
-    Function    mOnObjectBump;
+    Function    mOnPickupRespawn;
     Function    mOnCheckpointEntered;
     Function    mOnCheckpointExited;
-    Function    mOnForcefieldEntered;
-    Function    mOnForcefieldExited;
-    Function    mOnServerFrame;
-    Function    mOnServerStartup;
-    Function    mOnServerShutdown;
-    Function    mOnInternalCommand;
-    Function    mOnLoginAttempt;
-    Function    mOnCustomEvent;
-    Function    mOnWorldOption;
-    Function    mOnWorldToggle;
+    Function    mOnEntityPool;
+    Function    mOnClientScriptData;
+    Function    mOnPlayerUpdate;
+    Function    mOnVehicleUpdate;
+    Function    mOnPlayerHealth;
+    Function    mOnPlayerArmour;
+    Function    mOnPlayerWeapon;
+    Function    mOnPlayerHeading;
+    Function    mOnPlayerPosition;
+    Function    mOnPlayerOption;
+    Function    mOnVehicleColour;
+    Function    mOnVehicleHealth;
+    Function    mOnVehiclePosition;
+    Function    mOnVehicleRotation;
+    Function    mOnVehicleOption;
+    Function    mOnServerOption;
     Function    mOnScriptReload;
     Function    mOnScriptLoaded;
 };

@@ -8,16 +8,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector4 type from a string.
-*/
-const Vector4 & GetVector4(CSStr str);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector4 type from a string.
-*/
-const Vector4 & GetVector4(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
  * Class used to represent a four-dimensional vector.
 */
 struct Vector4
@@ -341,6 +331,17 @@ struct Vector4
      * Retrieve a new instance of this type with absolute component values.
     */
     Vector4 Abs() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Vector4 type from a string.
+    */
+    static const Vector4 & Get(CSStr str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Vector4 type from a string.
+    */
+    static const Vector4 & Get(CSStr str, SQChar delim);
+
 };
 
 } // Namespace:: SqMod

@@ -1,11 +1,10 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
 #include "Base/Buffer.hpp"
+#include "Base/Color3.hpp"
 #include "Library/Random.hpp"
 #include "Library/String.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include "Base/Color3.hpp"
+#include "Library/Numeric.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <ctime>
@@ -22,121 +21,15 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static const SQChar EMPTY_STR_CHAR = 0;
-const SQChar * g_EmptyStr = &EMPTY_STR_CHAR;
-
-// ------------------------------------------------------------------------------------------------
-PluginFuncs*        _Func = NULL;
-PluginCallbacks*    _Clbk = NULL;
-PluginInfo*         _Info = NULL;
+PluginFuncs*        _Func = nullptr;
+PluginCallbacks*    _Clbk = nullptr;
+PluginInfo*         _Info = nullptr;
 
 /* ------------------------------------------------------------------------------------------------
  * Common buffer to reduce memory allocations. To be immediately copied upon return!
 */
 static SQChar g_Buffer[4096];
 static SQChar g_NumBuff[1024];
-
-// ------------------------------------------------------------------------------------------------
-Object & NullObject()
-{
-    static Object o;
-    o.Release();
-    return o;
-}
-
-// ------------------------------------------------------------------------------------------------
-Array & NullArray()
-{
-    static Array a;
-    a.Release();
-    return a;
-}
-
-// ------------------------------------------------------------------------------------------------
-Function & NullFunction()
-{
-    static Function f;
-    f.Release();
-    return f;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool SToB(CSStr str)
-{
-    // Temporary buffer to store the lowercase string
-    SQChar buffer[8];
-    // The currently processed character
-    unsigned i = 0;
-    // Convert only the necessary characters to lowercase
-    while (i < 7 && *str != '\0')
-    {
-        buffer[i++] = static_cast< SQChar >(std::tolower(*(str++)));
-    }
-    // Add the null terminator
-    buffer[i] = '\0';
-    // Compare the lowercase string and return the result
-    return (std::strcmp(buffer, "true") == 0 || std::strcmp(buffer, "yes") == 0 ||
-            std::strcmp(buffer, "on") == 0 || std::strcmp(buffer, "1") == 0) ? true : false;
-}
-
-// ------------------------------------------------------------------------------------------------
-void SqThrowF(CSStr fmt, ...)
-{
-    // Acquire a moderately sized buffer
-    Buffer b(128);
-    // Initialize the argument list
-    va_list args;
-    va_start (args, fmt);
-    // Attempt to run the specified format
-    if (b.WriteF(0, fmt, args) == 0)
-    {
-        // Attempt to write a generic message at least
-        b.At(b.WriteS(0, "Unknown error has occurred")) = '\0';
-    }
-    // Release the argument list
-    va_end(args);
-    // Throw the exception with the resulted message
-    throw Sqrat::Exception(b.Get< SQChar >());
-}
-
-// ------------------------------------------------------------------------------------------------
-CSStr ToStrF(CSStr fmt, ...)
-{
-    // Prepare the arguments list
-    va_list args;
-    va_start(args, fmt);
-    // Attempt to run the specified format
-    int ret =  vsnprintf(g_Buffer, sizeof(g_Buffer), fmt, args);
-    // See if the format function failed
-    if (ret < 0)
-    {
-        STHROWF("Failed to run the specified string format");
-    }
-    // Finalized the arguments list
-    va_end(args);
-    // Return the resulted string
-    return g_Buffer;
-}
-
-// ------------------------------------------------------------------------------------------------
-CSStr ToStringF(CSStr fmt, ...)
-{
-    // Acquire a moderately sized buffer
-    Buffer b(128);
-    // Prepare the arguments list
-    va_list args;
-    va_start (args, fmt);
-    // Attempt to run the specified format
-    if (b.WriteF(0, fmt, args) == 0)
-    {
-        // Make sure the string is null terminated
-        b.At(0) = 0;
-    }
-    // Finalized the arguments list
-    va_end(args);
-    // Return the resulted string
-    return b.Get< SQChar >();
-}
 
 // ------------------------------------------------------------------------------------------------
 static const Color3 SQ_Color_List[] =
@@ -282,6 +175,158 @@ static const Color3 SQ_Color_List[] =
     Color3(255, 255, 0),
     Color3(154, 205, 50)
 };
+
+// ------------------------------------------------------------------------------------------------
+const SLongInt & GetSLongInt()
+{
+    static SLongInt l;
+    l.SetNum(0);
+    return l;
+}
+
+const SLongInt & GetSLongInt(Int64 n)
+{
+    static SLongInt l;
+    l.SetNum(n);
+    return l;
+}
+
+const SLongInt & GetSLongInt(CSStr s)
+{
+    static SLongInt l;
+    l = s;
+    return l;
+}
+
+const ULongInt & GetULongInt()
+{
+    static ULongInt l;
+    l.SetNum(0);
+    return l;
+}
+
+const ULongInt & GetULongInt(Uint64 n)
+{
+    static ULongInt l;
+    l.SetNum(n);
+    return l;
+}
+
+const ULongInt & GetULongInt(CSStr s)
+{
+    static ULongInt l;
+    l = s;
+    return l;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & NullObject()
+{
+    static Object o;
+    o.Release();
+    return o;
+}
+
+// ------------------------------------------------------------------------------------------------
+Table & NullTable()
+{
+    static Table t;
+    t.Release();
+    return t;
+}
+
+// ------------------------------------------------------------------------------------------------
+Array & NullArray()
+{
+    static Array a;
+    a.Release();
+    return a;
+}
+
+// ------------------------------------------------------------------------------------------------
+Function & NullFunction()
+{
+    static Function f;
+    f.Release();
+    return f;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool SToB(CSStr str)
+{
+    // Temporary buffer to store the lowercase string
+    SQChar buffer[8];
+    // The currently processed character
+    unsigned i = 0;
+    // Convert only the necessary characters to lowercase
+    while (i < 7 && *str != '\0')
+    {
+        buffer[i++] = static_cast< SQChar >(std::tolower(*(str++)));
+    }
+    // Add the null terminator
+    buffer[i] = '\0';
+    // Compare the lowercase string and return the result
+    return (std::strcmp(buffer, "true") == 0 || std::strcmp(buffer, "yes") == 0 ||
+            std::strcmp(buffer, "on") == 0 || std::strcmp(buffer, "1") == 0) ? true : false;
+}
+// ------------------------------------------------------------------------------------------------
+void SqThrowF(CSStr fmt, ...)
+{
+    // Acquire a moderately sized buffer
+    Buffer b(128);
+    // Initialize the argument list
+    va_list args;
+    va_start (args, fmt);
+    // Attempt to run the specified format
+    if (b.WriteF(0, fmt, args) == 0)
+    {
+        // Attempt to write a generic message at least
+        b.At(b.WriteS(0, "Unknown error has occurred")) = '\0';
+    }
+    // Release the argument list
+    va_end(args);
+    // Throw the exception with the resulted message
+    throw Sqrat::Exception(b.Get< SQChar >());
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ToStrF(CSStr fmt, ...)
+{
+    // Prepare the arguments list
+    va_list args;
+    va_start(args, fmt);
+    // Attempt to run the specified format
+    int ret =  vsnprintf(g_Buffer, sizeof(g_Buffer), fmt, args);
+    // See if the format function failed
+    if (ret < 0)
+    {
+        STHROWF("Failed to run the specified string format");
+    }
+    // Finalized the arguments list
+    va_end(args);
+    // Return the resulted string
+    return g_Buffer;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr ToStringF(CSStr fmt, ...)
+{
+    // Acquire a moderately sized buffer
+    Buffer b(128);
+    // Prepare the arguments list
+    va_list args;
+    va_start (args, fmt);
+    // Attempt to run the specified format
+    if (b.WriteF(0, fmt, args) == 0)
+    {
+        // Make sure the string is null terminated
+        b.At(0) = 0;
+    }
+    // Finalized the arguments list
+    va_end(args);
+    // Return the resulted string
+    return b.Get< SQChar >();
+}
 
 // ------------------------------------------------------------------------------------------------
 const Color3 & GetRandomColor()
@@ -1190,13 +1235,17 @@ bool ConvNum< bool >::FromStr(CSStr s, Int32 /*base*/)
 void Register_Base(HSQUIRRELVM vm)
 {
     RootTable(vm)
-    .Func(_SC("EpsEq"), &EpsEq<SQFloat>)
-    .Func(_SC("EpsLt"), &EpsLt<SQFloat>)
-    .Func(_SC("EpsGt"), &EpsGt<SQFloat>)
-    .Func(_SC("EpsLtEq"), &EpsLtEq<SQFloat>)
-    .Func(_SC("EpsGtEq"), &EpsGtEq<SQFloat>)
-    .Func(_SC("ClampI"), &Clamp<SQInteger>)
-    .Func(_SC("ClampF"), &Clamp<SQFloat>)
+    .Func(_SC("EpsEq"), &EpsEq< SQFloat >)
+    .Func(_SC("EpsLt"), &EpsLt< SQFloat >)
+    .Func(_SC("EpsGt"), &EpsGt< SQFloat >)
+    .Func(_SC("EpsLtEq"), &EpsLtEq< SQFloat >)
+    .Func(_SC("EpsGtEq"), &EpsGtEq< SQFloat >)
+    .Func(_SC("ClampI"), &Clamp< SQInteger >)
+    .Func(_SC("ClampF"), &Clamp< SQFloat >)
+    .Func(_SC("ClampMinI"), &ClampMin< SQInteger >)
+    .Func(_SC("ClampMinF"), &ClampMin< SQFloat >)
+    .Func(_SC("ClampMaxI"), &ClampMax< SQInteger >)
+    .Func(_SC("ClampMaxF"), &ClampMax< SQFloat >)
     .Func(_SC("NextPow2"), &NextPow2)
     .Func(_SC("SToB"), &SToB)
     .Func(_SC("GetColor"), &GetColor);

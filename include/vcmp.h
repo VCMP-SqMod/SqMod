@@ -2,7 +2,7 @@
    Project: Vice City Multiplayer 0.4 Server / Plugin Kit
    File: plugin.h
 
-   Copyright 2011 Ago Allikmaa (maxorator)
+   Copyright 2011-2016 Ago Allikmaa (maxorator)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,966 +19,930 @@
 
 #pragma once
 
-#if !defined _MSC_VER || _MSC_VER >= 1600
 #include <stdint.h>
-#elif defined _MSC_VER
-typedef unsigned __int64 uint64_t;
-#endif
+#include <stdlib.h>
 
 typedef struct {
-  unsigned int uStructSize;
-  char szServerName[128];
-  unsigned int uMaxPlayers;
-  unsigned int uPort;
-  unsigned int uFlags;
+	uint32_t structSize;
+	char serverName[128];
+	uint32_t maxPlayers;
+	uint32_t port;
+	uint32_t flags;
 } ServerSettings;
 
+#define PLUGIN_API_MAJOR 2
+#define PLUGIN_API_MINOR 0
+
 typedef struct {
-  unsigned int uStructSize;
-  int nPluginId;
-  char szName[32];
-  unsigned int uPluginVer;
+	uint32_t structSize;
+	uint32_t pluginId;
+	char name[32];
+	uint32_t pluginVersion;
+	uint16_t apiMajorVersion;
+	uint16_t apiMinorVersion;
 } PluginInfo;
 
-#define SDK_ENTPOOL_VEHICLE     1
-#define SDK_ENTPOOL_OBJECT      2
-#define SDK_ENTPOOL_PICKUP      3
-#define SDK_ENTPOOL_RADIO       4
-#define SDK_ENTPOOL_SPRITE      5
-#define SDK_ENTPOOL_TEXTDRAW    6
-#define SDK_ENTPOOL_BLIP        7
+typedef enum {
+	vcmpErrorNone = 0,
+	vcmpErrorNoSuchEntity = 1,
+	vcmpErrorBufferTooSmall = 2,
+	vcmpErrorTooLargeInput = 3,
+	vcmpErrorArgumentOutOfBounds = 4,
+	vcmpErrorNullArgument = 5,
+	vcmpErrorPoolExhausted = 6,
+	vcmpErrorInvalidName = 7,
+	vcmpErrorRequestDenied = 8,
+	forceSizeVcmpError = INT32_MAX
+} vcmpError;
 
-#define SDK_PSTATE_NONE         0
-#define SDK_PSTATE_NORMAL       1
-#define SDK_PSTATE_AIM          2
-#define SDK_PSTATE_DRIVER       3
-#define SDK_PSTATE_PASSENGER    4
-#define SDK_PSTATE_ENTER_DRIVER 5
-#define SDK_PSTATE_ENTER_PASS   6
-#define SDK_PSTATE_EXIT         7
-#define SDK_PSTATE_UNSPAWNED    8
+typedef enum {
+	vcmpEntityPoolVehicle = 1,
+	vcmpEntityPoolObject = 2,
+	vcmpEntityPoolPickup = 3,
+	vcmpEntityPoolRadio = 4,
+	vcmpEntityPoolBlip = 7,
+	vcmpEntityPoolCheckPoint = 8,
+	forceSizeVcmpEntityPool = INT32_MAX
+} vcmpEntityPool;
 
-#define SDK_PLAYERUPD_NORMAL    0
-#define SDK_PLAYERUPD_AIMING    1
-#define SDK_PLAYERUPD_DRIVER    2
-#define SDK_PLAYERUPD_PASSENGER 3
+typedef enum {
+	vcmpDisconnectReasonTimeout = 0,
+	vcmpDisconnectReasonQuit = 1,
+	vcmpDisconnectReasonKick = 2,
+	vcmpDisconnectReasonCrash = 3,
+	vcmpDisconnectReasonAntiCheat = 4,
+	forceSizeVcmpDisconnectReason = INT32_MAX
+} vcmpDisconnectReason;
 
-#define SDK_VSYNCTYPE_NONE      0
-#define SDK_VSYNCTYPE_DRIVER    1
-#define SDK_VSYNCTYPE_DRIVEREX  2
-#define SDK_VSYNCTYPE_PASSENGER 3
-#define SDK_VSYNCTYPE_NEAR      4
+typedef enum {
+	vcmpBodyPartBody = 0,
+	vcmpBodyPartTorso = 1,
+	vcmpBodyPartLeftArm = 2,
+	vcmpBodyPartRightArm = 3,
+	vcmpBodyPartLeftLeg = 4,
+	vcmpBodyPartRightLeg = 5,
+	vcmpBodyPartHead = 6,
+	vcmpBodyPartInVehicle = 7,
+	forceSizeVcmpBodyPart = INT32_MAX
+} vcmpBodyPart;
 
-#define SDK_VUPDATE_DRIVERSYNC  0
-#define SDK_VUPDATE_OTHERSYNC   1
-#define SDK_VUPDATE_POSITION    2
-#define SDK_VUPDATE_HEALTH      4
-#define SDK_VUPDATE_COLOUR      5
-#define SDK_VUPDATE_ROTATION    6
+typedef enum {
+	vcmpPlayerStateNone = 0,
+	vcmpPlayerStateNormal = 1,
+	vcmpPlayerStateAim = 2,
+	vcmpPlayerStateDriver = 3,
+	vcmpPlayerStatePassenger = 4,
+	vcmpPlayerStateEnterDriver = 5,
+	vcmpPlayerStateEnterPassenger = 6,
+	vcmpPlayerStateExit = 7,
+	vcmpPlayerStateUnspawned = 8,
+	forceSizeVcmpPlayerState = INT32_MAX
+} vcmpPlayerState;
 
-typedef unsigned int (*SDK_GetServerVersion) (void);
-typedef unsigned int (*SDK_GetServerSettings) (ServerSettings* pstSettings);
-typedef unsigned int (*SDK_ExportFunctions) (int nPluginId, void** ppFunctionList, unsigned int uSize);
-typedef unsigned int (*SDK_GetNumberOfPlugins) (void);
-typedef unsigned int (*SDK_GetPluginInfo) (int nPluginId, PluginInfo* pstPluginInfo);
-typedef int (*SDK_FindPlugin) (char* pszPluginName);
-typedef void** (*SDK_GetPluginExports) (int nPluginId, unsigned int* puSize);
-typedef int (*SDK_GetTime) (uint64_t* pullTime);
-typedef int (*SDK_printf) (const char* pszFormat, ...);
-typedef int (*SDK_SendCustomCommand) (unsigned int uCmdType, const char* pszFormat, ...);
-typedef int (*SDK_SendClientMessage) (int nPlayerId, unsigned int uColour, const char* pszFormat, ...);
-typedef int (*SDK_SendGameMessage) (int nPlayerId, int nType, const char* pszFormat, ... );
-typedef int (*SDK_SetServerName) (const char* pszText);
-typedef int (*SDK_GetServerName) (char* pszBuffer, int nBufferLen);
-typedef int (*SDK_SetMaxPlayers) (int nMaxPlayers);
-typedef int (*SDK_GetMaxPlayers) (void);
-typedef int (*SDK_SetServerPassword) (char* pszBuffer);
-typedef int (*SDK_GetServerPassword) (char* pszBuffer, int nBufferLen);
-typedef int (*SDK_SetGameModeText) (const char* pszText);
-typedef int (*SDK_GetGameModeText) (char* pszBuffer, int nBufferLen);
-typedef int (*SDK_ShutdownServer) (void);
-typedef int (*SDK_SetWorldBounds) (float fMaxX, float fMinX, float fMaxY, float fMinY);
-typedef int (*SDK_GetWorldBounds) (float* pfMaxX, float* pfMinX, float* pfMaxY, float* pfMinY);
-typedef int (*SDK_SetWastedSettings) (unsigned int dwDeathTimer, unsigned int dwFadeTimer, float fFadeInSpeed, float fFadeOutSpeed, unsigned int dwFadeColour, unsigned int dwCorpseFadeStart, unsigned int dwCorpseFadeTime);
-typedef int (*SDK_GetWastedSettings) (unsigned int* pdwDeathTimer, unsigned int* pdwFadeTimer, float* pfFadeInSpeed, float* pfFadeOutSpeed, unsigned int* pdwFadeColour, unsigned int* pdwCorpseFadeStart, unsigned int* pdwCorpseFadeTime);
-typedef int (*SDK_SetTimeRate) (unsigned int uTimeRate);
-typedef unsigned int (*SDK_GetTimeRate) (void);
-typedef int (*SDK_SetHour) (int nHour);
-typedef int (*SDK_GetHour) (void);
-typedef int (*SDK_SetMinute) (int nMinute);
-typedef int (*SDK_GetMinute) (void);
-typedef int (*SDK_SetWeather) (int nWeather);
-typedef int (*SDK_GetWeather) (void);
-typedef int (*SDK_SetGravity) (float fGravity);
-typedef float (*SDK_GetGravity) (void);
-typedef int (*SDK_SetGamespeed) (float fGamespeed);
-typedef float (*SDK_GetGamespeed) (void);
-typedef int (*SDK_SetWaterLevel) (float fWaterLevel);
-typedef float (*SDK_GetWaterLevel) (void);
-typedef int (*SDK_SetMaxHeight) (float fHeight);
-typedef float (*SDK_GetMaxHeight) (void);
-typedef int (*SDK_SetKillCmdDelay) (int nDelay);
-typedef int (*SDK_GetKillCmdDelay) (void);
-typedef int (*SDK_SetVehiclesForcedRespawnHeight) (float fHeight);
-typedef float (*SDK_GetVehiclesForcedRespawnHeight) (void);
-typedef int (*SDK_ToggleSyncFrameLimiter) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledSyncFrameLimiter) (void);
-typedef int (*SDK_ToggleFrameLimiter) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledFrameLimiter) (void);
-typedef int (*SDK_ToggleTaxiBoostJump) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledTaxiBoostJump) (void);
-typedef int (*SDK_ToggleDriveOnWater) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledDriveOnWater) (void);
-typedef int (*SDK_ToggleFastSwitch) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledFastSwitch) (void);
-typedef int (*SDK_ToggleFriendlyFire) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledFriendlyFire) (void);
-typedef int (*SDK_ToggleDisableDriveby) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledDisableDriveby) (void);
-typedef int (*SDK_TogglePerfectHandling) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPerfectHandling) (void);
-typedef int (*SDK_ToggleFlyingCars) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledFlyingCars) (void);
-typedef int (*SDK_ToggleJumpSwitch) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledJumpSwitch) (void);
-typedef int (*SDK_ToggleShowMarkers) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledShowMarkers) (void);
-typedef int (*SDK_ToggleOnlyShowTeamMarkers) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledOnlyShowTeamMarkers) (void);
-typedef int (*SDK_ToggleStuntBike) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledStuntBike) (void);
-typedef int (*SDK_ToggleShootInAir) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledShootInAir) (void);
-typedef int (*SDK_ToggleShowNametags) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledShowNametags) (void);
-typedef int (*SDK_ToggleJoinMessages) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledJoinMessages) (void);
-typedef int (*SDK_ToggleDeathMessages) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledDeathMessages) (void);
-typedef int (*SDK_ToggleChatTagsByDefaultEnabled) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledChatTagsByDefault) (void);
-typedef int (*SDK_CreateExplosion) (int nWorldId, int nType, float fPosX, float fPosY, float fPosZ, int nSourcePlayerId, unsigned int bGroundLevel);
-typedef int (*SDK_PlaySound) (int nWorldId, int nSoundId, float fPosX, float fPosY, float fPosZ);
-typedef int (*SDK_HideMapObject) (int nModelId, int nTenthX, int nTenthY, int nTenthZ);
-typedef int (*SDK_ShowMapObject) (int nModelId, int nTenthX, int nTenthY, int nTenthZ);
-typedef int (*SDK_ShowAllMapObjects) (void);
-typedef int (*SDK_SetWeaponDataValue) (int nWeaponId, int nFieldId, double fValue);
-typedef double (*SDK_GetWeaponDataValue) (int nWeaponId, int nFieldId);
-typedef int (*SDK_ResetWeaponDataValue) (int nWeaponId, int nFieldId);
-typedef unsigned int (*SDK_IsWeaponDataValueModified) (int nWeaponId, int nFieldId);
-typedef int (*SDK_ResetWeaponData) (int nWeaponId);
-typedef int (*SDK_ResetAllWeaponData) (void);
-typedef int (*SDK_GetKeyBindUnusedSlot) (void);
-typedef unsigned int (*SDK_GetKeyBindData) (int nBindId, unsigned int* pbOnRelease, int* nKeyOne, int* pnKeyTwo, int* pnKeyThree);
-typedef unsigned int (*SDK_RegisterKeyBind) (int nBindId, unsigned int bOnRelease, int nKeyOne, int nKeyTwo, int nKeyThree);
-typedef unsigned int (*SDK_RemoveKeyBind) (int nBindId);
-typedef void (*SDK_RemoveAllKeyBinds) (void);
-typedef int (*SDK_CreateCoordBlip) (int nIndex, int nWorld, float fX, float fY, float fZ, int nScale, unsigned int uColour, int nSprite);
-typedef void (*SDK_DestroyCoordBlip) (int nIndex);
-typedef unsigned int (*SDK_GetCoordBlipInfo) (int nIndex, int* pnWorld, float* pfX, float* pfY, float* pfZ, int* pnScale, unsigned int* puColour, int* pnSprite);
-typedef int (*SDK_CreateSprite) (int nIndex, const char * pszFilename, int fX, int fY, int fRotX, int fRotY, float fRotation, unsigned char byAlpha, unsigned int isRelative);
-typedef void (*SDK_DestroySprite) (int nIndex);
-typedef void (*SDK_ShowSprite) (int nIndex, int nPlayerId);
-typedef void (*SDK_HideSprite) (int nIndex, int nPlayerId);
-typedef void (*SDK_MoveSprite) (int nIndex, int nPlayerId, int fX, int fY);
-typedef void (*SDK_SetSpriteCenter) (int nIndex, int nPlayerId, int fX, int fY);
-typedef void (*SDK_RotateSprite) (int nIndex, int nPlayerId, float fRotation);
-typedef void (*SDK_SetSpriteAlpha) (int nIndex, int nPlayerId, unsigned char byAlpha);
-typedef void (*SDK_SetSpriteRelativity) (int nIndex, int nPlayerId, unsigned int isRelative);
-typedef int (*SDK_CreateTextdraw) (int nIndex, const char * pszText, int lX, int lY, unsigned int dwColour, unsigned int isRelative);
-typedef void (*SDK_DestroyTextdraw) (int nIndex);
-typedef void (*SDK_ShowTextdraw) (int nIndex, int nPlayerId);
-typedef void (*SDK_HideTextdraw) (int nIndex, int nPlayerId);
-typedef void (*SDK_MoveTextdraw) (int nIndex, int nPlayerId, int lX, int lY);
-typedef void (*SDK_SetTextdrawColour) (int nIndex, int nPlayerId, unsigned int dwColour);
-typedef void (*SDK_SetTextdrawRelativity) (int nIndex, int nPlayerId, unsigned int isRelative);
-typedef int (*SDK_AddRadioStream) (int nRadioId, const char* pszRadioName, const char* pszRadioURL, unsigned int bIsListed);
-typedef int (*SDK_RemoveRadioStream) (int nRadioId);
-typedef int (*SDK_SetUseClasses) (unsigned int bToggle);
-typedef unsigned int (*SDK_GetUseClasses) (void);
-typedef int (*SDK_GetPlayerClass) (int nPlayerId);
-typedef int (*SDK_AddPlayerClass) (int nTeamId, unsigned int uColour, int nModelId, float fSpawnX, float fSpawnY, float fSpawnZ, float fAngleZ, int nWep1, int nWep1Ammo, int nWep2, int nWep2Ammo, int nWep3, int nWep3Ammo);
-typedef int (*SDK_SetSpawnPlayerPos) (float fPosX, float fPosY, float fPosZ);
-typedef int (*SDK_SetSpawnCameraPos) (float fPosX, float fPosY, float fPosZ);
-typedef int (*SDK_SetSpawnCameraLookAt) (float fPosX, float fPosY, float fPosZ);
-typedef unsigned int (*SDK_IsPlayerAdmin) (int nPlayerId);
-typedef int (*SDK_SetPlayerAdmin) (int nPlayerId, unsigned int bToggle);
-typedef int (*SDK_GetPlayerIP) (int nPlayerId, char* pszBuffer, int nBufferLen);
-typedef int (*SDK_KickPlayer) (int nPlayerId);
-typedef int (*SDK_BanPlayer) (int nPlayerId);
-typedef int (*SDK_BanIP) (char* pszIPAddress);
-typedef int (*SDK_UnbanIP) (char* pszIPAddress);
-typedef unsigned int (*SDK_IsIPBanned) (char* pszIPAddress);
-typedef int (*SDK_GetPlayerIDFromName) (char* pszName);
-typedef unsigned int (*SDK_IsPlayerConnected) (int nPlayerId);
-typedef unsigned int (*SDK_IsPlayerSpawned) (int nPlayerId);
-typedef unsigned int (*SDK_IsPlayerStreamedForPlayer) (int nCheckPlayer, int nPlayerId);
-typedef unsigned int (*SDK_GetPlayerKey) (int nPlayerId);
-typedef int (*SDK_SetPlayerWorld) (int nPlayerId, int nWorld);
-typedef int (*SDK_GetPlayerWorld) (int nPlayerId);
-typedef int (*SDK_SetPlayerSecWorld) (int nPlayerId, int nSecWorld);
-typedef int (*SDK_GetPlayerSecWorld) (int nPlayerId);
-typedef int (*SDK_GetPlayerUniqueWorld) (int nPlayerId);
-typedef unsigned int (*SDK_IsPlayerWorldCompatible) (int nPlayerId, int nWorld);
-typedef int (*SDK_GetPlayerState) (int nPlayerId);
-typedef int (*SDK_GetPlayerName) (int nPlayerId, char* szBuffer, int nBufferLen);
-typedef unsigned int (*SDK_SetPlayerName) (int nPlayerId, const char* pszName);
-typedef int (*SDK_SetPlayerTeam) (int nPlayerId, int nTeamId);
-typedef int (*SDK_GetPlayerTeam) (int nPlayerId);
-typedef int (*SDK_SetPlayerSkin) (int nPlayerId, int nSkinId);
-typedef int (*SDK_GetPlayerSkin) (int nPlayerId);
-typedef int (*SDK_SetPlayerColour) (int nPlayerId, unsigned int uColour);
-typedef unsigned int (*SDK_GetPlayerColour) (int nPlayerId);
-typedef int (*SDK_ForcePlayerSpawn) (int nPlayerId);
-typedef int (*SDK_ForcePlayerSelect) (int nPlayerId);
-typedef int (*SDK_ForceAllSelect) (void);
-typedef int (*SDK_GivePlayerMoney) (int nPlayerId, int nAmount);
-typedef int (*SDK_SetPlayerMoney) (int nPlayerId, int nAmount);
-typedef int (*SDK_GetPlayerMoney) (int nPlayerId);
-typedef int (*SDK_SetPlayerScore) (int nPlayerId, int nScore);
-typedef int (*SDK_GetPlayerScore) (int nPlayerId);
-typedef int (*SDK_GetPlayerPing) (int nPlayerId);
-typedef unsigned int (*SDK_IsPlayerTyping) (int nPlayerId);
-typedef double (*SDK_GetPlayerFPS) (int nPlayerId);
-typedef int (*SDK_GetPlayerUID) (int nPlayerId, char* szBuffer, int nBufferLen);
-typedef int (*SDK_GetPlayerWantedLevel) (int nPlayerId);
-typedef int (*SDK_SetPlayerHealth) (int nPlayerId, float fHealth);
-typedef float (*SDK_GetPlayerHealth) (int nPlayerId);
-typedef int (*SDK_SetPlayerArmour) (int nPlayerId, float fArmour);
-typedef float (*SDK_GetPlayerArmour) (int nPlayerId);
-typedef int (*SDK_SetPlayerImmunityFlags) (int nPlayerId, int nFlags);
-typedef int (*SDK_GetPlayerImmunityFlags) (int nPlayerId);
-typedef int (*SDK_SetPlayerPos) (int nPlayerId, float fPosX, float fPosY, float fPosZ);
-typedef int (*SDK_GetPlayerPos) (int nPlayerId, float* pfPosX, float* pfPosY, float* pfPosZ);
-typedef int (*SDK_SetPlayerSpeed) (int nPlayerId, float fSpeedX, float fSpeedY, float fSpeedZ);
-typedef int (*SDK_GetPlayerSpeed) (int nPlayerId, float* pfSpeedX, float* pfSpeedY, float* pfSpeedZ);
-typedef int (*SDK_AddPlayerSpeed) (int nPlayerId, float fSpeedX, float fSpeedY, float fSpeedZ);
-typedef int (*SDK_SetPlayerHeading) (int nPlayerId, float fAngleZ);
-typedef float (*SDK_GetPlayerHeading) (int nPlayerId);
-typedef int (*SDK_SetPlayerAlpha) (int nPlayerId, int nAlpha, int nFadeTime);
-typedef int (*SDK_GetPlayerAlpha) (int nPlayerId);
-typedef unsigned int (*SDK_GetPlayerOnFireStatus) (int nPlayerId);
-typedef unsigned int (*SDK_GetPlayerCrouchStatus) (int nPlayerId);
-typedef int (*SDK_GetPlayerAction) (int nPlayerId);
-typedef int (*SDK_GetPlayerGameKeys) (int nPlayerId);
-typedef unsigned int (*SDK_GetPlayerAimPos) (int nPlayerId, float* pfX, float* pfY, float* pfZ);
-typedef unsigned int (*SDK_GetPlayerAimDir) (int nPlayerId, float* pfX, float* pfY, float* pfZ);
-typedef int (*SDK_PutPlayerInVehicle) (int nPlayerId, int nVehicleId, int nSlot, unsigned int bMakeRoom, unsigned int bWarp);
-typedef int (*SDK_RemovePlayerFromVehicle) (int nPlayerId);
-typedef int (*SDK_GetPlayerInVehicleStatus) (int nPlayerId);
-typedef int (*SDK_GetPlayerInVehicleSlot) (int nPlayerId);
-typedef int (*SDK_GetPlayerVehicleID) (int nPlayerId);
-typedef int (*SDK_TogglePlayerControllable) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerControllable) (int nPlayerId);
-typedef int (*SDK_TogglePlayerDriveby) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerDriveby) (int nPlayerId);
-typedef int (*SDK_TogglePlayerWhiteScanlines) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerWhiteScanlines) (int nPlayerId);
-typedef int (*SDK_TogglePlayerGreenScanlines) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerGreenScanlines) (int nPlayerId);
-typedef int (*SDK_TogglePlayerWidescreen) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerWidescreen) (int nPlayerId);
-typedef int (*SDK_TogglePlayerShowMarkers) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerShowMarkers) (int nPlayerId);
-typedef int (*SDK_TogglePlayerAttackPriv) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerAttackPriv) (int nPlayerId);
-typedef int (*SDK_TogglePlayerHasMarker) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerHasMarker) (int nPlayerId);
-typedef int (*SDK_TogglePlayerChatTagsEnabled) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerChatTags) (int nPlayerId);
-typedef int (*SDK_TogglePlayerDrunkEffects) (int nPlayerId, unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledPlayerDrunkEffects) (int nPlayerId);
-typedef int (*SDK_GivePlayerWeapon) (int nPlayerId, int nWeaponId, int nAmmo);
-typedef int (*SDK_SetPlayerWeapon) (int nPlayerId, int nWeaponId, int nAmmo);
-typedef int (*SDK_GetPlayerWeapon) (int nPlayerId);
-typedef int (*SDK_GetPlayerWeaponAmmo) (int nPlayerId);
-typedef int (*SDK_SetPlayerWeaponSlot) (int nPlayerId, int nSlot);
-typedef int (*SDK_GetPlayerWeaponSlot) (int nPlayerId);
-typedef int (*SDK_GetPlayerWeaponAtSlot) (int nPlayerId, int nSlot);
-typedef int (*SDK_GetPlayerAmmoAtSlot) (int nPlayerId, int nSlot);
-typedef int (*SDK_RemovePlayerWeapon) (int nPlayerId, int nWeaponId);
-typedef int (*SDK_RemoveAllWeapons) (int nPlayerId);
-typedef int (*SDK_SetCameraPosition) (int nPlayerId, float fPosX, float fPosY, float fPosZ, float fLookX, float fLookY, float fLookZ);
-typedef int (*SDK_RestoreCamera) (int nPlayerId);
-typedef unsigned int (*SDK_IsCameraLocked) (int nPlayerId);
-typedef int (*SDK_SetPlayerAnimation) (int nPlayerId, int nGroupId, int nAnimationId);
-typedef int (*SDK_SetPlayerWantedLevel) (int nPlayerId, int nLevel);
-typedef int (*SDK_GetPlayerStandingOnVehicle) (int nPlayerId);
-typedef int (*SDK_GetPlayerStandingOnObject) (int nPlayerId);
-typedef unsigned int (*SDK_IsPlayerAway) (int nPlayerId);
-typedef int (*SDK_GetPlayerSpectateTarget) (int nPlayerId);
-typedef int (*SDK_SetPlayerSpectateTarget) (int nPlayerId, int nTargetId);
-typedef unsigned int (*SDK_RedirectPlayerToServer) (int nPlayerId, const char* szIP, unsigned int usPort, const char* szNickname, const char* szServerPass, const char* szUserPass);
-typedef int (*SDK_CreateVehicle) (int nModelId, int nWorld, float fPosX, float fPosY, float fPosZ, float fAngleZ, int nColour1, int nColour2);
-typedef int (*SDK_DeleteVehicle) (int nVehicleId);
-typedef int (*SDK_GetVehicleSyncSource) (int nVehicleId);
-typedef int (*SDK_GetVehicleSyncType) (int nVehicleId);
-typedef unsigned int (*SDK_IsVehicleStreamedForPlayer) (int nVehicleId, int nPlayerId);
-typedef int (*SDK_SetVehicleWorld) (int nVehicleId, int nWorld);
-typedef int (*SDK_GetVehicleWorld) (int nVehicleId);
-typedef int (*SDK_GetVehicleModel) (int nVehicleId);
-typedef int (*SDK_GetVehicleOccupant) (int nVehicleId, int nSlotIndex);
-typedef int (*SDK_RespawnVehicle) (int nVehicleId);
-typedef int (*SDK_SetVehicleImmunityFlags) (int nVehicleId, int nImmuFlags);
-typedef int (*SDK_GetVehicleImmunityFlags) (int nVehicleId);
-typedef int (*SDK_KillVehicle) (int nVehicleId);
-typedef unsigned int (*SDK_IsVehicleWrecked) (int nVehicleId);
-typedef int (*SDK_SetVehiclePos) (int nVehicleId, float fPosX, float fPosY, float fPosZ, unsigned int bRemoveOccupants);
-typedef int (*SDK_GetVehiclePos) (int nVehicleId, float* pfPosX, float* pfPosY, float* pfPosZ);
-typedef int (*SDK_SetVehicleRot) (int nVehicleId, float fX, float fY, float fZ, float fW);
-typedef int (*SDK_SetVehicleRotEuler) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_GetVehicleRot) (int nVehicleId, float* pfX, float* pfY, float *pfZ, float *pfW);
-typedef int (*SDK_GetVehicleRotEuler) (int nVehicleId, float* pfX, float* pfY, float *pfZ);
-typedef int (*SDK_SetVehicleSpeed) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_GetVehicleSpeed) (int nVehicleId, float* pfX, float* pfY, float* pfZ);
-typedef int (*SDK_AddVehicleSpeed) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_SetVehicleRelSpeed) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_GetVehicleRelSpeed) (int nVehicleId, float* pfX, float* pfY, float* pfZ);
-typedef int (*SDK_AddVehicleRelSpeed) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_SetVehicleTurnSpeed) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_GetVehicleTurnSpeed) (int nVehicleId, float* pfX, float* pfY, float* pfZ);
-typedef int (*SDK_AddVehicleTurnSpeed) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_SetVehicleRelTurnSpeed) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_GetVehicleRelTurnSpeed) (int nVehicleId, float* pfX, float* pfY, float* pfZ);
-typedef int (*SDK_AddVehicleRelTurnSpeed) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_SetVehicleSpawnPos) (int nVehicleId, float fPosX, float fPosY, float fPosZ, float fAngleZ);
-typedef int (*SDK_GetVehicleSpawnPos) (int nVehicleId, float* pfPosX, float* pfPosY, float* pfPosZ, float* pfAngleZ);
-typedef int (*SDK_SetVehicleSpawnRot) (int nVehicleId, float fX, float fY, float fZ, float fW);
-typedef int (*SDK_SetVehicleSpawnRotEuler) (int nVehicleId, float fX, float fY, float fZ);
-typedef int (*SDK_GetVehicleSpawnRot) (int nVehicleId, float* pfX, float* pfY, float* pfZ, float* pfW);
-typedef int (*SDK_GetVehicleSpawnRotEuler) (int nVehicleId, float* pfX, float* pfY, float* pfZ);
-typedef int (*SDK_SetVehicleIdleRespawnTimer) (int nVehicleId, unsigned int uTimer);
-typedef unsigned int (*SDK_GetVehicleIdleRespawnTimer) (int nVehicleId);
-typedef int (*SDK_SetVehicleHealth) (int nVehicleId, float fHealth);
-typedef float (*SDK_GetVehicleHealth) (int nVehicleId);
-typedef int (*SDK_SetVehicleColour) (int nVehicleId, int nColour1, int nColour2);
-typedef int (*SDK_GetVehicleColour) (int nVehicleId, int* pnColour1, int* pnColour2);
-typedef int (*SDK_SetVehicleDoorsLocked) (int nVehicleId, unsigned int bToggle);
-typedef unsigned int (*SDK_GetVehicleDoorsLocked) (int nVehicleId);
-typedef int (*SDK_SetVehiclePartStatus) (int nVehicleId, int nPartId, int nStatus);
-typedef int (*SDK_GetVehiclePartStatus) (int nVehicleId, int nPartId);
-typedef int (*SDK_SetVehicleTyreStatus) (int nVehicleId, int nTyreId, int nStatus);
-typedef int (*SDK_GetVehicleTyreStatus) (int nVehicleId, int nTyreId);
-typedef int (*SDK_SetVehicleDamageData) (int nVehicleId, unsigned int uDamageData);
-typedef unsigned int (*SDK_GetVehicleDamageData) (int nVehicleId);
-typedef int (*SDK_SetVehicleAlarm) (int nVehicleId, unsigned int bToggle);
-typedef unsigned int (*SDK_GetVehicleAlarm) (int nVehicleId);
-typedef int (*SDK_SetVehicleLights) (int nVehicleId, unsigned int bToggle);
-typedef unsigned int (*SDK_GetVehicleLights) (int nVehicleId);
-typedef int (*SDK_SetVehicleRadio) (int nVehicleId, int nRadioId);
-typedef int (*SDK_GetVehicleRadio) (int nVehicleId);
-typedef int (*SDK_SetVehicleRadioLocked) (int nVehicleId, unsigned int bToggle);
-typedef unsigned int (*SDK_IsVehicleRadioLocked) (int nVehicleId);
-typedef unsigned int (*SDK_GetVehicleGhostState) (int nVehicleId);
-typedef int (*SDK_SetVehicleGhostState) (int nVehicleId, unsigned int bToggle);
-typedef unsigned int (*SDK_GetVehicleTurretRotation) (int nVehicleId, float* pfH, float* pfV);
-typedef int (*SDK_ResetAllVehicleHandlings) (void);
-typedef unsigned int (*SDK_ExistsHandlingRule) (int nModelIndex, int nRuleIndex);
-typedef int (*SDK_SetHandlingRule) (int nModelIndex, int nRuleIndex, double fValue);
-typedef double (*SDK_GetHandlingRule) (int nModelIndex, int nRuleIndex);
-typedef int (*SDK_ResetHandlingRule) (int nModelIndex, int nRuleIndex);
-typedef int (*SDK_ResetHandling) (int nModelIndex);
-typedef unsigned int (*SDK_ExistsInstHandlingRule) (int nVehicleId, int nRuleIndex);
-typedef int (*SDK_SetInstHandlingRule) (int nVehicleId, int nRuleIndex, double fValue);
-typedef double (*SDK_GetInstHandlingRule) (int nVehicleId, int nRuleIndex);
-typedef int (*SDK_ResetInstHandlingRule) (int nVehicleId, int nRuleIndex);
-typedef int (*SDK_ResetInstHandling) (int nVehicleId);
-typedef int (*SDK_CreatePickup) (int nModel, int nWorld, int nQuantity, float fPosX, float fPosY, float fPosZ, int nAlpha, unsigned int bAutomatic);
-typedef int (*SDK_DeletePickup) (int nPickupId);
-typedef unsigned int (*SDK_IsPickupStreamedForPlayer) (int nPickupId, int nPlayerId);
-typedef int (*SDK_SetPickupWorld) (int nPickupId, int nWorld);
-typedef int (*SDK_GetPickupWorld) (int nPickupId);
-typedef int (*SDK_PickupGetAlpha) (int nPickupId);
-typedef int (*SDK_PickupSetAlpha) (int nPickupId, int nAlpha);
-typedef unsigned int (*SDK_PickupIsAutomatic) (int nPickupId);
-typedef int (*SDK_PickupSetAutomatic) (int nPickupId, unsigned int bToggle);
-typedef int (*SDK_SetPickupAutoTimer) (int nPickupId, int nTimer);
-typedef int (*SDK_GetPickupAutoTimer) (int nPickupId);
-typedef int (*SDK_PickupRefresh) (int nPickupId);
-typedef int (*SDK_PickupGetPos) (int nPickupId, float* pfPosX, float* pfPosY, float* pfPosZ);
-typedef int (*SDK_PickupSetPos) (int nPickupId, float fPosX, float fPosY, float fPosZ);
-typedef int (*SDK_PickupGetModel) (int nPickupId);
-typedef int (*SDK_PickupGetQuantity) (int nPickupId);
-typedef int (*SDK_CreateObject) (int nModelId, int nWorld, float fPosX, float fPosY, float fPosZ, int nAlpha);
-typedef int (*SDK_DeleteObject) (int nObjectId);
-typedef unsigned int (*SDK_IsObjectStreamedForPlayer) (int nObjectId, int nPlayerId);
-typedef int (*SDK_GetObjectModel) (int nObjectId);
-typedef int (*SDK_SetObjectWorld) (int nObjectId, int nWorld);
-typedef int (*SDK_GetObjectWorld) (int nObjectId);
-typedef int (*SDK_SetObjectAlpha) (int nObjectId, int nAlpha, int nTime);
-typedef int (*SDK_GetObjectAlpha) (int nObjectId);
-typedef int (*SDK_MoveObjectTo) (int nObjectId, float fX, float fY, float fZ, int nTime);
-typedef int (*SDK_MoveObjectBy) (int nObjectId, float fX, float fY, float fZ, int nTime);
-typedef int (*SDK_SetObjectPos) (int nObjectId, float fX, float fY, float fZ);
-typedef int (*SDK_GetObjectPos) (int nObjectId, float* pfPosX, float* pfPosY, float* pfPosZ);
-typedef int (*SDK_RotObjectTo) (int nObjectId, float fX, float fY, float fZ, float fW, int nTime);
-typedef int (*SDK_RotObjectToEuler) (int nObjectId, float fX, float fY, float fZ, int nTime);
-typedef int (*SDK_RotObjectBy) (int nObjectId, float fX, float fY, float fZ, float fW, int nTime);
-typedef int (*SDK_RotObjectByEuler) (int nObjectId, float fX, float fY, float fZ, int nTime);
-typedef int (*SDK_GetObjectRot) (int nObjectId, float* pfX, float* pfY, float *pfZ, float *pfW);
-typedef int (*SDK_GetObjectRotEuler) (int nObjectId, float* pfX, float* pfY, float *pfZ);
-typedef int (*SDK_SetObjectShotReport) (int nObjectId, unsigned int bToggle);
-typedef unsigned int (*SDK_IsObjectShotReport) (int nObjectId);
-typedef int (*SDK_SetObjectBumpReport) (int nObjectId, unsigned int bToggle);
-typedef unsigned int (*SDK_IsObjectBumpReport) (int nObjectId);
-typedef int (*SDK_ToggleWallglitch) (unsigned int bToggle);
-typedef unsigned int (*SDK_EnabledWallglitch) (void);
-typedef int (*SDK_SetVehicleSiren) (int nVehicleId, unsigned int bToggle);
-typedef unsigned int (*SDK_GetVehicleSiren) (int nVehicleId);
-typedef int (*SDK_GetPlayerUID2) (int nPlayerId, char* szBuffer, int nBufferLen);
-typedef int (*SDK_CreateCheckpoint) (int nPlayerId, int nWorld, float fPosX, float fPosY, float fPosZ, unsigned int nR, unsigned int nG, unsigned int nB, unsigned int nA, float fRadius);
-typedef int (*SDK_DeleteCheckpoint) (int nCheckpointId);
-typedef unsigned int (*SDK_IsCheckpointStreamedForPlayer) (int nCheckpointId, int nPlayerId);
-typedef int (*SDK_SetCheckpointWorld) (int nCheckpointId, int nWorld);
-typedef int (*SDK_GetCheckpointWorld) (int nCheckpointId);
-typedef int (*SDK_SetCheckpointColor) (int nCheckpointId, unsigned int nR, unsigned int nG, unsigned int nB, unsigned int nA);
-typedef unsigned int (*SDK_GetCheckpointColor) (int nCheckpointId, unsigned int* pnR, unsigned int* pnG, unsigned int* pnB, unsigned int* pnA);
-typedef int (*SDK_SetCheckpointPos) (int nCheckpointId, float fPosX, float fPosY, float fPosZ);
-typedef int (*SDK_GetCheckpointPos) (int nCheckpointId, float* pfPosX, float* pfPosY, float* pfPosZ);
-typedef int (*SDK_SetCheckpointRadius) (int nCheckpointId, float fRadius);
-typedef float (*SDK_GetCheckpointRadius) (int nCheckpointId);
-typedef int (*SDK_GetCheckpointOwner) (int nCheckpointId);
-typedef int (*SDK_CreateSphere) (int nPlayerId, int nWorld, float fPosX, float fPosY, float fPosZ, unsigned int nR, unsigned int nG, unsigned int nB, float fRadius);
-typedef int (*SDK_DeleteSphere) (int nSphereId);
-typedef unsigned int (*SDK_IsSphereStreamedForPlayer) (int nSphereId, int nPlayerId);
-typedef int (*SDK_SetSphereWorld) (int nSphereId, int nWorld);
-typedef int (*SDK_GetSphereWorld) (int nSphereId);
-typedef int (*SDK_SetSphereColor) (int nSphereId, unsigned int nR, unsigned int nG, unsigned int nB);
-typedef unsigned int (*SDK_GetSphereColor) (int nSphereId, unsigned int* pnR, unsigned int* pnG, unsigned int* pnB);
-typedef int (*SDK_SetSpherePos) (int nSphereId, float fPosX, float fPosY, float fPosZ);
-typedef int (*SDK_GetSpherePos) (int nSphereId, float* pfPosX, float* pfPosY, float* pfPosZ);
-typedef int (*SDK_SetSphereRadius) (int nSphereId, float fRadius);
-typedef float (*SDK_GetSphereRadius) (int nSphereId);
-typedef int (*SDK_GetSphereOwner) (int nSphereId);
-typedef int (*SDK_OnInitServer) (void);
-typedef void (*SDK_OnShutdownServer) (void);
-typedef void (*SDK_OnFrame) (float fElapsedTime);
-typedef void (*SDK_OnPlayerConnect) (int nPlayerId);
-typedef void (*SDK_OnPlayerDisconnect) (int nPlayerId, int nReason);
-typedef void (*SDK_OnPlayerBeginTyping) (int nPlayerId);
-typedef void (*SDK_OnPlayerEndTyping) (int nPlayerId);
-typedef int (*SDK_OnPlayerRequestClass) (int nPlayerId, int nOffset);
-typedef int (*SDK_OnPlayerRequestSpawn) (int nPlayerId);
-typedef void (*SDK_OnPlayerSpawn) (int nPlayerId);
-typedef void (*SDK_OnPlayerDeath) (int nPlayerId, int nKillerId, int nReason, int nBodyPart);
-typedef void (*SDK_OnPlayerUpdate) (int nPlayerId, int nUpdateType);
-typedef int (*SDK_OnPlayerRequestEnter) (int nPlayerId, int nVehicleId, int nSlotId);
-typedef void (*SDK_OnPlayerEnterVehicle) (int nPlayerId, int nVehicleId, int nSlotId);
-typedef void (*SDK_OnPlayerExitVehicle) (int nPlayerId, int nVehicleId);
-typedef void (*SDK_OnPlayerNameChange) (int nPlayerId, const char* pszOldName, const char* pszNewName);
-typedef void (*SDK_OnPlayerStateChange) (int nPlayerId, int nOldState, int nNewState);
-typedef void (*SDK_OnPlayerActionChange) (int nPlayerId, int nOldAction, int nNewAction);
-typedef void (*SDK_OnPlayerOnFireChange) (int nPlayerId, unsigned int bIsOnFireNow);
-typedef void (*SDK_OnPlayerCrouchChange) (int nPlayerId, unsigned int bIsCrouchingNow);
-typedef void (*SDK_OnPlayerGameKeysChange) (int nPlayerId, int nOldKeys, int nNewKeys);
-typedef int (*SDK_OnPickupClaimPicked) (int nPickupId, int nPlayerId);
-typedef void (*SDK_OnPickupPickedUp) (int nPickupId, int nPlayerId);
-typedef void (*SDK_OnPickupRespawn) (int nPickupId);
-typedef void (*SDK_OnVehicleUpdate) (int nVehicleId, int nUpdateType);
-typedef void (*SDK_OnVehicleExplode) (int nVehicleId);
-typedef void (*SDK_OnVehicleRespawn) (int nVehicleId);
-typedef void (*SDK_OnObjectShot) (int nObjectId, int nPlayerId, int nWeapon);
-typedef void (*SDK_OnObjectBump) (int nObjectId, int nPlayerId);
-typedef int (*SDK_OnPublicMessage) (int nPlayerId, const char* pszText);
-typedef int (*SDK_OnCommandMessage) (int nPlayerId, const char* pszText);
-typedef int (*SDK_OnPrivateMessage) (int nPlayerId, int nTargetId, const char* pszText);
-typedef int (*SDK_OnInternalCommand) (unsigned int uCmdType, const char* pszText);
-typedef int (*SDK_OnLoginAttempt) (char* pszPlayerName, const char* pszUserPassword, const char* pszIpAddress);
-typedef void (*SDK_OnEntityPoolChange) (int nEntityType, int nEntityId, unsigned int bDeleted);
-typedef void (*SDK_OnKeyBindDown) (int nPlayerId, int nBindId);
-typedef void (*SDK_OnKeyBindUp) (int nPlayerId, int nBindId);
-typedef void (*SDK_OnPlayerAwayChange) (int nPlayerId, unsigned int bNewStatus);
-typedef void (*SDK_OnPlayerSpectate) (int nPlayerId, int nTargetId);
-typedef void (*SDK_OnPlayerCrashReport) (int nPlayerId, const char* pszReport);
-typedef void (*SDK_OnServerPerformanceReport) (int nNumStats, const char** ppszDescription, unsigned long long* pnMillisecsSpent);
-typedef void (*SDK_OnCheckpointEntered) (int nCheckpointId, int nPlayerId);
-typedef void (*SDK_OnCheckpointExited) (int nCheckpointId, int nPlayerId);
-typedef void (*SDK_OnSphereEntered) (int nSphereId, int nPlayerId);
-typedef void (*SDK_OnSphereExited) (int nSphereId, int nPlayerId);
+typedef enum {
+	vcmpPlayerUpdateNormal = 0,
+	vcmpPlayerUpdateAiming = 1,
+	vcmpPlayerUpdateDriver = 2,
+	vcmpPlayerUpdatePassenger = 3,
+	forceSizeVcmpPlayerUpdate = INT32_MAX
+} vcmpPlayerUpdate;
+
+typedef enum {
+	vcmpPlayerVehicleOut = 0,
+	vcmpPlayerVehicleEntering = 1,
+	vcmpPlayerVehicleExiting = 2,
+	vcmpPlayerVehicleIn = 3,
+	forceSizeVcmpPlayerVehicle = INT32_MAX
+} vcmpPlayerVehicle;
+
+typedef enum {
+	vcmpVehicleSyncNone = 0,
+	vcmpVehicleSyncDriver = 1,
+	vcmpVehicleSyncPassenger = 3,
+	vcmpVehicleSyncNear = 4,
+	forceSizeVcmpVehicleSync = INT32_MAX
+} vcmpVehicleSync;
+
+typedef enum {
+	vcmpVehicleUpdateDriverSync = 0,
+	vcmpVehicleUpdateOtherSync = 1,
+	vcmpVehicleUpdatePosition = 2,
+	vcmpVehicleUpdateHealth = 4,
+	vcmpVehicleUpdateColour = 5,
+	vcmpVehicleUpdateRotation = 6,
+	forceSizeVcmpVehicleUpdate = INT32_MAX
+} vcmpVehicleUpdate;
+
+typedef enum {
+	vcmpServerOptionSyncFrameLimiter = 0,
+	vcmpServerOptionFrameLimiter = 1,
+	vcmpServerOptionTaxiBoostJump = 2,
+	vcmpServerOptionDriveOnWater = 3,
+	vcmpServerOptionFastSwitch = 4,
+	vcmpServerOptionFriendlyFire = 5,
+	vcmpServerOptionDisableDriveBy = 6,
+	vcmpServerOptionPerfectHandling = 7,
+	vcmpServerOptionFlyingCars = 8,
+	vcmpServerOptionJumpSwitch = 9,
+	vcmpServerOptionShowMarkers = 10,
+	vcmpServerOptionOnlyShowTeamMarkers = 11,
+	vcmpServerOptionStuntBike = 12,
+	vcmpServerOptionShootInAir = 13,
+	vcmpServerOptionShowNameTags = 14,
+	vcmpServerOptionJoinMessages = 15,
+	vcmpServerOptionDeathMessages = 16,
+	vcmpServerOptionChatTagsEnabled = 17,
+	vcmpServerOptionUseClasses = 18,
+	vcmpServerOptionWallGlitch = 19,
+	vcmpServerOptionDisableBackfaceCulling = 20,
+	vcmpServerOptionDisableHeliBladeDamage = 21,
+	forceSizeVcmpServerOption = INT32_MAX
+} vcmpServerOption;
+
+typedef enum {
+	vcmpPlayerOptionControllable = 0,
+	vcmpPlayerOptionDriveBy = 1,
+	vcmpPlayerOptionWhiteScanlines = 2,
+	vcmpPlayerOptionGreenScanlines = 3,
+	vcmpPlayerOptionWidescreen = 4,
+	vcmpPlayerOptionShowMarkers = 5,
+	vcmpPlayerOptionCanAttack = 6,
+	vcmpPlayerOptionHasMarker = 7,
+	vcmpPlayerOptionChatTagsEnabled = 8,
+	vcmpPlayerOptionDrunkEffects = 9,
+	forceSizeVcmpPlayerOption = INT32_MAX
+} vcmpPlayerOption;
+
+typedef enum {
+	vcmpVehicleOptionDoorsLocked = 0,
+	vcmpVehicleOptionAlarm = 1,
+	vcmpVehicleOptionLights = 2,
+	vcmpVehicleOptionRadioLocked = 3,
+	vcmpVehicleOptionGhost = 4,
+	vcmpVehicleOptionSiren = 5,
+	forceSizeVcmpVehicleOption = INT32_MAX
+} vcmpVehicleOption;
 
 typedef struct {
-  unsigned int            uStructSize;
+	uint32_t structSize;
 
-  //PLUGIN SYSTEM
-  SDK_GetServerVersion GetServerVersion;
-  SDK_GetServerSettings GetServerSettings;
-  SDK_ExportFunctions ExportFunctions;
-  SDK_GetNumberOfPlugins GetNumberOfPlugins;
-  SDK_GetPluginInfo GetPluginInfo;
-  SDK_FindPlugin FindPlugin;
-  SDK_GetPluginExports GetPluginExports;
-  SDK_GetTime GetTime;
+	/**
+	 * Plugin system
+	 */
 
-  //MESSAGES
-  SDK_printf printf;
-  SDK_SendCustomCommand SendCustomCommand;
-  SDK_SendClientMessage SendClientMessage;
-  SDK_SendGameMessage SendGameMessage;
+	/* success */
+	uint32_t (*GetServerVersion) (void);
+	/* vcmpErrorNullArgument */
+	vcmpError (*GetServerSettings) (ServerSettings* settings);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*ExportFunctions) (int32_t pluginId, const void** functionList, size_t size);
+	/* success */
+	uint32_t (*GetNumberOfPlugins) (void);
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument */
+	vcmpError (*GetPluginInfo) (int32_t pluginId, PluginInfo* pluginInfo);
+	/* -1 == vcmpEntityNone */
+	int32_t (*FindPlugin) (const char* pluginName);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	const void** (*GetPluginExports) (int32_t pluginId, size_t* exportCount);
+	/* vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	vcmpError (*SendPluginCommand) (uint32_t commandIdentifier, const char* format, ...);
+	/* success */
+	uint64_t (*GetTime) (void);
+	/* vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	vcmpError (*LogMessage) (const char* format, ...);
+	/* success */
+	vcmpError (*GetLastError) (void);
 
-  //SERVER SETTINGS
-  SDK_SetServerName SetServerName;
-  SDK_GetServerName GetServerName;
-  SDK_SetMaxPlayers SetMaxPlayers;
-  SDK_GetMaxPlayers GetMaxPlayers;
-  SDK_SetServerPassword SetServerPassword;
-  SDK_GetServerPassword GetServerPassword;
-  SDK_SetGameModeText SetGameModeText;
-  SDK_GetGameModeText GetGameModeText;
-  SDK_ShutdownServer ShutdownServer;
+	/**
+	 * Client messages
+	 */
 
-  //WORLD: settings
-  SDK_SetWorldBounds SetWorldBounds;
-  SDK_GetWorldBounds GetWorldBounds;
-  SDK_SetWastedSettings SetWastedSettings;
-  SDK_GetWastedSettings GetWastedSettings;
-  SDK_SetTimeRate SetTimeRate;
-  SDK_GetTimeRate GetTimeRate;
-  SDK_SetHour SetHour;
-  SDK_GetHour GetHour;
-  SDK_SetMinute SetMinute;
-  SDK_GetMinute GetMinute;
-  SDK_SetWeather SetWeather;
-  SDK_GetWeather GetWeather;
-  SDK_SetGravity SetGravity;
-  SDK_GetGravity GetGravity;
-  SDK_SetGamespeed SetGamespeed;
-  SDK_GetGamespeed GetGamespeed;
-  SDK_SetWaterLevel SetWaterLevel;
-  SDK_GetWaterLevel GetWaterLevel;
-  SDK_SetMaxHeight SetMaxHeight;
-  SDK_GetMaxHeight GetMaxHeight;
-  SDK_SetKillCmdDelay SetKillCmdDelay;
-  SDK_GetKillCmdDelay GetKillCmdDelay;
-  SDK_SetVehiclesForcedRespawnHeight SetVehiclesForcedRespawnHeight;
-  SDK_GetVehiclesForcedRespawnHeight GetVehiclesForcedRespawnHeight;
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	vcmpError (*SendClientScriptData) (int32_t playerId, const void* data, size_t size);
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	vcmpError (*SendClientMessage) (int32_t playerId, uint32_t colour, const char* format, ...);
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds, vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	vcmpError (*SendGameMessage) (int32_t playerId, int32_t type, const char* format, ...);
 
-  //WORLD: toggles
-  SDK_ToggleSyncFrameLimiter ToggleSyncFrameLimiter;
-  SDK_EnabledSyncFrameLimiter EnabledSyncFrameLimiter;
-  SDK_ToggleFrameLimiter ToggleFrameLimiter;
-  SDK_EnabledFrameLimiter EnabledFrameLimiter;
-  SDK_ToggleTaxiBoostJump ToggleTaxiBoostJump;
-  SDK_EnabledTaxiBoostJump EnabledTaxiBoostJump;
-  SDK_ToggleDriveOnWater ToggleDriveOnWater;
-  SDK_EnabledDriveOnWater EnabledDriveOnWater;
-  SDK_ToggleFastSwitch ToggleFastSwitch;
-  SDK_EnabledFastSwitch EnabledFastSwitch;
-  SDK_ToggleFriendlyFire ToggleFriendlyFire;
-  SDK_EnabledFriendlyFire EnabledFriendlyFire;
-  SDK_ToggleDisableDriveby ToggleDisableDriveby;
-  SDK_EnabledDisableDriveby EnabledDisableDriveby;
-  SDK_TogglePerfectHandling TogglePerfectHandling;
-  SDK_EnabledPerfectHandling EnabledPerfectHandling;
-  SDK_ToggleFlyingCars ToggleFlyingCars;
-  SDK_EnabledFlyingCars EnabledFlyingCars;
-  SDK_ToggleJumpSwitch ToggleJumpSwitch;
-  SDK_EnabledJumpSwitch EnabledJumpSwitch;
-  SDK_ToggleShowMarkers ToggleShowMarkers;
-  SDK_EnabledShowMarkers EnabledShowMarkers;
-  SDK_ToggleOnlyShowTeamMarkers ToggleOnlyShowTeamMarkers;
-  SDK_EnabledOnlyShowTeamMarkers EnabledOnlyShowTeamMarkers;
-  SDK_ToggleStuntBike ToggleStuntBike;
-  SDK_EnabledStuntBike EnabledStuntBike;
-  SDK_ToggleShootInAir ToggleShootInAir;
-  SDK_EnabledShootInAir EnabledShootInAir;
-  SDK_ToggleShowNametags ToggleShowNametags;
-  SDK_EnabledShowNametags EnabledShowNametags;
-  SDK_ToggleJoinMessages ToggleJoinMessages;
-  SDK_EnabledJoinMessages EnabledJoinMessages;
-  SDK_ToggleDeathMessages ToggleDeathMessages;
-  SDK_EnabledDeathMessages EnabledDeathMessages;
-  SDK_ToggleChatTagsByDefaultEnabled ToggleChatTagsByDefaultEnabled;
-  SDK_EnabledChatTagsByDefault EnabledChatTagsByDefault;
+	/*
+	 * Server settings
+	 */
 
-  //MISC
-  SDK_CreateExplosion CreateExplosion;
-  SDK_PlaySound PlaySound;
-  SDK_HideMapObject HideMapObject;
-  SDK_ShowMapObject ShowMapObject;
-  SDK_ShowAllMapObjects ShowAllMapObjects;
+	/* vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	vcmpError (*SetServerName) (const char* text);
+	/* vcmpErrorNullArgument, vcmpErrorBufferTooSmall */
+	vcmpError (*GetServerName) (char* buffer, size_t size);
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetMaxPlayers) (uint32_t maxPlayers);
+	/* success */
+	uint32_t (*GetMaxPlayers) (void);
+	/* vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	vcmpError (*SetServerPassword) (const char* password);
+	/* vcmpErrorNullArgument, vcmpErrorBufferTooSmall */
+	vcmpError (*GetServerPassword) (char* buffer, size_t size);
+	/* vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	vcmpError (*SetGameModeText) (const char* gameMode);
+	/* vcmpErrorNullArgument, vcmpErrorBufferTooSmall */
+	vcmpError (*GetGameModeText) (char* buffer, size_t size);
+	/* success */
+	void (*ShutdownServer) (void);
 
-  //WEAPONDATA
-  SDK_SetWeaponDataValue SetWeaponDataValue;
-  SDK_GetWeaponDataValue GetWeaponDataValue;
-  SDK_ResetWeaponDataValue ResetWeaponDataValue;
-  SDK_IsWeaponDataValueModified IsWeaponDataValueModified;
-  SDK_ResetWeaponData ResetWeaponData;
-  SDK_ResetAllWeaponData ResetAllWeaponData;
+	/*
+	 * Game environment settings
+	 */
 
-  //KEYBINDS
-  SDK_GetKeyBindUnusedSlot GetKeyBindUnusedSlot;
-  SDK_GetKeyBindData GetKeyBindData;
-  SDK_RegisterKeyBind RegisterKeyBind;
-  SDK_RemoveKeyBind RemoveKeyBind;
-  SDK_RemoveAllKeyBinds RemoveAllKeyBinds;
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetServerOption) (vcmpServerOption option, uint8_t toggle);
+	/* GetLastError: vcmpErrorArgumentOutOfBounds */
+	uint8_t (*GetServerOption) (vcmpServerOption option);
+	/* success */
+	void (*SetWorldBounds) (float maxX, float minX, float maxY, float minY);
+	/* success */
+	void (*GetWorldBounds) (float* maxXOut, float* minXOut, float* maxYOut, float* minYOut);
+	/* success */
+	void (*SetWastedSettings) (uint32_t deathTimer, uint32_t fadeTimer, float fadeInSpeed, float fadeOutSpeed, uint32_t fadeColour, uint32_t corpseFadeStart, uint32_t corpseFadeTime);
+	/* success */
+	void (*GetWastedSettings) (uint32_t* deathTimerOut, uint32_t* fadeTimerOut, float* fadeInSpeedOut, float* fadeOutSpeedOut, uint32_t* fadeColourOut, uint32_t* corpseFadeStartOut, uint32_t* corpseFadeTimeOut);
+	/* success */
+	void (*SetTimeRate) (int32_t timeRate);
+	/* success */
+	int32_t (*GetTimeRate) (void);
+	/* success */
+	void (*SetHour) (int32_t hour);
+	/* success */
+	int32_t (*GetHour) (void);
+	/* success */
+	void (*SetMinute) (int32_t minute);
+	/* success */
+	int32_t (*GetMinute) (void);
+	/* success */
+	void (*SetWeather) (int32_t weather);
+	/* success */
+	int32_t (*GetWeather) (void);
+	/* success */
+	void (*SetGravity) (float gravity);
+	/* success */
+	float (*GetGravity) (void);
+	/* success */
+	void (*SetGameSpeed) (float gameSpeed);
+	/* success */
+	float (*GetGameSpeed) (void);
+	/* success */
+	void (*SetWaterLevel) (float waterLevel);
+	/* success */
+	float (*GetWaterLevel) (void);
+	/* success */
+	void (*SetMaximumFlightAltitude) (float height);
+	/* success */
+	float (*GetMaximumFlightAltitude) (void);
+	/* success */
+	void (*SetKillCommandDelay) (int32_t delay);
+	/* success */
+	int32_t (*GetKillCommandDelay) (void);
+	/* success */
+	void (*SetVehiclesForcedRespawnHeight) (float height);
+	/* success */
+	float (*GetVehiclesForcedRespawnHeight) (void);
 
-  //BLIPS
-  SDK_CreateCoordBlip CreateCoordBlip;
-  SDK_DestroyCoordBlip DestroyCoordBlip;
-  SDK_GetCoordBlipInfo GetCoordBlipInfo;
+	/*
+	 * Miscellaneous things
+	 */
 
-  //SPRITES
-  SDK_CreateSprite CreateSprite;
-  SDK_DestroySprite DestroySprite;
-  SDK_ShowSprite ShowSprite;
-  SDK_HideSprite HideSprite;
-  SDK_MoveSprite MoveSprite;
-  SDK_SetSpriteCenter SetSpriteCenter;
-  SDK_RotateSprite RotateSprite;
-  SDK_SetSpriteAlpha SetSpriteAlpha;
-  SDK_SetSpriteRelativity SetSpriteRelativity;
+	/* vcmpErrorArgumentOutOfBounds, vcmpErrorNoSuchEntity */
+	vcmpError (*CreateExplosion) (int32_t worldId, int32_t type, float x, float y, float z, int32_t responsiblePlayerId, uint8_t atGroundLevel);
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*PlaySound) (int32_t worldId, int32_t soundId, float x, float y, float z);
+	/* success */
+	void (*HideMapObject) (int32_t modelId, int16_t tenthX, int16_t tenthY, int16_t tenthZ);
+	/* success */
+	void (*ShowMapObject) (int32_t modelId, int16_t tenthX, int16_t tenthY, int16_t tenthZ);
+	/* success */
+	void (*ShowAllMapObjects) (void);
 
-  //TEXTDRAWS
-  SDK_CreateTextdraw CreateTextdraw;
-  SDK_DestroyTextdraw DestroyTextdraw;
-  SDK_ShowTextdraw ShowTextdraw;
-  SDK_HideTextdraw HideTextdraw;
-  SDK_MoveTextdraw MoveTextdraw;
-  SDK_SetTextdrawColour SetTextdrawColour;
-  SDK_SetTextdrawRelativity SetTextdrawRelativity;
+	/*
+	 * Weapon settings
+	 */
 
-  //RADIOS
-  SDK_AddRadioStream AddRadioStream;
-  SDK_RemoveRadioStream RemoveRadioStream;
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetWeaponDataValue) (int32_t weaponId, int32_t fieldId, double value);
+	/* GetLastError: vcmpErrorArgumentOutOfBounds */
+	double (*GetWeaponDataValue) (int32_t weaponId, int32_t fieldId);
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*ResetWeaponDataValue) (int32_t weaponId, int32_t fieldId);
+	/* GetLastError: vcmpErrorArgumentOutOfBounds */
+	uint8_t (*IsWeaponDataValueModified) (int32_t weaponId, int32_t fieldId);
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*ResetWeaponData) (int32_t weaponId);
+	/* success */
+	void (*ResetAllWeaponData) (void);
 
-  //CLASSES
-  SDK_SetUseClasses SetUseClasses;
-  SDK_GetUseClasses GetUseClasses;
-  SDK_GetPlayerClass GetPlayerClass;
-  SDK_AddPlayerClass AddPlayerClass;
-  SDK_SetSpawnPlayerPos SetSpawnPlayerPos;
-  SDK_SetSpawnCameraPos SetSpawnCameraPos;
-  SDK_SetSpawnCameraLookAt SetSpawnCameraLookAt;
+	/*
+	 * Key binds
+	 */
 
-  //ADMIN
-  SDK_IsPlayerAdmin IsPlayerAdmin;
-  SDK_SetPlayerAdmin SetPlayerAdmin;
-  SDK_GetPlayerIP GetPlayerIP;
-  SDK_KickPlayer KickPlayer;
-  SDK_BanPlayer BanPlayer;
-  SDK_BanIP BanIP;
-  SDK_UnbanIP UnbanIP;
-  SDK_IsIPBanned IsIPBanned;
+	/* -1 == vcmpEntityNone */
+	int32_t (*GetKeyBindUnusedSlot) (void);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetKeyBindData) (int32_t bindId, uint8_t* isCalledOnReleaseOut, int32_t* keyOneOut, int32_t* keyTwoOut, int32_t* keyThreeOut);
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*RegisterKeyBind) (int32_t bindId, uint8_t isCalledOnRelease, int32_t keyOne, int32_t keyTwo, int32_t keyThree);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RemoveKeyBind) (int32_t bindId);
+	/* success */
+	void (*RemoveAllKeyBinds) (void);
 
-  //PLAYERS: basic
-  SDK_GetPlayerIDFromName GetPlayerIDFromName;
-  SDK_IsPlayerConnected IsPlayerConnected;
-  SDK_IsPlayerSpawned IsPlayerSpawned;
-  SDK_IsPlayerStreamedForPlayer IsPlayerStreamedForPlayer;
-  SDK_GetPlayerKey GetPlayerKey;
-  SDK_SetPlayerWorld SetPlayerWorld;
-  SDK_GetPlayerWorld GetPlayerWorld;
-  SDK_SetPlayerSecWorld SetPlayerSecWorld;
-  SDK_GetPlayerSecWorld GetPlayerSecWorld;
-  SDK_GetPlayerUniqueWorld GetPlayerUniqueWorld;
-  SDK_IsPlayerWorldCompatible IsPlayerWorldCompatible;
-  SDK_GetPlayerState GetPlayerState;
-  SDK_GetPlayerName GetPlayerName;
-  SDK_SetPlayerName SetPlayerName;
-  SDK_SetPlayerTeam SetPlayerTeam;
-  SDK_GetPlayerTeam GetPlayerTeam;
-  SDK_SetPlayerSkin SetPlayerSkin;
-  SDK_GetPlayerSkin GetPlayerSkin;
-  SDK_SetPlayerColour SetPlayerColour;
-  SDK_GetPlayerColour GetPlayerColour;
-  SDK_ForcePlayerSpawn ForcePlayerSpawn;
-  SDK_ForcePlayerSelect ForcePlayerSelect;
-  SDK_ForceAllSelect ForceAllSelect;
+	/*
+	 * Coordinate blips
+	 */
 
-  //PLAYERS: score, ping, money, typing
-  SDK_GivePlayerMoney GivePlayerMoney;
-  SDK_SetPlayerMoney SetPlayerMoney;
-  SDK_GetPlayerMoney GetPlayerMoney;
-  SDK_SetPlayerScore SetPlayerScore;
-  SDK_GetPlayerScore GetPlayerScore;
-  SDK_GetPlayerPing GetPlayerPing;
-  SDK_IsPlayerTyping IsPlayerTyping;
-  SDK_GetPlayerFPS GetPlayerFPS;
-  SDK_GetPlayerUID GetPlayerUID;
-  SDK_GetPlayerWantedLevel GetPlayerWantedLevel;
+	/* GetLastError: vcmpErrorPoolExhausted */
+	int32_t (*CreateCoordBlip) (int32_t index, int32_t world, float x, float y, float z, int32_t scale, uint32_t colour, int32_t sprite);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*DestroyCoordBlip) (int32_t index);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetCoordBlipInfo) (int32_t index, int32_t* worldOut, float* xOut, float* yOUt, float* zOut, int32_t* scaleOut, uint32_t* colourOut, int32_t* spriteOut);
 
-  //PLAYERS: health and location
-  SDK_SetPlayerHealth SetPlayerHealth;
-  SDK_GetPlayerHealth GetPlayerHealth;
-  SDK_SetPlayerArmour SetPlayerArmour;
-  SDK_GetPlayerArmour GetPlayerArmour;
-  SDK_SetPlayerImmunityFlags SetPlayerImmunityFlags;
-  SDK_GetPlayerImmunityFlags GetPlayerImmunityFlags;
-  SDK_SetPlayerPos SetPlayerPos;
-  SDK_GetPlayerPos GetPlayerPos;
-  SDK_SetPlayerSpeed SetPlayerSpeed;
-  SDK_GetPlayerSpeed GetPlayerSpeed;
-  SDK_AddPlayerSpeed AddPlayerSpeed;
-  SDK_SetPlayerHeading SetPlayerHeading;
-  SDK_GetPlayerHeading GetPlayerHeading;
-  SDK_SetPlayerAlpha SetPlayerAlpha;
-  SDK_GetPlayerAlpha GetPlayerAlpha;
-  SDK_GetPlayerOnFireStatus GetPlayerOnFireStatus;
-  SDK_GetPlayerCrouchStatus GetPlayerCrouchStatus;
-  SDK_GetPlayerAction GetPlayerAction;
-  SDK_GetPlayerGameKeys GetPlayerGameKeys;
-  SDK_GetPlayerAimPos GetPlayerAimPos;
-  SDK_GetPlayerAimDir GetPlayerAimDir;
+	/*
+	 * Radios
+	 */
 
-  //PLAYERS: vehicle
-  SDK_PutPlayerInVehicle PutPlayerInVehicle;
-  SDK_RemovePlayerFromVehicle RemovePlayerFromVehicle;
-  SDK_GetPlayerInVehicleStatus GetPlayerInVehicleStatus;
-  SDK_GetPlayerInVehicleSlot GetPlayerInVehicleSlot;
-  SDK_GetPlayerVehicleID GetPlayerVehicleID;
+	/* vcmpErrorArgumentOutOfBounds, vcmpErrorNullArgument */
+	vcmpError (*AddRadioStream) (int32_t radioId, const char* radioName, const char* radioUrl, uint8_t isListed);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RemoveRadioStream) (int32_t radioId);
 
-  //PLAYERS: toggles
-  SDK_TogglePlayerControllable TogglePlayerControllable;
-  SDK_EnabledPlayerControllable EnabledPlayerControllable;
-  SDK_TogglePlayerDriveby TogglePlayerDriveby;
-  SDK_EnabledPlayerDriveby EnabledPlayerDriveby;
-  SDK_TogglePlayerWhiteScanlines TogglePlayerWhiteScanlines;
-  SDK_EnabledPlayerWhiteScanlines EnabledPlayerWhiteScanlines;
-  SDK_TogglePlayerGreenScanlines TogglePlayerGreenScanlines;
-  SDK_EnabledPlayerGreenScanlines EnabledPlayerGreenScanlines;
-  SDK_TogglePlayerWidescreen TogglePlayerWidescreen;
-  SDK_EnabledPlayerWidescreen EnabledPlayerWidescreen;
-  SDK_TogglePlayerShowMarkers TogglePlayerShowMarkers;
-  SDK_EnabledPlayerShowMarkers EnabledPlayerShowMarkers;
-  SDK_TogglePlayerAttackPriv TogglePlayerAttackPriv;
-  SDK_EnabledPlayerAttackPriv EnabledPlayerAttackPriv;
-  SDK_TogglePlayerHasMarker TogglePlayerHasMarker;
-  SDK_EnabledPlayerHasMarker EnabledPlayerHasMarker;
-  SDK_TogglePlayerChatTagsEnabled TogglePlayerChatTagsEnabled;
-  SDK_EnabledPlayerChatTags EnabledPlayerChatTags;
-  SDK_TogglePlayerDrunkEffects TogglePlayerDrunkEffects;
-  SDK_EnabledPlayerDrunkEffects EnabledPlayerDrunkEffects;
+	/*
+	 * Spawning and classes
+	 */
 
-  //PLAYERS: weapons
-  SDK_GivePlayerWeapon GivePlayerWeapon;
-  SDK_SetPlayerWeapon SetPlayerWeapon;
-  SDK_GetPlayerWeapon GetPlayerWeapon;
-  SDK_GetPlayerWeaponAmmo GetPlayerWeaponAmmo;
-  SDK_SetPlayerWeaponSlot SetPlayerWeaponSlot;
-  SDK_GetPlayerWeaponSlot GetPlayerWeaponSlot;
-  SDK_GetPlayerWeaponAtSlot GetPlayerWeaponAtSlot;
-  SDK_GetPlayerAmmoAtSlot GetPlayerAmmoAtSlot;
-  SDK_RemovePlayerWeapon RemovePlayerWeapon;
-  SDK_RemoveAllWeapons RemoveAllWeapons;
+	/* GetLastError: vcmpErrorArgumentOutOfBounds, vcmpErrorPoolExhausted */
+	int32_t (*AddPlayerClass) (int32_t teamId, uint32_t colour, int32_t modelIndex, float x, float y, float z, float angle, int32_t weaponOne, int32_t weaponOneAmmo, int32_t weaponTwo, int32_t weaponTwoAmmo, int32_t weaponThree, int32_t weaponThreeAmmo);
+	/* success */
+	void (*SetSpawnPlayerPosition) (float x, float y, float z);
+	/* success */
+	void (*SetSpawnCameraPosition) (float x, float y, float z);
+	/* success */
+	void (*SetSpawnCameraLookAt) (float x, float y, float z);
 
-  //PLAYERS: camera
-  SDK_SetCameraPosition SetCameraPosition;
-  SDK_RestoreCamera RestoreCamera;
-  SDK_IsCameraLocked IsCameraLocked;
+	/*
+	 * Administration
+	 */
+	
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsPlayerAdmin) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerAdmin) (int32_t playerId, uint8_t toggle);
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorBufferTooSmall */
+	vcmpError (*GetPlayerIP) (int32_t playerId, char* buffer, size_t size);
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorBufferTooSmall */
+	vcmpError (*GetPlayerUID) (int32_t playerId, char* buffer, size_t size);
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorBufferTooSmall */
+	vcmpError (*GetPlayerUID2) (int32_t playerId, char* buffer, size_t size);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*KickPlayer) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*BanPlayer) (int32_t playerId);
+	/* success */
+	void (*BanIP) (char* ipAddress);
+	/* success */
+	uint8_t (*UnbanIP) (char* ipAddress);
+	/* success */
+	uint8_t (*IsIPBanned) (char* ipAddress);
 
-  //PLAYERS: misc
-  SDK_SetPlayerAnimation SetPlayerAnimation;
-  SDK_SetPlayerWantedLevel SetPlayerWantedLevel;
-  SDK_GetPlayerStandingOnVehicle GetPlayerStandingOnVehicle;
-  SDK_GetPlayerStandingOnObject GetPlayerStandingOnObject;
-  SDK_IsPlayerAway IsPlayerAway;
-  SDK_GetPlayerSpectateTarget GetPlayerSpectateTarget;
-  SDK_SetPlayerSpectateTarget SetPlayerSpectateTarget;
-  SDK_RedirectPlayerToServer RedirectPlayerToServer;
+	/*
+	 * Player access and basic info
+	 */
 
-  //VEHICLES
-  SDK_CreateVehicle CreateVehicle;
-  SDK_DeleteVehicle DeleteVehicle;
-  SDK_GetVehicleSyncSource GetVehicleSyncSource;
-  SDK_GetVehicleSyncType GetVehicleSyncType;
-  SDK_IsVehicleStreamedForPlayer IsVehicleStreamedForPlayer;
-  SDK_SetVehicleWorld SetVehicleWorld;
-  SDK_GetVehicleWorld GetVehicleWorld;
-  SDK_GetVehicleModel GetVehicleModel;
-  SDK_GetVehicleOccupant GetVehicleOccupant;
-  SDK_RespawnVehicle RespawnVehicle;
-  SDK_SetVehicleImmunityFlags SetVehicleImmunityFlags;
-  SDK_GetVehicleImmunityFlags GetVehicleImmunityFlags;
-  SDK_KillVehicle KillVehicle;
-  SDK_IsVehicleWrecked IsVehicleWrecked;
-  SDK_SetVehiclePos SetVehiclePos;
-  SDK_GetVehiclePos GetVehiclePos;
-  SDK_SetVehicleRot SetVehicleRot;
-  SDK_SetVehicleRotEuler SetVehicleRotEuler;
-  SDK_GetVehicleRot GetVehicleRot;
-  SDK_GetVehicleRotEuler GetVehicleRotEuler;
-  SDK_SetVehicleSpeed SetVehicleSpeed;
-  SDK_GetVehicleSpeed GetVehicleSpeed;
-  SDK_AddVehicleSpeed AddVehicleSpeed;
-  SDK_SetVehicleRelSpeed SetVehicleRelSpeed;
-  SDK_GetVehicleRelSpeed GetVehicleRelSpeed;
-  SDK_AddVehicleRelSpeed AddVehicleRelSpeed;
-  SDK_SetVehicleTurnSpeed SetVehicleTurnSpeed;
-  SDK_GetVehicleTurnSpeed GetVehicleTurnSpeed;
-  SDK_AddVehicleTurnSpeed AddVehicleTurnSpeed;
-  SDK_SetVehicleRelTurnSpeed SetVehicleRelTurnSpeed;
-  SDK_GetVehicleRelTurnSpeed GetVehicleRelTurnSpeed;
-  SDK_AddVehicleRelTurnSpeed AddVehicleRelTurnSpeed;
-  SDK_SetVehicleSpawnPos SetVehicleSpawnPos;
-  SDK_GetVehicleSpawnPos GetVehicleSpawnPos;
-  SDK_SetVehicleSpawnRot SetVehicleSpawnRot;
-  SDK_SetVehicleSpawnRotEuler SetVehicleSpawnRotEuler;
-  SDK_GetVehicleSpawnRot GetVehicleSpawnRot;
-  SDK_GetVehicleSpawnRotEuler GetVehicleSpawnRotEuler;
-  SDK_SetVehicleIdleRespawnTimer SetVehicleIdleRespawnTimer;
-  SDK_GetVehicleIdleRespawnTimer GetVehicleIdleRespawnTimer;
-  SDK_SetVehicleHealth SetVehicleHealth;
-  SDK_GetVehicleHealth GetVehicleHealth;
-  SDK_SetVehicleColour SetVehicleColour;
-  SDK_GetVehicleColour GetVehicleColour;
-  SDK_SetVehicleDoorsLocked SetVehicleDoorsLocked;
-  SDK_GetVehicleDoorsLocked GetVehicleDoorsLocked;
-  SDK_SetVehiclePartStatus SetVehiclePartStatus;
-  SDK_GetVehiclePartStatus GetVehiclePartStatus;
-  SDK_SetVehicleTyreStatus SetVehicleTyreStatus;
-  SDK_GetVehicleTyreStatus GetVehicleTyreStatus;
-  SDK_SetVehicleDamageData SetVehicleDamageData;
-  SDK_GetVehicleDamageData GetVehicleDamageData;
-  SDK_SetVehicleAlarm SetVehicleAlarm;
-  SDK_GetVehicleAlarm GetVehicleAlarm;
-  SDK_SetVehicleLights SetVehicleLights;
-  SDK_GetVehicleLights GetVehicleLights;
-  SDK_SetVehicleRadio SetVehicleRadio;
-  SDK_GetVehicleRadio GetVehicleRadio;
-  SDK_SetVehicleRadioLocked SetVehicleRadioLocked;
-  SDK_IsVehicleRadioLocked IsVehicleRadioLocked;
-  SDK_GetVehicleGhostState GetVehicleGhostState;
-  SDK_SetVehicleGhostState SetVehicleGhostState;
-  SDK_GetVehicleTurretRotation GetVehicleTurretRotation;
+	/* -1 == vcmpEntityNone */
+	int32_t (*GetPlayerIdFromName) (const char* name);
+	/* success */
+	uint8_t (*IsPlayerConnected) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	uint8_t (*IsPlayerStreamedForPlayer) (int32_t checkedPlayerId, int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	uint32_t (*GetPlayerKey) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorBufferTooSmall */
+	vcmpError (*GetPlayerName) (int32_t playerId, char* buffer, size_t size);
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorInvalidName, vcmpErrorTooLargeInput */
+	vcmpError (*SetPlayerName) (int32_t playerId, const char* name);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	vcmpPlayerState (*GetPlayerState) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetPlayerOption) (int32_t playerId, vcmpPlayerOption option, uint8_t toggle);
+	/* GetLastError: vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	uint8_t (*GetPlayerOption) (int32_t playerId, vcmpPlayerOption option);
 
-  //VEHICLES: handling
-  SDK_ResetAllVehicleHandlings ResetAllVehicleHandlings;
-  SDK_ExistsHandlingRule ExistsHandlingRule;
-  SDK_SetHandlingRule SetHandlingRule;
-  SDK_GetHandlingRule GetHandlingRule;
-  SDK_ResetHandlingRule ResetHandlingRule;
-  SDK_ResetHandling ResetHandling;
-  SDK_ExistsInstHandlingRule ExistsInstHandlingRule;
-  SDK_SetInstHandlingRule SetInstHandlingRule;
-  SDK_GetInstHandlingRule GetInstHandlingRule;
-  SDK_ResetInstHandlingRule ResetInstHandlingRule;
-  SDK_ResetInstHandling ResetInstHandling;
+	/*
+	 * Player world
+	 */
 
-  //PICKUPS
-  SDK_CreatePickup CreatePickup;
-  SDK_DeletePickup DeletePickup;
-  SDK_IsPickupStreamedForPlayer IsPickupStreamedForPlayer;
-  SDK_SetPickupWorld SetPickupWorld;
-  SDK_GetPickupWorld GetPickupWorld;
-  SDK_PickupGetAlpha PickupGetAlpha;
-  SDK_PickupSetAlpha PickupSetAlpha;
-  SDK_PickupIsAutomatic PickupIsAutomatic;
-  SDK_PickupSetAutomatic PickupSetAutomatic;
-  SDK_SetPickupAutoTimer SetPickupAutoTimer;
-  SDK_GetPickupAutoTimer GetPickupAutoTimer;
-  SDK_PickupRefresh PickupRefresh;
-  SDK_PickupGetPos PickupGetPos;
-  SDK_PickupSetPos PickupSetPos;
-  SDK_PickupGetModel PickupGetModel;
-  SDK_PickupGetQuantity PickupGetQuantity;
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerWorld) (int32_t playerId, int32_t world);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerWorld) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerSecondaryWorld) (int32_t playerId, int32_t secondaryWorld);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerSecondaryWorld) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerUniqueWorld) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsPlayerWorldCompatible) (int32_t playerId, int32_t world);
 
-  //OBJECTS
-  SDK_CreateObject CreateObject;
-  SDK_DeleteObject DeleteObject;
-  SDK_IsObjectStreamedForPlayer IsObjectStreamedForPlayer;
-  SDK_GetObjectModel GetObjectModel;
-  SDK_SetObjectWorld SetObjectWorld;
-  SDK_GetObjectWorld GetObjectWorld;
-  SDK_SetObjectAlpha SetObjectAlpha;
-  SDK_GetObjectAlpha GetObjectAlpha;
-  SDK_MoveObjectTo MoveObjectTo;
-  SDK_MoveObjectBy MoveObjectBy;
-  SDK_SetObjectPos SetObjectPos;
-  SDK_GetObjectPos GetObjectPos;
-  SDK_RotObjectTo RotObjectTo;
-  SDK_RotObjectToEuler RotObjectToEuler;
-  SDK_RotObjectBy RotObjectBy;
-  SDK_RotObjectByEuler RotObjectByEuler;
-  SDK_GetObjectRot GetObjectRot;
-  SDK_GetObjectRotEuler GetObjectRotEuler;
-  SDK_SetObjectShotReport SetObjectShotReport;
-  SDK_IsObjectShotReport IsObjectShotReport;
-  SDK_SetObjectBumpReport SetObjectBumpReport;
-  SDK_IsObjectBumpReport IsObjectBumpReport;
+	/*
+	 * Player class, team, skin, colour
+	 */
 
-  // TODO: Move these functions to proper sections on major plugin update
-  SDK_ToggleWallglitch ToggleWallglitch;
-  SDK_EnabledWallglitch EnabledWallglitch;
-  SDK_SetVehicleSiren SetVehicleSiren;
-  SDK_GetVehicleSiren GetVehicleSiren;
-  SDK_GetPlayerUID2 GetPlayerUID2;
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerClass) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetPlayerTeam) (int32_t playerId, int32_t teamId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerTeam) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetPlayerSkin) (int32_t playerId, int32_t skinId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerSkin) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerColour) (int32_t playerId, uint32_t colour);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint32_t (*GetPlayerColour) (int32_t playerId);
 
-  SDK_CreateCheckpoint CreateCheckpoint;
-  SDK_DeleteCheckpoint DeleteCheckpoint;
-  SDK_IsCheckpointStreamedForPlayer IsCheckpointStreamedForPlayer;
-  SDK_SetCheckpointWorld SetCheckpointWorld;
-  SDK_GetCheckpointWorld GetCheckpointWorld;
-  SDK_SetCheckpointColor SetCheckpointColor;
-  SDK_GetCheckpointColor GetCheckpointColor;
-  SDK_SetCheckpointPos SetCheckpointPos;
-  SDK_GetCheckpointPos GetCheckpointPos;
-  SDK_SetCheckpointRadius SetCheckpointRadius;
-  SDK_GetCheckpointRadius GetCheckpointRadius;
-  SDK_GetCheckpointOwner GetCheckpointOwner;
+	/*
+	 * Player spawn cycle
+	 */
 
-  SDK_CreateSphere CreateSphere;
-  SDK_DeleteSphere DeleteSphere;
-  SDK_IsSphereStreamedForPlayer IsSphereStreamedForPlayer;
-  SDK_SetSphereWorld SetSphereWorld;
-  SDK_GetSphereWorld GetSphereWorld;
-  SDK_SetSphereColor SetSphereColor;
-  SDK_GetSphereColor GetSphereColor;
-  SDK_SetSpherePos SetSpherePos;
-  SDK_GetSpherePos GetSpherePos;
-  SDK_SetSphereRadius SetSphereRadius;
-  SDK_GetSphereRadius GetSphereRadius;
-  SDK_GetSphereOwner GetSphereOwner;
+	/* vcmpErrorNoSuchEntity */
+	uint8_t (*IsPlayerSpawned) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*ForcePlayerSpawn) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*ForcePlayerSelect) (int32_t playerId);
+	/* success */
+	void (*ForceAllSelect) (void);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsPlayerTyping) (int32_t playerId);
+
+	/*
+	 * Player money, score, wanted level
+	 */
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GivePlayerMoney) (int32_t playerId, int32_t amount);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerMoney) (int32_t playerId, int32_t amount);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerMoney) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerScore) (int32_t playerId, int32_t score);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerScore) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerWantedLevel) (int32_t playerId, int32_t level);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerWantedLevel) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerPing) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	double (*GetPlayerFPS) (int32_t playerId);
+
+	/*
+	 * Player health and immunity
+	 */
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerHealth) (int32_t playerId, float health);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	float (*GetPlayerHealth) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerArmour) (int32_t playerId, float armour);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	float (*GetPlayerArmour) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerImmunityFlags) (int32_t playerId, uint32_t flags);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint32_t (*GetPlayerImmunityFlags) (int32_t playerId);
+
+	/*
+	 * Player position and rotation
+	 */
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerPosition) (int32_t playerId, float x, float y, float z);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetPlayerPosition) (int32_t playerId, float* xOut, float* yOut, float* zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerSpeed) (int32_t playerId, float x, float y, float z);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetPlayerSpeed) (int32_t playerId, float* xOut, float* yOut, float* zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*AddPlayerSpeed) (int32_t playerId, float x, float y, float z);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerHeading) (int32_t playerId, float angle);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	float (*GetPlayerHeading) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerAlpha) (int32_t playerId, int32_t alpha, uint32_t fadeTime);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerAlpha) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetPlayerAimPosition) (int32_t playerId, float* xOut, float* yOut, float* zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetPlayerAimDirection) (int32_t playerId, float* xOut, float* yOut, float* zOut);
+
+	/*
+	 * Player actions and keys
+	 */
+
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsPlayerOnFire) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsPlayerCrouching) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerAction) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint32_t (*GetPlayerGameKeys) (int32_t playerId);
+
+	/*
+	 * Player vehicle
+	 */
+
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds, vcmpErrorRequestDenied */
+	vcmpError (*PutPlayerInVehicle) (int32_t playerId, int32_t vehicleId, int32_t slotIndex, uint8_t makeRoom, uint8_t warp);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RemovePlayerFromVehicle) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	vcmpPlayerVehicle (*GetPlayerInVehicleStatus) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerInVehicleSlot) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerVehicleId) (int32_t playerId);
+
+	/*
+	 * Player weapons
+	 */
+
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	vcmpError (*GivePlayerWeapon) (int32_t playerId, int32_t weaponId, int32_t ammo);
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetPlayerWeapon) (int32_t playerId, int32_t weaponId, int32_t ammo);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerWeapon) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerWeaponAmmo) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetPlayerWeaponSlot) (int32_t playerId, int32_t slot);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerWeaponSlot) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	int32_t (*GetPlayerWeaponAtSlot) (int32_t playerId, int32_t slot);
+	/* GetLastError: vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	int32_t (*GetPlayerAmmoAtSlot) (int32_t playerId, int32_t slot);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RemovePlayerWeapon) (int32_t playerId, int32_t weaponId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RemoveAllWeapons) (int32_t playerId);
+
+	/*
+	 * Player camera
+	 */
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetCameraPosition) (int32_t playerId, float posX, float posY, float posZ, float lookX, float lookY, float lookZ);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RestoreCamera) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsCameraLocked) (int32_t playerId);
+
+	/*
+	 * Player miscellaneous stuff
+	 */
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerAnimation) (int32_t playerId, int32_t groupId, int32_t animationId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerStandingOnVehicle) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerStandingOnObject) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsPlayerAway) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	int32_t (*GetPlayerSpectateTarget) (int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerSpectateTarget) (int32_t playerId, int32_t targetId);
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument */
+	vcmpError (*RedirectPlayerToServer) (int32_t playerId, const char* ip, uint32_t port, const char* nick, const char* serverPassword, const char* userPassword);
+
+	/*
+	 * All entities
+	 */
+
+	/* GetLastError: vcmpArgumentOutOfBounds */
+	uint8_t (*CheckEntityExists) (vcmpEntityPool entityPool, int32_t index);
+
+	/*
+	 * Vehicles
+	 */
+
+	/* GetLastError: vcmpErrorArgumentOutOfBounds, vcmpErrorPoolExhausted */
+	int32_t (*CreateVehicle) (int32_t modelIndex, int32_t world, float x, float y, float z, float angle, int32_t primaryColour, int32_t secondaryColour);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*DeleteVehicle) (int32_t vehicleId);
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetVehicleOption) (int32_t vehicleId, vcmpVehicleOption option, uint8_t toggle);
+	/* GetLastError: vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	uint8_t (*GetVehicleOption) (int32_t vehicleId, vcmpVehicleOption option);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetVehicleSyncSource) (int32_t vehicleId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	vcmpVehicleSync (*GetVehicleSyncType) (int32_t vehicleId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsVehicleStreamedForPlayer) (int32_t vehicleId, int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleWorld) (int32_t vehicleId, int32_t world);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetVehicleWorld) (int32_t vehicleId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetVehicleModel) (int32_t vehicleId);
+	/* GetLastError: vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	int32_t (*GetVehicleOccupant) (int32_t vehicleId, int32_t slotIndex);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RespawnVehicle) (int32_t vehicleId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleImmunityFlags) (int32_t vehicleId, uint32_t immunityFlags);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint32_t (*GetVehicleImmunityFlags) (int32_t vehicleId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*ExplodeVehicle) (int32_t vehicleId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsVehicleWrecked) (int32_t vehicleId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehiclePosition) (int32_t vehicleId, float x, float y, float z, uint8_t removeOccupants);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetVehiclePosition) (int32_t vehicleId, float* xOut, float* yOut, float* zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleRotation) (int32_t vehicleId, float x, float y, float z, float w);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleRotationEuler) (int32_t vehicleId, float x, float y, float z);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetVehicleRotation) (int32_t vehicleId, float* xOut, float* yOut, float* zOut, float* wOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetVehicleRotationEuler) (int32_t vehicleId, float* xOut, float* yOut, float* zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleSpeed) (int32_t vehicleId, float x, float y, float z, uint8_t add, uint8_t relative);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetVehicleSpeed) (int32_t vehicleId, float* xOut, float* yOut, float* zOut, uint8_t relative);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleTurnSpeed) (int32_t vehicleId, float x, float y, float z, uint8_t add, uint8_t relative);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetVehicleTurnSpeed) (int32_t vehicleId, float* xOut, float* yOut, float* zOut, uint8_t relative);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleSpawnPosition) (int32_t vehicleId, float x, float y, float z);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetVehicleSpawnPosition) (int32_t vehicleId, float* xOut, float* yOut, float* zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleSpawnRotation) (int32_t vehicleId, float x, float y, float z, float w);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleSpawnRotationEuler) (int32_t vehicleId, float x, float y, float z);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetVehicleSpawnRotation) (int32_t vehicleId, float* xOut, float* yOut, float* zOut, float* wOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetVehicleSpawnRotationEuler) (int32_t vehicleId, float* xOut, float* yOut, float* zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleIdleRespawnTimer) (int32_t vehicleId, uint32_t millis);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint32_t (*GetVehicleIdleRespawnTimer) (int32_t vehicleId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleHealth) (int32_t vehicleId, float health);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	float (*GetVehicleHealth) (int32_t vehicleId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleColour) (int32_t vehicleId, int32_t primaryColour, int32_t secondaryColour);
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument */
+	vcmpError (*GetVehicleColour) (int32_t vehicleId, int32_t* primaryColourOut, int32_t* secondaryColourOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehiclePartStatus) (int32_t vehicleId, int32_t partId, int32_t status);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetVehiclePartStatus) (int32_t vehicleId, int32_t partId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleTyreStatus) (int32_t vehicleId, int32_t tyreId, int32_t status);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetVehicleTyreStatus) (int32_t vehicleId, int32_t tyreId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleDamageData) (int32_t vehicleId, uint32_t damageData);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint32_t (*GetVehicleDamageData) (int32_t vehicleId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicleRadio) (int32_t vehicleId, int32_t radioId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetVehicleRadio) (int32_t vehicleId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetVehicleTurretRotation) (int32_t vehicleId, float* horizontalOut, float* verticalOut);
+
+	/*
+	 * Vehicle handling
+	 */
+
+	/* success */
+	void (*ResetAllVehicleHandlings) (void);
+	/* vcmpErrorArgumentOutOfBounds */
+	uint8_t (*ExistsHandlingRule) (int32_t modelIndex, int32_t ruleIndex);
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetHandlingRule) (int32_t modelIndex, int32_t ruleIndex, double value);
+	/* GetLastError: vcmpErrorArgumentOutOfBounds */
+	double (*GetHandlingRule) (int32_t modelIndex, int32_t ruleIndex);
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*ResetHandlingRule) (int32_t modelIndex, int32_t ruleIndex);
+	/* vcmpErrorArgumentOutOfBounds */
+	vcmpError (*ResetHandling) (int32_t modelIndex);
+	/* GetLastError: vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	uint8_t (*ExistsInstHandlingRule) (int32_t vehicleId, int32_t ruleIndex);
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	vcmpError (*SetInstHandlingRule) (int32_t vehicleId, int32_t ruleIndex, double value);
+	/* GetLastError: vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	double (*GetInstHandlingRule) (int32_t vehicleId, int32_t ruleIndex);
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	vcmpError (*ResetInstHandlingRule) (int32_t vehicleId, int32_t ruleIndex);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*ResetInstHandling) (int32_t vehicleId);
+
+	/*
+	 * Pickups
+	 */
+
+	/* vcmpErrorPoolExhausted */
+	int32_t (*CreatePickup) (int32_t modelIndex, int32_t world, int32_t quantity, float x, float y, float z, int32_t alpha, uint8_t isAutomatic);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*DeletePickup) (int32_t pickupId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsPickupStreamedForPlayer) (int32_t pickupId, int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPickupWorld) (int32_t pickupId, int32_t world);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPickupWorld) (int32_t pickupId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPickupAlpha) (int32_t pickupId, int32_t alpha);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPickupAlpha) (int32_t pickupId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPickupIsAutomatic) (int32_t pickupId, uint8_t toggle);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsPickupAutomatic) (int32_t pickupId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPickupAutoTimer) (int32_t pickupId, uint32_t durationMillis);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint32_t (*GetPickupAutoTimer) (int32_t pickupId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RefreshPickup) (int32_t pickupId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPickupPosition) (int32_t pickupId, float x, float y, float z);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetPickupPosition) (int32_t pickupId, float* xOut, float* yOut, float* zOut);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPickupModel) (int32_t pickupId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetPickupQuantity) (int32_t pickupId);
+
+	/*
+	 * Checkpoints
+	 */
+
+	/* vcmpErrorPoolExhausted, vcmpErrorNoSuchEntity */
+	int32_t (*CreateCheckPoint) (int32_t playerId, int32_t world, uint8_t isSphere, float x, float y, float z, int32_t red, int32_t green, int32_t blue, int32_t alpha, float radius);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*DeleteCheckPoint) (int32_t checkPointId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsCheckPointStreamedForPlayer) (int32_t checkPointId, int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsCheckPointSphere) (int32_t checkPointId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetCheckPointWorld) (int32_t checkPointId, int32_t world);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetCheckPointWorld) (int32_t checkPointId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetCheckPointColour) (int32_t checkPointId, int32_t red, int32_t green, int32_t blue, int32_t alpha);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetCheckPointColour) (int32_t checkPointId, int32_t* redOut, int32_t* greenOut, int32_t* blueOut, int32_t* alphaOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetCheckPointPosition) (int32_t checkPointId, float x, float y, float z);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetCheckPointPosition) (int32_t checkPointId, float* xOut, float* yOut, float* zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetCheckPointRadius) (int32_t checkPointId, float radius);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	float (*GetCheckPointRadius) (int32_t checkPointId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetCheckPointOwner) (int32_t checkPointId);
+
+	/*
+	 * Objects
+	 */
+
+	/* GetLastError: vcmpErrorPoolExhausted */
+	int32_t (*CreateObject) (int32_t modelIndex, int32_t world, float x, float y, float z, int32_t alpha);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*DeleteObject) (int32_t objectId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsObjectStreamedForPlayer) (int32_t objectId, int32_t playerId);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetObjectModel) (int32_t objectId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetObjectWorld) (int32_t objectId, int32_t world);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetObjectWorld) (int32_t objectId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetObjectAlpha) (int32_t objectId, int32_t alpha, uint32_t duration);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	int32_t (*GetObjectAlpha) (int32_t objectId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*MoveObjectTo) (int32_t objectId, float x, float y, float z, uint32_t duration);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*MoveObjectBy) (int32_t objectId, float x, float y, float z, uint32_t duration);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetObjectPosition) (int32_t objectId, float x, float y, float z);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetObjectPosition) (int32_t objectId, float* xOut, float* yOut, float* zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RotateObjectTo) (int32_t objectId, float x, float y, float z, float w, uint32_t duration);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RotateObjectToEuler) (int32_t objectId, float x, float y, float z, uint32_t duration);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RotateObjectBy) (int32_t objectId, float x, float y, float z, float w, uint32_t duration);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*RotateObjectByEuler) (int32_t objectId, float x, float y, float z, uint32_t duration);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetObjectRotation) (int32_t objectId, float* xOut, float* yOut, float *zOut, float *wOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*GetObjectRotationEuler) (int32_t objectId, float* xOut, float* yOut, float *zOut);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetObjectShotReportEnabled) (int32_t objectId, uint8_t toggle);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsObjectShotReportEnabled) (int32_t objectId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetObjectTouchedReportEnabled) (int32_t objectId, uint8_t toggle);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*IsObjectTouchedReportEnabled) (int32_t objectId);
+
 } PluginFuncs;
 
 typedef struct {
-  unsigned int        uStructSize;
+	uint32_t structSize;
 
-  SDK_OnInitServer OnInitServer;
-  SDK_OnShutdownServer OnShutdownServer;
-  SDK_OnFrame OnFrame;
-  SDK_OnPlayerConnect OnPlayerConnect;
-  SDK_OnPlayerDisconnect OnPlayerDisconnect;
-  SDK_OnPlayerBeginTyping OnPlayerBeginTyping;
-  SDK_OnPlayerEndTyping OnPlayerEndTyping;
-  SDK_OnPlayerRequestClass OnPlayerRequestClass;
-  SDK_OnPlayerRequestSpawn OnPlayerRequestSpawn;
-  SDK_OnPlayerSpawn OnPlayerSpawn;
-  SDK_OnPlayerDeath OnPlayerDeath;
-  SDK_OnPlayerUpdate OnPlayerUpdate;
-  SDK_OnPlayerRequestEnter OnPlayerRequestEnter;
-  SDK_OnPlayerEnterVehicle OnPlayerEnterVehicle;
-  SDK_OnPlayerExitVehicle OnPlayerExitVehicle;
-  SDK_OnPlayerNameChange OnPlayerNameChange;
-  SDK_OnPlayerStateChange OnPlayerStateChange;
-  SDK_OnPlayerActionChange OnPlayerActionChange;
-  SDK_OnPlayerOnFireChange OnPlayerOnFireChange;
-  SDK_OnPlayerCrouchChange OnPlayerCrouchChange;
-  SDK_OnPlayerGameKeysChange OnPlayerGameKeysChange;
-  SDK_OnPickupClaimPicked OnPickupClaimPicked;
-  SDK_OnPickupPickedUp OnPickupPickedUp;
-  SDK_OnPickupRespawn OnPickupRespawn;
-  SDK_OnVehicleUpdate OnVehicleUpdate;
-  SDK_OnVehicleExplode OnVehicleExplode;
-  SDK_OnVehicleRespawn OnVehicleRespawn;
-  SDK_OnObjectShot OnObjectShot;
-  SDK_OnObjectBump OnObjectBump;
-  SDK_OnPublicMessage OnPublicMessage;
-  SDK_OnCommandMessage OnCommandMessage;
-  SDK_OnPrivateMessage OnPrivateMessage;
-  SDK_OnInternalCommand OnInternalCommand;
-  SDK_OnLoginAttempt OnLoginAttempt;
-  SDK_OnEntityPoolChange OnEntityPoolChange;
-  SDK_OnKeyBindDown OnKeyBindDown;
-  SDK_OnKeyBindUp OnKeyBindUp;
-  SDK_OnPlayerAwayChange OnPlayerAwayChange;
-  SDK_OnPlayerSpectate OnPlayerSpectate;
-  SDK_OnPlayerCrashReport OnPlayerCrashReport;
-  SDK_OnServerPerformanceReport OnServerPerformanceReport;
+	uint8_t (*OnServerInitialise) (void);
+	void (*OnServerShutdown) (void);
+	void (*OnServerFrame) (float elapsedTime);
 
-  // TODO: Move these functions to proper sections on major plugin update
-  SDK_OnCheckpointEntered OnCheckpointEntered;
-  SDK_OnCheckpointExited OnCheckpointExited;
-  SDK_OnSphereEntered OnSphereEntered;
-  SDK_OnSphereExited OnSphereExited;
+	uint8_t (*OnPluginCommand) (uint32_t commandIdentifier, const char* message);
+	uint8_t (*OnIncomingConnection) (char* playerName, size_t nameBufferSize, const char* userPassword, const char* ipAddress);
+	void (*OnClientScriptData) (int32_t playerId, const uint8_t* data, size_t size);
+
+	void (*OnPlayerConnect) (int32_t playerId);
+	void (*OnPlayerDisconnect) (int32_t playerId, vcmpDisconnectReason reason);
+
+	uint8_t (*OnPlayerRequestClass) (int32_t playerId, int32_t offset);
+	uint8_t (*OnPlayerRequestSpawn) (int32_t playerId);
+	void (*OnPlayerSpawn) (int32_t playerId);
+	void (*OnPlayerDeath) (int32_t playerId, int32_t killerId, int32_t reason, vcmpBodyPart bodyPart);
+	void (*OnPlayerUpdate) (int32_t playerId, vcmpPlayerUpdate updateType);
+
+	uint8_t (*OnPlayerRequestEnterVehicle) (int32_t playerId, int32_t vehicleId, int32_t slotIndex);
+	void (*OnPlayerEnterVehicle) (int32_t playerId, int32_t vehicleId, int32_t slotIndex);
+	void (*OnPlayerExitVehicle) (int32_t playerId, int32_t vehicleId);
+
+	void (*OnPlayerNameChange) (int32_t playerId, const char* oldName, const char* newName);
+	void (*OnPlayerStateChange) (int32_t playerId, vcmpPlayerState oldState, vcmpPlayerState newState);
+	void (*OnPlayerActionChange) (int32_t playerId, int32_t oldAction, int32_t newAction);
+	void (*OnPlayerOnFireChange) (int32_t playerId, uint8_t isOnFire);
+	void (*OnPlayerCrouchChange) (int32_t playerId, uint8_t isCrouching);
+	void (*OnPlayerGameKeysChange) (int32_t playerId, uint32_t oldKeys, uint32_t newKeys);
+	void (*OnPlayerBeginTyping) (int32_t playerId);
+	void (*OnPlayerEndTyping) (int32_t playerId);
+	void (*OnPlayerAwayChange) (int32_t playerId, uint8_t isAway);
+
+	uint8_t (*OnPlayerMessage) (int32_t playerId, const char* message);
+	uint8_t (*OnPlayerCommand) (int32_t playerId, const char* message);
+	uint8_t (*OnPlayerPrivateMessage) (int32_t playerId, int32_t targetPlayerId, const char* message);
+
+	void (*OnPlayerKeyBindDown) (int32_t playerId, int32_t bindId);
+	void (*OnPlayerKeyBindUp) (int32_t playerId, int32_t bindId);
+	void (*OnPlayerSpectate) (int32_t playerId, int32_t targetPlayerId);
+	void (*OnPlayerCrashReport) (int32_t playerId, const char* report);
+
+	void (*OnVehicleUpdate) (int32_t vehicleId, vcmpVehicleUpdate updateType);
+	void (*OnVehicleExplode) (int32_t vehicleId);
+	void (*OnVehicleRespawn) (int32_t vehicleId);
+
+	void (*OnObjectShot) (int32_t objectId, int32_t playerId, int32_t weaponId);
+	void (*OnObjectTouched) (int32_t objectId, int32_t playerId);
+
+	uint8_t (*OnPickupPickAttempt) (int32_t pickupId, int32_t playerId);
+	void (*OnPickupPicked) (int32_t pickupId, int32_t playerId);
+	void (*OnPickupRespawn) (int32_t pickupId);
+
+	void (*OnCheckpointEntered) (int32_t checkPointId, int32_t playerId);
+	void (*OnCheckpointExited) (int32_t checkPointId, int32_t playerId);
+
+	void (*OnEntityPoolChange) (vcmpEntityPool entityType, int32_t entityId, uint8_t isDeleted);
+	void (*OnServerPerformanceReport) (size_t entryCount, const char** descriptions, uint64_t* times);
 
 } PluginCallbacks;

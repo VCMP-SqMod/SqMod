@@ -1,11 +1,10 @@
-// --------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 #include "Logger.hpp"
 #include "Core.hpp"
-#include "Command.hpp"
 #include "SqMod.h"
 
 // ------------------------------------------------------------------------------------------------
-#include <stdio.h>
+#include <cstdio>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -18,7 +17,9 @@ static Object   g_ReloadPayload;
 // ------------------------------------------------------------------------------------------------
 extern void InitExports();
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Perform a scripts reload at the end of the current event.
+*/
 void EnableReload(Int32 header, Object & payload)
 {
     g_Reload = true;
@@ -26,6 +27,9 @@ void EnableReload(Int32 header, Object & payload)
     g_ReloadPayload = payload;
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Do not perform a scripts reload at the end of the current event.
+*/
 void DisableReload()
 {
     g_Reload = false;
@@ -33,81 +37,907 @@ void DisableReload()
     g_ReloadPayload.Release();
 }
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Will the scripts be reloaded at the end of the current event?
+*/
 bool ReloadEnabled()
 {
     return g_Reload;
 }
 
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the payload that will be sent to the reload callback.
+*/
+Object & ReloadPayload()
+{
+    return g_ReloadPayload;
+}
 
-} // Namespace:: SqMod
+/* ------------------------------------------------------------------------------------------------
+ * Helper class to make sure that the reload is disabled and the payload is released.
+*/
+struct ReloadGuard
+{
+    ~ReloadGuard()
+    {
+        DisableReload();
+    }
+};
 
-// ------------------------------------------------------------------------------------------------
-using namespace SqMod;
-
-// ------------------------------------------------------------------------------------------------
-void BindCallbacks();
-void UnbindCallbacks();
-
-// ------------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
+ * Perform the actual reload.
+*/
 void DoReload()
 {
-    // Disable reloading in case of failure
-    g_Reload = false;
+    // Disable reloading at the end of this function
+    const ReloadGuard rg;
     // Allow reloading by default
-    _Core->SetState(1);
+    Core::Get().SetState(1);
     // Emit the reload event
-    _Core->EmitScriptReload(g_ReloadHeader, g_ReloadPayload);
-    // Release the specified payload, if any
-    DisableReload();
+    Core::Get().EmitScriptReload(g_ReloadHeader, g_ReloadPayload);
     // Are we allowed to reload?
-    if (!_Core->GetState())
+    if (!Core::Get().GetState())
     {
         return;
     }
     // Terminate the current VM and release resources
-    _Core->Terminate();
+    Core::Get().Terminate();
     // Attempt to initialize it the central core
-    if (!_Core->Init())
+    if (!Core::Get().Initialize())
     {
         throw std::runtime_error("Unable to initialize plugin central core");
     }
     // Attempt to load resources
-    else if (!_Core->Load())
+    else if (!Core::Get().Execute())
     {
-        throw std::runtime_error("Unable to load plugin central core");
+        throw std::runtime_error("Unable to load the plugin resources properly");
     }
-    // Prevent recursive reloading
-    DisableReload();
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Bind all server callbacks.
+*/
+void BindCallbacks();
+
+/* ------------------------------------------------------------------------------------------------
+ * Unbind all server callbacks.
+*/
+void UnbindCallbacks();
+
+// --------------------------------------------------------------------------------------------
+#define SQMOD_CATCH_EVENT_EXCEPTION(ev) /*
+*/ catch (const Sqrat::Exception & e) /*
+*/ { /*
+*/  LogErr("Squirrel exception caught (" #ev ") event"); /*
+*/  LogInf("Message: %s", e.Message().c_str()); /*
+*/ } /*
+*/ catch (const std::exception & e) /*
+*/ { /*
+*/  LogErr("Program exception caught (" #ev ") event"); /*
+*/  LogInf("Message: %s", e.what()); /*
+*/ } /*
+*/ catch (...) /*
+*/ { /*
+*/  LogErr("Unknown exception caught (" #ev ") event"); /*
+*/ } /*
+*/
+
+// --------------------------------------------------------------------------------------------
+#define SQMOD_RELOAD_CHECK(exp) /*if (exp) DoReload();*/
+
 // ------------------------------------------------------------------------------------------------
-void DestroyComponents()
+static uint8_t OnServerInitialise(void)
 {
-    // Destroy command component
-    if (_Cmd)
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
     {
-        SQMOD_MANAGEDPTR_DEL(CmdManager, _Cmd);
-        _Cmd = SQMOD_MANAGEDPTR_MAKE(CmdManager, nullptr);
+        // Signal outside plug-ins to do fetch our proxies
+        _Func->SendPluginCommand(0xDABBAD00, "%d", SQMOD_API_VER);
+        // Attempt to load the module core
+        if (Core::Get().Execute())
+        {
+            Core::Get().EmitServerStartup();
+        }
+        else
+        {
+            LogFtl("Unable to load the plugin resources properly");
+            // Failed to initialize
+            return SQMOD_FAILURE;
+        }
     }
-    // Destroy core component
-    if (_Core)
-    {
-        SQMOD_MANAGEDPTR_DEL(Core, _Core);
-        _Core = SQMOD_MANAGEDPTR_MAKE(Core, nullptr);
-    }
-    // Destroy logger component
-    if (_Log)
-    {
-        SQMOD_MANAGEDPTR_DEL(Logger, _Log);
-        _Log = SQMOD_MANAGEDPTR_MAKE(Logger, nullptr);
-    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnServerInitialise)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
 }
 
 // ------------------------------------------------------------------------------------------------
+static void OnServerShutdown(void)
+{
+    // Attempt to forward the event
+    try
+    {
+        // Tell the script that the server is shutting down
+        Core::Get().EmitServerShutdown();
+        // Deallocate and release everything obtained at startup
+        Core::Get().Terminate();
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnServerShutdown)
+    // See if a reload was requested (quite useless here but why not)
+    SQMOD_RELOAD_CHECK(false)
+    // The server still triggers callbacks and we deallocated everything!
+    UnbindCallbacks();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnServerFrame(float elapsed_time)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitServerFrame(elapsed_time);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnServerFrame)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
+{
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPluginCommand(command_identifier, message);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPluginCommand)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint8_t OnIncomingConnection(CStr player_name, size_t name_buffer_size,
+                                    CCStr user_password, CCStr ip_address)
+{
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitIncomingConnection(player_name, name_buffer_size, user_password, ip_address);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnIncomingConnection)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnClientScriptData(int32_t player_id, const uint8_t * data, size_t size)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitClientScriptData(player_id, data, size);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnClientScriptData)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerConnect(int32_t player_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().ConnectPlayer(player_id, SQMOD_CREATE_AUTOMATIC, NullObject());
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerConnect)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerDisconnect(int32_t player_id, vcmpDisconnectReason reason)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().DisconnectPlayer(player_id, reason, NullObject());
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerDisconnect)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint8_t OnPlayerRequestClass(int32_t player_id, int32_t offset)
+{
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerRequestClass(player_id, offset);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerRequestClass)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint8_t OnPlayerRequestSpawn(int32_t player_id)
+{
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerRequestSpawn(player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerRequestSpawn)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerSpawn(int32_t player_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerSpawn(player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerSpawn)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerDeath(int32_t player_id, int32_t killer_id, int32_t reason, vcmpBodyPart body_part)
+{
+    // Attempt to forward the event
+    try
+    {
+        if (_Func->IsPlayerConnected(killer_id))
+        {
+            const int32_t pt = _Func->GetPlayerTeam(player_id), kt = _Func->GetPlayerTeam(killer_id);
+            Core::Get().EmitPlayerKilled(player_id, killer_id, reason, body_part,
+                                            (pt == kt && pt >= 0 && kt >= 0));
+        }
+        else
+        {
+            Core::Get().EmitPlayerWasted(player_id, reason);
+        }
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerDeath)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerUpdate(int32_t player_id, vcmpPlayerUpdate update_type)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerUpdate(player_id, update_type);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerUpdate)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint8_t OnPlayerRequestEnterVehicle(int32_t player_id, int32_t vehicle_id, int32_t slot_index)
+{
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerEmbarking(player_id, vehicle_id, slot_index);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerRequestEnterVehicle)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerEnterVehicle(int32_t player_id, int32_t vehicle_id, int32_t slot_index)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerEmbarked(player_id, vehicle_id, slot_index);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerEnterVehicle)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerExitVehicle(int32_t player_id, int32_t vehicle_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerDisembark(player_id, vehicle_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerExitVehicle)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerNameChange(int32_t player_id, CCStr old_name, CCStr new_name)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerRename(player_id, old_name, new_name);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerNameChange)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerStateChange(int32_t player_id, vcmpPlayerState old_state, vcmpPlayerState new_state)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerState(player_id, old_state, new_state);
+        // Identify the current state and trigger the listeners specific to that
+        switch (new_state)
+        {
+            case vcmpPlayerStateNone:
+                Core::Get().EmitStateNone(player_id, old_state);
+            break;
+            case vcmpPlayerStateNormal:
+                Core::Get().EmitStateNormal(player_id, old_state);
+            break;
+            case vcmpPlayerStateAim:
+                Core::Get().EmitStateAim(player_id, old_state);
+            break;
+            case vcmpPlayerStateDriver:
+                Core::Get().EmitStateDriver(player_id, old_state);
+            break;
+            case vcmpPlayerStatePassenger:
+                Core::Get().EmitStatePassenger(player_id, old_state);
+            break;
+            case vcmpPlayerStateEnterDriver:
+                Core::Get().EmitStateEnterDriver(player_id, old_state);
+            break;
+            case vcmpPlayerStateEnterPassenger:
+                Core::Get().EmitStateEnterPassenger(player_id, old_state);
+            break;
+            case vcmpPlayerStateExit:
+                Core::Get().EmitStateExit(player_id, old_state);
+            break;
+            case vcmpPlayerStateUnspawned:
+                Core::Get().EmitStateUnspawned(player_id, old_state);
+            break;
+            default: LogErr("Unknown player state change: %d", static_cast< Int32 >(new_state));
+        }
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerStateChange)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerActionChange(int32_t player_id, int32_t old_action, int32_t new_action)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerAction(player_id, old_action, new_action);
+        // Identify the current action and trigger the listeners specific to that
+        switch (new_action)
+        {
+            case SQMOD_PLAYER_ACTION_NONE:
+                Core::Get().EmitActionNone(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_NORMAL:
+                Core::Get().EmitActionNormal(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_AIMING:
+                Core::Get().EmitActionAiming(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_SHOOTING:
+                Core::Get().EmitActionShooting(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_JUMPING:
+                Core::Get().EmitActionJumping(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_LYING_ON_GROUND:
+                Core::Get().EmitActionLieDown(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_GETTING_UP:
+                Core::Get().EmitActionGettingUp(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_JUMPING_FROM_VEHICLE:
+                Core::Get().EmitActionJumpVehicle(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_DRIVING:
+                Core::Get().EmitActionDriving(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_DYING:
+                Core::Get().EmitActionDying(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_WASTED:
+                Core::Get().EmitActionWasted(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_ENTERING_VEHICLE:
+                Core::Get().EmitActionEmbarking(player_id, old_action);
+            break;
+            case SQMOD_PLAYER_ACTION_EXITING_VEHICLE:
+                Core::Get().EmitActionDisembarking(player_id, old_action);
+            break;
+        }
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerActionChange)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerOnFireChange(int32_t player_id, uint8_t is_on_fire)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerBurning(player_id, is_on_fire);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerOnFireChange)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerCrouchChange(int32_t player_id, uint8_t is_crouching)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerCrouching(player_id, is_crouching);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerCrouchChange)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerGameKeysChange(int32_t player_id, uint32_t old_keys, uint32_t new_keys)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerGameKeys(player_id, old_keys, new_keys);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerGameKeysChange)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerBeginTyping(int32_t player_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerStartTyping(player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerBeginTyping)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerEndTyping(int32_t player_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerStopTyping(player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(PlayerEndTyping)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerAwayChange(int32_t player_id, uint8_t is_away)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerAway(player_id, is_away);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerAwayChange)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint8_t OnPlayerMessage(int32_t player_id, CCStr message)
+{
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerMessage(player_id, message);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerMessage)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint8_t OnPlayerCommand(int32_t player_id, CCStr message)
+{
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerCommand(player_id, message);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerCommand)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint8_t OnPlayerPrivateMessage(int32_t player_id, int32_t target_player_id, CCStr message)
+{
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerPrivateMessage(player_id, target_player_id, message);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerPrivateMessage)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerKeyBindDown(int32_t player_id, int32_t bind_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerKeyPress(player_id, bind_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerKeyBindDown)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerKeyBindUp(int32_t player_id, int32_t bind_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerKeyRelease(player_id, bind_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerKeyBindUp)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerSpectate(int32_t player_id, int32_t target_player_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerSpectate(player_id, target_player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerSpectate)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPlayerCrashReport(int32_t player_id, CCStr report)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerCrashreport(player_id, report);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerCrashReport)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnVehicleUpdate(int32_t vehicle_id, vcmpVehicleUpdate update_type)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitVehicleUpdate(vehicle_id, update_type);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnVehicleUpdate)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnVehicleExplode(int32_t vehicle_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitVehicleExplode(vehicle_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnVehicleExplode)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnVehicleRespawn(int32_t vehicle_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitVehicleRespawn(vehicle_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnVehicleRespawn)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnObjectShot(int32_t object_id, int32_t player_id, int32_t weapon_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitObjectShot(object_id, player_id, weapon_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnObjectShot)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnObjectTouched(int32_t object_id, int32_t player_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitObjectTouched(object_id, player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnObjectTouched)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint8_t OnPickupPickAttempt(int32_t pickup_id, int32_t player_id)
+{
+    // Mark the initialization as successful by default
+    Core::Get().SetState(SQMOD_SUCCESS);
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPickupClaimed(pickup_id, player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPickupPickAttempt)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+    // Return the last known plug-in state
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPickupPicked(int32_t pickup_id, int32_t player_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPickupCollected(pickup_id, player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPickupPicked)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnPickupRespawn(int32_t pickup_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPickupRespawn(pickup_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPickupRespawn)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnCheckpointEntered(int32_t checkpoint_id, int32_t player_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitCheckpointEntered(checkpoint_id, player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnCheckpointEntered)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnCheckpointExited(int32_t checkpoint_id, int32_t player_id)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitCheckpointExited(checkpoint_id, player_id);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnCheckpointExited)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnEntityPoolChange(vcmpEntityPool entity_type, int32_t entity_id, uint8_t is_deleted)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitEntityPool(entity_type, entity_id, is_deleted);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnEntityPoolChange)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
+static void OnServerPerformanceReport(size_t /*entry_count*/, CCStr * /*descriptions*/, uint64_t * /*times*/)
+{
+    // Ignored for now...
+}
+
+// ------------------------------------------------------------------------------------------------
+void BindCallbacks()
+{
+    _Clbk->OnServerInitialise           = OnServerInitialise;
+    _Clbk->OnServerShutdown             = OnServerShutdown;
+    _Clbk->OnServerFrame                = OnServerFrame;
+    _Clbk->OnPluginCommand              = OnPluginCommand;
+    _Clbk->OnIncomingConnection         = OnIncomingConnection;
+    _Clbk->OnClientScriptData           = OnClientScriptData;
+    _Clbk->OnPlayerConnect              = OnPlayerConnect;
+    _Clbk->OnPlayerDisconnect           = OnPlayerDisconnect;
+    _Clbk->OnPlayerRequestClass         = OnPlayerRequestClass;
+    _Clbk->OnPlayerRequestSpawn         = OnPlayerRequestSpawn;
+    _Clbk->OnPlayerSpawn                = OnPlayerSpawn;
+    _Clbk->OnPlayerDeath                = OnPlayerDeath;
+    _Clbk->OnPlayerUpdate               = OnPlayerUpdate;
+    _Clbk->OnPlayerRequestEnterVehicle  = OnPlayerRequestEnterVehicle;
+    _Clbk->OnPlayerEnterVehicle         = OnPlayerEnterVehicle;
+    _Clbk->OnPlayerExitVehicle          = OnPlayerExitVehicle;
+    _Clbk->OnPlayerNameChange           = OnPlayerNameChange;
+    _Clbk->OnPlayerStateChange          = OnPlayerStateChange;
+    _Clbk->OnPlayerActionChange         = OnPlayerActionChange;
+    _Clbk->OnPlayerOnFireChange         = OnPlayerOnFireChange;
+    _Clbk->OnPlayerCrouchChange         = OnPlayerCrouchChange;
+    _Clbk->OnPlayerGameKeysChange       = OnPlayerGameKeysChange;
+    _Clbk->OnPlayerBeginTyping          = OnPlayerBeginTyping;
+    _Clbk->OnPlayerEndTyping            = OnPlayerEndTyping;
+    _Clbk->OnPlayerAwayChange           = OnPlayerAwayChange;
+    _Clbk->OnPlayerMessage              = OnPlayerMessage;
+    _Clbk->OnPlayerCommand              = OnPlayerCommand;
+    _Clbk->OnPlayerPrivateMessage       = OnPlayerPrivateMessage;
+    _Clbk->OnPlayerKeyBindDown          = OnPlayerKeyBindDown;
+    _Clbk->OnPlayerKeyBindUp            = OnPlayerKeyBindUp;
+    _Clbk->OnPlayerSpectate             = OnPlayerSpectate;
+    _Clbk->OnPlayerCrashReport          = OnPlayerCrashReport;
+    _Clbk->OnVehicleUpdate              = OnVehicleUpdate;
+    _Clbk->OnVehicleExplode             = OnVehicleExplode;
+    _Clbk->OnVehicleRespawn             = OnVehicleRespawn;
+    _Clbk->OnObjectShot                 = OnObjectShot;
+    _Clbk->OnObjectTouched              = OnObjectTouched;
+    _Clbk->OnPickupPickAttempt          = OnPickupPickAttempt;
+    _Clbk->OnPickupPicked               = OnPickupPicked;
+    _Clbk->OnPickupRespawn              = OnPickupRespawn;
+    _Clbk->OnCheckpointEntered          = OnCheckpointEntered;
+    _Clbk->OnCheckpointExited           = OnCheckpointExited;
+    _Clbk->OnEntityPoolChange           = OnEntityPoolChange;
+    _Clbk->OnServerPerformanceReport    = OnServerPerformanceReport;
+}
+
+// ------------------------------------------------------------------------------------------------
+void UnbindCallbacks()
+{
+    _Clbk->OnServerInitialise           = nullptr;
+    _Clbk->OnServerShutdown             = nullptr;
+    _Clbk->OnServerFrame                = nullptr;
+    _Clbk->OnPluginCommand              = nullptr;
+    _Clbk->OnIncomingConnection         = nullptr;
+    _Clbk->OnClientScriptData           = nullptr;
+    _Clbk->OnPlayerConnect              = nullptr;
+    _Clbk->OnPlayerDisconnect           = nullptr;
+    _Clbk->OnPlayerRequestClass         = nullptr;
+    _Clbk->OnPlayerRequestSpawn         = nullptr;
+    _Clbk->OnPlayerSpawn                = nullptr;
+    _Clbk->OnPlayerDeath                = nullptr;
+    _Clbk->OnPlayerUpdate               = nullptr;
+    _Clbk->OnPlayerRequestEnterVehicle  = nullptr;
+    _Clbk->OnPlayerEnterVehicle         = nullptr;
+    _Clbk->OnPlayerExitVehicle          = nullptr;
+    _Clbk->OnPlayerNameChange           = nullptr;
+    _Clbk->OnPlayerStateChange          = nullptr;
+    _Clbk->OnPlayerActionChange         = nullptr;
+    _Clbk->OnPlayerOnFireChange         = nullptr;
+    _Clbk->OnPlayerCrouchChange         = nullptr;
+    _Clbk->OnPlayerGameKeysChange       = nullptr;
+    _Clbk->OnPlayerBeginTyping          = nullptr;
+    _Clbk->OnPlayerEndTyping            = nullptr;
+    _Clbk->OnPlayerAwayChange           = nullptr;
+    _Clbk->OnPlayerMessage              = nullptr;
+    _Clbk->OnPlayerCommand              = nullptr;
+    _Clbk->OnPlayerPrivateMessage       = nullptr;
+    _Clbk->OnPlayerKeyBindDown          = nullptr;
+    _Clbk->OnPlayerKeyBindUp            = nullptr;
+    _Clbk->OnPlayerSpectate             = nullptr;
+    _Clbk->OnPlayerCrashReport          = nullptr;
+    _Clbk->OnVehicleUpdate              = nullptr;
+    _Clbk->OnVehicleExplode             = nullptr;
+    _Clbk->OnVehicleRespawn             = nullptr;
+    _Clbk->OnObjectShot                 = nullptr;
+    _Clbk->OnObjectTouched              = nullptr;
+    _Clbk->OnPickupPickAttempt          = nullptr;
+    _Clbk->OnPickupPicked               = nullptr;
+    _Clbk->OnPickupRespawn              = nullptr;
+    _Clbk->OnCheckpointEntered          = nullptr;
+    _Clbk->OnCheckpointExited           = nullptr;
+    _Clbk->OnEntityPoolChange           = nullptr;
+    _Clbk->OnServerPerformanceReport    = nullptr;
+}
+
+} // Namespace:: SqMod
+
+/* ------------------------------------------------------------------------------------------------
+ * Plugiun initialization procedure.
+*/
 SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
 {
+    using namespace SqMod;
     // Output plugin header
     puts("");
     OutputMessage("--------------------------------------------------------------------");
@@ -116,860 +946,33 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     OutputMessage("Legal: %s", SQMOD_COPYRIGHT);
     OutputMessage("--------------------------------------------------------------------");
     puts("");
-
-    // Verify that core components are working
-    if (!Logger::Get())
-    {
-        puts("[SQMOD] Unable to start because the logging class could not be instantiated");
-        return SQMOD_FAILURE;
-    }
-    if (!Core::Get())
-    {
-        DestroyComponents();
-        puts("[SQMOD] Unable to start because the central core class could not be instantiated");
-        return SQMOD_FAILURE;
-    }
-    if (!CmdManager::Get())
-    {
-        DestroyComponents();
-        puts("[SQMOD] Unable to start because the command class could not be instantiated");
-        return SQMOD_FAILURE;
-    }
     // Store server proxies
     _Func = funcs;
     _Clbk = calls;
     _Info = info;
-    // Assign plugin information
-    _Info->uPluginVer = SQMOD_VERSION;
-    strcpy(_Info->szName, SQMOD_HOST_NAME);
-    // Attempt to initialize the plugin
-    if (!_Core->Init())
+    // Assign plugin version
+    _Info->pluginVersion = SQMOD_VERSION;
+    _Info->apiMajorVersion = PLUGIN_API_MAJOR;
+    _Info->apiMinorVersion = PLUGIN_API_MINOR;
+    // Assign the plugin name
+    std::snprintf(_Info->name, sizeof(_Info->name), "%s", SQMOD_HOST_NAME);
+    // Attempt to initialize the logger before anything else
+    Logger::Get().Initialize(nullptr);
+    // Attempt to initialize the plugin core
+    if (!Core::Get().Initialize())
     {
-        LogFtl("The plugin failed to initialize");
-        _Core->Terminate();
-        DestroyComponents();
+        LogFtl("Unable to initialize the plug-in central core");
+        // Attempt to terminate
+        Core::Get().Terminate();
+        // Stop here!
         return SQMOD_FAILURE;
     }
-    else if (_Clbk)
-        BindCallbacks();
-    else
-    {
-        _Core->Terminate();
-        DestroyComponents();
-        LogFtl("Unable to start because the server callbacks are missing");
-        return SQMOD_FAILURE;
-    }
+    // Bind to server callbacks
+    BindCallbacks();
     // Attempt to initialize the plugin exports
     InitExports();
-    // Notify that the plugin was successfully loaded
-    OutputMessage("Successfully loaded %s", SQMOD_NAME);
     // Dummy spacing
     puts("");
     // Initialization was successful
     return SQMOD_SUCCESS;
-}
-
-// --------------------------------------------------------------------------------------------
-#define SQMOD_CATCH_EVENT_EXCEPTION(ev) /*
-*/ catch (const Sqrat::Exception & e) /*
-*/ { /*
-*/  LogErr("Squirrel exception caught during (" #ev ") event"); /*
-*/  LogInf("Message: %s", e.Message().c_str()); /*
-*/ } /*
-*/ catch (const std::exception & e) /*
-*/ { /*
-*/  LogErr("Program exception caught during (" #ev ") event"); /*
-*/  LogInf("Message: %s", e.what()); /*
-*/ } /*
-*/ catch (...) /*
-*/ { /*
-*/  LogErr("Unknown exception caught during (" #ev ") event"); /*
-*/ } /*
-*/
-
-// --------------------------------------------------------------------------------------------
-#define SQMOD_RELOAD_CHECK if (g_Reload) DoReload();
-
-// --------------------------------------------------------------------------------------------
-static int VC_InitServer(void)
-{
-    // Don't even try to initialize if there's no core instance
-    if (!_Core)
-    {
-        return SQMOD_FAILURE;
-    }
-    // Mark the initialization as successful by default
-    _Core->SetState(1);
-    // Attempt to forward the event
-    try
-    {
-
-        // Obtain the API version as a string
-        String apiver(ToStrF("%d", SQMOD_API_VER));
-        // Signal outside plug-ins to do fetch our proxies
-        _Func->SendCustomCommand(0xDABBAD00, apiver.c_str());
-        // Attempt to load the module core
-        if (_Core->Load())
-        {
-            _Core->EmitServerStartup();
-        }
-        else
-        {
-            LogFtl("Unable to load the plugin resources properly");
-        }
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(InitServer)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static void VC_ShutdownServer(void)
-{
-    // Don't even try to de-initialize if there's no core instance
-    if (!_Core)
-    {
-        return;
-    }
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitServerShutdown();
-        // Deallocate and release everything obtained at startup
-        _Core->Terminate();
-        // The server still triggers callbacks and we deallocated everything!
-        UnbindCallbacks();
-        // Destroy components
-        DestroyComponents();
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(ShutdownServer)
-    // See if a reload was requested (quite useless here but why not)
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_Frame(float delta)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitServerFrame(delta);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(Frame)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerConnect(int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->ConnectPlayer(player, SQMOD_CREATE_AUTOMATIC, NullObject());
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerConnect)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerDisconnect(int player, int reason)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->DisconnectPlayer(player, reason, NullObject());
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerDisconnect)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerBeginTyping(int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerStartTyping(player);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerBeginTyping)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerEndTyping(int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerStopTyping(player);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerEndTyping)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static int VC_PlayerRequestClass(int player, int offset)
-{
-    // Mark the initialization as successful by default
-    _Core->SetState(SQMOD_SUCCESS);
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerRequestClass(player, offset);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerEndTyping)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static int VC_PlayerRequestSpawn(int player)
-{
-    // Mark the initialization as successful by default
-    _Core->SetState(SQMOD_SUCCESS);
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerRequestSpawn(player);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerRequestSpawn)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static void VC_PlayerSpawn(int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerSpawn(player);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerSpawn)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerDeath(int player, int killer, int reason, int body_part)
-{
-    // Attempt to forward the event
-    try
-    {
-        if (_Func->IsPlayerConnected(killer))
-        {
-            _Core->EmitPlayerKilled(player, killer, reason, body_part);
-        }
-        else
-        {
-            _Core->EmitPlayerWasted(player, reason);
-        }
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerDeath)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerUpdate(int player, int type)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerUpdate(player, type);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerUpdate)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static int VC_PlayerRequestEnter(int player, int vehicle, int slot)
-{
-    // Mark the initialization as successful by default
-    _Core->SetState(SQMOD_SUCCESS);
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerEmbarking(player, vehicle, slot);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerRequestEnter)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static void VC_PlayerEnterVehicle(int player, int vehicle, int slot)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerEmbarked(player, vehicle, slot);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerEnterVehicle)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerExitVehicle(int player, int vehicle)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerDisembark(player, vehicle);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerExitVehicle)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static int VC_PickupClaimPicked(int pickup, int player)
-{
-    // Mark the initialization as successful by default
-    _Core->SetState(SQMOD_SUCCESS);
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPickupClaimed(player, pickup);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PickupClaimPicked)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static void VC_PickupPickedUp(int pickup, int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPickupCollected(player, pickup);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PickupPickedUp)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PickupRespawn(int pickup)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPickupRespawn(pickup);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PickupRespawn)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_VehicleUpdate(int vehicle, int type)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitVehicleUpdate(vehicle, type);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(VehicleUpdate)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_VehicleExplode(int vehicle)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitVehicleExplode(vehicle);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(VehicleExplode)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_VehicleRespawn(int vehicle)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitVehicleRespawn(vehicle);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(VehicleRespawn)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_ObjectShot(int object, int player, int weapon)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitObjectShot(player, object, weapon);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(ObjectShot)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_ObjectBump(int object, int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitObjectBump(player, object);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(ObjectBump)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static int VC_PublicMessage(int player, const char * text)
-{
-    // Mark the initialization as successful by default
-    _Core->SetState(SQMOD_SUCCESS);
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerChat(player, text);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PublicMessage)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static int VC_CommandMessage(int player, const char * text)
-{
-    // Mark the initialization as successful by default
-    _Core->SetState(SQMOD_SUCCESS);
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerCommand(player, text);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(CommandMessage)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static int VC_PrivateMessage(int player, int target, const char * text)
-{
-    // Mark the initialization as successful by default
-    _Core->SetState(SQMOD_SUCCESS);
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerMessage(player, target, text);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PrivateMessage)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static int VC_InternalCommand(unsigned int type, const char * text)
-{
-    // Mark the initialization as successful by default
-    _Core->SetState(SQMOD_SUCCESS);
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitInternalCommand(type, text);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(InternalCommand)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static int VC_LoginAttempt(char * name, const char * passwd, const char * address)
-{
-    // Mark the initialization as successful by default
-    _Core->SetState(SQMOD_SUCCESS);
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitLoginAttempt(name, passwd, address);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(LoginAttempt)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-    // Return the last known plug-in state
-    return _Core->GetState();
-}
-
-static void VC_EntityPool(int type, int id, unsigned int deleted)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitEntityPool(type, id, static_cast< bool >(deleted));
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(EntityPool)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_KeyBindDown(int player, int bind)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerKeyPress(player, bind);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(KeyBindDown)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_KeyBindUp(int player, int bind)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerKeyRelease(player, bind);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(KeyBindUp)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerAway(int player, unsigned int status)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerAway(player, static_cast< bool >(status));
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerAway)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerSpectate(int player, int target)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerSpectate(player, target);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerSpectate)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerCrashReport(int player, const char * report)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerCrashreport(player, report);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerCrashReport)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_ServerPerformanceReport(int /*count*/, const char ** /*description*/, unsigned long long * /*millis*/)
-{
-    // Ignored for now...
-}
-
-static void VC_PlayerName(int player, const char * previous, const char * current)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerRename(player, previous, current);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerName)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerState(int player, int previous, int current)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerState(player, previous, current);
-        // Identify the current state and trigger the listeners specific to that
-        switch (current)
-        {
-            case SQMOD_PLAYER_STATE_NONE:
-                _Core->EmitStateNone(player, previous);
-            break;
-            case SQMOD_PLAYER_STATE_NORMAL:
-                _Core->EmitStateNormal(player, previous);
-            break;
-            case SQMOD_PLAYER_STATE_SHOOTING:
-                _Core->EmitStateShooting(player, previous);
-            break;
-            case SQMOD_PLAYER_STATE_DRIVER:
-                _Core->EmitStateDriver(player, previous);
-            break;
-            case SQMOD_PLAYER_STATE_PASSENGER:
-                _Core->EmitStatePassenger(player, previous);
-            break;
-            case SQMOD_PLAYER_STATE_ENTERING_AS_DRIVER:
-                _Core->EmitStateEnterDriver(player, previous);
-            break;
-            case SQMOD_PLAYER_STATE_ENTERING_AS_PASSENGER:
-                _Core->EmitStateEnterPassenger(player, previous);
-            break;
-            case SQMOD_PLAYER_STATE_EXITING_VEHICLE:
-                _Core->EmitStateExitVehicle(player, previous);
-            break;
-            case SQMOD_PLAYER_STATE_UNSPAWNED:
-                _Core->EmitStateUnspawned(player, previous);
-            break;
-        }
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerState)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerAction(int player, int previous, int current)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerAction(player, previous, current);
-        // Identify the current action and trigger the listeners specific to that
-        switch (current)
-        {
-            case SQMOD_PLAYER_ACTION_NONE:
-                _Core->EmitActionNone(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_NORMAL:
-                _Core->EmitActionNormal(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_AIMING:
-                _Core->EmitActionAiming(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_SHOOTING:
-                _Core->EmitActionShooting(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_JUMPING:
-                _Core->EmitActionJumping(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_LYING_ON_GROUND:
-                _Core->EmitActionLieDown(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_GETTING_UP:
-                _Core->EmitActionGettingUp(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_JUMPING_FROM_VEHICLE:
-                _Core->EmitActionJumpVehicle(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_DRIVING:
-                _Core->EmitActionDriving(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_DYING:
-                _Core->EmitActionDying(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_WASTED:
-                _Core->EmitActionWasted(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_ENTERING_VEHICLE:
-                _Core->EmitActionEmbarking(player, previous);
-            break;
-            case SQMOD_PLAYER_ACTION_EXITING_VEHICLE:
-                _Core->EmitActionDisembarking(player, previous);
-            break;
-        }
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerAction)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerOnFire(int player, unsigned int state)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerBurning(player, static_cast< bool >(state));
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerOnFire)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerCrouch(int player, unsigned int state)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerCrouching(player, static_cast< bool >(state));
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerCrouch)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_PlayerGameKeys(int player, int previous, int current)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitPlayerGameKeys(player, previous, current);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(PlayerGameKeys)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_OnCheckpointEntered(int checkpoint, int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitCheckpointEntered(player, checkpoint);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(CheckpointEntered)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_OnCheckpointExited(int checkpoint, int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitCheckpointExited(player, checkpoint);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(CheckpointExited)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_OnSphereEntered(int sphere, int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitForcefieldEntered(player, sphere);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(SphereEntered)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-static void VC_OnSphereExited(int sphere, int player)
-{
-    // Attempt to forward the event
-    try
-    {
-        _Core->EmitForcefieldExited(player, sphere);
-    }
-    SQMOD_CATCH_EVENT_EXCEPTION(SphereExited)
-    // See if a reload was requested
-    SQMOD_RELOAD_CHECK
-}
-
-// ------------------------------------------------------------------------------------------------
-void BindCallbacks()
-{
-    _Clbk->OnInitServer                 = VC_InitServer;
-    _Clbk->OnShutdownServer             = VC_ShutdownServer;
-    _Clbk->OnFrame                      = VC_Frame;
-    _Clbk->OnPlayerConnect              = VC_PlayerConnect;
-    _Clbk->OnPlayerDisconnect           = VC_PlayerDisconnect;
-    _Clbk->OnPlayerBeginTyping          = VC_PlayerBeginTyping;
-    _Clbk->OnPlayerEndTyping            = VC_PlayerEndTyping;
-    _Clbk->OnPlayerRequestClass         = VC_PlayerRequestClass;
-    _Clbk->OnPlayerRequestSpawn         = VC_PlayerRequestSpawn;
-    _Clbk->OnPlayerSpawn                = VC_PlayerSpawn;
-    _Clbk->OnPlayerDeath                = VC_PlayerDeath;
-    _Clbk->OnPlayerUpdate               = VC_PlayerUpdate;
-    _Clbk->OnPlayerRequestEnter         = VC_PlayerRequestEnter;
-    _Clbk->OnPlayerEnterVehicle         = VC_PlayerEnterVehicle;
-    _Clbk->OnPlayerExitVehicle          = VC_PlayerExitVehicle;
-    _Clbk->OnPickupClaimPicked          = VC_PickupClaimPicked;
-    _Clbk->OnPickupPickedUp             = VC_PickupPickedUp;
-    _Clbk->OnPickupRespawn              = VC_PickupRespawn;
-    _Clbk->OnVehicleUpdate              = VC_VehicleUpdate;
-    _Clbk->OnVehicleExplode             = VC_VehicleExplode;
-    _Clbk->OnVehicleRespawn             = VC_VehicleRespawn;
-    _Clbk->OnObjectShot                 = VC_ObjectShot;
-    _Clbk->OnObjectBump                 = VC_ObjectBump;
-    _Clbk->OnPublicMessage              = VC_PublicMessage;
-    _Clbk->OnCommandMessage             = VC_CommandMessage;
-    _Clbk->OnPrivateMessage             = VC_PrivateMessage;
-    _Clbk->OnInternalCommand            = VC_InternalCommand;
-    _Clbk->OnLoginAttempt               = VC_LoginAttempt;
-    _Clbk->OnEntityPoolChange           = VC_EntityPool;
-    _Clbk->OnKeyBindDown                = VC_KeyBindDown;
-    _Clbk->OnKeyBindUp                  = VC_KeyBindUp;
-    _Clbk->OnPlayerAwayChange           = VC_PlayerAway;
-    _Clbk->OnPlayerSpectate             = VC_PlayerSpectate;
-    _Clbk->OnPlayerCrashReport          = VC_PlayerCrashReport;
-    _Clbk->OnServerPerformanceReport    = VC_ServerPerformanceReport;
-    _Clbk->OnPlayerNameChange           = VC_PlayerName;
-    _Clbk->OnPlayerStateChange          = VC_PlayerState;
-    _Clbk->OnPlayerActionChange         = VC_PlayerAction;
-    _Clbk->OnPlayerOnFireChange         = VC_PlayerOnFire;
-    _Clbk->OnPlayerCrouchChange         = VC_PlayerCrouch;
-    _Clbk->OnPlayerGameKeysChange       = VC_PlayerGameKeys;
-    _Clbk->OnCheckpointEntered          = VC_OnCheckpointEntered;
-    _Clbk->OnCheckpointExited           = VC_OnCheckpointExited;
-    _Clbk->OnSphereEntered              = VC_OnSphereEntered;
-    _Clbk->OnSphereExited               = VC_OnSphereExited;
-}
-
-// ------------------------------------------------------------------------------------------------
-void UnbindCallbacks()
-{
-    _Clbk->OnInitServer                 = nullptr;
-    _Clbk->OnShutdownServer             = nullptr;
-    _Clbk->OnFrame                      = nullptr;
-    _Clbk->OnPlayerConnect              = nullptr;
-    _Clbk->OnPlayerDisconnect           = nullptr;
-    _Clbk->OnPlayerBeginTyping          = nullptr;
-    _Clbk->OnPlayerEndTyping            = nullptr;
-    _Clbk->OnPlayerRequestClass         = nullptr;
-    _Clbk->OnPlayerRequestSpawn         = nullptr;
-    _Clbk->OnPlayerSpawn                = nullptr;
-    _Clbk->OnPlayerDeath                = nullptr;
-    _Clbk->OnPlayerUpdate               = nullptr;
-    _Clbk->OnPlayerRequestEnter         = nullptr;
-    _Clbk->OnPlayerEnterVehicle         = nullptr;
-    _Clbk->OnPlayerExitVehicle          = nullptr;
-    _Clbk->OnPickupClaimPicked          = nullptr;
-    _Clbk->OnPickupPickedUp             = nullptr;
-    _Clbk->OnPickupRespawn              = nullptr;
-    _Clbk->OnVehicleUpdate              = nullptr;
-    _Clbk->OnVehicleExplode             = nullptr;
-    _Clbk->OnVehicleRespawn             = nullptr;
-    _Clbk->OnObjectShot                 = nullptr;
-    _Clbk->OnObjectBump                 = nullptr;
-    _Clbk->OnPublicMessage              = nullptr;
-    _Clbk->OnCommandMessage             = nullptr;
-    _Clbk->OnPrivateMessage             = nullptr;
-    _Clbk->OnInternalCommand            = nullptr;
-    _Clbk->OnLoginAttempt               = nullptr;
-    _Clbk->OnEntityPoolChange           = nullptr;
-    _Clbk->OnKeyBindDown                = nullptr;
-    _Clbk->OnKeyBindUp                  = nullptr;
-    _Clbk->OnPlayerAwayChange           = nullptr;
-    _Clbk->OnPlayerSpectate             = nullptr;
-    _Clbk->OnPlayerCrashReport          = nullptr;
-    _Clbk->OnServerPerformanceReport    = nullptr;
-    _Clbk->OnPlayerNameChange           = nullptr;
-    _Clbk->OnPlayerStateChange          = nullptr;
-    _Clbk->OnPlayerActionChange         = nullptr;
-    _Clbk->OnPlayerOnFireChange         = nullptr;
-    _Clbk->OnPlayerCrouchChange         = nullptr;
-    _Clbk->OnPlayerGameKeysChange       = nullptr;
-    _Clbk->OnCheckpointEntered          = nullptr;
-    _Clbk->OnCheckpointExited           = nullptr;
-    _Clbk->OnSphereEntered              = nullptr;
-    _Clbk->OnSphereExited               = nullptr;
 }

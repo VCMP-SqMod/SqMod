@@ -20,7 +20,7 @@ SQChar Circle::Delim = ',';
 // ------------------------------------------------------------------------------------------------
 SQInteger Circle::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("Circle");
+    static const SQChar name[] = _SC("Circle");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -98,7 +98,7 @@ Circle & Circle::operator /= (const Circle & c)
 Circle & Circle::operator %= (const Circle & c)
 {
     pos %= c.pos;
-    rad = fmod(rad, c.rad);
+    rad = std::fmod(rad, c.rad);
 
     return *this;
 }
@@ -130,7 +130,7 @@ Circle & Circle::operator /= (Value r)
 
 Circle & Circle::operator %= (Value r)
 {
-    rad = fmod(rad, r);
+    rad = std::fmod(rad, r);
     return *this;
 }
 
@@ -220,7 +220,7 @@ Circle Circle::operator / (const Circle & c) const
 
 Circle Circle::operator % (const Circle & c) const
 {
-    return Circle(pos % c.pos, fmod(rad, c.rad));
+    return Circle(pos % c.pos, std::fmod(rad, c.rad));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ Circle Circle::operator / (Value r) const
 
 Circle Circle::operator % (Value r) const
 {
-    return Circle(fmod(rad, r));
+    return Circle(std::fmod(rad, r));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ Circle Circle::operator % (const Vector2 & p) const
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator + () const
 {
-    return Circle(pos.Abs(), fabs(rad));
+    return Circle(pos.Abs(), std::fabs(rad));
 }
 
 Circle Circle::operator - () const
@@ -321,11 +321,17 @@ bool Circle::operator >= (const Circle & c) const
 Int32 Circle::Cmp(const Circle & o) const
 {
     if (*this == o)
+    {
         return 0;
+    }
     else if (*this > o)
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -372,7 +378,7 @@ void Circle::Set(Value nx, Value ny, Value nr)
 // ------------------------------------------------------------------------------------------------
 void Circle::Set(CSStr values, SQChar delim)
 {
-    Set(GetCircle(values, delim));
+    Set(Circle::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -385,17 +391,25 @@ void Circle::Generate()
 void Circle::Generate(Value min, Value max, bool r)
 {
     if (EpsLt(max, min))
+    {
         STHROWF("max value is lower than min value");
+    }
     else if (r)
+    {
         rad = GetRandomFloat32(min, max);
+    }
     else
+    {
         pos.Generate(min, max);
+    }
 }
 
 void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin))
+    {
         STHROWF("max value is lower than min value");
+    }
 
     pos.Generate(xmin, xmax, ymin, ymax);
 }
@@ -403,7 +417,9 @@ void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(rmax, rmin))
+    {
         STHROWF("max value is lower than min value");
+    }
 
     pos.Generate(xmin, xmax, ymin, ymax);
     rad = GetRandomFloat32(rmin, rmax);
@@ -412,17 +428,17 @@ void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin
 // ------------------------------------------------------------------------------------------------
 Circle Circle::Abs() const
 {
-    return Circle(pos.Abs(), fabs(rad));
+    return Circle(pos.Abs(), std::fabs(rad));
 }
 
 // ------------------------------------------------------------------------------------------------
-const Circle & GetCircle(CSStr str)
+const Circle & Circle::Get(CSStr str)
 {
-    return GetCircle(str, Circle::Delim);
+    return Circle::Get(str, Circle::Delim);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Circle & GetCircle(CSStr str, SQChar delim)
+const Circle & Circle::Get(CSStr str, SQChar delim)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f ");
@@ -443,99 +459,135 @@ const Circle & GetCircle(CSStr str, SQChar delim)
     return circle;
 }
 
+// ------------------------------------------------------------------------------------------------
+const Circle & GetCircle()
+{
+    static Circle circle;
+    circle.Clear();
+    return circle;
+}
+
+const Circle & GetCircle(Float32 rv)
+{
+    static Circle circle;
+    circle.Set(rv);
+    return circle;
+}
+
+const Circle & GetCircle(const Vector2 & pv, Float32 rv)
+{
+    static Circle circle;
+    circle.Set(pv, rv);
+    return circle;
+}
+
+const Circle & GetCircle(Float32 xv, Float32 yv, Float32 rv)
+{
+    static Circle circle;
+    circle.Set(xv, yv, rv);
+    return circle;
+}
+
+const Circle & GetCircle(const Circle & o)
+{
+    static Circle circle;
+    circle.Set(o);
+    return circle;
+}
+
 // ================================================================================================
 void Register_Circle(HSQUIRRELVM vm)
 {
     typedef Circle::Value Val;
 
     RootTable(vm).Bind(_SC("Circle"), Class< Circle >(vm, _SC("Circle"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< Val >()
         .Ctor< const Vector2 &, Val >()
         .Ctor< Val, Val, Val >()
-        /* Static Members */
+        // Static Members
         .SetStaticValue(_SC("Delim"), &Circle::Delim)
-        /* Member Variables */
-        .Var(_SC("pos"), &Circle::pos)
-        .Var(_SC("rad"), &Circle::rad)
-        /* Properties */
-        .Prop(_SC("abs"), &Circle::Abs)
-        /* Core Metamethods */
+        // Member Variables
+        .Var(_SC("Pos"), &Circle::pos)
+        .Var(_SC("Rad"), &Circle::rad)
+        // Properties
+        .Prop(_SC("Abs"), &Circle::Abs)
+        // Core Metamethods
         .Func(_SC("_tostring"), &Circle::ToString)
         .SquirrelFunc(_SC("_typename"), &Circle::Typename)
         .Func(_SC("_cmp"), &Circle::Cmp)
-        /* Metamethods */
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("_add"), &Circle::operator +)
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("_sub"), &Circle::operator -)
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("_mul"), &Circle::operator *)
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("_div"), &Circle::operator /)
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("_modulo"), &Circle::operator %)
-        .Func<Circle (Circle::*)(void) const>(_SC("_unm"), &Circle::operator -)
-        /* Setters */
-        .Overload<void (Circle::*)(const Circle &)>(_SC("Set"), &Circle::Set)
-        .Overload<void (Circle::*)(const Vector2 &, Val)>(_SC("Set"), &Circle::Set)
-        .Overload<void (Circle::*)(Val, Val, Val)>(_SC("Set"), &Circle::Set)
-        .Overload<void (Circle::*)(Val)>(_SC("SetRad"), &Circle::Set)
-        .Overload<void (Circle::*)(const Vector2 &)>(_SC("SetVec2"), &Circle::Set)
-        .Overload<void (Circle::*)(Val, Val)>(_SC("SetVec2"), &Circle::Set)
-        .Overload<void (Circle::*)(CSStr, SQChar)>(_SC("SetStr"), &Circle::Set)
-        /* Utility Methods */
+        // Metamethods
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_add"), &Circle::operator +)
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_sub"), &Circle::operator -)
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_mul"), &Circle::operator *)
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_div"), &Circle::operator /)
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_modulo"), &Circle::operator %)
+        .Func< Circle (Circle::*)(void) const >(_SC("_unm"), &Circle::operator -)
+        // Setters
+        .Overload< void (Circle::*)(const Circle &) >(_SC("Set"), &Circle::Set)
+        .Overload< void (Circle::*)(const Vector2 &, Val) >(_SC("Set"), &Circle::Set)
+        .Overload< void (Circle::*)(Val, Val, Val) >(_SC("Set"), &Circle::Set)
+        .Overload< void (Circle::*)(Val) >(_SC("SetRad"), &Circle::Set)
+        .Overload< void (Circle::*)(const Vector2 &) >(_SC("SetVec2"), &Circle::Set)
+        .Overload< void (Circle::*)(Val, Val) >(_SC("SetVec2"), &Circle::Set)
+        .Overload< void (Circle::*)(CSStr, SQChar) >(_SC("SetStr"), &Circle::Set)
+        // Utility Methods
         .Func(_SC("Clear"), &Circle::Clear)
-        /* Operator Exposure */
-        .Func<Circle & (Circle::*)(const Circle &)>(_SC("opAddAssign"), &Circle::operator +=)
-        .Func<Circle & (Circle::*)(const Circle &)>(_SC("opSubAssign"), &Circle::operator -=)
-        .Func<Circle & (Circle::*)(const Circle &)>(_SC("opMulAssign"), &Circle::operator *=)
-        .Func<Circle & (Circle::*)(const Circle &)>(_SC("opDivAssign"), &Circle::operator /=)
-        .Func<Circle & (Circle::*)(const Circle &)>(_SC("opModAssign"), &Circle::operator %=)
-
-        .Func<Circle & (Circle::*)(Circle::Value)>(_SC("opAddAssignR"), &Circle::operator +=)
-        .Func<Circle & (Circle::*)(Circle::Value)>(_SC("opSubAssignR"), &Circle::operator -=)
-        .Func<Circle & (Circle::*)(Circle::Value)>(_SC("opMulAssignR"), &Circle::operator *=)
-        .Func<Circle & (Circle::*)(Circle::Value)>(_SC("opDivAssignR"), &Circle::operator /=)
-        .Func<Circle & (Circle::*)(Circle::Value)>(_SC("opModAssignR"), &Circle::operator %=)
-
-        .Func<Circle & (Circle::*)(const Vector2 &)>(_SC("opAddAssignP"), &Circle::operator +=)
-        .Func<Circle & (Circle::*)(const Vector2 &)>(_SC("opSubAssignP"), &Circle::operator -=)
-        .Func<Circle & (Circle::*)(const Vector2 &)>(_SC("opMulAssignP"), &Circle::operator *=)
-        .Func<Circle & (Circle::*)(const Vector2 &)>(_SC("opDivAssignP"), &Circle::operator /=)
-        .Func<Circle & (Circle::*)(const Vector2 &)>(_SC("opModAssignP"), &Circle::operator %=)
-
-        .Func<Circle & (Circle::*)(void)>(_SC("opPreInc"), &Circle::operator ++)
-        .Func<Circle & (Circle::*)(void)>(_SC("opPreDec"), &Circle::operator --)
-        .Func<Circle (Circle::*)(int)>(_SC("opPostInc"), &Circle::operator ++)
-        .Func<Circle (Circle::*)(int)>(_SC("opPostDec"), &Circle::operator --)
-
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("opAdd"), &Circle::operator +)
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("opSub"), &Circle::operator -)
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("opMul"), &Circle::operator *)
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("opDiv"), &Circle::operator /)
-        .Func<Circle (Circle::*)(const Circle &) const>(_SC("opMod"), &Circle::operator %)
-
-        .Func<Circle (Circle::*)(Circle::Value) const>(_SC("opAddR"), &Circle::operator +)
-        .Func<Circle (Circle::*)(Circle::Value) const>(_SC("opSubR"), &Circle::operator -)
-        .Func<Circle (Circle::*)(Circle::Value) const>(_SC("opMulR"), &Circle::operator *)
-        .Func<Circle (Circle::*)(Circle::Value) const>(_SC("opDivR"), &Circle::operator /)
-        .Func<Circle (Circle::*)(Circle::Value) const>(_SC("opModR"), &Circle::operator %)
-
-        .Func<Circle (Circle::*)(const Vector2 &) const>(_SC("opAddP"), &Circle::operator +)
-        .Func<Circle (Circle::*)(const Vector2 &) const>(_SC("opSubP"), &Circle::operator -)
-        .Func<Circle (Circle::*)(const Vector2 &) const>(_SC("opMulP"), &Circle::operator *)
-        .Func<Circle (Circle::*)(const Vector2 &) const>(_SC("opDivP"), &Circle::operator /)
-        .Func<Circle (Circle::*)(const Vector2 &) const>(_SC("opModP"), &Circle::operator %)
-
-        .Func<Circle (Circle::*)(void) const>(_SC("opUnPlus"), &Circle::operator +)
-        .Func<Circle (Circle::*)(void) const>(_SC("opUnMinus"), &Circle::operator -)
-
-        .Func<bool (Circle::*)(const Circle &) const>(_SC("opEqual"), &Circle::operator ==)
-        .Func<bool (Circle::*)(const Circle &) const>(_SC("opNotEqual"), &Circle::operator !=)
-        .Func<bool (Circle::*)(const Circle &) const>(_SC("opLessThan"), &Circle::operator <)
-        .Func<bool (Circle::*)(const Circle &) const>(_SC("opGreaterThan"), &Circle::operator >)
-        .Func<bool (Circle::*)(const Circle &) const>(_SC("opLessEqual"), &Circle::operator <=)
-        .Func<bool (Circle::*)(const Circle &) const>(_SC("opGreaterEqual"), &Circle::operator >=)
         // Static Overloads
-        .StaticOverload< const Circle & (*)(CSStr) >(_SC("FromStr"), &GetCircle)
-        .StaticOverload< const Circle & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetCircle)
+        .StaticOverload< const Circle & (*)(CSStr) >(_SC("FromStr"), &Circle::Get)
+        .StaticOverload< const Circle & (*)(CSStr, SQChar) >(_SC("FromStr"), &Circle::Get)
+        // Operator Exposure
+        .Func< Circle & (Circle::*)(const Circle &) >(_SC("opAddAssign"), &Circle::operator +=)
+        .Func< Circle & (Circle::*)(const Circle &) >(_SC("opSubAssign"), &Circle::operator -=)
+        .Func< Circle & (Circle::*)(const Circle &) >(_SC("opMulAssign"), &Circle::operator *=)
+        .Func< Circle & (Circle::*)(const Circle &) >(_SC("opDivAssign"), &Circle::operator /=)
+        .Func< Circle & (Circle::*)(const Circle &) >(_SC("opModAssign"), &Circle::operator %=)
+
+        .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opAddAssignR"), &Circle::operator +=)
+        .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opSubAssignR"), &Circle::operator -=)
+        .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opMulAssignR"), &Circle::operator *=)
+        .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opDivAssignR"), &Circle::operator /=)
+        .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opModAssignR"), &Circle::operator %=)
+
+        .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opAddAssignP"), &Circle::operator +=)
+        .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opSubAssignP"), &Circle::operator -=)
+        .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opMulAssignP"), &Circle::operator *=)
+        .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opDivAssignP"), &Circle::operator /=)
+        .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opModAssignP"), &Circle::operator %=)
+
+        .Func< Circle & (Circle::*)(void) >(_SC("opPreInc"), &Circle::operator ++)
+        .Func< Circle & (Circle::*)(void) >(_SC("opPreDec"), &Circle::operator --)
+        .Func< Circle (Circle::*)(int) >(_SC("opPostInc"), &Circle::operator ++)
+        .Func< Circle (Circle::*)(int) >(_SC("opPostDec"), &Circle::operator --)
+
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("opAdd"), &Circle::operator +)
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("opSub"), &Circle::operator -)
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("opMul"), &Circle::operator *)
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("opDiv"), &Circle::operator /)
+        .Func< Circle (Circle::*)(const Circle &) const >(_SC("opMod"), &Circle::operator %)
+
+        .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opAddR"), &Circle::operator +)
+        .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opSubR"), &Circle::operator -)
+        .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opMulR"), &Circle::operator *)
+        .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opDivR"), &Circle::operator /)
+        .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opModR"), &Circle::operator %)
+
+        .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opAddP"), &Circle::operator +)
+        .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opSubP"), &Circle::operator -)
+        .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opMulP"), &Circle::operator *)
+        .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opDivP"), &Circle::operator /)
+        .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opModP"), &Circle::operator %)
+
+        .Func< Circle (Circle::*)(void) const >(_SC("opUnPlus"), &Circle::operator +)
+        .Func< Circle (Circle::*)(void) const >(_SC("opUnMinus"), &Circle::operator -)
+
+        .Func< bool (Circle::*)(const Circle &) const >(_SC("opEqual"), &Circle::operator ==)
+        .Func< bool (Circle::*)(const Circle &) const >(_SC("opNotEqual"), &Circle::operator !=)
+        .Func< bool (Circle::*)(const Circle &) const >(_SC("opLessThan"), &Circle::operator <)
+        .Func< bool (Circle::*)(const Circle &) const >(_SC("opGreaterThan"), &Circle::operator >)
+        .Func< bool (Circle::*)(const Circle &) const >(_SC("opLessEqual"), &Circle::operator <=)
+        .Func< bool (Circle::*)(const Circle &) const >(_SC("opGreaterEqual"), &Circle::operator >=)
     );
 }
 

@@ -9,19 +9,16 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CCStr GetModelName(Int32 id)
+CSStr GetModelName(Int32 /*id*/)
 {
     // @TODO Implement...
-    SQMOD_UNUSED_VAR(id);
     return _SC("");
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetModelName(Int32 id, CCStr name)
+void SetModelName(Int32 /*id*/, CSStr /*name*/)
 {
     // @TODO Implement...
-    SQMOD_UNUSED_VAR(id);
-    SQMOD_UNUSED_VAR(name);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -71,6 +68,44 @@ bool IsModelWeapon(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-
+bool IsModelActuallyWeapon(Int32 id)
+{
+    switch (id)
+    {
+        case 259:
+        case 260:
+        case 261:
+        case 262:
+        case 263:
+        case 264:
+        case 265:
+        case 266:
+        case 267:
+        case 268:
+        case 269:
+        case 270:
+        case 271:
+        case 272:
+        case 274:
+        case 275:
+        case 276:
+        case 277:
+        case 278:
+        case 279:
+        case 280:
+        case 281:
+        case 282:
+        case 283:
+        case 284:
+        case 285:
+        case 286:
+        case 287:
+        case 288:
+        case 289:
+        case 290:
+        case 291:   return true;
+        default:    return false;
+    }
+}
 
 } // Namespace:: SqMod

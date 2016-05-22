@@ -10,7 +10,6 @@
 		<Project filename="ModSQLite.cbp" />
 		<Project filename="ModMMDB.cbp" />
 		<Project filename="ModSample.cbp" />
-		<Project filename="ModTCC.cbp" />
-		<Project filename="LibTCC.cbp" />
+		<Project filename="ModMongoose.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

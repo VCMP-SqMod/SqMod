@@ -8,16 +8,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Color3 type from a string.
-*/
-const Color3 & GetColor3(CSStr str);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Color3 type from a string.
-*/
-const Color3 & GetColor3(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
  * Class used to represent an opaque RGB color.
 */
 struct Color3
@@ -476,6 +466,17 @@ struct Color3
      * Inverse the color.
     */
     void Inverse();
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Color3 type from a string.
+    */
+    static const Color3 & Get(CSStr str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Color3 type from a string.
+    */
+    static const Color3 & Get(CSStr str, SQChar delim);
+
 };
 
 } // Namespace:: SqMod

@@ -7,12 +7,25 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// ------------------------------------------------------------------------------------------------
-CCStr GetModelName(Int32 id);
-void SetModelName(Int32 id, CCStr name);
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the name associated with a model identifier.
+*/
+CSStr GetModelName(Int32 id);
+
+/* ------------------------------------------------------------------------------------------------
+ * Modify the name associated with a model identifier.
+*/
+void SetModelName(Int32 id, CSStr name);
+
+/* ------------------------------------------------------------------------------------------------
+ * See whether the given model identifier is used a weapon model.
+*/
 bool IsModelWeapon(Int32 id);
+
+/* ------------------------------------------------------------------------------------------------
+ * See whether the given model identifier is an actual weapon model.
+*/
 bool IsModelActuallyWeapon(Int32 id);
-bool IsWeaponNatural(Int32 id);
 
 } // Namespace:: SqMod
 

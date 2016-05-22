@@ -17,7 +17,7 @@ const Int32 CPickup::Max = SQMOD_PICKUP_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CPickup::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqPickup");
+    static const SQChar name[] = _SC("SqPickup");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -40,11 +40,17 @@ CPickup::~CPickup()
 Int32 CPickup::Cmp(const CPickup & o) const
 {
     if (m_ID == o.m_ID)
+    {
         return 0;
+    }
     else if (m_ID > o.m_ID)
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -89,7 +95,7 @@ bool CPickup::Destroy(Int32 header, Object & payload)
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    return _Core->DelPickup(m_ID, header, payload);
+    return Core::Get().DelPickup(m_ID, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -98,7 +104,7 @@ void CPickup::BindEvent(Int32 evid, Object & env, Function & func) const
     // Validate the managed identifier
     Validate();
     // Obtain the function instance called for this event
-    Function & event = _Core->GetPickupEvent(m_ID, evid);
+    Function & event = Core::Get().GetPickupEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
     {
@@ -126,15 +132,6 @@ bool CPickup::IsStreamedFor(CPlayer & player) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPickup::GetModel() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->PickupGetModel(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
 Int32 CPickup::GetWorld() const
 {
     // Validate the managed identifier
@@ -158,7 +155,7 @@ Int32 CPickup::GetAlpha() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetVehicleModel(m_ID);
+    return _Func->GetPickupAlpha(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -167,7 +164,7 @@ void CPickup::SetAlpha(Int32 alpha) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->PickupSetAlpha(m_ID, alpha);
+    _Func->SetPickupAlpha(m_ID, alpha);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -176,7 +173,7 @@ bool CPickup::GetAutomatic() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->PickupIsAutomatic(m_ID);
+    return _Func->IsPickupAutomatic(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -185,7 +182,7 @@ void CPickup::SetAutomatic(bool toggle) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->PickupSetAutomatic(m_ID, toggle);
+    _Func->SetPickupIsAutomatic(m_ID, toggle);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -212,7 +209,7 @@ void CPickup::Refresh() const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->PickupRefresh(m_ID);
+    _Func->RefreshPickup(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -223,7 +220,7 @@ const Vector3 & CPickup::GetPosition()
     // Clear previous position information, if any
     s_Vector3.Clear();
     // Query the server for the position values
-    _Func->PickupGetPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPickupPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
     // Return the requested information
     return s_Vector3;
 }
@@ -234,7 +231,7 @@ void CPickup::SetPosition(const Vector3 & pos) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->PickupSetPos(m_ID, pos.x, pos.y, pos.z);
+    _Func->SetPickupPosition(m_ID, pos.x, pos.y, pos.z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -243,7 +240,16 @@ void CPickup::SetPositionEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->PickupSetPos(m_ID, x, y, z);
+    _Func->SetPickupPosition(m_ID, x, y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPickup::GetModel() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPickupModel(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -252,86 +258,86 @@ Int32 CPickup::GetQuantity() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->PickupGetQuantity(m_ID);
+    return _Func->GetPickupQuantity(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPickup::GetPosX() const
+Float32 CPickup::GetPositionX() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
     s_Vector3.x = 0;
     // Query the server for the requested component value
-    _Func->PickupGetPos(m_ID, &s_Vector3.x, NULL, NULL);
+    _Func->GetPickupPosition(m_ID, &s_Vector3.x, NULL, NULL);
     // Return the requested information
     return s_Vector3.x;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPickup::GetPosY() const
+Float32 CPickup::GetPositionY() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
     s_Vector3.y = 0;
     // Query the server for the requested component value
-    _Func->PickupGetPos(m_ID, NULL, &s_Vector3.y, NULL);
+    _Func->GetPickupPosition(m_ID, NULL, &s_Vector3.y, NULL);
     // Return the requested information
     return s_Vector3.y;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPickup::GetPosZ() const
+Float32 CPickup::GetPositionZ() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
     s_Vector3.z = 0;
     // Query the server for the requested component value
-    _Func->PickupGetPos(m_ID, NULL, NULL, &s_Vector3.z);
+    _Func->GetPickupPosition(m_ID, NULL, NULL, &s_Vector3.z);
     // Return the requested information
     return s_Vector3.z;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetPosX(Float32 x) const
+void CPickup::SetPositionX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->PickupGetPos(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPickupPosition(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
     // Perform the requested operation
-    _Func->PickupSetPos(m_ID, x, s_Vector3.y, s_Vector3.z);
+    _Func->SetPickupPosition(m_ID, x, s_Vector3.y, s_Vector3.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetPosY(Float32 y) const
+void CPickup::SetPositionY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->PickupGetPos(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
+    _Func->GetPickupPosition(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
     // Perform the requested operation
-    _Func->PickupSetPos(m_ID, s_Vector3.x, y, s_Vector3.z);
+    _Func->SetPickupPosition(m_ID, s_Vector3.x, y, s_Vector3.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetPosZ(Float32 z) const
+void CPickup::SetPositionZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->PickupGetPos(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
+    _Func->GetPickupPosition(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
     // Perform the requested operation
-    _Func->PickupSetPos(m_ID, s_Vector3.z, s_Vector3.y, z);
+    _Func->SetPickupPosition(m_ID, s_Vector3.z, s_Vector3.y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object & Pickup_CreateEx(Int32 model, Int32 world, Int32 quantity,
                         Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic)
 {
-    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic,
+    return Core::Get().NewPickup(model, world, quantity, x, y, z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
@@ -339,21 +345,21 @@ static Object & Pickup_CreateEx(Int32 model, Int32 world, Int32 quantity,
                         Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic,
                         Int32 header, Object & payload)
 {
-    return _Core->NewPickup(model, world, quantity, x, y, z, alpha, automatic, header, payload);
+    return Core::Get().NewPickup(model, world, quantity, x, y, z, alpha, automatic, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const Vector3 & pos,
                             Int32 alpha, bool automatic)
 {
-    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+    return Core::Get().NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
 static Object & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const Vector3 & pos,
                             Int32 alpha, bool automatic, Int32 header, Object & payload)
 {
-    return _Core->NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
+    return Core::Get().NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             header, payload);
 }
 
@@ -366,8 +372,8 @@ static const Object & Pickup_FindByID(Int32 id)
         STHROWF("The specified pickup identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
-    Core::Pickups::const_iterator itr = _Core->GetPickups().cbegin();
-    Core::Pickups::const_iterator end = _Core->GetPickups().cend();
+    Core::Pickups::const_iterator itr = Core::Get().GetPickups().cbegin();
+    Core::Pickups::const_iterator end = Core::Get().GetPickups().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -390,8 +396,8 @@ static const Object & Pickup_FindByTag(CSStr tag)
         STHROWF("The specified pickup tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
-    Core::Pickups::const_iterator itr = _Core->GetPickups().cbegin();
-    Core::Pickups::const_iterator end = _Core->GetPickups().cend();
+    Core::Pickups::const_iterator itr = Core::Get().GetPickups().cbegin();
+    Core::Pickups::const_iterator end = Core::Get().GetPickups().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -411,8 +417,8 @@ static Array Pickup_FindActive()
     // Remember the initial stack size
     StackGuard sg;
     // Obtain the ends of the entity pool
-    Core::Pickups::const_iterator itr = _Core->GetPickups().cbegin();
-    Core::Pickups::const_iterator end = _Core->GetPickups().cend();
+    Core::Pickups::const_iterator itr = Core::Get().GetPickups().cbegin();
+    Core::Pickups::const_iterator end = Core::Get().GetPickups().cend();
     // Allocate an empty array on the stack
     sq_newarray(DefaultVM::Get(), 0);
     // Process each entity in the pool
@@ -467,9 +473,9 @@ void Register_CPickup(HSQUIRRELVM vm)
         .Prop(_SC("Pos"), &CPickup::GetPosition, &CPickup::SetPosition)
         .Prop(_SC("Position"), &CPickup::GetPosition, &CPickup::SetPosition)
         .Prop(_SC("Quantity"), &CPickup::GetQuantity)
-        .Prop(_SC("X"), &CPickup::GetPosX, &CPickup::SetPosX)
-        .Prop(_SC("Y"), &CPickup::GetPosY, &CPickup::SetPosY)
-        .Prop(_SC("Z"), &CPickup::GetPosZ, &CPickup::SetPosZ)
+        .Prop(_SC("PosX"), &CPickup::GetPositionX, &CPickup::SetPositionX)
+        .Prop(_SC("PosY"), &CPickup::GetPositionY, &CPickup::SetPositionY)
+        .Prop(_SC("PosZ"), &CPickup::GetPositionZ, &CPickup::SetPositionZ)
         // Member Methods
         .Func(_SC("StreamedFor"), &CPickup::IsStreamedFor)
         .Func(_SC("Refresh"), &CPickup::Refresh)

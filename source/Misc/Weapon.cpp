@@ -40,7 +40,9 @@ CCStr GetWeaponName(Uint32 id)
 void SetWeaponName(Uint32 id, CCStr name)
 {
     if (id <= 70)
+    {
         CS_Weapon_Names[id].assign(name);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -54,7 +56,9 @@ Int32 GetWeaponID(CCStr name)
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     // See if we still have a valid name after the cleanup
     if(str.length() < 1)
+    {
         return SQMOD_UNKNOWN;
+    }
     // Grab the actual length of the string
     Uint32 len = static_cast< Uint32 >(str.length());
     // Get the most significant characters used to identify a weapon
@@ -66,7 +70,9 @@ Int32 GetWeaponID(CCStr name)
         b = str[1];
     }
     else if(str.length() >= 2)
+    {
         b = str[1];
+    }
     // Search for a pattern in the name
     switch(a)
     {
@@ -242,22 +248,8 @@ Int32 GetWeaponID(CCStr name)
 // ------------------------------------------------------------------------------------------------
 bool IsWeaponValid(Int32 id)
 {
-    return (strlen(GetWeaponName(id)) > 0);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool IsWeaponNatural(Int32 id)
-{
-    switch (id)
-    {
-        case SQMOD_WEAPON_VEHICLE:
-        case SQMOD_WEAPON_DRIVEBY:
-        case SQMOD_WEAPON_DROWNED:
-        case SQMOD_WEAPON_FALL:
-        case SQMOD_WEAPON_EXPLOSION2:
-        case SQMOD_WEAPON_SUICIDE:  return true;
-        default:                    return false;
-    }
+    CSStr name = GetWeaponName(id);
+    return (name && *name != '\0');
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -299,21 +291,25 @@ Int32 WeaponToModel(Int32 id)
         case SQMOD_WEAPON_FLAMETHROWER:     return 288;
         case SQMOD_WEAPON_M60:              return 289;
         case SQMOD_WEAPON_MINIGUN:          return 290;
-        case SQMOD_WEAPON_BOMB:             return SQMOD_UNKNOWN;
         case SQMOD_WEAPON_HELICANNON:       return 294;
         case SQMOD_WEAPON_CAMERA:           return 292;
-        case SQMOD_WEAPON_VEHICLE:          return SQMOD_UNKNOWN;
-        case SQMOD_WEAPON_EXPLOSION1:       return SQMOD_UNKNOWN;
-        case SQMOD_WEAPON_DRIVEBY:          return SQMOD_UNKNOWN;
-        case SQMOD_WEAPON_DROWNED:          return SQMOD_UNKNOWN;
-        case SQMOD_WEAPON_FALL:             return SQMOD_UNKNOWN;
-        case SQMOD_WEAPON_EXPLOSION2:       return SQMOD_UNKNOWN;
-        case SQMOD_WEAPON_SUICIDE:          return SQMOD_UNKNOWN;
         default:                            return SQMOD_UNKNOWN;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-
+bool IsWeaponNatural(Int32 id)
+{
+    switch (id)
+    {
+        case SQMOD_WEAPON_VEHICLE:
+        case SQMOD_WEAPON_DRIVEBY:
+        case SQMOD_WEAPON_DROWNED:
+        case SQMOD_WEAPON_FALL:
+        case SQMOD_WEAPON_EXPLOSION2:
+        case SQMOD_WEAPON_SUICIDE:  return true;
+        default:                    return false;
+    }
+}
 
 } // Namespace:: SqMod

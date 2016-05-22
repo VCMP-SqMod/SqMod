@@ -4,7 +4,11 @@
 #include "Base/Color3.hpp"
 #include "Base/Vector3.hpp"
 #include "Base/Stack.hpp"
+#include "Library/Utils/BufferWrapper.hpp"
 #include "Core.hpp"
+
+// ------------------------------------------------------------------------------------------------
+#include <cstring>
 
 // ------------------------------------------------------------------------------------------------
 #include <sqstdstring.h>
@@ -13,11 +17,11 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-Color3   CPlayer::s_Color3;
-Vector3  CPlayer::s_Vector3;
+Color3  CPlayer::s_Color3;
+Vector3 CPlayer::s_Vector3;
 
 // ------------------------------------------------------------------------------------------------
-SQChar   CPlayer::s_Buffer[SQMOD_PLAYER_TMP_BUFFER];
+SQChar  CPlayer::s_Buffer[SQMOD_PLAYER_TMP_BUFFER];
 
 // ------------------------------------------------------------------------------------------------
 const Int32 CPlayer::Max = SQMOD_PLAYER_POOL;
@@ -25,7 +29,7 @@ const Int32 CPlayer::Max = SQMOD_PLAYER_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CPlayer::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqPlayer");
+    static const SQChar name[] = _SC("SqPlayer");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -33,9 +37,23 @@ SQInteger CPlayer::Typename(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 CPlayer::CPlayer(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_PLAYER_POOL))
-    , m_Tag(ToStrF("%d", id))
+    , m_Tag(ToStrF("%d", id)), m_Data(), m_Buffer(256), m_CircularLocks(0)
+    , mBufferInitSize(256)
+    , mMessageColor(0x6599FFFF)
+    , mAnnounceStyle(1)
+    , mDefaultAmmo(0)
+    , mMessagePrefix(_SC(""))
+    , mMessagePostfix(_SC(""))
+    , mAnnouncePrefix(_SC(""))
+    , mAnnouncePostfix(_SC(""))
+    , mMessagePrefixes()
+    , mLimitPrefixPostfixMessage(true)
 {
-    /* ... */
+    // Reset message prefixes
+    for (unsigned n = 0; n < SQMOD_PLAYER_MSG_PREFIXES; ++n)
+    {
+        mMessagePrefixes[n].assign(_SC(""));
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -48,11 +66,17 @@ CPlayer::~CPlayer()
 Int32 CPlayer::Cmp(const CPlayer & o) const
 {
     if (m_ID == o.m_ID)
+    {
         return 0;
+    }
     else if (m_ID > o.m_ID)
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -97,7 +121,7 @@ void CPlayer::BindEvent(Int32 evid, Object & env, Function & func) const
     // Validate the managed identifier
     Validate();
     // Obtain the function instance called for this event
-    Function & event = _Core->GetPlayerEvent(m_ID, evid);
+    Function & event = Core::Get().GetPlayerEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
     {
@@ -111,24 +135,23 @@ void CPlayer::BindEvent(Int32 evid, Object & env, Function & func) const
 }
 
 // ------------------------------------------------------------------------------------------------
+bool CPlayer::IsConnected() const
+{
+    return _Func->IsPlayerConnected(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsStreamedFor(CPlayer & player) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
+    {
         STHROWF("Invalid player argument: null");
+    }
     // Validate the managed identifier
     Validate();
     // Return the requested information
     return _Func->IsPlayerStreamedForPlayer(m_ID, player.GetID());
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetClass() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->GetPlayerClass(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -154,12 +177,45 @@ CSStr CPlayer::GetIP() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear any previous string
-    s_Buffer[0] = 0;
-    // The server doesn't include the null terminator in the string (yet)
-    memset(s_Buffer, 0, sizeof(s_Buffer));
+    // Clear any previous string (just in case)
+    s_Buffer[0] = '\0';
     // Query the server for the ip of the managed player
-    _Func->GetPlayerIP(m_ID, s_Buffer, sizeof(s_Buffer));
+    if (_Func->GetPlayerIP(m_ID, s_Buffer, sizeof(s_Buffer)) == vcmpErrorBufferTooSmall)
+    {
+        STHROWF("The available buffer was too small to contain the ip address");
+    }
+    // Return the requested information
+    return s_Buffer;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr CPlayer::GetUID() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear any previous string (just in case)
+    s_Buffer[0] = '\0';
+    // Query the server for the uid of the managed player
+    if (_Func->GetPlayerUID(m_ID, s_Buffer, sizeof(s_Buffer)) == vcmpErrorBufferTooSmall)
+    {
+        STHROWF("The available buffer was too small to contain the unique id");
+    }
+    // Return the requested information
+    return s_Buffer;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr CPlayer::GetUID2() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear any previous string (just in case)
+    s_Buffer[0] = '\0';
+    // Query the server for the uid2 of the managed player
+    if (_Func->GetPlayerUID2(m_ID, s_Buffer, sizeof(s_Buffer)) == vcmpErrorBufferTooSmall)
+    {
+        STHROWF("The available buffer was too small to contain the unique idv2");
+    }
     // Return the requested information
     return s_Buffer;
 }
@@ -183,27 +239,97 @@ void CPlayer::Ban() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsConnected() const
-{
-    return _Func->IsPlayerConnected(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::IsSpawned() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->IsPlayerSpawned(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
 Uint32 CPlayer::GetKey() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
     return _Func->GetPlayerKey(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr CPlayer::GetName() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear any previous string (just in case)
+    s_Buffer[0] = '\0';
+    // Query the server for the name of the managed player
+    if (_Func->GetPlayerName(m_ID, s_Buffer, sizeof(s_Buffer)) == vcmpErrorBufferTooSmall)
+    {
+        STHROWF("The available buffer was too small to contain the nickname");
+    }
+    // Return the requested information
+    return s_Buffer;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetName(CSStr name) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerName(m_ID, name);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetState() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerState(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetOption(Int32 option_id) const
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id));
+    // Check for errors
+    if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: %d", option_id);
+    }
+    // Return the requested value
+    return value;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetOption(Int32 option_id, bool toggle)
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id));
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id),
+                                toggle) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: %d", option_id);
+    }
+    else if (!(m_CircularLocks & PCL_EMIT_PLAYER_OPTION))
+    {
+        Core::Get().EmitPlayerOption(m_ID, option_id, value, 0, NullObject());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload)
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id));
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id),
+                                toggle) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: %d", option_id);
+    }
+    else if (!(m_CircularLocks & PCL_EMIT_PLAYER_OPTION))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_OPTION);
+        // Now forard the evnet call
+        Core::Get().EmitPlayerOption(m_ID, option_id, value, header, payload);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -225,21 +351,21 @@ void CPlayer::SetWorld(Int32 world) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetSecWorld() const
+Int32 CPlayer::GetSecondaryWorld() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetPlayerSecWorld(m_ID);
+    return _Func->GetPlayerSecondaryWorld(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSecWorld(Int32 world) const
+void CPlayer::SetSecondaryWorld(Int32 world) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerSecWorld(m_ID, world);
+    _Func->SetPlayerSecondaryWorld(m_ID, world);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -261,27 +387,12 @@ bool CPlayer::IsWorldCompatible(Int32 world) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CPlayer::GetName() const
+Int32 CPlayer::GetClass() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear any previous string
-    s_Buffer[0] = 0;
-    // The server doesn't include the null terminator in the string (yet)
-    memset(s_Buffer, 0, sizeof(s_Buffer));
-    // Query the server for the name of the managed player
-    _Func->GetPlayerName(m_ID, s_Buffer, sizeof(s_Buffer));
     // Return the requested information
-    return s_Buffer;
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetName(CSStr name) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->SetPlayerName(m_ID, static_cast< CCStr >(name));
+    return _Func->GetPlayerClass(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -299,7 +410,10 @@ void CPlayer::SetTeam(Int32 team) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerTeam(m_ID, team);
+    if (_Func->SetPlayerTeam(m_ID, team) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid team identifier: %d", team);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -317,7 +431,10 @@ void CPlayer::SetSkin(Int32 skin) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerSkin(m_ID, skin);
+    if (_Func->SetPlayerSkin(m_ID, skin) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid skin identifier: %d", skin);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -352,6 +469,15 @@ void CPlayer::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
 }
 
 // ------------------------------------------------------------------------------------------------
+bool CPlayer::IsSpawned() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerSpawned(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
 void CPlayer::ForceSpawn() const
 {
     // Validate the managed identifier
@@ -367,6 +493,15 @@ void CPlayer::ForceSelect() const
     Validate();
     // Perform the requested operation
     _Func->ForcePlayerSelect(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::IsTyping() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerTyping(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -415,6 +550,24 @@ void CPlayer::SetScore(Int32 score) const
 }
 
 // ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetWantedLevel() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerWantedLevel(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetWantedLevel(Int32 level) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerWantedLevel(m_ID, level);
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetPing() const
 {
     // Validate the managed identifier
@@ -430,45 +583,6 @@ Float32 CPlayer::GetFPS() const
     Validate();
     // Return the requested information
     return _Func->GetPlayerFPS(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::IsTyping() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->IsPlayerTyping(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-CSStr CPlayer::GetUID() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Clear any previous string
-    s_Buffer[0] = 0;
-    // The server doesn't include the null terminator in the string (yet)
-    memset(s_Buffer, 0, sizeof(s_Buffer));
-    // Query the server for the uid of the managed player
-    _Func->GetPlayerUID(m_ID, s_Buffer, sizeof(s_Buffer));
-    // Return the requested information
-    return s_Buffer;
-}
-
-// ------------------------------------------------------------------------------------------------
-CSStr CPlayer::GetUID2() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Clear any previous string
-    s_Buffer[0] = 0;
-    // The server doesn't include the null terminator in the string (yet)
-    memset(s_Buffer, 0, sizeof(s_Buffer));
-    // Query the server for the uid2 of the managed player
-    _Func->GetPlayerUID2(m_ID, s_Buffer, sizeof(s_Buffer));
-    // Return the requested information
-    return s_Buffer;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -530,10 +644,10 @@ const Vector3 & CPlayer::GetPosition() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
+    // Clear previous information, if any
     s_Vector3.Clear();
-    // Query the server for the position values
-    _Func->GetPlayerPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the values
+    _Func->GetPlayerPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
     // Return the requested information
     return s_Vector3;
 }
@@ -544,7 +658,7 @@ void CPlayer::SetPosition(const Vector3 & pos) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerPos(m_ID, pos.x, pos.y, pos.z);
+    _Func->SetPlayerPosition(m_ID, pos.x, pos.y, pos.z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -553,7 +667,7 @@ void CPlayer::SetPositionEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerPos(m_ID, x, y, z);
+    _Func->SetPlayerPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -642,6 +756,107 @@ void CPlayer::SetAlpha(Int32 alpha, Int32 fade) const
 }
 
 // ------------------------------------------------------------------------------------------------
+const Vector3 & CPlayer::GetAimPosition() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.Clear();
+    // Query the server for the values
+    _Func->GetPlayerAimPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Return the requested information
+    return s_Vector3;
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector3 & CPlayer::GetAimDirection() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous direction information, if any
+    s_Vector3.Clear();
+    // Query the server for the direction values
+    _Func->GetPlayerAimDirection(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Return the requested information
+    return s_Vector3;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::IsBurning() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerOnFire(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::IsCrouched() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsPlayerCrouching(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetAction() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerAction(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetGameKeys() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerGameKeys(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::Embark(CVehicle & vehicle) const
+{
+    // Is the specified vehicle even valid?
+    if (!vehicle.IsActive())
+    {
+        STHROWF("Invalid vehicle argument: null");
+    }
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    return (_Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), 0, true, true)
+            != vcmpErrorRequestDenied);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::Embark(CVehicle & vehicle, Int32 slot, bool allocate, bool warp) const
+{
+    // Is the specified vehicle even valid?
+    if (!vehicle.IsActive())
+    {
+        STHROWF("Invalid vehicle argument: null");
+    }
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    return (_Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), slot, allocate, warp)
+            != vcmpErrorRequestDenied);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::Disembark() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RemovePlayerFromVehicle(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetVehicleStatus() const
 {
     // Validate the managed identifier
@@ -651,7 +866,7 @@ Int32 CPlayer::GetVehicleStatus() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetOccupiedSlot() const
+Int32 CPlayer::GetVehicleSlot() const
 {
     // Validate the managed identifier
     Validate();
@@ -665,7 +880,7 @@ Object & CPlayer::GetVehicle() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetVehicle(_Func->GetPlayerVehicleID(m_ID)).mObj;
+    return Core::Get().GetVehicle(_Func->GetPlayerVehicleId(m_ID)).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -674,187 +889,7 @@ Int32 CPlayer::GetVehicleID() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetPlayerVehicleID(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetControllable() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerControllable(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetControllable(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerControllable(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetDriveby() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerDriveby(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetDriveby(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerDriveby(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetWhiteScanlines() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerWhiteScanlines(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetWhiteScanlines(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerWhiteScanlines(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetGreenScanlines() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerGreenScanlines(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetGreenScanlines(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerGreenScanlines(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetWidescreen() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerWidescreen(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetWidescreen(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerWidescreen(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetShowMarkers() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerShowMarkers(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetShowMarkers(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerShowMarkers(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetAttackPriv() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerAttackPriv(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetAttackPriv(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerAttackPriv(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetHasMarker() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerHasMarker(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetHasMarker(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerHasMarker(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetChatTags() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerChatTags(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetChatTags(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerChatTagsEnabled(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::GetDrunkEffects() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->EnabledPlayerDrunkEffects(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetDrunkEffects(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->TogglePlayerDrunkEffects(m_ID, toggle);
+    return _Func->GetPlayerVehicleId(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -867,12 +902,27 @@ Int32 CPlayer::GetWeapon() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWeapon(Int32 wep, Int32 ammo) const
+void CPlayer::SetWeapon(Int32 wep) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerWeapon(m_ID, wep, ammo);
+    if (_Func->SetPlayerWeapon(m_ID, wep, mDefaultAmmo) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid weapon identifier: %d", wep);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetWeaponEx(Int32 wep, Int32 ammo) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    if (_Func->SetPlayerWeapon(m_ID, wep, ammo) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid weapon ammo: %d", ammo);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -881,7 +931,77 @@ void CPlayer::GiveWeapon(Int32 wep, Int32 ammo) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->GivePlayerWeapon(m_ID, wep, ammo);
+    if (_Func->GivePlayerWeapon(m_ID, wep, ammo) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid weapon ammo: %d", ammo);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetAmmo() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerWeaponAmmo(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetWeaponSlot() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetPlayerWeaponSlot(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetWeaponSlot(Int32 slot) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    if (_Func->SetPlayerWeaponSlot(m_ID, slot) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid weapon slot: %d", slot);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetWeaponAtSlot(Int32 slot) const
+{
+    // Attempt to obtain the weapon identifier of the specified slot
+    const Int32 id = _Func->GetPlayerWeaponAtSlot(m_ID, slot);
+    // Check for errors
+    if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid weapon slot: %d", slot);
+    }
+    // Return the requested information
+    return id;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetAmmoAtSlot(Int32 slot) const
+{
+    // Attempt to obtain the weapon ammo of the specified slot
+    const Int32 ammo = _Func->GetPlayerAmmoAtSlot(m_ID, slot);
+    // Check for errors
+    if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid weapon slot: %d", slot);
+    }
+    // Return the requested information
+    return ammo;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::RemoveWeapon(Int32 wep) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->RemovePlayerWeapon(m_ID, wep);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -939,30 +1059,12 @@ void CPlayer::SetAnimation(Int32 group, Int32 anim) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetWantedLevel() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->GetPlayerWantedLevel(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::SetWantedLevel(Int32 level) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->SetPlayerWantedLevel(m_ID, level);
-}
-
-// ------------------------------------------------------------------------------------------------
 Object & CPlayer::StandingOnVehicle() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetVehicle(_Func->GetPlayerStandingOnVehicle(m_ID)).mObj;
+    return Core::Get().GetVehicle(_Func->GetPlayerStandingOnVehicle(m_ID)).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -971,7 +1073,7 @@ Object & CPlayer::StandingOnObject() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetObject(_Func->GetPlayerStandingOnObject(m_ID)).mObj;
+    return Core::Get().GetObject(_Func->GetPlayerStandingOnObject(m_ID)).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -989,7 +1091,7 @@ Object & CPlayer::GetSpectator() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetPlayer(_Func->GetPlayerSpectateTarget(m_ID)).mObj;
+    return Core::Get().GetPlayer(_Func->GetPlayerSpectateTarget(m_ID)).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1007,120 +1109,16 @@ void CPlayer::SetSpectator(CPlayer & target) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsBurning() const
+void CPlayer::Redirect(CSStr ip, Uint32 port, CSStr nick, CSStr server_pass, CSStr user_pass)
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetPlayerOnFireStatus(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::IsCrouched() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->GetPlayerCrouchStatus(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetState() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->GetPlayerState(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetAction() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->GetPlayerAction(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetGameKeys() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->GetPlayerGameKeys(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetAimPos() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Clear previous position information, if any
-    s_Vector3.Clear();
-    // Query the server for the position values
-    _Func->GetPlayerAimPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
-    // Return the requested information
-    return s_Vector3;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetAimDir() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Clear previous direction information, if any
-    s_Vector3.Clear();
-    // Query the server for the direction values
-    _Func->GetPlayerAimDir(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
-    // Return the requested information
-    return s_Vector3;
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::Embark(CVehicle & vehicle) const
-{
-    // Is the specified vehicle even valid?
-    if (!vehicle.IsActive())
+    if (_Func->RedirectPlayerToServer(m_ID, ip, port,
+                                        nick, server_pass, user_pass) == vcmpErrorNullArgument)
     {
-        STHROWF("Invalid vehicle argument: null");
+        STHROWF("Invalid arguments encountered");
     }
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), 0, true, true);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::Embark(CVehicle & vehicle, Int32 slot, bool allocate, bool warp) const
-{
-    // Is the specified vehicle even valid?
-    if (!vehicle.IsActive())
-    {
-        STHROWF("Invalid vehicle argument: null");
-    }
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), slot, allocate, warp);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CPlayer::Disembark() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->RemovePlayerFromVehicle(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CPlayer::Redirect(CSStr ip, Uint32 port, CSStr nick, CSStr pass, CSStr user)
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->RedirectPlayerToServer(m_ID, ip, port, nick, pass, user);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1129,7 +1127,7 @@ Int32 CPlayer::GetAuthority() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetPlayer(m_ID).mAuthority;
+    return Core::Get().GetPlayer(m_ID).mAuthority;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1138,11 +1136,11 @@ void CPlayer::SetAuthority(Int32 level) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Core->GetPlayer(m_ID).mAuthority = level;
+    Core::Get().GetPlayer(m_ID).mAuthority = level;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CPlayer::GetMessagePrefix(Uint32 index) const
+const String & CPlayer::GetMessagePrefix(Uint32 index) const
 {
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
@@ -1152,11 +1150,11 @@ CSStr CPlayer::GetMessagePrefix(Uint32 index) const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetPlayer(m_ID).mPrefixes[index].c_str();
+    return mMessagePrefixes[index];
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetMessagePrefix(Uint32 index, CSStr prefix) const
+void CPlayer::SetMessagePrefix(Uint32 index, CSStr prefix)
 {
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
@@ -1166,115 +1164,343 @@ void CPlayer::SetMessagePrefix(Uint32 index, CSStr prefix) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Core->GetPlayer(m_ID).mPrefixes[index].assign(prefix);
+    mMessagePrefixes[index].assign(prefix);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 CPlayer::GetMessageColor() const
+Int32 CPlayer::GetLastWeapon() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetPlayer(m_ID).mMessageColor;
+    return Core::Get().GetPlayer(m_ID).mLastWeapon;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetMessageColor(Uint32 color) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-     _Core->GetPlayer(m_ID).mMessageColor = color;
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetAnnounceStyle() const
+Float32 CPlayer::GetLastHealth() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetPlayer(m_ID).mAnnounceStyle;
+    return Core::Get().GetPlayer(m_ID).mLastHealth;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAnnounceStyle(Int32 style) const
+Float32 CPlayer::GetLastArmour() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetPlayer(m_ID).mLastArmour;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CPlayer::GetLastHeading() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetPlayer(m_ID).mLastHeading;
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector3 & CPlayer::GetLastPosition() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetPlayer(m_ID).mLastPosition;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::StartStream()
+{
+    // Validate the managed identifier
+    Validate();
+    // Initialize the stream buffer
+    m_Buffer.Adjust(mBufferInitSize);
+    m_Buffer.Move(0);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::StartStream(Uint32 size)
+{
+    // Validate the managed identifier
+    Validate();
+    // Initialize the stream buffer
+    m_Buffer.Adjust(size);
+    m_Buffer.Move(0);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetBufferCursor() const
+{
+    return m_Buffer.Position();
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetBufferCursor(Int32 pos)
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Core->GetPlayer(m_ID).mAnnounceStyle = style;
+    m_Buffer.Move(pos);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetPosX() const
+void CPlayer::StreamByte(SQInteger val)
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
+    // Perform the requested operation
+    m_Buffer.Push< Uint8 >(ConvTo< Uint8 >::From(val));
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::StreamShort(SQInteger val)
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    m_Buffer.Push< Int16 >(ConvTo< Int16 >::From(val));
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::StreamInt(SQInteger val)
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    m_Buffer.Push< Int32 >(ConvTo< Int32 >::From(val));
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::StreamFloat(SQFloat val)
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    m_Buffer.Push< Float32 >(ConvTo< Float32 >::From(val));
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::StreamString(CSStr val)
+{
+    // Validate the managed identifier
+    Validate();
+    // Is the given string value even valid?
+    if (!val)
+    {
+        STHROWF("Invalid string argument: null");
+    }
+    // Calculate the string length
+    Uint16 length = ConvTo< Uint16 >::From(std::strlen(val));
+    // Change the size endianness to big endian
+    Uint16 size = ((length >> 8) & 0xFF) | ((length & 0xFF) << 8);
+    // Write the size and then the string contents
+    m_Buffer.Push< Uint16 >(size);
+    m_Buffer.AppendS(val, length);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::StreamRawString(CSStr val)
+{
+    // Validate the managed identifier
+    Validate();
+    // Is the given string value even valid?
+    if (!val)
+    {
+        STHROWF("Invalid string argument: null");
+    }
+    // Calculate the string length
+    Uint16 length = ConvTo< Uint16 >::From(std::strlen(val));
+    // Write the the string contents
+    m_Buffer.AppendS(val, length);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::FlushStream(bool reset)
+{
+    // Validate the managed identifier
+    Validate();
+    // Do we even have what to send?
+    if (!m_Buffer)
+    {
+        STHROWF("Cannot send uninitialized stream buffer");
+    }
+    else if (!m_Buffer.Position())
+    {
+        STHROWF("Cannot send empty stream buffer");
+    }
+    // Attempt to send the stream buffer contents
+    const vcmpError result = _Func->SendClientScriptData(m_ID, m_Buffer.Data(), m_Buffer.Position());
+    // Should we reset the buffer cursor?
+    if (reset)
+    {
+        m_Buffer.Move(0);
+    }
+    // Check for errors
+    if (result == vcmpErrorTooLargeInput)
+    {
+        STHROWF("Stream buffer is too big");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 CPlayer::GetBufferCapacity() const
+{
+    return m_Buffer.Capacity();
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SendBuffer(const BufferWrapper & buffer) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Validate the specified buffer
+    buffer.ValidateDeeper();
+    // Validate the buffer cursor
+    if (!buffer.GetRef()->Position())
+    {
+        STHROWF("Cannot send empty stream buffer");
+    }
+    // Attempt to send the stream buffer contents
+    const vcmpError result = _Func->SendClientScriptData(m_ID, buffer.GetRef()->Data(),
+                                                                buffer.GetRef()->Position());
+    // Check for errors
+    if (result == vcmpErrorTooLargeInput)
+    {
+        STHROWF("Stream buffer is too big");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CPlayer::GetPositionX() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
     s_Vector3.x = 0;
     // Query the server for the requested component value
-    _Func->GetPlayerPos(m_ID, &s_Vector3.x, NULL, NULL);
+    _Func->GetPlayerPosition(m_ID, &s_Vector3.x, nullptr, nullptr);
     // Return the requested information
     return s_Vector3.x;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetPosY() const
+Float32 CPlayer::GetPositionY() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
+    // Clear previous information, if any
     s_Vector3.y = 0;
     // Query the server for the requested component value
-    _Func->GetPlayerPos(m_ID, NULL, &s_Vector3.y, NULL);
+    _Func->GetPlayerPosition(m_ID, nullptr, &s_Vector3.y, nullptr);
     // Return the requested information
     return s_Vector3.y;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetPosZ() const
+Float32 CPlayer::GetPositionZ() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
+    // Clear previous information, if any
     s_Vector3.z = 0;
     // Query the server for the requested component value
-    _Func->GetPlayerPos(m_ID, NULL, NULL, &s_Vector3.z);
+    _Func->GetPlayerPosition(m_ID, nullptr, nullptr, &s_Vector3.z);
     // Return the requested information
     return s_Vector3.z;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetPosX(Float32 x) const
+void CPlayer::SetPositionX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetPlayerPos(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPlayerPosition(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z);
     // Perform the requested operation
-    _Func->SetPlayerPos(m_ID, x, s_Vector3.y, s_Vector3.z);
+    _Func->SetPlayerPosition(m_ID, x, s_Vector3.y, s_Vector3.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetPosY(Float32 y) const
+void CPlayer::SetPositionY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetPlayerPos(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
+    _Func->GetPlayerPosition(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z);
     // Perform the requested operation
-    _Func->SetPlayerPos(m_ID, s_Vector3.x, y, s_Vector3.z);
+    _Func->SetPlayerPosition(m_ID, s_Vector3.x, y, s_Vector3.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetPosZ(Float32 z) const
+void CPlayer::SetPositionZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetPlayerPos(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
+    _Func->GetPlayerPosition(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr);
     // Perform the requested operation
-    _Func->SetPlayerPos(m_ID, s_Vector3.z, s_Vector3.y, z);
+    _Func->SetPlayerPosition(m_ID, s_Vector3.z, s_Vector3.y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetColorR() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return static_cast< Int32 >((_Func->GetPlayerColour(m_ID) >> 16) & 0xFF);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetColorG() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return static_cast< Int32 >((_Func->GetPlayerColour(m_ID) >> 8) & 0xFF);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CPlayer::GetColorB() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return static_cast< Int32 >(_Func->GetPlayerColour(m_ID) & 0xFF);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetColorR(Int32 r) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerColour(m_ID, (ConvTo< Uint8 >::From(r) << 16) |
+                                    (~(0xFF << 16) & _Func->GetPlayerColour(m_ID)));
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetColorG(Int32 g) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerColour(m_ID, (ConvTo< Uint8 >::From(g) << 8) |
+                                    (~(0xFF << 8) & _Func->GetPlayerColour(m_ID)));
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetColorB(Int32 g) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerColour(m_ID, (ConvTo< Uint8 >::From(g)) |
+                                    (~(0xFF) & _Func->GetPlayerColour(m_ID)));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1316,32 +1542,23 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Invalid player reference");
     }
-    // Do we have enough values to call the format function?
-    else if (top > 3)
+    // Attempt to generate the string value
+    StackStrF val(vm, 3);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
     {
-        SStr msg = NULL;
-        SQInteger len = 0;
-        // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
-        // Did the format failed?
-        if (SQ_FAILED(ret))
-        {
-            return ret; // Propagate the exception
-        }
-        // Send the resulted message string
-        _Func->SendClientMessage(player->GetID(), color.GetRGBA(), "%s", msg);
+        return val.mRes; // Propagate the error!
     }
-    else
+    // Send the resulted message string
+    const vcmpError result = _Func->SendClientMessage(player->GetID(), color.GetRGBA(),
+                                                        "%s%s%s",
+                                                        player->mMessagePrefix.c_str(),
+                                                        val.mPtr,
+                                                        player->mMessagePostfix.c_str());
+    // Check the result
+    if (result == vcmpErrorTooLargeInput)
     {
-        // Attempt to retrieve the value from the stack as a string
-        Var< CSStr > msg(vm, 3);
-        // See if the obtained value is a valid message
-        if (!msg.value)
-        {
-            return sq_throwerror(vm, "Unable to retrieve the message");
-        }
-        // Send the resulted message string
-        _Func->SendClientMessage(player->GetID(), color.GetRGBA(), "%s", msg.value);
+        return sq_throwerror(vm, "Client message too big");
     }
     // This function does not return a value
     return 0;
@@ -1392,38 +1609,31 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
         return sq_throwerror(vm, ToStrF("Prefix index is out of range: %u > %u",
                                         index, SQMOD_PLAYER_MSG_PREFIXES));
     }
-    // Do we have enough values to call the format function?
-    else if (top > 3)
+    // Attempt to generate the string value
+    StackStrF val(vm, 3);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
     {
-        SStr msg = NULL;
-        SQInteger len = 0;
-        // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
-        // Did the format failed?
-        if (SQ_FAILED(ret))
-        {
-            return ret; // Propagate the exception
-        }
-        // Retrieve the associated player structure
-        const auto & splayer = _Core->GetPlayer(player->GetID());
-        // Send the resulted message string
-        _Func->SendClientMessage(player->GetID(), splayer.mMessageColor, "%s%s",
-                                        splayer.mPrefixes[index].c_str(), msg);
+        return val.mRes; // Propagate the error!
+    }
+    vcmpError result = vcmpErrorNone;
+    // Send the resulted message string
+    if (player->mLimitPrefixPostfixMessage)
+    {
+        result = _Func->SendClientMessage(player->GetID(), player->mMessageColor, "%s%s",
+                                            player->mMessagePrefixes[index].c_str(), val.mPtr);
     }
     else
     {
-        // Attempt to retrieve the value from the stack as a string
-        Var< CSStr > msg(vm, 3);
-        // See if the obtained value is a valid message
-        if (!msg.value)
-        {
-            return sq_throwerror(vm, "Unable to retrieve the message");
-        }
-        // Retrieve the associated player structure
-        const auto & splayer = _Core->GetPlayer(player->GetID());
-        // Send the resulted message string
-        _Func->SendClientMessage(player->GetID(), splayer.mMessageColor, "%s%s",
-                                        splayer.mPrefixes[index].c_str(), msg.value);
+        result = _Func->SendClientMessage(player->GetID(), player->mMessageColor, "%s%s%s%s",
+                                            player->mMessagePrefix.c_str(),
+                                            player->mMessagePrefixes[index].c_str(), val.mPtr,
+                                            player->mMessagePostfix.c_str());
+    }
+    // Check the result
+    if (result == vcmpErrorTooLargeInput)
+    {
+        return sq_throwerror(vm, "Client message too big");
     }
     // This function does not return a value
     return 0;
@@ -1470,32 +1680,23 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Invalid player reference");
     }
-    // Do we have enough values to call the format function?
-    else if (top > 5)
+    // Attempt to generate the string value
+    StackStrF val(vm, 5);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
     {
-        SStr msg = NULL;
-        SQInteger len = 0;
-        // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 5, &len, &msg);
-        // Did the format failed?
-        if (SQ_FAILED(ret))
-        {
-            return ret; // Propagate the exception
-        }
-        // Send the resulted message string
-        _Func->SendClientMessage(player->GetID(), SQMOD_PACK_RGBA(r, g, b, 0), "%s", msg);
+        return val.mRes; // Propagate the error!
     }
-    else
+    // Send the resulted message string
+    const vcmpError result = _Func->SendClientMessage(player->GetID(), SQMOD_PACK_RGBA(r, g, b, 0),
+                                                        "%s%s%s",
+                                                        player->mMessagePrefix.c_str(),
+                                                        val.mPtr,
+                                                        player->mMessagePostfix.c_str());
+    // Check the result
+    if (result == vcmpErrorTooLargeInput)
     {
-        // Attempt to retrieve the value from the stack as a string
-        Var< CSStr > msg(vm, 5);
-        // See if the obtained value is a valid message
-        if (!msg.value)
-        {
-            return sq_throwerror(vm, "Unable to retrieve the message");
-        }
-        // Send the resulted message string
-        _Func->SendClientMessage(player->GetID(), SQMOD_PACK_RGBA(r, g, b, 0), "%s", msg.value);
+        return sq_throwerror(vm, "Client message too big");
     }
     // This function does not return a value
     return 0;
@@ -1532,34 +1733,23 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Invalid player reference");
     }
-    // Do we have enough values to call the format function?
-    else if (top > 2)
+    // Attempt to generate the string value
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
     {
-        SStr msg = NULL;
-        SQInteger len = 0;
-        // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 2, &len, &msg);
-        // Did the format failed?
-        if (SQ_FAILED(ret))
-        {
-            return ret; // Propagate the exception
-        }
-        // Send the resulted message string
-        _Func->SendClientMessage(player->GetID(),
-                                    _Core->GetPlayer(player->GetID()).mMessageColor, "%s", msg);
+        return val.mRes; // Propagate the error!
     }
-    else
+    // Send the resulted message string
+    const vcmpError result = _Func->SendClientMessage(player->GetID(), player->mMessageColor,
+                                                        "%s%s%s",
+                                                        player->mMessagePrefix.c_str(),
+                                                        val.mPtr,
+                                                        player->mMessagePostfix.c_str());
+    // Check the result
+    if (result == vcmpErrorTooLargeInput)
     {
-        // Attempt to retrieve the value from the stack as a string
-        Var< CSStr > msg(vm, 2);
-        // See if the obtained value is a valid message
-        if (!msg.value)
-        {
-            return sq_throwerror(vm, "Unable to retrieve the message");
-        }
-        // Send the resulted message string
-        _Func->SendClientMessage(player->GetID(),
-                                    _Core->GetPlayer(player->GetID()).mMessageColor, "%s", msg.value);
+        return sq_throwerror(vm, "Client message too big");
     }
     // This function does not return a value
     return 0;
@@ -1596,34 +1786,27 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Invalid player reference");
     }
-    // Do we have enough values to call the format function?
-    else if (top > 2)
+    // Attempt to generate the string value
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
     {
-        SStr msg = NULL;
-        SQInteger len = 0;
-        // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 2, &len, &msg);
-        // Did the format failed?
-        if (SQ_FAILED(ret))
-        {
-            return ret; // Propagate the exception
-        }
-        // Send the resulted announcement string
-        _Func->SendGameMessage(player->GetID(),
-                                _Core->GetPlayer(player->GetID()).mAnnounceStyle, "%s", msg);
+        return val.mRes; // Propagate the error!
     }
-    else
+    // Send the resulted announcement string
+    const vcmpError result = _Func->SendGameMessage(player->GetID(), player->mAnnounceStyle,
+                                                    "%s%s%s",
+                                                    player->mAnnouncePrefix.c_str(),
+                                                    val.mPtr,
+                                                    player->mAnnouncePostfix.c_str());
+    // Validate the result
+    if (result == vcmpErrorArgumentOutOfBounds)
     {
-        // Attempt to retrieve the value from the stack as a string
-        Var< CSStr > msg(vm, 2);
-        // See if the obtained value is a valid announcement
-        if (!msg.value)
-        {
-            return sq_throwerror(vm, "Unable to retrieve the announcement");
-        }
-        // Send the resulted announcement string
-        _Func->SendGameMessage(player->GetID(),
-                                _Core->GetPlayer(player->GetID()).mAnnounceStyle, "%s", msg.value);
+        return sq_throwerror(vm, "Invalid announcement style");
+    }
+    else if (result == vcmpErrorTooLargeInput)
+    {
+        return sq_throwerror(vm, "Game message too big");
     }
     // This function does not return a value
     return 0;
@@ -1668,32 +1851,26 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Invalid player reference");
     }
-    // Do we have enough values to call the format function?
-    else if (top > 3)
+    // Attempt to generate the string value
+    StackStrF val(vm, 3);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
     {
-        SStr msg = NULL;
-        SQInteger len = 0;
-        // Attempt to generate the specified string format
-        SQRESULT ret = sqstd_format(vm, 3, &len, &msg);
-        // Did the format failed?
-        if (SQ_FAILED(ret))
-        {
-            return ret; // Propagate the exception
-        }
-        // Send the resulted announcement string
-        _Func->SendGameMessage(player->GetID(), style, "%s", msg);
+        return val.mRes; // Propagate the error!
     }
-    else
+    // Send the resulted announcement string
+    const vcmpError result = _Func->SendGameMessage(player->GetID(), style, "%s%s%s",
+                                                    player->mAnnouncePrefix.c_str(),
+                                                    val.mPtr,
+                                                    player->mAnnouncePostfix.c_str());
+    // Validate the result
+    if (result == vcmpErrorArgumentOutOfBounds)
     {
-        // Attempt to retrieve the value from the stack as a string
-        Var< CSStr > msg(vm, 3);
-        // See if the obtained value is a valid announcement
-        if (!msg.value)
-        {
-            return sq_throwerror(vm, "Unable to retrieve the announcement");
-        }
-        // Send the resulted announcement string
-        _Func->SendGameMessage(player->GetID(), style, "%s", msg.value);
+        return sq_throwerror(vm, "Invalid announcement style");
+    }
+    else if (result == vcmpErrorTooLargeInput)
+    {
+        return sq_throwerror(vm, "Game message too big");
     }
     // This function does not return a value
     return 0;
@@ -1708,8 +1885,8 @@ static const Object & Player_FindByID(Int32 id)
         STHROWF("The specified player identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();
-    Core::Players::const_iterator end = _Core->GetPlayers().cend();
+    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
+    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -1732,8 +1909,8 @@ static const Object & Player_FindByTag(CSStr tag)
         STHROWF("The specified player tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();
-    Core::Players::const_iterator end = _Core->GetPlayers().cend();
+    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
+    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -1753,8 +1930,8 @@ static Array Player_FindActive()
     // Remember the initial stack size
     StackGuard sg;
     // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = _Core->GetPlayers().cbegin();
-    Core::Players::const_iterator end = _Core->GetPlayers().cend();
+    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
+    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
     // Allocate an empty array on the stack
     sq_newarray(DefaultVM::Get(), 0);
     // Process each entity in the pool
@@ -1776,6 +1953,37 @@ static Array Player_FindActive()
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Player_FindAuto(Object & by)
+{
+    switch (by.GetType())
+    {
+        case OT_INTEGER:
+        {
+            return Core::Get().GetPlayer(by.Cast< Int32 >()).mObj;
+        } break;
+        case OT_FLOAT:
+        {
+            return Core::Get().GetPlayer(std::round(by.Cast< Float32 >())).mObj;
+        } break;
+        case OT_STRING:
+        {
+            // Obtain the argument as a string
+            String str(by.Cast< String >());
+            // Attempt to locate the player with this name
+            Int32 id = _Func->GetPlayerIdFromName(&str[0]);
+            // Was there a player with this name?
+            if (VALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+            {
+                Core::Get().GetPlayer(id).mObj;
+            }
+        } break;
+        default: STHROWF("Unsupported search identifier");
+    }
+    // Default to a null object
+    return NullObject();
+}
+
 // ================================================================================================
 void Register_CPlayer(HSQUIRRELVM vm)
 {
@@ -1787,6 +1995,16 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("_tostring"), &CPlayer::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CPlayer::Max)
+        // Member Variables
+        .Var(_SC("BufferInitSize"), &CPlayer::mBufferInitSize)
+        .Var(_SC("MessageColor"), &CPlayer::mMessageColor)
+        .Var(_SC("AnnounceStyle"), &CPlayer::mAnnounceStyle)
+        .Var(_SC("DefaultAmmo"), &CPlayer::mDefaultAmmo)
+        .Var(_SC("MessagePrefix"), &CPlayer::mMessagePrefix)
+        .Var(_SC("MessagePostfix"), &CPlayer::mMessagePostfix)
+        .Var(_SC("AnnouncePrefix"), &CPlayer::mAnnouncePrefix)
+        .Var(_SC("AnnouncePostfix"), &CPlayer::mAnnouncePostfix)
+        .Var(_SC("LimitPrefixPostfixMessage"), &CPlayer::mLimitPrefixPostfixMessage)
         // Core Properties
         .Prop(_SC("ID"), &CPlayer::GetID)
         .Prop(_SC("Tag"), &CPlayer::GetTag, &CPlayer::SetTag)
@@ -1796,29 +2014,33 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Bind"), &CPlayer::BindEvent)
         // Properties
         .Prop(_SC("Class"), &CPlayer::GetClass)
+        .Prop(_SC("Connected"), &CPlayer::IsConnected)
         .Prop(_SC("Admin"), &CPlayer::GetAdmin, &CPlayer::SetAdmin)
         .Prop(_SC("IP"), &CPlayer::GetIP)
-        .Prop(_SC("Connected"), &CPlayer::IsConnected)
-        .Prop(_SC("Spawned"), &CPlayer::IsSpawned)
+        .Prop(_SC("UID"), &CPlayer::GetUID)
+        .Prop(_SC("UID2"), &CPlayer::GetUID2)
         .Prop(_SC("Key"), &CPlayer::GetKey)
-        .Prop(_SC("World"), &CPlayer::GetWorld, &CPlayer::SetWorld)
-        .Prop(_SC("SecWorld"), &CPlayer::GetSecWorld, &CPlayer::SetSecWorld)
-        .Prop(_SC("UniqueWorld"), &CPlayer::GetUniqueWorld)
-        .Prop(_SC("State"), &CPlayer::GetState)
-        .Prop(_SC("Action"), &CPlayer::GetAction)
         .Prop(_SC("Name"), &CPlayer::GetName, &CPlayer::SetName)
+        .Prop(_SC("State"), &CPlayer::GetState)
+        .Prop(_SC("World"), &CPlayer::GetWorld, &CPlayer::SetWorld)
+        .Prop(_SC("SecWorld"), &CPlayer::GetSecondaryWorld, &CPlayer::SetSecondaryWorld)
+        .Prop(_SC("SecondaryWorld"), &CPlayer::GetSecondaryWorld, &CPlayer::SetSecondaryWorld)
+        .Prop(_SC("UniqueWorld"), &CPlayer::GetUniqueWorld)
+        .Prop(_SC("Class"), &CPlayer::GetClass)
         .Prop(_SC("Team"), &CPlayer::GetTeam, &CPlayer::SetTeam)
         .Prop(_SC("Skin"), &CPlayer::GetSkin, &CPlayer::SetSkin)
         .Prop(_SC("Color"), &CPlayer::GetColor, &CPlayer::SetColor)
+        .Prop(_SC("Colour"), &CPlayer::GetColor, &CPlayer::SetColor)
+        .Prop(_SC("Spawned"), &CPlayer::IsSpawned)
+        .Prop(_SC("Typing"), &CPlayer::IsTyping)
         .Prop(_SC("Money"), &CPlayer::GetMoney, &CPlayer::SetMoney)
         .Prop(_SC("Score"), &CPlayer::GetScore, &CPlayer::SetScore)
+        .Prop(_SC("WantedLevel"), &CPlayer::GetWantedLevel, &CPlayer::SetWantedLevel)
         .Prop(_SC("Ping"), &CPlayer::GetPing)
         .Prop(_SC("FPS"), &CPlayer::GetFPS)
-        .Prop(_SC("Typing"), &CPlayer::IsTyping)
-        .Prop(_SC("UID"), &CPlayer::GetUID)
-        .Prop(_SC("UID2"), &CPlayer::GetUID2)
         .Prop(_SC("Health"), &CPlayer::GetHealth, &CPlayer::SetHealth)
         .Prop(_SC("Armor"), &CPlayer::GetArmor, &CPlayer::SetArmor)
+        .Prop(_SC("Armour"), &CPlayer::GetArmor, &CPlayer::SetArmor)
         .Prop(_SC("Immunity"), &CPlayer::GetImmunity, &CPlayer::SetImmunity)
         .Prop(_SC("Pos"), &CPlayer::GetPosition, &CPlayer::SetPosition)
         .Prop(_SC("Position"), &CPlayer::GetPosition, &CPlayer::SetPosition)
@@ -1826,64 +2048,97 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Angle"), &CPlayer::GetHeading, &CPlayer::SetHeading)
         .Prop(_SC("Heading"), &CPlayer::GetHeading, &CPlayer::SetHeading)
         .Prop(_SC("Alpha"), &CPlayer::GetAlpha, &CPlayer::SetAlpha)
+        .Prop(_SC("AimPos"), &CPlayer::GetAimPosition)
+        .Prop(_SC("AimPosition"), &CPlayer::GetAimPosition)
+        .Prop(_SC("AimDir"), &CPlayer::GetAimDirection)
+        .Prop(_SC("AimDirection"), &CPlayer::GetAimDirection)
+        .Prop(_SC("Burning"), &CPlayer::IsBurning)
+        .Prop(_SC("Crouched"), &CPlayer::IsCrouched)
+        .Prop(_SC("Action"), &CPlayer::GetAction)
+        .Prop(_SC("GameKeys"), &CPlayer::GetGameKeys)
         .Prop(_SC("VehicleStatus"), &CPlayer::GetVehicleStatus)
-        .Prop(_SC("Slot"), &CPlayer::GetOccupiedSlot)
+        .Prop(_SC("VehicleSlot"), &CPlayer::GetVehicleSlot)
         .Prop(_SC("Vehicle"), &CPlayer::GetVehicle)
         .Prop(_SC("VehicleID"), &CPlayer::GetVehicleID)
-        .Prop(_SC("Controllable"), &CPlayer::GetControllable, &CPlayer::SetControllable)
-        .Prop(_SC("Driveby"), &CPlayer::GetDriveby, &CPlayer::SetDriveby)
-        .Prop(_SC("WhiteScanlines"), &CPlayer::GetWhiteScanlines, &CPlayer::SetWhiteScanlines)
-        .Prop(_SC("GreenScanlines"), &CPlayer::GetGreenScanlines, &CPlayer::SetGreenScanlines)
-        .Prop(_SC("Widescreen"), &CPlayer::GetWidescreen, &CPlayer::SetWidescreen)
-        .Prop(_SC("ShowMarkers"), &CPlayer::GetShowMarkers, &CPlayer::SetShowMarkers)
-        .Prop(_SC("AttackPriv"), &CPlayer::GetAttackPriv, &CPlayer::SetAttackPriv)
-        .Prop(_SC("HasMarker"), &CPlayer::GetHasMarker, &CPlayer::SetHasMarker)
-        .Prop(_SC("ChatTags"), &CPlayer::GetChatTags, &CPlayer::SetChatTags)
-        .Prop(_SC("DrunkEffects"), &CPlayer::GetDrunkEffects, &CPlayer::SetDrunkEffects)
         .Prop(_SC("Weapon"), &CPlayer::GetWeapon, &CPlayer::SetWeapon)
+        .Prop(_SC("Ammo"), &CPlayer::GetAmmo)
+        .Prop(_SC("WeaponSlot"), &CPlayer::GetWeaponSlot, &CPlayer::SetWeaponSlot)
         .Prop(_SC("CameraLocked"), &CPlayer::IsCameraLocked)
-        .Prop(_SC("WantedLevel"), &CPlayer::GetWantedLevel, &CPlayer::SetWantedLevel)
         .Prop(_SC("TouchedVehicle"), &CPlayer::StandingOnVehicle)
         .Prop(_SC("TouchedObject"), &CPlayer::StandingOnObject)
         .Prop(_SC("Away"), &CPlayer::IsAway)
-        .Prop(_SC("Spectating"), &CPlayer::GetSpectator)
         .Prop(_SC("Spec"), &CPlayer::GetSpectator, &CPlayer::SetSpectator)
-        .Prop(_SC("Crouched"), &CPlayer::IsCrouched)
-        .Prop(_SC("GameKeys"), &CPlayer::GetGameKeys)
-        .Prop(_SC("AimPos"), &CPlayer::GetAimPos)
-        .Prop(_SC("AimPosition"), &CPlayer::GetAimPos)
-        .Prop(_SC("AimDir"), &CPlayer::GetAimDir)
-        .Prop(_SC("AimDirection"), &CPlayer::GetAimDir)
         .Prop(_SC("Authority"), &CPlayer::GetAuthority, &CPlayer::SetAuthority)
-        .Prop(_SC("MessageColor"), &CPlayer::GetMessageColor, &CPlayer::SetMessageColor)
-        .Prop(_SC("AnnounceStyle"), &CPlayer::GetAnnounceStyle, &CPlayer::SetAnnounceStyle)
-        .Prop(_SC("X"), &CPlayer::GetPosX, &CPlayer::SetPosX)
-        .Prop(_SC("Y"), &CPlayer::GetPosY, &CPlayer::SetPosY)
-        .Prop(_SC("Z"), &CPlayer::GetPosZ, &CPlayer::SetPosZ)
+        .Prop(_SC("LastWeapon"), &CPlayer::GetLastWeapon)
+        .Prop(_SC("LastHealth"), &CPlayer::GetLastHealth)
+        .Prop(_SC("LastArmour"), &CPlayer::GetLastArmour)
+        .Prop(_SC("LastHeading"), &CPlayer::GetLastHeading)
+        .Prop(_SC("LastPosition"), &CPlayer::GetLastPosition)
+        .Prop(_SC("BufferCursor"), &CPlayer::GetBufferCursor, &CPlayer::SetBufferCursor)
+        .Prop(_SC("BufferCapacity"), &CPlayer::GetBufferCapacity)
+        .Prop(_SC("PosX"), &CPlayer::GetPositionX, &CPlayer::SetPositionX)
+        .Prop(_SC("PosY"), &CPlayer::GetPositionY, &CPlayer::SetPositionY)
+        .Prop(_SC("PosZ"), &CPlayer::GetPositionZ, &CPlayer::SetPositionZ)
+        .Prop(_SC("Red"), &CPlayer::GetColorR, &CPlayer::SetColorR)
+        .Prop(_SC("Green"), &CPlayer::GetColorG, &CPlayer::SetColorG)
+        .Prop(_SC("Blue"), &CPlayer::GetColorB, &CPlayer::SetColorB)
         // Member Methods
         .Func(_SC("StreamedFor"), &CPlayer::IsStreamedFor)
         .Func(_SC("Kick"), &CPlayer::Kick)
         .Func(_SC("Ban"), &CPlayer::Ban)
+        .Func(_SC("GetOption"), &CPlayer::GetOption)
+        .Func(_SC("SetOption"), &CPlayer::SetOption)
+        .Func(_SC("SetOptionEx"), &CPlayer::SetOptionEx)
         .Func(_SC("WorldCompatible"), &CPlayer::IsWorldCompatible)
         .Func(_SC("SetColor"), &CPlayer::SetColorEx)
+        .Func(_SC("SetColour"), &CPlayer::SetColorEx)
         .Func(_SC("Spawn"), &CPlayer::ForceSpawn)
         .Func(_SC("Select"), &CPlayer::ForceSelect)
         .Func(_SC("GiveMoney"), &CPlayer::GiveMoney)
-        .Func(_SC("SetPosition"), &CPlayer::SetPositionEx)
         .Func(_SC("SetPos"), &CPlayer::SetPositionEx)
+        .Func(_SC("SetPosition"), &CPlayer::SetPositionEx)
         .Func(_SC("SetSpeed"), &CPlayer::SetSpeedEx)
-        .Func(_SC("SetWeapon"), &CPlayer::SetWeapon)
+        .Func(_SC("Disembark"), &CPlayer::Disembark)
+        .Func(_SC("SetWeapon"), &CPlayer::SetWeaponEx)
         .Func(_SC("GiveWeapon"), &CPlayer::GiveWeapon)
+        .Func(_SC("WeaponAtSlot"), &CPlayer::GetWeaponAtSlot)
+        .Func(_SC("AmmoAtSlot"), &CPlayer::GetAmmoAtSlot)
+        .Func(_SC("RemoveWeapon"), &CPlayer::RemoveWeapon)
         .Func(_SC("StripWeapons"), &CPlayer::StripWeapons)
         .Func(_SC("RestoreCamera"), &CPlayer::RestoreCamera)
         .Func(_SC("SetAnim"), &CPlayer::SetAnimation)
         .Func(_SC("Animation"), &CPlayer::SetAnimation)
+        .Func(_SC("Spectating"), &CPlayer::GetSpectator)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
-        .Func(_SC("Disembark"), &CPlayer::Disembark)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("GetMsgPrefix"), &CPlayer::GetMessagePrefix)
         .Func(_SC("SetMsgPrefix"), &CPlayer::SetMessagePrefix)
-        // Raw Methods
+        .Func(_SC("StreamByte"), &CPlayer::StreamByte)
+        .Func(_SC("StreamShort"), &CPlayer::StreamShort)
+        .Func(_SC("StreamInt"), &CPlayer::StreamInt)
+        .Func(_SC("StreamFloat"), &CPlayer::StreamFloat)
+        .Func(_SC("StreamString"), &CPlayer::StreamString)
+        .Func(_SC("StreamRawString"), &CPlayer::StreamRawString)
+        .Func(_SC("FlushStream"), &CPlayer::FlushStream)
+        .Func(_SC("SendBuffer"), &CPlayer::SendBuffer)
+        // Member Overloads
+        .Overload< void (CPlayer::*)(const Vector3 &) const >
+            (_SC("AddSpeed"), &CPlayer::AddSpeed)
+        .Overload< void (CPlayer::*)(Float32, Float32, Float32) const >
+            (_SC("AddSpeed"), &CPlayer::AddSpeedEx)
+        .Overload< bool (CPlayer::*)(CVehicle &) const >
+            (_SC("Embark"), &CPlayer::Embark)
+        .Overload< bool (CPlayer::*)(CVehicle &, SQInt32, bool, bool) const >
+            (_SC("Embark"), &CPlayer::Embark)
+        .Overload< void (CPlayer::*)(const Vector3 &, const Vector3 &) const >
+            (_SC("CameraPosition"), &CPlayer::SetCameraPosition)
+        .Overload< void (CPlayer::*)(Float32, Float32, Float32, Float32, Float32, Float32) const >
+            (_SC("CameraPosition"), &CPlayer::SetCameraPosition)
+        .Overload< void (CPlayer::*)(void) >
+            (_SC("StartStream"), &CPlayer::StartStream)
+        .Overload< void (CPlayer::*)(Uint32) >
+            (_SC("StartStream"), &CPlayer::StartStream)
+        // Raw Squirrel Methods
         .SquirrelFunc(_SC("Msg"), &CPlayer::Msg)
         .SquirrelFunc(_SC("MsgP"), &CPlayer::MsgP)
         .SquirrelFunc(_SC("MsgEx"), &CPlayer::MsgEx)
@@ -1892,20 +2147,8 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("AnnounceEx"), &CPlayer::AnnounceEx)
         .SquirrelFunc(_SC("Text"), &CPlayer::Announce)
         .SquirrelFunc(_SC("TextEx"), &CPlayer::AnnounceEx)
-        // Member Overloads
-        .Overload< void (CPlayer::*)(const Vector3 &) const >
-            (_SC("AddSpeed"), &CPlayer::AddSpeed)
-        .Overload< void (CPlayer::*)(Float32, Float32, Float32) const >
-            (_SC("AddSpeed"), &CPlayer::AddSpeedEx)
-        .Overload< void (CPlayer::*)(const Vector3 &, const Vector3 &) const >
-            (_SC("CameraPosition"), &CPlayer::SetCameraPosition)
-        .Overload< void (CPlayer::*)(Float32, Float32, Float32, Float32, Float32, Float32) const >
-            (_SC("CameraPosition"), &CPlayer::SetCameraPosition)
-        .Overload< void (CPlayer::*)(CVehicle &) const >
-            (_SC("Embark"), &CPlayer::Embark)
-        .Overload< void (CPlayer::*)(CVehicle &, SQInt32, bool, bool) const >
-            (_SC("Embark"), &CPlayer::Embark)
         // Static Functions
+        .StaticFunc(_SC("Find"), &Player_FindAuto)
         .StaticFunc(_SC("FindByID"), &Player_FindByID)
         .StaticFunc(_SC("FindByTag"), &Player_FindByTag)
         .StaticFunc(_SC("FindActive"), &Player_FindActive)

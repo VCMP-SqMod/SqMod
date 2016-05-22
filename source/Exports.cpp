@@ -33,20 +33,14 @@ static HSQAPI GetSquirrelAPI()
 // ------------------------------------------------------------------------------------------------
 static HSQUIRRELVM GetSquirrelVM()
 {
-    // Do we even have a core instance?
-    if (_Core)
-    {
-        return _Core->GetVM();
-    }
-    // No idea ho we got here but we have to return something!
-    return NULL;
+    return Core::Get().GetVM();
 }
 
 // ------------------------------------------------------------------------------------------------
 static SQRESULT SqEx_LoadScript(const SQChar * filepath)
 {
     // Attempt to add the specified script to the load queue
-    if (_Core->LoadScript(filepath))
+    if (Core::Get().LoadScript(filepath))
     {
         return SQ_OK; // The script as added or already existed
     }
@@ -286,7 +280,9 @@ void InitExports()
     g_SqExports.PushTimestamp           = SqEx_PushTimestamp;
 
     // Export them to the server
-    _Func->ExportFunctions(_Info->nPluginId, (void **)(&sqexports), sizeof(SQEXPORTS));
+    _Func->ExportFunctions(_Info->pluginId,
+                            const_cast< const void ** >(reinterpret_cast< void ** >(&sqexports)),
+                            sizeof(SQEXPORTS));
 
     //vm
     g_SqAPI.open                        = sq_open;

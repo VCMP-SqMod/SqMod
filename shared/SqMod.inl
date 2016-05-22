@@ -195,7 +195,7 @@ HSQEXPORTS sq_api_import(PluginFuncs * vcapi)
     // Attempt to find the main plugin ID
     int plugin_id = vcapi->FindPlugin((char *)(SQMOD_HOST_NAME));
     // Attempt to retrieve the plugin exports
-    void ** plugin_exports = vcapi->GetPluginExports(plugin_id, &struct_size);
+    const void ** plugin_exports = vcapi->GetPluginExports(plugin_id, &struct_size);
     // See if we have any imports from Squirrel
     if (plugin_exports == NULL || struct_size <= 0)
     {

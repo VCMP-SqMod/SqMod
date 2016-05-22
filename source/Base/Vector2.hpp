@@ -8,16 +8,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector2 type from a string.
-*/
-const Vector2 & GetVector2(CSStr str);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector2 type from a string.
-*/
-const Vector2 & GetVector2(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
  * Class used to represent a two-dimensional vector.
 */
 struct Vector2
@@ -326,6 +316,17 @@ struct Vector2
      * Retrieve a new instance of this type with absolute component values.
     */
     Vector2 Abs() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Vector2 type from a string.
+    */
+    static const Vector2 & Get(CSStr str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Vector2 type from a string.
+    */
+    static const Vector2 & Get(CSStr str, SQChar delim);
+
 };
 
 } // Namespace:: SqMod

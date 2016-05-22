@@ -14,10 +14,10 @@ Color4      CCheckpoint::s_Color4;
 Vector3     CCheckpoint::s_Vector3;
 
 // ------------------------------------------------------------------------------------------------
-Uint32      CCheckpoint::s_ColorR;
-Uint32      CCheckpoint::s_ColorG;
-Uint32      CCheckpoint::s_ColorB;
-Uint32      CCheckpoint::s_ColorA;
+Int32      CCheckpoint::s_ColorR;
+Int32      CCheckpoint::s_ColorG;
+Int32      CCheckpoint::s_ColorB;
+Int32      CCheckpoint::s_ColorA;
 
 // ------------------------------------------------------------------------------------------------
 const Int32 CCheckpoint::Max = SQMOD_CHECKPOINT_POOL;
@@ -25,7 +25,7 @@ const Int32 CCheckpoint::Max = SQMOD_CHECKPOINT_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CCheckpoint::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqCheckpoint");
+    static const SQChar name[] = _SC("SqCheckpoint");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -48,11 +48,17 @@ CCheckpoint::~CCheckpoint()
 Int32 CCheckpoint::Cmp(const CCheckpoint & o) const
 {
     if (m_ID == o.m_ID)
+    {
         return 0;
+    }
     else if (m_ID > o.m_ID)
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -97,7 +103,7 @@ bool CCheckpoint::Destroy(Int32 header, Object & payload)
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    return _Core->DelCheckpoint(m_ID, header, payload);
+    return Core::Get().DelCheckpoint(m_ID, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -106,7 +112,7 @@ void CCheckpoint::BindEvent(Int32 evid, Object & env, Function & func) const
     // Validate the managed identifier
     Validate();
     // Obtain the function instance called for this event
-    Function & event = _Core->GetCheckpointEvent(m_ID, evid);
+    Function & event = Core::Get().GetCheckpointEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
     {
@@ -130,7 +136,16 @@ bool CCheckpoint::IsStreamedFor(CPlayer & player) const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->IsCheckpointStreamedForPlayer(m_ID, player.GetID());
+    return _Func->IsCheckPointStreamedForPlayer(m_ID, player.GetID());
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CCheckpoint::IsSphere() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->IsCheckPointSphere(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -139,7 +154,7 @@ Int32 CCheckpoint::GetWorld() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetCheckpointWorld(m_ID);
+    return _Func->GetCheckPointWorld(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -148,7 +163,7 @@ void CCheckpoint::SetWorld(Int32 world) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetCheckpointWorld(m_ID, world);
+    _Func->SetCheckPointWorld(m_ID, world);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -157,9 +172,9 @@ const Color4 & CCheckpoint::GetColor() const
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
-    s_Color4.Clear();
+    s_ColorR = s_ColorG = s_ColorB = s_ColorA = 0;
     // Query the server for the color values
-    _Func->GetCheckpointColor(m_ID, &s_ColorR, &s_ColorG, &s_ColorB, &s_ColorA);
+    _Func->GetCheckPointColour(m_ID, &s_ColorR, &s_ColorG, &s_ColorB, &s_ColorA);
     // Convert and assign the retrieved values
     s_Color4.Set(s_ColorR, s_ColorG, s_ColorB, s_ColorA);
     // Return the requested information
@@ -172,7 +187,16 @@ void CCheckpoint::SetColor(const Color4 & col) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetCheckpointColor(m_ID, col.r, col.g, col.b, col.a);
+    _Func->SetCheckPointColour(m_ID, col.r, col.g, col.b, col.a);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetCheckPointColour(m_ID, r, g, b, 0xFF);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -181,7 +205,7 @@ void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetCheckpointColor(m_ID, r, g, b, a);
+    _Func->SetCheckPointColour(m_ID, r, g, b, a);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -192,7 +216,7 @@ const Vector3 & CCheckpoint::GetPosition() const
     // Clear previous position information, if any
     s_Vector3.Clear();
     // Query the server for the position values
-    _Func->GetCheckpointPos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetCheckPointPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
     // Return the requested information
     return s_Vector3;
 }
@@ -203,7 +227,7 @@ void CCheckpoint::SetPosition(const Vector3 & pos) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetCheckpointPos(m_ID, pos.x, pos.y, pos.z);
+    _Func->SetCheckPointPosition(m_ID, pos.x, pos.y, pos.z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -212,7 +236,7 @@ void CCheckpoint::SetPositionEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetCheckpointPos(m_ID, x, y, z);
+    _Func->SetCheckPointPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -221,7 +245,7 @@ Float32 CCheckpoint::GetRadius() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetCheckpointRadius(m_ID);
+    return _Func->GetCheckPointRadius(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -230,7 +254,7 @@ void CCheckpoint::SetRadius(Float32 radius) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetCheckpointRadius(m_ID, radius);
+    _Func->SetCheckPointRadius(m_ID, radius);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -239,7 +263,7 @@ Object & CCheckpoint::GetOwner() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetPlayer(_Func->GetCheckpointOwner(m_ID)).mObj;
+    return Core::Get().GetPlayer(_Func->GetCheckPointOwner(m_ID)).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -248,205 +272,208 @@ Int32 CCheckpoint::GetOwnerID() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetCheckpointOwner(m_ID);
+    return _Func->GetCheckPointOwner(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CCheckpoint::GetPosX() const
+Float32 CCheckpoint::GetPositionX() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
     s_Vector3.x = 0;
     // Query the server for the requested component value
-    _Func->GetCheckpointPos(m_ID, &s_Vector3.x, NULL, NULL);
+    _Func->GetCheckPointPosition(m_ID, &s_Vector3.x, nullptr, nullptr);
     // Return the requested information
     return s_Vector3.x;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CCheckpoint::GetPosY() const
+Float32 CCheckpoint::GetPositionY() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
     s_Vector3.y = 0;
     // Query the server for the requested component value
-    _Func->GetCheckpointPos(m_ID, NULL, &s_Vector3.y, NULL);
+    _Func->GetCheckPointPosition(m_ID, nullptr, &s_Vector3.y, nullptr);
     // Return the requested information
     return s_Vector3.y;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CCheckpoint::GetPosZ() const
+Float32 CCheckpoint::GetPositionZ() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
     s_Vector3.z = 0;
     // Query the server for the requested component value
-    _Func->GetCheckpointPos(m_ID, NULL, NULL, &s_Vector3.z);
+    _Func->GetCheckPointPosition(m_ID, nullptr, nullptr, &s_Vector3.z);
     // Return the requested information
     return s_Vector3.z;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetPosX(Float32 x) const
+void CCheckpoint::SetPositionX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetCheckpointPos(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetCheckPointPosition(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z);
     // Perform the requested operation
-    _Func->SetCheckpointPos(m_ID, x, s_Vector3.y, s_Vector3.z);
+    _Func->SetCheckPointPosition(m_ID, x, s_Vector3.y, s_Vector3.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetPosY(Float32 y) const
+void CCheckpoint::SetPositionY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetCheckpointPos(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
+    _Func->GetCheckPointPosition(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z);
     // Perform the requested operation
-    _Func->SetCheckpointPos(m_ID, s_Vector3.x, y, s_Vector3.z);
+    _Func->SetCheckPointPosition(m_ID, s_Vector3.x, y, s_Vector3.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetPosZ(Float32 z) const
+void CCheckpoint::SetPositionZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetCheckpointPos(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
+    _Func->GetCheckPointPosition(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr);
     // Perform the requested operation
-    _Func->SetCheckpointPos(m_ID, s_Vector3.z, s_Vector3.y, z);
+    _Func->SetCheckPointPosition(m_ID, s_Vector3.z, s_Vector3.y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 CCheckpoint::GetColR() const
+Int32 CCheckpoint::GetColorR() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
     s_ColorR = 0;
     // Query the server for the requested component value
-    _Func->GetCheckpointColor(m_ID, &s_ColorR, NULL, NULL, NULL);
+    _Func->GetCheckPointColour(m_ID, &s_ColorR, NULL, NULL, NULL);
     // Return the requested information
     return s_ColorR;
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 CCheckpoint::GetColG() const
+Int32 CCheckpoint::GetColorG() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
     s_ColorG = 0;
     // Query the server for the requested component value
-    _Func->GetCheckpointColor(m_ID, NULL, &s_ColorG, NULL, NULL);
+    _Func->GetCheckPointColour(m_ID, NULL, &s_ColorG, NULL, NULL);
     // Return the requested information
     return s_ColorG;
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 CCheckpoint::GetColB() const
+Int32 CCheckpoint::GetColorB() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
     s_ColorB = 0;
     // Query the server for the requested component value
-    _Func->GetCheckpointColor(m_ID, NULL, NULL, &s_ColorB, NULL);
+    _Func->GetCheckPointColour(m_ID, NULL, NULL, &s_ColorB, NULL);
     // Return the requested information
     return s_ColorB;
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 CCheckpoint::GetColA() const
+Int32 CCheckpoint::GetColorA() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
     s_ColorA = 0;
     // Query the server for the requested component value
-    _Func->GetCheckpointColor(m_ID, NULL, NULL, NULL, &s_ColorA);
+    _Func->GetCheckPointColour(m_ID, NULL, NULL, NULL, &s_ColorA);
     // Return the requested information
     return s_ColorA;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColR(Uint32 r) const
+void CCheckpoint::SetColorR(Int32 r) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetCheckpointColor(m_ID, NULL, &s_ColorG, &s_ColorB, &s_ColorA);
+    _Func->GetCheckPointColour(m_ID, NULL, &s_ColorG, &s_ColorB, &s_ColorA);
     // Perform the requested operation
-    _Func->SetCheckpointColor(m_ID, r, s_ColorG, s_ColorB, s_ColorA);
+    _Func->SetCheckPointColour(m_ID, r, s_ColorG, s_ColorB, s_ColorA);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColG(Uint32 g) const
+void CCheckpoint::SetColorG(Int32 g) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetCheckpointColor(m_ID, &s_ColorR, NULL, &s_ColorB, &s_ColorA);
+    _Func->GetCheckPointColour(m_ID, &s_ColorR, NULL, &s_ColorB, &s_ColorA);
     // Perform the requested operation
-    _Func->SetCheckpointColor(m_ID, s_ColorR, g, s_ColorB, s_ColorA);
+    _Func->SetCheckPointColour(m_ID, s_ColorR, g, s_ColorB, s_ColorA);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColB(Uint32 b) const
+void CCheckpoint::SetColorB(Int32 b) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetCheckpointColor(m_ID, &s_ColorB, &s_ColorG, NULL, &s_ColorA);
+    _Func->GetCheckPointColour(m_ID, &s_ColorB, &s_ColorG, NULL, &s_ColorA);
     // Perform the requested operation
-    _Func->SetCheckpointColor(m_ID, s_ColorB, s_ColorG, b, s_ColorA);
+    _Func->SetCheckPointColour(m_ID, s_ColorB, s_ColorG, b, s_ColorA);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColA(Uint32 a) const
+void CCheckpoint::SetColorA(Int32 a) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetCheckpointColor(m_ID, &s_ColorA, &s_ColorG, &s_ColorB, NULL);
+    _Func->GetCheckPointColour(m_ID, &s_ColorA, &s_ColorG, &s_ColorB, NULL);
     // Perform the requested operation
-    _Func->SetCheckpointColor(m_ID, s_ColorA, s_ColorG, s_ColorB, a);
+    _Func->SetCheckPointColour(m_ID, s_ColorA, s_ColorG, s_ColorB, a);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Checkpoint_CreateEx(CPlayer & player, Int32 world, Float32 x, Float32 y, Float32 z,
+static Object & Checkpoint_CreateEx(CPlayer & player, Int32 world, bool sphere,
+                            Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius)
 {
-    return _Core->NewCheckpoint(player.GetID(), world, x, y, z, r, g, b, a, radius,
+    return Core::Get().NewCheckpoint(player.GetID(), world, sphere, x, y, z, r, g, b, a, radius,
                                 SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & Checkpoint_CreateEx(CPlayer & player, Int32 world, Float32 x, Float32 y, Float32 z,
+static Object & Checkpoint_CreateEx(CPlayer & player, Int32 world, bool sphere,
+                            Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
                             Int32 header, Object & payload)
 {
-    return _Core->NewCheckpoint(player.GetID(), world, x, y, z, r, g, b, a, radius, header, payload);
+    return Core::Get().NewCheckpoint(player.GetID(), world, sphere, x, y, z, r, g, b, a,
+                                radius, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Checkpoint_Create(CPlayer & player, Int32 world, const Vector3 & pos,
+static Object & Checkpoint_Create(CPlayer & player, Int32 world, bool sphere, const Vector3 & pos,
                             const Color4 & color, Float32 radius)
 {
-    return _Core->NewCheckpoint(player.GetID(), world, pos.x, pos.y, pos.z,
+    return Core::Get().NewCheckpoint(player.GetID(), world, sphere, pos.x, pos.y, pos.z,
                                 color.r, color.g, color.b, color.a, radius,
                                 SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & Checkpoint_Create(CPlayer & player, Int32 world, const Vector3 & pos,
+static Object & Checkpoint_Create(CPlayer & player, Int32 world, bool sphere, const Vector3 & pos,
                             const Color4 & color, Float32 radius, Int32 header, Object & payload)
 {
-    return _Core->NewCheckpoint(player.GetID(), world, pos.x, pos.y, pos.z,
+    return Core::Get().NewCheckpoint(player.GetID(), world, sphere, pos.x, pos.y, pos.z,
                                 color.r, color.g, color.b, color.a, radius, header, payload);
 }
 
@@ -459,8 +486,8 @@ static const Object & Checkpoint_FindByID(Int32 id)
         STHROWF("The specified checkpoint identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
-    Core::Checkpoints::const_iterator itr = _Core->GetCheckpoints().cbegin();
-    Core::Checkpoints::const_iterator end = _Core->GetCheckpoints().cend();
+    Core::Checkpoints::const_iterator itr = Core::Get().GetCheckpoints().cbegin();
+    Core::Checkpoints::const_iterator end = Core::Get().GetCheckpoints().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -483,8 +510,8 @@ static const Object & Checkpoint_FindByTag(CSStr tag)
         STHROWF("The specified checkpoint tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
-    Core::Checkpoints::const_iterator itr = _Core->GetCheckpoints().cbegin();
-    Core::Checkpoints::const_iterator end = _Core->GetCheckpoints().cend();
+    Core::Checkpoints::const_iterator itr = Core::Get().GetCheckpoints().cbegin();
+    Core::Checkpoints::const_iterator end = Core::Get().GetCheckpoints().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -504,8 +531,8 @@ static Array Checkpoint_FindActive()
     // Remember the initial stack size
     StackGuard sg;
     // Obtain the ends of the entity pool
-    Core::Checkpoints::const_iterator itr = _Core->GetCheckpoints().cbegin();
-    Core::Checkpoints::const_iterator end = _Core->GetCheckpoints().cend();
+    Core::Checkpoints::const_iterator itr = Core::Get().GetCheckpoints().cbegin();
+    Core::Checkpoints::const_iterator end = Core::Get().GetCheckpoints().cend();
     // Allocate an empty array on the stack
     sq_newarray(DefaultVM::Get(), 0);
     // Process each entity in the pool
@@ -550,6 +577,7 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Overload< bool (CCheckpoint::*)(Int32) >(_SC("Destroy"), &CCheckpoint::Destroy)
         .Overload< bool (CCheckpoint::*)(Int32, Object &) >(_SC("Destroy"), &CCheckpoint::Destroy)
         // Properties
+        .Prop(_SC("Sphere"), &CCheckpoint::IsSphere)
         .Prop(_SC("World"), &CCheckpoint::GetWorld, &CCheckpoint::SetWorld)
         .Prop(_SC("Color"), &CCheckpoint::GetColor, &CCheckpoint::SetColor)
         .Prop(_SC("Pos"), &CCheckpoint::GetPosition, &CCheckpoint::SetPosition)
@@ -557,30 +585,34 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Prop(_SC("Radius"), &CCheckpoint::GetRadius, &CCheckpoint::SetRadius)
         .Prop(_SC("Owner"), &CCheckpoint::GetOwner)
         .Prop(_SC("OwnerID"), &CCheckpoint::GetOwnerID)
-        .Prop(_SC("X"), &CCheckpoint::GetPosX, &CCheckpoint::SetPosX)
-        .Prop(_SC("Y"), &CCheckpoint::GetPosY, &CCheckpoint::SetPosY)
-        .Prop(_SC("Z"), &CCheckpoint::GetPosZ, &CCheckpoint::SetPosZ)
-        .Prop(_SC("R"), &CCheckpoint::GetColR, &CCheckpoint::SetColR)
-        .Prop(_SC("G"), &CCheckpoint::GetColG, &CCheckpoint::SetColG)
-        .Prop(_SC("B"), &CCheckpoint::GetColB, &CCheckpoint::SetColB)
-        .Prop(_SC("A"), &CCheckpoint::GetColA, &CCheckpoint::SetColA)
+        .Prop(_SC("PosX"), &CCheckpoint::GetPositionX, &CCheckpoint::SetPositionX)
+        .Prop(_SC("PosY"), &CCheckpoint::GetPositionY, &CCheckpoint::SetPositionY)
+        .Prop(_SC("PosZ"), &CCheckpoint::GetPositionZ, &CCheckpoint::SetPositionZ)
+        .Prop(_SC("Red"), &CCheckpoint::GetColorR, &CCheckpoint::SetColorR)
+        .Prop(_SC("Green"), &CCheckpoint::GetColorG, &CCheckpoint::SetColorG)
+        .Prop(_SC("Blue"), &CCheckpoint::GetColorB, &CCheckpoint::SetColorB)
+        .Prop(_SC("Alpha"), &CCheckpoint::GetColorA, &CCheckpoint::SetColorA)
         // Member Methods
         .Func(_SC("StreamedFor"), &CCheckpoint::IsStreamedFor)
-        .Func(_SC("SetColor"), &CCheckpoint::SetColorEx)
         .Func(_SC("SetPos"), &CCheckpoint::SetPositionEx)
         .Func(_SC("SetPosition"), &CCheckpoint::SetPositionEx)
+        // Member Overloads
+        .Overload< void (CCheckpoint::*)(Uint8, Uint8, Uint8) const >
+            (_SC("SetColor"), &CCheckpoint::SetColorEx)
+        .Overload< void (CCheckpoint::*)(Uint8, Uint8, Uint8, Uint8) const >
+            (_SC("SetColor"), &CCheckpoint::SetColorEx)
         // Static Functions
         .StaticFunc(_SC("FindByID"), &Checkpoint_FindByID)
         .StaticFunc(_SC("FindByTag"), &Checkpoint_FindByTag)
         .StaticFunc(_SC("FindActive"), &Checkpoint_FindActive)
         // Static Overloads
-        .StaticOverload< Object & (*)(CPlayer &, Int32, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
+        .StaticOverload< Object & (*)(CPlayer &, Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
             (_SC("CreateEx"), &Checkpoint_CreateEx)
-        .StaticOverload< Object & (*)(CPlayer &, Int32, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, Object &) >
+        .StaticOverload< Object & (*)(CPlayer &, Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, Object &) >
             (_SC("CreateEx"), &Checkpoint_CreateEx)
-        .StaticOverload< Object & (*)(CPlayer &, Int32, const Vector3 &, const Color4 &, Float32) >
+        .StaticOverload< Object & (*)(CPlayer &, Int32, bool, const Vector3 &, const Color4 &, Float32) >
             (_SC("Create"), &Checkpoint_Create)
-        .StaticOverload< Object & (*)(CPlayer &, Int32, const Vector3 &, const Color4 &, Float32, Int32, Object &) >
+        .StaticOverload< Object & (*)(CPlayer &, Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, Object &) >
             (_SC("Create"), &Checkpoint_Create)
     );
 }

@@ -35,20 +35,22 @@ static String CS_Vehicle_Names[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
-CCStr GetAutomobileName(Uint32 id)
+CSStr GetAutomobileName(Uint32 id)
 {
     return (id < 130 || id > 236) ? _SC("") : CS_Vehicle_Names[id-130].c_str();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetAutomobileName(Uint32 id, CCStr name)
+void SetAutomobileName(Uint32 id, CSStr name)
 {
     if (id >= 130 || id <= 236)
+    {
         CS_Vehicle_Names[id-130].assign(name);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetAutomobileID(CCStr name)
+Int32 GetAutomobileID(CSStr name)
 {
     // Clone the string into an editable version
     String str(name);
@@ -58,7 +60,9 @@ Int32 GetAutomobileID(CCStr name)
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     // See if we still have a valid name after the cleanup
     if(str.empty())
+    {
         return SQMOD_UNKNOWN;
+    }
     // Grab the actual length of the string
     Uint32 len = static_cast< Uint32 >(str.length());
     // Get the most significant characters used to identify a vehicle
@@ -70,7 +74,9 @@ Int32 GetAutomobileID(CCStr name)
         b = str[1];
     }
     else if(str.length() >= 2)
+    {
         b = str[1];
+    }
     // Search for a pattern in the name
     switch (a)
     {
@@ -618,51 +624,8 @@ Int32 GetAutomobileID(CCStr name)
 // ------------------------------------------------------------------------------------------------
 bool IsAutomobileValid(Int32 id)
 {
-    return (strlen(GetAutomobileName(id)) > 0);
+    CSStr name = GetAutomobileName(id);
+    return (name && *name != '\0');
 }
-
-// ------------------------------------------------------------------------------------------------
-bool IsModelActuallyWeapon(Int32 id)
-{
-    switch (id)
-    {
-        case 259:
-        case 260:
-        case 261:
-        case 262:
-        case 263:
-        case 264:
-        case 265:
-        case 266:
-        case 267:
-        case 268:
-        case 269:
-        case 270:
-        case 271:
-        case 272:
-        case 274:
-        case 275:
-        case 276:
-        case 277:
-        case 278:
-        case 279:
-        case 280:
-        case 281:
-        case 282:
-        case 283:
-        case 284:
-        case 285:
-        case 286:
-        case 287:
-        case 288:
-        case 289:
-        case 290:
-        case 291:   return true;
-        default:    return false;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-
 
 } // Namespace:: SqMod

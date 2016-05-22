@@ -8,16 +8,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector3 type from a string.
-*/
-const Vector3 & GetVector3(CSStr str);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Vector3 type from a string.
-*/
-const Vector3 & GetVector3(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
  * Class used to represent a three-dimensional vector.
 */
 struct Vector3
@@ -331,6 +321,17 @@ struct Vector3
      * Retrieve a new instance of this type with absolute component values.
     */
     Vector3 Abs() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Vector3 type from a string.
+    */
+    static const Vector3 & Get(CSStr str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Vector3 type from a string.
+    */
+    static const Vector3 & Get(CSStr str, SQChar delim);
+
 };
 
 } // Namespace:: SqMod

@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
 #include <cstring>
-#include <cstdarg>
 #include <exception>
 #include <stdexcept>
 
@@ -35,9 +34,9 @@ void ThrowMemExcept(const char * msg, ...)
     // Variable arguments structure
     va_list args;
     // Get the specified arguments
-    va_start (args, msg);
+    va_start(args, msg);
     // Run the specified format
-    int ret =  vsnprintf(buffer, sizeof(buffer), msg, args);
+    int ret =  std::vsnprintf(buffer, sizeof(buffer), msg, args);
     // Check for formatting errors
     if (ret < 0)
     {
@@ -53,7 +52,7 @@ void ThrowMemExcept(const char * msg, ...)
 static Buffer::Pointer AllocMem(Buffer::SzType size)
 {
     // Attempt to allocate memory directly
-    Buffer::Pointer ptr = reinterpret_cast< Buffer::Pointer >(malloc(size));
+    Buffer::Pointer ptr = reinterpret_cast< Buffer::Pointer >(std::malloc(size));
     // Validate the allocated memory
     if (!ptr)
     {
@@ -96,9 +95,9 @@ private:
     struct Node
     {
         // ----------------------------------------------------------------------------------------
-        SzType      mCap; /* The size of the memory chunk. */
-        Pointer     mPtr; /* Pointer to the memory chunk. */
-        Node*       mNext; /* The next node in the list. */
+        SzType      mCap; // The size of the memory chunk.
+        Pointer     mPtr; // Pointer to the memory chunk.
+        Node*       mNext; // The next node in the list.
 
         /* ----------------------------------------------------------------------------------------
          * Base constructor.
@@ -137,7 +136,7 @@ private:
             // Free the memory (if any)
             if (node->mPtr)
             {
-                free(node->mPtr);
+                std::free(node->mPtr);
             }
             // Save the next node
             next = node->mNext;
@@ -385,7 +384,7 @@ Buffer::Buffer(const Buffer & o)
     if (m_Cap)
     {
         Request(o.m_Cap);
-        memcpy(m_Ptr, o.m_Ptr, o.m_Cap);
+        std::memcpy(m_Ptr, o.m_Ptr, o.m_Cap);
     }
 }
 
@@ -408,7 +407,7 @@ Buffer & Buffer::operator = (const Buffer & o)
         if (m_Cap && o.m_Cap <= m_Cap)
         {
             // It's safe to copy the data
-            memcpy(m_Ptr, o.m_Ptr, o.m_Cap);
+            std::memcpy(m_Ptr, o.m_Ptr, o.m_Cap);
         }
         // Do we even have data to copy?
         else if (!o.m_Cap)
@@ -429,7 +428,7 @@ Buffer & Buffer::operator = (const Buffer & o)
             // Request a larger buffer
             Request(o.m_Cap);
             // Now it's safe to copy the data
-            memcpy(m_Ptr, o.m_Ptr, o.m_Cap);
+            std::memcpy(m_Ptr, o.m_Ptr, o.m_Cap);
         }
         // Also copy the edit cursor
         m_Cur = o.m_Cur;
@@ -446,7 +445,7 @@ void Buffer::Grow(SzType n)
     // Acquire a bigger buffer
     Request(bkp.m_Cap + n);
     // Copy the data from the old buffer
-    memcpy(m_Ptr, bkp.m_Ptr, bkp.m_Cap);
+    std::memcpy(m_Ptr, bkp.m_Ptr, bkp.m_Cap);
     // Copy the previous edit cursor
     m_Cur = bkp.m_Cur;
 }
@@ -487,7 +486,7 @@ void Buffer::Release()
     // Is there a memory manager available?
     if (!m_Mem)
     {
-        free(m_Ptr); // Deallocate the memory directly
+        std::free(m_Ptr); // Deallocate the memory directly
     }
     // Find out to which category does this buffer belong
     else if (m_Cap <= 1024)
@@ -523,7 +522,7 @@ Buffer::SzType Buffer::Write(SzType pos, ConstPtr data, SzType size)
         Grow((pos + size) - m_Cap + 32);
     }
     // Copy the data into the internal buffer
-    memcpy(m_Ptr + pos, data, size);
+    std::memcpy(m_Ptr + pos, data, size);
     // Return the amount of data written to the buffer
     return size;
 }
@@ -556,14 +555,14 @@ Buffer::SzType Buffer::WriteF(SzType pos, const char * fmt, va_list args)
     va_copy(args_cpy, args);
     // Attempt to write to the current buffer
     // (if empty, it should tell us the necessary size)
-    int ret =  vsnprintf(m_Ptr + pos, m_Cap, fmt, args);
+    int ret =  std::vsnprintf(m_Ptr + pos, m_Cap, fmt, args);
     // Do we need a bigger buffer?
     if ((pos + ret) >= m_Cap)
     {
         // Acquire a larger buffer
         Grow((pos + ret) - m_Cap + 32);
         // Retry writing the requested information
-        ret =  vsnprintf(m_Ptr + pos, m_Cap, fmt, args_cpy);
+        ret =  std::vsnprintf(m_Ptr + pos, m_Cap, fmt, args_cpy);
     }
     // Return the value 0 if data could not be written
     if (ret < 0)
@@ -581,7 +580,7 @@ Buffer::SzType Buffer::WriteS(SzType pos, ConstPtr str)
     if (str && *str != '\0')
     {
         // Forward this to the regular write function
-        return Write(pos, str, strlen(str));
+        return Write(pos, str, std::strlen(str));
     }
     // Nothing to write
     return 0;
@@ -605,7 +604,7 @@ void Buffer::AppendS(const char * str)
     // Is there any string to write?
     if (str)
     {
-        m_Cur += Write(m_Cur, str, strlen(str));
+        m_Cur += Write(m_Cur, str, std::strlen(str));
     }
 }
 

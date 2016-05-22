@@ -12,7 +12,7 @@ const Int32 CKeybind::Max = SQMOD_KEYBIND_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CKeybind::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqKeybind");
+    static const SQChar name[] = _SC("SqKeybind");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -35,11 +35,17 @@ CKeybind::~CKeybind()
 Int32 CKeybind::Cmp(const CKeybind & o) const
 {
     if (m_ID == o.m_ID)
+    {
         return 0;
+    }
     else if (m_ID > o.m_ID)
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -84,7 +90,7 @@ bool CKeybind::Destroy(Int32 header, Object & payload)
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    return _Core->DelKeybind(m_ID, header, payload);
+    return Core::Get().DelKeybind(m_ID, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -93,7 +99,7 @@ void CKeybind::BindEvent(Int32 evid, Object & env, Function & func) const
     // Validate the managed identifier
     Validate();
     // Obtain the function instance called for this event
-    Function & event = _Core->GetKeybindEvent(m_ID, evid);
+    Function & event = Core::Get().GetKeybindEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
     {
@@ -112,7 +118,7 @@ Int32 CKeybind::GetFirst() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetKeybind(m_ID).mFirst;
+    return Core::Get().GetKeybind(m_ID).mFirst;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -121,7 +127,7 @@ Int32 CKeybind::GetSecond() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetKeybind(m_ID).mSecond;
+    return Core::Get().GetKeybind(m_ID).mSecond;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -130,7 +136,7 @@ Int32 CKeybind::GetThird() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetKeybind(m_ID).mThird;
+    return Core::Get().GetKeybind(m_ID).mThird;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -139,34 +145,34 @@ bool CKeybind::IsRelease() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetKeybind(m_ID).mRelease;
+    return Core::Get().GetKeybind(m_ID).mRelease;
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object & Keybind_CreateEx(Int32 slot, bool release, Int32 primary, Int32 secondary,
                                 Int32 alternative)
 {
-    return _Core->NewKeybind(slot, release, primary, secondary, alternative,
+    return Core::Get().NewKeybind(slot, release, primary, secondary, alternative,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
 static Object & Keybind_CreateEx(Int32 slot, bool release, Int32 primary, Int32 secondary,
                             Int32 alternative, Int32 header, Object & payload)
 {
-    return _Core->NewKeybind(slot, release, primary, secondary, alternative, header, payload);
+    return Core::Get().NewKeybind(slot, release, primary, secondary, alternative, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object & Keybind_Create(bool release, Int32 primary, Int32 secondary, Int32 alternative)
 {
-    return _Core->NewKeybind(-1, release, primary, secondary, alternative,
+    return Core::Get().NewKeybind(-1, release, primary, secondary, alternative,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
 static Object & Keybind_Create(bool release, Int32 primary, Int32 secondary, Int32 alternative,
                             Int32 header, Object & payload)
 {
-    return _Core->NewKeybind(-1, release, primary, secondary, alternative, header, payload);
+    return Core::Get().NewKeybind(-1, release, primary, secondary, alternative, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -178,8 +184,8 @@ static const Object & Keybind_FindByID(Int32 id)
         STHROWF("The specified keybind identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
-    Core::Keybinds::const_iterator itr = _Core->GetKeybinds().cbegin();
-    Core::Keybinds::const_iterator end = _Core->GetKeybinds().cend();
+    Core::Keybinds::const_iterator itr = Core::Get().GetKeybinds().cbegin();
+    Core::Keybinds::const_iterator end = Core::Get().GetKeybinds().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -202,8 +208,8 @@ static const Object & Keybind_FindByTag(CSStr tag)
         STHROWF("The specified keybind tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
-    Core::Keybinds::const_iterator itr = _Core->GetKeybinds().cbegin();
-    Core::Keybinds::const_iterator end = _Core->GetKeybinds().cend();
+    Core::Keybinds::const_iterator itr = Core::Get().GetKeybinds().cbegin();
+    Core::Keybinds::const_iterator end = Core::Get().GetKeybinds().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -223,8 +229,8 @@ static Array Keybind_FindActive()
     // Remember the initial stack size
     StackGuard sg;
     // Obtain the ends of the entity pool
-    Core::Keybinds::const_iterator itr = _Core->GetKeybinds().cbegin();
-    Core::Keybinds::const_iterator end = _Core->GetKeybinds().cend();
+    Core::Keybinds::const_iterator itr = Core::Get().GetKeybinds().cbegin();
+    Core::Keybinds::const_iterator end = Core::Get().GetKeybinds().cend();
     // Allocate an empty array on the stack
     sq_newarray(DefaultVM::Get(), 0);
     // Process each entity in the pool

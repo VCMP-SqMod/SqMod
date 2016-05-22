@@ -8,16 +8,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Quaternion type from a string.
-*/
-const Quaternion & GetQuaternion(CSStr str);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Quaternion type from a string.
-*/
-const Quaternion & GetQuaternion(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
  * Quaternion class for representing rotations.
 */
 struct Quaternion
@@ -341,6 +331,17 @@ struct Quaternion
      * Retrieve a new instance of this type with absolute component values.
     */
     Quaternion Abs() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Quaternion type from a string.
+    */
+    static const Quaternion & Get(CSStr str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Quaternion type from a string.
+    */
+    static const Quaternion & Get(CSStr str, SQChar delim);
+
 };
 
 } // Namespace:: SqMod

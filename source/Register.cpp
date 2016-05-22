@@ -40,8 +40,7 @@ extern void Register_Numeric(HSQUIRRELVM vm);
 extern void Register_Math(HSQUIRRELVM vm);
 extern void Register_Random(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
-extern void Register_SysEnv(HSQUIRRELVM vm);
-extern void Register_SysPath(HSQUIRRELVM vm);
+extern void Register_System(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_Constants(HSQUIRRELVM vm);
@@ -70,13 +69,10 @@ bool RegisterAPI(HSQUIRRELVM vm)
 
     Register_CBlip(vm);
     Register_CCheckpoint(vm);
-    Register_CForcefield(vm);
     Register_CKeybind(vm);
     Register_CObject(vm);
     Register_CPickup(vm);
     Register_CPlayer(vm);
-    Register_CSprite(vm);
-    Register_CTextdraw(vm);
     Register_CVehicle(vm);
 
     Register_Chrono(vm);
@@ -85,8 +81,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Numeric(vm);
     Register_Math(vm);
     Register_String(vm);
-    Register_SysEnv(vm);
-    Register_SysPath(vm);
+    Register_System(vm);
 
     Register_Constants(vm);
     Register_Log(vm);

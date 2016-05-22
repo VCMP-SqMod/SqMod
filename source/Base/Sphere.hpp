@@ -9,16 +9,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Sphere type from a string.
-*/
-const Sphere & GetSphere(CSStr str);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Sphere type from a string.
-*/
-const Sphere & GetSphere(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
  * Class used to represent a three-dimensional sphere.
 */
 struct Sphere
@@ -393,6 +383,17 @@ struct Sphere
      * Retrieve a new instance of this type with absolute component values.
     */
     Sphere Abs() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Sphere type from a string.
+    */
+    static const Sphere & Get(CSStr str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Sphere type from a string.
+    */
+    static const Sphere & Get(CSStr str, SQChar delim);
+
 };
 
 } // Namespace:: SqMod

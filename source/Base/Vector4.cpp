@@ -22,7 +22,7 @@ SQChar Vector4::Delim = ',';
 // ------------------------------------------------------------------------------------------------
 SQInteger Vector4::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("Vector4");
+    static const SQChar name[] = _SC("Vector4");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -122,10 +122,10 @@ Vector4 & Vector4::operator /= (const Vector4 & v)
 
 Vector4 & Vector4::operator %= (const Vector4 & v)
 {
-    x = fmod(x, v.x);
-    y = fmod(y, v.y);
-    z = fmod(z, v.z);
-    w = fmod(w, v.w);
+    x = std::fmod(x, v.x);
+    y = std::fmod(y, v.y);
+    z = std::fmod(z, v.z);
+    w = std::fmod(w, v.w);
     return *this;
 }
 
@@ -168,10 +168,10 @@ Vector4 & Vector4::operator /= (Value s)
 
 Vector4 & Vector4::operator %= (Value s)
 {
-    x = fmod(x, s);
-    y = fmod(y, s);
-    z = fmod(z, s);
-    w = fmod(w, s);
+    x = std::fmod(x, s);
+    y = std::fmod(y, s);
+    z = std::fmod(z, s);
+    w = std::fmod(w, s);
     return *this;
 }
 
@@ -238,7 +238,7 @@ Vector4 Vector4::operator / (const Vector4 & v) const
 
 Vector4 Vector4::operator % (const Vector4 & v) const
 {
-    return Vector4(fmod(x, v.x), fmod(y, v.y), fmod(z, v.z), fmod(w, v.w));
+    return Vector4(std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z), std::fmod(w, v.w));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -264,13 +264,13 @@ Vector4 Vector4::operator / (Value s) const
 
 Vector4 Vector4::operator % (Value s) const
 {
-    return Vector4(fmod(x, s), fmod(y, s), fmod(z, s), fmod(w, s));
+    return Vector4(std::fmod(x, s), std::fmod(y, s), std::fmod(z, s), std::fmod(w, s));
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator + () const
 {
-    return Vector4(fabs(x), fabs(y), fabs(z), fabs(w));
+    return Vector4(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
 }
 
 Vector4 Vector4::operator - () const
@@ -313,11 +313,17 @@ bool Vector4::operator >= (const Vector4 & v) const
 Int32 Vector4::Cmp(const Vector4 & o) const
 {
     if (*this == o)
+    {
         return 0;
+    }
     else if (*this > o)
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -378,7 +384,7 @@ void Vector4::Set(const Quaternion & q)
 // ------------------------------------------------------------------------------------------------
 void Vector4::Set(CSStr values, SQChar delim)
 {
-    Set(GetVector4(values, delim));
+    Set(Vector4::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -393,7 +399,9 @@ void Vector4::Generate()
 void Vector4::Generate(Value min, Value max)
 {
     if (max < min)
+    {
         STHROWF("max value is lower than min value");
+    }
 
     x = GetRandomFloat32(min, max);
     y = GetRandomFloat32(min, max);
@@ -404,7 +412,9 @@ void Vector4::Generate(Value min, Value max)
 void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(wmax, wmin))
+    {
         STHROWF("max value is lower than min value");
+    }
 
     x = GetRandomFloat32(xmin, xmax);
     y = GetRandomFloat32(ymin, ymax);
@@ -415,17 +425,17 @@ void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::Abs() const
 {
-    return Vector4(fabs(x), fabs(y), fabs(z), fabs(w));
+    return Vector4(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector4 & GetVector4(CSStr str)
+const Vector4 & Vector4::Get(CSStr str)
 {
-    return GetVector4(str, Vector4::Delim);
+    return Vector4::Get(str, Vector4::Delim);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector4 & GetVector4(CSStr str, SQChar delim)
+const Vector4 & Vector4::Get(CSStr str, SQChar delim)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
@@ -442,8 +452,44 @@ const Vector4 & GetVector4(CSStr str, SQChar delim)
     fs[9] = delim;
     fs[14] = delim;
     // Attempt to extract the component values from the specified string
-    sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z, &vec.w);
+    std::sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z, &vec.w);
     // Return the resulted value
+    return vec;
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector4 & GetVector4()
+{
+    static Vector4 vec;
+    vec.Clear();
+    return vec;
+}
+
+const Vector4 & GetVector4(Float32 sv)
+{
+    static Vector4 vec;
+    vec.Set(sv);
+    return vec;
+}
+
+const Vector4 & GetVector4(Float32 xv, Float32 yv, Float32 zv)
+{
+    static Vector4 vec;
+    vec.Set(xv, yv, zv);
+    return vec;
+}
+
+const Vector4 & GetVector4(Float32 xv, Float32 yv, Float32 zv, Float32 wv)
+{
+    static Vector4 vec;
+    vec.Set(xv, yv, zv, wv);
+    return vec;
+}
+
+const Vector4 & GetVector4(const Vector4 & o)
+{
+    static Vector4 vec;
+    vec.Set(o);
     return vec;
 }
 
@@ -453,87 +499,87 @@ void Register_Vector4(HSQUIRRELVM vm)
     typedef Vector4::Value Val;
 
     RootTable(vm).Bind(_SC("Vector4"), Class< Vector4 >(vm, _SC("Vector4"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< Val >()
         .Ctor< Val, Val, Val >()
         .Ctor< Val, Val, Val, Val >()
-        /* Static Members */
+        // Static Members
         .SetStaticValue(_SC("Delim"), &Vector4::Delim)
-        /* Member Variables */
+        // Member Variables
         .Var(_SC("x"), &Vector4::x)
         .Var(_SC("y"), &Vector4::y)
         .Var(_SC("z"), &Vector4::z)
         .Var(_SC("w"), &Vector4::w)
-        /* Properties */
-        .Prop(_SC("abs"), &Vector4::Abs)
-        /* Core Metamethods */
+        // Properties
+        .Prop(_SC("Abs"), &Vector4::Abs)
+        // Core Metamethods
         .Func(_SC("_tostring"), &Vector4::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector4::Typename)
         .Func(_SC("_cmp"), &Vector4::Cmp)
-        /* Metamethods */
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("_add"), &Vector4::operator +)
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("_sub"), &Vector4::operator -)
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("_mul"), &Vector4::operator *)
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("_div"), &Vector4::operator /)
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("_modulo"), &Vector4::operator %)
-        .Func<Vector4 (Vector4::*)(void) const>(_SC("_unm"), &Vector4::operator -)
-        /* Setters */
-        .Overload<void (Vector4::*)(Val)>(_SC("Set"), &Vector4::Set)
-        .Overload<void (Vector4::*)(Val, Val, Val)>(_SC("Set"), &Vector4::Set)
-        .Overload<void (Vector4::*)(Val, Val, Val, Val)>(_SC("Set"), &Vector4::Set)
-        .Overload<void (Vector4::*)(const Vector4 &)>(_SC("SetVec4"), &Vector4::Set)
-        .Overload<void (Vector4::*)(const Vector3 &)>(_SC("SetVec3"), &Vector4::Set)
-        .Overload<void (Vector4::*)(const Quaternion &)>(_SC("SetQuat"), &Vector4::Set)
-        .Overload<void (Vector4::*)(CSStr, SQChar)>(_SC("SetStr"), &Vector4::Set)
-        /* Random Generators */
-        .Overload<void (Vector4::*)(void)>(_SC("Generate"), &Vector4::Generate)
-        .Overload<void (Vector4::*)(Val, Val)>(_SC("Generate"), &Vector4::Generate)
-        .Overload<void (Vector4::*)(Val, Val, Val, Val, Val, Val, Val, Val)>(_SC("Generate"), &Vector4::Generate)
-        /* Utility Methods */
+        // Metamethods
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("_add"), &Vector4::operator +)
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("_sub"), &Vector4::operator -)
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("_mul"), &Vector4::operator *)
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("_div"), &Vector4::operator /)
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("_modulo"), &Vector4::operator %)
+        .Func< Vector4 (Vector4::*)(void) const >(_SC("_unm"), &Vector4::operator -)
+        // Setters
+        .Overload< void (Vector4::*)(Val) >(_SC("Set"), &Vector4::Set)
+        .Overload< void (Vector4::*)(Val, Val, Val) >(_SC("Set"), &Vector4::Set)
+        .Overload< void (Vector4::*)(Val, Val, Val, Val) >(_SC("Set"), &Vector4::Set)
+        .Overload< void (Vector4::*)(const Vector4 &) >(_SC("SetVec4"), &Vector4::Set)
+        .Overload< void (Vector4::*)(const Vector3 &) >(_SC("SetVec3"), &Vector4::Set)
+        .Overload< void (Vector4::*)(const Quaternion &) >(_SC("SetQuat"), &Vector4::Set)
+        .Overload< void (Vector4::*)(CSStr, SQChar) >(_SC("SetStr"), &Vector4::Set)
+        // Random Generators
+        .Overload< void (Vector4::*)(void) >(_SC("Generate"), &Vector4::Generate)
+        .Overload< void (Vector4::*)(Val, Val) >(_SC("Generate"), &Vector4::Generate)
+        .Overload< void (Vector4::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Vector4::Generate)
+        // Utility Methods
         .Func(_SC("Clear"), &Vector4::Clear)
-        /* Operator Exposure */
-        .Func<Vector4 & (Vector4::*)(const Vector4 &)>(_SC("opAddAssign"), &Vector4::operator +=)
-        .Func<Vector4 & (Vector4::*)(const Vector4 &)>(_SC("opSubAssign"), &Vector4::operator -=)
-        .Func<Vector4 & (Vector4::*)(const Vector4 &)>(_SC("opMulAssign"), &Vector4::operator *=)
-        .Func<Vector4 & (Vector4::*)(const Vector4 &)>(_SC("opDivAssign"), &Vector4::operator /=)
-        .Func<Vector4 & (Vector4::*)(const Vector4 &)>(_SC("opModAssign"), &Vector4::operator %=)
-
-        .Func<Vector4 & (Vector4::*)(Vector4::Value)>(_SC("opAddAssignS"), &Vector4::operator +=)
-        .Func<Vector4 & (Vector4::*)(Vector4::Value)>(_SC("opSubAssignS"), &Vector4::operator -=)
-        .Func<Vector4 & (Vector4::*)(Vector4::Value)>(_SC("opMulAssignS"), &Vector4::operator *=)
-        .Func<Vector4 & (Vector4::*)(Vector4::Value)>(_SC("opDivAssignS"), &Vector4::operator /=)
-        .Func<Vector4 & (Vector4::*)(Vector4::Value)>(_SC("opModAssignS"), &Vector4::operator %=)
-
-        .Func<Vector4 & (Vector4::*)(void)>(_SC("opPreInc"), &Vector4::operator ++)
-        .Func<Vector4 & (Vector4::*)(void)>(_SC("opPreDec"), &Vector4::operator --)
-        .Func<Vector4 (Vector4::*)(int)>(_SC("opPostInc"), &Vector4::operator ++)
-        .Func<Vector4 (Vector4::*)(int)>(_SC("opPostDec"), &Vector4::operator --)
-
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("opAdd"), &Vector4::operator +)
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("opSub"), &Vector4::operator -)
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("opMul"), &Vector4::operator *)
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("opDiv"), &Vector4::operator /)
-        .Func<Vector4 (Vector4::*)(const Vector4 &) const>(_SC("opMod"), &Vector4::operator %)
-
-        .Func<Vector4 (Vector4::*)(Vector4::Value) const>(_SC("opAddS"), &Vector4::operator +)
-        .Func<Vector4 (Vector4::*)(Vector4::Value) const>(_SC("opSubS"), &Vector4::operator -)
-        .Func<Vector4 (Vector4::*)(Vector4::Value) const>(_SC("opMulS"), &Vector4::operator *)
-        .Func<Vector4 (Vector4::*)(Vector4::Value) const>(_SC("opDivS"), &Vector4::operator /)
-        .Func<Vector4 (Vector4::*)(Vector4::Value) const>(_SC("opModS"), &Vector4::operator %)
-
-        .Func<Vector4 (Vector4::*)(void) const>(_SC("opUnPlus"), &Vector4::operator +)
-        .Func<Vector4 (Vector4::*)(void) const>(_SC("opUnMinus"), &Vector4::operator -)
-
-        .Func<bool (Vector4::*)(const Vector4 &) const>(_SC("opEqual"), &Vector4::operator ==)
-        .Func<bool (Vector4::*)(const Vector4 &) const>(_SC("opNotEqual"), &Vector4::operator !=)
-        .Func<bool (Vector4::*)(const Vector4 &) const>(_SC("opLessThan"), &Vector4::operator <)
-        .Func<bool (Vector4::*)(const Vector4 &) const>(_SC("opGreaterThan"), &Vector4::operator >)
-        .Func<bool (Vector4::*)(const Vector4 &) const>(_SC("opLessEqual"), &Vector4::operator <=)
-        .Func<bool (Vector4::*)(const Vector4 &) const>(_SC("opGreaterEqual"), &Vector4::operator >=)
         // Static Overloads
-        .StaticOverload< const Vector4 & (*)(CSStr) >(_SC("FromStr"), &GetVector4)
-        .StaticOverload< const Vector4 & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetVector4)
+        .StaticOverload< const Vector4 & (*)(CSStr) >(_SC("FromStr"), &Vector4::Get)
+        .StaticOverload< const Vector4 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Vector4::Get)
+        // Operator Exposure
+        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opAddAssign"), &Vector4::operator +=)
+        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opSubAssign"), &Vector4::operator -=)
+        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opMulAssign"), &Vector4::operator *=)
+        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opDivAssign"), &Vector4::operator /=)
+        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opModAssign"), &Vector4::operator %=)
+
+        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opAddAssignS"), &Vector4::operator +=)
+        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opSubAssignS"), &Vector4::operator -=)
+        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opMulAssignS"), &Vector4::operator *=)
+        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opDivAssignS"), &Vector4::operator /=)
+        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opModAssignS"), &Vector4::operator %=)
+
+        .Func< Vector4 & (Vector4::*)(void) >(_SC("opPreInc"), &Vector4::operator ++)
+        .Func< Vector4 & (Vector4::*)(void) >(_SC("opPreDec"), &Vector4::operator --)
+        .Func< Vector4 (Vector4::*)(int) >(_SC("opPostInc"), &Vector4::operator ++)
+        .Func< Vector4 (Vector4::*)(int) >(_SC("opPostDec"), &Vector4::operator --)
+
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opAdd"), &Vector4::operator +)
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opSub"), &Vector4::operator -)
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opMul"), &Vector4::operator *)
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opDiv"), &Vector4::operator /)
+        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opMod"), &Vector4::operator %)
+
+        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opAddS"), &Vector4::operator +)
+        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opSubS"), &Vector4::operator -)
+        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opMulS"), &Vector4::operator *)
+        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opDivS"), &Vector4::operator /)
+        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opModS"), &Vector4::operator %)
+
+        .Func< Vector4 (Vector4::*)(void) const >(_SC("opUnPlus"), &Vector4::operator +)
+        .Func< Vector4 (Vector4::*)(void) const >(_SC("opUnMinus"), &Vector4::operator -)
+
+        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opEqual"), &Vector4::operator ==)
+        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opNotEqual"), &Vector4::operator !=)
+        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opLessThan"), &Vector4::operator <)
+        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opGreaterThan"), &Vector4::operator >)
+        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opLessEqual"), &Vector4::operator <=)
+        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opGreaterEqual"), &Vector4::operator >=)
     );
 }
 

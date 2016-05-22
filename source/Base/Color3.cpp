@@ -21,7 +21,7 @@ SQChar Color3::Delim = ',';
 // ------------------------------------------------------------------------------------------------
 SQInteger Color3::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("Color3");
+    static const SQChar name[] = _SC("Color3");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -428,11 +428,17 @@ Color3::operator Color4 () const
 Int32 Color3::Cmp(const Color3 & o) const
 {
     if (*this == o)
+    {
         return 0;
+    }
     else if (*this > o)
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -474,7 +480,7 @@ void Color3::Set(const Color4 & c)
 // ------------------------------------------------------------------------------------------------
 void Color3::Set(CSStr str, SQChar delim)
 {
-    Set(GetColor3(str, delim));
+    Set(Color3::Get(str, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -533,7 +539,9 @@ void Color3::Generate()
 void Color3::Generate(Value min, Value max)
 {
     if (max < min)
+    {
         STHROWF("max value is lower than min value");
+    }
 
     r = GetRandomUint8(min, max);
     g = GetRandomUint8(min, max);
@@ -543,7 +551,9 @@ void Color3::Generate(Value min, Value max)
 void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin)
+    {
         STHROWF("max value is lower than min value");
+    }
 
     r = GetRandomUint8(rmin, rmax);
     g = GetRandomUint8(gmin, gmax);
@@ -565,13 +575,13 @@ void Color3::Inverse()
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color3 & GetColor3(CSStr str)
+const Color3 & Color3::Get(CSStr str)
 {
-    return GetColor3(str, Color3::Delim);
+    return Color3::Get(str, Color3::Delim);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color3 & GetColor3(CSStr str, SQChar delim)
+const Color3 & Color3::Get(CSStr str, SQChar delim)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %u , %u , %u ");
@@ -601,115 +611,144 @@ const Color3 & GetColor3(CSStr str, SQChar delim)
     return col;
 }
 
+// ------------------------------------------------------------------------------------------------
+const Color3 & GetColor3()
+{
+    static Color3 col;
+    col.Clear();
+    return col;
+}
+
+const Color3 & GetColor3(Uint8 sv)
+{
+    static Color3 col;
+    col.Set(sv);
+    return col;
+}
+
+const Color3 & GetColor3(Uint8 rv, Uint8 gv, Uint8 bv)
+{
+    static Color3 col;
+    col.Set(rv, gv, bv);
+    return col;
+}
+
+const Color3 & GetColor3(const Color3 & o)
+{
+    static Color3 col;
+    col.Set(o);
+    return col;
+}
+
 // ================================================================================================
 void Register_Color3(HSQUIRRELVM vm)
 {
     typedef Color3::Value Val;
 
     RootTable(vm).Bind(_SC("Color3"), Class< Color3 >(vm, _SC("Color3"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< Val >()
         .Ctor< Val, Val, Val >()
-        /* Static Members */
+        // Static Members
         .SetStaticValue(_SC("Delim"), &Color3::Delim)
-        /* Member Variables */
-        .Var(_SC("r"), &Color3::r)
-        .Var(_SC("g"), &Color3::g)
-        .Var(_SC("b"), &Color3::b)
-        /* Properties */
-        .Prop(_SC("rgb"), &Color3::GetRGB, &Color3::SetRGB)
-        .Prop(_SC("rgba"), &Color3::GetRGBA, &Color3::SetRGBA)
-        .Prop(_SC("argb"), &Color3::GetARGB, &Color3::SetARGB)
-        .Prop(_SC("str"), &Color3::SetCol)
-        /* Core Metamethods */
+        // Member Variables
+        .Var(_SC("R"), &Color3::r)
+        .Var(_SC("G"), &Color3::g)
+        .Var(_SC("B"), &Color3::b)
+        // Properties
+        .Prop(_SC("RGB"), &Color3::GetRGB, &Color3::SetRGB)
+        .Prop(_SC("RGBA"), &Color3::GetRGBA, &Color3::SetRGBA)
+        .Prop(_SC("ARGB"), &Color3::GetARGB, &Color3::SetARGB)
+        .Prop(_SC("Str"), &Color3::SetCol)
+        // Core Metamethods
         .Func(_SC("_tostring"), &Color3::ToString)
         .SquirrelFunc(_SC("_typename"), &Color3::Typename)
         .Func(_SC("_cmp"), &Color3::Cmp)
-        /* Metamethods */
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_add"), &Color3::operator +)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_sub"), &Color3::operator -)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_mul"), &Color3::operator *)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_div"), &Color3::operator /)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("_modulo"), &Color3::operator %)
-        .Func<Color3 (Color3::*)(void) const>(_SC("_unm"), &Color3::operator -)
-        /* Setters */
-        .Overload<void (Color3::*)(Val)>(_SC("Set"), &Color3::Set)
-        .Overload<void (Color3::*)(Val, Val, Val)>(_SC("Set"), &Color3::Set)
-        .Overload<void (Color3::*)(const Color3 &)>(_SC("SetCol3"), &Color3::Set)
-        .Overload<void (Color3::*)(const Color4 &)>(_SC("SetCol4"), &Color3::Set)
-        .Overload<void (Color3::*)(CSStr, SQChar)>(_SC("SetStr"), &Color3::Set)
-        /* Random Generators */
-        .Overload<void (Color3::*)(void)>(_SC("Generate"), &Color3::Generate)
-        .Overload<void (Color3::*)(Val, Val)>(_SC("Generate"), &Color3::Generate)
-        .Overload<void (Color3::*)(Val, Val, Val, Val, Val, Val)>(_SC("Generate"), &Color3::Generate)
-        /* Utility Methods */
+        // Metamethods
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_add"), &Color3::operator +)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_sub"), &Color3::operator -)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_mul"), &Color3::operator *)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_div"), &Color3::operator /)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_modulo"), &Color3::operator %)
+        .Func< Color3 (Color3::*)(void) const >(_SC("_unm"), &Color3::operator -)
+        // Setters
+        .Overload< void (Color3::*)(Val) >(_SC("Set"), &Color3::Set)
+        .Overload< void (Color3::*)(Val, Val, Val) >(_SC("Set"), &Color3::Set)
+        .Overload< void (Color3::*)(const Color3 &) >(_SC("SetCol3"), &Color3::Set)
+        .Overload< void (Color3::*)(const Color4 &) >(_SC("SetCol4"), &Color3::Set)
+        .Overload< void (Color3::*)(CSStr, SQChar) >(_SC("SetStr"), &Color3::Set)
+        // Random Generators
+        .Overload< void (Color3::*)(void) >(_SC("Generate"), &Color3::Generate)
+        .Overload< void (Color3::*)(Val, Val) >(_SC("Generate"), &Color3::Generate)
+        .Overload< void (Color3::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Color3::Generate)
+        // Utility Methods
         .Func(_SC("Clear"), &Color3::Clear)
         .Func(_SC("Random"), &Color3::Random)
         .Func(_SC("Inverse"), &Color3::Inverse)
-        /* Operator Exposure */
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opAddAssign"), &Color3::operator +=)
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opSubAssign"), &Color3::operator -=)
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opMulAssign"), &Color3::operator *=)
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opDivAssign"), &Color3::operator /=)
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opModAssign"), &Color3::operator %=)
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opAndAssign"), &Color3::operator &=)
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opOrAssign"), &Color3::operator |=)
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opXorAssign"), &Color3::operator ^=)
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opShlAssign"), &Color3::operator <<=)
-        .Func<Color3 & (Color3::*)(const Color3 &)>(_SC("opShrAssign"), &Color3::operator >>=)
-
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opAddAssignS"), &Color3::operator +=)
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opSubAssignS"), &Color3::operator -=)
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opMulAssignS"), &Color3::operator *=)
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opDivAssignS"), &Color3::operator /=)
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opModAssignS"), &Color3::operator %=)
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opAndAssignS"), &Color3::operator &=)
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opOrAssignS"), &Color3::operator |=)
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opXorAssignS"), &Color3::operator ^=)
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opShlAssignS"), &Color3::operator <<=)
-        .Func<Color3 & (Color3::*)(Color3::Value)>(_SC("opShrAssignS"), &Color3::operator >>=)
-
-        .Func<Color3 & (Color3::*)(void)>(_SC("opPreInc"), &Color3::operator ++)
-        .Func<Color3 & (Color3::*)(void)>(_SC("opPreDec"), &Color3::operator --)
-        .Func<Color3 (Color3::*)(int)>(_SC("opPostInc"), &Color3::operator ++)
-        .Func<Color3 (Color3::*)(int)>(_SC("opPostDec"), &Color3::operator --)
-
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opAdd"), &Color3::operator +)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opSub"), &Color3::operator -)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opMul"), &Color3::operator *)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opDiv"), &Color3::operator /)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opMod"), &Color3::operator %)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opAnd"), &Color3::operator &)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opOr"), &Color3::operator |)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opShl"), &Color3::operator ^)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opShl"), &Color3::operator <<)
-        .Func<Color3 (Color3::*)(const Color3 &) const>(_SC("opShr"), &Color3::operator >>)
-
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opAddS"), &Color3::operator +)
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opSubS"), &Color3::operator -)
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opMulS"), &Color3::operator *)
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opDivS"), &Color3::operator /)
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opModS"), &Color3::operator %)
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opAndS"), &Color3::operator &)
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opOrS"), &Color3::operator |)
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opShlS"), &Color3::operator ^)
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opShlS"), &Color3::operator <<)
-        .Func<Color3 (Color3::*)(Color3::Value) const>(_SC("opShrS"), &Color3::operator >>)
-
-        .Func<Color3 (Color3::*)(void) const>(_SC("opUnPlus"), &Color3::operator +)
-        .Func<Color3 (Color3::*)(void) const>(_SC("opUnMinus"), &Color3::operator -)
-        .Func<Color3 (Color3::*)(void) const>(_SC("opCom"), &Color3::operator ~)
-
-        .Func<bool (Color3::*)(const Color3 &) const>(_SC("opEqual"), &Color3::operator ==)
-        .Func<bool (Color3::*)(const Color3 &) const>(_SC("opNotEqual"), &Color3::operator !=)
-        .Func<bool (Color3::*)(const Color3 &) const>(_SC("opLessThan"), &Color3::operator <)
-        .Func<bool (Color3::*)(const Color3 &) const>(_SC("opGreaterThan"), &Color3::operator >)
-        .Func<bool (Color3::*)(const Color3 &) const>(_SC("opLessEqual"), &Color3::operator <=)
-        .Func<bool (Color3::*)(const Color3 &) const>(_SC("opGreaterEqual"), &Color3::operator >=)
         // Static Overloads
-        .StaticOverload< const Color3 & (*)(CSStr) >(_SC("FromStr"), &GetColor3)
-        .StaticOverload< const Color3 & (*)(CSStr, SQChar) >(_SC("FromStr"), &GetColor3)
+        .StaticOverload< const Color3 & (*)(CSStr) >(_SC("FromStr"), &Color3::Get)
+        .StaticOverload< const Color3 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Color3::Get)
+        // Operator Exposure
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opAddAssign"), &Color3::operator +=)
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opSubAssign"), &Color3::operator -=)
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opMulAssign"), &Color3::operator *=)
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opDivAssign"), &Color3::operator /=)
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opModAssign"), &Color3::operator %=)
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opAndAssign"), &Color3::operator &=)
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opOrAssign"), &Color3::operator |=)
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opXorAssign"), &Color3::operator ^=)
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opShlAssign"), &Color3::operator <<=)
+        .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opShrAssign"), &Color3::operator >>=)
+
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opAddAssignS"), &Color3::operator +=)
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opSubAssignS"), &Color3::operator -=)
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opMulAssignS"), &Color3::operator *=)
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opDivAssignS"), &Color3::operator /=)
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opModAssignS"), &Color3::operator %=)
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opAndAssignS"), &Color3::operator &=)
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opOrAssignS"), &Color3::operator |=)
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opXorAssignS"), &Color3::operator ^=)
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opShlAssignS"), &Color3::operator <<=)
+        .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opShrAssignS"), &Color3::operator >>=)
+
+        .Func< Color3 & (Color3::*)(void) >(_SC("opPreInc"), &Color3::operator ++)
+        .Func< Color3 & (Color3::*)(void) >(_SC("opPreDec"), &Color3::operator --)
+        .Func< Color3 (Color3::*)(int) >(_SC("opPostInc"), &Color3::operator ++)
+        .Func< Color3 (Color3::*)(int) >(_SC("opPostDec"), &Color3::operator --)
+
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opAdd"), &Color3::operator +)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opSub"), &Color3::operator -)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opMul"), &Color3::operator *)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opDiv"), &Color3::operator /)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opMod"), &Color3::operator %)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opAnd"), &Color3::operator &)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opOr"), &Color3::operator |)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opShl"), &Color3::operator ^)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opShl"), &Color3::operator <<)
+        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opShr"), &Color3::operator >>)
+
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opAddS"), &Color3::operator +)
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opSubS"), &Color3::operator -)
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opMulS"), &Color3::operator *)
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opDivS"), &Color3::operator /)
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opModS"), &Color3::operator %)
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opAndS"), &Color3::operator &)
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opOrS"), &Color3::operator |)
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opShlS"), &Color3::operator ^)
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opShlS"), &Color3::operator <<)
+        .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opShrS"), &Color3::operator >>)
+
+        .Func< Color3 (Color3::*)(void) const >(_SC("opUnPlus"), &Color3::operator +)
+        .Func< Color3 (Color3::*)(void) const >(_SC("opUnMinus"), &Color3::operator -)
+        .Func< Color3 (Color3::*)(void) const >(_SC("opCom"), &Color3::operator ~)
+
+        .Func< bool (Color3::*)(const Color3 &) const >(_SC("opEqual"), &Color3::operator ==)
+        .Func< bool (Color3::*)(const Color3 &) const >(_SC("opNotEqual"), &Color3::operator !=)
+        .Func< bool (Color3::*)(const Color3 &) const >(_SC("opLessThan"), &Color3::operator <)
+        .Func< bool (Color3::*)(const Color3 &) const >(_SC("opGreaterThan"), &Color3::operator >)
+        .Func< bool (Color3::*)(const Color3 &) const >(_SC("opLessEqual"), &Color3::operator <=)
+        .Func< bool (Color3::*)(const Color3 &) const >(_SC("opGreaterEqual"), &Color3::operator >=)
     );
 }
 

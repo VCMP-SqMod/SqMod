@@ -9,16 +9,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Circle type from a string.
-*/
-const Circle & GetCircle(CSStr str);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the Circle type from a string.
-*/
-const Circle & GetCircle(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
  * Class used to represent a two-dimensional circle.
 */
 struct Circle
@@ -386,13 +376,25 @@ struct Circle
     */
     void Clear()
     {
-        pos.Clear(); rad = 0.0;
+        pos.Clear();
+        rad = 0.0;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a new instance of this type with absolute component values.
     */
     Circle Abs() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Circle type from a string.
+    */
+    static const Circle & Get(CSStr str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the Circle type from a string.
+    */
+    static const Circle & Get(CSStr str, SQChar delim);
+
 };
 
 } // Namespace:: SqMod

@@ -2,7 +2,8 @@
 #include "Entity/Vehicle.hpp"
 #include "Entity/Player.hpp"
 #include "Base/Quaternion.hpp"
-#include "Base/Vector4.hpp"
+#include "Base/Vector2.hpp"
+#include "Base/Vector3.hpp"
 #include "Base/Stack.hpp"
 #include "Core.hpp"
 
@@ -10,8 +11,8 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+Vector2      CVehicle::s_Vector2;
 Vector3      CVehicle::s_Vector3;
-Vector4      CVehicle::s_Vector4;
 Quaternion   CVehicle::s_Quaternion;
 
 // ------------------------------------------------------------------------------------------------
@@ -20,7 +21,7 @@ const Int32 CVehicle::Max = SQMOD_VEHICLE_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CVehicle::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqVehicle");
+    static const SQChar name[] = _SC("SqVehicle");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -28,7 +29,7 @@ SQInteger CVehicle::Typename(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 CVehicle::CVehicle(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_VEHICLE_POOL))
-    , m_Tag(ToStrF("%d", id))
+    , m_Tag(ToStrF("%d", id)), m_Data(), m_CircularLocks(0)
 {
     /* ... */
 }
@@ -43,11 +44,17 @@ CVehicle::~CVehicle()
 Int32 CVehicle::Cmp(const CVehicle & o) const
 {
     if (m_ID == o.m_ID)
+    {
         return 0;
+    }
     else if (m_ID > o.m_ID)
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -92,7 +99,7 @@ bool CVehicle::Destroy(Int32 header, Object & payload)
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    return _Core->DelVehicle(m_ID, header, payload);
+    return Core::Get().DelVehicle(m_ID, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -101,7 +108,7 @@ void CVehicle::BindEvent(Int32 evid, Object & env, Function & func) const
     // Validate the managed identifier
     Validate();
     // Obtain the function instance called for this event
-    Function & event = _Core->GetVehicleEvent(m_ID, evid);
+    Function & event = Core::Get().GetVehicleEvent(m_ID, evid);
     // Is the specified callback function null?
     if (func.IsNull())
     {
@@ -126,6 +133,60 @@ bool CVehicle::IsStreamedFor(CPlayer & player) const
     Validate();
     // Return the requested information
     return _Func->IsVehicleStreamedForPlayer(m_ID, player.GetID());
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CVehicle::GetOption(Int32 option_id) const
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id));
+    // Check for errors
+    if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: %d", option_id);
+    }
+    // Return the requested value
+    return value;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetOption(Int32 option_id, bool toggle)
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id));
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id),
+                                toggle) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: %d", option_id);
+    }
+    else if (!(m_CircularLocks & VCL_EMIT_VEHICLE_OPTION))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VCL_EMIT_VEHICLE_OPTION);
+        // Now forward the event call
+        Core::Get().EmitVehicleOption(m_ID, option_id, value, 0, NullObject());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload)
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id));
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id),
+                                toggle) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: %d", option_id);
+    }
+    else if (!(m_CircularLocks & VCL_EMIT_VEHICLE_OPTION))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VCL_EMIT_VEHICLE_OPTION);
+        // Now forward the event call
+        Core::Get().EmitVehicleOption(m_ID, option_id, value, header, payload);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -179,7 +240,7 @@ Object & CVehicle::GetOccupant(Int32 slot) const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Core->GetPlayer(_Func->GetVehicleOccupant(m_ID, slot)).mObj;
+    return Core::Get().GetPlayer(_Func->GetVehicleOccupant(m_ID, slot)).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -219,6 +280,15 @@ void CVehicle::SetImmunity(Int32 flags) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CVehicle::Explode() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->ExplodeVehicle(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CVehicle::IsWrecked() const
 {
     // Validate the managed identifier
@@ -232,10 +302,10 @@ const Vector3 & CVehicle::GetPosition() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
+    // Clear previous information, if any
     s_Vector3.Clear();
-    // Query the server for the position values
-    _Func->GetVehiclePos(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the values
+    _Func->GetVehiclePosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
     // Return the requested information
     return s_Vector3;
 }
@@ -246,7 +316,7 @@ void CVehicle::SetPosition(const Vector3 & pos) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehiclePos(m_ID, pos.x, pos.y, pos.z, false);
+    _Func->SetVehiclePosition(m_ID, pos.x, pos.y, pos.z, false);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -255,7 +325,7 @@ void CVehicle::SetPositionEx(const Vector3 & pos, bool empty) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehiclePos(m_ID, pos.x, pos.y, pos.z, empty);
+    _Func->SetVehiclePosition(m_ID, pos.x, pos.y, pos.z, empty);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -264,7 +334,7 @@ void CVehicle::SetPositionEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehiclePos(m_ID, x, y, z, false);
+    _Func->SetVehiclePosition(m_ID, x, y, z, false);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -273,7 +343,7 @@ void CVehicle::SetPositionEx(Float32 x, Float32 y, Float32 z, bool empty) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehiclePos(m_ID, x, y, z, empty);
+    _Func->SetVehiclePosition(m_ID, x, y, z, empty);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -281,10 +351,10 @@ const Quaternion & CVehicle::GetRotation() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Quaternion.Clear();
-    // Query the server for the rotation values
-    _Func->GetVehicleRot(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
+    // Query the server for the values
+    _Func->GetVehicleRotation(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
     // Return the requested information
     return s_Quaternion;
 }
@@ -295,7 +365,7 @@ void CVehicle::SetRotation(const Quaternion & rot) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleRot(m_ID, rot.x, rot.y, rot.z, rot.w);
+    _Func->SetVehicleRotation(m_ID, rot.x, rot.y, rot.z, rot.w);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -304,7 +374,7 @@ void CVehicle::SetRotationEx(Float32 x, Float32 y, Float32 z, Float32 w) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleRot(m_ID, x, y, z, w);
+    _Func->SetVehicleRotation(m_ID, x, y, z, w);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -312,10 +382,10 @@ const Vector3 & CVehicle::GetRotationEuler() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Vector3.Clear();
-    // Query the server for the rotation values
-    _Func->GetVehicleRotEuler(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the values
+    _Func->GetVehicleRotationEuler(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
     // Return the requested information
     return s_Vector3;
 }
@@ -326,7 +396,7 @@ void CVehicle::SetRotationEuler(const Vector3 & rot) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleRotEuler(m_ID, rot.x, rot.y, rot.z);
+    _Func->SetVehicleRotationEuler(m_ID, rot.x, rot.y, rot.z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -335,7 +405,7 @@ void CVehicle::SetRotationEulerEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleRotEuler(m_ID, x, y, z);
+    _Func->SetVehicleRotationEuler(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -343,10 +413,10 @@ const Vector3 & CVehicle::GetSpeed() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous speed information, if any
+    // Clear previous information, if any
     s_Vector3.Clear();
-    // Query the server for the speed values
-    _Func->GetVehicleSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the values
+    _Func->GetVehicleSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z, false);
     // Return the requested information
     return s_Vector3;
 }
@@ -357,7 +427,7 @@ void CVehicle::SetSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z);
+    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z, false, false);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -366,7 +436,7 @@ void CVehicle::SetSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, x, y, z);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, false, false);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -375,7 +445,7 @@ void CVehicle::AddSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->AddVehicleSpeed(m_ID, vel.x, vel.y, vel.z);
+    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z, true, false);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -384,56 +454,56 @@ void CVehicle::AddSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->AddVehicleSpeed(m_ID, x, y, z);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, true, false);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CVehicle::GetRelSpeed() const
+const Vector3 & CVehicle::GetRelativeSpeed() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous relative speed information, if any
+    // Clear previous information, if any
     s_Vector3.Clear();
-    // Query the server for the relative speed values
-    _Func->GetVehicleRelSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the values
+    _Func->GetVehicleSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z, true);
     // Return the requested information
     return s_Vector3;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRelSpeed(const Vector3 & vel) const
+void CVehicle::SetRelativeSpeed(const Vector3 & vel) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleRelSpeed(m_ID, vel.x, vel.y, vel.z);
+    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z, false, true);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRelSpeedEx(Float32 x, Float32 y, Float32 z) const
+void CVehicle::SetRelativeSpeedEx(Float32 x, Float32 y, Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleRelSpeed(m_ID, x, y, z);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, false, true);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddRelSpeed(const Vector3 & vel) const
+void CVehicle::AddRelativeSpeed(const Vector3 & vel) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->AddVehicleRelSpeed(m_ID, vel.x, vel.y, vel.z);
+    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z, true, true);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddRelSpeedEx(Float32 x, Float32 y, Float32 z) const
+void CVehicle::AddRelativeSpeedEx(Float32 x, Float32 y, Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->AddVehicleRelSpeed(m_ID, x, y, z);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, true, true);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -441,10 +511,10 @@ const Vector3 & CVehicle::GetTurnSpeed() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous turn speed information, if any
+    // Clear previous information, if any
     s_Vector3.Clear();
-    // Query the server for the turn speed values
-    _Func->GetVehicleTurnSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the values
+    _Func->GetVehicleTurnSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z, false);
     // Return the requested information
     return s_Vector3;
 }
@@ -455,7 +525,7 @@ void CVehicle::SetTurnSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z);
+    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z, false, false);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -464,7 +534,7 @@ void CVehicle::SetTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, x, y, z);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, false, false);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -473,7 +543,7 @@ void CVehicle::AddTurnSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->AddVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z);
+    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z, true, false);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -482,87 +552,87 @@ void CVehicle::AddTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->AddVehicleTurnSpeed(m_ID, x, y, z);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, true, false);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CVehicle::GetRelTurnSpeed() const
+const Vector3 & CVehicle::GetRelativeTurnSpeed() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous relative turn speed information, if any
+    // Clear previous information, if any
     s_Vector3.Clear();
-    // Query the server for the relative turn speed values
-    _Func->GetVehicleRelTurnSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    // Query the server for the values
+    _Func->GetVehicleTurnSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z, true);
     // Return the requested information
     return s_Vector3;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRelTurnSpeed(const Vector3 & vel) const
+void CVehicle::SetRelativeTurnSpeed(const Vector3 & vel) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleRelTurnSpeed(m_ID, vel.x, vel.y, vel.z);
+    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z, false, true);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRelTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
+void CVehicle::SetRelativeTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleRelTurnSpeed(m_ID, x, y, z);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, false, true);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddRelTurnSpeed(const Vector3 & vel) const
+void CVehicle::AddRelativeTurnSpeed(const Vector3 & vel) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->AddVehicleRelTurnSpeed(m_ID, vel.x, vel.y, vel.z);
+    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z, true, true);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::AddRelTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
+void CVehicle::AddRelativeTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->AddVehicleRelTurnSpeed(m_ID, x, y, z);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, true, true);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector4 & CVehicle::GetSpawnPosition() const
+const Vector3 & CVehicle::GetSpawnPosition() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous spawn position information, if any
-    s_Vector4.Clear();
-    // Query the server for the spawn position values
-    _Func->GetVehicleSpawnPos(m_ID, &s_Vector4.x, &s_Vector4.y, &s_Vector4.z, &s_Vector4.w);
+    // Clear previous information, if any
+    s_Vector3.Clear();
+    // Query the server for the values
+    _Func->GetVehicleSpawnPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
     // Return the requested information
-    return s_Vector4;
+    return s_Vector3;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpawnPosition(const Vector4 & pos) const
+void CVehicle::SetSpawnPosition(const Vector3 & pos) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpawnPos(m_ID, pos.x, pos.y, pos.z, pos.w);
+    _Func->SetVehicleSpawnPosition(m_ID, pos.x, pos.y, pos.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetSpawnPositionEx(Float32 x, Float32 y, Float32 z, Float32 w) const
+void CVehicle::SetSpawnPositionEx(Float32 x, Float32 y, Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpawnPos(m_ID, x, y, z, w);
+    _Func->SetVehicleSpawnPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -570,10 +640,10 @@ const Quaternion & CVehicle::GetSpawnRotation() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous spawn rotation information, if any
+    // Clear previous information, if any
     s_Quaternion.Clear();
-    // Query the server for the spawn rotation values
-    _Func->GetVehicleSpawnRot(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
+    // Query the server for the values
+    _Func->GetVehicleSpawnRotation(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
     // Return the requested information
     return s_Quaternion;
 }
@@ -584,7 +654,7 @@ void CVehicle::SetSpawnRotation(const Quaternion & rot) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpawnRot(m_ID, rot.x, rot.y, rot.z, rot.w);
+    _Func->SetVehicleSpawnRotation(m_ID, rot.x, rot.y, rot.z, rot.w);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -593,7 +663,7 @@ void CVehicle::SetSpawnRotationEx(Float32 x, Float32 y, Float32 z, Float32 w) co
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpawnRot(m_ID, x, y, z, w);
+    _Func->SetVehicleSpawnRotation(m_ID, x, y, z, w);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -601,10 +671,10 @@ const Vector3 & CVehicle::GetSpawnRotationEuler() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Vector3.Clear();
     // Query the server for the rotation values
-    _Func->GetVehicleSpawnRotEuler(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetVehicleSpawnRotationEuler(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
     // Return the requested information
     return s_Vector3;
 }
@@ -615,7 +685,7 @@ void CVehicle::SetSpawnRotationEuler(const Vector3 & rot) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpawnRotEuler(m_ID, rot.x, rot.y, rot.z);
+    _Func->SetVehicleSpawnRotationEuler(m_ID, rot.x, rot.y, rot.z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -624,11 +694,11 @@ void CVehicle::SetSpawnRotationEulerEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpawnRotEuler(m_ID, x, y, z);
+    _Func->SetVehicleSpawnRotationEuler(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 CVehicle::GetRespawnTimer() const
+Uint32 CVehicle::GetIdleRespawnTimer() const
 {
     // Validate the managed identifier
     Validate();
@@ -637,12 +707,12 @@ Uint32 CVehicle::GetRespawnTimer() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRespawnTimer(Uint32 timer) const
+void CVehicle::SetIdleRespawnTimer(Uint32 millis) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleIdleRespawnTimer(m_ID, timer);
+    _Func->SetVehicleIdleRespawnTimer(m_ID, millis);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -671,7 +741,7 @@ Int32 CVehicle::GetPrimaryColor() const
     // The color value
     Int32 primary = -1;
     // Query the server for the requested color
-    _Func->GetVehicleColour(m_ID, &primary, NULL);
+    _Func->GetVehicleColour(m_ID, &primary, nullptr);
     // Return the requested information
     return primary;
 }
@@ -684,7 +754,7 @@ void CVehicle::SetPrimaryColor(Int32 col) const
     // The unchanged color value
     Int32 secondary;
     // Query the server for the unchanged color
-    _Func->GetVehicleColour(m_ID, NULL, &secondary);
+    _Func->GetVehicleColour(m_ID, nullptr, &secondary);
     // Perform the requested operation
     _Func->SetVehicleColour(m_ID, col, secondary);
 }
@@ -697,7 +767,7 @@ Int32 CVehicle::GetSecondaryColor() const
     // The color value
     Int32 secondary = -1;
     // Query the server for the requested color
-    _Func->GetVehicleColour(m_ID, NULL, &secondary);
+    _Func->GetVehicleColour(m_ID, nullptr, &secondary);
     // Return the requested information
     return secondary;
 }
@@ -710,7 +780,7 @@ void CVehicle::SetSecondaryColor(Int32 col) const
     // The unchanged color value
     Int32 primary;
     // Query the server for the unchanged color
-    _Func->GetVehicleColour(m_ID, &primary, NULL);
+    _Func->GetVehicleColour(m_ID, &primary, nullptr);
     // Perform the requested operation
     _Func->SetVehicleColour(m_ID, primary, col);
 }
@@ -722,24 +792,6 @@ void CVehicle::SetColors(Int32 primary, Int32 secondary) const
     Validate();
     // Perform the requested operation
     _Func->SetVehicleColour(m_ID, primary, secondary);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CVehicle::GetLocked() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->GetVehicleDoorsLocked(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CVehicle::SetLocked(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->SetVehicleDoorsLocked(m_ID, toggle);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -797,42 +849,6 @@ void CVehicle::SetDamageData(Uint32 data) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::GetAlarm() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->GetVehicleAlarm(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CVehicle::SetAlarm(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->SetVehicleAlarm(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CVehicle::GetLights() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Return the requested information
-    return _Func->GetVehicleLights(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CVehicle::SetLights(bool toggle) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->SetVehicleLights(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
 Int32 CVehicle::GetRadio() const
 {
     // Validate the managed identifier
@@ -851,61 +867,46 @@ void CVehicle::SetRadio(Int32 radio) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::GetRadioLocked() const
+const Vector2 & CVehicle::GetTurretRotation() const
 {
     // Validate the managed identifier
     Validate();
+    // Clear previous information, if any
+    s_Vector2.Clear();
+    // Query the server for the values
+    _Func->GetVehicleTurretRotation(m_ID, &s_Vector2.x, &s_Vector2.y);
     // Return the requested information
-    return _Func->IsVehicleRadioLocked(m_ID);
+    return s_Vector2;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRadioLocked(bool toggle) const
+Float32 CVehicle::GetHorizontalTurretRotation() const
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
-    _Func->SetVehicleRadioLocked(m_ID, toggle);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CVehicle::GetGhostState() const
-{
-    // Validate the managed identifier
-    Validate();
+    // Where the rotation value is retrieved
+    Float32 rot = 0.0f;
+    // Query the server for the turret rotation value
+    _Func->GetVehicleTurretRotation(m_ID, &rot, nullptr);
     // Return the requested information
-    return _Func->GetVehicleGhostState(m_ID);
+    return rot;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetGhostState(bool toggle) const
+Float32 CVehicle::GetVerticalTurretRotation() const
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
-    _Func->SetVehicleGhostState(m_ID, toggle);
+    // Where the rotation value is retrieved
+    Float32 rot = 0.0f;
+    // Query the server for the turret rotation value
+    _Func->GetVehicleTurretRotation(m_ID, nullptr, &rot);
+    // Return the requested information
+    return rot;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::ResetHandling() const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->ResetInstHandling(m_ID);
-}
-
-// ------------------------------------------------------------------------------------------------
-void CVehicle::ResetHandling(Int32 rule) const
-{
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->ResetInstHandlingRule(m_ID, rule);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool CVehicle::ExistsHandling(Int32 rule) const
+bool CVehicle::ExistsHandlingRule(Int32 rule) const
 {
     // Validate the managed identifier
     Validate();
@@ -914,7 +915,7 @@ bool CVehicle::ExistsHandling(Int32 rule) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetHandlingData(Int32 rule) const
+Float32 CVehicle::GetHandlingRule(Int32 rule) const
 {
     // Validate the managed identifier
     Validate();
@@ -923,7 +924,7 @@ Float32 CVehicle::GetHandlingData(Int32 rule) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetHandlingData(Int32 rule, Float32 data) const
+void CVehicle::SetHandlingRule(Int32 rule, Float32 data) const
 {
     // Validate the managed identifier
     Validate();
@@ -932,7 +933,25 @@ void CVehicle::SetHandlingData(Int32 rule, Float32 data) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::Embark(CPlayer & player) const
+void CVehicle::ResetHandlingRule(Int32 rule) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->ResetInstHandlingRule(m_ID, rule);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::ResetHandlings() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->ResetInstHandling(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CVehicle::Embark(CPlayer & player) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
@@ -942,11 +961,12 @@ void CVehicle::Embark(CPlayer & player) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->PutPlayerInVehicle(player.GetID(), m_ID, 0, true, true);
+    return (_Func->PutPlayerInVehicle(player.GetID(), m_ID, 0, true, true)
+            != vcmpErrorRequestDenied);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) const
+bool CVehicle::Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) const
 {
     // Is the specified player even valid?
     if (!player.IsActive())
@@ -956,262 +976,551 @@ void CVehicle::Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) co
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->PutPlayerInVehicle(player.GetID(), m_ID, slot, allocate, warp);
+    return (_Func->PutPlayerInVehicle(player.GetID(), m_ID, slot, allocate, warp)
+            != vcmpErrorRequestDenied);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetPosX() const
+Float32 CVehicle::GetPositionX() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
+    // Clear previous information, if any
     s_Vector3.x = 0;
     // Query the server for the requested component value
-    _Func->GetVehiclePos(m_ID, &s_Vector3.x, NULL, NULL);
+    _Func->GetVehiclePosition(m_ID, &s_Vector3.x, nullptr, nullptr);
     // Return the requested information
     return s_Vector3.x;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetPosY() const
+Float32 CVehicle::GetPositionY() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
+    // Clear previous information, if any
     s_Vector3.y = 0;
     // Query the server for the requested component value
-    _Func->GetVehiclePos(m_ID, NULL, &s_Vector3.y, NULL);
+    _Func->GetVehiclePosition(m_ID, nullptr, &s_Vector3.y, nullptr);
     // Return the requested information
     return s_Vector3.y;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetPosZ() const
+Float32 CVehicle::GetPositionZ() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
+    // Clear previous information, if any
     s_Vector3.z = 0;
     // Query the server for the requested component value
-    _Func->GetVehiclePos(m_ID, NULL, NULL, &s_Vector3.z);
+    _Func->GetVehiclePosition(m_ID, nullptr, nullptr, &s_Vector3.z);
     // Return the requested information
     return s_Vector3.z;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPosX(Float32 x) const
+void CVehicle::SetPositionX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehiclePos(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetVehiclePosition(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z);
     // Perform the requested operation
-    _Func->SetVehiclePos(m_ID, x, s_Vector3.y, s_Vector3.z, false);
+    _Func->SetVehiclePosition(m_ID, x, s_Vector3.y, s_Vector3.z, false);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPosY(Float32 y) const
+void CVehicle::SetPositionY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehiclePos(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
+    _Func->GetVehiclePosition(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z);
     // Perform the requested operation
-    _Func->SetVehiclePos(m_ID, s_Vector3.x, y, s_Vector3.z, false);
+    _Func->SetVehiclePosition(m_ID, s_Vector3.x, y, s_Vector3.z, false);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPosZ(Float32 z) const
+void CVehicle::SetPositionZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehiclePos(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
+    _Func->GetVehiclePosition(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr);
     // Perform the requested operation
-    _Func->SetVehiclePos(m_ID, s_Vector3.z, s_Vector3.y, z, false);
+    _Func->SetVehiclePosition(m_ID, s_Vector3.z, s_Vector3.y, z, false);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetRotX() const
+Float32 CVehicle::GetRotationX() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Quaternion.x = 0;
     // Query the server for the requested component value
-    _Func->GetVehicleRot(m_ID, &s_Quaternion.x, NULL, NULL, NULL);
+    _Func->GetVehicleRotation(m_ID, &s_Quaternion.x, nullptr, nullptr, nullptr);
     // Return the requested information
     return s_Quaternion.x;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetRotY() const
+Float32 CVehicle::GetRotationY() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Quaternion.y = 0;
     // Query the server for the requested component value
-    _Func->GetVehicleRot(m_ID, NULL, &s_Quaternion.y, NULL, NULL);
+    _Func->GetVehicleRotation(m_ID, nullptr, &s_Quaternion.y, nullptr, nullptr);
     // Return the requested information
     return s_Quaternion.y;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetRotZ() const
+Float32 CVehicle::GetRotationZ() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Quaternion.z = 0;
     // Query the server for the requested component value
-    _Func->GetVehicleRot(m_ID, NULL, NULL, &s_Quaternion.z, NULL);
+    _Func->GetVehicleRotation(m_ID, nullptr, nullptr, &s_Quaternion.z, nullptr);
     // Return the requested information
     return s_Quaternion.z;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetRotW() const
+Float32 CVehicle::GetRotationW() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Quaternion.w = 0;
     // Query the server for the requested component value
-    _Func->GetVehicleRot(m_ID, NULL, NULL, NULL, &s_Quaternion.w);
+    _Func->GetVehicleRotation(m_ID, nullptr, nullptr, nullptr, &s_Quaternion.w);
     // Return the requested information
     return s_Quaternion.w;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRotX(Float32 x) const
+void CVehicle::SetRotationX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleRot(m_ID, NULL, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
+    _Func->GetVehicleRotation(m_ID, nullptr, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
     // Perform the requested operation
-    _Func->SetVehicleRot(m_ID, x, s_Quaternion.y, s_Quaternion.z, s_Quaternion.w);
+    _Func->SetVehicleRotation(m_ID, x, s_Quaternion.y, s_Quaternion.z, s_Quaternion.w);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRotY(Float32 y) const
+void CVehicle::SetRotationY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleRot(m_ID, &s_Quaternion.x, NULL, &s_Quaternion.z, &s_Quaternion.w);
+    _Func->GetVehicleRotation(m_ID, &s_Quaternion.x, nullptr, &s_Quaternion.z, &s_Quaternion.w);
     // Perform the requested operation
-    _Func->SetVehicleRot(m_ID, s_Quaternion.x, y, s_Quaternion.z, s_Quaternion.w);
+    _Func->SetVehicleRotation(m_ID, s_Quaternion.x, y, s_Quaternion.z, s_Quaternion.w);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRotZ(Float32 z) const
+void CVehicle::SetRotationZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleRot(m_ID, &s_Quaternion.x, &s_Quaternion.y, NULL, &s_Quaternion.w);
+    _Func->GetVehicleRotation(m_ID, &s_Quaternion.x, &s_Quaternion.y, nullptr, &s_Quaternion.w);
     // Perform the requested operation
-    _Func->SetVehicleRot(m_ID, s_Quaternion.x, s_Quaternion.y, z, s_Quaternion.w);
+    _Func->SetVehicleRotation(m_ID, s_Quaternion.x, s_Quaternion.y, z, s_Quaternion.w);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRotW(Float32 w) const
+void CVehicle::SetRotationW(Float32 w) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleRot(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, NULL);
+    _Func->GetVehicleRotation(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, nullptr);
     // Perform the requested operation
-    _Func->SetVehicleRot(m_ID, s_Quaternion.x, s_Quaternion.y, s_Quaternion.z, w);
+    _Func->SetVehicleRotation(m_ID, s_Quaternion.x, s_Quaternion.y, s_Quaternion.z, w);
 }
 
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetERotX() const
+Float32 CVehicle::GetEulerRotationX() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Vector3.x = 0;
     // Query the server for the requested component value
-    _Func->GetVehicleRotEuler(m_ID, &s_Vector3.x, NULL, NULL);
+    _Func->GetVehicleRotationEuler(m_ID, &s_Vector3.x, nullptr, nullptr);
     // Return the requested information
     return s_Vector3.x;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetERotY() const
+Float32 CVehicle::GetEulerRotationY() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Vector3.y = 0;
     // Query the server for the requested component value
-    _Func->GetVehicleRotEuler(m_ID, NULL, &s_Vector3.y, NULL);
+    _Func->GetVehicleRotationEuler(m_ID, nullptr, &s_Vector3.y, nullptr);
     // Return the requested information
     return s_Vector3.y;
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetERotZ() const
+Float32 CVehicle::GetEulerRotationZ() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous rotation information, if any
+    // Clear previous information, if any
     s_Vector3.z = 0;
     // Query the server for the requested component value
-    _Func->GetVehicleRotEuler(m_ID, NULL, NULL, &s_Vector3.z);
+    _Func->GetVehicleRotationEuler(m_ID, nullptr, nullptr, &s_Vector3.z);
     // Return the requested information
     return s_Vector3.z;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetERotX(Float32 x) const
+void CVehicle::SetEulerRotationX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleRotEuler(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetVehicleRotationEuler(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z);
     // Perform the requested operation
-    _Func->SetVehicleRotEuler(m_ID, x, s_Vector3.y, s_Vector3.z);
+    _Func->SetVehicleRotationEuler(m_ID, x, s_Vector3.y, s_Vector3.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetERotY(Float32 y) const
+void CVehicle::SetEulerRotationY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleRotEuler(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
+    _Func->GetVehicleRotationEuler(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z);
     // Perform the requested operation
-    _Func->SetVehicleRotEuler(m_ID, s_Vector3.x, y, s_Vector3.z);
+    _Func->SetVehicleRotationEuler(m_ID, s_Vector3.x, y, s_Vector3.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetERotZ(Float32 z) const
+void CVehicle::SetEulerRotationZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleRotEuler(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
+    _Func->GetVehicleRotationEuler(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr);
     // Perform the requested operation
-    _Func->SetVehicleRotEuler(m_ID, s_Vector3.z, s_Vector3.y, z);
+    _Func->SetVehicleRotationEuler(m_ID, s_Vector3.z, s_Vector3.y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetSpeedX() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.x = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleSpeed(m_ID, &s_Vector3.x, nullptr, nullptr, false);
+    // Return the requested information
+    return s_Vector3.x;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetSpeedY() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.y = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleSpeed(m_ID, nullptr, &s_Vector3.y, nullptr, false);
+    // Return the requested information
+    return s_Vector3.y;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetSpeedZ() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.z = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleSpeed(m_ID, nullptr, nullptr, &s_Vector3.z, false);
+    // Return the requested information
+    return s_Vector3.z;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetSpeedX(Float32 x) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleSpeed(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z, false);
+    // Perform the requested operation
+    _Func->SetVehicleSpeed(m_ID, x, s_Vector3.y, s_Vector3.z, false, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetSpeedY(Float32 y) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleSpeed(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z, false);
+    // Perform the requested operation
+    _Func->SetVehicleSpeed(m_ID, s_Vector3.x, y, s_Vector3.z, false, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetSpeedZ(Float32 z) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr, false);
+    // Perform the requested operation
+    _Func->SetVehicleSpeed(m_ID, s_Vector3.z, s_Vector3.y, z, false, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetRelativeSpeedX() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.x = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleSpeed(m_ID, &s_Vector3.x, nullptr, nullptr, true);
+    // Return the requested information
+    return s_Vector3.x;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetRelativeSpeedY() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.y = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleSpeed(m_ID, nullptr, &s_Vector3.y, nullptr, true);
+    // Return the requested information
+    return s_Vector3.y;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetRelativeSpeedZ() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.z = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleSpeed(m_ID, nullptr, nullptr, &s_Vector3.z, true);
+    // Return the requested information
+    return s_Vector3.z;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetRelativeSpeedX(Float32 x) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleSpeed(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z, true);
+    // Perform the requested operation
+    _Func->SetVehicleSpeed(m_ID, x, s_Vector3.y, s_Vector3.z, false, true);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetRelativeSpeedY(Float32 y) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleSpeed(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z, true);
+    // Perform the requested operation
+    _Func->SetVehicleSpeed(m_ID, s_Vector3.x, y, s_Vector3.z, false, true);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetRelativeSpeedZ(Float32 z) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr, true);
+    // Perform the requested operation
+    _Func->SetVehicleSpeed(m_ID, s_Vector3.z, s_Vector3.y, z, false, true);
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetTurnSpeedX() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.x = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleTurnSpeed(m_ID, &s_Vector3.x, nullptr, nullptr, false);
+    // Return the requested information
+    return s_Vector3.x;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetTurnSpeedY() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.y = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleTurnSpeed(m_ID, nullptr, &s_Vector3.y, nullptr, false);
+    // Return the requested information
+    return s_Vector3.y;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetTurnSpeedZ() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.z = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleTurnSpeed(m_ID, nullptr, nullptr, &s_Vector3.z, false);
+    // Return the requested information
+    return s_Vector3.z;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetTurnSpeedX(Float32 x) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleTurnSpeed(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z, false);
+    // Perform the requested operation
+    _Func->SetVehicleTurnSpeed(m_ID, x, s_Vector3.y, s_Vector3.z, false, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetTurnSpeedY(Float32 y) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleTurnSpeed(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z, false);
+    // Perform the requested operation
+    _Func->SetVehicleTurnSpeed(m_ID, s_Vector3.x, y, s_Vector3.z, false, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetTurnSpeedZ(Float32 z) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleTurnSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr, false);
+    // Perform the requested operation
+    _Func->SetVehicleTurnSpeed(m_ID, s_Vector3.z, s_Vector3.y, z, false, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetRelativeTurnSpeedX() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.x = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleTurnSpeed(m_ID, &s_Vector3.x, nullptr, nullptr, true);
+    // Return the requested information
+    return s_Vector3.x;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetRelativeTurnSpeedY() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.y = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleTurnSpeed(m_ID, nullptr, &s_Vector3.y, nullptr, true);
+    // Return the requested information
+    return s_Vector3.y;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetRelativeTurnSpeedZ() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Clear previous information, if any
+    s_Vector3.z = 0.0f;
+    // Query the server for the requested component value
+    _Func->GetVehicleTurnSpeed(m_ID, nullptr, nullptr, &s_Vector3.z, true);
+    // Return the requested information
+    return s_Vector3.z;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetRelativeTurnSpeedX(Float32 x) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleTurnSpeed(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z, true);
+    // Perform the requested operation
+    _Func->SetVehicleTurnSpeed(m_ID, x, s_Vector3.y, s_Vector3.z, false, true);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetRelativeTurnSpeedY(Float32 y) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleTurnSpeed(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z, true);
+    // Perform the requested operation
+    _Func->SetVehicleTurnSpeed(m_ID, s_Vector3.x, y, s_Vector3.z, false, true);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetRelativeTurnSpeedZ(Float32 z) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the current values for unchanged components
+    _Func->GetVehicleTurnSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr, true);
+    // Perform the requested operation
+    _Func->SetVehicleTurnSpeed(m_ID, s_Vector3.z, s_Vector3.y, z, false, true);
 }
 
 // ------------------------------------------------------------------------------------------------
 static Object & Vehicle_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z, Float32 angle,
                             Int32 primary, Int32 secondary)
 {
-    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+    return Core::Get().NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
 static Object & Vehicle_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z, Float32 angle,
                             Int32 primary, Int32 secondary, Int32 header, Object & payload)
 {
-    return _Core->NewVehicle(model, world, x, y, z, angle, primary, secondary,
+    return Core::Get().NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             header, payload);
 }
 
@@ -1219,14 +1528,14 @@ static Object & Vehicle_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y,
 static Object & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, Float32 angle,
                         Int32 primary, Int32 secondary)
 {
-    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+    return Core::Get().NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             SQMOD_CREATE_DEFAULT, NullObject());
 }
 
 static Object & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, Float32 angle,
                         Int32 primary, Int32 secondary, Int32 header, Object & payload)
 {
-    return _Core->NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
+    return Core::Get().NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             header, payload);
 }
 
@@ -1239,8 +1548,8 @@ static const Object & Vehicle_FindByID(Int32 id)
         STHROWF("The specified vehicle identifier is invalid: %d", id);
     }
     // Obtain the ends of the entity pool
-    Core::Vehicles::const_iterator itr = _Core->GetVehicles().cbegin();
-    Core::Vehicles::const_iterator end = _Core->GetVehicles().cend();
+    Core::Vehicles::const_iterator itr = Core::Get().GetVehicles().cbegin();
+    Core::Vehicles::const_iterator end = Core::Get().GetVehicles().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -1263,8 +1572,8 @@ static const Object & Vehicle_FindByTag(CSStr tag)
         STHROWF("The specified vehicle tag is invalid: null/empty");
     }
     // Obtain the ends of the entity pool
-    Core::Vehicles::const_iterator itr = _Core->GetVehicles().cbegin();
-    Core::Vehicles::const_iterator end = _Core->GetVehicles().cend();
+    Core::Vehicles::const_iterator itr = Core::Get().GetVehicles().cbegin();
+    Core::Vehicles::const_iterator end = Core::Get().GetVehicles().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -1284,8 +1593,8 @@ static Array Vehicle_FindActive()
     // Remember the initial stack size
     StackGuard sg;
     // Obtain the ends of the entity pool
-    Core::Vehicles::const_iterator itr = _Core->GetVehicles().cbegin();
-    Core::Vehicles::const_iterator end = _Core->GetVehicles().cend();
+    Core::Vehicles::const_iterator itr = Core::Get().GetVehicles().cbegin();
+    Core::Vehicles::const_iterator end = Core::Get().GetVehicles().cend();
     // Allocate an empty array on the stack
     sq_newarray(DefaultVM::Get(), 0);
     // Process each entity in the pool
@@ -1340,73 +1649,86 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("Position"), &CVehicle::GetPosition, &CVehicle::SetPosition)
         .Prop(_SC("Rot"), &CVehicle::GetRotation, &CVehicle::SetRotation)
         .Prop(_SC("Rotation"), &CVehicle::GetRotation, &CVehicle::SetRotation)
-        .Prop(_SC("ERot"), &CVehicle::GetRotationEuler, &CVehicle::SetRotationEuler)
-        .Prop(_SC("RotEuler"), &CVehicle::GetRotationEuler, &CVehicle::SetRotationEuler)
-        .Prop(_SC("RotationEuler"), &CVehicle::GetRotationEuler, &CVehicle::SetRotationEuler)
+        .Prop(_SC("EulerRot"), &CVehicle::GetRotationEuler, &CVehicle::SetRotationEuler)
+        .Prop(_SC("EulerRotation"), &CVehicle::GetRotationEuler, &CVehicle::SetRotationEuler)
         .Prop(_SC("Speed"), &CVehicle::GetSpeed, &CVehicle::SetSpeed)
-        .Prop(_SC("RelSpeed"), &CVehicle::GetRelSpeed, &CVehicle::SetRelSpeed)
-        .Prop(_SC("RelativeSpeed"), &CVehicle::GetRelSpeed, &CVehicle::SetRelSpeed)
+        .Prop(_SC("RelSpeed"), &CVehicle::GetRelativeSpeed, &CVehicle::SetRelativeSpeed)
+        .Prop(_SC("RelativeSpeed"), &CVehicle::GetRelativeSpeed, &CVehicle::SetRelativeSpeed)
         .Prop(_SC("TurnSpeed"), &CVehicle::GetTurnSpeed, &CVehicle::SetTurnSpeed)
-        .Prop(_SC("RelTurnSpeed"), &CVehicle::GetRelTurnSpeed, &CVehicle::SetRelTurnSpeed)
-        .Prop(_SC("RelativeTurnSpeed"), &CVehicle::GetRelTurnSpeed, &CVehicle::SetRelTurnSpeed)
+        .Prop(_SC("RelTurnSpeed"), &CVehicle::GetRelativeTurnSpeed, &CVehicle::SetRelativeTurnSpeed)
+        .Prop(_SC("RelativeTurnSpeed"), &CVehicle::GetRelativeTurnSpeed, &CVehicle::SetRelativeTurnSpeed)
         .Prop(_SC("SpawnPos"), &CVehicle::GetSpawnPosition, &CVehicle::SetSpawnPosition)
         .Prop(_SC("SpawnPosition"), &CVehicle::GetSpawnPosition, &CVehicle::SetSpawnPosition)
         .Prop(_SC("SpawnRot"), &CVehicle::GetSpawnRotation, &CVehicle::SetSpawnRotation)
         .Prop(_SC("SpawnRotation"), &CVehicle::GetSpawnRotation, &CVehicle::SetSpawnRotation)
-        .Prop(_SC("SpawnERot"), &CVehicle::GetSpawnRotationEuler, &CVehicle::SetSpawnRotationEuler)
-        .Prop(_SC("SpawnRotEuler"), &CVehicle::GetSpawnRotationEuler, &CVehicle::SetSpawnRotationEuler)
-        .Prop(_SC("SpawnRotationEuler"), &CVehicle::GetSpawnRotationEuler, &CVehicle::SetSpawnRotationEuler)
-        .Prop(_SC("RespawnTimer"), &CVehicle::GetRespawnTimer, &CVehicle::SetRespawnTimer)
+        .Prop(_SC("SpawnEulerRot"), &CVehicle::GetSpawnRotationEuler, &CVehicle::SetSpawnRotationEuler)
+        .Prop(_SC("SpawnEulerRotation"), &CVehicle::GetSpawnRotationEuler, &CVehicle::SetSpawnRotationEuler)
+        .Prop(_SC("IdleRespawnTimer"), &CVehicle::GetIdleRespawnTimer, &CVehicle::SetIdleRespawnTimer)
         .Prop(_SC("Health"), &CVehicle::GetHealth, &CVehicle::SetHealth)
         .Prop(_SC("PrimaryColor"), &CVehicle::GetPrimaryColor, &CVehicle::SetPrimaryColor)
         .Prop(_SC("SecondaryColor"), &CVehicle::GetSecondaryColor, &CVehicle::SetSecondaryColor)
-        .Prop(_SC("Locked"), &CVehicle::GetLocked, &CVehicle::SetLocked)
         .Prop(_SC("DamageData"), &CVehicle::GetDamageData, &CVehicle::SetDamageData)
-        .Prop(_SC("Alarm"), &CVehicle::GetAlarm, &CVehicle::SetAlarm)
-        .Prop(_SC("Lights"), &CVehicle::GetLights, &CVehicle::SetLights)
         .Prop(_SC("Radio"), &CVehicle::GetRadio, &CVehicle::SetRadio)
-        .Prop(_SC("RadioLocked"), &CVehicle::GetRadioLocked, &CVehicle::SetRadioLocked)
-        .Prop(_SC("Ghost"), &CVehicle::GetGhostState, &CVehicle::SetGhostState)
-        .Prop(_SC("GhostState"), &CVehicle::GetGhostState, &CVehicle::SetGhostState)
-        .Prop(_SC("X"), &CVehicle::GetPosX, &CVehicle::SetPosX)
-        .Prop(_SC("Y"), &CVehicle::GetPosY, &CVehicle::SetPosY)
-        .Prop(_SC("Z"), &CVehicle::GetPosZ, &CVehicle::SetPosZ)
-        .Prop(_SC("RX"), &CVehicle::GetRotX, &CVehicle::SetRotX)
-        .Prop(_SC("RY"), &CVehicle::GetRotY, &CVehicle::SetRotY)
-        .Prop(_SC("RZ"), &CVehicle::GetRotZ, &CVehicle::SetRotZ)
-        .Prop(_SC("RW"), &CVehicle::GetRotW, &CVehicle::SetRotW)
-        .Prop(_SC("EX"), &CVehicle::GetERotX, &CVehicle::SetERotX)
-        .Prop(_SC("EY"), &CVehicle::GetERotY, &CVehicle::SetERotY)
-        .Prop(_SC("EZ"), &CVehicle::GetERotZ, &CVehicle::SetERotZ)
+        .Prop(_SC("TurretRotation"), &CVehicle::GetTurretRotation)
+        .Prop(_SC("HorTurretRotation"), &CVehicle::GetHorizontalTurretRotation)
+        .Prop(_SC("HorizontalTurretRotation"), &CVehicle::GetHorizontalTurretRotation)
+        .Prop(_SC("VerTurretRotation"), &CVehicle::GetVerticalTurretRotation)
+        .Prop(_SC("VerticalTurretRotation"), &CVehicle::GetVerticalTurretRotation)
+        .Prop(_SC("PosX"), &CVehicle::GetPositionX, &CVehicle::SetPositionX)
+        .Prop(_SC("PosY"), &CVehicle::GetPositionY, &CVehicle::SetPositionY)
+        .Prop(_SC("PosZ"), &CVehicle::GetPositionZ, &CVehicle::SetPositionZ)
+        .Prop(_SC("RotX"), &CVehicle::GetRotationX, &CVehicle::SetRotationX)
+        .Prop(_SC("RotY"), &CVehicle::GetRotationY, &CVehicle::SetRotationY)
+        .Prop(_SC("RotZ"), &CVehicle::GetRotationZ, &CVehicle::SetRotationZ)
+        .Prop(_SC("RotW"), &CVehicle::GetRotationW, &CVehicle::SetRotationW)
+        .Prop(_SC("EulerX"), &CVehicle::GetEulerRotationX, &CVehicle::SetEulerRotationX)
+        .Prop(_SC("EulerY"), &CVehicle::GetEulerRotationY, &CVehicle::SetEulerRotationY)
+        .Prop(_SC("EulerZ"), &CVehicle::GetEulerRotationZ, &CVehicle::SetEulerRotationZ)
+        .Prop(_SC("SpeedX"), &CVehicle::GetSpeedX, &CVehicle::SetSpeedX)
+        .Prop(_SC("SpeedY"), &CVehicle::GetSpeedY, &CVehicle::SetSpeedY)
+        .Prop(_SC("SpeedZ"), &CVehicle::GetSpeedZ, &CVehicle::SetSpeedZ)
+        .Prop(_SC("RelSpeedX"), &CVehicle::GetRelativeSpeedX, &CVehicle::SetRelativeSpeedX)
+        .Prop(_SC("RelSpeedY"), &CVehicle::GetRelativeSpeedY, &CVehicle::SetRelativeSpeedY)
+        .Prop(_SC("RelSpeedZ"), &CVehicle::GetRelativeSpeedZ, &CVehicle::SetRelativeSpeedZ)
+        .Prop(_SC("TurnSpeedX"), &CVehicle::GetTurnSpeedX, &CVehicle::SetTurnSpeedX)
+        .Prop(_SC("TurnSpeedY"), &CVehicle::GetTurnSpeedY, &CVehicle::SetTurnSpeedY)
+        .Prop(_SC("TurnSpeedZ"), &CVehicle::GetTurnSpeedZ, &CVehicle::SetTurnSpeedZ)
+        .Prop(_SC("RelTurnSpeedX"), &CVehicle::GetRelativeTurnSpeedX, &CVehicle::SetRelativeTurnSpeedX)
+        .Prop(_SC("RelTurnSpeedY"), &CVehicle::GetRelativeTurnSpeedY, &CVehicle::SetRelativeTurnSpeedY)
+        .Prop(_SC("RelTurnSpeedZ"), &CVehicle::GetRelativeTurnSpeedZ, &CVehicle::SetRelativeTurnSpeedZ)
         // Member Methods
         .Func(_SC("StreamedFor"), &CVehicle::IsStreamedFor)
+        .Func(_SC("GetOption"), &CVehicle::GetOption)
+        .Func(_SC("SetOption"), &CVehicle::SetOption)
+        .Func(_SC("SetOptionEx"), &CVehicle::SetOptionEx)
         .Func(_SC("Occupant"), &CVehicle::GetOccupant)
         .Func(_SC("OccupantID"), &CVehicle::GetOccupantID)
         .Func(_SC("Respawn"), &CVehicle::Respawn)
+        .Func(_SC("Explode"), &CVehicle::Explode)
         .Func(_SC("SetRot"), &CVehicle::SetRotationEx)
         .Func(_SC("SetRotation"), &CVehicle::SetRotationEx)
-        .Func(_SC("SetERot"), &CVehicle::SetRotationEulerEx)
-        .Func(_SC("SetRotEuler"), &CVehicle::SetRotationEulerEx)
-        .Func(_SC("SetRotationEuler"), &CVehicle::SetRotationEulerEx)
+        .Func(_SC("SetEulerRot"), &CVehicle::SetRotationEulerEx)
+        .Func(_SC("SetEulerRotation"), &CVehicle::SetRotationEulerEx)
         .Func(_SC("SetSpeed"), &CVehicle::SetSpeedEx)
-        .Func(_SC("SetRelativeSpeed"), &CVehicle::SetRelSpeedEx)
+        .Func(_SC("SetRelativeSpeed"), &CVehicle::SetRelativeSpeedEx)
         .Func(_SC("SetTurnSpeed"), &CVehicle::SetTurnSpeedEx)
-        .Func(_SC("SetRelativeTurnSpeed"), &CVehicle::SetRelTurnSpeedEx)
+        .Func(_SC("SetRelativeTurnSpeed"), &CVehicle::SetRelativeTurnSpeedEx)
         .Func(_SC("SetSpawnPos"), &CVehicle::SetSpawnPositionEx)
         .Func(_SC("SetSpawnPosition"), &CVehicle::SetSpawnPositionEx)
         .Func(_SC("SetSpawnRot"), &CVehicle::SetSpawnRotationEx)
         .Func(_SC("SetSpawnRotation"), &CVehicle::SetSpawnRotationEx)
-        .Func(_SC("SetSpawnERot"), &CVehicle::SetSpawnRotationEulerEx)
-        .Func(_SC("SetSpawnRotEuler"), &CVehicle::SetSpawnRotationEulerEx)
-        .Func(_SC("SetSpawnRotationEuler"), &CVehicle::SetSpawnRotationEulerEx)
+        .Func(_SC("SetSpawnEulerRot"), &CVehicle::SetSpawnRotationEulerEx)
+        .Func(_SC("SetSpawnEulerRotation"), &CVehicle::SetSpawnRotationEulerEx)
         .Func(_SC("SetColors"), &CVehicle::SetColors)
         .Func(_SC("GetPartStatus"), &CVehicle::GetPartStatus)
         .Func(_SC("SetPartStatus"), &CVehicle::SetPartStatus)
         .Func(_SC("GetTyreStatus"), &CVehicle::GetTyreStatus)
         .Func(_SC("SetTyreStatus"), &CVehicle::SetTyreStatus)
-        .Func(_SC("ExistsHandling"), &CVehicle::ExistsHandling)
-        .Func(_SC("GetHandlingData"), &CVehicle::GetHandlingData)
-        .Func(_SC("SetHandlingData"), &CVehicle::SetHandlingData)
+        .Func(_SC("ExistsHandlingRule"), &CVehicle::ExistsHandlingRule)
+        .Func(_SC("GetHandlingRule"), &CVehicle::GetHandlingRule)
+        .Func(_SC("SetHandlingRule"), &CVehicle::SetHandlingRule)
+        .Func(_SC("ResetHandlingRule"), &CVehicle::ResetHandlingRule)
+        .Func(_SC("ResetHandlings"), &CVehicle::ResetHandlings)
         // Member Overloads
         .Overload< void (CVehicle::*)(const Vector3 &, bool) const >
             (_SC("SetPos"), &CVehicle::SetPositionEx)
@@ -1425,24 +1747,24 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Overload< void (CVehicle::*)(Float32, Float32, Float32) const >
             (_SC("AddSpeed"), &CVehicle::AddSpeedEx)
         .Overload< void (CVehicle::*)(const Vector3 &) const >
-            (_SC("AddRelSpeed"), &CVehicle::AddRelSpeed)
+            (_SC("AddRelativeSpeed"), &CVehicle::AddRelativeSpeed)
         .Overload< void (CVehicle::*)(Float32, Float32, Float32) const >
-            (_SC("AddRelSpeed"), &CVehicle::AddRelSpeedEx)
+            (_SC("AddRelativeSpeed"), &CVehicle::AddRelativeSpeedEx)
         .Overload< void (CVehicle::*)(const Vector3 &) const >
             (_SC("AddTurnSpeed"), &CVehicle::AddTurnSpeed)
         .Overload< void (CVehicle::*)(Float32, Float32, Float32) const >
             (_SC("AddTurnSpeed"), &CVehicle::AddTurnSpeedEx)
         .Overload< void (CVehicle::*)(const Vector3 &) const >
-            (_SC("AddRelTurnSpeed"), &CVehicle::AddRelTurnSpeed)
+            (_SC("AddRelativeTurnSpeed"), &CVehicle::AddRelativeTurnSpeed)
         .Overload< void (CVehicle::*)(Float32, Float32, Float32) const >
-            (_SC("AddRelTurnSpeed"), &CVehicle::AddRelTurnSpeedEx)
+            (_SC("AddRelativeTurnSpeed"), &CVehicle::AddRelativeTurnSpeedEx)
         .Overload< void (CVehicle::*)(void) const >
-            (_SC("ResetHandling"), &CVehicle::ResetHandling)
+            (_SC("ResetHandling"), &CVehicle::ResetHandlings)
         .Overload< void (CVehicle::*)(Int32) const >
-            (_SC("ResetHandling"), &CVehicle::ResetHandling)
-        .Overload< void (CVehicle::*)(CPlayer &) const >
+            (_SC("ResetHandling"), &CVehicle::ResetHandlingRule)
+        .Overload< bool (CVehicle::*)(CPlayer &) const >
             (_SC("Embark"), &CVehicle::Embark)
-        .Overload< void (CVehicle::*)(CPlayer &, Int32, bool, bool) const >
+        .Overload< bool (CVehicle::*)(CPlayer &, Int32, bool, bool) const >
             (_SC("Embark"), &CVehicle::Embark)
         // Static Functions
         .StaticFunc(_SC("FindByID"), &Vehicle_FindByID)
@@ -1457,6 +1779,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
             (_SC("Create"), &Vehicle_Create)
         .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Float32, Int32, Int32, Int32, Object &) >
             (_SC("Create"), &Vehicle_Create)
+
     );
 }
 

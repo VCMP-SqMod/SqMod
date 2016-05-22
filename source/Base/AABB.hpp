@@ -8,16 +8,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the AABB type from a string.
-*/
-const AABB & GetAABB(CSStr str);
-
-/* ------------------------------------------------------------------------------------------------
- * Extract the values for components of the AABB type from a string.
-*/
-const AABB & GetAABB(CSStr str, SQChar delim);
-
-/* ------------------------------------------------------------------------------------------------
  * Class used to represent an axis aligned bounding box in three-dimensional space.
 */
 struct AABB
@@ -351,6 +341,17 @@ struct AABB
      * Retrieve a new instance of this type with absolute component values.
     */
     AABB Abs() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the AABB type from a string.
+    */
+    static const AABB & Get(CSStr str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the values for components of the AABB type from a string.
+    */
+    static const AABB & Get(CSStr str, SQChar delim);
+
 };
 
 } // Namespace:: SqMod

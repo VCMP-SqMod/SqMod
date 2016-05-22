@@ -18,14 +18,14 @@
 namespace SqMod {
 
 // --------------------------------------------------------------------------------------------
-PluginFuncs*        _Func = NULL;
-PluginCallbacks*    _Clbk = NULL;
-PluginInfo*         _Info = NULL;
+PluginFuncs*        _Func = nullptr;
+PluginCallbacks*    _Clbk = nullptr;
+PluginInfo*         _Info = nullptr;
 
 // --------------------------------------------------------------------------------------------
-HSQAPI              _SqAPI = NULL;
-HSQEXPORTS          _SqMod = NULL;
-HSQUIRRELVM         _SqVM = NULL;
+HSQAPI              _SqAPI = nullptr;
+HSQEXPORTS          _SqMod = nullptr;
+HSQUIRRELVM         _SqVM = nullptr;
 
 /* ------------------------------------------------------------------------------------------------
  * Bind speciffic functions to certain server events.
@@ -89,7 +89,7 @@ void OnSquirrelTerminate()
 {
     OutputMessage("Terminating: %s", SQMMDB_NAME);
     // Release the current database (if any)
-    DefaultVM::Set(NULL);
+    DefaultVM::Set(nullptr);
     // Release script resources...
 }
 
@@ -99,7 +99,7 @@ void OnSquirrelTerminate()
 bool CheckAPIVer(CCStr ver)
 {
     // Obtain the numeric representation of the API version
-    long vernum = strtol(ver, NULL, 10);
+    long vernum = strtol(ver, nullptr, 10);
     // Check against version mismatch
     if (vernum == SQMOD_API_VER)
         return true;
@@ -113,12 +113,12 @@ bool CheckAPIVer(CCStr ver)
 /* --------------------------------------------------------------------------------------------
  * React to command sent by other plugins.
 */
-static int OnInternalCommand(unsigned int type, const char * text)
+static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
 {
-    switch(type)
+    switch(command_identifier)
     {
         case SQMOD_INITIALIZE_CMD:
-            if (CheckAPIVer(text))
+            if (CheckAPIVer(message))
                 OnSquirrelInitialize();
         break;
         case SQMOD_LOAD_CMD:
@@ -135,12 +135,12 @@ static int OnInternalCommand(unsigned int type, const char * text)
 /* --------------------------------------------------------------------------------------------
  * The server was initialized and this plugin was loaded successfully.
 */
-static int OnInitServer()
+static uint8_t OnServerInitialise()
 {
     return 1;
 }
 
-static void OnShutdownServer(void)
+static void OnServerShutdown(void)
 {
     // The server may still send callbacks
     UnbindCallbacks();
@@ -149,17 +149,17 @@ static void OnShutdownServer(void)
 // ------------------------------------------------------------------------------------------------
 void BindCallbacks()
 {
-    _Clbk->OnInitServer             = OnInitServer;
-    _Clbk->OnInternalCommand        = OnInternalCommand;
-    _Clbk->OnShutdownServer         = OnShutdownServer;
+    _Clbk->OnServerInitialise       = OnServerInitialise;
+    _Clbk->OnServerShutdown         = OnServerShutdown;
+    _Clbk->OnPluginCommand          = OnPluginCommand;
 }
 
 // ------------------------------------------------------------------------------------------------
 void UnbindCallbacks()
 {
-    _Clbk->OnInitServer             = NULL;
-    _Clbk->OnInternalCommand        = NULL;
-    _Clbk->OnShutdownServer         = NULL;
+    _Clbk->OnServerInitialise       = nullptr;
+    _Clbk->OnServerShutdown         = nullptr;
+    _Clbk->OnPluginCommand          = nullptr;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -177,17 +177,17 @@ void OutputMessageImpl(const char * msg, va_list args)
     CONSOLE_SCREEN_BUFFER_INFO csb_before;
     GetConsoleScreenBufferInfo( hstdout, &csb_before);
     SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN);
-    printf("[SQMOD] ");
+    std::printf("[SQMOD] ");
 
     SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    vprintf(msg, args);
-    puts("");
+    std::vprintf(msg, args);
+    std::puts("");
 
     SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
 #else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
-    vprintf(msg, args);
-    puts("");
+    std::printf("%c[0;32m[SQMOD]%c[0m", 27, 27);
+    std::vprintf(msg, args);
+    std::puts("");
 #endif
 }
 
@@ -200,17 +200,17 @@ void OutputErrorImpl(const char * msg, va_list args)
     CONSOLE_SCREEN_BUFFER_INFO csb_before;
     GetConsoleScreenBufferInfo( hstdout, &csb_before);
     SetConsoleTextAttribute(hstdout, FOREGROUND_RED | FOREGROUND_INTENSITY);
-    printf("[SQMOD] ");
+    std::printf("[SQMOD] ");
 
     SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    vprintf(msg, args);
-    puts("");
+    std::vprintf(msg, args);
+    std::puts("");
 
     SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
 #else
-    printf("%c[0;32m[SQMOD]%c[0;37m", 27, 27);
-    vprintf(msg, args);
-    puts("");
+    std::printf("%c[0;91m[SQMOD]%c[0m", 27, 27);
+    std::vprintf(msg, args);
+    std::puts("");
 #endif
 }
 
@@ -288,9 +288,12 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs* functions, PluginCallb
     _Func = functions;
     _Clbk = callbacks;
     _Info = info;
-    // Assign plugin information
-    _Info->uPluginVer = SQMMDB_VERSION;
-    strcpy(_Info->szName, SQMMDB_HOST_NAME);
+    // Assign plugin version
+    _Info->pluginVersion = SQMMDB_VERSION;
+    _Info->apiMajorVersion = PLUGIN_API_MAJOR;
+    _Info->apiMinorVersion = PLUGIN_API_MINOR;
+    // Assign the plugin name
+    std::snprintf(_Info->name, sizeof(_Info->name), "%s", SQMMDB_HOST_NAME);
     // Bind callbacks
     BindCallbacks();
     // Notify that the plugin was successfully loaded

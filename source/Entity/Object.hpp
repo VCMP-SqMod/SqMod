@@ -44,6 +44,24 @@ private:
 public:
 
     /* --------------------------------------------------------------------------------------------
+     * The default duration to use when moving the object.
+    */
+    Uint32 mMoveToDuration;
+    Uint32 mMoveByDuration;
+
+    /* --------------------------------------------------------------------------------------------
+     * The default duration to use when rotating the object to Quaternion.
+    */
+    Uint32 mRotateToDuration;
+    Uint32 mRotateByDuration;
+
+    /* --------------------------------------------------------------------------------------------
+     * The default duration to use when rotating the object to Euler.
+    */
+    Uint32 mRotateToEulerDuration;
+    Uint32 mRotateByEulerDuration;
+
+    /* --------------------------------------------------------------------------------------------
      * Maximum possible number that could represent an identifier for this entity type.
     */
     static const Int32 Max;
@@ -194,27 +212,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the alpha of the managed object entity over the specified time.
     */
-    void SetAlphaEx(Int32 alpha, Int32 time) const;
+    void SetAlphaEx(Int32 alpha, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
      * Move the managed object entity to the specified position over the specified time.
     */
-    void MoveTo(const Vector3 & pos, Int32 time) const;
+    void MoveTo(const Vector3 & pos, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
      * Move the managed object entity to the specified position over the specified time.
     */
-    void MoveToEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
+    void MoveToEx(Float32 x, Float32 y, Float32 z, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
      * Move the managed object entity by the specified position over the specified time.
     */
-    void MoveBy(const Vector3 & pos, Int32 time) const;
+    void MoveBy(const Vector3 & pos, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
      * Move the managed object entity by the specified position over the specified time.
     */
-    void MoveByEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
+    void MoveByEx(Float32 x, Float32 y, Float32 z, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed object entity.
@@ -234,42 +252,42 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Rotate the managed object entity to the specified rotation over the specified time.
     */
-    void RotateTo(const Quaternion & rot, Int32 time) const;
+    void RotateTo(const Quaternion & rot, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
      * Rotate the managed object entity to the specified rotation over the specified time.
     */
-    void RotateToEx(Float32 x, Float32 y, Float32 z, Float32 w, Int32 time) const;
+    void RotateToEx(Float32 x, Float32 y, Float32 z, Float32 w, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Rotate the managed object entity to the specified euler rotation over the specified time.
+     * Rotate the managed object entity to the specified Euler rotation over the specified time.
     */
-    void RotateToEuler(const Vector3 & rot, Int32 time) const;
+    void RotateToEuler(const Vector3 & rot, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Rotate the managed object entity to the specified euler rotation over the specified time.
+     * Rotate the managed object entity to the specified Euler rotation over the specified time.
     */
-    void RotateToEulerEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Rotate the managed object entity by the specified rotation over the specified time.
-    */
-    void RotateBy(const Quaternion & rot, Int32 time) const;
+    void RotateToEulerEx(Float32 x, Float32 y, Float32 z, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
      * Rotate the managed object entity by the specified rotation over the specified time.
     */
-    void RotateByEx(Float32 x, Float32 y, Float32 z, Float32 w, Int32 time) const;
+    void RotateBy(const Quaternion & rot, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Rotate the managed object entity by the specified euler rotation over the specified time.
+     * Rotate the managed object entity by the specified rotation over the specified time.
     */
-    void RotateByEuler(const Vector3 & rot, Int32 time) const;
+    void RotateByEx(Float32 x, Float32 y, Float32 z, Float32 w, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Rotate the managed object entity by the specified euler rotation over the specified time.
+     * Rotate the managed object entity by the specified Euler rotation over the specified time.
     */
-    void RotateByEulerEx(Float32 x, Float32 y, Float32 z, Int32 time) const;
+    void RotateByEuler(const Vector3 & rot, Uint32 time) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotate the managed object entity by the specified Euler rotation over the specified time.
+    */
+    void RotateByEulerEx(Float32 x, Float32 y, Float32 z, Uint32 time) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation of the managed object entity.
@@ -277,7 +295,7 @@ public:
     const Quaternion & GetRotation();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the euler rotation of the managed object entity.
+     * Retrieve the Euler rotation of the managed object entity.
     */
     const Vector3 & GetRotationEuler();
 
@@ -294,77 +312,177 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the managed object entity reports player bumps.
     */
-    bool GetBumpReport() const;
+    bool GetTouchedReport() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the managed object entity reports player bumps.
     */
-    void SetBumpReport(bool toggle) const;
+    void SetTouchedReport(bool toggle) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed object entity.
     */
-    Float32 GetPosX() const;
+    Float32 GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the y axis of the managed object entity.
     */
-    Float32 GetPosY() const;
+    Float32 GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the z axis of the managed object entity.
     */
-    Float32 GetPosZ() const;
+    Float32 GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the x axis of the managed object entity.
     */
-    void SetPosX(Float32 x) const;
+    void SetPositionX(Float32 x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the y axis of the managed object entity.
     */
-    void SetPosY(Float32 y) const;
+    void SetPositionY(Float32 y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the z axis of the managed object entity.
     */
-    void SetPosZ(Float32 z) const;
+    void SetPositionZ(Float32 z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation on the x axis of the managed object entity.
     */
-    Float32 GetRotX() const;
+    Float32 GetRotationX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation on the y axis of the managed object entity.
     */
-    Float32 GetRotY() const;
+    Float32 GetRotationY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation on the z axis of the managed object entity.
     */
-    Float32 GetRotZ() const;
+    Float32 GetRotationZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation amount of the managed object entity.
     */
-    Float32 GetRotW() const;
+    Float32 GetRotationW() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the euler rotation on the x axis of the managed object entity.
+     * Retrieve the Euler rotation on the x axis of the managed object entity.
     */
-    Float32 GetERotX() const;
+    Float32 GetEulerRotationX() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the euler rotation on the y axis of the managed object entity.
+     * Retrieve the Euler rotation on the y axis of the managed object entity.
     */
-    Float32 GetERotY() const;
+    Float32 GetEulerRotationY() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the euler rotation on the z axis of the managed object entity.
+     * Retrieve the Euler rotation on the z axis of the managed object entity.
     */
-    Float32 GetERotZ() const;
+    Float32 GetEulerRotationZ() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the x axis of the managed object entity.
+    */
+    void MoveToX(Float32 x) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the y axis of the managed object entity.
+    */
+    void MoveToY(Float32 y) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the z axis of the managed object entity.
+    */
+    void MoveToZ(Float32 z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the x axis of the managed object entity.
+    */
+    void MoveByX(Float32 x) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the y axis of the managed object entity.
+    */
+    void MoveByY(Float32 y) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the position on the z axis of the managed object entity.
+    */
+    void MoveByZ(Float32 z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the x axis of the managed object entity.
+    */
+    void RotateToX(Float32 x) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the y axis of the managed object entity.
+    */
+    void RotateToY(Float32 y) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the z axis of the managed object entity.
+    */
+    void RotateToZ(Float32 z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the w axis of the managed object entity.
+    */
+    void RotateToW(Float32 w) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the x axis of the managed object entity.
+    */
+    void RotateByX(Float32 x) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the y axis of the managed object entity.
+    */
+    void RotateByY(Float32 y) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the z axis of the managed object entity.
+    */
+    void RotateByZ(Float32 z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the w axis of the managed object entity.
+    */
+    void RotateByW(Float32 w) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the x axis of the managed object entity.
+    */
+    void RotateToEulerX(Float32 x) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the y axis of the managed object entity.
+    */
+    void RotateToEulerY(Float32 y) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the z axis of the managed object entity.
+    */
+    void RotateToEulerZ(Float32 z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the x axis of the managed object entity.
+    */
+    void RotateByEulerX(Float32 x) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the y axis of the managed object entity.
+    */
+    void RotateByEulerY(Float32 y) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the rotation on the z axis of the managed object entity.
+    */
+    void RotateByEulerZ(Float32 z) const;
 };
 
 } // Namespace:: SqMod

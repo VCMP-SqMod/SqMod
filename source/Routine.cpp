@@ -10,11 +10,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-bool                Routine::s_Lock = false;
 Routine::Time       Routine::s_Last = 0;
 Routine::Time       Routine::s_Prev = 0;
-Routine::Queue      Routine::s_Queue;
-Routine::Buckets    Routine::s_Buckets;
+Routine::Routines   Routine::s_Routines;
 Routine::Objects    Routine::s_Objects;
 
 // ------------------------------------------------------------------------------------------------
@@ -26,57 +24,66 @@ SQInteger Routine::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Routine::Attach(Routine * routine, Interval interval)
+void Routine::Process()
 {
-    // Do we have a valid routine and interval bucket to attach?
-    if (!routine || !interval)
+    // Is this the first call?
+    if (s_Last == 0)
     {
+        s_Last = GetCurrentSysTime();
+        // We'll do it text time
         return;
     }
-    // Attempt to locate the bucket with the specified interval
-    Buckets::iterator itr = std::find_if(s_Buckets.begin(), s_Buckets.end(), IntrvFunc(interval));
-    // Does this bucket exist?
-    if (itr == s_Buckets.end())
+    // Backup the last known time-stamp
+    s_Prev = s_Last;
+    // Get the current time-stamp
+    s_Last = GetCurrentSysTime();
+    // Calculate the elapsed time
+    const Int32 delta = Int32((s_Last - s_Prev) / 1000L);
+    // Process all active routines
+    for (auto & r : s_Routines)
     {
-        // Then create it
-        s_Buckets.emplace_back(interval);
-        // And attach this routine
-        s_Buckets.back().mRoutines.push_back(routine);
-    }
-    // Is this routine already attached to this bucket?
-    else if (std::find(itr->mRoutines.begin(), itr->mRoutines.end(), routine) == itr->mRoutines.end())
-    {
-        itr->mRoutines.push_back(routine); // Then let's attach it now
+        // Is this routine valid?
+        if (!r.second)
+        {
+            continue;
+        }
+        // Decrease the elapsed time
+        r.first -= delta;
+        // Have we completed the routine interval?
+        if (r.first <= 0)
+        {
+            // Reset the elapsed time
+            r.first = r.second->m_Interval;
+            // Execute the routine
+            r.second->Execute();
+        }
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void Routine::Detach(Routine * routine, Interval interval)
+void Routine::Initialize()
 {
-    // Do we have a valid routine and interval to detach?
-    if (!routine || !interval)
+    // Clear all slots
+    s_Routines.fill(Element(0, nullptr));
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::Deinitialize()
+{
+    // Process all routine instances
+    for (auto & r : s_Objects)
     {
-        return;
+        // Release all resources
+        r.first->Release();
+        // Mark it as terminated
+        r.first->m_Terminated = true;
     }
-    // Attempt to locate the bucket with this interval
-    Buckets::iterator bitr = std::find_if(s_Buckets.begin(), s_Buckets.end(), IntrvFunc(interval));
-    // Was there a bucket with this interval?
-    if (bitr == s_Buckets.end())
-    {
-        return; // Nothing to detach from!
-    }
-    // Attempt to find this routine in the associated bucket
-    Routines::iterator ritr = std::find(bitr->mRoutines.begin(), bitr->mRoutines.end(), routine);
-    // Was this routine even attached?
-    if (ritr != bitr->mRoutines.end())
-    {
-        bitr->mRoutines.erase(ritr); // Then erase it and move on
-    }
-    // Any reason to keep this bucket? (don't immediate routines with interval of 1)
-    if (interval != 1 && bitr->mRoutines.empty())
-    {
-        s_Buckets.erase(bitr); // Remove the bucket as well
-    }
+    // Release all references
+    s_Objects.clear();
+    // Clear all slots
+    s_Routines.fill(Element(0, nullptr));
+    // Clear the last time-stamp in case of a reload
+    s_Last = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -142,474 +149,71 @@ void Routine::Forget(Routine * routine)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Routine::ProcQueue()
+void Routine::Insert(Routine * routine, bool associate)
 {
-    // Do we have any queued commands that must be performed when unlocked?
-    if (s_Queue.empty() || s_Lock)
+    // Do we even have what to insert?
+    if (!routine)
     {
-        return; // We're done here!
-    }
-    // Process all commands in the queue
-    for (const auto & cmd : s_Queue)
-    {
-        // Are we supposed to detach the associated routine?
-        if (cmd.mCommand == CMD_DETACH)
-        {
-            // Detach the routine from it's associated bucket first
-            Detach(cmd.mRoutine, cmd.mInterval);
-            // Break association to allow the instance to be destroyed
-            Dissociate(cmd.mRoutine);
-        }
-        // Are we supposed to attach the associated routine?
-        else if (cmd.mCommand == CMD_ATTACH)
-        {
-            // Attach the routine to it's associated bucket first
-            Attach(cmd.mRoutine, cmd.mInterval);
-            // Prevent destruction of this routine while buckets are locked
-            Associate(cmd.mRoutine);
-        }
-    }
-    // Clear processed commands
-    s_Queue.clear();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::Process()
-{
-    // In case an exception prevented the unlock last time
-    s_Lock = false;
-    // Normally there shouldn't be any but just in case the above happened
-    ProcQueue();
-    // Is this the first call?
-    if (s_Last == 0)
-    {
-        s_Last = GetCurrentSysTime();
-        // We'll do it text time
         return;
     }
-    // Lock the buckets
-    s_Lock = true;
-    // Backup the last known time-stamp
-    s_Prev = s_Last;
-    // Get the current time-stamp
-    s_Last = GetCurrentSysTime();
-    // Calculate the elapsed time
-    Int32 delta = Int32((s_Last - s_Prev) / 1000L);
-    // Process all available buckets
-    for (auto & bucket : s_Buckets)
+    // See if this routine is already inserted
+    Routines::iterator itr = std::find_if(s_Routines.begin(), s_Routines.end(),
+        [routine](Element & e) -> bool { return (e.second == routine); });
+    // Is this instance already inserted?
+    if (itr != s_Routines.end())
     {
-        // Update the bucket elapsed time
-        bucket.mElapsed += delta;
-        // Have we completed the bucket interval?
-        if (bucket.mElapsed < bucket.mInterval)
+        return; // We have what we came here for!
+    }
+    // Attempt to locate an unused routine slot
+    itr = std::find_if(s_Routines.begin(), s_Routines.end(),
+        [](Element & e) -> bool { return (e.second == nullptr); });
+    // Are there any slots available?
+    if (itr == s_Routines.end())
+    {
+        STHROWF("Maximum number of active routines was reached: %d", SQMOD_MAX_ROUTINES);
+    }
+    // Insert the routine at the obtained slot
+    itr->first = routine->m_Interval;
+    itr->second = routine;
+    // Associate this slot with the routine instance
+    routine->m_Slot = std::distance(s_Routines.begin(), itr);
+    // Keep a string reference to this routine instance, if requested
+    if (associate)
+    {
+        Associate(routine);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::Remove(Routine * routine)
+{
+    // Do we even have what to remove?
+    if (!routine)
+    {
+        return;
+    }
+    Routines::iterator itr;
+    // Make sure the routine wasn't activated multiple time (paranoia)
+    do {
+        // Search for the slot with the specified routine instance
+        itr = std::find_if(s_Routines.begin(), s_Routines.end(),
+            [routine](Element & e) -> bool { return (e.second == routine); });
+        // Was this routine instance activated?
+        if (itr != s_Routines.end())
         {
-            continue; // Move to the next one
+            itr->first = 0;
+            itr->second = nullptr;
         }
-        // Attempt to execute bucket routines, if any
-        for (auto & routine : bucket.mRoutines)
-        {
-            routine->Execute();
-        }
-        // Reset the bucket elapsed time
-        bucket.mElapsed = 0;
-    }
-    // Unlock the buckets
-    s_Lock = false;
-    // Process operations that couldn't be performed while buckets were locked
-    ProcQueue();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::TerminateAll()
-{
-    // Let's make sure no pending commands are left
-    ProcQueue();
-    // Process all buckets
-    for (auto & bucket : s_Buckets)
-    {
-        //  Process all routines in this bucket
-        for (auto & routine : bucket.mRoutines)
-        {
-            // Release all resources
-            routine->Release();
-            // Mark it as terminated
-            routine->m_Terminated = true;
-        }
-    }
-    // Clear all references to routines
-    s_Buckets.clear();
-    // Clear all routine instance associations
-    s_Objects.clear();
-    // Clear the last time-stamp in case of a reload
-    s_Last = 0;
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine::Routine(Object & env, Function & func, Interval interval)
-    : m_Iterations(0)
-    , m_Interval(interval)
-    , m_Arguments(0)
-    , m_Suspended(false)
-    , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag(_SC(""))
-    , m_Data()
-{
-    Create();
-}
-
-Routine::Routine(Object & env, Function & func, Interval interval, Iterate iterations)
-    : m_Iterations(iterations)
-    , m_Interval(interval)
-    , m_Arguments(0)
-    , m_Suspended(false)
-    , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag(_SC(""))
-    , m_Data()
-{
-   Create();
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine::Routine(Object & env, Function & func, Interval interval, Iterate iterations
-        , Object & a1)
-    : m_Iterations(iterations)
-    , m_Interval(interval)
-    , m_Arguments(1)
-    , m_Suspended(false)
-    , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag(_SC(""))
-    , m_Data()
-    , m_Arg1(a1)
-{
-   Create();
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine::Routine(Object & env, Function & func, Interval interval, Iterate iterations
-        , Object & a1, Object & a2)
-    : m_Iterations(iterations)
-    , m_Interval(interval)
-    , m_Arguments(2)
-    , m_Suspended(false)
-    , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag(_SC(""))
-    , m_Data()
-    , m_Arg1(a1), m_Arg2(a2)
-{
-   Create();
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine::Routine(Object & env, Function & func, Interval interval, Iterate iterations
-        , Object & a1, Object & a2, Object & a3)
-    : m_Iterations(iterations)
-    , m_Interval(interval)
-    , m_Arguments(3)
-    , m_Suspended(false)
-    , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag(_SC(""))
-    , m_Data()
-    , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3)
-{
-   Create();
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine::Routine(Object & env, Function & func, Interval interval, Iterate iterations
-        , Object & a1, Object & a2, Object & a3, Object & a4)
-    : m_Iterations(iterations)
-    , m_Interval(interval)
-    , m_Arguments(4)
-    , m_Suspended(false)
-    , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag(_SC(""))
-    , m_Data()
-    , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3), m_Arg4(a4)
-{
-   Create();
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine::Routine(Object & env, Function & func, Interval interval, Iterate iterations
-        , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5)
-    : m_Iterations(iterations)
-    , m_Interval(interval)
-    , m_Arguments(5)
-    , m_Suspended(false)
-    , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
-    , m_Tag(_SC(""))
-    , m_Data()
-    , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3), m_Arg4(a4), m_Arg5(a5)
-{
-   Create();
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine::~Routine()
-{
-    // Remove this instance from the pool
-    Forget(this);
-    // Was the routine already terminated?
-    if (m_Terminated)
-    {
-        return; // Nothing to release!
-    }
-    // Detach from the associated bucket
-    Detach();
-    // Release script resources
-    Release();
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 Routine::Cmp(const Routine & o) const
-{
-    if (m_Interval == o.m_Interval)
-        return 0;
-    else if (m_Interval > o.m_Interval)
-        return 1;
-    else
-        return -1;
-}
-
-// ------------------------------------------------------------------------------------------------
-CSStr Routine::ToString() const
-{
-    return ToStrF(_PRINT_INT_FMT, m_Interval);
-}
-
-// ------------------------------------------------------------------------------------------------
-const String & Routine::GetTag() const
-{
-    return m_Tag;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::SetTag(CSStr tag)
-{
-    m_Tag.assign(tag ? tag : _SC(""));
-}
-
-// ------------------------------------------------------------------------------------------------
-Object & Routine::GetData()
-{
-    // Validate the routine lifetime
-    Validate();
-    // Return the requested information
-    return m_Data;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::SetData(Object & data)
-{
-    // Validate the routine lifetime
-    Validate();
-    // Apply the specified value
-    m_Data = data;
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine & Routine::ApplyTag(CSStr tag)
-{
-    m_Tag.assign(tag ? tag : _SC(""));
-    // Allow chaining
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine & Routine::ApplyData(Object & data)
-{
-    // Validate the routine lifetime
-    Validate();
-    // Apply the specified value
-    m_Data = data;
-    // Allow chaining
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::Terminate()
-{
-    // Was the routine already terminated?
-    if (m_Terminated)
-    {
-        STHROWF("Routine was already terminated");
-    }
-    // Detach from the associated bucket
-    Detach();
-    // Release script resources and mark it as terminated
-    Release();
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine & Routine::SetArg(Uint8 num, Object & val)
-{
-    // Validate the routine lifetime
-    Validate();
-    // Identify which argument was requested
-    switch (num)
-    {
-        case 1: m_Arg1 = val; break;
-        case 2: m_Arg2 = val; break;
-        case 3: m_Arg3 = val; break;
-        case 4: m_Arg4 = val; break;
-        case 5: m_Arg5 = val; break;
-        case 6: m_Arg6 = val; break;
-        case 7: m_Arg7 = val; break;
-        case 8: m_Arg8 = val; break;
-        case 9: m_Arg9 = val; break;
-        case 10: m_Arg10 = val; break;
-        case 11: m_Arg11 = val; break;
-        case 12: m_Arg12 = val; break;
-        case 13: m_Arg13 = val; break;
-        case 14: m_Arg14 = val; break;
-        default: STHROWF("Argument is out of range: %d", num);
-    }
-    // Allow chaining
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-Object & Routine::GetArg(Uint8 num)
-{
-    // Validate the routine lifetime
-    Validate();
-    // Identify which argument was requested
-    switch (num)
-    {
-        case 1: return m_Arg1;
-        case 2: return m_Arg2;
-        case 3: return m_Arg3;
-        case 4: return m_Arg4;
-        case 5: return m_Arg5;
-        case 6: return m_Arg6;
-        case 7: return m_Arg7;
-        case 8: return m_Arg8;
-        case 9: return m_Arg9;
-        case 10: return m_Arg10;
-        case 11: return m_Arg11;
-        case 12: return m_Arg12;
-        case 13: return m_Arg13;
-        case 14: return m_Arg14;
-        default: STHROWF("Argument is out of range: %d", num);
-    }
-    // Shouldn't really reach this point
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine::Interval Routine::GetInterval() const
-{
-    return m_Interval;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::SetInterval(Interval interval)
-{
-    // Validate the routine lifetime
-    Validate();
-    // Is the specified interval valid?
-    if (!interval)
-    {
-        STHROWF("Invalid routine interval");
-    }
-    // Detach from the current bucket
-    Detach();
-    // Update the interval
-    m_Interval = interval;
-    // Attach to the new bucket
-    Attach();
-}
-
-// ------------------------------------------------------------------------------------------------
-Routine::Iterate Routine::GetIterations() const
-{
-    return m_Iterations;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::SetIterations(Iterate iterations)
-{
-    // Validate the routine lifetime
-    Validate();
-    // Perform the requested operation
-    m_Iterations = iterations;
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint8 Routine::GetArguments() const
-{
-    return m_Arguments;
-}
-
-void Routine::SetArguments(Uint8 num)
-{
-    // Validate the routine lifetime
-    Validate();
-    // Is the specified argument count valid?
-    if (num > 14)
-    {
-        STHROWF("Argument is out of range: %d", num);
-    }
-    // Perform the requested operation
-    m_Arguments = num;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Routine::GetSuspended() const
-{
-    return m_Suspended;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::SetSuspended(bool toggle)
-{
-    // Validate the routine lifetime
-    Validate();
-    // Perform the requested operation
-    m_Suspended = toggle;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Routine::GetTerminated() const
-{
-    return m_Terminated;
-}
-
-// ------------------------------------------------------------------------------------------------
-Function & Routine::GetCallback()
-{
-    // Validate the routine lifetime
-    Validate();
-    // Return the requested information
-    return m_Callback;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::SetCallback(Object & env, Function & func)
-{
-    // Validate the routine lifetime
-    Validate();
-    // Perform the requested operation
-    m_Callback = Function(env.GetVM(), env, func.GetFunc());
+    } while (itr != s_Routines.end());
+    // Reset the routine instance slot
+    routine->m_Slot = 0xFFFF;
+    // Release any strong reference to this routine instance
+    Dissociate(routine);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Routine::Release()
 {
-    // Was the routine already terminated?
-    if (m_Terminated)
-    {
-        return; // Nothing to release!
-    }
-    // Mark it as terminated
-    m_Terminated = true;
     // Release the callback
     m_Callback.ReleaseGently();
     // Release the arguments
@@ -627,71 +231,6 @@ void Routine::Release()
     m_Arg12.Release();
     m_Arg13.Release();
     m_Arg14.Release();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::Create()
-{
-    // Do we even have a valid interval?
-    if (!m_Interval)
-    {
-        STHROWF("Invalid routine interval");
-    }
-    // Is the specified callback even valid?
-    else if (m_Callback.IsNull())
-    {
-        STHROWF("Invalid routine callback");
-    }
-    // Always use the command queue to attach the routine when created
-    s_Queue.emplace_back(this, m_Interval, CMD_ATTACH);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::Attach()
-{
-    // Do we have a valid interval?
-    if (!m_Interval)
-    {
-        return; // Nothing to attach to!
-    }
-    // Are the buckets locked?
-    else if (s_Lock)
-    {
-        // Queue a command to attach this routine when the bucket is unlocked
-        s_Queue.emplace_back(this, m_Interval, CMD_ATTACH);
-    }
-    // Attempt to attach the the routine now
-    else
-    {
-        // Attach to the associated bucket
-        Attach(this, m_Interval);
-        // Associate the instance with it's script object to prevent unexpected release
-        Associate(this);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::Detach()
-{
-    // Do we have a valid interval?
-    if (!m_Interval)
-    {
-        return; // Nothing to detach from!
-    }
-    // Are the buckets locked?
-    else if (s_Lock)
-    {
-        // Queue a command to detach this routine when the bucket is unlocked
-        s_Queue.emplace_back(this, m_Interval, CMD_DETACH);
-    }
-    // Attempt to detach the the routine now
-    else
-    {
-        // Detach from the associated bucket
-        Detach(this, m_Interval);
-        // Break association to allow the instance to be released
-        Dissociate(this);
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -785,21 +324,485 @@ void Routine::Execute()
         Terminate(); // This routine reached the end of it's life
     }
 }
-
-/* ------------------------------------------------------------------------------------------------
- * Forward the call to process routines.
-*/
-void ProcessRoutine()
+// ------------------------------------------------------------------------------------------------
+Routine::Routine(Object & env, Function & func, Interval interval)
+    : m_Iterations(0)
+    , m_Interval(interval)
+    , m_Slot(0xFFFF)
+    , m_Arguments(0)
+    , m_Suspended(false)
+    , m_Terminated(false)
+    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Tag(_SC(""))
+    , m_Data()
 {
-    Routine::Process();
+    // Make sure the interval is good
+    if (m_Interval < 0)
+    {
+        STHROWF("Invalid routine interval");
+    }
+    else
+    {
+        Insert(this, false);
+    }
 }
 
-/* ------------------------------------------------------------------------------------------------
- * Forward the call to terminate routines.
-*/
-void TerminateRoutine()
+Routine::Routine(Object & env, Function & func, Interval interval, Iterator iterations)
+    : m_Iterations(iterations)
+    , m_Interval(interval)
+    , m_Slot(0xFFFF)
+    , m_Arguments(0)
+    , m_Suspended(false)
+    , m_Terminated(false)
+    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Tag(_SC(""))
+    , m_Data()
 {
-    Routine::TerminateAll();
+    // Make sure the interval is good
+    if (m_Interval < 0)
+    {
+        STHROWF("Invalid routine interval");
+    }
+    else
+    {
+        Insert(this, false);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine::Routine(Object & env, Function & func, Interval interval, Iterator iterations
+        , Object & a1)
+    : m_Iterations(iterations)
+    , m_Interval(interval)
+    , m_Slot(0xFFFF)
+    , m_Arguments(1)
+    , m_Suspended(false)
+    , m_Terminated(false)
+    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Tag(_SC(""))
+    , m_Data()
+    , m_Arg1(a1)
+{
+    // Make sure the interval is good
+    if (m_Interval < 0)
+    {
+        STHROWF("Invalid routine interval");
+    }
+    else
+    {
+        Insert(this, false);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine::Routine(Object & env, Function & func, Interval interval, Iterator iterations
+        , Object & a1, Object & a2)
+    : m_Iterations(iterations)
+    , m_Interval(interval)
+    , m_Slot(0xFFFF)
+    , m_Arguments(2)
+    , m_Suspended(false)
+    , m_Terminated(false)
+    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Tag(_SC(""))
+    , m_Data()
+    , m_Arg1(a1), m_Arg2(a2)
+{
+    // Make sure the interval is good
+    if (m_Interval < 0)
+    {
+        STHROWF("Invalid routine interval");
+    }
+    else
+    {
+        Insert(this, false);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine::Routine(Object & env, Function & func, Interval interval, Iterator iterations
+        , Object & a1, Object & a2, Object & a3)
+    : m_Iterations(iterations)
+    , m_Interval(interval)
+    , m_Slot(0xFFFF)
+    , m_Arguments(3)
+    , m_Suspended(false)
+    , m_Terminated(false)
+    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Tag(_SC(""))
+    , m_Data()
+    , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3)
+{
+    // Make sure the interval is good
+    if (m_Interval < 0)
+    {
+        STHROWF("Invalid routine interval");
+    }
+    else
+    {
+        Insert(this, false);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine::Routine(Object & env, Function & func, Interval interval, Iterator iterations
+        , Object & a1, Object & a2, Object & a3, Object & a4)
+    : m_Iterations(iterations)
+    , m_Interval(interval)
+    , m_Slot(0xFFFF)
+    , m_Arguments(4)
+    , m_Suspended(false)
+    , m_Terminated(false)
+    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Tag(_SC(""))
+    , m_Data()
+    , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3), m_Arg4(a4)
+{
+    // Make sure the interval is good
+    if (m_Interval < 0)
+    {
+        STHROWF("Invalid routine interval");
+    }
+    else
+    {
+        Insert(this, false);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine::Routine(Object & env, Function & func, Interval interval, Iterator iterations
+        , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5)
+    : m_Iterations(iterations)
+    , m_Interval(interval)
+    , m_Slot(0xFFFF)
+    , m_Arguments(5)
+    , m_Suspended(false)
+    , m_Terminated(false)
+    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Tag(_SC(""))
+    , m_Data()
+    , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3), m_Arg4(a4), m_Arg5(a5)
+{
+    // Make sure the interval is good
+    if (m_Interval < 0)
+    {
+        STHROWF("Invalid routine interval");
+    }
+    else
+    {
+        Insert(this, false);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine::~Routine()
+{
+    // Remove this instance from the pool
+    Forget(this);
+    // Was the routine already terminated?
+    if (!m_Terminated)
+    {
+        return; // Nothing to release!
+    }
+    // Remove it from the pool
+    Remove(this);
+    // Release script resources
+    Release();
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 Routine::Cmp(const Routine & o) const
+{
+    if (m_Interval == o.m_Interval)
+    {
+        return 0;
+    }
+    else if (m_Interval > o.m_Interval)
+    {
+        return 1;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr Routine::ToString() const
+{
+    return ToStrF(_PRINT_INT_FMT, m_Interval);
+}
+
+// ------------------------------------------------------------------------------------------------
+const String & Routine::GetTag() const
+{
+    return m_Tag;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::SetTag(CSStr tag)
+{
+    m_Tag.assign(tag ? tag : _SC(""));
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & Routine::GetData()
+{
+    // Validate the routine lifetime
+    Validate();
+    // Return the requested information
+    return m_Data;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::SetData(Object & data)
+{
+    // Validate the routine lifetime
+    Validate();
+    // Apply the specified value
+    m_Data = data;
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine & Routine::ApplyTag(CSStr tag)
+{
+    m_Tag.assign(tag ? tag : _SC(""));
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine & Routine::ApplyData(Object & data)
+{
+    // Validate the routine lifetime
+    Validate();
+    // Apply the specified value
+    m_Data = data;
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine & Routine::Activate()
+{
+    // Validate the routine lifetime
+    Validate();
+    // Make sure the interval is good
+    if (m_Interval < 0)
+    {
+        STHROWF("Invalid routine interval");
+    }
+    // Make sure no slot is associated
+    else if (m_Slot >= s_Routines.size())
+    {
+        Insert(this);
+    }
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine & Routine::Deactivate()
+{
+    // Validate the routine lifetime
+    Validate();
+    // Remove it from the pool
+    Remove(this);
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine & Routine::Terminate()
+{
+    // Was the routine already terminated?
+    if (m_Terminated)
+    {
+        STHROWF("Routine was already terminated");
+    }
+    // Remove it from the pool
+    Remove(this);
+    // Release script resources
+    Release();
+    // Mark it as terminated
+    m_Terminated = true;
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine & Routine::Reanimate()
+{
+    // Allow the instance to be used
+    m_Terminated = false;
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine & Routine::SetArg(Uint16 num, Object & val)
+{
+    // Validate the routine lifetime
+    Validate();
+    // Identify which argument was requested
+    switch (num)
+    {
+        case 1: m_Arg1 = val; break;
+        case 2: m_Arg2 = val; break;
+        case 3: m_Arg3 = val; break;
+        case 4: m_Arg4 = val; break;
+        case 5: m_Arg5 = val; break;
+        case 6: m_Arg6 = val; break;
+        case 7: m_Arg7 = val; break;
+        case 8: m_Arg8 = val; break;
+        case 9: m_Arg9 = val; break;
+        case 10: m_Arg10 = val; break;
+        case 11: m_Arg11 = val; break;
+        case 12: m_Arg12 = val; break;
+        case 13: m_Arg13 = val; break;
+        case 14: m_Arg14 = val; break;
+        default: STHROWF("Argument is out of range: %d", num);
+    }
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & Routine::GetArg(Uint16 num)
+{
+    // Validate the routine lifetime
+    Validate();
+    // Identify which argument was requested
+    switch (num)
+    {
+        case 1: return m_Arg1;
+        case 2: return m_Arg2;
+        case 3: return m_Arg3;
+        case 4: return m_Arg4;
+        case 5: return m_Arg5;
+        case 6: return m_Arg6;
+        case 7: return m_Arg7;
+        case 8: return m_Arg8;
+        case 9: return m_Arg9;
+        case 10: return m_Arg10;
+        case 11: return m_Arg11;
+        case 12: return m_Arg12;
+        case 13: return m_Arg13;
+        case 14: return m_Arg14;
+        default: STHROWF("Argument is out of range: %d", num);
+    }
+    // Shouldn't really reach this point
+    return NullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine::Interval Routine::GetInterval() const
+{
+    return m_Interval;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::SetInterval(Interval interval)
+{
+    // Validate the routine lifetime
+    Validate();
+    // Is the specified interval valid?
+    if (interval < 0)
+    {
+        STHROWF("Invalid routine interval");
+    }
+    // Do we have any slot to update?
+    if (m_Slot >= s_Routines.size())
+    {
+        // Update the interval
+        m_Interval = interval;
+        // We're done here!
+        return;
+    }
+    // Make changes visible immediately
+    if (interval > m_Interval)
+    {
+        s_Routines[m_Slot].first += (interval - m_Interval);
+    }
+    else
+    {
+        s_Routines[m_Slot].first -= (m_Interval - interval);
+    }
+    // Update the interval
+    m_Interval = interval;
+}
+
+// ------------------------------------------------------------------------------------------------
+Routine::Iterator Routine::GetIterations() const
+{
+    return m_Iterations;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::SetIterations(Iterator iterations)
+{
+    // Validate the routine lifetime
+    Validate();
+    // Perform the requested operation
+    m_Iterations = iterations;
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint16 Routine::GetArguments() const
+{
+    return m_Arguments;
+}
+
+void Routine::SetArguments(Uint16 num)
+{
+    // Validate the routine lifetime
+    Validate();
+    // Is the specified argument count valid?
+    if (num > 14)
+    {
+        STHROWF("Argument is out of range: %d", num);
+    }
+    // Perform the requested operation
+    m_Arguments = num;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Routine::GetSuspended() const
+{
+    return m_Suspended;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::SetSuspended(bool toggle)
+{
+    // Validate the routine lifetime
+    Validate();
+    // Perform the requested operation
+    m_Suspended = toggle;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Routine::GetTerminated() const
+{
+    return m_Terminated;
+}
+
+// ------------------------------------------------------------------------------------------------
+Function & Routine::GetCallback()
+{
+    // Validate the routine lifetime
+    Validate();
+    // Return the requested information
+    return m_Callback;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Routine::SetCallback(Object & env, Function & func)
+{
+    // Validate the routine lifetime
+    Validate();
+    // Perform the requested operation
+    m_Callback = Function(env.GetVM(), env, func.GetFunc());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -809,118 +812,44 @@ Object Routine::Create(Object & env, Function & func, Interval interval)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Routine::Create(Object & env, Function & func, Interval interval, Iterate iterations)
+Object Routine::Create(Object & env, Function & func, Interval interval, Iterator iterations)
 {
     return Associate(new Routine(env, func, interval, iterations));
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Routine::Create(Object & env, Function & func, Interval interval, Iterate iterations
+Object Routine::Create(Object & env, Function & func, Interval interval, Iterator iterations
                         , Object & a1)
 {
     return Associate(new Routine(env, func, interval, iterations, a1));
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Routine::Create(Object & env, Function & func, Interval interval, Iterate iterations
+Object Routine::Create(Object & env, Function & func, Interval interval, Iterator iterations
                         , Object & a1, Object & a2)
 {
     return Associate(new Routine(env, func, interval, iterations, a1, a2));
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Routine::Create(Object & env, Function & func, Interval interval, Iterate iterations
+Object Routine::Create(Object & env, Function & func, Interval interval, Iterator iterations
                         , Object & a1, Object & a2, Object & a3)
 {
     return Associate(new Routine(env, func, interval, iterations, a1, a2, a3));
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Routine::Create(Object & env, Function & func, Interval interval, Iterate iterations
+Object Routine::Create(Object & env, Function & func, Interval interval, Iterator iterations
                         , Object & a1, Object & a2, Object & a3, Object & a4)
 {
     return Associate(new Routine(env, func, interval, iterations, a1, a2, a3, a4));
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Routine::Create(Object & env, Function & func, Interval interval, Iterate iterations
+Object Routine::Create(Object & env, Function & func, Interval interval, Iterator iterations
                         , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5)
 {
     return Associate(new Routine(env, func, interval, iterations, a1, a2, a3, a4, a5));
-}
-
-// ------------------------------------------------------------------------------------------------
-void Routine::Flush()
-{
-    // Make sure the buckets are not locked
-    if (s_Lock)
-    {
-        STHROWF("Buckets are under active lock");
-    }
-    // Process commands in queue
-    ProcQueue();
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint32 Routine::QueueSize()
-{
-    return static_cast< Uint32 >(s_Queue.size());
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint32 Routine::GetCount()
-{
-    return static_cast< Uint32 >(s_Objects.size());
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint32 Routine::GetBuckets()
-{
-    return static_cast< Uint32 >(s_Buckets.size());
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint32 Routine::GetInBucket(Interval interval)
-{
-    // Attempt to locate the bucket with the specified interval
-    Buckets::iterator itr = std::find_if(s_Buckets.begin(), s_Buckets.end(), IntrvFunc(interval));
-    // Does this bucket exist?
-    if (itr == s_Buckets.end())
-    {
-        return 0; // This bucket doesn't exist!
-    }
-    // Return the number of elements in this bucket
-    return static_cast< Uint32 >(itr->mRoutines.size());
-}
-
-// ------------------------------------------------------------------------------------------------
-Array Routine::GetBucketsList()
-{
-    // Allocate an array large enough to hold the number of active buckets
-    Array arr(DefaultVM::Get(), s_Buckets.size());
-    // The index where the bucket interval should be inserted
-    SQInteger idx = 0;
-    // Insert the interval and size of each active bucket
-    for (const auto & bucket : s_Buckets)
-    {
-        arr.SetValue(idx++, bucket.mInterval);
-    }
-    // Return the resulted array
-    return arr;
-}
-
-// ------------------------------------------------------------------------------------------------
-Table Routine::GetBucketsTable()
-{
-    // Create a table to hold the number of active buckets
-    Table tbl(DefaultVM::Get());
-    // Insert the interval of each active bucket
-    for (const auto & bucket : s_Buckets)
-    {
-        tbl.SetValue(bucket.mInterval, bucket.mRoutines.size());
-    }
-    // Return the resulted table
-    return tbl;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -955,16 +884,40 @@ Object Routine::FindByTag(CSStr tag)
     return NullObject();
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to process routines.
+*/
+void ProcessRoutines()
+{
+    Routine::Process();
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to initialize routines.
+*/
+void InitializeRoutines()
+{
+    Routine::Initialize();
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to terminate routines.
+*/
+void TerminateRoutines()
+{
+    Routine::Deinitialize();
+}
+
 // ================================================================================================
 void Register_Routine(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqRoutine"),
         Class< Routine, NoConstructor< Routine > >(vm, _SC("SqRoutine"))
-        /* Metamethods */
+        // Metamethods
         .Func(_SC("_cmp"), &Routine::Cmp)
         .SquirrelFunc(_SC("_typename"), &Routine::Typename)
         .Func(_SC("_tostring"), &Routine::ToString)
-        /* Properties */
+        // Properties
         .Prop(_SC("Tag"), &Routine::GetTag, &Routine::SetTag)
         .Prop(_SC("Data"), &Routine::GetData, &Routine::SetData)
         .Prop(_SC("Interval"), &Routine::GetInterval, &Routine::SetInterval)
@@ -973,7 +926,7 @@ void Register_Routine(HSQUIRRELVM vm)
         .Prop(_SC("Suspended"), &Routine::GetSuspended, &Routine::SetSuspended)
         .Prop(_SC("Terminated"), &Routine::GetTerminated)
         .Prop(_SC("Callback"), &Routine::GetCallback)
-        /* Functions */
+        // Functions
         .Func(_SC("SetTag"), &Routine::ApplyTag)
         .Func(_SC("SetData"), &Routine::ApplyData)
         .Func(_SC("Terminate"), &Routine::Terminate)
@@ -981,32 +934,25 @@ void Register_Routine(HSQUIRRELVM vm)
         .Func(_SC("GetArg"), &Routine::GetArg)
         .Func(_SC("SetArg"), &Routine::SetArg)
         // Static Functions
-        .StaticFunc(_SC("Flush"), &Routine::Flush)
-        .StaticFunc(_SC("QueueSize"), &Routine::QueueSize)
-        .StaticFunc(_SC("Count"), &Routine::GetCount)
-        .StaticFunc(_SC("Buckets"), &Routine::GetBuckets)
-        .StaticFunc(_SC("InBucket"), &Routine::GetInBucket)
-        .StaticFunc(_SC("BucketsList"), &Routine::GetBucketsList)
-        .StaticFunc(_SC("BucketsTable"), &Routine::GetBucketsTable)
         .StaticFunc(_SC("FindByTag"), &Routine::FindByTag)
         // Static Overloads
         .StaticOverload< Object (*)(Object &, Function &, Routine::Interval) >
             (_SC("Create"), &Routine::Create)
-        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterate) >
+        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterator) >
             (_SC("Create"), &Routine::Create)
-        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterate,
+        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterator,
                                         Object &) >
             (_SC("Create"), &Routine::Create)
-        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterate,
+        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterator,
                                         Object &, Object &) >
             (_SC("Create"), &Routine::Create)
-        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterate,
+        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterator,
                                         Object &, Object &, Object &) >
             (_SC("Create"), &Routine::Create)
-        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterate,
+        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterator,
                                         Object &, Object &, Object &, Object &) >
             (_SC("Create"), &Routine::Create)
-        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterate,
+        .StaticOverload< Object (*)(Object &, Function &, Routine::Interval, Routine::Iterator,
                                         Object &, Object &, Object &, Object &, Object &) >
             (_SC("Create"), &Routine::Create)
     );

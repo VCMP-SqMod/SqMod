@@ -7,12 +7,35 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// ------------------------------------------------------------------------------------------------
-CCStr GetWeaponName(Uint32 id);
-void SetWeaponName(Uint32 id, CCStr name);
-Int32 GetWeaponID(CCStr name);
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the name associated with a weapon identifier.
+*/
+CSStr GetWeaponName(Uint32 id);
+
+/* ------------------------------------------------------------------------------------------------
+ * Modify the name associated with a weapon identifier.
+*/
+void SetWeaponName(Uint32 id, CSStr name);
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert a weapon name to a weapon identifier.
+*/
+Int32 GetWeaponID(CSStr name);
+
+/* ------------------------------------------------------------------------------------------------
+ * See whether the specified weapon identifier is valid.
+*/
 bool IsWeaponValid(Int32 id);
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert the given weapon identifier to it's associated model identifier.
+*/
 Int32 WeaponToModel(Int32 id);
+
+/* ------------------------------------------------------------------------------------------------
+ * See whether the given weapon identifier cannot be used by another player to inflict damage.
+*/
+bool IsWeaponNatural(Int32 id);
 
 } // Namespace:: SqMod
 

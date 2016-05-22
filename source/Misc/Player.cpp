@@ -48,41 +48,9 @@ static String CS_Skin_Names[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
-void SetUseClasses(bool toggle)
-{ _Func->SetUseClasses(toggle); }
-bool GetUseClasses(void)
-{ return _Func->GetUseClasses(); }
-
-// ------------------------------------------------------------------------------------------------
-Int32 AddPlayerClass(Int32 team, const Color3 & color, Int32 skin, const Vector3 & pos, Float32 angle,
-                    Int32 w1, Int32 a1, Int32 w2, Int32 a2, Int32 w3, Int32 a3)
-{
-    return _Func->AddPlayerClass(team, color.GetRGB(), skin, pos.x, pos.y, pos.z, angle,
-                                    w1, a1, w2, a2, w3, a3);
-}
-
-// ------------------------------------------------------------------------------------------------
-void SetSpawnPlayerPos(const Vector3 & pos)
-{ _Func->SetSpawnPlayerPos(pos.x, pos.y, pos.z); }
-void SetSpawnPlayerPosEx(Float32 x, Float32 y, Float32 z)
-{ _Func->SetSpawnPlayerPos(x, y, z); }
-
-// ------------------------------------------------------------------------------------------------
-void SetSpawnCameraPos(const Vector3 & pos)
-{ _Func->SetSpawnCameraPos(pos.x, pos.y, pos.z); }
-void SetSpawnCameraPosEx(Float32 x, Float32 y, Float32 z)
-{ _Func->SetSpawnCameraPos(x, y, z); }
-
-// ------------------------------------------------------------------------------------------------
-void SetSpawnCameraLookAt(const Vector3 & pos)
-{ _Func->SetSpawnCameraLookAt(pos.x, pos.y, pos.z); }
-void SetSpawnCameraLookAtEx(Float32 x, Float32 y, Float32 z)
-{ _Func->SetSpawnCameraLookAt(x, y, z); }
-
-// ------------------------------------------------------------------------------------------------
 CCStr GetSkinName(Uint32 id)
 {
-    return (id > 159) ? g_EmptyStr : CS_Skin_Names[id].c_str();
+    return (id > 159) ? _SC("") : CS_Skin_Names[id].c_str();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -721,29 +689,8 @@ Int32 GetSkinID(CCStr name)
 // ------------------------------------------------------------------------------------------------
 bool IsSkinValid(Int32 id)
 {
-    return (strlen(GetSkinName(id)) > 0);
-}
-
-// ------------------------------------------------------------------------------------------------
-Object & FindPlayer(Object & by)
-{
-    switch (by.GetType())
-    {
-        case OT_INTEGER:
-            return _Core->GetPlayer(by.Cast< Int32 >()).mObj;
-        case OT_FLOAT:
-            return _Core->GetPlayer(round(by.Cast< Float32 >())).mObj;
-        case OT_STRING:
-        {
-            String str(by.Cast< String >());
-            Int32 id = _Func->GetPlayerIDFromName(&str[0]);
-            if (VALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
-                _Core->GetPlayer(id).mObj;
-        } break;
-        default:
-            STHROWF("Unsupported search identifier");
-    }
-    return NullObject();
+    CSStr name = GetSkinName(id);
+    return (name && *name != '\0');
 }
 
 } // Namespace:: SqMod

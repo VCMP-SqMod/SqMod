@@ -1,17 +1,21 @@
 // ------------------------------------------------------------------------------------------------
 #include "Misc/Functions.hpp"
+#include "Base/Shared.hpp"
+#include "Base/Stack.hpp"
+#include "Base/Color3.hpp"
+#include "Base/Vector2.hpp"
 #include "Base/Vector3.hpp"
-#include "Library/Numeric.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <cstring>
-#include <algorithm>
+#include "Entity/Player.hpp"
+#include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static ServerSettings g_SvSettings;
+static ServerSettings   g_SvSettings;
+static PluginInfo       g_PluginInfo;
+
+// ------------------------------------------------------------------------------------------------
 static SQChar g_SvNameBuff[SQMOD_SVNAMELENGTH] = {0};
 static SQChar g_PasswdBuff[SQMOD_PASSWDLENGTH] = {0};
 static SQChar g_GmNameBuff[SQMOD_GMNAMELENGTH] = {0};
@@ -72,65 +76,166 @@ static String CS_Keycode_Names[] = {"", /* index 0 is not used */
 };
 
 // ------------------------------------------------------------------------------------------------
-CCStr GetKeyCodeName(Uint8 keycode)
-{ return CS_Keycode_Names[keycode].c_str(); }
-void SetKeyCodeName(Uint8 keycode, CCStr name)
-{ CS_Keycode_Names[keycode].assign(name); }
+CSStr GetKeyCodeName(Uint8 keycode)
+{
+    return CS_Keycode_Names[keycode].c_str();
+}
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetPluginVersion()
-{ return SQMOD_VERSION; }
-CCStr GetPluginVersionStr()
-{ return SQMOD_VERSION_STR; }
-CCStr GetPluginName()
-{ return SQMOD_NAME; }
-CCStr GetPluginAuthor()
-{ return SQMOD_AUTHOR; }
-Int32 GetPluginID()
-{ return _Info->nPluginId; }
-Uint32 GetNumberOfPlugins()
-{ return _Func->GetNumberOfPlugins(); }
-Int32 FindPlugin(CCStr name)
-{ return _Func->FindPlugin(const_cast< CStr >(name)); }
+void SetKeyCodeName(Uint8 keycode, CSStr name)
+{
+    CS_Keycode_Names[keycode].assign(name);
+}
 
 // ------------------------------------------------------------------------------------------------
 Uint32 GetServerVersion()
-{ return _Func->GetServerVersion(); }
+{
+    return _Func->GetServerVersion();
+}
+
+// ------------------------------------------------------------------------------------------------
+Table GetServerSettings()
+{
+    // Update the server settings structure
+    _Func->GetServerSettings(&g_SvSettings);
+    // Allocate a script table
+    Table tbl;
+    // Add the structure members to the script table
+    tbl.SetValue(_SC("Name"),       g_SvSettings.serverName);
+    tbl.SetValue(_SC("MaxPlayers"), g_SvSettings.maxPlayers);
+    tbl.SetValue(_SC("Port"),       g_SvSettings.port);
+    tbl.SetValue(_SC("Flags"),      g_SvSettings.flags);
+    // Return the resulted table
+    return tbl;
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 GetNumberOfPlugins()
+{
+    return _Func->GetNumberOfPlugins();
+}
+
+// ------------------------------------------------------------------------------------------------
+Table GetPluginInfo(Int32 plugin_id)
+{
+    // Attempt to update the plug-in info structure
+    if (_Func->GetPluginInfo(plugin_id, &g_PluginInfo) == vcmpErrorNoSuchEntity)
+    {
+        STHROWF("Unknown plug-in identifier: %d", plugin_id);
+    }
+    // Allocate a script table
+    Table tbl;
+    // Add the structure members to the script table
+    tbl.SetValue(_SC("Id"),         g_PluginInfo.pluginId);
+    tbl.SetValue(_SC("Name"),       g_PluginInfo.name);
+    tbl.SetValue(_SC("Version"),    g_PluginInfo.pluginVersion);
+    tbl.SetValue(_SC("MajorAPI"),   g_PluginInfo.apiMajorVersion);
+    tbl.SetValue(_SC("MinorAPI"),   g_PluginInfo.apiMinorVersion);
+    // Return the resulted table
+    return tbl;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 FindPlugin(CSStr name)
+{
+    return _Func->FindPlugin(name);
+}
+
+// ------------------------------------------------------------------------------------------------
+void SendPluginCommand(Uint32 identifier, CSStr payload)
+{
+    _Func->SendPluginCommand(identifier, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+const ULongInt & GetTime()
+{
+    return GetULongInt(_Func->GetTime());
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger SendLogMessage(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the message value specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing message value");
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Forward the resulted string value
+    else if (_Func->LogMessage("%s", val.mPtr) == vcmpErrorTooLargeInput)
+    {
+        STHROWF("Input is too big");
+    }
+    // This function does not return a value
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 GetLastError()
+{
+    return _Func->GetLastError();
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 GetPluginVersion()
+{
+    return SQMOD_VERSION;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr GetPluginVersionStr()
+{
+    return SQMOD_VERSION_STR;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr GetPluginName()
+{
+    return SQMOD_NAME;
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr GetPluginAuthor()
+{
+    return SQMOD_AUTHOR;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 GetPluginID()
+{
+    return _Info->pluginId;
+}
 
 // ------------------------------------------------------------------------------------------------
 Uint32 GetServerPort()
 {
+    // Update the server settings structure
     _Func->GetServerSettings(&g_SvSettings);
-    return g_SvSettings.uPort;
+    // Return the requested information
+    return g_SvSettings.port;
 }
 
+// ------------------------------------------------------------------------------------------------
 Uint32 GetServerFlags()
 {
+    // Update the server settings structure
     _Func->GetServerSettings(&g_SvSettings);
-    return g_SvSettings.uFlags;
+    // Return the requested information
+    return g_SvSettings.flags;
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetServerName(CCStr name)
-{ _Func->SetServerName(name); }
-CCStr GetServerName()
+Int32 GetMaxPlayers(void)
 {
-    _Func->GetServerName(g_SvNameBuff, SQMOD_SVNAMELENGTH);
-    return g_SvNameBuff;
-}
-
-// ------------------------------------------------------------------------------------------------
-ULongInt GetTime()
-{
-    std::uint64_t time = 0;
-    _Func->GetTime(&time);
-    return ULongInt(time);
-}
-
-// ------------------------------------------------------------------------------------------------
-void SendCustomCommand(Uint32 type, CCStr cmd)
-{
-    _Func->SendCustomCommand(type, cmd);
+    return _Func->GetMaxPlayers();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -139,39 +244,534 @@ void SetMaxPlayers(Int32 max)
     _Func->SetMaxPlayers(max);
 }
 
-Int32 GetMaxPlayers(void)
+// ------------------------------------------------------------------------------------------------
+CSStr GetServerName()
 {
-    return _Func->GetMaxPlayers();
+    // Populate the buffer
+    if (_Func->GetServerName(g_SvNameBuff, SQMOD_SVNAMELENGTH) == vcmpErrorBufferTooSmall)
+    {
+        STHROWF("Server name was too big for the available buffer: %u", sizeof(g_SvNameBuff));
+    }
+    // Return the result
+    return g_SvNameBuff;
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetServerPassword(CCStr passwd)
-{ _Func->SetServerPassword(const_cast< CStr >(passwd)); }
-CCStr GetServerPassword()
+void SetServerName(CSStr name)
 {
-    _Func->GetServerPassword(g_PasswdBuff, SQMOD_PASSWDLENGTH);
+    _Func->SetServerName(name);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr GetServerPassword()
+{
+    // Populate the buffer
+    if (_Func->GetServerPassword(g_PasswdBuff, SQMOD_PASSWDLENGTH) == vcmpErrorBufferTooSmall)
+    {
+        STHROWF("Server password was too big for the available buffer: %u", sizeof(g_PasswdBuff));
+    }
+    // Return the result
     return g_PasswdBuff;
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetGameModeText(CCStr text)
-{ _Func->SetGameModeText(text); }
-CCStr GetGameModeText()
+void SetServerPassword(CSStr passwd)
 {
-    _Func->GetGameModeText(g_GmNameBuff, SQMOD_GMNAMELENGTH);
+    _Func->SetServerPassword(passwd);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr GetGameModeText()
+{
+    // Populate the buffer
+    if (_Func->GetGameModeText(g_GmNameBuff, SQMOD_GMNAMELENGTH) == vcmpErrorBufferTooSmall)
+    {
+        STHROWF("Game-mode text was too big for the available buffer: %u", sizeof(g_GmNameBuff));
+    }
+    // Return the result
     return g_GmNameBuff;
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 PlaySound(Int32 world, Int32 sound, const Vector3 & pos)
-{ return _Func->PlaySound(world, sound, pos.x, pos.y, pos.z); }
-Int32 PlaySoundEx(Int32 world, Int32 sound, Float32 x, Float32 y, Float32 z)
-{ return _Func->PlaySound(world, sound, x, y, z); }
+void SetGameModeText(CSStr text)
+{
+    _Func->SetGameModeText(text);
+}
 
 // ------------------------------------------------------------------------------------------------
-Int32 AddRadioStream(Int32 id, CCStr name, CCStr url, bool listed)
-{  return _Func->AddRadioStream(id, name, url, listed); }
-Int32 RemoveRadioStream(Int32 id)
-{ return _Func->RemoveRadioStream(id); }
+void CreateRadioStream(CSStr name, CSStr url, bool listed)
+{
+    if (_Func->AddRadioStream(-1, name, url, listed) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid radio stream identifier");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CreateRadioStreamEx(Int32 id, CSStr name, CSStr url, bool listed)
+{
+    if (_Func->AddRadioStream(id, name, url, listed) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid radio stream identifier");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void RemoveRadioStream(Int32 id)
+{
+    if (_Func->RemoveRadioStream(id) == vcmpErrorNoSuchEntity)
+    {
+        STHROWF("No such radio stream exists");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void ShutdownServer()
+{
+    _Func->ShutdownServer();
+}
+
+// ------------------------------------------------------------------------------------------------
+bool GetServerOption(Int32 option_id)
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetServerOption(static_cast< vcmpServerOption >(option_id));
+    // Check for errors
+    if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Unknown option identifier: %d", option_id);
+    }
+    // Return the obtained value
+    return value;
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetServerOption(Int32 option_id, bool toggle)
+{
+    if (_Func->SetServerOption(static_cast< vcmpServerOption >(option_id),
+                                toggle) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Unknown option identifier: %d", option_id);
+    }
+    else
+    {
+        Core::Get().EmitServerOption(option_id, toggle, 0, NullObject());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetServerOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload)
+{
+    if (_Func->SetServerOption(static_cast< vcmpServerOption >(option_id),
+                                toggle) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Unknown option identifier: %d", option_id);
+    }
+    else
+    {
+    Core::Get().EmitServerOption(option_id, toggle, header, payload);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Table GetWorldBounds()
+{
+    Vector2 max, min;
+    // Retrieve the current world bounds
+    _Func->GetWorldBounds(&max.x, &min.x, &max.y, &min.y);
+    // Allocate a script table
+    Table tbl;
+    // Populate the table with the obtained values
+    tbl.SetValue(_SC("max"), max);
+    tbl.SetValue(_SC("min"), min);
+    // Return the result
+    return tbl;
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetWorldBounds(const Vector2 & max, const Vector2 & min)
+{
+    _Func->SetWorldBounds(max.x, min.x, max.y, min.y);
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetWorldBoundsEx(Float32 max_x, Float32 max_y, Float32 min_x, Float32 min_y)
+{
+    _Func->SetWorldBounds(max_x, min_x, max_y, min_y);
+}
+
+Table GetWastedSettings()
+{
+    Uint32 fc, dt, ft, cfs, cft;
+    Float32 fis, fos;
+    Color3 c;
+    // Retrieve the current wasted settings bounds
+    _Func->GetWastedSettings(&dt, &ft, &fis, &fos, &fc, &cfs, &cft);
+    // Convert the packed color
+    c.SetRGB(fc);
+    // Allocate a script table
+    Table tbl;
+    // Populate the table with the obtained values
+    tbl.SetValue(_SC("DeathTimerOut"), dt);
+    tbl.SetValue(_SC("FadeTimer"), ft);
+    tbl.SetValue(_SC("FadeInSpeed"), fis);
+    tbl.SetValue(_SC("FadeOutSpeed"), fos);
+    tbl.SetValue(_SC("FadeColour"), c);
+    tbl.SetValue(_SC("CorpseFadeStart"), cfs);
+    tbl.SetValue(_SC("CorpseFadeTime"), cft);
+    // Return the result
+    return tbl;
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetWastedSettings(Uint32 dt, Uint32 ft, Float32 fis, Float32 fos,
+                        const Color3 & fc, Uint32 cfs, Uint32 cft)
+{
+    _Func->SetWastedSettings(dt, ft, fis, fos, fc.GetRGB(), cfs, cft);
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 GetTimeRate(void)
+{
+    return _Func->GetTimeRate();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetTimeRate(Uint32 rate)
+{
+    _Func->SetTimeRate(rate);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 GetHour(void)
+{
+    return _Func->GetHour();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetHour(Int32 hour)
+{
+    _Func->SetHour(hour);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 GetMinute(void)
+{
+    return _Func->GetMinute();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetMinute(Int32 minute)
+{
+    _Func->SetMinute(minute);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 GetWeather(void)
+{
+    return _Func->GetWeather();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetWeather(Int32 weather)
+{
+    _Func->SetWeather(weather);
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 GetGravity(void)
+{
+    return _Func->GetGravity();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetGravity(Float32 gravity)
+{
+    _Func->SetGravity(gravity);
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 GetGameSpeed(void)
+{
+    return _Func->GetGameSpeed();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetGameSpeed(Float32 speed)
+{
+    _Func->SetGameSpeed(speed);
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 GetWaterLevel(void)
+{
+    return _Func->GetWaterLevel();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetWaterLevel(Float32 level)
+{
+    _Func->SetWaterLevel(level);
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 GetMaximumFlightAltitude(void)
+{
+    return _Func->GetMaximumFlightAltitude();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetMaximumFlightAltitude(Float32 height)
+{
+    _Func->SetMaximumFlightAltitude(height);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 GetKillCommandDelay(void)
+{
+    return _Func->GetKillCommandDelay();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetKillCommandDelay(Int32 delay)
+{
+    _Func->SetKillCommandDelay(delay);
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 GetVehiclesForcedRespawnHeight(void)
+{
+    return _Func->GetVehiclesForcedRespawnHeight();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetVehiclesForcedRespawnHeight(Float32 height)
+{
+    _Func->SetVehiclesForcedRespawnHeight(height);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CreateExplosion(Int32 world, Int32 type, const Vector3 & pos, CPlayer & source, bool grounded)
+{
+    // Validate the specified player
+    source.Validate();
+    // Perform the requested operation
+    if (_Func->CreateExplosion(world, type, pos.x, pos.y, pos.z,
+                                source.GetID(), grounded) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Argument value out of bounds");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CreateExplosionEx(Int32 world, Int32 type, Float32 x, Float32 y, Float32 z, CPlayer & source, bool grounded)
+{
+    // Validate the specified player
+    source.Validate();
+    // Perform the requested operation
+    if (_Func->CreateExplosion(world, type, x, y, z,
+                                source.GetID(), grounded) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Argument value out of bounds");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void PlaySound(Int32 world, Int32 sound, const Vector3 & pos)
+{
+    if (_Func->PlaySound(world, sound, pos.x, pos.y, pos.z) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Argument value out of bounds");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void PlaySoundEx(Int32 world, Int32 sound, Float32 x, Float32 y, Float32 z)
+{
+    if (_Func->PlaySound(world, sound, x, y, z) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Argument value out of bounds");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void HideMapObject(Int32 model, const Vector3 & pos)
+{
+    _Func->HideMapObject(model,
+        static_cast< Int16 >(std::floor(pos.x * 10.0f) + 0.5f),
+        static_cast< Int16 >(std::floor(pos.y * 10.0f) + 0.5f),
+        static_cast< Int16 >(std::floor(pos.z * 10.0f) + 0.5f)
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+void HideMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z)
+{
+    _Func->HideMapObject(model,
+        static_cast< Int16 >(std::floor(x * 10.0f) + 0.5f),
+        static_cast< Int16 >(std::floor(y * 10.0f) + 0.5f),
+        static_cast< Int16 >(std::floor(z * 10.0f) + 0.5f)
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+void HideMapObjectRaw(Int32 model, Int16 x, Int16 y, Int16 z)
+{
+    _Func->HideMapObject(model, x, y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void ShowMapObject(Int32 model, const Vector3 & pos)
+{
+    _Func->ShowMapObject(model,
+        static_cast< Int16 >(std::floor(pos.x * 10.0f) + 0.5f),
+        static_cast< Int16 >(std::floor(pos.y * 10.0f) + 0.5f),
+        static_cast< Int16 >(std::floor(pos.z * 10.0f) + 0.5f)
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+void ShowMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z)
+{
+    _Func->ShowMapObject(model,
+        static_cast< Int16 >(std::floor(x * 10.0f) + 0.5f),
+        static_cast< Int16 >(std::floor(y * 10.0f) + 0.5f),
+        static_cast< Int16 >(std::floor(z * 10.0f) + 0.5f)
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+void ShowMapObjectRaw(Int32 model, Int16 x, Int16 y, Int16 z)
+{
+    _Func->ShowMapObject(model, x, y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void ShowAllMapObjects(void)
+{
+    _Func->ShowAllMapObjects();
+}
+
+// ------------------------------------------------------------------------------------------------
+SQFloat GetWeaponDataValue(Int32 weapon, Int32 field)
+{
+    return ConvTo< SQFloat >::From(_Func->GetWeaponDataValue(weapon, field));
+}
+
+// ------------------------------------------------------------------------------------------------
+bool SetWeaponDataValue(Int32 weapon, Int32 field, SQFloat value)
+{
+    return (_Func->SetWeaponDataValue(weapon, field, value) != vcmpErrorArgumentOutOfBounds);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool ResetWeaponDataValue(Int32 weapon, Int32 field)
+{
+    return (_Func->ResetWeaponDataValue(weapon, field) != vcmpErrorArgumentOutOfBounds);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool IsWeaponDataValueModified(Int32 weapon, Int32 field)
+{
+    return _Func->IsWeaponDataValueModified(weapon, field);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool ResetWeaponData(Int32 weapon)
+{
+    return (_Func->ResetWeaponData(weapon) != vcmpErrorArgumentOutOfBounds);
+}
+
+// ------------------------------------------------------------------------------------------------
+void ResetAllWeaponData()
+{
+    _Func->ResetAllWeaponData();
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AddPlayerClass(Int32 team, const Color3 & color, Int32 skin, const Vector3 & pos, Float32 angle,
+                        Int32 wep1, Int32 ammo1, Int32 wep2, Int32 ammo2, Int32 wep3, Int32 ammo3)
+{
+    return _Func->AddPlayerClass(team, color.GetRGB(), skin, pos.x, pos.y, pos.z, angle,
+                                    wep1, ammo1, wep2, ammo2, wep3, ammo3);
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetSpawnPlayerPosition(const Vector3 & pos)
+{
+    _Func->SetSpawnPlayerPosition(pos.x, pos.y, pos.z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetSpawnCameraPosition(const Vector3 & pos)
+{
+    _Func->SetSpawnCameraPosition(pos.x, pos.y, pos.z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetSpawnCameraLookAt(const Vector3 & pos)
+{
+    _Func->SetSpawnCameraLookAt(pos.x, pos.y, pos.z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetSpawnPlayerPositionEx(Float32 x, Float32 y, Float32 z)
+{
+    _Func->SetSpawnPlayerPosition(x, y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetSpawnCameraPositionEx(Float32 x, Float32 y, Float32 z)
+{
+    _Func->SetSpawnCameraPosition(x, y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetSpawnCameraLookAtEx(Float32 x, Float32 y, Float32 z)
+{
+    _Func->SetSpawnPlayerPosition(x, y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void BanIP(CSStr addr)
+{
+    _Func->BanIP(const_cast< SStr >(addr));
+}
+
+// ------------------------------------------------------------------------------------------------
+bool UnbanIP(CSStr addr)
+{
+    return _Func->UnbanIP(const_cast< SStr >(addr));
+}
+
+// ------------------------------------------------------------------------------------------------
+bool IsIPBanned(CSStr addr)
+{
+    return _Func->IsIPBanned(const_cast< SStr >(addr));
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 GetPlayerIdFromName(CSStr name)
+{
+    return _Func->GetPlayerIdFromName(name);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool IsPlayerConnected(Int32 player_id)
+{
+    return _Func->IsPlayerConnected(player_id);
+}
+
+// ------------------------------------------------------------------------------------------------
+void ForceAllSelect()
+{
+    _Func->ForceAllSelect();
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CheckEntityExists(Int32 type, Int32 index)
+{
+    return _Func->CheckEntityExists(static_cast< vcmpEntityPool >(type), index);
+}
 
 } // Namespace:: SqMod

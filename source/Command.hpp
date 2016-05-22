@@ -16,14 +16,6 @@ namespace SqMod {
 class CmdListener;
 
 /* ------------------------------------------------------------------------------------------------
- * Converts a command specifier to a string.
-*/
-CSStr CmdArgSpecToStr(Uint8 spec);
-
-// ------------------------------------------------------------------------------------------------
-extern SQMOD_MANAGEDPTR_TYPE(CmdManager) _Cmd;
-
-/* ------------------------------------------------------------------------------------------------
  * Manages command instances and processes executed commands.
 */
 class CmdManager
@@ -32,6 +24,50 @@ class CmdManager
     friend class CmdListener;
 
 private:
+
+    // --------------------------------------------------------------------------------------------
+    static CmdManager s_Inst; // Command manager instance.
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper class implementing RAII to release the command object and instance.
+    */
+    struct Guard
+    {
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
+        Guard() = default;
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy constructor.
+        */
+        Guard(const Guard & o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move constructor.
+        */
+        Guard(Guard && o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~Guard();
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy assignment operator.
+        */
+        Guard & operator = (const Guard & o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move assignment operator.
+        */
+        Guard & operator = (Guard && o) = delete;
+    };
+
+    // --------------------------------------------------------------------------------------------
+    friend class Guard; // Allow the guard to access the member it's supposed to release.
 
     /* --------------------------------------------------------------------------------------------
      * Structure that represents a unique command in the pool.
@@ -95,59 +131,28 @@ private:
     typedef std::pair< Uint8, Object >  CmdArg;
     typedef std::vector< CmdArg >       CmdArgs;
 
-    /* --------------------------------------------------------------------------------------------
-     * Helper class implementing RAII to release the command object and instance.
-    */
-    struct Guard
-    {
-        /* ----------------------------------------------------------------------------------------
-         * Default constructor.
-        */
-        Guard() = default;
-
-        /* ----------------------------------------------------------------------------------------
-         * Copy constructor.
-        */
-        Guard(const Guard & o) = delete;
-
-        /* ----------------------------------------------------------------------------------------
-         * Move constructor.
-        */
-        Guard(Guard && o) = delete;
-
-        /* ----------------------------------------------------------------------------------------
-         * Destructor.
-        */
-        ~Guard();
-
-        /* ----------------------------------------------------------------------------------------
-         * Copy assignment operator.
-        */
-        Guard & operator = (const Guard & o) = delete;
-
-        /* ----------------------------------------------------------------------------------------
-         * Move assignment operator.
-        */
-        Guard & operator = (Guard && o) = delete;
-    };
+private:
 
     // --------------------------------------------------------------------------------------------
-    friend class Guard;
+    Buffer          m_Buffer; // Shared buffer used to extract arguments.
+    CmdList         m_Commands; // List of available command instances.
 
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor.
-    */
-    CmdManager();
+    // --------------------------------------------------------------------------------------------
+    Int32           m_Invoker; // The identifier of the last player that invoked a command.
+    String          m_Command; // The extracted command name.
+    String          m_Argument; // The extracted command argument.
+    CmdListener*    m_Instance; // Pointer to the currently executed command.
+    Object          m_Object; // Script object of the currently exectued command.
 
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    CmdManager(const CmdManager &);
+    // --------------------------------------------------------------------------------------------
+    CmdArgs         m_Argv; // Extracted command arguments.
+    Uint32          m_Argc; // Extracted arguments count.
 
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    CmdManager & operator = (const CmdManager &);
+    // --------------------------------------------------------------------------------------------
+    Function        m_OnFail; // Callback when something failed while running a command.
+    Function        m_OnAuth; // Callback if an invoker failed to authenticate properly.
+
+protected:
 
     /* --------------------------------------------------------------------------------------------
      * Attach a command listener to a certain name.
@@ -174,7 +179,42 @@ private:
     */
     bool Attached(const CmdListener * ptr) const;
 
-public:
+    /* --------------------------------------------------------------------------------------------
+     * Forward error message to the error callback.
+    */
+    template < typename T > void SqError(Int32 type, CSStr msg, T data)
+    {
+        // Is there a callback that deals with errors?
+        if (m_OnFail.IsNull())
+            return;
+        // Attempt to forward the error to that callback
+        try
+        {
+            m_OnFail.Execute< Int32, CSStr, T >(type, msg, data);
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            // We can only log this incident and in the future maybe also include the location
+            LogErr("Command error callback failed [%s]", e.Message().c_str());
+        }
+    }
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    CmdManager();
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    CmdManager(const CmdManager & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    CmdManager(CmdManager && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -182,17 +222,34 @@ public:
     ~CmdManager();
 
     /* --------------------------------------------------------------------------------------------
-     * Singleton retriever.
+     * Copy assignment operator. (disabled)
     */
-    static CmdManager * Get()
-    {
-        if (!_Cmd)
-        {
-            _Cmd = SQMOD_MANAGEDPTR_MAKE(CmdManager, new CmdManager());
-        }
+    CmdManager & operator = (const CmdManager & o) = delete;
 
-        return SQMOD_MANAGEDPTR_GET(_Cmd);
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    CmdManager & operator = (CmdManager && o) = delete;
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the command manager instance.
+    */
+    static CmdManager & Get()
+    {
+        return s_Inst;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Initialize the command manager instance.
+    */
+    void Initialize();
+
+    /* --------------------------------------------------------------------------------------------
+     * Terminate the command manager instance.
+    */
+    void Deinitialize();
 
     /* --------------------------------------------------------------------------------------------
      * Sort the command list in an ascending order.
@@ -213,24 +270,19 @@ public:
     const Object & FindByName(const String & name);
 
     /* --------------------------------------------------------------------------------------------
-     * Terminate current session.
-    */
-    void Terminate();
-
-    /* --------------------------------------------------------------------------------------------
      * Retrieve the error callback.
     */
-    Function & GetOnError()
+    Function & GetOnFail()
     {
-        return m_OnError;
+        return m_OnFail;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the error callback.
     */
-    void SetOnError(Object & env, Function & func)
+    void SetOnFail(Object & env, Function & func)
     {
-        m_OnError = Function(env.GetVM(), env, func.GetFunc());
+        m_OnFail = Function(env.GetVM(), env, func.GetFunc());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -296,28 +348,6 @@ public:
 
 protected:
 
-    // --------------------------------------------------------------------------------------------
-
-    /* --------------------------------------------------------------------------------------------
-     * Forward error message to the error callback.
-    */
-    template < typename T > void SqError(Int32 type, CSStr msg, T data)
-    {
-        // Is there a callback that deals with errors?
-        if (m_OnError.IsNull())
-            return;
-        // Attempt to forward the error to that callback
-        try
-        {
-            m_OnError.Execute< Int32, CSStr, T >(type, msg, data);
-        }
-        catch (const Sqrat::Exception & e)
-        {
-            // We can only log this incident and in the future maybe also include the location
-            LogErr("Command error callback failed [%s]", e.Message().c_str());
-        }
-    }
-
     /* --------------------------------------------------------------------------------------------
      * Attempt to execute the specified command.
     */
@@ -327,27 +357,6 @@ protected:
      * Attempt to parse the specified argument.
     */
     bool Parse();
-
-private:
-
-    // --------------------------------------------------------------------------------------------
-    Buffer          m_Buffer; // Internal buffer used for parsing commands.
-    CmdList         m_Commands; // List of created commands.
-
-    // --------------------------------------------------------------------------------------------
-    Int32           m_Invoker; // Current command invoker.
-    String          m_Command; // Current command name.
-    String          m_Argument; // Current command argument.
-    CmdListener*    m_Instance; // Current command instance.
-    Object          m_Object; // Current command script object.
-
-    // --------------------------------------------------------------------------------------------
-    CmdArgs         m_Argv; // Extracted command arguments.
-    Uint32          m_Argc; // Extracted arguments count.
-
-    // --------------------------------------------------------------------------------------------
-    Function        m_OnError; // Error handler.
-    Function        m_OnAuth; // Authentication handler.
 
 public:
 
@@ -662,6 +671,11 @@ private:
     bool        m_Suspended;
     bool        m_Associate;
 };
+
+/* ------------------------------------------------------------------------------------------------
+ * Converts a command specifier to a string.
+*/
+CSStr CmdArgSpecToStr(Uint8 spec);
 
 } // Namespace:: SqMod
 

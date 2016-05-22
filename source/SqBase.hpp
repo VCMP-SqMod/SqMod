@@ -111,8 +111,8 @@
 */
 
 #define SQMOD_NAME "Squirrel Module"
-#define SQMOD_AUTHOR "Sandu Liviu Catalin"
-#define SQMOD_COPYRIGHT "Copyright (C) 2015 Sandu Liviu Catalin"
+#define SQMOD_AUTHOR "Sandu Liviu Catalin (S.L.C)"
+#define SQMOD_COPYRIGHT "Copyright (C) 2016 Sandu Liviu Catalin"
 #define SQMOD_HOST_NAME "SqModHost"
 #define SQMOD_VERSION 001
 #define SQMOD_VERSION_STR "0.0.1"
@@ -123,6 +123,7 @@
 /* ------------------------------------------------------------------------------------------------
  * SQUIRREL FORWARD DECLARATIONS
 */
+
 extern "C" {
     typedef struct tagSQObject SQObject;
     struct SQVM;
@@ -133,6 +134,7 @@ extern "C" {
 /* ------------------------------------------------------------------------------------------------
  * SQRAT FORWARD DECLARATIONS
 */
+
 namespace Sqrat {
     class Array;
     class Object;
@@ -204,6 +206,7 @@ typedef Uint32                      SizeT;
 /* ------------------------------------------------------------------------------------------------
  * STRING TYPE
 */
+
 typedef std::basic_string<SQChar>   String;
 
 typedef char *                      CStr;
@@ -215,12 +218,19 @@ typedef const SQChar *              CSStr;
 /* ------------------------------------------------------------------------------------------------
  * SHORT SQUIRREL TYPENAMES
 */
+
 typedef SQUnsignedInteger32         SQUint32;
 typedef SQUnsignedInteger           SQUint;
 typedef SQInteger                   SQInt;
 
 // ------------------------------------------------------------------------------------------------
 using namespace Sqrat;
+
+/* ------------------------------------------------------------------------------------------------
+ * Squirrel compatible stl string.
+*/
+
+typedef std::basic_string< SQChar > String;
 
 /* ------------------------------------------------------------------------------------------------
  * FORWARD DECLARATIONS
@@ -265,217 +275,62 @@ template < typename T > class LongInt;
 typedef LongInt< Int64 > SLongInt;
 typedef LongInt< Uint64 > ULongInt;
 
-/* ------------------------------------------------------------------------------------------------
- * ...
-*/
-typedef std::basic_string< SQChar > String;
-
-#ifdef _DEBUG
-
-/* ------------------------------------------------------------------------------------------------
- * A simple managed pointer used to identify if components are still used after shutdown.
-*/
-template < typename T > class ManagedPtr
-{
-private:
-
-    T * m_Ptr;
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Base constructor.
-    */
-    ManagedPtr(T * ptr)
-        : m_Ptr(ptr)
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    ManagedPtr(const ManagedPtr & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor. (disabled)
-    */
-    ManagedPtr(ManagedPtr && o)
-        : m_Ptr(o.m_Ptr)
-    {
-        o.m_Ptr = nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~ManagedPtr()
-    {
-        if (m_Ptr)
-        {
-            delete m_Ptr;
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    ManagedPtr & operator = (const ManagedPtr & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator. (disabled)
-    */
-    ManagedPtr & operator = (ManagedPtr && o)
-    {
-        if (m_Ptr != o.m_Ptr)
-        {
-            if (m_Ptr)
-            {
-                delete m_Ptr;
-            }
-            m_Ptr = o.m_Ptr;
-            o.m_Ptr = nullptr;
-        }
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to boolean for use in boolean operations.
-    */
-    operator bool () const
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the managed pointer type.
-    */
-    operator T * () const
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the managed pointer type.
-    */
-    operator const T * () const
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Member operator for dereferencing the managed pointer.
-    */
-    T * operator -> () const
-    {
-        assert(m_Ptr != nullptr);
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Indirection operator for obtaining a reference of the managed pointer.
-    */
-    T & operator * () const
-    {
-        assert(m_Ptr != nullptr);
-        return *m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the managed pointer in it's raw form.
-    */
-    T * Get() const
-    {
-        return m_Ptr;
-    }
-
-};
-
-#define SQMOD_MANAGEDPTR_TYPE(t) ManagedPtr< t >
-#define SQMOD_MANAGEDPTR_REF(t) ManagedPtr< t > &
-#define SQMOD_MANAGEDPTR_MAKE(t, p) ManagedPtr< t >(p)
-#define SQMOD_MANAGEDPTR_DEL(t, p) p = ManagedPtr< t >(nullptr)
-#define SQMOD_MANAGEDPTR_GET(p) p.Get();
-
-#else
-
-#define SQMOD_MANAGEDPTR_TYPE(t) t *
-#define SQMOD_MANAGEDPTR_REF(t) t *
-#define SQMOD_MANAGEDPTR_MAKE(t, p) p
-#define SQMOD_MANAGEDPTR_DEL(t, p) delete p
-#define SQMOD_MANAGEDPTR_GET(p) p
-
-#endif // _DEBUG
+// ------------------------------------------------------------------------------------------------
+class BufferWrapper;
 
 /* ------------------------------------------------------------------------------------------------
  * FORWARD DECLARATIONS
 */
+
 enum EventType
 {
     EVT_UNKNOWN = 0,
+    EVT_CUSTOMEVENT,
     EVT_BLIPCREATED,
     EVT_CHECKPOINTCREATED,
-    EVT_FORCEFIELDCREATED,
     EVT_KEYBINDCREATED,
     EVT_OBJECTCREATED,
     EVT_PICKUPCREATED,
     EVT_PLAYERCREATED,
-    EVT_SPRITECREATED,
-    EVT_TEXTDRAWCREATED,
     EVT_VEHICLECREATED,
     EVT_BLIPDESTROYED,
     EVT_CHECKPOINTDESTROYED,
-    EVT_FORCEFIELDDESTROYED,
     EVT_KEYBINDDESTROYED,
     EVT_OBJECTDESTROYED,
     EVT_PICKUPDESTROYED,
     EVT_PLAYERDESTROYED,
-    EVT_SPRITEDESTROYED,
-    EVT_TEXTDRAWDESTROYED,
     EVT_VEHICLEDESTROYED,
     EVT_BLIPCUSTOM,
     EVT_CHECKPOINTCUSTOM,
-    EVT_FORCEFIELDCUSTOM,
     EVT_KEYBINDCUSTOM,
     EVT_OBJECTCUSTOM,
     EVT_PICKUPCUSTOM,
     EVT_PLAYERCUSTOM,
-    EVT_SPRITECUSTOM,
-    EVT_TEXTDRAWCUSTOM,
     EVT_VEHICLECUSTOM,
-    EVT_PLAYERAWAY,
-    EVT_PLAYERGAMEKEYS,
-    EVT_PLAYERRENAME,
+    EVT_SERVERSTARTUP,
+    EVT_SERVERSHUTDOWN,
+    EVT_SERVERFRAME,
+    EVT_INCOMINGCONNECTION,
     EVT_PLAYERREQUESTCLASS,
     EVT_PLAYERREQUESTSPAWN,
     EVT_PLAYERSPAWN,
-    EVT_PLAYERSTARTTYPING,
-    EVT_PLAYERSTOPTYPING,
-    EVT_PLAYERCHAT,
-    EVT_PLAYERCOMMAND,
-    EVT_PLAYERMESSAGE,
-    EVT_PLAYERHEALTH,
-    EVT_PLAYERARMOUR,
-    EVT_PLAYERWEAPON,
-    EVT_PLAYERMOVE,
     EVT_PLAYERWASTED,
     EVT_PLAYERKILLED,
-    EVT_PLAYERTEAMKILL,
-    EVT_PLAYERSPECTATE,
-    EVT_PLAYERCRASHREPORT,
-    EVT_PLAYERBURNING,
-    EVT_PLAYERCROUCHING,
+    EVT_PLAYEREMBARKING,
+    EVT_PLAYEREMBARKED,
+    EVT_PLAYERDISEMBARK,
+    EVT_PLAYERRENAME,
     EVT_PLAYERSTATE,
-    EVT_PLAYERACTION,
     EVT_STATENONE,
     EVT_STATENORMAL,
-    EVT_STATESHOOTING,
+    EVT_STATEAIM,
     EVT_STATEDRIVER,
     EVT_STATEPASSENGER,
     EVT_STATEENTERDRIVER,
     EVT_STATEENTERPASSENGER,
-    EVT_STATEEXITVEHICLE,
+    EVT_STATEEXIT,
     EVT_STATEUNSPAWNED,
+    EVT_PLAYERACTION,
     EVT_ACTIONNONE,
     EVT_ACTIONNORMAL,
     EVT_ACTIONAIMING,
@@ -489,32 +344,44 @@ enum EventType
     EVT_ACTIONWASTED,
     EVT_ACTIONEMBARKING,
     EVT_ACTIONDISEMBARKING,
-    EVT_VEHICLERESPAWN,
+    EVT_PLAYERBURNING,
+    EVT_PLAYERCROUCHING,
+    EVT_PLAYERGAMEKEYS,
+    EVT_PLAYERSTARTTYPING,
+    EVT_PLAYERSTOPTYPING,
+    EVT_PLAYERAWAY,
+    EVT_PLAYERMESSAGE,
+    EVT_PLAYERCOMMAND,
+    EVT_PLAYERPRIVATEMESSAGE,
+    EVT_PLAYERKEYPRESS,
+    EVT_PLAYERKEYRELEASE,
+    EVT_PLAYERSPECTATE,
+    EVT_PLAYERCRASHREPORT,
     EVT_VEHICLEEXPLODE,
-    EVT_VEHICLEHEALTH,
-    EVT_VEHICLEMOVE,
-    EVT_PICKUPRESPAWN,
-    EVT_KEYBINDKEYPRESS,
-    EVT_KEYBINDKEYRELEASE,
-    EVT_VEHICLEEMBARKING,
-    EVT_VEHICLEEMBARKED,
-    EVT_VEHICLEDISEMBARK,
+    EVT_VEHICLERESPAWN,
+    EVT_OBJECTSHOT,
+    EVT_OBJECTTOUCHED,
     EVT_PICKUPCLAIMED,
     EVT_PICKUPCOLLECTED,
-    EVT_OBJECTSHOT,
-    EVT_OBJECTBUMP,
+    EVT_PICKUPRESPAWN,
     EVT_CHECKPOINTENTERED,
     EVT_CHECKPOINTEXITED,
-    EVT_FORCEFIELDENTERED,
-    EVT_FORCEFIELDEXITED,
-    EVT_SERVERFRAME,
-    EVT_SERVERSTARTUP,
-    EVT_SERVERSHUTDOWN,
-    EVT_INTERNALCOMMAND,
-    EVT_LOGINATTEMPT,
-    EVT_CUSTOMEVENT,
-    EVT_WORLDOPTION,
-    EVT_WORLDTOGGLE,
+    EVT_ENTITYPOOL,
+    EVT_CLIENTSCRIPTDATA,
+    EVT_PLAYERUPDATE,
+    EVT_VEHICLEUPDATE,
+    EVT_PLAYERHEALTH,
+    EVT_PLAYERARMOUR,
+    EVT_PLAYERWEAPON,
+    EVT_PLAYERHEADING,
+    EVT_PLAYERPOSITION,
+    EVT_PLAYEROPTION,
+    EVT_VEHICLECOLOUR,
+    EVT_VEHICLEHEALTH,
+    EVT_VEHICLEPOSITION,
+    EVT_VEHICLEROTATION,
+    EVT_VEHICLEOPTION,
+    EVT_SERVEROPTION,
     EVT_SCRIPTRELOAD,
     EVT_SCRIPTLOADED,
     EVT_MAX
@@ -730,13 +597,10 @@ enum CmdError
 
 #define SQMOD_BLIP_POOL         128
 #define SQMOD_CHECKPOINT_POOL   2000
-#define SQMOD_FORCEFIELD_POOL   2000
 #define SQMOD_KEYBIND_POOL      256
 #define SQMOD_OBJECT_POOL       3000
 #define SQMOD_PICKUP_POOL       2000
 #define SQMOD_PLAYER_POOL       100
-#define SQMOD_SPRITE_POOL       128
-#define SQMOD_TEXTDRAW_POOL     256
 #define SQMOD_VEHICLE_POOL      1000
 
 /* ------------------------------------------------------------------------------------------------
@@ -779,35 +643,10 @@ enum CmdError
 */
 
 #define SQMOD_STACK_SIZE            2048
+#define SQMOD_MAX_ROUTINES          1024
 #define SQMOD_MAX_CMD_ARGS          12
 #define SQMOD_PLAYER_MSG_PREFIXES   16
 #define SQMOD_PLAYER_TMP_BUFFER     128
-
-/* ------------------------------------------------------------------------------------------------
- * ENTITY POOL UPDATE IDENTIFIERS
-*/
-#define SQMOD_ENTITY_POOL_VEHICLE       1
-#define SQMOD_ENTITY_POOL_OBJECT        2
-#define SQMOD_ENTITY_POOL_PICKUP        3
-#define SQMOD_ENTITY_POOL_RADIO         4
-#define SQMOD_ENTITY_POOL_SPRITE        5
-#define SQMOD_ENTITY_POOL_TEXTDRAW      6
-#define SQMOD_ENTITY_POOL_BLIP          7
-#define SQMOD_ENTITY_POOL_MAX           8
-
-/* ------------------------------------------------------------------------------------------------
- * PLAYER STATE IDENTIFIERS
-*/
-#define SQMOD_PLAYER_STATE_NONE                     0
-#define SQMOD_PLAYER_STATE_NORMAL                   1
-#define SQMOD_PLAYER_STATE_SHOOTING                 2
-#define SQMOD_PLAYER_STATE_DRIVER                   3
-#define SQMOD_PLAYER_STATE_PASSENGER                4
-#define SQMOD_PLAYER_STATE_ENTERING_AS_DRIVER       5
-#define SQMOD_PLAYER_STATE_ENTERING_AS_PASSENGER    6
-#define SQMOD_PLAYER_STATE_EXITING_VEHICLE          7
-#define SQMOD_PLAYER_STATE_UNSPAWNED                8
-#define SQMOD_PLAYER_STATE_MAX                      9
 
 /* ------------------------------------------------------------------------------------------------
  * PLAYER ACTION IDENTIFIERS
@@ -826,43 +665,6 @@ enum CmdError
 #define SQMOD_PLAYER_ACTION_ENTERING_VEHICLE        58
 #define SQMOD_PLAYER_ACTION_EXITING_VEHICLE         60
 #define SQMOD_PLAYER_ACTION_MAX                     61
-
-/* ------------------------------------------------------------------------------------------------
- * VEHICLE UPDATE IDENTIFIERS
-*/
-#define SQMOD_VEHICLEUPD_DRIVER         0
-#define SQMOD_VEHICLEUPD_OTHER          1
-#define SQMOD_VEHICLEUPD_MAX            2
-
-/* ------------------------------------------------------------------------------------------------
- * PLAYER UPDATE IDENTIFIERS
-*/
-#define SQMOD_PLAYERUPD_ONFOOT          0
-#define SQMOD_PLAYERUPD_AIM             1
-#define SQMOD_PLAYERUPD_DRIVER          2
-#define SQMOD_PLAYERUPD_PASSENGER       3
-#define SQMOD_PLAYERUPD_MAX             4
-
-/* ------------------------------------------------------------------------------------------------
- * PART REASON IDENTIFIERS
-*/
-#define SQMOD_PARTREASON_TIMEOUT        0
-#define SQMOD_PARTREASON_DISCONNECTED   1
-#define SQMOD_PARTREASON_KICKEDBANNED   2
-#define SQMOD_PARTREASON_CRASHED        3
-#define SQMOD_PARTREASON_MAX            4
-
-/* ------------------------------------------------------------------------------------------------
- * BODY PART IDENTIFIERS
-*/
-#define SQMOD_BODYPART_BODY             0
-#define SQMOD_BODYPART_TORSO            1
-#define SQMOD_BODYPART_LEFTARM          2
-#define SQMOD_BODYPART_RIGHTARM         3
-#define SQMOD_BODYPART_LEFTLEG          4
-#define SQMOD_BODYPART_RIGHTLEG         5
-#define SQMOD_BODYPART_HEAD             6
-#define SQMOD_BODYPART_MAX              7
 
 /* ------------------------------------------------------------------------------------------------
  * WEATHER IDENTIFIERS
