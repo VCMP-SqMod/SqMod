@@ -26,7 +26,7 @@ Session::Sessions   Session::s_Sessions;
 // ------------------------------------------------------------------------------------------------
 SQInteger Session::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqIrcSession");
+    static const SQChar name[] = _SC("SqIrcSession");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

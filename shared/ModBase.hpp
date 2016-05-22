@@ -1,11 +1,12 @@
-#ifndef _SQBASE_HPP_
-#define _SQBASE_HPP_
+#ifndef _SQMODBASE_HPP_
+#define _SQMODBASE_HPP_
 
 // ------------------------------------------------------------------------------------------------
 #include <sqconfig.h>
 
 // ------------------------------------------------------------------------------------------------
 #include <cstddef>
+#include <cassert>
 #include <string>
 
 /* ------------------------------------------------------------------------------------------------
@@ -94,7 +95,7 @@
     #endif
 #else
     // Unsupported system
-    #error This operating system is not supported by the Squirrel Modules
+    #error This operating system is not supported by the Squirrel Module
 #endif
 
 #ifndef SQMOD_ARCHITECTURE
@@ -108,6 +109,7 @@
 /* ------------------------------------------------------------------------------------------------
  * SQUIRREL FORWARD DECLARATIONS
 */
+
 extern "C" {
     typedef struct tagSQObject SQObject;
     struct SQVM;
@@ -118,6 +120,7 @@ extern "C" {
 /* ------------------------------------------------------------------------------------------------
  * SQRAT FORWARD DECLARATIONS
 */
+
 namespace Sqrat {
     class Array;
     class Object;
@@ -189,7 +192,8 @@ typedef Uint32                      SizeT;
 /* ------------------------------------------------------------------------------------------------
  * STRING TYPE
 */
-typedef ::std::basic_string<SQChar> String;
+
+typedef std::basic_string<SQChar>   String;
 
 typedef char *                      CStr;
 typedef const char *                CCStr;
@@ -200,12 +204,19 @@ typedef const SQChar *              CSStr;
 /* ------------------------------------------------------------------------------------------------
  * SHORT SQUIRREL TYPENAMES
 */
+
 typedef SQUnsignedInteger32         SQUint32;
 typedef SQUnsignedInteger           SQUint;
 typedef SQInteger                   SQInt;
 
 // ------------------------------------------------------------------------------------------------
 using namespace Sqrat;
+
+/* ------------------------------------------------------------------------------------------------
+ * Squirrel compatible stl string.
+*/
+
+typedef std::basic_string< SQChar > String;
 
 /* ------------------------------------------------------------------------------------------------
  * FORWARD DECLARATIONS
@@ -323,12 +334,12 @@ using namespace Sqrat;
  * COLOR PACKING
 */
 
-#define SQMOD_PACK_RGB(r, g, b) (Uint32)(r << 16 | g << 8 | b)
-#define SQMOD_PACK_RGBA(r, g, b, a) (Uint32)(r << 24 | g << 16 | b << 8 | a)
-#define SQMOD_PACK_ARGB(a, r, g, b) (Uint32)(a << 24 | r << 16 | g << 8 | b)
+#define SQMOD_PACK_RGB(r, g, b) static_cast< Uint32 >(r << 16 | g << 8 | b)
+#define SQMOD_PACK_RGBA(r, g, b, a) static_cast< Uint32 >(r << 24 | g << 16 | b << 8 | a)
+#define SQMOD_PACK_ARGB(a, r, g, b) static_cast< Uint32 >(a << 24 | r << 16 | g << 8 | b)
 
-#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) (Uint32)(r << 24 | g << 16 | b << 8 | 0)
-#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) (Uint32)(0 << 24 | r << 16 | g << 8 | b)
+#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) static_cast< Uint32 >(r << 24 | g << 16 | b << 8 | 0)
+#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) static_cast< Uint32 >(0 << 24 | r << 16 | g << 8 | b)
 
 /* ------------------------------------------------------------------------------------------------
  * GENERAL RESPONSES
@@ -364,13 +375,10 @@ using namespace Sqrat;
 
 #define SQMOD_BLIP_POOL         128
 #define SQMOD_CHECKPOINT_POOL   2000
-#define SQMOD_FORCEFIELD_POOL   2000
 #define SQMOD_KEYBIND_POOL      256
 #define SQMOD_OBJECT_POOL       3000
 #define SQMOD_PICKUP_POOL       2000
 #define SQMOD_PLAYER_POOL       100
-#define SQMOD_SPRITE_POOL       128
-#define SQMOD_TEXTDRAW_POOL     256
 #define SQMOD_VEHICLE_POOL      1000
 
 /* ------------------------------------------------------------------------------------------------
@@ -382,7 +390,7 @@ using namespace Sqrat;
 #define SQMOD_CREATE_POOL       -4
 #define SQMOD_CREATE_AUTOMATIC  -5
 #define SQMOD_CREATE_OVERWRITE  -6
-#define SQMOD_CREATE_RESURECT   -7
+#define SQMOD_CREATE_IMPORT     -7
 
 #define SQMOD_DESTROY_DEFAULT   0
 #define SQMOD_DESTROY_MANUAL    -3
@@ -413,35 +421,10 @@ using namespace Sqrat;
 */
 
 #define SQMOD_STACK_SIZE            2048
+#define SQMOD_MAX_ROUTINES          1024
 #define SQMOD_MAX_CMD_ARGS          12
 #define SQMOD_PLAYER_MSG_PREFIXES   16
 #define SQMOD_PLAYER_TMP_BUFFER     128
-
-/* ------------------------------------------------------------------------------------------------
- * ENTITY POOL UPDATE IDENTIFIERS
-*/
-#define SQMOD_ENTITY_POOL_VEHICLE       1
-#define SQMOD_ENTITY_POOL_OBJECT        2
-#define SQMOD_ENTITY_POOL_PICKUP        3
-#define SQMOD_ENTITY_POOL_RADIO         4
-#define SQMOD_ENTITY_POOL_SPRITE        5
-#define SQMOD_ENTITY_POOL_TEXTDRAW      6
-#define SQMOD_ENTITY_POOL_BLIP          7
-#define SQMOD_ENTITY_POOL_MAX           8
-
-/* ------------------------------------------------------------------------------------------------
- * PLAYER STATE IDENTIFIERS
-*/
-#define SQMOD_PLAYER_STATE_NONE                     0
-#define SQMOD_PLAYER_STATE_NORMAL                   1
-#define SQMOD_PLAYER_STATE_SHOOTING                 2
-#define SQMOD_PLAYER_STATE_DRIVER                   3
-#define SQMOD_PLAYER_STATE_PASSENGER                4
-#define SQMOD_PLAYER_STATE_ENTERING_AS_DRIVER       5
-#define SQMOD_PLAYER_STATE_ENTERING_AS_PASSENGER    6
-#define SQMOD_PLAYER_STATE_EXITING_VEHICLE          7
-#define SQMOD_PLAYER_STATE_UNSPAWNED                8
-#define SQMOD_PLAYER_STATE_MAX                      9
 
 /* ------------------------------------------------------------------------------------------------
  * PLAYER ACTION IDENTIFIERS
@@ -460,43 +443,6 @@ using namespace Sqrat;
 #define SQMOD_PLAYER_ACTION_ENTERING_VEHICLE        58
 #define SQMOD_PLAYER_ACTION_EXITING_VEHICLE         60
 #define SQMOD_PLAYER_ACTION_MAX                     61
-
-/* ------------------------------------------------------------------------------------------------
- * VEHICLE UPDATE IDENTIFIERS
-*/
-#define SQMOD_VEHICLEUPD_DRIVER         0
-#define SQMOD_VEHICLEUPD_OTHER          1
-#define SQMOD_VEHICLEUPD_MAX            2
-
-/* ------------------------------------------------------------------------------------------------
- * PLAYER UPDATE IDENTIFIERS
-*/
-#define SQMOD_PLAYERUPD_ONFOOT          0
-#define SQMOD_PLAYERUPD_AIM             1
-#define SQMOD_PLAYERUPD_DRIVER          2
-#define SQMOD_PLAYERUPD_PASSENGER       3
-#define SQMOD_PLAYERUPD_MAX             4
-
-/* ------------------------------------------------------------------------------------------------
- * PART REASON IDENTIFIERS
-*/
-#define SQMOD_PARTREASON_TIMEOUT        0
-#define SQMOD_PARTREASON_DISCONNECTED   1
-#define SQMOD_PARTREASON_KICKEDBANNED   2
-#define SQMOD_PARTREASON_CRASHED        3
-#define SQMOD_PARTREASON_MAX            4
-
-/* ------------------------------------------------------------------------------------------------
- * BODY PART IDENTIFIERS
-*/
-#define SQMOD_BODYPART_BODY             0
-#define SQMOD_BODYPART_TORSO            1
-#define SQMOD_BODYPART_LEFTARM          2
-#define SQMOD_BODYPART_RIGHTARM         3
-#define SQMOD_BODYPART_LEFTLEG          4
-#define SQMOD_BODYPART_RIGHTLEG         5
-#define SQMOD_BODYPART_HEAD             6
-#define SQMOD_BODYPART_MAX              7
 
 /* ------------------------------------------------------------------------------------------------
  * WEATHER IDENTIFIERS
@@ -1193,4 +1139,4 @@ using namespace Sqrat;
 #define SQMOD_ASCII_UNDEFINED               127
 #define SQMOD_ASCII_MAX                     128
 
-#endif // _SQBASE_HPP_
+#endif // _SQMODBASE_HPP_

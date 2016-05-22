@@ -16,7 +16,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger Column::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqSQLiteColumn");
+    static const SQChar name[] = _SC("SqSQLiteColumn");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

@@ -9,7 +9,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger Document::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqXmlDocument");
+    static const SQChar name[] = _SC("SqXmlDocument");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

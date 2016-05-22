@@ -15,7 +15,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger Text::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqXmlText");
+    static const SQChar name[] = _SC("SqXmlText");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

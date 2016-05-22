@@ -8,7 +8,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger Entries::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqIniEntries");
+    static const SQChar name[] = _SC("SqIniEntries");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

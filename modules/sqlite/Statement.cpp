@@ -22,7 +22,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger Statement::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqSQLiteStatement");
+    static const SQChar name[] = _SC("SqSQLiteStatement");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

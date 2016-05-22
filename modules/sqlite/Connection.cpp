@@ -12,7 +12,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger Connection::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqSQLiteConnection");
+    static const SQChar name[] = _SC("SqSQLiteConnection");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

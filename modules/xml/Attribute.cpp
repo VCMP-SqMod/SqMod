@@ -11,7 +11,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger Attribute::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqXmlAttribute");
+    static const SQChar name[] = _SC("SqXmlAttribute");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

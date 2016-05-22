@@ -96,7 +96,7 @@ void OnSquirrelLoad()
 void OnSquirrelTerminate()
 {
     OutputMessage("Terminating: %s", SQINI_NAME);
-    // Release the current database (if any)
+    // Release the current virtual machine, if any
     DefaultVM::Set(nullptr);
 }
 

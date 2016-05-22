@@ -7,6 +7,7 @@
 		<Project filename="ModINI.cbp" />
 		<Project filename="ModIRC.cbp" />
 		<Project filename="ModXML.cbp" />
+		<Project filename="ModJSON.cbp" />
 		<Project filename="ModSQLite.cbp" />
 		<Project filename="ModMMDB.cbp" />
 		<Project filename="ModSample.cbp" />

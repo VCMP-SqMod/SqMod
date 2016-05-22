@@ -51,7 +51,9 @@ void OnSquirrelInitialize()
     _SqMod = sq_api_import(_Func);
     // Did we failed to obtain the plugin exports?
     if(!_SqMod)
+    {
         OutputError("Failed to attach [%s] on host plugin.", SQMMDB_NAME);
+    }
     else
     {
         // Obtain the Squirrel API
@@ -68,12 +70,16 @@ void OnSquirrelLoad()
 {
     // Make sure that we have a valid plugin API
     if (!_SqMod)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed.
+    }
     // Obtain the Squirrel API and VM
     _SqVM = _SqMod->GetSquirrelVM();
     // Make sure that a valid virtual machine exists
     if (!_SqVM)
-        return; /* Unable to proceed. */
+    {
+        return; // Unable to proceed.
+    }
     // Set this as the default database
     DefaultVM::Set(_SqVM);
     // Register the module API
@@ -88,7 +94,7 @@ void OnSquirrelLoad()
 void OnSquirrelTerminate()
 {
     OutputMessage("Terminating: %s", SQMMDB_NAME);
-    // Release the current database (if any)
+    // Release the current virtual machine, if any
     DefaultVM::Set(nullptr);
     // Release script resources...
 }
@@ -102,7 +108,9 @@ bool CheckAPIVer(CCStr ver)
     long vernum = strtol(ver, nullptr, 10);
     // Check against version mismatch
     if (vernum == SQMOD_API_VER)
+    {
         return true;
+    }
     // Log the incident
     OutputError("API version mismatch on %s", SQMMDB_NAME);
     OutputMessage("=> Requested: %ld Have: %ld", vernum, SQMOD_API_VER);
@@ -119,7 +127,9 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
     {
         case SQMOD_INITIALIZE_CMD:
             if (CheckAPIVer(message))
+            {
                 OnSquirrelInitialize();
+            }
         break;
         case SQMOD_LOAD_CMD:
             OnSquirrelLoad();

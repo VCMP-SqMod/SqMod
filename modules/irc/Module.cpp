@@ -98,7 +98,7 @@ void OnSquirrelTerminate()
     OutputMessage("Terminating: %s", SQIRC_NAME);
     // Terminate all session and release script resources
     Session::Terminate();
-    // Release the current database (if any)
+    // Release the current virtual machine, if any
     DefaultVM::Set(nullptr);
 }
 

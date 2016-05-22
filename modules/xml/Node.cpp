@@ -10,7 +10,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger Node::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqXmlNode");
+    static const SQChar name[] = _SC("SqXmlNode");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

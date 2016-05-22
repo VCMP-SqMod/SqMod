@@ -15,7 +15,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger Document::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqIniDocument");
+    static const SQChar name[] = _SC("SqIniDocument");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

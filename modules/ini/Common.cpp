@@ -94,7 +94,7 @@ void DocumentRef::Validate() const
 // ------------------------------------------------------------------------------------------------
 SQInteger IniResult::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqIniResult");
+    static const SQChar name[] = _SC("SqIniResult");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
