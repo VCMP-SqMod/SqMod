@@ -372,7 +372,7 @@ SQRESULT sqstd_loadfile(HSQUIRRELVM v,const SQChar *filename,SQBool printerror)
                     }
                     if(uc != 0xBF) {
                         sqstd_fclose(file);
-                        return sq_throwerror(v,_SC("Unrecognozed ecoding"));
+                        return sq_throwerror(v,_SC("Unrecognized encoding"));
                     }
 #ifdef SQUNICODE
                     func = _io_file_lexfeed_UTF8;
@@ -399,6 +399,10 @@ SQRESULT sqstd_loadfile(HSQUIRRELVM v,const SQChar *filename,SQBool printerror)
 
 SQRESULT sqstd_dofile(HSQUIRRELVM v,const SQChar *filename,SQBool retval,SQBool printerror)
 {
+    //at least one entry must exist in order for us to push it as the environment
+    if(sq_gettop(v) == 0)
+        return sq_throwerror(v,_SC("environment table expected"));	
+
     if(SQ_SUCCEEDED(sqstd_loadfile(v,filename,printerror))) {
         sq_push(v,-2);
         if(SQ_SUCCEEDED(sq_call(v,1,retval,SQTrue))) {

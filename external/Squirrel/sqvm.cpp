@@ -15,6 +15,8 @@
 #include "sqclass.h"
 
 #define TOP() (_stack._vals[_top-1])
+#define TARGET _stack._vals[_stackbase+arg0]
+#define STK(a) _stack._vals[_stackbase+(a)]
 
 bool SQVM::BW_OP(SQUnsignedInteger op,SQObjectPtr &trg,const SQObjectPtr &o1,const SQObjectPtr &o2)
 {
@@ -301,7 +303,7 @@ bool SQVM::ToString(const SQObjectPtr &o,SQObjectPtr &res)
             SQObjectPtr closure;
             if(_delegable(o)->GetMetaMethod(this, MT_TOSTRING, closure)) {
                 Push(o);
-                if(CallMetaMethod(closure,MT_TOSTRING,1,res)) {;
+                if(CallMetaMethod(closure,MT_TOSTRING,1,res)) {
                     if(type(res) == OT_STRING)
                         return true;
                 }
@@ -1367,9 +1369,8 @@ SQInteger SQVM::FallBackSet(const SQObjectPtr &self,const SQObjectPtr &key,const
                 return FALLBACK_OK;
             }
             else {
+                Pop(3);
                 if(type(_lasterror) != OT_NULL) { //NULL means "clean failure" (not found)
-                    //error
-                    Pop(3);
                     return FALLBACK_ERROR;
                 }
             }
@@ -1632,7 +1633,7 @@ bool SQVM::EnterFrame(SQInteger newbase, SQInteger newtop, bool tailcall)
     _top = newtop;
     if(newtop + MIN_STACK_OVERHEAD > (SQInteger)_stack.size()) {
         if(_nmetamethodscall) {
-            Raise_Error(_SC("stack overflow, cannot resize stack while in  a metamethod"));
+            Raise_Error(_SC("stack overflow, cannot resize stack while in a metamethod"));
             return false;
         }
         _stack.resize(newtop + (MIN_STACK_OVERHEAD << 2));

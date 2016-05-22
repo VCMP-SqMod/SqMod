@@ -165,6 +165,7 @@
 			<Add option="-fno-rtti" />
 			<Add option="-fno-strict-aliasing" />
 			<Add option="-Wno-unused-variable" />
+			<Add option="-Wno-unused-but-set-variable" />
 			<Add option="-DGARBAGE_COLLECTOR" />
 			<Add directory="../include" />
 			<Add directory="../config/common" />

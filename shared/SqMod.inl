@@ -65,6 +65,7 @@ sqapi_getbase                       sq_getbase = NULL;
 sqapi_instanceof                    sq_instanceof = NULL;
 sqapi_tostring                      sq_tostring = NULL;
 sqapi_tobool                        sq_tobool = NULL;
+sqapi_getstringandsize              sq_getstringandsize = NULL;
 sqapi_getstring                     sq_getstring = NULL;
 sqapi_getinteger                    sq_getinteger = NULL;
 sqapi_getfloat                      sq_getfloat = NULL;
@@ -277,6 +278,7 @@ SQRESULT sq_api_expand(HSQAPI sqapi)
     sq_instanceof                   = sqapi->instanceof;
     sq_tostring                     = sqapi->tostring;
     sq_tobool                       = sqapi->tobool;
+    sq_getstringandsize             = sqapi->getstringandsize;
     sq_getstring                    = sqapi->getstring;
     sq_getinteger                   = sqapi->getinteger;
     sq_getfloat                     = sqapi->getfloat;
@@ -467,6 +469,7 @@ void sq_api_collapse()
     sq_instanceof                   = NULL;
     sq_tostring                     = NULL;
     sq_tobool                       = NULL;
+    sq_getstringandsize             = NULL;
     sq_getstring                    = NULL;
     sq_getinteger                   = NULL;
     sq_getfloat                     = NULL;

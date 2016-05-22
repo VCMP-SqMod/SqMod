@@ -89,7 +89,7 @@ SQRESULT sqstd_format(HSQUIRRELVM v,SQInteger nformatstringidx,SQInteger *outlen
         else {
             n++;
             if( nparam > sq_gettop(v) )
-                return sq_throwerror(v,_SC("not enough paramters for the given format string"));
+                return sq_throwerror(v,_SC("not enough parameters for the given format string"));
             n = validate_format(v,fmt,format,n,w);
             if(n < 0) return -1;
             SQInteger addlen = 0;
@@ -148,6 +148,19 @@ SQRESULT sqstd_format(HSQUIRRELVM v,SQInteger nformatstringidx,SQInteger *outlen
     dest[i] = '\0';
     *output = dest;
     return SQ_OK;
+}
+
+static SQInteger _string_printf(HSQUIRRELVM v)
+{
+    SQChar *dest = NULL;
+    SQInteger length = 0;
+    if(SQ_FAILED(sqstd_format(v,2,&length,&dest)))
+        return -1;
+    
+    SQPRINTFUNCTION printfunc = sq_getprintfunc(v);
+    if(printfunc) printfunc(v,dest);
+
+    return 0;
 }
 
 static SQInteger _string_format(HSQUIRRELVM v)
@@ -459,6 +472,7 @@ static const SQRegFunction rexobj_funcs[]={
 #define _DECL_FUNC(name,nparams,pmask) {_SC(#name),_string_##name,nparams,pmask}
 static const SQRegFunction stringlib_funcs[]={
     _DECL_FUNC(format,-2,_SC(".s")),
+    _DECL_FUNC(printf,-2,_SC(".s")),
     _DECL_FUNC(strip,2,_SC(".s")),
     _DECL_FUNC(lstrip,2,_SC(".s")),
     _DECL_FUNC(rstrip,2,_SC(".s")),

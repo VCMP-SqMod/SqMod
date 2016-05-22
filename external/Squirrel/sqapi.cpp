@@ -680,6 +680,15 @@ SQRESULT sq_getbool(HSQUIRRELVM v,SQInteger idx,SQBool *b)
     return SQ_ERROR;
 }
 
+SQRESULT sq_getstringandsize(HSQUIRRELVM v,SQInteger idx,const SQChar **c,SQInteger *size)
+{
+    SQObjectPtr *o = NULL;
+    _GETSAFE_OBJ(v, idx, OT_STRING,o);
+    *c = _stringval(*o);
+    *size = _string(*o)->_len;
+    return SQ_OK;
+}
+
 SQRESULT sq_getstring(HSQUIRRELVM v,SQInteger idx,const SQChar **c)
 {
     SQObjectPtr *o = NULL;
@@ -1128,7 +1137,7 @@ SQRESULT sq_reservestack(HSQUIRRELVM v,SQInteger nsize)
 {
     if (((SQUnsignedInteger)v->_top + nsize) > v->_stack.size()) {
         if(v->_nmetamethodscall) {
-            return sq_throwerror(v,_SC("cannot resize stack while in  a metamethod"));
+            return sq_throwerror(v,_SC("cannot resize stack while in a metamethod"));
         }
         v->_stack.resize(v->_stack.size() + ((v->_top + nsize) - v->_stack.size()));
     }
@@ -1199,29 +1208,24 @@ SQRESULT sq_wakeupvm(HSQUIRRELVM v,SQBool wakeupret,SQBool retval,SQBool raiseer
 
 void sq_setreleasehook(HSQUIRRELVM v,SQInteger idx,SQRELEASEHOOK hook)
 {
-    if(sq_gettop(v) >= 1){
-        SQObjectPtr &ud=stack_get(v,idx);
-        switch( type(ud) ) {
-        case OT_USERDATA:   _userdata(ud)->_hook = hook;    break;
-        case OT_INSTANCE:   _instance(ud)->_hook = hook;    break;
-        case OT_CLASS:      _class(ud)->_hook = hook;       break;
-        default: break; //shutup compiler
-        }
+    SQObjectPtr &ud=stack_get(v,idx);
+    switch( type(ud) ) {
+    case OT_USERDATA:   _userdata(ud)->_hook = hook;    break;
+    case OT_INSTANCE:   _instance(ud)->_hook = hook;    break;
+    case OT_CLASS:      _class(ud)->_hook = hook;       break;
+    default: return;
     }
 }
 
 SQRELEASEHOOK sq_getreleasehook(HSQUIRRELVM v,SQInteger idx)
 {
-    if(sq_gettop(v) >= 1){
-        SQObjectPtr &ud=stack_get(v,idx);
-        switch( type(ud) ) {
-        case OT_USERDATA:   return _userdata(ud)->_hook;    break;
-        case OT_INSTANCE:   return _instance(ud)->_hook;    break;
-        case OT_CLASS:      return _class(ud)->_hook;       break;
-        default: break; //shutup compiler
-        }
+    SQObjectPtr &ud=stack_get(v,idx);
+    switch( type(ud) ) {
+    case OT_USERDATA:   return _userdata(ud)->_hook;    break;
+    case OT_INSTANCE:   return _instance(ud)->_hook;    break;
+    case OT_CLASS:      return _class(ud)->_hook;       break;
+    default: return NULL;
     }
-    return NULL;
 }
 
 void sq_setcompilererrorhandler(HSQUIRRELVM v,SQCOMPILERERROR f)

@@ -348,6 +348,7 @@ void InitExports()
     g_SqAPI.instanceof                  = sq_instanceof;
     g_SqAPI.tostring                    = sq_tostring;
     g_SqAPI.tobool                      = sq_tobool;
+    g_SqAPI.getstringandsize            = sq_getstringandsize;
     g_SqAPI.getstring                   = sq_getstring;
     g_SqAPI.getinteger                  = sq_getinteger;
     g_SqAPI.getfloat                    = sq_getfloat;

@@ -98,6 +98,7 @@ extern "C" {
     typedef SQBool (*sqapi_instanceof)(HSQUIRRELVM v);
     typedef SQRESULT (*sqapi_tostring)(HSQUIRRELVM v,SQInteger idx);
     typedef void (*sqapi_tobool)(HSQUIRRELVM v, SQInteger idx, SQBool *b);
+    typedef SQRESULT (*sqapi_getstringandsize)(HSQUIRRELVM v,SQInteger idx,const SQChar **c,SQInteger *size);
     typedef SQRESULT (*sqapi_getstring)(HSQUIRRELVM v,SQInteger idx,const SQChar **c);
     typedef SQRESULT (*sqapi_getinteger)(HSQUIRRELVM v,SQInteger idx,SQInteger *i);
     typedef SQRESULT (*sqapi_getfloat)(HSQUIRRELVM v,SQInteger idx,SQFloat *f);
@@ -285,6 +286,7 @@ extern "C" {
         sqapi_instanceof                    instanceof;
         sqapi_tostring                      tostring;
         sqapi_tobool                        tobool;
+        sqapi_getstringandsize              getstringandsize;
         sqapi_getstring                     getstring;
         sqapi_getinteger                    getinteger;
         sqapi_getfloat                      getfloat;
@@ -406,184 +408,185 @@ extern "C" {
 #ifdef SQMOD_PLUGIN_API
 
     /*vm*/
-    extern sqapi_open                          sq_open;
-    extern sqapi_newthread                     sq_newthread;
-    extern sqapi_seterrorhandler               sq_seterrorhandler;
-    extern sqapi_close                         sq_close;
-    extern sqapi_setforeignptr                 sq_setforeignptr;
-    extern sqapi_getforeignptr                 sq_getforeignptr;
-    extern sqapi_setsharedforeignptr           sq_setsharedforeignptr;
-    extern sqapi_getsharedforeignptr           sq_getsharedforeignptr;
-    extern sqapi_setvmreleasehook              sq_setvmreleasehook;
-    extern sqapi_getvmreleasehook              sq_getvmreleasehook;
-    extern sqapi_setsharedreleasehook          sq_setsharedreleasehook;
-    extern sqapi_getsharedreleasehook          sq_getsharedreleasehook;
-    extern sqapi_setprintfunc                  sq_setprintfunc;
-    extern sqapi_getprintfunc                  sq_getprintfunc;
-    extern sqapi_geterrorfunc                  sq_geterrorfunc;
-    extern sqapi_suspendvm                     sq_suspendvm;
-    extern sqapi_wakeupvm                      sq_wakeupvm;
-    extern sqapi_getvmstate                    sq_getvmstate;
-    extern sqapi_getversion                    sq_getversion;
+    extern sqapi_open                           sq_open;
+    extern sqapi_newthread                      sq_newthread;
+    extern sqapi_seterrorhandler                sq_seterrorhandler;
+    extern sqapi_close                          sq_close;
+    extern sqapi_setforeignptr                  sq_setforeignptr;
+    extern sqapi_getforeignptr                  sq_getforeignptr;
+    extern sqapi_setsharedforeignptr            sq_setsharedforeignptr;
+    extern sqapi_getsharedforeignptr            sq_getsharedforeignptr;
+    extern sqapi_setvmreleasehook               sq_setvmreleasehook;
+    extern sqapi_getvmreleasehook               sq_getvmreleasehook;
+    extern sqapi_setsharedreleasehook           sq_setsharedreleasehook;
+    extern sqapi_getsharedreleasehook           sq_getsharedreleasehook;
+    extern sqapi_setprintfunc                   sq_setprintfunc;
+    extern sqapi_getprintfunc                   sq_getprintfunc;
+    extern sqapi_geterrorfunc                   sq_geterrorfunc;
+    extern sqapi_suspendvm                      sq_suspendvm;
+    extern sqapi_wakeupvm                       sq_wakeupvm;
+    extern sqapi_getvmstate                     sq_getvmstate;
+    extern sqapi_getversion                     sq_getversion;
 
     /*compiler*/
-    extern sqapi_compile                       sq_compile;
-    extern sqapi_compilebuffer                 sq_compilebuffer;
-    extern sqapi_enabledebuginfo               sq_enabledebuginfo;
-    extern sqapi_notifyallexceptions           sq_notifyallexceptions;
-    extern sqapi_setcompilererrorhandler       sq_setcompilererrorhandler;
+    extern sqapi_compile                        sq_compile;
+    extern sqapi_compilebuffer                  sq_compilebuffer;
+    extern sqapi_enabledebuginfo                sq_enabledebuginfo;
+    extern sqapi_notifyallexceptions            sq_notifyallexceptions;
+    extern sqapi_setcompilererrorhandler        sq_setcompilererrorhandler;
 
     /*stack operations*/
-    extern sqapi_push                          sq_push;
-    extern sqapi_pop                           sq_pop;
-    extern sqapi_poptop                        sq_poptop;
-    extern sqapi_remove                        sq_remove;
-    extern sqapi_gettop                        sq_gettop;
-    extern sqapi_settop                        sq_settop;
-    extern sqapi_reservestack                  sq_reservestack;
-    extern sqapi_cmp                           sq_cmp;
-    extern sqapi_move                          sq_move;
+    extern sqapi_push                           sq_push;
+    extern sqapi_pop                            sq_pop;
+    extern sqapi_poptop                         sq_poptop;
+    extern sqapi_remove                         sq_remove;
+    extern sqapi_gettop                         sq_gettop;
+    extern sqapi_settop                         sq_settop;
+    extern sqapi_reservestack                   sq_reservestack;
+    extern sqapi_cmp                            sq_cmp;
+    extern sqapi_move                           sq_move;
 
     /*object creation handling*/
-    extern sqapi_newuserdata                   sq_newuserdata;
-    extern sqapi_newtable                      sq_newtable;
-    extern sqapi_newtableex                    sq_newtableex;
-    extern sqapi_newarray                      sq_newarray;
-    extern sqapi_newclosure                    sq_newclosure;
-    extern sqapi_setparamscheck                sq_setparamscheck;
-    extern sqapi_bindenv                       sq_bindenv;
-    extern sqapi_setclosureroot                sq_setclosureroot;
-    extern sqapi_getclosureroot                sq_getclosureroot;
-    extern sqapi_pushstring                    sq_pushstring;
-    extern sqapi_pushfloat                     sq_pushfloat;
-    extern sqapi_pushinteger                   sq_pushinteger;
-    extern sqapi_pushbool                      sq_pushbool;
-    extern sqapi_pushuserpointer               sq_pushuserpointer;
-    extern sqapi_pushnull                      sq_pushnull;
-    extern sqapi_pushthread                    sq_pushthread;
-    extern sqapi_gettype                       sq_gettype;
-    extern sqapi_typeof                        sq_typeof;
-    extern sqapi_getsize                       sq_getsize;
-    extern sqapi_gethash                       sq_gethash;
-    extern sqapi_getbase                       sq_getbase;
-    extern sqapi_instanceof                    sq_instanceof;
-    extern sqapi_tostring                      sq_tostring;
-    extern sqapi_tobool                        sq_tobool;
-    extern sqapi_getstring                     sq_getstring;
-    extern sqapi_getinteger                    sq_getinteger;
-    extern sqapi_getfloat                      sq_getfloat;
-    extern sqapi_getbool                       sq_getbool;
-    extern sqapi_getthread                     sq_getthread;
-    extern sqapi_getuserpointer                sq_getuserpointer;
-    extern sqapi_getuserdata                   sq_getuserdata;
-    extern sqapi_settypetag                    sq_settypetag;
-    extern sqapi_gettypetag                    sq_gettypetag;
-    extern sqapi_setreleasehook                sq_setreleasehook;
-    extern sqapi_getreleasehook                sq_getreleasehook;
-    extern sqapi_getscratchpad                 sq_getscratchpad;
-    extern sqapi_getfunctioninfo               sq_getfunctioninfo;
-    extern sqapi_getclosureinfo                sq_getclosureinfo;
-    extern sqapi_getclosurename                sq_getclosurename;
-    extern sqapi_setnativeclosurename          sq_setnativeclosurename;
-    extern sqapi_setinstanceup                 sq_setinstanceup;
-    extern sqapi_getinstanceup                 sq_getinstanceup;
-    extern sqapi_setclassudsize                sq_setclassudsize;
-    extern sqapi_newclass                      sq_newclass;
-    extern sqapi_createinstance                sq_createinstance;
-    extern sqapi_setattributes                 sq_setattributes;
-    extern sqapi_getattributes                 sq_getattributes;
-    extern sqapi_getclass                      sq_getclass;
-    extern sqapi_weakref                       sq_weakref;
-    extern sqapi_getdefaultdelegate            sq_getdefaultdelegate;
-    extern sqapi_getmemberhandle               sq_getmemberhandle;
-    extern sqapi_getbyhandle                   sq_getbyhandle;
-    extern sqapi_setbyhandle                   sq_setbyhandle;
+    extern sqapi_newuserdata                    sq_newuserdata;
+    extern sqapi_newtable                       sq_newtable;
+    extern sqapi_newtableex                     sq_newtableex;
+    extern sqapi_newarray                       sq_newarray;
+    extern sqapi_newclosure                     sq_newclosure;
+    extern sqapi_setparamscheck                 sq_setparamscheck;
+    extern sqapi_bindenv                        sq_bindenv;
+    extern sqapi_setclosureroot                 sq_setclosureroot;
+    extern sqapi_getclosureroot                 sq_getclosureroot;
+    extern sqapi_pushstring                     sq_pushstring;
+    extern sqapi_pushfloat                      sq_pushfloat;
+    extern sqapi_pushinteger                    sq_pushinteger;
+    extern sqapi_pushbool                       sq_pushbool;
+    extern sqapi_pushuserpointer                sq_pushuserpointer;
+    extern sqapi_pushnull                       sq_pushnull;
+    extern sqapi_pushthread                     sq_pushthread;
+    extern sqapi_gettype                        sq_gettype;
+    extern sqapi_typeof                         sq_typeof;
+    extern sqapi_getsize                        sq_getsize;
+    extern sqapi_gethash                        sq_gethash;
+    extern sqapi_getbase                        sq_getbase;
+    extern sqapi_instanceof                     sq_instanceof;
+    extern sqapi_tostring                       sq_tostring;
+    extern sqapi_tobool                         sq_tobool;
+    extern sqapi_getstringandsize               sq_getstringandsize;
+    extern sqapi_getstring                      sq_getstring;
+    extern sqapi_getinteger                     sq_getinteger;
+    extern sqapi_getfloat                       sq_getfloat;
+    extern sqapi_getbool                        sq_getbool;
+    extern sqapi_getthread                      sq_getthread;
+    extern sqapi_getuserpointer                 sq_getuserpointer;
+    extern sqapi_getuserdata                    sq_getuserdata;
+    extern sqapi_settypetag                     sq_settypetag;
+    extern sqapi_gettypetag                     sq_gettypetag;
+    extern sqapi_setreleasehook                 sq_setreleasehook;
+    extern sqapi_getreleasehook                 sq_getreleasehook;
+    extern sqapi_getscratchpad                  sq_getscratchpad;
+    extern sqapi_getfunctioninfo                sq_getfunctioninfo;
+    extern sqapi_getclosureinfo                 sq_getclosureinfo;
+    extern sqapi_getclosurename                 sq_getclosurename;
+    extern sqapi_setnativeclosurename           sq_setnativeclosurename;
+    extern sqapi_setinstanceup                  sq_setinstanceup;
+    extern sqapi_getinstanceup                  sq_getinstanceup;
+    extern sqapi_setclassudsize                 sq_setclassudsize;
+    extern sqapi_newclass                       sq_newclass;
+    extern sqapi_createinstance                 sq_createinstance;
+    extern sqapi_setattributes                  sq_setattributes;
+    extern sqapi_getattributes                  sq_getattributes;
+    extern sqapi_getclass                       sq_getclass;
+    extern sqapi_weakref                        sq_weakref;
+    extern sqapi_getdefaultdelegate             sq_getdefaultdelegate;
+    extern sqapi_getmemberhandle                sq_getmemberhandle;
+    extern sqapi_getbyhandle                    sq_getbyhandle;
+    extern sqapi_setbyhandle                    sq_setbyhandle;
 
     /*object manipulation*/
-    extern sqapi_pushroottable                 sq_pushroottable;
-    extern sqapi_pushregistrytable             sq_pushregistrytable;
-    extern sqapi_pushconsttable                sq_pushconsttable;
-    extern sqapi_setroottable                  sq_setroottable;
-    extern sqapi_setconsttable                 sq_setconsttable;
-    extern sqapi_newslot                       sq_newslot;
-    extern sqapi_deleteslot                    sq_deleteslot;
-    extern sqapi_set                           sq_set;
-    extern sqapi_get                           sq_get;
-    extern sqapi_rawget                        sq_rawget;
-    extern sqapi_rawset                        sq_rawset;
-    extern sqapi_rawdeleteslot                 sq_rawdeleteslot;
-    extern sqapi_newmember                     sq_newmember;
-    extern sqapi_rawnewmember                  sq_rawnewmember;
-    extern sqapi_arrayappend                   sq_arrayappend;
-    extern sqapi_arraypop                      sq_arraypop;
-    extern sqapi_arrayresize                   sq_arrayresize;
-    extern sqapi_arrayreverse                  sq_arrayreverse;
-    extern sqapi_arrayremove                   sq_arrayremove;
-    extern sqapi_arrayinsert                   sq_arrayinsert;
-    extern sqapi_setdelegate                   sq_setdelegate;
-    extern sqapi_getdelegate                   sq_getdelegate;
-    extern sqapi_clone                         sq_clone;
-    extern sqapi_setfreevariable               sq_setfreevariable;
-    extern sqapi_next                          sq_next;
-    extern sqapi_getweakrefval                 sq_getweakrefval;
-    extern sqapi_clear                         sq_clear;
+    extern sqapi_pushroottable                  sq_pushroottable;
+    extern sqapi_pushregistrytable              sq_pushregistrytable;
+    extern sqapi_pushconsttable                 sq_pushconsttable;
+    extern sqapi_setroottable                   sq_setroottable;
+    extern sqapi_setconsttable                  sq_setconsttable;
+    extern sqapi_newslot                        sq_newslot;
+    extern sqapi_deleteslot                     sq_deleteslot;
+    extern sqapi_set                            sq_set;
+    extern sqapi_get                            sq_get;
+    extern sqapi_rawget                         sq_rawget;
+    extern sqapi_rawset                         sq_rawset;
+    extern sqapi_rawdeleteslot                  sq_rawdeleteslot;
+    extern sqapi_newmember                      sq_newmember;
+    extern sqapi_rawnewmember                   sq_rawnewmember;
+    extern sqapi_arrayappend                    sq_arrayappend;
+    extern sqapi_arraypop                       sq_arraypop;
+    extern sqapi_arrayresize                    sq_arrayresize;
+    extern sqapi_arrayreverse                   sq_arrayreverse;
+    extern sqapi_arrayremove                    sq_arrayremove;
+    extern sqapi_arrayinsert                    sq_arrayinsert;
+    extern sqapi_setdelegate                    sq_setdelegate;
+    extern sqapi_getdelegate                    sq_getdelegate;
+    extern sqapi_clone                          sq_clone;
+    extern sqapi_setfreevariable                sq_setfreevariable;
+    extern sqapi_next                           sq_next;
+    extern sqapi_getweakrefval                  sq_getweakrefval;
+    extern sqapi_clear                          sq_clear;
 
     /*calls*/
-    extern sqapi_call                          sq_call;
-    extern sqapi_resume                        sq_resume;
-    extern sqapi_getlocal                      sq_getlocal;
-    extern sqapi_getcallee                     sq_getcallee;
-    extern sqapi_getfreevariable               sq_getfreevariable;
-    extern sqapi_throwerror                    sq_throwerror;
-    extern sqapi_throwobject                   sq_throwobject;
-    extern sqapi_reseterror                    sq_reseterror;
-    extern sqapi_getlasterror                  sq_getlasterror;
+    extern sqapi_call                           sq_call;
+    extern sqapi_resume                         sq_resume;
+    extern sqapi_getlocal                       sq_getlocal;
+    extern sqapi_getcallee                      sq_getcallee;
+    extern sqapi_getfreevariable                sq_getfreevariable;
+    extern sqapi_throwerror                     sq_throwerror;
+    extern sqapi_throwobject                    sq_throwobject;
+    extern sqapi_reseterror                     sq_reseterror;
+    extern sqapi_getlasterror                   sq_getlasterror;
 
     /*raw object handling*/
-    extern sqapi_getstackobj                   sq_getstackobj;
-    extern sqapi_pushobject                    sq_pushobject;
-    extern sqapi_addref                        sq_addref;
-    extern sqapi_release                       sq_release;
-    extern sqapi_getrefcount                   sq_getrefcount;
-    extern sqapi_resetobject                   sq_resetobject;
-    extern sqapi_objtostring                   sq_objtostring;
-    extern sqapi_objtobool                     sq_objtobool;
-    extern sqapi_objtointeger                  sq_objtointeger;
-    extern sqapi_objtofloat                    sq_objtofloat;
-    extern sqapi_objtouserpointer              sq_objtouserpointer;
-    extern sqapi_getobjtypetag                 sq_getobjtypetag;
-    extern sqapi_getvmrefcount                 sq_getvmrefcount;
+    extern sqapi_getstackobj                    sq_getstackobj;
+    extern sqapi_pushobject                     sq_pushobject;
+    extern sqapi_addref                         sq_addref;
+    extern sqapi_release                        sq_release;
+    extern sqapi_getrefcount                    sq_getrefcount;
+    extern sqapi_resetobject                    sq_resetobject;
+    extern sqapi_objtostring                    sq_objtostring;
+    extern sqapi_objtobool                      sq_objtobool;
+    extern sqapi_objtointeger                   sq_objtointeger;
+    extern sqapi_objtofloat                     sq_objtofloat;
+    extern sqapi_objtouserpointer               sq_objtouserpointer;
+    extern sqapi_getobjtypetag                  sq_getobjtypetag;
+    extern sqapi_getvmrefcount                  sq_getvmrefcount;
 
     /*GC*/
-    extern sqapi_collectgarbage                sq_collectgarbage;
-    extern sqapi_resurrectunreachable          sq_resurrectunreachable;
+    extern sqapi_collectgarbage                 sq_collectgarbage;
+    extern sqapi_resurrectunreachable           sq_resurrectunreachable;
 
     /*serialization*/
-    extern sqapi_writeclosure                  sq_writeclosure;
-    extern sqapi_readclosure                   sq_readclosure;
+    extern sqapi_writeclosure                   sq_writeclosure;
+    extern sqapi_readclosure                    sq_readclosure;
 
     /*mem allocation*/
-    extern sqapi_malloc                        sq_malloc;
-    extern sqapi_realloc                       sq_realloc;
-    extern sqapi_free                          sq_free;
+    extern sqapi_malloc                         sq_malloc;
+    extern sqapi_realloc                        sq_realloc;
+    extern sqapi_free                           sq_free;
 
     /*debug*/
-    extern sqapi_stackinfos                    sq_stackinfos;
-    extern sqapi_setdebughook                  sq_setdebughook;
-    extern sqapi_setnativedebughook            sq_setnativedebughook;
+    extern sqapi_stackinfos                     sq_stackinfos;
+    extern sqapi_setdebughook                   sq_setdebughook;
+    extern sqapi_setnativedebughook             sq_setnativedebughook;
 
     /*compiler helpers*/
-    extern sqapi_loadfile                      sqstd_loadfile;
-    extern sqapi_dofile                        sqstd_dofile;
-    extern sqapi_writeclosuretofile            sqstd_writeclosuretofile;
+    extern sqapi_loadfile                       sqstd_loadfile;
+    extern sqapi_dofile                         sqstd_dofile;
+    extern sqapi_writeclosuretofile             sqstd_writeclosuretofile;
 
     /*blob*/
-    extern sqapi_createblob                    sqstd_createblob;
-    extern sqapi_getblob                       sqstd_getblob;
-    extern sqapi_getblobsize                   sqstd_getblobsize;
+    extern sqapi_createblob                     sqstd_createblob;
+    extern sqapi_getblob                        sqstd_getblob;
+    extern sqapi_getblobsize                    sqstd_getblobsize;
 
     /*string*/
-    extern sqapi_format                        sqstd_format;
+    extern sqapi_format                         sqstd_format;
 
 #endif // SQMOD_PLUGIN_API
 

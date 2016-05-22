@@ -17,12 +17,13 @@ static bool str2num(const SQChar *s,SQObjectPtr &res,SQInteger base)
 {
     SQChar *end;
     const SQChar *e = s;
-    SQBool isfloat = SQFalse;
+    bool iseintbase = base > 13; //to fix error converting hexadecimals with e like 56f0791e
+    bool isfloat = false;
     SQChar c;
     while((c = *e) != _SC('\0'))
     {
-        if(c == _SC('.') || c == _SC('E')|| c == _SC('e')) { //e and E is for scientific notation
-            isfloat = SQTrue;
+        if (c == _SC('.') || (!iseintbase && (c == _SC('E') || c == _SC('e')))) { //e and E is for scientific notation
+            isfloat = true;
             break;
         }
         e++;
