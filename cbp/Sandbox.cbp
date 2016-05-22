@@ -154,6 +154,7 @@
 			<Add directory="../sandbox" />
 			<Add directory="../source" />
 			<Add directory="../shared" />
+			<Add directory="../include/fmt" />
 			<Add directory="../config/common" />
 			<Add directory="../external/Common" />
 			<Add directory="../external/Hash" />
