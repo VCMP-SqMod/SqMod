@@ -1115,22 +1115,19 @@ static SQInteger SqDigits0(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat SqIToF(Int64 sigv, Int64 expv, Int32 padn, Int32 padc, bool negf)
+SQFloat SqIToF(Int64 sigv, Int64 expv, Int32 padn, bool negf)
 {
     // The number of characters to add before the exponent
     static CharT padb[64];
+    // Make sure the pad number is positive
+    padn = ClampMin(padn, 0);
     // Is the number of pad characters out of range?
-    if (padn >= 64)
+    if (static_cast< Uint32 >(padn) >= sizeof(padb))
     {
-        STHROWF("Pad characters out of range: %d >= 64", padn);
-    }
-    // Is the pad character invalid?
-    else if (padc > 9 || padc < 0)
-    {
-        STHROWF("Invalid padding value: %d", padc);
+        STHROWF("Pad characters out of range: %d >= %d", padn, sizeof(padb));
     }
     // Write the padding characters
-    std::memset(padb, 48 + padc, padn);
+    std::memset(padb, '0', padn);
     // Add the null terminator
     padb[padn] = '\0';
     // The obtained string containing the floating point
