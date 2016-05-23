@@ -9,9 +9,6 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-extern void ProcessRoutines();
-
-// ------------------------------------------------------------------------------------------------
 void Core::EmitCustomEvent(Int32 group, Int32 header, Object & payload)
 {
     Emit(mOnCustomEvent, group, header, payload);
@@ -186,9 +183,6 @@ void Core::EmitServerShutdown()
 // ------------------------------------------------------------------------------------------------
 void Core::EmitServerFrame(Float32 elapsed_time)
 {
-    // Update routines
-    ProcessRoutines();
-    // Now forward the event
     Emit(mOnServerFrame, elapsed_time);
 }
 

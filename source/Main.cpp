@@ -16,6 +16,7 @@ static Object   g_ReloadPayload;
 
 // ------------------------------------------------------------------------------------------------
 extern void InitExports();
+extern void ProcessRoutines();
 
 /* ------------------------------------------------------------------------------------------------
  * Perform a scripts reload at the end of the current event.
@@ -178,9 +179,12 @@ static void OnServerFrame(float elapsed_time)
     // Attempt to forward the event
     try
     {
+        // Now forward the event
         Core::Get().EmitServerFrame(elapsed_time);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnServerFrame)
+    // Process routines, if any
+    ProcessRoutines();
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(false)
 }
