@@ -13,7 +13,7 @@ SQChar Time::Delimiter = ':';
 // ------------------------------------------------------------------------------------------------
 SQInteger Time::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqChronoTime");
+    static const SQChar name[] = _SC("SqChronoTime");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

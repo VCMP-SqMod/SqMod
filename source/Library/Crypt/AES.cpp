@@ -13,7 +13,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger AES256::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqAES256");
+    static const SQChar name[] = _SC("SqAES256");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

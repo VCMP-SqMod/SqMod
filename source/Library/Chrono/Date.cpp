@@ -16,7 +16,7 @@ const Uint8 Date::MonthLengths[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 3
 // ------------------------------------------------------------------------------------------------
 SQInteger Date::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqChronoDate");
+    static const SQChar name[] = _SC("SqChronoDate");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

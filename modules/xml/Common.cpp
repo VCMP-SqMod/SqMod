@@ -92,7 +92,7 @@ void DocumentRef::Validate() const
 // ------------------------------------------------------------------------------------------------
 SQInteger ParseResult::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqXmlParseResult");
+    static const SQChar name[] = _SC("SqXmlParseResult");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

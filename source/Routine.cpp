@@ -18,7 +18,7 @@ Routine::Objects    Routine::s_Objects;
 // ------------------------------------------------------------------------------------------------
 SQInteger Routine::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqRoutine");
+    static const SQChar name[] = _SC("SqRoutine");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }

@@ -36,7 +36,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger SysPath::Typename(HSQUIRRELVM vm)
 {
-    static SQChar name[] = _SC("SqSysPath");
+    static const SQChar name[] = _SC("SqSysPath");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
@@ -1632,9 +1632,39 @@ SysPath SysPath::Null()
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::With(const SysPath & parent, CSStr  name)
+SysPath SysPath::With(const SysPath & parent, CSStr name)
 {
     return SysPath(parent, name);
+}
+
+// ------------------------------------------------------------------------------------------------
+SysPath SysPath::MakeUnix(CSStr path)
+{
+    return SysPath(path, Style::Unix);
+}
+
+// ------------------------------------------------------------------------------------------------
+SysPath SysPath::MakeWindows(CSStr path)
+{
+    return SysPath(path, Style::Windows);
+}
+
+// ------------------------------------------------------------------------------------------------
+SysPath SysPath::MakeNative(CSStr path)
+{
+    return SysPath(path, Style::Native);
+}
+
+// ------------------------------------------------------------------------------------------------
+SysPath SysPath::MakeGuess(CSStr path)
+{
+    return SysPath(path, Style::Guess);
+}
+
+// ------------------------------------------------------------------------------------------------
+SysPath SysPath::MakeDynamic(CSStr path)
+{
+    return SysPath(path, Style::Dynamic);
 }
 
 // ================================================================================================
@@ -1710,6 +1740,11 @@ void Register_SysPath(HSQUIRRELVM vm)
         .StaticFunc(_SC("System"), &SysPath::System)
         .StaticFunc(_SC("Null"), &SysPath::Null)
         .StaticFunc(_SC("With"), &SysPath::With)
+        .StaticFunc(_SC("Unix"), &SysPath::MakeUnix)
+        .StaticFunc(_SC("Windows"), &SysPath::MakeWindows)
+        .StaticFunc(_SC("Native"), &SysPath::MakeNative)
+        .StaticFunc(_SC("Guess"), &SysPath::MakeGuess)
+        .StaticFunc(_SC("Dynamic"), &SysPath::MakeDynamic)
         // Static Overloads
         .StaticOverload< SysPath (*)(CSStr) >(_SC("ForDir"), &SysPath::ForDirectory)
         .StaticOverload< SysPath (*)(CSStr, Int32) >(_SC("ForDir"), &SysPath::ForDirectory)

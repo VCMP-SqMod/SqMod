@@ -720,8 +720,32 @@ public:
      * Creates a path from a parent path and a file name. The parent path is expected to reference
      * a directory.
     */
-    static SysPath With(const SysPath & parent, CSStr  name);
+    static SysPath With(const SysPath & parent, CSStr name);
 
+    /* --------------------------------------------------------------------------------------------
+     * Creates a path in unix format from a string.
+    */
+    static SysPath MakeUnix(CSStr path);
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates a path in windows format from a string.
+    */
+    static SysPath MakeWindows(CSStr path);
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates a path in native format from a string.
+    */
+    static SysPath MakeNative(CSStr path);
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates a path in and guess the format from a string.
+    */
+    static SysPath MakeGuess(CSStr path);
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates a path in dynamic format from a string.
+    */
+    static SysPath MakeDynamic(CSStr path);
 };
 
 } // Namespace:: SqMod
