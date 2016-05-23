@@ -643,6 +643,11 @@ public:
     void DisconnectPlayer(Int32 id, Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
+     * Emit a custom event.
+    */
+    void EmitCustomEvent(Int32 group, Int32 header, Object & payload);
+
+    /* --------------------------------------------------------------------------------------------
      * Server events.
     */
     void EmitBlipCreated(Int32 blip, Int32 header, Object & payload);

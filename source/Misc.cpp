@@ -61,6 +61,12 @@ static void BindEvent(Int32 id, Object & env, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
+static void CustomEvent(Int32 group, Int32 header, Object & payload)
+{
+    Core::Get().EmitCustomEvent(group, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 static Int32 GetState()
 {
     return Core::Get().GetState();
@@ -118,6 +124,7 @@ void Register_Core(HSQUIRRELVM vm)
     RootTable(vm)
     .Bind(_SC("SqCore"), Table(vm)
         .Func(_SC("Bind"), &BindEvent)
+        .Func(_SC("CustomEvent"), &CustomEvent)
         .Func(_SC("Reload"), &SetReload)
         .Func(_SC("ReloadBecause"), &SetReloadBecause)
         .Func(_SC("Reloading"), &IsReloading)

@@ -12,6 +12,12 @@ namespace SqMod {
 extern void ProcessRoutines();
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitCustomEvent(Int32 group, Int32 header, Object & payload)
+{
+    Emit(mOnCustomEvent, group, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitBlipCreated(Int32 blip, Int32 header, Object & payload)
 {
     Emit(mOnBlipCreated, m_Blips.at(blip).mObj, header, payload);
