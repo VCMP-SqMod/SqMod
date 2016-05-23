@@ -392,7 +392,6 @@
 			<Add directory="../source" />
 			<Add directory="../shared" />
 			<Add directory="../include" />
-			<Add directory="../include/fmt" />
 			<Add directory="../config/common" />
 			<Add directory="../external/Common" />
 			<Add directory="../external/Hash" />
@@ -401,8 +400,8 @@
 			<Add library="squirrel" />
 		</Linker>
 		<Unit filename="../external/Common/aes256.cpp" />
-		<Unit filename="../external/Common/posix.cc" />
 		<Unit filename="../external/CppFormat/format.cc" />
+		<Unit filename="../external/CppFormat/posix.cc" />
 		<Unit filename="../external/Hash/crc32.cpp" />
 		<Unit filename="../external/Hash/crc32.h" />
 		<Unit filename="../external/Hash/digest.cpp" />
