@@ -37,7 +37,7 @@ public:
      *
     */
     LongInt(CSStr text);
-    LongInt(CSStr text, Object & /* null */);
+    LongInt(CSStr text, SQInteger fall);
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -296,7 +296,7 @@ public:
      *
     */
     LongInt(CSStr text);
-    LongInt(CSStr text, Object & /* null */);
+    LongInt(CSStr text, SQInteger fall);
 
     /* --------------------------------------------------------------------------------------------
      *

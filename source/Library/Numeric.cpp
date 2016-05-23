@@ -3,8 +3,9 @@
 #include "Library/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cerrno>
+#include <cstdlib>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -12,8 +13,14 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 LongInt< Int64 >::LongInt(CSStr text) : m_Data(0), m_Text()
 { m_Data = strtoll(text, NULL, 10); }
-LongInt< Int64 >::LongInt(CSStr text, Object & /* null */) : m_Data(0), m_Text()
-{ m_Data = strtoll(text, NULL, 10); }
+LongInt< Int64 >::LongInt(CSStr text, SQInteger fall) : m_Data(0), m_Text()
+{
+    m_Data = strtoll(text, NULL, 10);
+    if (errno == ERANGE)
+    {
+        m_Data = ConvTo< Type >::From(fall);
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 LongInt< Int64 > & LongInt< Int64 >::operator = (CSStr text)
@@ -41,13 +48,19 @@ void LongInt< Int64 >::Random(Type m, Type n) { m_Data = GetRandomInt64(m, n); }
 // ------------------------------------------------------------------------------------------------
 LongInt< Uint64 >::LongInt(CSStr text) : m_Data(0), m_Text()
 { m_Data = strtoll(text, NULL, 10); }
-LongInt< Uint64 >::LongInt(CSStr text, Object & /* null */) : m_Data(0), m_Text()
-{ m_Data = strtoll(text, NULL, 10); }
+LongInt< Uint64 >::LongInt(CSStr text, SQInteger fall) : m_Data(0), m_Text()
+{
+    m_Data = strtoull(text, NULL, 10);
+    if (errno == ERANGE)
+    {
+        m_Data = ConvTo< Type >::From(fall);
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 LongInt< Uint64 > & LongInt< Uint64 >::operator = (CSStr text)
 {
-    m_Data = strtoll(text, NULL, 10);
+    m_Data = strtoull(text, NULL, 10);
     return *this;
 }
 
@@ -74,7 +87,7 @@ void Register_Numeric(HSQUIRRELVM vm)
         /* Constructors */
         .Ctor()
         .Ctor< SLongInt::Type >()
-        .template Ctor< CCStr, Object & >()
+        .template Ctor< CCStr, SQInteger >()
         /* Properties */
         .Prop(_SC("Str"), &SLongInt::GetCStr, &SLongInt::SetStr)
         .Prop(_SC("Num"), &SLongInt::GetSNum, &SLongInt::SetNum)
@@ -110,7 +123,7 @@ void Register_Numeric(HSQUIRRELVM vm)
         /* Constructors */
         .Ctor()
         .Ctor< ULongInt::Type >()
-        .Ctor< CCStr, Object & >()
+        .Ctor< CCStr, SQInteger >()
         /* Properties */
         .Prop(_SC("Str"), &ULongInt::GetCStr, &ULongInt::SetStr)
         .Prop(_SC("Num"), &ULongInt::GetSNum, &ULongInt::SetNum)
