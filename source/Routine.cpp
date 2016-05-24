@@ -253,57 +253,72 @@ void Routine::Execute()
         {
             // Attempt to identify how many arguments should be passed
             case 0:
+            {
                 m_Callback.Execute();
-            break;
+            } break;
             case 1:
+            {
                 m_Callback.Execute(m_Arg1);
-            break;
+            } break;
             case 2:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2);
-            break;
+            } break;
             case 3:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3);
-            break;
+            } break;
             case 4:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4);
-            break;
+            } break;
             case 5:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5);
-            break;
+            } break;
             case 6:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6);
-            break;
+            } break;
             case 7:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7);
-            break;
+            } break;
             case 8:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
                                     m_Arg8);
-            break;
+            } break;
             case 9:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
                                     m_Arg8, m_Arg9);
-            break;
+            } break;
             case 10:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
                                     m_Arg8, m_Arg9, m_Arg10);
-            break;
+            } break;
             case 11:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
                                     m_Arg8, m_Arg9, m_Arg10, m_Arg11);
-            break;
+            } break;
             case 12:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
                                     m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12);
-            break;
+            } break;
             case 13:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
                                     m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13);
-            break;
+            } break;
             case 14:
+            {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
                                     m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13, m_Arg14);
-            break;
+            } break;
         }
     }
     catch (const Sqrat::Exception & e)
@@ -332,7 +347,7 @@ Routine::Routine(Object & env, Function & func, Interval interval)
     , m_Arguments(0)
     , m_Suspended(false)
     , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Callback()
     , m_Tag(_SC(""))
     , m_Data()
 {
@@ -343,6 +358,16 @@ Routine::Routine(Object & env, Function & func, Interval interval)
     }
     else
     {
+        // Does the callback need a custom environment?
+        if (env.IsNull())
+        {
+            m_Callback = func;
+        }
+        else
+        {
+            m_Callback = Function(env.GetVM(), env, func.GetFunc());
+        }
+        // Activate this routine
         Insert(this, false);
     }
 }
@@ -354,7 +379,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     , m_Arguments(0)
     , m_Suspended(false)
     , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Callback()
     , m_Tag(_SC(""))
     , m_Data()
 {
@@ -365,6 +390,16 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     }
     else
     {
+        // Does the callback need a custom environment?
+        if (env.IsNull())
+        {
+            m_Callback = func;
+        }
+        else
+        {
+            m_Callback = Function(env.GetVM(), env, func.GetFunc());
+        }
+        // Activate this routine
         Insert(this, false);
     }
 }
@@ -378,7 +413,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     , m_Arguments(1)
     , m_Suspended(false)
     , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Callback()
     , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1)
@@ -390,6 +425,16 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     }
     else
     {
+        // Does the callback need a custom environment?
+        if (env.IsNull())
+        {
+            m_Callback = func;
+        }
+        else
+        {
+            m_Callback = Function(env.GetVM(), env, func.GetFunc());
+        }
+        // Activate this routine
         Insert(this, false);
     }
 }
@@ -403,7 +448,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     , m_Arguments(2)
     , m_Suspended(false)
     , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Callback()
     , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1), m_Arg2(a2)
@@ -415,6 +460,16 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     }
     else
     {
+        // Does the callback need a custom environment?
+        if (env.IsNull())
+        {
+            m_Callback = func;
+        }
+        else
+        {
+            m_Callback = Function(env.GetVM(), env, func.GetFunc());
+        }
+        // Activate this routine
         Insert(this, false);
     }
 }
@@ -428,7 +483,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     , m_Arguments(3)
     , m_Suspended(false)
     , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Callback()
     , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3)
@@ -440,6 +495,16 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     }
     else
     {
+        // Does the callback need a custom environment?
+        if (env.IsNull())
+        {
+            m_Callback = func;
+        }
+        else
+        {
+            m_Callback = Function(env.GetVM(), env, func.GetFunc());
+        }
+        // Activate this routine
         Insert(this, false);
     }
 }
@@ -453,7 +518,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     , m_Arguments(4)
     , m_Suspended(false)
     , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Callback()
     , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3), m_Arg4(a4)
@@ -465,6 +530,16 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     }
     else
     {
+        // Does the callback need a custom environment?
+        if (env.IsNull())
+        {
+            m_Callback = func;
+        }
+        else
+        {
+            m_Callback = Function(env.GetVM(), env, func.GetFunc());
+        }
+        // Activate this routine
         Insert(this, false);
     }
 }
@@ -478,7 +553,7 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     , m_Arguments(5)
     , m_Suspended(false)
     , m_Terminated(false)
-    , m_Callback(env.GetVM(), env, func.GetFunc())
+    , m_Callback()
     , m_Tag(_SC(""))
     , m_Data()
     , m_Arg1(a1), m_Arg2(a2), m_Arg3(a3), m_Arg4(a4), m_Arg5(a5)
@@ -490,6 +565,16 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
     }
     else
     {
+        // Does the callback need a custom environment?
+        if (env.IsNull())
+        {
+            m_Callback = func;
+        }
+        else
+        {
+            m_Callback = Function(env.GetVM(), env, func.GetFunc());
+        }
+        // Activate this routine
         Insert(this, false);
     }
 }
