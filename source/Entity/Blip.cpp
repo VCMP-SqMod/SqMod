@@ -103,7 +103,7 @@ void CBlip::BindEvent(Int32 evid, Object & env, Function & func) const
     // Is the specified callback function null?
     if (func.IsNull())
     {
-        event.Release(); // Then release the current callback
+        event.ReleaseGently(); // Then release the current callback
     }
     // Does this function need a custom environment?
     else if (env.IsNull())
