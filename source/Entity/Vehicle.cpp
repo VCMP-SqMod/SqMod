@@ -114,6 +114,11 @@ void CVehicle::BindEvent(Int32 evid, Object & env, Function & func) const
     {
         event.Release(); // Then release the current callback
     }
+    // Does this function need a custom environment?
+    else if (env.IsNull())
+    {
+        event = func;
+    }
     // Assign the specified environment and function
     else
     {
