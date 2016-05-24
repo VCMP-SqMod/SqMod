@@ -270,6 +270,16 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve an event supported by this session.
+    */
+    Function & GetEvent(Int32 evid);
+
+    /* --------------------------------------------------------------------------------------------
+     * Bind to an event supported by this session.
+    */
+    void BindEvent(Int32 evid, Object & env, Function & func);
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the server address.
     */
     CSStr GetServer() const
@@ -1057,39 +1067,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnConnect(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnConnect.ReleaseGently();
-        }
-        else
-        {
-            m_OnConnect = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnNick()
     {
         return m_OnNick;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnNick(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnNick.ReleaseGently();
-        }
-        else
-        {
-            m_OnNick = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1103,39 +1083,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnQuit(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnQuit.ReleaseGently();
-        }
-        else
-        {
-            m_OnQuit = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnJoin()
     {
         return m_OnJoin;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnJoin(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnJoin.ReleaseGently();
-        }
-        else
-        {
-            m_OnJoin = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1149,39 +1099,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnPart(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnPart.ReleaseGently();
-        }
-        else
-        {
-            m_OnPart = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnMode()
     {
         return m_OnMode;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnMode(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnMode.ReleaseGently();
-        }
-        else
-        {
-            m_OnMode = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1195,39 +1115,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnUmode(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnUmode.ReleaseGently();
-        }
-        else
-        {
-            m_OnUmode = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnTopic()
     {
         return m_OnTopic;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnTopic(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnTopic.ReleaseGently();
-        }
-        else
-        {
-            m_OnTopic = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1241,39 +1131,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnKick(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnKick.ReleaseGently();
-        }
-        else
-        {
-            m_OnKick = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnChannel()
     {
         return m_OnChannel;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnChannel(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnChannel.ReleaseGently();
-        }
-        else
-        {
-            m_OnChannel = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1287,39 +1147,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnPrivMsg(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnPrivMsg.ReleaseGently();
-        }
-        else
-        {
-            m_OnPrivMsg = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnNotice()
     {
         return m_OnNotice;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnNotice(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnNotice.ReleaseGently();
-        }
-        else
-        {
-            m_OnNotice = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1333,39 +1163,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnChannelNotice(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnChannelNotice.ReleaseGently();
-        }
-        else
-        {
-            m_OnChannelNotice = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnInvite()
     {
         return m_OnInvite;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnInvite(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnInvite.ReleaseGently();
-        }
-        else
-        {
-            m_OnInvite = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1379,39 +1179,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnCtcpReq(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnCtcpReq.ReleaseGently();
-        }
-        else
-        {
-            m_OnCtcpReq = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnCtcpRep()
     {
         return m_OnCtcpRep;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnCtcpRep(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnCtcpRep.ReleaseGently();
-        }
-        else
-        {
-            m_OnCtcpRep = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1425,39 +1195,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnCtcpAction(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnCtcpAction.ReleaseGently();
-        }
-        else
-        {
-            m_OnCtcpAction = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnUnknown()
     {
         return m_OnUnknown;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnUnknown(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnUnknown.ReleaseGently();
-        }
-        else
-        {
-            m_OnUnknown = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1471,21 +1211,6 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnNumeric(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnNumeric.ReleaseGently();
-        }
-        else
-        {
-            m_OnNumeric = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnDccChatReq()
     {
         return m_OnDccChatReq;
@@ -1494,39 +1219,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * ...
     */
-    void BindOnDccChatReq(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnDccChatReq.ReleaseGently();
-        }
-        else
-        {
-            m_OnDccChatReq = Function(env.GetVM(), env, func.GetFunc());
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
     Function & GetOnDccSendReq()
     {
         return m_OnDccSendReq;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * ...
-    */
-    void BindOnDccSendReq(Object & env, Function & func)
-    {
-        if (func.IsNull())
-        {
-            m_OnDccSendReq.ReleaseGently();
-        }
-        else
-        {
-            m_OnDccSendReq = Function(env.GetVM(), env, func.GetFunc());
-        }
     }
 };
 

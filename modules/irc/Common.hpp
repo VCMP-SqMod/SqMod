@@ -141,6 +141,55 @@ struct StackStrF
 };
 
 /* ------------------------------------------------------------------------------------------------
+ * Types of events that the session emits.
+*/
+enum SessionEvent
+{
+    SET_CONNECT = 0,
+    SET_NICK,
+    SET_QUIT,
+    SET_JOIN,
+    SET_PART,
+    SET_MODE,
+    SET_UMODE,
+    SET_TOPIC,
+    SET_KICK,
+    SET_CHANNEL,
+    SET_PRIVMSG,
+    SET_NOTICE,
+    SET_CHANNELNOTICE,
+    SET_INVITE,
+    SET_CTCPREQ,
+    SET_CTCPREP,
+    SET_CTCPACTION,
+    SET_UNKNOWN,
+    SET_NUMERIC,
+    SET_DCCCHATREQ,
+    SET_DCCSENDREQ,
+    SET_MAX
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve a reference to a null script object.
+*/
+Object & NullObject();
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve a reference to a null/empty script table.
+*/
+Table & NullTable();
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve a reference to a null/empty script array.
+*/
+Array & NullArray();
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve a reference to a null script function.
+*/
+Function & NullFunction();
+
+/* ------------------------------------------------------------------------------------------------
  * Extract the name from the specified origin.
 */
 CSStr GetNick(CSStr origin);

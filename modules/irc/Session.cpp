@@ -259,7 +259,7 @@ bool Session::ValidateEventSession(Session * ptr)
         return true;
     }
     // We can't throw an error here so we simply log it
-    _SqMod->LogErr("Cannot forward IRC event without a session container");
+    _SqMod->LogErr("Cannot forward IRC event without a session instance");
     // Invalid session instance
     return false;
 }
@@ -329,6 +329,63 @@ Session::~Session()
     if (s_Session == this)
     {
         s_Session = nullptr;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Function & Session::GetEvent(Int32 evid)
+{
+    // Identify the requested event type
+    switch (evid)
+    {
+        case SET_CONNECT:           return m_OnConnect;
+        case SET_NICK:              return m_OnNick;
+        case SET_QUIT:              return m_OnQuit;
+        case SET_JOIN:              return m_OnJoin;
+        case SET_PART:              return m_OnPart;
+        case SET_MODE:              return m_OnMode;
+        case SET_UMODE:             return m_OnUmode;
+        case SET_TOPIC:             return m_OnTopic;
+        case SET_KICK:              return m_OnKick;
+        case SET_CHANNEL:           return m_OnChannel;
+        case SET_PRIVMSG:           return m_OnPrivMsg;
+        case SET_NOTICE:            return m_OnNotice;
+        case SET_CHANNELNOTICE:     return m_OnChannelNotice;
+        case SET_INVITE:            return m_OnInvite;
+        case SET_CTCPREQ:           return m_OnCtcpReq;
+        case SET_CTCPREP:           return m_OnCtcpRep;
+        case SET_CTCPACTION:        return m_OnCtcpAction;
+        case SET_UNKNOWN:           return m_OnUnknown;
+        case SET_NUMERIC:           return m_OnNumeric;
+        case SET_DCCCHATREQ:        return m_OnDccChatReq;
+        case SET_DCCSENDREQ:        return m_OnDccSendReq;
+        default: break;
+    }
+    // Default to a null function
+    return NullFunction();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Session::BindEvent(Int32 evid, Object & env, Function & func)
+{
+    // Validate the handle
+    Validate();
+    // Obtain the function instance called for this event
+    Function & event = GetEvent(evid);
+    // Is the specified callback function null?
+    if (func.IsNull())
+    {
+        event.ReleaseGently(); // Then release the current callback
+    }
+    // Does this function need a custom environment?
+    else if (env.IsNull())
+    {
+        event = func;
+    }
+    // Assign the specified environment and function
+    else
+    {
+        event = Function(env.GetVM(), env, func.GetFunc());
     }
 }
 
