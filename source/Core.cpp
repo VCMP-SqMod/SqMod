@@ -526,6 +526,28 @@ void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInt
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::BindEvent(Int32 id, Object & env, Function & func)
+{
+    // Obtain the function instance called for this event
+    Function & event = GetEvent(id);
+    // Is the specified callback function null?
+    if (func.IsNull())
+    {
+        event.Release(); // Then release the current callback
+    }
+    // Does this function need a custom environment?
+    else if (env.IsNull())
+    {
+        event = func;
+    }
+    // Assign the specified environment and function
+    else
+    {
+        event = Function(env.GetVM(), env, func.GetFunc());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 Core::BlipInst::~BlipInst()
 {
     // Should we notify that this entity is being cleaned up?

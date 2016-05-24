@@ -860,23 +860,6 @@ bool Core::DelVehicle(Int32 id, Int32 header, Object & payload)
     return true;
 }
 
-// ------------------------------------------------------------------------------------------------
-void Core::BindEvent(Int32 id, Object & env, Function & func)
-{
-    // Obtain the function instance called for this event
-    Function & event = GetEvent(id);
-    // Is the specified callback function null?
-    if (func.IsNull())
-    {
-        event.Release(); // Then release the current callback
-    }
-    // Assign the specified environment and function
-    else
-    {
-        event = Function(env.GetVM(), env, func.GetFunc());
-    }
-}
-
 // --------------------------------------------------------------------------------------------
 void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
 {
