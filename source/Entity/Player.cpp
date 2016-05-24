@@ -274,7 +274,10 @@ void CPlayer::SetName(CSStr name) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerName(m_ID, name);
+    if (_Func->SetPlayerName(m_ID, name) == vcmpErrorInvalidName)
+    {
+        STHROWF("The specified name is invalid");
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
