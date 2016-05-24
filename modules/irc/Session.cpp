@@ -638,8 +638,23 @@ void Session::ForwardEvent(Function & listener, CCStr event, CCStr origin, CCStr
             parameters.SetValue(i, params[i]);
         }
     }
-    // Call the event with the obtained values
-    listener.Execute< CSStr, CSStr, Array & >(event, origin, parameters);
+    // Attempt top execute the callback with the obtained values
+    try
+    {
+        listener.Execute< CSStr, CSStr, Array & >(event, origin, parameters);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        _SqMod->LogErr("IRC event [%s] => Squirrel error [%s]", event, e.Message().c_str());
+    }
+    catch (const std::exception & e)
+    {
+        _SqMod->LogErr("IRC event [%s] => Program error [%s]", event, e.what());
+    }
+    catch (...)
+    {
+        _SqMod->LogErr("IRC event [%s] => Unknown error", event);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -667,8 +682,23 @@ void Session::ForwardEvent(Function & listener, Uint32 event,
             parameters.SetValue(i, params[i]);
         }
     }
-    // Call the event with the obtained values
-    listener.Execute< Uint32, CSStr, Array & >(event, origin, parameters);
+    // Attempt top execute the callback with the obtained values
+    try
+    {
+        listener.Execute< Uint32, CSStr, Array & >(event, origin, parameters);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        _SqMod->LogErr("IRC event [%s] => Squirrel error [%s]", event, e.Message().c_str());
+    }
+    catch (const std::exception & e)
+    {
+        _SqMod->LogErr("IRC event [%s] => Program error [%s]", event, e.what());
+    }
+    catch (...)
+    {
+        _SqMod->LogErr("IRC event [%s] => Unknown error", event);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
