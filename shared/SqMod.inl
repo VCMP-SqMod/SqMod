@@ -192,7 +192,7 @@ HSQEXPORTS sq_api_import(PluginFuncs * vcapi)
     {
         return NULL;
     }
-    unsigned int struct_size;
+    size_t struct_size;
     // Attempt to find the main plugin ID
     int plugin_id = vcapi->FindPlugin((char *)(SQMOD_HOST_NAME));
     // Attempt to retrieve the plugin exports
