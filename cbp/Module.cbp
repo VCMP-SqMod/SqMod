@@ -450,6 +450,7 @@
 		<Unit filename="../source/Core.hpp" />
 		<Unit filename="../source/CoreEntity.cpp" />
 		<Unit filename="../source/CoreEvents.cpp" />
+		<Unit filename="../source/CoreFuncs.cpp" />
 		<Unit filename="../source/CoreUtils.cpp" />
 		<Unit filename="../source/Entity/Blip.cpp" />
 		<Unit filename="../source/Entity/Blip.hpp" />
@@ -517,7 +518,6 @@
 		<Unit filename="../source/Logger.cpp" />
 		<Unit filename="../source/Logger.hpp" />
 		<Unit filename="../source/Main.cpp" />
-		<Unit filename="../source/Misc.cpp" />
 		<Unit filename="../source/Misc/Functions.cpp" />
 		<Unit filename="../source/Misc/Functions.hpp" />
 		<Unit filename="../source/Misc/Model.cpp" />

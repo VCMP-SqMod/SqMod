@@ -1,10 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
-#include "Logger.hpp"
 #include "Base/Stack.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <sqstdstring.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -146,50 +142,6 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("DestroyObject"), &DelObject)
         .Func(_SC("DestroyPickup"), &DelPickup)
         .Func(_SC("DestroyVehicle"), &DelVehicle)
-    );
-}
-
-// ------------------------------------------------------------------------------------------------
-template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Was the message value specified?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing message value");
-    }
-    // Attempt to generate the string value
-    StackStrF val(vm, 2);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Forward the resulted string value to the logger
-    Logger::Get().Write(L, S, "%s", val.mPtr);
-    // This function does not return a value
-    return 0;
-}
-
-// ================================================================================================
-void Register_Log(HSQUIRRELVM vm)
-{
-    RootTable(vm)
-    .Bind(_SC("SqLog"), Table(vm)
-        .SquirrelFunc(_SC("Dbg"), &LogBasicMessage< LOGL_DBG, false >)
-        .SquirrelFunc(_SC("Usr"), &LogBasicMessage< LOGL_USR, false >)
-        .SquirrelFunc(_SC("Scs"), &LogBasicMessage< LOGL_SCS, false >)
-        .SquirrelFunc(_SC("Inf"), &LogBasicMessage< LOGL_INF, false >)
-        .SquirrelFunc(_SC("Wrn"), &LogBasicMessage< LOGL_WRN, false >)
-        .SquirrelFunc(_SC("Err"), &LogBasicMessage< LOGL_ERR, false >)
-        .SquirrelFunc(_SC("Ftl"), &LogBasicMessage< LOGL_FTL, false >)
-        .SquirrelFunc(_SC("SDbg"), &LogBasicMessage< LOGL_DBG, true >)
-        .SquirrelFunc(_SC("SUsr"), &LogBasicMessage< LOGL_USR, true >)
-        .SquirrelFunc(_SC("SScs"), &LogBasicMessage< LOGL_SCS, true >)
-        .SquirrelFunc(_SC("SInf"), &LogBasicMessage< LOGL_INF, true >)
-        .SquirrelFunc(_SC("SWrn"), &LogBasicMessage< LOGL_WRN, true >)
-        .SquirrelFunc(_SC("SErr"), &LogBasicMessage< LOGL_ERR, true >)
-        .SquirrelFunc(_SC("SFtl"), &LogBasicMessage< LOGL_FTL, true >)
     );
 }
 
