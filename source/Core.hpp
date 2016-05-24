@@ -19,7 +19,8 @@ namespace SqMod {
 */
 enum CoreCircularLocks
 {
-    CCL_EMIT_SERVER_OPTION = (1 << 0)
+    CCL_RELOAD_SCRIPTS      = (1 << 0),
+    CCL_EMIT_SERVER_OPTION  = (2 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -399,6 +400,11 @@ public:
      * Terminate the plug-in core.
     */
     void Terminate();
+
+    /* --------------------------------------------------------------------------------------------
+     * Reload the plug-in core.
+    */
+    bool Reload(Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the current plug-in state.

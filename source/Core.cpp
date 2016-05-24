@@ -322,6 +322,7 @@ void Core::Terminate()
 {
     if (m_VM)
     {
+
         LogDbg("Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(0xDEADC0DE, "");
@@ -358,6 +359,41 @@ void Core::Terminate()
         // Attempt to close the VM
         sq_close(sq_vm);
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::Reload(Int32 header, Object & payload)
+{
+    // Are we already reloading?
+    if (m_CircularLocks & CCL_RELOAD_SCRIPTS)
+    {
+        return false; // Already reloading!
+    }
+    // Prevent circular reloads when we send plugin commands
+    const BitGuardU32 bg(m_CircularLocks, static_cast< Uint32 >(CCL_RELOAD_SCRIPTS));
+    // Allow reloading by default
+    Core::Get().SetState(1);
+    // Emit the reload event
+    Core::Get().EmitScriptReload(header, payload);
+    // Are we allowed to reload?
+    if (!Core::Get().GetState())
+    {
+        return false; // Request denied!
+    }
+    // Terminate the current VM and release resources
+    Terminate();
+    // Attempt to initialize it the central core
+    if (!Initialize())
+    {
+        return false; // Reload failed!
+    }
+    // Attempt to load resources
+    else if (!Execute())
+    {
+        return false; // Reload failed!
+    }
+    // At this point the reload is complete
+    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
