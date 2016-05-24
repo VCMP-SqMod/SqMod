@@ -4,7 +4,6 @@
 		<Project filename="Module.cbp" />
 		<Project filename="Sandbox.cbp" />
 		<Project filename="Squirrel.cbp" />
-		<Project filename="ModINI.cbp" />
 		<Project filename="ModIRC.cbp" />
 		<Project filename="ModXML.cbp" />
 		<Project filename="ModJSON.cbp" />

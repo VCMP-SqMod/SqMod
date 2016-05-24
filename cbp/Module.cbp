@@ -484,10 +484,14 @@
 		<Unit filename="../source/Library/Crypt/AES.hpp" />
 		<Unit filename="../source/Library/Crypt/Hash.cpp" />
 		<Unit filename="../source/Library/Crypt/Hash.hpp" />
-		<Unit filename="../source/Library/FileIO.cpp" />
-		<Unit filename="../source/Library/FileIO.hpp" />
 		<Unit filename="../source/Library/Format.cpp" />
 		<Unit filename="../source/Library/Format.hpp" />
+		<Unit filename="../source/Library/IO.cpp" />
+		<Unit filename="../source/Library/IO.hpp" />
+		<Unit filename="../source/Library/IO/File.cpp" />
+		<Unit filename="../source/Library/IO/File.hpp" />
+		<Unit filename="../source/Library/IO/INI.cpp" />
+		<Unit filename="../source/Library/IO/INI.hpp" />
 		<Unit filename="../source/Library/Math.cpp" />
 		<Unit filename="../source/Library/Math.hpp" />
 		<Unit filename="../source/Library/Numeric.cpp" />
