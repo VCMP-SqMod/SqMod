@@ -1217,7 +1217,23 @@ Float64 ConvNum< Float64 >::FromStr(CSStr s, Int32 /*base*/)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< bool >::ToStr(bool v)
 {
-    reinterpret_cast< Uint64 * >(g_NumBuff)[0] = v ? 1702195828LLU : 435728179558LLU;
+    if (v)
+    {
+        g_NumBuff[0] = 't';
+        g_NumBuff[1] = 'r';
+        g_NumBuff[2] = 'u';
+        g_NumBuff[3] = 'e';
+        g_NumBuff[4] = '\0';
+    }
+    else
+    {
+        g_NumBuff[0] = 'f';
+        g_NumBuff[1] = 'a';
+        g_NumBuff[2] = 'l';
+        g_NumBuff[3] = 's';
+        g_NumBuff[4] = 'e';
+        g_NumBuff[5] = '\0';
+    }
     return g_NumBuff;
 }
 
