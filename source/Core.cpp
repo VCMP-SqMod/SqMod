@@ -39,9 +39,6 @@ extern void InitializeCmdManager();
 extern void TerminateCmdManager();
 
 // ------------------------------------------------------------------------------------------------
-extern Object & ReloadPayload();
-
-// ------------------------------------------------------------------------------------------------
 Core Core::s_Inst;
 
 // ------------------------------------------------------------------------------------------------
@@ -58,6 +55,8 @@ Core::Core()
     , m_Players()
     , m_Vehicles()
     , m_CircularLocks(0)
+    , m_ReloadHeader(0)
+    , m_ReloadPayload()
     , m_IncomingNameBuffer(nullptr)
     , m_IncomingNameCapacity(0)
 {
@@ -340,7 +339,7 @@ void Core::Terminate()
     // Release all resources from command manager
     TerminateCmdManager();
     // In case there's a payload for reload
-    ReloadPayload().Release();
+    m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them
     NullArray().Release();
     NullTable().Release();
@@ -362,7 +361,7 @@ void Core::Terminate()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::Reload(Int32 header, Object & payload)
+bool Core::Reload()
 {
     // Are we already reloading?
     if (m_CircularLocks & CCL_RELOAD_SCRIPTS)
@@ -374,7 +373,7 @@ bool Core::Reload(Int32 header, Object & payload)
     // Allow reloading by default
     Core::Get().SetState(1);
     // Emit the reload event
-    Core::Get().EmitScriptReload(header, payload);
+    Core::Get().EmitScriptReload(m_ReloadHeader, m_ReloadPayload);
     // Are we allowed to reload?
     if (!Core::Get().GetState())
     {
@@ -382,18 +381,10 @@ bool Core::Reload(Int32 header, Object & payload)
     }
     // Terminate the current VM and release resources
     Terminate();
-    // Attempt to initialize it the central core
-    if (!Initialize())
-    {
-        return false; // Reload failed!
-    }
-    // Attempt to load resources
-    else if (!Execute())
-    {
-        return false; // Reload failed!
-    }
-    // At this point the reload is complete
-    return true;
+    // Reset the reload header after termination
+    m_ReloadHeader = -1;
+    // Attempt to initialize the central core and load resources
+    return (Initialize() && Execute());
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -373,6 +373,10 @@ private:
     Uint32                          m_CircularLocks; // Prevent events from triggering themselves.
 
     // --------------------------------------------------------------------------------------------
+    Int32                           m_ReloadHeader; // The specified reload header.
+    Object                          m_ReloadPayload; // The specified reload payload.
+
+    // --------------------------------------------------------------------------------------------
     CStr                            m_IncomingNameBuffer; // Name of an incomming connection.
     size_t                          m_IncomingNameCapacity; // Incomming connection name size.
 
@@ -404,7 +408,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Reload the plug-in core.
     */
-    bool Reload(Int32 header, Object & payload);
+    bool Reload();
 
     /* --------------------------------------------------------------------------------------------
      * Modify the current plug-in state.
@@ -459,6 +463,40 @@ public:
     bool IsCircularLock(Uint32 lock) const
     {
         return (m_CircularLocks & lock);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set the header and payload for the reload.
+    */
+    void SetReloadInfo(Int32 header, Object & payload)
+    {
+        m_ReloadHeader = header;
+        m_ReloadPayload = payload;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reset the header and payload for the reload.
+    */
+    void ResetReloadInfo()
+    {
+        m_ReloadHeader = -1;
+        m_ReloadPayload.Release();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the specified reload header.
+    */
+    Int32 GetReloadHeader() const
+    {
+        return m_ReloadHeader;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the specified reload header.
+    */
+    Object & GetReloadPayload()
+    {
+        return m_ReloadPayload;
     }
 
     /* --------------------------------------------------------------------------------------------

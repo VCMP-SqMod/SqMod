@@ -10,50 +10,27 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static bool     g_Reload        = false;
-static Int32    g_ReloadHeader  = -1;
-static Object   g_ReloadPayload;
+static bool g_Reload = false;
 
 // ------------------------------------------------------------------------------------------------
 extern void InitExports();
 extern void ProcessRoutines();
 
 /* ------------------------------------------------------------------------------------------------
- * Perform a scripts reload at the end of the current event.
-*/
-void EnableReload(Int32 header, Object & payload)
-{
-    g_Reload = true;
-    g_ReloadHeader = header;
-    g_ReloadPayload = payload;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Do not perform a scripts reload at the end of the current event.
-*/
-void DisableReload()
-{
-    g_Reload = false;
-    g_ReloadHeader = -1;
-    g_ReloadPayload.Release();
-}
-
-/* ------------------------------------------------------------------------------------------------
  * Will the scripts be reloaded at the end of the current event?
 */
-bool ReloadEnabled()
+bool GetReloadStatus()
 {
     return g_Reload;
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Retrieve the payload that will be sent to the reload callback.
+ * Toggles the reload status.
 */
-Object & ReloadPayload()
+void SetReloadStatus(bool toggle)
 {
-    return g_ReloadPayload;
+    g_Reload = toggle;
 }
-
 /* ------------------------------------------------------------------------------------------------
  * Helper class to make sure that the reload is disabled and the payload is released.
 */
@@ -61,7 +38,7 @@ struct ReloadGuard
 {
     ~ReloadGuard()
     {
-        DisableReload();
+        g_Reload = false;
     }
 };
 
@@ -75,10 +52,10 @@ void DoReload()
     {
         return; // Don't even bother!
     }
-    // Release resources at the end of this function
+    // Make sure reloading is disabled at the end of this function
     const ReloadGuard rg;
     // Tell the central core to attempt to reload
-    if (!Core::Get().Reload(g_ReloadHeader, g_ReloadPayload))
+    if (!Core::Get().Reload())
     {
         LogFtl("Unable to reload scripts");
     }
