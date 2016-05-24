@@ -615,8 +615,7 @@ void Session::Disconnect()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Session * session, Function & listener, CCStr event,
-                            CCStr origin, CCStr * params, Uint32 count)
+void Session::ForwardEvent(Function & listener, CCStr event, CCStr origin, CCStr * params, Uint32 count)
 {
     // Is there anyone even listening to this event?
     if (listener.IsNull())
@@ -639,18 +638,12 @@ void Session::ForwardEvent(Session * session, Function & listener, CCStr event,
             parameters.SetValue(i, params[i]);
         }
     }
-    // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
-    // Obtain an object to this session instance without creating a new reference counter!
-    ClassType< Session >::PushInstance(_SqVM, session);
-    // Obtain the pushed object from the stack
-    Var< Object > var(_SqVM, -1);
     // Call the event with the obtained values
-    listener.Execute< Object &, CSStr, CSStr, Array & >(var.value, event, origin, parameters);
+    listener.Execute< CSStr, CSStr, Array & >(event, origin, parameters);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Session * session, Function & listener, Uint32 event,
+void Session::ForwardEvent(Function & listener, Uint32 event,
                             CCStr origin, CCStr * params, Uint32 count)
 {
     // Is there anyone even listening to this event?
@@ -674,25 +667,19 @@ void Session::ForwardEvent(Session * session, Function & listener, Uint32 event,
             parameters.SetValue(i, params[i]);
         }
     }
-    // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
-    // Obtain an object to this session instance without creating a new reference counter!
-    ClassType< Session >::PushInstance(_SqVM, session);
-    // Obtain the pushed object from the stack
-    Var< Object > var(_SqVM, -1);
     // Call the event with the obtained values
-    listener.Execute< Object &, Uint32, CSStr, Array & >(var.value, event, origin, parameters);
+    listener.Execute< Uint32, CSStr, Array & >(event, origin, parameters);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Session * /*session*/, Function & /*listener*/, CCStr /*nick*/,
+void Session::ForwardEvent(Function & /*listener*/, CCStr /*nick*/,
                             CCStr /*addr*/, irc_dcc_t /*dccid*/)
 {
     /* TODO! */
 }
 
 // ------------------------------------------------------------------------------------------------
-void Session::ForwardEvent(Session * /*session*/, Function & /*listener*/, CCStr /*nick*/,
+void Session::ForwardEvent(Function & /*listener*/, CCStr /*nick*/,
                             CCStr /*addr*/, CCStr /*filename*/, Ulong /*size*/, irc_dcc_t /*dccid*/)
 {
     /* TODO! */
@@ -709,7 +696,7 @@ void Session::OnConnect(irc_session_t * session, CCStr event, CCStr origin, CCSt
         // Save the connection time-stamp to calculate session uptime
         inst->m_SessionTime = _SqMod->GetEpochTimeMicro();
         // Now forward event
-        ForwardEvent(inst, inst->m_OnConnect, event, origin, params, count);
+        ForwardEvent(inst->m_OnConnect, event, origin, params, count);
     }
 }
 
@@ -723,7 +710,7 @@ void Session::OnNick(irc_session_t * session, CCStr event, CCStr origin, CCStr *
         {
             inst->m_Nick.assign(params[0]);
         }
-        ForwardEvent(inst, inst->m_OnNick, event, origin, params, count);
+        ForwardEvent(inst->m_OnNick, event, origin, params, count);
     }
 }
 
@@ -733,7 +720,7 @@ void Session::OnQuit(irc_session_t * session, CCStr event, CCStr origin, CCStr *
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnQuit, event, origin, params, count);
+        ForwardEvent(inst->m_OnQuit, event, origin, params, count);
     }
 }
 
@@ -743,7 +730,7 @@ void Session::OnJoin(irc_session_t * session, CCStr event, CCStr origin, CCStr *
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnJoin, event, origin, params, count);
+        ForwardEvent(inst->m_OnJoin, event, origin, params, count);
     }
 }
 
@@ -753,7 +740,7 @@ void Session::OnPart(irc_session_t * session, CCStr event, CCStr origin, CCStr *
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnPart, event, origin, params, count);
+        ForwardEvent(inst->m_OnPart, event, origin, params, count);
     }
 }
 
@@ -763,7 +750,7 @@ void Session::OnMode(irc_session_t * session, CCStr event, CCStr origin, CCStr *
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnMode, event, origin, params, count);
+        ForwardEvent(inst->m_OnMode, event, origin, params, count);
     }
 }
 
@@ -773,7 +760,7 @@ void Session::OnUmode(irc_session_t * session, CCStr event, CCStr origin, CCStr 
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnUmode, event, origin, params, count);
+        ForwardEvent(inst->m_OnUmode, event, origin, params, count);
     }
 }
 
@@ -783,7 +770,7 @@ void Session::OnTopic(irc_session_t * session, CCStr event, CCStr origin, CCStr 
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnTopic, event, origin, params, count);
+        ForwardEvent(inst->m_OnTopic, event, origin, params, count);
     }
 }
 
@@ -793,7 +780,7 @@ void Session::OnKick(irc_session_t * session, CCStr event, CCStr origin, CCStr *
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnKick, event, origin, params, count);
+        ForwardEvent(inst->m_OnKick, event, origin, params, count);
     }
 }
 
@@ -803,7 +790,7 @@ void Session::OnChannel(irc_session_t * session, CCStr event, CCStr origin, CCSt
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnChannel, event, origin, params, count);
+        ForwardEvent(inst->m_OnChannel, event, origin, params, count);
     }
 }
 
@@ -813,7 +800,7 @@ void Session::OnPrivMsg(irc_session_t * session, CCStr event, CCStr origin, CCSt
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnPrivMsg, event, origin, params, count);
+        ForwardEvent(inst->m_OnPrivMsg, event, origin, params, count);
     }
 }
 
@@ -823,7 +810,7 @@ void Session::OnNotice(irc_session_t * session, CCStr event, CCStr origin, CCStr
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnNotice, event, origin, params, count);
+        ForwardEvent(inst->m_OnNotice, event, origin, params, count);
     }
 }
 
@@ -833,7 +820,7 @@ void Session::OnChannelNotice(irc_session_t * session, CCStr event, CCStr origin
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-       ForwardEvent(inst, inst->m_OnChannelNotice, event, origin, params, count);
+       ForwardEvent(inst->m_OnChannelNotice, event, origin, params, count);
     }
 }
 
@@ -843,7 +830,7 @@ void Session::OnInvite(irc_session_t * session, CCStr event, CCStr origin, CCStr
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnInvite, event, origin, params, count);
+        ForwardEvent(inst->m_OnInvite, event, origin, params, count);
     }
 }
 
@@ -853,7 +840,7 @@ void Session::OnCtcpReq(irc_session_t * session, CCStr event, CCStr origin, CCSt
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnCtcpReq, event, origin, params, count);
+        ForwardEvent(inst->m_OnCtcpReq, event, origin, params, count);
     }
 
 }
@@ -864,7 +851,7 @@ void Session::OnCtcpRep(irc_session_t * session, CCStr event, CCStr origin, CCSt
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnCtcpRep, event, origin, params, count);
+        ForwardEvent(inst->m_OnCtcpRep, event, origin, params, count);
     }
 }
 
@@ -874,7 +861,7 @@ void Session::OnCtcpAction(irc_session_t * session, CCStr event, CCStr origin, C
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnCtcpAction, event, origin, params, count);
+        ForwardEvent(inst->m_OnCtcpAction, event, origin, params, count);
     }
 }
 
@@ -884,7 +871,7 @@ void Session::OnUnknown(irc_session_t * session, CCStr event, CCStr origin, CCSt
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnUnknown, event, origin, params, count);
+        ForwardEvent(inst->m_OnUnknown, event, origin, params, count);
     }
 }
 
@@ -894,7 +881,7 @@ void Session::OnNumeric(irc_session_t * session, Uint32 event, CCStr origin, CCS
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnNumeric, event, origin, params, count);
+        ForwardEvent(inst->m_OnNumeric, event, origin, params, count);
     }
 }
 
@@ -904,7 +891,7 @@ void Session::OnDccChatReq(irc_session_t * session, CCStr nick, CCStr addr, irc_
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnDccChatReq, nick, addr, dccid);
+        ForwardEvent(inst->m_OnDccChatReq, nick, addr, dccid);
     }
 }
 
@@ -914,7 +901,7 @@ void Session::OnDccSendReq(irc_session_t * session, CCStr nick, CCStr addr, CCSt
     Session * inst = reinterpret_cast< Session * >(irc_get_ctx(session));
     if (ValidateEventSession(inst))
     {
-        ForwardEvent(inst, inst->m_OnDccSendReq, nick, addr, filename, size, dccid);
+        ForwardEvent(inst->m_OnDccSendReq, nick, addr, filename, size, dccid);
     }
 }
 

@@ -314,7 +314,7 @@ void RegisterAPI(HSQUIRRELVM vm)
     ircns.Func(_SC("GetHost"), &GetHost);
     ircns.Func(_SC("GetErrStr"), &irc_strerror);
 
-    RootTable(vm).Bind(_SC("SqIrc"), ircns);
+    RootTable(vm).Bind(_SC("SqIRC"), ircns);
 
     Sqrat::ConstTable(vm).Enum(_SC("SqIrcErr"), Sqrat::Enumeration(vm)
         .Const(_SC("Ok"),                       LIBIRC_ERR_OK)

@@ -918,25 +918,25 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Forward session events to a script callback.
     */
-    static void ForwardEvent(Session * session, Function & listener, CCStr event,
+    static void ForwardEvent(Function & listener, CCStr event,
                                 CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
      * Forward session events to a script callback.
     */
-    static void ForwardEvent(Session * session, Function & listener, Uint32 event,
+    static void ForwardEvent(Function & listener, Uint32 event,
                                 CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
      * Forward session events to a script callback.
     */
-    static void ForwardEvent(Session * session, Function & listener, CCStr nick,
+    static void ForwardEvent(Function & listener, CCStr nick,
                                 CCStr addr, irc_dcc_t dccid);
 
     /* --------------------------------------------------------------------------------------------
      * Forward session events to a script callback.
     */
-    static void ForwardEvent(Session * session, Function & listener, CCStr nick,
+    static void ForwardEvent(Function & listener, CCStr nick,
                                 CCStr addr, CCStr filename, Ulong size, irc_dcc_t dccid);
 
     /* --------------------------------------------------------------------------------------------
