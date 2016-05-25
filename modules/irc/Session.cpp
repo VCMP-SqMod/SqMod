@@ -395,7 +395,7 @@ void Session::SetNick(CSStr nick)
     // Validate the handle
     Validate();
     // Validate the specified nick name
-    if (!nick || strlen(nick) <= 0)
+    if (!nick || *nick == '\0')
     {
         STHROWF("Invalid IRC nickname");
     }
