@@ -255,6 +255,9 @@ public:
     */
     Object & GetData()
     {
+        // Validate the handle
+        Validate();
+        // Return the requested information
         return m_Data;
     }
 
