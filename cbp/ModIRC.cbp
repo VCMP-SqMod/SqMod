@@ -7,6 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Win32 Debug Dynamic">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win32-d/mod_irc32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32-d/" />
 				<Option object_output="../obj/mingw32-d/" />
@@ -29,6 +30,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win32 Release Dynamic">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win32/mod_irc32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32/" />
 				<Option object_output="../obj/mingw32/" />
@@ -52,6 +54,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Debug Dynamic">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win64-d/mod_irc64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64-d/" />
 				<Option object_output="../obj/mingw64-d/" />
@@ -75,6 +78,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Release Dynamic">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win64/mod_irc64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64/" />
 				<Option object_output="../obj/mingw64/" />
@@ -99,6 +103,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux32 Debug Dynamic">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux32-d/mod_irc32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32-d/" />
 				<Option object_output="../obj/gcc32-d/" />
@@ -120,6 +125,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux32 Release Dynamic">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux32/mod_irc32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32/" />
 				<Option object_output="../obj/gcc32/" />
@@ -142,6 +148,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux64 Debug Dynamic">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux64-d/mod_irc64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64-d/" />
 				<Option object_output="../obj/gcc64-d/" />
@@ -164,6 +171,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux64 Release Dynamic">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux64/mod_irc64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64/" />
 				<Option object_output="../obj/gcc64/" />
@@ -187,6 +195,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win32 Debug Standalone">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win32-d/mod_irc32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32-d/" />
 				<Option object_output="../obj/mingw32-d/" />
@@ -213,6 +222,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win32 Release Standalone">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win32/mod_irc32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32/" />
 				<Option object_output="../obj/mingw32/" />
@@ -240,6 +250,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Debug Standalone">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win64-d/mod_irc64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64-d/" />
 				<Option object_output="../obj/mingw64-d/" />
@@ -267,6 +278,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Release Standalone">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win64/mod_irc64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64/" />
 				<Option object_output="../obj/mingw64/" />
@@ -295,6 +307,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux32 Debug Standalone">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux32-d/mod_irc32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32-d/" />
 				<Option object_output="../obj/gcc32-d/" />
@@ -320,6 +333,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux32 Release Standalone">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux32/mod_irc32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32/" />
 				<Option object_output="../obj/gcc32/" />
@@ -346,6 +360,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux64 Debug Standalone">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux64-d/mod_irc64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64-d/" />
 				<Option object_output="../obj/gcc64-d/" />
@@ -372,6 +387,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux64 Release Standalone">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux64/mod_irc64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64/" />
 				<Option object_output="../obj/gcc64/" />
