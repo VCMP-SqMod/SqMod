@@ -15,9 +15,6 @@
 #include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
-#include <fmt/format.h>
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -943,12 +940,11 @@ Color3 GetColor(CSStr name)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Int8 >::ToStr(Int8 v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%d", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
@@ -966,12 +962,11 @@ Int8 ConvNum< Int8 >::FromStr(CSStr s, Int32 base)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Uint8 >::ToStr(Uint8 v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%u", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
@@ -989,12 +984,11 @@ Uint8 ConvNum< Uint8 >::FromStr(CSStr s, Int32 base)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Int16 >::ToStr(Int16 v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%d", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
@@ -1012,12 +1006,11 @@ Int16 ConvNum< Int16 >::FromStr(CSStr s, Int32 base)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Uint16 >::ToStr(Uint16 v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%u", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
@@ -1035,12 +1028,11 @@ Uint16 ConvNum< Uint16 >::FromStr(CSStr s, Int32 base)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Int32 >::ToStr(Int32 v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%d", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
@@ -1058,12 +1050,11 @@ Int32 ConvNum< Int32 >::FromStr(CSStr s, Int32 base)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Uint32 >::ToStr(Uint32 v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%u", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
@@ -1081,12 +1072,11 @@ Uint32 ConvNum< Uint32 >::FromStr(CSStr s, Int32 base)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Int64 >::ToStr(Int64 v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%lld", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
@@ -1104,12 +1094,11 @@ Int64 ConvNum< Int64 >::FromStr(CSStr s, Int32 base)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Uint64 >::ToStr(Uint64 v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%llu", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
@@ -1127,12 +1116,11 @@ Uint64 ConvNum< Uint64 >::FromStr(CSStr s, Int32 base)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< LongI >::ToStr(LongI v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%ld", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
@@ -1150,12 +1138,11 @@ LongI ConvNum< LongI >::FromStr(CSStr s, Int32 base)
 // ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Ulong >::ToStr(Ulong v)
 {
-    // Obtain a pointer to the start of the common buffer
-    CStr b = &g_NumBuff[0];
     // Write the numeric value to the buffer
-    fmt::format_decimal(b, v);
-    // Terminate the string in the buffer
-    *b = '\0';
+    if (std::snprintf(g_NumBuff, sizeof(g_NumBuff), "%lu", v) < 0)
+    {
+        g_NumBuff[0] = '\0';
+    }
     // Return the beginning of the buffer
     return g_NumBuff;
 }
