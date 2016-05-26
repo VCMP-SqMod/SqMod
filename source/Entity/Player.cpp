@@ -2021,7 +2021,6 @@ void Register_CPlayer(HSQUIRRELVM vm)
         // Core Methods
         .Func(_SC("Bind"), &CPlayer::BindEvent)
         // Properties
-        .Prop(_SC("Class"), &CPlayer::GetClass)
         .Prop(_SC("Connected"), &CPlayer::IsConnected)
         .Prop(_SC("Admin"), &CPlayer::GetAdmin, &CPlayer::SetAdmin)
         .Prop(_SC("IP"), &CPlayer::GetIP)
