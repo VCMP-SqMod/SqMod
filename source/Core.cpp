@@ -228,7 +228,7 @@ bool Core::Initialize()
     // Are there any options to read?
     if (conf.GetAllKeys("Options", options) || options.size() > 0)
     {
-        LogDbg("Found (%u) options in the configuration file", options);
+        LogDbg("Found (%u) options in the configuration file", options.size());
         // Process all the specified keys under the [Options] section
         for (const auto & option : options)
         {
