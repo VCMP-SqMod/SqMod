@@ -2,10 +2,6 @@
 #include "Database.hpp"
 #include "SockAddr.hpp"
 #include "LookupResult.hpp"
-#include "Module.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <sqrat.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {

@@ -433,9 +433,12 @@
 		<Unit filename="../modules/mmdb/LookupResult.cpp" />
 		<Unit filename="../modules/mmdb/LookupResult.hpp" />
 		<Unit filename="../modules/mmdb/Module.cpp" />
-		<Unit filename="../modules/mmdb/Module.hpp" />
 		<Unit filename="../modules/mmdb/SockAddr.cpp" />
 		<Unit filename="../modules/mmdb/Sockaddr.hpp" />
+		<Unit filename="../shared/Base/Buffer.cpp" />
+		<Unit filename="../shared/Base/Buffer.hpp" />
+		<Unit filename="../shared/Base/Utility.cpp" />
+		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../shared/SqMod.cpp" />
 		<Extensions>
 			<code_completion />
