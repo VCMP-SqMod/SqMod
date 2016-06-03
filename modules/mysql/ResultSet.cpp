@@ -30,6 +30,18 @@ Int32 ResultSet::Cmp(const ResultSet & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
+CSStr ResultSet::ToString() const
+{
+    // Do we have a valid handle?
+    if (m_Handle)
+    {
+        ToStrF("%u", m_Handle->mFieldCount);
+    }
+    // Default to an empty string
+    return _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
 SQInteger ResultSet::GetInt8(Uint32 idx) const
 {
     // Validate the managed handle and specified index

@@ -248,6 +248,32 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("Transaction"), &Connection::GetTransaction)
     );
 
+    sqlns.Bind(_SC("Statement"), Class< Statement >(vm, _SC("SqMySQLStatement"))
+        // Constructors
+        .Ctor()
+        // Core Meta-methods
+        .Func(_SC("_cmp"), &Statement::Cmp)
+        .SquirrelFunc(_SC("_typename"), &Statement::Typename)
+        .Func(_SC("_tostring"), &Statement::ToString)
+        // Properties
+        //.Prop(_SC("Connected"), &Statement::Connected)
+        // Member Methods
+        //.Func(_SC("Disconnect"), &Statement::Disconnect)
+    );
+
+    sqlns.Bind(_SC("ResultSet"), Class< ResultSet >(vm, _SC("SqMySQLResultSet"))
+        // Constructors
+        .Ctor()
+        // Core Meta-methods
+        .Func(_SC("_cmp"), &ResultSet::Cmp)
+        .SquirrelFunc(_SC("_typename"), &ResultSet::Typename)
+        .Func(_SC("_tostring"), &ResultSet::ToString)
+        // Properties
+        //.Prop(_SC("Connected"), &ResultSet::Connected)
+        // Member Methods
+        //.Func(_SC("Disconnect"), &ResultSet::Disconnect)
+    );
+
 }
 
 } // Namespace:: SqMod

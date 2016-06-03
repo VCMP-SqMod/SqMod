@@ -44,7 +44,7 @@ CSStr Connection::ToString() const
         ToStringF("%s:%s@%s:%u", m_Handle->mUser.c_str(), m_Handle->mPass.c_str(),
                                     m_Handle->mHost.c_str(), m_Handle->mPort);
     }
-    // Default to an epty string
+    // Default to an empty string
     return _SC("");
 }
 

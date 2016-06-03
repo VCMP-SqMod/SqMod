@@ -34,6 +34,18 @@ Int32 Statement::Cmp(const Statement & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
+CSStr Statement::ToString() const
+{
+    // Do we have a valid handle?
+    if (m_Handle)
+    {
+        m_Handle->mQuery.c_str();
+    }
+    // Default to an empty string
+    return _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
 Statement::Statement()
     : m_Handle()
 {
