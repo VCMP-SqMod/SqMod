@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Allows management of the connection handle.
+ * Allows management and interaction with a connection handle.
 */
 class Connection
 {

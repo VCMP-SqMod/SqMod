@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Allows management and interaction with a result set.
+ * Allows management and interaction with a result set handle.
 */
 class ResultSet
 {

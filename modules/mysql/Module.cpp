@@ -219,6 +219,8 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("_tostring"), &Connection::ToString)
         // Properties
         .Prop(_SC("Connected"), &Connection::Connected)
+        .Prop(_SC("ErrNo"), &Connection::GetErrNo)
+        .Prop(_SC("ErrStr"), &Connection::GetErrStr)
         .Prop(_SC("LastErrNo"), &Connection::GetLastErrNo)
         .Prop(_SC("LastErrStr"), &Connection::GetLastErrStr)
         .Prop(_SC("Port"), &Connection::GetPortNum)
@@ -242,6 +244,8 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("Execute"), &Connection::Execute)
         .Func(_SC("Insert"), &Connection::Insert)
         .Func(_SC("Query"), &Connection::Query)
+        .Func(_SC("Statement"), &Connection::GetStatement)
+        .Func(_SC("Transaction"), &Connection::GetTransaction)
     );
 
 }

@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Allows management and interaction with a statement handle.
 */
 class Statement
 {

@@ -1,6 +1,11 @@
 // ------------------------------------------------------------------------------------------------
 #include "Connection.hpp"
 #include "Statement.hpp"
+#include "ResultSet.hpp"
+#include "Transaction.hpp"
+
+// ------------------------------------------------------------------------------------------------
+#include <cstring>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -41,6 +46,24 @@ CSStr Connection::ToString() const
     }
     // Default to an epty string
     return _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Connection::GetErrNo() const
+{
+    // Validate the managed handle
+    m_Handle.Validate();
+    // Return the requested information
+    return static_cast< SQInteger >(mysql_errno(m_Handle));
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr Connection::GetErrStr() const
+{
+    // Validate the managed handle
+    m_Handle.Validate();
+    // Return the requested information
+    return mysql_error(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -88,24 +111,50 @@ void Connection::SetAutoCommit(bool toggle)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Connection::Execute(CSStr query)
+Object Connection::Execute(CSStr query)
 {
     // Validate the managed handle
     m_Handle.Validate();
     // Perform the requested operation
-    return m_Handle->Execute(query);
+    return MakeULongObj(m_Handle->Execute(query));
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Connection::Insert(CSStr /*query*/)
+Object Connection::Insert(CSStr query)
 {
-    return 0;
+    // Validate the managed handle
+    m_Handle.Validate();
+    // Make sure the specified query is valid
+    if (!query || *query == '\0')
+    {
+        STHROWF("Invalid or empty MySQL query");
+    }
+    // Attempt to execute the specified query
+    else if (mysql_real_query(m_Handle, query, std::strlen(query)) != 0)
+    {
+        THROW_CURRENT(m_Handle, "Unable to execute query");
+    }
+    // Return the identifier of the inserted row
+    return MakeULongObj(mysql_insert_id(m_Handle));
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Connection::Query(CSStr /*query*/)
+ResultSet Connection::Query(CSStr query)
 {
-    return 0;
+    // Validate the managed handle
+    m_Handle.Validate();
+    // Make sure the specified query is valid
+    if (!query || *query == '\0')
+    {
+        STHROWF("Invalid or empty MySQL query");
+    }
+    // Attempt to execute the specified query
+    else if (mysql_real_query(m_Handle, query, std::strlen(query)) != 0)
+    {
+        THROW_CURRENT(m_Handle, "Unable to execute query");
+    }
+    // Return the identifier of the inserted row
+    return ResultSet(ResHnd(m_Handle));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -115,6 +164,12 @@ Statement Connection::GetStatement(CSStr query)
     m_Handle.Validate();
     // Return the requested information
     return Statement(m_Handle, query);
+}
+
+// ------------------------------------------------------------------------------------------------
+Transaction Connection::GetTransaction()
+{
+    return Transaction();
 }
 
 } // Namespace:: SqMod

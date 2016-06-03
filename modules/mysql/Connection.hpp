@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * ...
+ * Allows management and interaction with a connection handle.
 */
 class Connection
 {
@@ -50,7 +50,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~Connection() = default;
+    ~Connection()
+    {
+        // Let the handle deal with closing the connection if necessary
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
@@ -132,6 +135,16 @@ public:
         // Perform the requested operation
         m_Handle->Disconnect();
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current error number.
+    */
+    SQInteger GetErrNo() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current error message.
+    */
+    CSStr GetErrStr() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last received error number.
@@ -338,22 +351,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    SQInteger Execute(CSStr query);
+    Object Execute(CSStr query);
 
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    SQInteger Insert(CSStr query);
+    Object Insert(CSStr query);
 
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    SQInteger Query(CSStr query);
+    ResultSet Query(CSStr query);
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Create a new statement on the managed connection.
     */
     Statement GetStatement(CSStr query);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a new transaction on the managed connection.
+    */
+    Transaction GetTransaction();
 };
 
 } // Namespace:: SqMod
