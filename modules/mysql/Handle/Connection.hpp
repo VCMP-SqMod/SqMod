@@ -5,9 +5,6 @@
 #include "Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <vector>
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -45,9 +42,6 @@ public:
 
 protected:
 
-    // --------------------------------------------------------------------------------------------
-    typedef std::vector< String >       QueryList; // Container used to queue queries.
-
     /* --------------------------------------------------------------------------------------------
      * The structure that holds the data associated with a certain connection.
     */
@@ -81,9 +75,6 @@ protected:
         String      mCharset; // Default connection character set.
 
         // ----------------------------------------------------------------------------------------
-        QueryList   mQueue; // A queue of queries to be executed in groups.
-
-        // ----------------------------------------------------------------------------------------
         bool        mAutoCommit; // Whether autocommit is enabled on this connection.
         bool        mInTransaction; // Whether the connection is in the middle of a transaction.
 
@@ -112,14 +103,9 @@ protected:
         void Disconnect();
 
         /* ----------------------------------------------------------------------------------------
-         * Execute a specific amount of queries from the queue.
-        */
-        Int32 Flush(Uint32 num, Object & env, Function & func);
-
-        /* ----------------------------------------------------------------------------------------
          * Execute a query on the server.
         */
-        Ulong Execute(CSStr query, Ulong size = 0UL);
+        Uint64 Execute(CSStr query, Ulong size = 0UL);
     };
 
 private:

@@ -59,7 +59,6 @@ ConnHnd::Handle::Handle(const Account & acc)
     , mSSL_CA_Path(acc.GetSSL_CA_Path())
     , mSSL_Cipher(acc.GetSSL_Cipher())
     , mCharset()
-    , mQueue()
     , mAutoCommit(acc.GetAutoCommit())
     , mInTransaction(false)
 {
@@ -116,7 +115,7 @@ ConnHnd::Handle::Handle(const Account & acc)
 // ------------------------------------------------------------------------------------------------
 ConnHnd::Handle::~Handle()
 {
-
+    Disconnect();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -134,13 +133,7 @@ void ConnHnd::Handle::Disconnect()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 ConnHnd::Handle::Flush(Uint32 /*num*/, Object & /*env*/, Function & /*func*/)
-{
-    return 0;
-}
-
-// ------------------------------------------------------------------------------------------------
-Ulong ConnHnd::Handle::Execute(CSStr query, Ulong size)
+Uint64 ConnHnd::Handle::Execute(CSStr query, Ulong size)
 {
     // Make sure that we are connected
     if (!mPtr)
@@ -163,7 +156,7 @@ Ulong ConnHnd::Handle::Execute(CSStr query, Ulong size)
         THROW_CURRENT_HND((*this), "Unable to execute query");
     }
     // Where the number of affected rows will be stored
-    Ulong affected = 0UL;
+    Uint64 affected = 0UL;
     // Count the number of affected rows by any "upsert" statement
     while (true)
     {
