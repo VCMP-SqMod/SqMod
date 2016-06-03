@@ -1,38 +1,20 @@
-// --------------------------------------------------------------------------------------------
-#include "Module.hpp"
+// ------------------------------------------------------------------------------------------------
 #include "Common.hpp"
 #include "Attribute.hpp"
 #include "Text.hpp"
 #include "Node.hpp"
 #include "Document.hpp"
+#include "Wrapper/ParseResult.hpp"
 
-// --------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 #include <cstdio>
 #include <cstdlib>
-#include <cstdarg>
 
-// --------------------------------------------------------------------------------------------
-#include <sqrat.h>
-
-// --------------------------------------------------------------------------------------------
-#if defined(WIN32) || defined(_WIN32)
-    #include <Windows.h>
-#endif
-
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// --------------------------------------------------------------------------------------------
-PluginFuncs*        _Func = nullptr;
-PluginCallbacks*    _Clbk = nullptr;
-PluginInfo*         _Info = nullptr;
-
-// --------------------------------------------------------------------------------------------
-HSQAPI              _SqAPI = nullptr;
-HSQEXPORTS          _SqMod = nullptr;
-HSQUIRRELVM         _SqVM = nullptr;
-
 /* ------------------------------------------------------------------------------------------------
- * Bind speciffic functions to certain server events.
+ * Bind specific functions to certain server events.
 */
 void BindCallbacks();
 
@@ -41,22 +23,22 @@ void BindCallbacks();
 */
 void UnbindCallbacks();
 
-/* --------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
  * Register the module API under the specified virtual machine.
 */
 void RegisterAPI(HSQUIRRELVM vm);
 
-/* --------------------------------------------------------------------------------------------
- * Initialize the plugin by obtaining the API provided by the host plugin.
+/* ------------------------------------------------------------------------------------------------
+ * Initialize the plug-in by obtaining the API provided by the host plug-in.
 */
 void OnSquirrelInitialize()
 {
-    // Attempt to import the plugin API exported by the host plugin
+    // Attempt to import the plug-in API exported by the host plug-in
     _SqMod = sq_api_import(_Func);
-    // Did we failed to obtain the plugin exports?
-    if(!_SqMod)
+    // Did we failed to obtain the plug-in exports?
+    if (!_SqMod)
     {
-        OutputError("Failed to attach [%s] on host plugin.", SQXML_NAME);
+        OutputError("Failed to attach [%s] on host plug-in.", SQXML_NAME);
     }
     else
     {
@@ -67,12 +49,12 @@ void OnSquirrelInitialize()
     }
 }
 
-/* --------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
  * Load the module on the virtual machine provided by the host module.
 */
 void OnSquirrelLoad()
 {
-    // Make sure that we have a valid plugin API
+    // Make sure that we have a valid plug-in API
     if (!_SqMod)
     {
         return; // Unable to proceed!
@@ -92,23 +74,28 @@ void OnSquirrelLoad()
     OutputMessage("Registered: %s", SQXML_NAME);
 }
 
-/* --------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
  * The virtual machine is about to be terminated and script resources should be released.
 */
 void OnSquirrelTerminate()
 {
     OutputMessage("Terminating: %s", SQXML_NAME);
+    // Release null objects just in case
+    NullObject().Release();
+    NullTable().Release();
+    NullArray().Release();
+    NullFunction().ReleaseGently();
     // Release the current virtual machine, if any
     DefaultVM::Set(nullptr);
 }
 
-/* --------------------------------------------------------------------------------------------
+/* ------------------------------------------------------------------------------------------------
  * Validate the module API to make sure we don't run into issues.
 */
 bool CheckAPIVer(CCStr ver)
 {
     // Obtain the numeric representation of the API version
-    long vernum = std::strtol(ver, nullptr, 10);
+    const LongI vernum = std::strtol(ver, nullptr, 10);
     // Check against version mismatch
     if (vernum == SQMOD_API_VER)
     {
@@ -121,8 +108,8 @@ bool CheckAPIVer(CCStr ver)
     return false;
 }
 
-/* --------------------------------------------------------------------------------------------
- * React to command sent by other plugins.
+/* ------------------------------------------------------------------------------------------------
+ * React to command sent by other plug-ins.
 */
 static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
 {
@@ -145,8 +132,8 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
     return 1;
 }
 
-/* --------------------------------------------------------------------------------------------
- * The server was initialized and this plugin was loaded successfully.
+/* ------------------------------------------------------------------------------------------------
+ * The server was initialized and this plug-in was loaded successfully.
 */
 static uint8_t OnServerInitialise()
 {
@@ -175,7 +162,7 @@ void UnbindCallbacks()
     _Clbk->OnPluginCommand          = nullptr;
 }
 
-// --------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 void RegisterAPI(HSQUIRRELVM vm)
 {
     Table xmlns(vm);
@@ -184,7 +171,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         // Constructors
         .Ctor()
         .Ctor< const ParseResult & >()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_cmp"), &ParseResult::Cmp)
         .SquirrelFunc(_SC("_typename"), &ParseResult::Typename)
         .Func(_SC("_tostring"), &ParseResult::ToString)
@@ -204,7 +191,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         // Constructors
         .Ctor()
         .Ctor< const Attribute & >()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_cmp"), &Attribute::Cmp)
         .SquirrelFunc(_SC("_typename"), &Attribute::Typename)
         .Func(_SC("_tostring"), &Attribute::ToString)
@@ -249,7 +236,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         // Constructors
         .Ctor()
         .Ctor< const Text & >()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_cmp"), &Text::Cmp)
         .SquirrelFunc(_SC("_typename"), &Text::Typename)
         .Func(_SC("_tostring"), &Text::ToString)
@@ -289,7 +276,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         // Constructors
         .Ctor()
         .Ctor< const Node & >()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_cmp"), &Node::Cmp)
         .SquirrelFunc(_SC("_typename"), &Node::Typename)
         .Func(_SC("_tostring"), &Node::ToString)
@@ -364,7 +351,7 @@ void RegisterAPI(HSQUIRRELVM vm)
     xmlns.Bind(_SC("Document"), Class< Document, NoCopy< Document > >(vm, _SC("SqXmlDocument"))
         // Constructors
         .Ctor()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_cmp"), &Document::Cmp)
         .SquirrelFunc(_SC("_typename"), &Document::Typename)
         .Func(_SC("_tostring"), &Document::ToString)
@@ -473,119 +460,33 @@ void RegisterAPI(HSQUIRRELVM vm)
     );
 }
 
-// --------------------------------------------------------------------------------------------
-void OutputMessageImpl(const char * msg, va_list args)
-{
-#if defined(WIN32) || defined(_WIN32)
-    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    CONSOLE_SCREEN_BUFFER_INFO csb_before;
-    GetConsoleScreenBufferInfo( hstdout, &csb_before);
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN);
-    std::printf("[SQMOD] ");
-
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    std::vprintf(msg, args);
-    std::puts("");
-
-    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
-#else
-    std::printf("%c[0;32m[SQMOD]%c[0m", 27, 27);
-    std::vprintf(msg, args);
-    std::puts("");
-#endif
-}
-
-// --------------------------------------------------------------------------------------------
-void OutputErrorImpl(const char * msg, va_list args)
-{
-#if defined(WIN32) || defined(_WIN32)
-    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    CONSOLE_SCREEN_BUFFER_INFO csb_before;
-    GetConsoleScreenBufferInfo( hstdout, &csb_before);
-    SetConsoleTextAttribute(hstdout, FOREGROUND_RED | FOREGROUND_INTENSITY);
-    std::printf("[SQMOD] ");
-
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    std::vprintf(msg, args);
-    std::puts("");
-
-    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
-#else
-    std::printf("%c[0;91m[SQMOD]%c[0m", 27, 27);
-    std::vprintf(msg, args);
-    std::puts("");
-#endif
-}
-
-// --------------------------------------------------------------------------------------------
-void OutputDebug(const char * msg, ...)
-{
-#ifdef _DEBUG
-    // Initialize the arguments list
-    va_list args;
-    va_start(args, msg);
-    // Call the output function
-    OutputMessageImpl(msg, args);
-    // Finalize the arguments list
-    va_end(args);
-#else
-    SQMOD_UNUSED_VAR(msg);
-#endif
-}
-
-// --------------------------------------------------------------------------------------------
-void OutputMessage(const char * msg, ...)
-{
-    // Initialize the arguments list
-    va_list args;
-    va_start(args, msg);
-    // Call the output function
-    OutputMessageImpl(msg, args);
-    // Finalize the arguments list
-    va_end(args);
-}
-
-// --------------------------------------------------------------------------------------------
-void OutputError(const char * msg, ...)
-{
-    // Initialize the arguments list
-    va_list args;
-    va_start(args, msg);
-    // Call the output function
-    OutputErrorImpl(msg, args);
-    // Finalize the arguments list
-    va_end(args);
-}
-
 } // Namespace:: SqMod
 
-// --------------------------------------------------------------------------------------------
-SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs* functions, PluginCallbacks* callbacks, PluginInfo* info)
+// ------------------------------------------------------------------------------------------------
+SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * functions, PluginCallbacks * callbacks, PluginInfo * info)
 {
     using namespace SqMod;
-    // Output plugin header
+    // Output plug-in header
     puts("");
     OutputMessage("--------------------------------------------------------------------");
-    OutputMessage("Plugin: %s", SQXML_NAME);
+    OutputMessage("Plug-in: %s", SQXML_NAME);
     OutputMessage("Author: %s", SQXML_AUTHOR);
     OutputMessage("Legal: %s", SQXML_COPYRIGHT);
     OutputMessage("--------------------------------------------------------------------");
     puts("");
-    // Attempt to find the host plugin ID
-    int host_plugin_id = functions->FindPlugin((char *)(SQMOD_HOST_NAME));
-    // See if our plugin was loaded after the host plugin
+    // Attempt to find the host plug-in ID
+    const int host_plugin_id = functions->FindPlugin(SQMOD_HOST_NAME);
+    // See if our plug-in was loaded after the host plug-in
     if (host_plugin_id < 0)
     {
-        OutputError("%s could find the host plugin", SQXML_NAME);
+        OutputError("%s could find the host plug-in", SQXML_NAME);
         // Don't load!
         return SQMOD_FAILURE;
     }
     // Should never reach this point but just in case
     else if (static_cast< Uint32 >(host_plugin_id) > info->pluginId)
     {
-        OutputError("%s loaded after the host plugin", SQXML_NAME);
+        OutputError("%s loaded after the host plug-in", SQXML_NAME);
         // Don't load!
         return SQMOD_FAILURE;
     }
@@ -593,15 +494,15 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs* functions, PluginCallb
     _Func = functions;
     _Clbk = callbacks;
     _Info = info;
-    // Assign plugin version
+    // Assign plug-in version
     _Info->pluginVersion = SQXML_VERSION;
     _Info->apiMajorVersion = PLUGIN_API_MAJOR;
     _Info->apiMinorVersion = PLUGIN_API_MINOR;
-    // Assign the plugin name
+    // Assign the plug-in name
     std::snprintf(_Info->name, sizeof(_Info->name), "%s", SQXML_HOST_NAME);
     // Bind callbacks
     BindCallbacks();
-    // Notify that the plugin was successfully loaded
+    // Notify that the plug-in was successfully loaded
     OutputMessage("Successfully loaded %s", SQXML_NAME);
     // Dummy spacing
     puts("");

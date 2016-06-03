@@ -2,7 +2,6 @@
 #include "Node.hpp"
 #include "Attribute.hpp"
 #include "Text.hpp"
-#include "Module.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {

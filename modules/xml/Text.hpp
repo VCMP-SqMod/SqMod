@@ -1,8 +1,8 @@
-#ifndef _XML_TEXT_HPP_
-#define _XML_TEXT_HPP_
+#ifndef _SQXML_TEXT_HPP_
+#define _SQXML_TEXT_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Common.hpp"
+#include "Handle/Document.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -362,4 +362,4 @@ public:
 
 } // Namespace:: SqMod
 
-#endif // _XML_TEXT_HPP_
+#endif // _SQXML_TEXT_HPP_

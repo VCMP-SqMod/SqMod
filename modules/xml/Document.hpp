@@ -1,8 +1,9 @@
-#ifndef _XML_DOCUMENT_HPP_
-#define _XML_DOCUMENT_HPP_
+#ifndef _SQXML_DOCUMENT_HPP_
+#define _SQXML_DOCUMENT_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Common.hpp"
+#include "Handle/Document.hpp"
+#include "Wrapper/ParseResult.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -253,4 +254,4 @@ public:
 
 } // Namespace:: SqMod
 
-#endif // _XML_DOCUMENT_HPP_
+#endif // _SQXML_DOCUMENT_HPP_

@@ -1,8 +1,9 @@
-#ifndef _XML_NODE_HPP_
-#define _XML_NODE_HPP_
+#ifndef _SQXML_NODE_HPP_
+#define _SQXML_NODE_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Common.hpp"
+#include "Handle/Document.hpp"
+#include "Wrapper/ParseResult.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -609,4 +610,4 @@ public:
 
 } // Namespace:: SqMod
 
-#endif // _XML_NODE_HPP_
+#endif // _SQXML_NODE_HPP_

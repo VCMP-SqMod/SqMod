@@ -417,12 +417,19 @@
 		<Unit filename="../modules/xml/Common.hpp" />
 		<Unit filename="../modules/xml/Document.cpp" />
 		<Unit filename="../modules/xml/Document.hpp" />
+		<Unit filename="../modules/xml/Handle/Document.cpp" />
+		<Unit filename="../modules/xml/Handle/Document.hpp" />
 		<Unit filename="../modules/xml/Module.cpp" />
-		<Unit filename="../modules/xml/Module.hpp" />
 		<Unit filename="../modules/xml/Node.cpp" />
 		<Unit filename="../modules/xml/Node.hpp" />
 		<Unit filename="../modules/xml/Text.cpp" />
 		<Unit filename="../modules/xml/Text.hpp" />
+		<Unit filename="../modules/xml/Wrapper/ParseResult.cpp" />
+		<Unit filename="../modules/xml/Wrapper/ParseResult.hpp" />
+		<Unit filename="../shared/Base/Buffer.cpp" />
+		<Unit filename="../shared/Base/Buffer.hpp" />
+		<Unit filename="../shared/Base/Utility.cpp" />
+		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../shared/SqMod.cpp" />
 		<Extensions>
 			<code_completion />

@@ -1,8 +1,8 @@
-#ifndef _XML_ATTRIBUTE_HPP_
-#define _XML_ATTRIBUTE_HPP_
+#ifndef _SQXML_ATTRIBUTE_HPP_
+#define _SQXML_ATTRIBUTE_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Common.hpp"
+#include "Handle/Document.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -442,4 +442,4 @@ public:
 
 } // Namespace:: SqMod
 
-#endif // _XML_ATTRIBUTE_HPP_
+#endif // _SQXML_ATTRIBUTE_HPP_
