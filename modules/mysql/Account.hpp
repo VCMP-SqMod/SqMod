@@ -17,6 +17,35 @@ public:
     // --------------------------------------------------------------------------------------------
     typedef std::unordered_map< String, String > Options;
 
+private:
+
+    // --------------------------------------------------------------------------------------------
+    Uint16      m_Port; // Server port.
+    String      m_Host; // Host address.
+    String      m_User; // User name.
+    String      m_Pass; // User password.
+    String      m_Name; // Database name.
+    String      m_Socket; // Unix socket.
+    Ulong       m_Flags; // Client connection flags.
+
+    // --------------------------------------------------------------------------------------------
+    String      m_SSL_Key; // SSL key.
+    String      m_SSL_Cert; // SSL certificate.
+    String      m_SSL_CA; // SSL certificate authority.
+    String      m_SSL_CA_Path; // SSL certificate authority path.
+    String      m_SSL_Cipher; // SSL Cipher.
+
+    // --------------------------------------------------------------------------------------------
+    Options     m_Options; // Option container.
+
+    // --------------------------------------------------------------------------------------------
+    bool        m_AutoCommit; // Toggle autocommit.
+
+    // --------------------------------------------------------------------------------------------
+    static const String s_String; // Dummy used to return a reference to a null string.
+
+public:
+
     /* --------------------------------------------------------------------------------------------
      * Base Constructor.
     */
@@ -38,8 +67,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base Constructor.
     */
-    Account(CSStr host, CSStr user, CSStr pass, CSStr schema)
-        : Account(host, user, pass, schema, 3306, _SC(""))
+    Account(CSStr host, CSStr user, CSStr pass, CSStr name)
+        : Account(host, user, pass, name, 3306, _SC(""))
     {
         /* ... */
     }
@@ -47,8 +76,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base Constructor.
     */
-    Account(CSStr host, CSStr user, CSStr pass, CSStr schema, Uint16 port)
-        : Account(host, user, pass, schema, 3306, _SC(""))
+    Account(CSStr host, CSStr user, CSStr pass, CSStr name, SQInteger port)
+        : Account(host, user, pass, name, port, _SC(""))
     {
         /* ... */
     }
@@ -56,15 +85,15 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base Constructor.
     */
-    Account(CSStr host, CSStr user, CSStr pass, CSStr schema, Uint16 port, CSStr socket);
+    Account(CSStr host, CSStr user, CSStr pass, CSStr name, SQInteger port, CSStr socket);
 
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor (disabled).
+     * Copy constructor.
     */
     Account(const Account & o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Move constructor (disabled).
+     * Move constructor.
     */
     Account(Account && o) = default;
 
@@ -74,47 +103,32 @@ public:
     ~Account() = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator (disabled).
+     * Copy assignment operator.
     */
     Account & operator = (const Account & o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Move assignment operator (disabled).
+     * Move assignment operator.
     */
     Account & operator = (Account && o) = default;
 
-private:
-
-    // --------------------------------------------------------------------------------------------
-    String      m_Host; // Host address.
-    String      m_User; // User name.
-    String      m_Pass; // User password.
-    Uint16      m_Port; // Server port.
-
-    // --------------------------------------------------------------------------------------------
-    String      m_Schema; // Server schema.
-    String      m_Socket; // Unix socket.
-
-    // --------------------------------------------------------------------------------------------
-    String      m_SSL_Key; // SSL key.
-    String      m_SSL_Cert; // SSL certificate.
-    String      m_SSL_CA; // SSL certificate authority.
-    String      m_SSL_CA_Path; // SSL certificate authority path.
-    String      m_SSL_Cipher; // SSL Cipher.
-
-    // --------------------------------------------------------------------------------------------
-    bool        m_Autocommit; // Toggle autocommit.
-
-    // --------------------------------------------------------------------------------------------
-    Options     m_Options; // Option container.
-
-    // --------------------------------------------------------------------------------------------
-    static const String s_String; // Dummy used to return a reference to a null string.
-
-public:
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare two instances of this type.
+    */
+    Int32 Cmp(const Account & o) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Get the host address specified during creation.
+     * Used by the script engine to convert an instance of this type to a string.
+    */
+    CSStr ToString() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the host address specified during creation.
     */
     const String & GetHost() const
     {
@@ -122,7 +136,12 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the user name specified during creation.
+     * Modify the host address specified during creation.
+    */
+    void SetHost(CSStr addr);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the user name specified during creation.
     */
     const String & GetUser() const
     {
@@ -130,7 +149,15 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the password specified during creation.
+     * Modify the user name specified during creation.
+    */
+    void SetUser(CSStr user)
+    {
+        m_User.assign(user != nullptr ? user : _SC(""));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the password specified during creation.
     */
     const String & GetPass() const
     {
@@ -138,23 +165,44 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the server port specified during creation.
+     * Modify the password specified during creation.
     */
-    const Uint16 GetPort() const
+    void SetPass(CSStr pass)
+    {
+        m_Pass.assign(pass != nullptr ? pass : _SC(""));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the database name specified during creation.
+    */
+    const String & GetName() const
+    {
+        return m_Name;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the database name specified during creation.
+    */
+    void SetName(CSStr name)
+    {
+        m_Name.assign(name != nullptr ? name : _SC(""));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the server port specified during creation.
+    */
+    Uint16 GetPortNum() const
     {
         return m_Port;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the server schema.
+     * Modify the server port specified during creation.
     */
-    const String & GetSchema() const
-    {
-        return m_Schema;
-    }
+    void SetPortNum(SQInteger port);
 
     /* --------------------------------------------------------------------------------------------
-     * Set the server schema.
+     * Retrieve the server socket.
     */
     const String & GetSocket() const
     {
@@ -162,7 +210,48 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the SSL key.
+     * Modify the server socket.
+    */
+    void SetSocket(CSStr socket)
+    {
+        m_Socket.assign(socket != nullptr ? socket : _SC(""));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current client connection flags.
+    */
+    SQInteger GetFlags() const
+    {
+        return m_Flags;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the current client connection flags.
+    */
+    void SetFlags(SQInteger flags)
+    {
+        m_Flags = flags;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the current client connection flags.
+    */
+    void EnableFlags(SQInteger flags)
+    {
+        m_Flags |= flags;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the current client connection flags.
+    */
+    void DisableFlags(SQInteger flags)
+    {
+        m_Flags |= flags;
+        m_Flags ^= flags;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the SSL key.
     */
     const String & GetSSL_Key() const
     {
@@ -170,15 +259,31 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the SSL certificate.
+     * Modify the SSL key.
     */
-    const String & GetSSL_Cert() const
+    void SetSSL_Key(CSStr key)
     {
-        return m_SSL_Cipher;
+        m_SSL_Key.assign(key != nullptr ? key : _SC(""));
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the SSL certificate authority.
+     * Retrieve the SSL certificate.
+    */
+    const String & GetSSL_Cert() const
+    {
+        return m_SSL_Cert;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the SSL certificate.
+    */
+    void SetSSL_Cert(CSStr cert)
+    {
+        m_SSL_Cert.assign(cert != nullptr ? cert : _SC(""));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the SSL certificate authority.
     */
     const String & GetSSL_CA() const
     {
@@ -186,7 +291,15 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the SSL certificate authority path.
+     * Modify the SSL certificate authority.
+    */
+    void SetSSL_CA(CSStr ca)
+    {
+        m_SSL_CA.assign(ca != nullptr ? ca : _SC(""));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the SSL certificate authority path.
     */
     const String & GetSSL_CA_Path() const
     {
@@ -194,11 +307,27 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the SSL cipher.
+     * Modify the SSL certificate authority path.
+    */
+    void SetSSL_CA_Path(CSStr capath)
+    {
+        m_SSL_CA_Path.assign(capath != nullptr ? capath : _SC(""));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the SSL cipher.
     */
     const String & GetSSL_Cipher() const
     {
         return m_SSL_Cipher;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the SSL cipher.
+    */
+    void SetSSL_Cipher(CSStr cipher)
+    {
+        m_SSL_Cipher.assign(cipher != nullptr ? cipher : _SC(""));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -209,26 +338,34 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether autocommit is enabled or not.
     */
-    bool GetAutocommit() const
+    bool GetAutoCommit() const
     {
-        return m_Autocommit;
+        return m_AutoCommit;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Set whether autocommit should be enabled or not.
     */
-    void SetAutocommit(bool toggle)
+    void SetAutoCommit(bool toggle)
     {
-        m_Autocommit = toggle;
+        m_AutoCommit = toggle;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the entire options container.
+     * Retrieve the entire options container as a table.
     */
-    Table GetOptions() const;
+    const Options & GetOptions() const
+    {
+        return m_Options;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Get a value from the options container.
+     * Retrieve the entire options container as a table.
+    */
+    Table GetOptionsTable() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a value from the options container.
     */
     const String & GetOption(CSStr name) const;
 
@@ -240,10 +377,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Remove a value from the options container.
     */
-    void RemoveOption(CSStr name) const;
+    void RemoveOption(CSStr name);
 
     /* --------------------------------------------------------------------------------------------
-     * Get the number of values in the options container.
+     * Retrieve the number of values in the options container.
     */
     Uint32 OptionsCount() const
     {
@@ -265,6 +402,11 @@ public:
     {
         m_Options.clear();
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a connection with the current account information.
+    */
+    Connection Connect() const;
 };
 
 } // Namespace:: SqMod

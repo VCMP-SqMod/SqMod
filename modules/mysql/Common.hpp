@@ -2,23 +2,10 @@
 #define _SQMYSQL_COMMON_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "ModBase.hpp"
+#include "Base/Utility.hpp"
 
-/* ------------------------------------------------------------------------------------------------
- * Forward declaration of various MySQL types to avoid including the header where not necessary.
-*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef struct st_mysql MYSQL;
-typedef struct st_mysql_stmt MYSQL_STMT;
-typedef struct st_mysql_bind MYSQL_BIND;
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
+// ------------------------------------------------------------------------------------------------
+#include <mysql.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -37,116 +24,25 @@ namespace SqMod {
 #define SQMYSQL_VERSION_PATCH 1
 
 /* ------------------------------------------------------------------------------------------------
- * Retrieve the temporary buffer.
+ * Handle validation.
 */
-SStr GetTempBuff();
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    #define THROW_CURRENT(x, a) x.GetHnd().ThrowCurrent(a, __FILE__, __LINE__)
+    #define THROW_CURRENT_HND(x, a) x.ThrowCurrent(a, __FILE__, __LINE__)
+#else
+    #define THROW_CURRENT(x, a) x.GetHnd().ThrowCurrent(a)
+    #define THROW_CURRENT_HND(x, a) x.ThrowCurrent(a)
+#endif // _DEBUG
 
 /* ------------------------------------------------------------------------------------------------
- * Retrieve the size of the temporary buffer.
+ * Forward declarations.
 */
-Uint32 GetTempBuffSize();
-
-/* ------------------------------------------------------------------------------------------------
- * Throw a formatted exception.
-*/
-void SqThrowF(CSStr str, ...);
-
-/* ------------------------------------------------------------------------------------------------
- * Generate a formatted string.
-*/
-CSStr FmtStr(CSStr str, ...);
-
-/* ------------------------------------------------------------------------------------------------
- * Implements RAII to restore the VM stack to it's initial size on function exit.
-*/
-struct StackGuard
-{
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor.
-    */
-    StackGuard();
-
-    /* --------------------------------------------------------------------------------------------
-     * Base constructor.
-    */
-    StackGuard(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~StackGuard();
-
-private:
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor.
-    */
-    StackGuard(const StackGuard &);
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor.
-    */
-    StackGuard(StackGuard &&);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator.
-    */
-    StackGuard & operator = (const StackGuard &);
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator.
-    */
-    StackGuard & operator = (StackGuard &&);
-
-private:
-
-    // --------------------------------------------------------------------------------------------
-    HSQUIRRELVM m_VM; // The VM where the stack should be restored.
-    Int32       m_Top; // The top of the stack when this instance was created.
-};
-
-/* ------------------------------------------------------------------------------------------------
- * Helper structure for retrieving a value from the stack as a string or a formatted string.
-*/
-struct StackStrF
-{
-    // --------------------------------------------------------------------------------------------
-    CSStr       mPtr; // Pointer to the C string that was retrieved.
-    SQInteger   mLen; // The string length if it could be retrieved.
-    SQRESULT    mRes; // The result of the retrieval attempts.
-    HSQOBJECT   mObj; // Strong reference to the string object.
-    HSQUIRRELVM mVM; // The associated virtual machine.
-
-    /* --------------------------------------------------------------------------------------------
-     * Base constructor.
-    */
-    StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt = true);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    StackStrF(const StackStrF & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    StackStrF(StackStrF && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~StackStrF();
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    StackStrF & operator = (const StackStrF & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    StackStrF & operator = (StackStrF && o) = delete;
-};
+class Account;
+class Column;
+class Connection;
+class ResultSet;
+class Statement;
+class Transaction;
 
 } // Namespace:: SqMod
 

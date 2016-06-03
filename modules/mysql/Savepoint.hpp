@@ -1,5 +1,5 @@
-#ifndef _SQMYSQL_ACCOUNT_HPP_
-#define _SQMYSQL_ACCOUNT_HPP_
+#ifndef _SQMYSQL_SAVEPOINT_HPP_
+#define _SQMYSQL_SAVEPOINT_HPP_
 
 // ------------------------------------------------------------------------------------------------
 #include "Common.hpp"
@@ -14,4 +14,4 @@ namespace SqMod {
 
 } // Namespace:: SqMod
 
-#endif // _SQMYSQL_ACCOUNT_HPP_
+#endif // _SQMYSQL_SAVEPOINT_HPP_

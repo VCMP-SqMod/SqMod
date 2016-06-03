@@ -1,8 +1,8 @@
-#ifndef _SQMYSQL_ACCOUNT_HPP_
-#define _SQMYSQL_ACCOUNT_HPP_
+#ifndef _SQMYSQL_CONNECTION_HPP_
+#define _SQMYSQL_CONNECTION_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Common.hpp"
+#include "Handle/Connection.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -12,13 +12,30 @@ namespace SqMod {
 */
 class Connection
 {
+private:
 
-protected:
+    // --------------------------------------------------------------------------------------------
+    ConnHnd         m_Handle; // Handle to the actual database connection.
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    Connection()
+        : m_Handle()
+    {
+        /* ... */
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Connection(const Account & acc);
+    Connection(const Account & acc)
+        : m_Handle(acc)
+    {
+        /* ... */
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
@@ -46,27 +63,35 @@ protected:
     Connection & operator = (Connection && o) = default;
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare two instances of this type.
+    */
+    Int32 Cmp(const Connection & o) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to convert an instance of this type to a string.
+    */
+    CSStr ToString() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
      * Validate the managed connection handle and throw exception if it doesn't exist.
     */
     void Validate() const;
 
-private:
-
-    // --------------------------------------------------------------------------------------------
-    ConnHnd         m_Handle; // Handle to the actual database connection.
-
-public:
-
     /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the hosted connection handle.
+     * Implicit conversion to the managed connection handle.
     */
-    operator ConnHnd ()
+    operator ConnHnd & ()
     {
         return m_Handle;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the hosted connection handle.
+     * Implicit conversion to the managed connection handle.
     */
     operator const ConnHnd & () const
     {
@@ -74,91 +99,263 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to connect to the database.
+     * Retrieve the managed connection handle.
     */
-    bool Connect();
+    ConnHnd & GetHnd()
+    {
+        return m_Handle;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Disconnect from the currently connected database.
+     * Retrieve the managed connection handle.
     */
-    void Disconnect();
+    const ConnHnd & GetHnd() const
+    {
+        return m_Handle;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * See whether a successful connection was made or not.
     */
     bool Connected() const
     {
-        return (m_Handle != nullptr);
+        return m_Handle;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the account used to make the connection.
+     * Disconnect from the currently connected database.
     */
-    const Account::Ref & GetAccount() const
+    void Disconnect()
     {
-        return m_Account;
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Perform the requested operation
+        m_Handle->Disconnect();
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the server schema.
+     * Retrieve the last received error number.
     */
-    const String & GetSchema() const
+    SQInteger GetLastErrNo() const
     {
-        return m_Schema;
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return static_cast< SQInteger >(m_Handle->mErrNo);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Set the server schema.
+     * Retrieve the last received error message.
     */
-    void SetSchema(const String & schema);
+    const String & GetLastErrStr() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mErrStr;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Get the character set.
+     * Retrieve the connection port number.
+    */
+    SQInteger GetPortNum() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return static_cast< SQInteger >(m_Handle->mPort);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection host address.
+    */
+    const String & GetHost() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mHost;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection user name.
+    */
+    const String & GetUser() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mUser;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection password.
+    */
+    const String & GetPass() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mPass;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the selected database name.
+    */
+    const String & GetName() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mName;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the selected database name.
+    */
+    void SetName(CSStr name);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection socket.
+    */
+    const String & GetSocket() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mSocket;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection flags.
+    */
+    SQInteger GetFlags() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return static_cast< SQInteger >(m_Handle->mFlags);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection SSL key.
+    */
+    const String & GetSSL_Key() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mSSL_Key;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection SSL certificate.
+    */
+    const String & GetSSL_Cert() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mSSL_Cert;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection SSL certificate authority.
+    */
+    const String & GetSSL_CA() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mSSL_CA;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection SSL certificate authority path.
+    */
+    const String & GetSSL_CA_Path() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mSSL_CA_Path;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the connection SSL cipher.
+    */
+    const String & GetSSL_Cipher() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mSSL_Cipher;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the default character set for the managed connection.
     */
     const String & GetCharset() const
     {
-        return m_Charset;
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mCharset;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Set the character set.
+     * Modify the default character set for the managed connection.
     */
-    void SetCharset(const String & charset);
+    void SetCharset(CSStr charset);
 
     /* --------------------------------------------------------------------------------------------
      * See whether auto-commit is enabled or not.
     */
-    bool GetAutocommit() const
+    bool GetAutoCommit() const
     {
-        return m_Autocommit;
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mAutoCommit;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Set whether auto-commit should be enabled or not.
     */
-    void SetAutocommit(bool toggle);
+    void SetAutoCommit(bool toggle);
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the connection is in the middle of a transaction.
+    */
+    bool GetInTransaction() const
+    {
+        // Validate the managed handle
+        m_Handle.Validate();
+        // Return the requested information
+        return m_Handle->mInTransaction;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    Uint64 Execute(const String & query);
+    SQInteger Execute(CSStr query);
 
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    Uint64 Insert(const String & query);
+    SQInteger Insert(CSStr query);
 
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    Uint64 Query(const String & query);
+    SQInteger Query(CSStr query);
 
     /* --------------------------------------------------------------------------------------------
-     * 
+     *
     */
-    StatementRef GetStatement(const String & query);
+    Statement GetStatement(CSStr query);
 };
 
 } // Namespace:: SqMod
 
-#endif // _SQMYSQL_ACCOUNT_HPP_
+#endif // _SQMYSQL_CONNECTION_HPP_

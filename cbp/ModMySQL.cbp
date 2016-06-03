@@ -7,6 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Win32 Debug Dynamic">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win32-d/mod_mysql32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32-d/" />
 				<Option object_output="../obj/mingw32-d/" />
@@ -17,6 +18,8 @@
 					<Add option="-g" />
 					<Add option="-D_DEBUG" />
 					<Add directory="../config/mingw32" />
+					<Add directory="../config/mingw32/mysql" />
+					<Add directory="../include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
@@ -27,6 +30,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win32 Release Dynamic">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win32/mod_mysql32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32/" />
 				<Option object_output="../obj/mingw32/" />
@@ -37,6 +41,8 @@
 					<Add option="-m32" />
 					<Add option="-DNDEBUG" />
 					<Add directory="../config/mingw32" />
+					<Add directory="../config/mingw32/mysql" />
+					<Add directory="../include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -48,6 +54,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Debug Dynamic">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win64-d/mod_mysql64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64-d/" />
 				<Option object_output="../obj/mingw64-d/" />
@@ -59,6 +66,8 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
+					<Add directory="../config/mingw64/mysql" />
+					<Add directory="../include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
@@ -69,6 +78,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Release Dynamic">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win64/mod_mysql64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64/" />
 				<Option object_output="../obj/mingw64/" />
@@ -80,6 +90,8 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
+					<Add directory="../config/mingw64/mysql" />
+					<Add directory="../include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -91,6 +103,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux32 Debug Dynamic">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux32-d/mod_mysql32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32-d/" />
 				<Option object_output="../obj/gcc32-d/" />
@@ -102,13 +115,18 @@
 					<Add option="-fPIC" />
 					<Add option="-D_DEBUG" />
 					<Add directory="../config/gcc32" />
+					<Add directory="/usr/include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
 					<Add directory="../lib/gcc32-d" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='/bin/cp -rf &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)../bin/plugins/$(TARGET_OUTPUT_BASENAME).so&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Linux32 Release Dynamic">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux32/mod_mysql32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32/" />
 				<Option object_output="../obj/gcc32/" />
@@ -120,14 +138,19 @@
 					<Add option="-fPIC" />
 					<Add option="-DNDEBUG" />
 					<Add directory="../config/gcc32" />
+					<Add directory="/usr/include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m32" />
 					<Add directory="../lib/gcc32" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='/bin/cp -rf &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)../bin/plugins/$(TARGET_OUTPUT_BASENAME).so&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Linux64 Debug Dynamic">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux64-d/mod_mysql64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64-d/" />
 				<Option object_output="../obj/gcc64-d/" />
@@ -140,13 +163,18 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/gcc64" />
+					<Add directory="/usr/include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
 					<Add directory="../lib/gcc64-d" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='/bin/cp -rf &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)../bin/plugins/$(TARGET_OUTPUT_BASENAME).so&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Linux64 Release Dynamic">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux64/mod_mysql64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64/" />
 				<Option object_output="../obj/gcc64/" />
@@ -159,14 +187,19 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/gcc64" />
+					<Add directory="/usr/include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
 					<Add directory="../lib/gcc64" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='/bin/cp -rf &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)../bin/plugins/$(TARGET_OUTPUT_BASENAME).so&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Win32 Debug Standalone">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win32-d/mod_mysql32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32-d/" />
 				<Option object_output="../obj/mingw32-d/" />
@@ -180,6 +213,8 @@
 					<Add option="-enable-static" />
 					<Add option="-D_DEBUG" />
 					<Add directory="../config/mingw32" />
+					<Add directory="../config/mingw32/mysql" />
+					<Add directory="../include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
@@ -191,6 +226,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win32 Release Standalone">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win32/mod_mysql32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32/" />
 				<Option object_output="../obj/mingw32/" />
@@ -204,6 +240,8 @@
 					<Add option="-enable-static" />
 					<Add option="-DNDEBUG" />
 					<Add directory="../config/mingw32" />
+					<Add directory="../config/mingw32/mysql" />
+					<Add directory="../include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -216,6 +254,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Debug Standalone">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win64-d/mod_mysql64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64-d/" />
 				<Option object_output="../obj/mingw64-d/" />
@@ -230,6 +269,8 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
+					<Add directory="../config/mingw64/mysql" />
+					<Add directory="../include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
@@ -241,6 +282,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Win64 Release Standalone">
+				<Option platforms="Windows;" />
 				<Option output="../bin/win64/mod_mysql64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64/" />
 				<Option object_output="../obj/mingw64/" />
@@ -255,6 +297,8 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/mingw64" />
+					<Add directory="../config/mingw64/mysql" />
+					<Add directory="../include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -267,6 +311,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux32 Debug Standalone">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux32-d/mod_mysql32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32-d/" />
 				<Option object_output="../obj/gcc32-d/" />
@@ -281,14 +326,19 @@
 					<Add option="-fPIC" />
 					<Add option="-D_DEBUG" />
 					<Add directory="../config/gcc32" />
+					<Add directory="/usr/include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
 					<Add option="-Bstatic" />
 					<Add directory="../lib/gcc32-d" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='/bin/cp -rf &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)../bin/plugins/$(TARGET_OUTPUT_BASENAME).so&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Linux32 Release Standalone">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux32/mod_mysql32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32/" />
 				<Option object_output="../obj/gcc32/" />
@@ -303,6 +353,7 @@
 					<Add option="-fPIC" />
 					<Add option="-DNDEBUG" />
 					<Add directory="../config/gcc32" />
+					<Add directory="/usr/include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -310,8 +361,12 @@
 					<Add option="-Bstatic" />
 					<Add directory="../lib/gcc32" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='/bin/cp -rf &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)../bin/plugins/$(TARGET_OUTPUT_BASENAME).so&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Linux64 Debug Standalone">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux64-d/mod_mysql64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64-d/" />
 				<Option object_output="../obj/gcc64-d/" />
@@ -327,14 +382,19 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/gcc64" />
+					<Add directory="/usr/include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
 					<Add option="-Bstatic" />
 					<Add directory="../lib/gcc64-d" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='/bin/cp -rf &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)../bin/plugins/$(TARGET_OUTPUT_BASENAME).so&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Linux64 Release Standalone">
+				<Option platforms="Unix;" />
 				<Option output="../bin/linux64/mod_mysql64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64/" />
 				<Option object_output="../obj/gcc64/" />
@@ -350,6 +410,7 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/gcc64" />
+					<Add directory="/usr/include/mysql" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -357,6 +418,9 @@
 					<Add option="-Bstatic" />
 					<Add directory="../lib/gcc64" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='/bin/cp -rf &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)../bin/plugins/$(TARGET_OUTPUT_BASENAME).so&quot;' />
+				</ExtraCommands>
 			</Target>
 		</Build>
 		<Compiler>
@@ -371,10 +435,36 @@
 			<Add directory="../include" />
 			<Add directory="../config/common" />
 		</Compiler>
+		<Linker>
+			<Add library="mysql" />
+		</Linker>
+		<Unit filename="../modules/mysql/Account.cpp" />
+		<Unit filename="../modules/mysql/Account.hpp" />
+		<Unit filename="../modules/mysql/Column.cpp" />
+		<Unit filename="../modules/mysql/Column.hpp" />
 		<Unit filename="../modules/mysql/Common.cpp" />
 		<Unit filename="../modules/mysql/Common.hpp" />
+		<Unit filename="../modules/mysql/Connection.cpp" />
+		<Unit filename="../modules/mysql/Connection.hpp" />
+		<Unit filename="../modules/mysql/Handle/Connection.cpp" />
+		<Unit filename="../modules/mysql/Handle/Connection.hpp" />
+		<Unit filename="../modules/mysql/Handle/Result.cpp" />
+		<Unit filename="../modules/mysql/Handle/Result.hpp" />
+		<Unit filename="../modules/mysql/Handle/Statement.cpp" />
+		<Unit filename="../modules/mysql/Handle/Statement.hpp" />
 		<Unit filename="../modules/mysql/Module.cpp" />
-		<Unit filename="../modules/mysql/Module.hpp" />
+		<Unit filename="../modules/mysql/ResultSet.cpp" />
+		<Unit filename="../modules/mysql/ResultSet.hpp" />
+		<Unit filename="../modules/mysql/Savepoint.cpp" />
+		<Unit filename="../modules/mysql/Savepoint.hpp" />
+		<Unit filename="../modules/mysql/Statement.cpp" />
+		<Unit filename="../modules/mysql/Statement.hpp" />
+		<Unit filename="../modules/mysql/Transaction.cpp" />
+		<Unit filename="../modules/mysql/Transaction.hpp" />
+		<Unit filename="../shared/Base/Buffer.cpp" />
+		<Unit filename="../shared/Base/Buffer.hpp" />
+		<Unit filename="../shared/Base/Utility.cpp" />
+		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../shared/SqMod.cpp" />
 		<Extensions>
 			<code_completion />
