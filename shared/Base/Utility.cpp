@@ -683,6 +683,74 @@ Object BufferToStrObj(const Buffer & b, Uint32 size)
 }
 
 // ------------------------------------------------------------------------------------------------
+Object MakeSLongObj(Int64 val)
+{
+    // Obtain the default virtual machine
+    HSQUIRRELVM vm = DefaultVM::Get();
+    // Obtain the initial stack size
+    const StackGuard sg(vm);
+#ifdef SQMOD_PLUGIN_API
+    // Push a long integer instance with the requested value on the stack
+    _SqMod->PushSLongObject(vm, val);
+#else
+    // Transform the specified value into a script object
+    PushVar< SLongInt >(vm, SLongInt(val));
+#endif // SQMOD_PLUGIN_API
+    // Obtain the object from the stack and return it
+    return Var< Object >(vm, -1).value;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object MakeULongObj(Uint64 val)
+{
+    // Obtain the default virtual machine
+    HSQUIRRELVM vm = DefaultVM::Get();
+    // Obtain the initial stack size
+    const StackGuard sg(vm);
+#ifdef SQMOD_PLUGIN_API
+    // Push a long integer instance with the requested value on the stack
+    _SqMod->PushULongObject(vm, val);
+#else
+    // Transform the specified value into a script object
+    PushVar< ULongInt >(vm, ULongInt(val));
+#endif // SQMOD_PLUGIN_API
+    // Obtain the object from the stack and return it
+    return Var< Object >(vm, -1).value;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object MakeSLongObj(HSQUIRRELVM vm, Int64 val)
+{
+    // Obtain the initial stack size
+    const StackGuard sg(vm);
+#ifdef SQMOD_PLUGIN_API
+    // Push a long integer instance with the requested value on the stack
+    _SqMod->PushSLongObject(vm, val);
+#else
+    // Transform the specified value into a script object
+    PushVar< SLongInt >(vm, SLongInt(val));
+#endif // SQMOD_PLUGIN_API
+    // Obtain the object from the stack and return it
+    return Var< Object >(vm, -1).value;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object MakeULongObj(HSQUIRRELVM vm, Uint64 val)
+{
+    // Obtain the initial stack size
+    const StackGuard sg(vm);
+#ifdef SQMOD_PLUGIN_API
+    // Push a long integer instance with the requested value on the stack
+    _SqMod->PushULongObject(vm, val);
+#else
+    // Transform the specified value into a script object
+    PushVar< ULongInt >(vm, ULongInt(val));
+#endif // SQMOD_PLUGIN_API
+    // Obtain the object from the stack and return it
+    return Var< Object >(vm, -1).value;
+}
+
+// ------------------------------------------------------------------------------------------------
 SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx)
 {
 #ifdef SQMOD_PLUGIN_API

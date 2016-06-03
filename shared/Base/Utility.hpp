@@ -1431,6 +1431,26 @@ Object BufferToStrObj(const Buffer & b);
 Object BufferToStrObj(const Buffer & b, Uint32 size);
 
 /* ------------------------------------------------------------------------------------------------
+ * Create a signed long integer object from an integer.
+*/
+Object MakeSLongObj(Int64 val);
+
+/* ------------------------------------------------------------------------------------------------
+ * Create a unsigned long integer object from an integer.
+*/
+Object MakeULongObj(Uint64 val);
+
+/* ------------------------------------------------------------------------------------------------
+ * Create a signed long integer object from an integer.
+*/
+Object MakeSLongObj(HSQUIRRELVM vm, Int64 val);
+
+/* ------------------------------------------------------------------------------------------------
+ * Create a unsigned long integer object from an integer.
+*/
+Object MakeULongObj(HSQUIRRELVM vm, Uint64 val);
+
+/* ------------------------------------------------------------------------------------------------
  * Attempt to pop the value at the specified index on the stack as a native integer.
 */
 SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx);
