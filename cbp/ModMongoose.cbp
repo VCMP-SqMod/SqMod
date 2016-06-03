@@ -441,13 +441,16 @@
 		<Unit filename="../modules/mg/Message.cpp" />
 		<Unit filename="../modules/mg/Message.hpp" />
 		<Unit filename="../modules/mg/Module.cpp" />
-		<Unit filename="../modules/mg/Module.hpp" />
 		<Unit filename="../modules/mg/Options.cpp" />
 		<Unit filename="../modules/mg/Options.hpp" />
 		<Unit filename="../modules/mg/String.cpp" />
 		<Unit filename="../modules/mg/String.hpp" />
 		<Unit filename="../modules/mg/WebSocket.cpp" />
 		<Unit filename="../modules/mg/WebSocket.hpp" />
+		<Unit filename="../shared/Base/Buffer.cpp" />
+		<Unit filename="../shared/Base/Buffer.hpp" />
+		<Unit filename="../shared/Base/Utility.cpp" />
+		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../shared/SqMod.cpp" />
 		<Extensions>
 			<code_completion />
