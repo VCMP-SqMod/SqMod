@@ -1,67 +1,14 @@
 // ------------------------------------------------------------------------------------------------
 #include "Common.hpp"
-#include "Module.hpp"
-#include "Connection.hpp"
+#include "Handle/Connection.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <cctype>
+#include <cstdio>
 #include <cstring>
 #include <cstdarg>
 
 // ------------------------------------------------------------------------------------------------
-#include <sqrat.h>
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
-
-// ------------------------------------------------------------------------------------------------
-static SQChar g_Buffer[4096]; // Common buffer to reduce memory allocations.
-
-// ------------------------------------------------------------------------------------------------
-SStr GetTempBuff()
-{
-    return g_Buffer;
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint32 GetTempBuffSize()
-{
-    return sizeof(g_Buffer);
-}
-
-// ------------------------------------------------------------------------------------------------
-void SqThrowF(CSStr str, ...)
-{
-    // Initialize the argument list
-    va_list args;
-    va_start (args, str);
-    // Write the requested contents
-    if (std::vsnprintf(g_Buffer, sizeof(g_Buffer), str, args) < 0)
-    {
-        std::strcpy(g_Buffer, "Unknown error has occurred");
-    }
-    // Release the argument list
-    va_end(args);
-    // Throw the exception with the resulted message
-    throw Sqrat::Exception(g_Buffer);
-}
-
-// ------------------------------------------------------------------------------------------------
-CSStr FmtStr(CSStr str, ...)
-{
-    // Initialize the argument list
-    va_list args;
-    va_start (args, str);
-    // Write the requested contents
-    if (std::vsnprintf(g_Buffer, sizeof(g_Buffer), str, args) < 0)
-    {
-        g_Buffer[0] = 0; // Make sure the string is terminated
-    }
-    // Release the argument list
-    va_end(args);
-    // Return the data from the buffer
-    return g_Buffer;
-}
 
 // ------------------------------------------------------------------------------------------------
 CSStr QFmtStr(CSStr str, ...)
@@ -70,11 +17,11 @@ CSStr QFmtStr(CSStr str, ...)
     va_list args;
     va_start (args, str);
     // Write the requested contents
-    sqlite3_vsnprintf(sizeof(g_Buffer), g_Buffer, str, args);
+    sqlite3_vsnprintf(GetTempBuffSize(), GetTempBuff(), str, args);
     // Release the argument list
     va_end(args);
     // Return the data from the buffer
-    return g_Buffer;
+    return GetTempBuff();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -98,453 +45,6 @@ bool IsQueryEmpty(CSStr str)
     }
     // At this point we consider the query empty
     return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-StackGuard::StackGuard()
-    : m_VM(_SqVM), m_Top(sq_gettop(m_VM))
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-StackGuard::StackGuard(HSQUIRRELVM vm)
-    : m_VM(vm), m_Top(sq_gettop(vm))
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-StackGuard::~StackGuard()
-{
-    sq_pop(m_VM, sq_gettop(m_VM) - m_Top);
-}
-
-// --------------------------------------------------------------------------------------------
-StackStrF::StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt)
-    : mPtr(nullptr)
-    , mLen(-1)
-    , mRes(SQ_OK)
-    , mObj()
-    , mVM(vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Reset the converted value object
-    sq_resetobject(&mObj);
-    // Was the string or value specified?
-    if (top <= (idx - 1))
-    {
-        mRes = sq_throwerror(vm, "Missing string or value");
-    }
-    // Do we have enough values to call the format function and are we allowed to?
-    else if (top > idx && fmt)
-    {
-        // Pointer to the generated string
-        SStr str = nullptr;
-        // Attempt to generate the specified string format
-        mRes = sqstd_format(vm, idx, &mLen, &str);
-        // Did the format succeeded but ended up with a null string pointer?
-        if (SQ_SUCCEEDED(mRes) && !str)
-        {
-            mRes = sq_throwerror(vm, "Unable to generate the string");
-        }
-        else
-        {
-            mPtr = const_cast< CSStr >(str);
-        }
-    }
-    // Is the value on the stack an actual string?
-    else if (sq_gettype(vm, idx) == OT_STRING)
-    {
-        // Obtain a reference to the string object
-        mRes = sq_getstackobj(vm, idx, &mObj);
-        // Could we retrieve the object from the stack?
-        if (SQ_SUCCEEDED(mRes))
-        {
-            // Keep a strong reference to the object
-            sq_addref(vm, &mObj);
-            // Attempt to retrieve the string value from the stack
-            mRes = sq_getstring(vm, idx, &mPtr);
-        }
-        // Did the retrieval succeeded but ended up with a null string pointer?
-        if (SQ_SUCCEEDED(mRes) && !mPtr)
-        {
-            mRes = sq_throwerror(vm, "Unable to retrieve the string");
-        }
-    }
-    // We have to try and convert it to string
-    else
-    {
-        // Attempt to convert the value from the stack to a string
-        mRes = sq_tostring(vm, idx);
-        // Could we convert the specified value to string?
-        if (SQ_SUCCEEDED(mRes))
-        {
-            // Obtain a reference to the resulted object
-            mRes = sq_getstackobj(vm, -1, &mObj);
-            // Could we retrieve the object from the stack?
-            if (SQ_SUCCEEDED(mRes))
-            {
-                // Keep a strong reference to the object
-                sq_addref(vm, &mObj);
-                // Attempt to obtain the string pointer
-                mRes = sq_getstring(vm, -1, &mPtr);
-            }
-        }
-        // Pop a value from the stack regardless of the result
-        sq_pop(vm, 1);
-        // Did the retrieval succeeded but ended up with a null string pointer?
-        if (SQ_SUCCEEDED(mRes) && !mPtr)
-        {
-            mRes = sq_throwerror(vm, "Unable to retrieve the value");
-        }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-StackStrF::~StackStrF()
-{
-    if (mVM && !sq_isnull(mObj))
-    {
-        sq_release(mVM, &mObj);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void ConnHnd::Validate() const
-{
-    // Is the handle valid?
-    if ((m_Hnd == nullptr) || (m_Hnd->mPtr == nullptr))
-    {
-        STHROWF("Invalid SQLite connection reference");
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void StmtHnd::Validate() const
-{
-    // Is the handle valid?
-    if ((m_Hnd == nullptr) || (m_Hnd->mPtr == nullptr))
-    {
-        STHROWF("Invalid SQLite statement reference");
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-ConnHnd::Handle::~Handle()
-{
-    // Is there anything to close?
-    if (!mPtr)
-    {
-        return; // Nothing to close
-    }
-    // Are we dealing with a memory leak? Technically shouldn't reach this situation!
-    else if (mRef != 0)
-    {
-        // Should we deal with undefined behavior instead? How bad is one connection left open?
-        _SqMod->LogErr("SQLite connection is still referenced (%s)", mName.c_str());
-    }
-    else
-    {
-        // NOTE: Should we call sqlite3_interrupt(...) before closing?
-        Object env;
-        Function func;
-        // Flush remaining queries in the queue and ignore the result
-        Flush(mQueue.size(), env, func);
-        // Attempt to close the database
-        if ((sqlite3_close(mPtr)) != SQLITE_OK)
-        {
-            _SqMod->LogErr("Unable to close SQLite connection [%s]", sqlite3_errmsg(mPtr));
-        }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void ConnHnd::Handle::Create(CSStr name, Int32 flags, CSStr vfs)
-{
-    // Make sure a previous connection doesn't exist
-    if (mPtr)
-    {
-        STHROWF("Unable to connect to database. Database already connected");
-    }
-    // Make sure the name is valid
-    else if (!name || *name == '\0')
-    {
-        STHROWF("Unable to connect to database. The name is invalid");
-    }
-    // Attempt to create the database connection
-    else if ((mStatus = sqlite3_open_v2(name, &mPtr, flags, vfs)) != SQLITE_OK)
-    {
-        // Grab the error message before destroying the handle
-        String msg(sqlite3_errmsg(mPtr) ? sqlite3_errmsg(mPtr) : _SC("Unknown reason"));
-        // Must be destroyed regardless of result
-        sqlite3_close(mPtr);
-        // Explicitly make sure it's null
-        mPtr = nullptr;
-        // Now its safe to throw the error
-        STHROWF("Unable to connect to database [%s]", msg.c_str());
-    }
-    // Let's save the specified information
-    mName.assign(name);
-    mFlags = flags;
-    mVFS.assign(vfs ? vfs : _SC(""));
-    // Optional check if database is initially stored in memory
-    mMemory = (mName.compare(_SC(":memory:")) == 0);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 ConnHnd::Handle::Flush(Uint32 num, Object & env, Function & func)
-{
-    // Do we even have a valid connection?
-    if (!mPtr)
-    {
-        return -1; // No connection!
-    }
-    // Is there anything to flush?
-    else if (!num || mQueue.empty())
-    {
-        return 0; // Nothing to process!
-    }
-    // Can we even flush that many?
-    else if (num > mQueue.size())
-    {
-        num = mQueue.size();
-    }
-    // Generate the function that should be called upon error
-    Function callback = Function(env.GetVM(), env.GetObject(), func.GetFunc());
-    // Obtain iterators to the range of queries that should be flushed
-    QueryList::iterator itr = mQueue.begin();
-    QueryList::iterator end = mQueue.begin() + num;
-    // Attempt to begin the flush transaction
-    if ((mStatus = sqlite3_exec(mPtr, "BEGIN", nullptr, nullptr, nullptr)) != SQLITE_OK)
-    {
-        STHROWF("Unable to begin flush transaction [%s]", sqlite3_errmsg(mPtr));
-    }
-    // Process all queries within range of selection
-    for (; itr != end; ++itr)
-    {
-        // Should we manually terminate this query?
-        /*
-        if (*(*itr).rbegin() != ';')
-        {
-            itr->push_back(';');
-        }
-        */
-        // Attempt to execute the currently processed query string
-        if ((mStatus = sqlite3_exec(mPtr, itr->c_str(), nullptr, nullptr, nullptr)) == SQLITE_OK)
-        {
-            continue;
-        }
-        // Do we have to execute any callback to resolve our issue?
-        else if (!callback.IsNull())
-        {
-            try
-            {
-                // Ask the callback whether the query processing should end here
-                SharedPtr< bool > ret = callback.Evaluate< bool, Int32, const String & >(mStatus, *itr);
-                // Should we break here?
-                if (!!ret && (*ret == false))
-                {
-                    break;
-                }
-            }
-            catch (const Sqrat::Exception & e)
-            {
-                _SqMod->LogErr("Squirrel error caught in flush handler [%s]", e.Message().c_str());
-            }
-            catch (const std::exception & e)
-            {
-                _SqMod->LogErr("Program error caught in flush handler [%s]", e.what());
-            }
-            catch (...)
-            {
-                _SqMod->LogErr("Unknown error caught in flush handler");
-            }
-        }
-    }
-    // Erase all queries till end or till the point of failure (if any occurred)
-    mQueue.erase(mQueue.begin(), itr);
-    // Attempt to commit changes requested during transaction
-    if ((mStatus = sqlite3_exec(mPtr, "COMMIT", nullptr, nullptr, nullptr)) == SQLITE_OK)
-    {
-        return sqlite3_changes(mPtr);
-    }
-    // Attempt to roll back erroneous changes
-    else if ((mStatus = sqlite3_exec(mPtr, "ROLLBACK", nullptr, nullptr, nullptr)) != SQLITE_OK)
-    {
-        STHROWF("Unable to rollback flush transaction [%s]", sqlite3_errmsg(mPtr));
-    }
-    // The transaction failed somehow but we managed to rollback
-    else
-    {
-        STHROWF("Unable to commit flush transaction [%s]", sqlite3_errmsg(mPtr));
-    }
-    // Operation failed
-    return -1;
-}
-
-// ------------------------------------------------------------------------------------------------
-StmtHnd::Handle::~Handle()
-{
-    // Is there anything to finalize?
-    if (!mPtr)
-    {
-        return; // Nothing to finalize
-    }
-    // Are we dealing with a memory leak? Technically shouldn't reach this situation!
-    else if (mRef != 0)
-    {
-        // Should we deal with undefined behavior instead? How bad is one statement left alive?
-        _SqMod->LogErr("SQLite statement is still referenced (%s)", mQuery.c_str());
-    }
-    else
-    {
-        // Attempt to finalize the statement
-        if ((sqlite3_finalize(mPtr)) != SQLITE_OK)
-        {
-            _SqMod->LogErr("Unable to finalize SQLite statement [%s]", mConn.ErrMsg());
-        }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void StmtHnd::Handle::Create(CSStr query)
-{
-    // Make sure a previous statement doesn't exist
-    if (mPtr)
-    {
-        STHROWF("Unable to prepare statement. Statement already prepared");
-    }
-    // Is the specified database connection is valid?
-    else if (!mConn)
-    {
-        STHROWF("Unable to prepare statement. Invalid connection handle");
-    }
-    // Save the query string and therefore multiple strlen(...) calls
-    mQuery.assign(query ? query : _SC(""));
-    // Is the specified query string we just saved, valid?
-    if (mQuery.empty())
-    {
-        STHROWF("Unable to prepare statement. Invalid query string");
-    }
-    // Attempt to prepare a statement with the specified query string
-    else if ((mStatus = sqlite3_prepare_v2(mConn, mQuery.c_str(), (Int32)mQuery.size(),
-                                            &mPtr, nullptr)) != SQLITE_OK)
-    {
-        // Clear the query string since it failed
-        mQuery.clear();
-        // Explicitly make sure the handle is null
-        mPtr = nullptr;
-        // Now it's safe to throw the error
-        STHROWF("Unable to prepare statement [%s]", mConn.ErrMsg());
-    }
-    else
-    {
-        // Obtain the number of available columns
-        mColumns = sqlite3_column_count(mPtr);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 StmtHnd::Handle::GetColumnIndex(CSStr name)
-{
-    // Validate the handle
-    if (!mPtr)
-    {
-        STHROWF("Invalid SQLite statement");
-    }
-    // Are the names cached?
-    else if (mIndexes.empty())
-    {
-        for (Int32 i = 0; i < mColumns; ++i)
-        {
-            // Get the column name at the current index
-            CSStr name = (CSStr)sqlite3_column_name(mPtr, i);
-            // Validate the name
-            if (!name)
-            {
-                STHROWF("Unable to retrieve column name for index (%d)", i);
-            }
-            // Save it to guarantee the same lifetime as this instance
-            else
-            {
-                mIndexes[name] = i;
-            }
-        }
-    }
-    // Attempt to find the specified column
-    const Indexes::iterator itr = mIndexes.find(name);
-    // Was there a column with the specified name?
-    if (itr != mIndexes.end())
-    {
-        return itr->second;
-    }
-    // No such column exists (expecting the invoker to validate the result)
-    return -1;
-}
-
-// ------------------------------------------------------------------------------------------------
-Transaction::Transaction(const Connection & db)
-    : Transaction(db.GetHandle())
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-Transaction::Transaction(const ConnHnd & db)
-    : m_Connection(db), m_Committed(false)
-{
-    // Was the specified database connection valid?
-    if (!m_Connection)
-    {
-        STHROWF("Invalid connection handle");
-    }
-    // Attempt to begin transaction
-    else if ((m_Connection = sqlite3_exec(m_Connection, "BEGIN", nullptr, nullptr, nullptr)) != SQLITE_OK)
-    {
-        STHROWF("Unable to begin transaction [%s]", m_Connection.ErrMsg());
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-Transaction::~Transaction()
-{
-    // Was this transaction successfully committed?
-    if (m_Committed)
-    {
-        return; // We're done here!
-    }
-    // Attempt to roll back changes because this failed to commit
-    if ((m_Connection = sqlite3_exec(m_Connection, "ROLLBACK", nullptr, nullptr, nullptr)) != SQLITE_OK)
-    {
-        STHROWF("Unable to rollback transaction [%s]", m_Connection.ErrMsg());
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-bool Transaction::Commit()
-{
-    // We shouldn't even be here if there wasn't a valid connection but let's be sure
-    if (!m_Connection)
-    {
-        STHROWF("Invalid database connection");
-    }
-    // Was this transaction already committed?
-    else if (m_Committed)
-    {
-        STHROWF("Transaction was already committed");
-    }
-    // Attempt to commit the change during this transaction
-    else if ((m_Connection = sqlite3_exec(m_Connection, "COMMIT", nullptr, nullptr, nullptr)) != SQLITE_OK)
-    {
-        STHROWF("Unable to commit transaction [%s]", m_Connection.ErrMsg());
-    }
-    else
-    {
-        m_Committed = true; // Everything was committed successfully
-    }
-    // Return the result
-    return m_Committed;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -596,9 +96,9 @@ CSStr EscapeString(CSStr str)
         return _SC(""); // Default to empty string
     }
     // Attempt to escape the specified string
-    sqlite3_snprintf(sizeof(g_Buffer), g_Buffer, "%q", str);
+    sqlite3_snprintf(GetTempBuffSize(), GetTempBuff(), "%q", str);
     // Return the resulted string
-    return g_Buffer;
+    return GetTempBuff();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -619,11 +119,11 @@ CCStr EscapeStringEx(SQChar spec, CCStr str)
     // Apply the format specifier
     fs[1] = spec;
     // Attempt to escape the specified string
-    sqlite3_snprintf(sizeof(g_Buffer), g_Buffer, fs, str);
+    sqlite3_snprintf(GetTempBuffSize(), GetTempBuff(), fs, str);
     // Restore the format specifier
     fs[1] = 'q';
     // Return the resulted string
-    return g_Buffer;
+    return GetTempBuff();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -643,7 +143,7 @@ CCStr ArrayToQueryColumns(Array & arr)
     // Obtain the start of the array
     std::vector< String >::iterator itr = values.begin();
     // Process all elements within range
-    for (; itr != values.end() && offset < sizeof(g_Buffer); ++itr)
+    for (; itr != values.end() && offset < GetTempBuffSize(); ++itr)
     {
         // Is the name valid?
         if (itr->empty())
@@ -651,7 +151,7 @@ CCStr ArrayToQueryColumns(Array & arr)
             STHROWF("Invalid column name");
         }
         // Attempt to append the column name to the buffer
-        sqlite3_snprintf(sizeof(g_Buffer) - offset, g_Buffer + offset, "[%q], ", itr->c_str());
+        sqlite3_snprintf(GetTempBuffSize() - offset, GetTempBuff() + offset, "[%q], ", itr->c_str());
         // Add the column name size to the offset
         offset += itr->size();
         // Also include the comma and space in the offset
@@ -660,14 +160,14 @@ CCStr ArrayToQueryColumns(Array & arr)
     // Trim the last coma and space
     if (offset >= 2)
     {
-        g_Buffer[offset-2] = '\0';
+        GetTempBuff()[offset-2] = '\0';
     }
     else
     {
-        g_Buffer[0] = '\0';
+        GetTempBuff()[0] = '\0';
     }
     // Return the resulted string
-    return g_Buffer;
+    return GetTempBuff();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -690,7 +190,7 @@ CCStr TableToQueryColumns(Table & tbl)
             STHROWF("Invalid or empty column name");
         }
         // Attempt to append the column name to the buffer
-        sqlite3_snprintf(sizeof(g_Buffer) - offset, g_Buffer + offset, "[%q], ", name.c_str());
+        sqlite3_snprintf(GetTempBuffSize() - offset, GetTempBuff() + offset, "[%q], ", name.c_str());
         // Add the column name size to the offset
         offset += name.size();
         // Also include the comma and space in the offset
@@ -699,14 +199,14 @@ CCStr TableToQueryColumns(Table & tbl)
     // Trim the last coma and space
     if (offset >= 2)
     {
-        g_Buffer[offset-2] = '\0';
+        GetTempBuff()[offset-2] = '\0';
     }
     else
     {
-        g_Buffer[0] = '\0';
+        GetTempBuff()[0] = '\0';
     }
     // Return the resulted string
-    return g_Buffer;
+    return GetTempBuff();
 }
 
 } // Namespace:: SqMod

@@ -421,10 +421,19 @@
 		<Unit filename="../modules/sqlite/Common.hpp" />
 		<Unit filename="../modules/sqlite/Connection.cpp" />
 		<Unit filename="../modules/sqlite/Connection.hpp" />
+		<Unit filename="../modules/sqlite/Handle/Connection.cpp" />
+		<Unit filename="../modules/sqlite/Handle/Connection.hpp" />
+		<Unit filename="../modules/sqlite/Handle/Statement.cpp" />
+		<Unit filename="../modules/sqlite/Handle/Statement.hpp" />
 		<Unit filename="../modules/sqlite/Module.cpp" />
-		<Unit filename="../modules/sqlite/Module.hpp" />
 		<Unit filename="../modules/sqlite/Statement.cpp" />
 		<Unit filename="../modules/sqlite/Statement.hpp" />
+		<Unit filename="../modules/sqlite/Transaction.cpp" />
+		<Unit filename="../modules/sqlite/Transaction.hpp" />
+		<Unit filename="../shared/Base/Buffer.cpp" />
+		<Unit filename="../shared/Base/Buffer.hpp" />
+		<Unit filename="../shared/Base/Utility.cpp" />
+		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../shared/SqMod.cpp" />
 		<Extensions>
 			<code_completion />
