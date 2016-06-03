@@ -414,7 +414,10 @@
 		<Unit filename="../modules/json/Common.cpp" />
 		<Unit filename="../modules/json/Common.hpp" />
 		<Unit filename="../modules/json/Module.cpp" />
-		<Unit filename="../modules/json/Module.hpp" />
+		<Unit filename="../shared/Base/Buffer.cpp" />
+		<Unit filename="../shared/Base/Buffer.hpp" />
+		<Unit filename="../shared/Base/Utility.cpp" />
+		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../shared/SqMod.cpp" />
 		<Extensions>
 			<code_completion />
