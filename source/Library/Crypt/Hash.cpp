@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Crypt/Hash.hpp"
 #include "Base/Shared.hpp"
-#include "Base/Stack.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <crc32.h>
@@ -56,7 +55,7 @@ template < class T > static void RegisterWrapper(Table & hashns, CCStr cname)
     hashns.Bind(cname, Class< Hash >(hashns.GetVM(), cname)
         // Constructors
         .Ctor()
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_tostring"), &Hash::ToString)
         // Properties
         .Prop(_SC("Hash"), &Hash::GetHash)

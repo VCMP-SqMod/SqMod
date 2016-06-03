@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Command.hpp"
 #include "Core.hpp"
-#include "Base/Stack.hpp"
 #include "Entity/Player.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -1789,7 +1788,7 @@ void Register_Command(HSQUIRRELVM vm)
     Table cmdns(vm);
 
     cmdns.Bind(_SC("Listener"), Class< CmdListener, NoConstructor< CmdListener > >(vm, _SC("SqCmdListener"))
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &CmdListener::Cmp)
         .SquirrelFunc(_SC("_typename"), &CmdListener::Typename)
         .Func(_SC("_tostring"), &CmdListener::ToString)

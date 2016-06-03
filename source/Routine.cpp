@@ -1,6 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Routine.hpp"
-#include "Base/Stack.hpp"
 #include "Library/Chrono.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -998,7 +997,7 @@ void Register_Routine(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqRoutine"),
         Class< Routine, NoConstructor< Routine > >(vm, _SC("SqRoutine"))
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &Routine::Cmp)
         .SquirrelFunc(_SC("_typename"), &Routine::Typename)
         .Func(_SC("_tostring"), &Routine::ToString)

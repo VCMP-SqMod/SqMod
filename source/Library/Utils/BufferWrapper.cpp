@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Utils/BufferWrapper.hpp"
 #include "Library/Utils/BufferInterpreter.hpp"
-#include "Base/Stack.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstring>

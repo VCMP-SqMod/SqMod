@@ -513,11 +513,11 @@ void Register_Circle(HSQUIRRELVM vm)
         .Var(_SC("Rad"), &Circle::rad)
         // Properties
         .Prop(_SC("Abs"), &Circle::Abs)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Circle::ToString)
         .SquirrelFunc(_SC("_typename"), &Circle::Typename)
         .Func(_SC("_cmp"), &Circle::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("_add"), &Circle::operator +)
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("_sub"), &Circle::operator -)
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("_mul"), &Circle::operator *)

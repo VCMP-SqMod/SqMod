@@ -3,7 +3,6 @@
 #include "Entity/Player.hpp"
 #include "Base/Quaternion.hpp"
 #include "Base/Vector3.hpp"
-#include "Base/Stack.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -888,7 +887,7 @@ void Register_CObject(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqObject"),
         Class< CObject, NoConstructor< CObject > >(vm, _SC("SqObject"))
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &CObject::Cmp)
         .SquirrelFunc(_SC("_typename"), &CObject::Typename)
         .Func(_SC("_tostring"), &CObject::ToString)

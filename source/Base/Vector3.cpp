@@ -464,11 +464,11 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Var(_SC("Z"), &Vector3::z)
         // Properties
         .Prop(_SC("Abs"), &Vector3::Abs)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Vector3::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector3::Typename)
         .Func(_SC("_cmp"), &Vector3::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_add"), &Vector3::operator +)
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_sub"), &Vector3::operator -)
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_mul"), &Vector3::operator *)

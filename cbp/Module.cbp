@@ -431,10 +431,12 @@
 		<Unit filename="../external/Hash/sha256.h" />
 		<Unit filename="../external/Hash/sha3.cpp" />
 		<Unit filename="../external/Hash/sha3.h" />
+		<Unit filename="../shared/Base/Buffer.cpp" />
+		<Unit filename="../shared/Base/Buffer.hpp" />
+		<Unit filename="../shared/Base/Utility.cpp" />
+		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../source/Base/AABB.cpp" />
 		<Unit filename="../source/Base/AABB.hpp" />
-		<Unit filename="../source/Base/Buffer.cpp" />
-		<Unit filename="../source/Base/Buffer.hpp" />
 		<Unit filename="../source/Base/Circle.cpp" />
 		<Unit filename="../source/Base/Circle.hpp" />
 		<Unit filename="../source/Base/Color3.cpp" />
@@ -447,8 +449,6 @@
 		<Unit filename="../source/Base/Shared.hpp" />
 		<Unit filename="../source/Base/Sphere.cpp" />
 		<Unit filename="../source/Base/Sphere.hpp" />
-		<Unit filename="../source/Base/Stack.cpp" />
-		<Unit filename="../source/Base/Stack.hpp" />
 		<Unit filename="../source/Base/Vector2.cpp" />
 		<Unit filename="../source/Base/Vector2.hpp" />
 		<Unit filename="../source/Base/Vector2i.cpp" />

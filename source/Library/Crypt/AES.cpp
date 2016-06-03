@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Crypt/AES.hpp"
 #include "Base/Shared.hpp"
-#include "Base/Stack.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
@@ -143,7 +142,7 @@ void Register_AES(HSQUIRRELVM vm)
         // Constructors
         .Ctor()
         .Ctor< CSStr >()
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &AES256::Cmp)
         .SquirrelFunc(_SC("_typename"), &AES256::Typename)
         .Func(_SC("_tostring"), &AES256::ToString)

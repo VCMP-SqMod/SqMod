@@ -516,11 +516,11 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Var(_SC("W"), &Quaternion::w)
         // Properties
         .Prop(_SC("Abs"), &Quaternion::Abs)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Quaternion::ToString)
         .SquirrelFunc(_SC("_typename"), &Quaternion::Typename)
         .Func(_SC("_cmp"), &Quaternion::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("_add"), &Quaternion::operator +)
         .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("_sub"), &Quaternion::operator -)
         .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("_mul"), &Quaternion::operator *)

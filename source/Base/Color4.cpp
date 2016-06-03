@@ -721,11 +721,11 @@ void Register_Color4(HSQUIRRELVM vm)
         .Prop(_SC("RGBA"), &Color4::GetRGBA, &Color4::SetRGBA)
         .Prop(_SC("ARGB"), &Color4::GetARGB, &Color4::SetARGB)
         .Prop(_SC("Str"), &Color4::SetCol)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Color4::ToString)
         .SquirrelFunc(_SC("_typename"), &Color4::Typename)
         .Func(_SC("_cmp"), &Color4::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("_add"), &Color4::operator +)
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("_sub"), &Color4::operator -)
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("_mul"), &Color4::operator *)

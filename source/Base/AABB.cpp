@@ -457,11 +457,11 @@ void Register_AABB(HSQUIRRELVM vm)
         .Var(_SC("Max"), &AABB::max)
         // Properties
         .Prop(_SC("Abs"), &AABB::Abs)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &AABB::ToString)
         .SquirrelFunc(_SC("_typename"), &AABB::Typename)
         .Func(_SC("_cmp"), &AABB::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("_add"), &AABB::operator +)
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("_sub"), &AABB::operator -)
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("_mul"), &AABB::operator *)

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Logger.hpp"
-#include "Base/Stack.hpp"
+#include "Base/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <ctime>
@@ -149,56 +149,6 @@ static inline void OutputConsoleMessage(Uint8 level, bool sub, CCStr tms, CCStr 
     }
     std::puts(msg);
 #endif // SQMOD_OS_WINDOWS
-}
-
-/* --------------------------------------------------------------------------------------------
- * Raw console message output.
-*/
-static inline void OutputMessageImpl(CCStr msg, va_list args)
-{
-#if defined(WIN32) || defined(_WIN32)
-    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    CONSOLE_SCREEN_BUFFER_INFO csb_before;
-    GetConsoleScreenBufferInfo( hstdout, &csb_before);
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN);
-    std::printf("[SQMOD] ");
-
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    std::vprintf(msg, args);
-    std::puts("");
-
-    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
-#else
-    std::printf("\033[21;32m[SQMOD]\033[0m");
-    std::vprintf(msg, args);
-    std::puts("");
-#endif
-}
-
-/* --------------------------------------------------------------------------------------------
- * Raw console error output.
-*/
-static inline void OutputErrorImpl(CCStr msg, va_list args)
-{
-#if defined(WIN32) || defined(_WIN32)
-    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    CONSOLE_SCREEN_BUFFER_INFO csb_before;
-    GetConsoleScreenBufferInfo( hstdout, &csb_before);
-    SetConsoleTextAttribute(hstdout, FOREGROUND_RED | FOREGROUND_INTENSITY);
-    std::printf("[SQMOD] ");
-
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
-    std::vprintf(msg, args);
-    std::puts("");
-
-    SetConsoleTextAttribute(hstdout, csb_before.wAttributes);
-#else
-    std::printf("\033[21;91m[SQMOD]\033[0m");
-    std::vprintf(msg, args);
-    std::puts("");
-#endif
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -556,46 +506,6 @@ SQMOD_CLOG(cLogSInf, LOGL_INF, true)
 SQMOD_CLOG(cLogSWrn, LOGL_WRN, true)
 SQMOD_CLOG(cLogSErr, LOGL_ERR, true)
 SQMOD_CLOG(cLogSFtl, LOGL_FTL, true)
-
-// --------------------------------------------------------------------------------------------
-void OutputDebug(CCStr msg, ...)
-{
-#ifdef _DEBUG
-    // Initialize the arguments list
-    va_list args;
-    va_start(args, msg);
-    // Call the output function
-    OutputMessageImpl(msg, args);
-    // Finalize the arguments list
-    va_end(args);
-#else
-    SQMOD_UNUSED_VAR(msg);
-#endif
-}
-
-// --------------------------------------------------------------------------------------------
-void OutputMessage(CCStr msg, ...)
-{
-    // Initialize the arguments list
-    va_list args;
-    va_start(args, msg);
-    // Call the output function
-    OutputMessageImpl(msg, args);
-    // Finalize the arguments list
-    va_end(args);
-}
-
-// --------------------------------------------------------------------------------------------
-void OutputError(CCStr msg, ...)
-{
-    // Initialize the arguments list
-    va_list args;
-    va_start(args, msg);
-    // Call the output function
-    OutputErrorImpl(msg, args);
-    // Finalize the arguments list
-    va_end(args);
-}
 
 // ------------------------------------------------------------------------------------------------
 template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)

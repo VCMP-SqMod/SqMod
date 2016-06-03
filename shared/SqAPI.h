@@ -3,7 +3,7 @@
 //
 
 //
-// Copyright (c) 2015 Sandu Liviu Catalin
+// Copyright (c) 2016 Sandu Liviu Catalin (aka. S.L.C)
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -34,7 +34,7 @@
 extern "C" {
 #endif
 
-    /*vm*/
+    //vm
     typedef HSQUIRRELVM (*sqapi_open)(SQInteger initialstacksize);
     typedef HSQUIRRELVM (*sqapi_newthread)(HSQUIRRELVM friendvm, SQInteger initialstacksize);
     typedef void (*sqapi_seterrorhandler)(HSQUIRRELVM v);
@@ -55,14 +55,14 @@ extern "C" {
     typedef SQInteger (*sqapi_getvmstate)(HSQUIRRELVM v);
     typedef SQInteger (*sqapi_getversion)();
 
-    /*compiler*/
+    //compiler
     typedef SQRESULT (*sqapi_compile)(HSQUIRRELVM v,SQLEXREADFUNC read,SQUserPointer p,const SQChar *sourcename,SQBool raiseerror);
     typedef SQRESULT (*sqapi_compilebuffer)(HSQUIRRELVM v,const SQChar *s,SQInteger size,const SQChar *sourcename,SQBool raiseerror);
     typedef void (*sqapi_enabledebuginfo)(HSQUIRRELVM v, SQBool enable);
     typedef void (*sqapi_notifyallexceptions)(HSQUIRRELVM v, SQBool enable);
     typedef void (*sqapi_setcompilererrorhandler)(HSQUIRRELVM v,SQCOMPILERERROR f);
 
-    /*stack operations*/
+    //stack operations
     typedef void (*sqapi_push)(HSQUIRRELVM v,SQInteger idx);
     typedef void (*sqapi_pop)(HSQUIRRELVM v,SQInteger nelemstopop);
     typedef void (*sqapi_poptop)(HSQUIRRELVM v);
@@ -73,7 +73,7 @@ extern "C" {
     typedef SQInteger (*sqapi_cmp)(HSQUIRRELVM v);
     typedef void (*sqapi_move)(HSQUIRRELVM dest,HSQUIRRELVM src,SQInteger idx);
 
-    /*object creation handling*/
+    //object creation handling
     typedef SQUserPointer (*sqapi_newuserdata)(HSQUIRRELVM v,SQUnsignedInteger size);
     typedef void (*sqapi_newtable)(HSQUIRRELVM v);
     typedef void (*sqapi_newtableex)(HSQUIRRELVM v,SQInteger initialcapacity);
@@ -129,7 +129,7 @@ extern "C" {
     typedef SQRESULT (*sqapi_getbyhandle)(HSQUIRRELVM v,SQInteger idx,const HSQMEMBERHANDLE *handle);
     typedef SQRESULT (*sqapi_setbyhandle)(HSQUIRRELVM v,SQInteger idx,const HSQMEMBERHANDLE *handle);
 
-    /*object manipulation*/
+    //object manipulation
     typedef void (*sqapi_pushroottable)(HSQUIRRELVM v);
     typedef void (*sqapi_pushregistrytable)(HSQUIRRELVM v);
     typedef void (*sqapi_pushconsttable)(HSQUIRRELVM v);
@@ -158,7 +158,7 @@ extern "C" {
     typedef SQRESULT (*sqapi_getweakrefval)(HSQUIRRELVM v,SQInteger idx);
     typedef SQRESULT (*sqapi_clear)(HSQUIRRELVM v,SQInteger idx);
 
-    /*calls*/
+    //calls
     typedef SQRESULT (*sqapi_call)(HSQUIRRELVM v,SQInteger params,SQBool retval,SQBool raiseerror);
     typedef SQRESULT (*sqapi_resume)(HSQUIRRELVM v,SQBool retval,SQBool raiseerror);
     typedef const SQChar* (*sqapi_getlocal)(HSQUIRRELVM v,SQUnsignedInteger level,SQUnsignedInteger idx);
@@ -169,7 +169,7 @@ extern "C" {
     typedef void (*sqapi_reseterror)(HSQUIRRELVM v);
     typedef void (*sqapi_getlasterror)(HSQUIRRELVM v);
 
-    /*raw object handling*/
+    //raw object handling
     typedef SQRESULT (*sqapi_getstackobj)(HSQUIRRELVM v,SQInteger idx,HSQOBJECT *po);
     typedef void (*sqapi_pushobject)(HSQUIRRELVM v,HSQOBJECT obj);
     typedef void (*sqapi_addref)(HSQUIRRELVM v,HSQOBJECT *po);
@@ -185,44 +185,44 @@ extern "C" {
     typedef SQUnsignedInteger (*sqapi_getvmrefcount)(HSQUIRRELVM v, const HSQOBJECT *po);
 
 
-    /*GC*/
+    //GC
     typedef SQInteger (*sqapi_collectgarbage)(HSQUIRRELVM v);
     typedef SQRESULT (*sqapi_resurrectunreachable)(HSQUIRRELVM v);
 
-    /*serialization*/
+    //serialization
     typedef SQRESULT (*sqapi_writeclosure)(HSQUIRRELVM vm,SQWRITEFUNC writef,SQUserPointer up);
     typedef SQRESULT (*sqapi_readclosure)(HSQUIRRELVM vm,SQREADFUNC readf,SQUserPointer up);
 
-    /*mem allocation*/
+    //mem allocation
     typedef void* (*sqapi_malloc)(SQUnsignedInteger size);
     typedef void* (*sqapi_realloc)(void* p,SQUnsignedInteger oldsize,SQUnsignedInteger newsize);
     typedef void (*sqapi_free)(void *p,SQUnsignedInteger size);
 
-    /*debug*/
+    //debug
     typedef SQRESULT (*sqapi_stackinfos)(HSQUIRRELVM v,SQInteger level,SQStackInfos *si);
     typedef void (*sqapi_setdebughook)(HSQUIRRELVM v);
     typedef void (*sqapi_setnativedebughook)(HSQUIRRELVM v,SQDEBUGHOOK hook);
 
-    /*compiler helpers*/
+    //compiler helpers
     typedef SQRESULT (*sqapi_loadfile)(HSQUIRRELVM v,const SQChar *filename,SQBool printerror);
     typedef SQRESULT (*sqapi_dofile)(HSQUIRRELVM v,const SQChar *filename,SQBool retval,SQBool printerror);
     typedef SQRESULT (*sqapi_writeclosuretofile)(HSQUIRRELVM v,const SQChar *filename);
 
-    /*blob*/
+    //blob
     typedef SQUserPointer (*sqapi_createblob)(HSQUIRRELVM v, SQInteger size);
     typedef SQRESULT (*sqapi_getblob)(HSQUIRRELVM v,SQInteger idx,SQUserPointer *ptr);
     typedef SQInteger (*sqapi_getblobsize)(HSQUIRRELVM v,SQInteger idx);
 
-    /*string*/
+    //string
     typedef SQRESULT (*sqapi_format)(HSQUIRRELVM v,SQInteger nformatstringidx,SQInteger *outlen,SQChar **output);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// @cond DEV
-    /// Allows modules to interface with Squirrel's C api without linking to the squirrel library
-    /// If new functions are added to the Squirrel API, they should be added here too
+    /// Allows modules to interface with Squirrel's C api without linking to the squirrel library.
+    /// If new functions are added to the Squirrel API, they should be added here too.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     typedef struct {
-        /*vm*/
+        //vm
         sqapi_open                          open;
         sqapi_newthread                     newthread;
         sqapi_seterrorhandler               seterrorhandler;
@@ -243,14 +243,14 @@ extern "C" {
         sqapi_getvmstate                    getvmstate;
         sqapi_getversion                    getversion;
 
-        /*compiler*/
+        //compiler
         sqapi_compile                       compile;
         sqapi_compilebuffer                 compilebuffer;
         sqapi_enabledebuginfo               enabledebuginfo;
         sqapi_notifyallexceptions           notifyallexceptions;
         sqapi_setcompilererrorhandler       setcompilererrorhandler;
 
-        /*stack operations*/
+        //stack operations
         sqapi_push                          push;
         sqapi_pop                           pop;
         sqapi_poptop                        poptop;
@@ -261,7 +261,7 @@ extern "C" {
         sqapi_cmp                           cmp;
         sqapi_move                          move;
 
-        /*object creation handling*/
+        //object creation handling
         sqapi_newuserdata                   newuserdata;
         sqapi_newtable                      newtable;
         sqapi_newtableex                    newtableex;
@@ -317,7 +317,7 @@ extern "C" {
         sqapi_getbyhandle                   getbyhandle;
         sqapi_setbyhandle                   setbyhandle;
 
-        /*object manipulation*/
+        //object manipulation
         sqapi_pushroottable                 pushroottable;
         sqapi_pushregistrytable             pushregistrytable;
         sqapi_pushconsttable                pushconsttable;
@@ -346,7 +346,7 @@ extern "C" {
         sqapi_getweakrefval                 getweakrefval;
         sqapi_clear                         clear;
 
-        /*calls*/
+        //calls
         sqapi_call                          call;
         sqapi_resume                        resume;
         sqapi_getlocal                      getlocal;
@@ -357,7 +357,7 @@ extern "C" {
         sqapi_reseterror                    reseterror;
         sqapi_getlasterror                  getlasterror;
 
-        /*raw object handling*/
+        //raw object handling
         sqapi_getstackobj                   getstackobj;
         sqapi_pushobject                    pushobject;
         sqapi_addref                        addref;
@@ -372,42 +372,42 @@ extern "C" {
         sqapi_getobjtypetag                 getobjtypetag;
         sqapi_getvmrefcount                 getvmrefcount;
 
-        /*GC*/
+        //GC
         sqapi_collectgarbage                collectgarbage;
         sqapi_resurrectunreachable          resurrectunreachable;
 
-        /*serialization*/
+        //serialization
         sqapi_writeclosure                  writeclosure;
         sqapi_readclosure                   readclosure;
 
-        /*mem allocation*/
+        //mem allocation
         sqapi_malloc                        malloc;
         sqapi_realloc                       realloc;
         sqapi_free                          free;
 
-        /*debug*/
+        //debug
         sqapi_stackinfos                    stackinfos;
         sqapi_setdebughook                  setdebughook;
         sqapi_setnativedebughook            setnativedebughook;
 
-        /*compiler helpers*/
+        //compiler helpers
         sqapi_loadfile                      loadfile;
         sqapi_dofile                        dofile;
         sqapi_writeclosuretofile            writeclosuretofile;
 
-        /*blob*/
+        //blob
         sqapi_createblob                    createblob;
         sqapi_getblob                       getblob;
         sqapi_getblobsize                   getblobsize;
 
-        /*string*/
+        //string
         sqapi_format                        format;
     } sq_api, SQAPI, *HSQAPI;
     /// @endcond
 
 #ifdef SQMOD_PLUGIN_API
 
-    /*vm*/
+    //vm
     extern sqapi_open                           sq_open;
     extern sqapi_newthread                      sq_newthread;
     extern sqapi_seterrorhandler                sq_seterrorhandler;
@@ -428,14 +428,14 @@ extern "C" {
     extern sqapi_getvmstate                     sq_getvmstate;
     extern sqapi_getversion                     sq_getversion;
 
-    /*compiler*/
+    //compiler
     extern sqapi_compile                        sq_compile;
     extern sqapi_compilebuffer                  sq_compilebuffer;
     extern sqapi_enabledebuginfo                sq_enabledebuginfo;
     extern sqapi_notifyallexceptions            sq_notifyallexceptions;
     extern sqapi_setcompilererrorhandler        sq_setcompilererrorhandler;
 
-    /*stack operations*/
+    //stack operations
     extern sqapi_push                           sq_push;
     extern sqapi_pop                            sq_pop;
     extern sqapi_poptop                         sq_poptop;
@@ -446,7 +446,7 @@ extern "C" {
     extern sqapi_cmp                            sq_cmp;
     extern sqapi_move                           sq_move;
 
-    /*object creation handling*/
+    //object creation handling
     extern sqapi_newuserdata                    sq_newuserdata;
     extern sqapi_newtable                       sq_newtable;
     extern sqapi_newtableex                     sq_newtableex;
@@ -502,7 +502,7 @@ extern "C" {
     extern sqapi_getbyhandle                    sq_getbyhandle;
     extern sqapi_setbyhandle                    sq_setbyhandle;
 
-    /*object manipulation*/
+    //object manipulation
     extern sqapi_pushroottable                  sq_pushroottable;
     extern sqapi_pushregistrytable              sq_pushregistrytable;
     extern sqapi_pushconsttable                 sq_pushconsttable;
@@ -531,7 +531,7 @@ extern "C" {
     extern sqapi_getweakrefval                  sq_getweakrefval;
     extern sqapi_clear                          sq_clear;
 
-    /*calls*/
+    //calls
     extern sqapi_call                           sq_call;
     extern sqapi_resume                         sq_resume;
     extern sqapi_getlocal                       sq_getlocal;
@@ -542,7 +542,7 @@ extern "C" {
     extern sqapi_reseterror                     sq_reseterror;
     extern sqapi_getlasterror                   sq_getlasterror;
 
-    /*raw object handling*/
+    //raw object handling
     extern sqapi_getstackobj                    sq_getstackobj;
     extern sqapi_pushobject                     sq_pushobject;
     extern sqapi_addref                         sq_addref;
@@ -557,35 +557,35 @@ extern "C" {
     extern sqapi_getobjtypetag                  sq_getobjtypetag;
     extern sqapi_getvmrefcount                  sq_getvmrefcount;
 
-    /*GC*/
+    //GC
     extern sqapi_collectgarbage                 sq_collectgarbage;
     extern sqapi_resurrectunreachable           sq_resurrectunreachable;
 
-    /*serialization*/
+    //serialization
     extern sqapi_writeclosure                   sq_writeclosure;
     extern sqapi_readclosure                    sq_readclosure;
 
-    /*mem allocation*/
+    //mem allocation
     extern sqapi_malloc                         sq_malloc;
     extern sqapi_realloc                        sq_realloc;
     extern sqapi_free                           sq_free;
 
-    /*debug*/
+    //debug
     extern sqapi_stackinfos                     sq_stackinfos;
     extern sqapi_setdebughook                   sq_setdebughook;
     extern sqapi_setnativedebughook             sq_setnativedebughook;
 
-    /*compiler helpers*/
+    //compiler helpers
     extern sqapi_loadfile                       sqstd_loadfile;
     extern sqapi_dofile                         sqstd_dofile;
     extern sqapi_writeclosuretofile             sqstd_writeclosuretofile;
 
-    /*blob*/
+    //blob
     extern sqapi_createblob                     sqstd_createblob;
     extern sqapi_getblob                        sqstd_getblob;
     extern sqapi_getblobsize                    sqstd_getblobsize;
 
-    /*string*/
+    //string
     extern sqapi_format                         sqstd_format;
 
 #endif // SQMOD_PLUGIN_API

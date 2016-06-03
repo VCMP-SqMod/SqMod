@@ -661,11 +661,11 @@ void Register_Color3(HSQUIRRELVM vm)
         .Prop(_SC("RGBA"), &Color3::GetRGBA, &Color3::SetRGBA)
         .Prop(_SC("ARGB"), &Color3::GetARGB, &Color3::SetARGB)
         .Prop(_SC("Str"), &Color3::SetCol)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Color3::ToString)
         .SquirrelFunc(_SC("_typename"), &Color3::Typename)
         .Func(_SC("_cmp"), &Color3::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_add"), &Color3::operator +)
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_sub"), &Color3::operator -)
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_mul"), &Color3::operator *)

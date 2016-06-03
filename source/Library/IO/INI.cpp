@@ -1,6 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/IO/INI.hpp"
-#include "Base/Stack.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cerrno>
@@ -388,7 +387,7 @@ void Register_INI(HSQUIRRELVM vm)
         .Ctor()
         .Ctor< CSStr, SQInteger >()
         .Ctor< const IniResult & >()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_cmp"), &IniResult::Cmp)
         .SquirrelFunc(_SC("_typename"), &IniResult::Typename)
         .Func(_SC("_tostring"), &IniResult::ToString)
@@ -404,7 +403,7 @@ void Register_INI(HSQUIRRELVM vm)
         // Constructors
         .Ctor()
         .Ctor< const Entries & >()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_cmp"), &Entries::Cmp)
         .SquirrelFunc(_SC("_typename"), &Entries::Typename)
         .Func(_SC("_tostring"), &Entries::ToString)
@@ -433,7 +432,7 @@ void Register_INI(HSQUIRRELVM vm)
         .Ctor< bool >()
         .Ctor< bool, bool >()
         .Ctor< bool, bool, bool >()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_cmp"), &Document::Cmp)
         .SquirrelFunc(_SC("_typename"), &Document::Typename)
         .Func(_SC("_tostring"), &Document::ToString)

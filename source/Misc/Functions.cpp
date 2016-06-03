@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Misc/Functions.hpp"
 #include "Base/Shared.hpp"
-#include "Base/Stack.hpp"
 #include "Base/Color3.hpp"
 #include "Base/Vector2.hpp"
 #include "Base/Vector3.hpp"

@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/System/Path.hpp"
 #include "Library/System/Environment.hpp"
-#include "Base/Stack.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cctype>
@@ -1675,7 +1674,7 @@ void Register_SysPath(HSQUIRRELVM vm)
         .Ctor()
         .Ctor< CSStr >()
         .Ctor< CSStr, Int32 >()
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &SysPath::Cmp)
         .SquirrelFunc(_SC("_typename"), &SysPath::Typename)
         .Func(_SC("_tostring"), &SysPath::ToString)

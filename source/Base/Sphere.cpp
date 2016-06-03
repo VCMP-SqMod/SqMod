@@ -514,11 +514,11 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Var(_SC("Rad"), &Sphere::rad)
         // Properties
         .Prop(_SC("Abs"), &Sphere::Abs)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Sphere::ToString)
         .SquirrelFunc(_SC("_typename"), &Sphere::Typename)
         .Func(_SC("_cmp"), &Sphere::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_add"), &Sphere::operator +)
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_sub"), &Sphere::operator -)
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_mul"), &Sphere::operator *)

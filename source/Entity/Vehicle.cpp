@@ -4,7 +4,6 @@
 #include "Base/Quaternion.hpp"
 #include "Base/Vector2.hpp"
 #include "Base/Vector3.hpp"
-#include "Base/Stack.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -1626,7 +1625,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqVehicle"),
         Class< CVehicle, NoConstructor< CVehicle > >(vm, _SC("SqVehicle"))
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &CVehicle::Cmp)
         .SquirrelFunc(_SC("_typename"), &CVehicle::Typename)
         .Func(_SC("_tostring"), &CVehicle::ToString)

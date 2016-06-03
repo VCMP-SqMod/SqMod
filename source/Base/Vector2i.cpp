@@ -555,11 +555,11 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Var(_SC("Y"), &Vector2i::y)
         // Properties
         .Prop(_SC("Abs"), &Vector2i::Abs)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Vector2i::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector2i::Typename)
         .Func(_SC("_cmp"), &Vector2i::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_add"), &Vector2i::operator +)
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_sub"), &Vector2i::operator -)
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_mul"), &Vector2i::operator *)

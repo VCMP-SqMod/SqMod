@@ -1,4 +1,5 @@
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 #include "SqMod.h"
+
+// This method is used to avoid compilers warning about C++ flags on C files and vice-versa.
 #include "SqMod.inl"
-/* This method is used toa void compilers warning about C++ flags on C files and viceversa. */

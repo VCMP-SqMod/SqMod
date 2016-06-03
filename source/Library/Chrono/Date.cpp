@@ -233,11 +233,11 @@ void Register_ChronoDate(HSQUIRRELVM vm, Table & /*cns*/)
         .Ctor< Uint16, Uint8, Uint8 >()
         // Static Properties
         .SetStaticValue(_SC("GlobalDelimiter"), &Date::Delimiter)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Date::ToString)
         .SquirrelFunc(_SC("_typename"), &Date::Typename)
         .Func(_SC("_cmp"), &Date::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Date (Date::*)(const Date &) const >(_SC("_add"), &Date::operator +)
         .Func< Date (Date::*)(const Date &) const >(_SC("_sub"), &Date::operator -)
         .Func< Date (Date::*)(const Date &) const >(_SC("_mul"), &Date::operator *)

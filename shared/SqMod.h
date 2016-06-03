@@ -3,7 +3,7 @@
 //
 
 //
-// Copyright (c) 2009 Sandu Liviu Catalin (aka. S.L.C)
+// Copyright (c) 2016 Sandu Liviu Catalin (aka. S.L.C)
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -78,9 +78,14 @@ extern "C" {
     typedef SqInt64         (*SqEx_GetEpochTimeMilli) (void);
     typedef SQRESULT        (*SqEx_GetTimestamp) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
     typedef void            (*SqEx_PushTimestamp) (HSQUIRRELVM vm, SqInt64 num);
+    //stack utilities
+    typedef SQInteger       (*SqEx_PopStackInteger) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SQFloat         (*SqEx_PopStackFloat) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SqInt64         (*SqEx_PopStackSLong) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SqUint64        (*SqEx_PopStackULong) (HSQUIRRELVM vm, SQInteger idx);
 
     /* --------------------------------------------------------------------------------------------
-     * Allows modules to interface with the plugin API without linking of any sorts
+     * Allows modules to interface with the plug-in API without linking of any sorts
     */
     typedef struct
     {
@@ -105,21 +110,26 @@ extern "C" {
         SqEx_LogMessage                     LogSFtl;
         //script loading
         SqEx_LoadScript                     LoadScript;
-        /*long numbers*/
+        //long numbers
         SqEx_GetSLongValue                  GetSLongValue;
         SqEx_PushSLongObject                PushSLongObject;
         SqEx_GetULongValue                  GetULongValue;
         SqEx_PushULongObject                PushULongObject;
-        /*time utilities*/
+        //time utilities
         SqEx_GetCurrentSysTime              GetCurrentSysTime;
         SqEx_GetEpochTimeMicro              GetEpochTimeMicro;
         SqEx_GetEpochTimeMilli              GetEpochTimeMilli;
         SqEx_GetTimestamp                   GetTimestamp;
         SqEx_PushTimestamp                  PushTimestamp;
+        //stack utilities
+        SqEx_PopStackInteger                PopStackInteger;
+        SqEx_PopStackFloat                  PopStackFloat;
+        SqEx_PopStackSLong                  PopStackSLong;
+        SqEx_PopStackULong                  PopStackULong;
     } sq_exports, SQEXPORTS, *HSQEXPORTS;
 
     /* --------------------------------------------------------------------------------------------
-     * Import the functions from the main squirrel plugin.
+     * Import the functions from the main squirrel plug-in.
     */
     SQUIRREL_API HSQEXPORTS sq_api_import(PluginFuncs * vcapi);
 

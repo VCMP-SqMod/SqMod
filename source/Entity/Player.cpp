@@ -3,7 +3,6 @@
 #include "Entity/Vehicle.hpp"
 #include "Base/Color3.hpp"
 #include "Base/Vector3.hpp"
-#include "Base/Stack.hpp"
 #include "Library/Utils/BufferWrapper.hpp"
 #include "Core.hpp"
 
@@ -1997,7 +1996,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqPlayer"),
         Class< CPlayer, NoConstructor< CPlayer > >(vm, _SC("SqPlayer"))
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &CPlayer::Cmp)
         .SquirrelFunc(_SC("_typename"), &CPlayer::Typename)
         .Func(_SC("_tostring"), &CPlayer::ToString)

@@ -72,7 +72,7 @@ void Register_ChronoTimer(HSQUIRRELVM vm, Table & /*cns*/)
         // Constructors
         .Ctor()
         .Ctor< const Timer & >()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Timer::ToString)
         .Func(_SC("_cmp"), &Timer::Cmp)
         // Properties

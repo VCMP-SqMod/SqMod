@@ -91,7 +91,7 @@ void Register_Numeric(HSQUIRRELVM vm)
         /* Properties */
         .Prop(_SC("Str"), &SLongInt::GetCStr, &SLongInt::SetStr)
         .Prop(_SC("Num"), &SLongInt::GetSNum, &SLongInt::SetNum)
-        /* Core Metamethods */
+        /* Core Meta-methods */
         .Func(_SC("_tostring"), &SLongInt::ToString)
         .Func(_SC("_typename"), &SLongInt::Typename)
         .Func(_SC("_cmp"), &SLongInt::Cmp)
@@ -101,7 +101,7 @@ void Register_Numeric(HSQUIRRELVM vm)
         .Func(_SC("tostring"), &SLongInt::ToSqString)
         .Func(_SC("tobool"), &SLongInt::ToSqBool)
         .Func(_SC("tochar"), &SLongInt::ToSqChar)
-        /* Metamethods */
+        /* Meta-methods */
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_add"), &SLongInt::operator +)
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_sub"), &SLongInt::operator -)
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_mul"), &SLongInt::operator *)
@@ -127,7 +127,7 @@ void Register_Numeric(HSQUIRRELVM vm)
         /* Properties */
         .Prop(_SC("Str"), &ULongInt::GetCStr, &ULongInt::SetStr)
         .Prop(_SC("Num"), &ULongInt::GetSNum, &ULongInt::SetNum)
-        /* Core Metamethods */
+        /* Core Meta-methods */
         .Func(_SC("_tostring"), &ULongInt::ToString)
         .Func(_SC("_typename"), &ULongInt::Typename)
         .Func(_SC("_cmp"), &ULongInt::Cmp)
@@ -137,7 +137,7 @@ void Register_Numeric(HSQUIRRELVM vm)
         .Func(_SC("tostring"), &ULongInt::ToSqString)
         .Func(_SC("tobool"), &ULongInt::ToSqBool)
         .Func(_SC("tochar"), &ULongInt::ToSqChar)
-        /* Metamethods */
+        /* Meta-methods */
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_add"), &ULongInt::operator +)
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_sub"), &ULongInt::operator -)
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_mul"), &ULongInt::operator *)

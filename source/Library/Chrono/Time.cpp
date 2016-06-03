@@ -342,11 +342,11 @@ void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
         .Ctor< Uint8, Uint8, Uint8, Uint16 >()
         // Static Properties
         .SetStaticValue(_SC("GlobalDelimiter"), &Time::Delimiter)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Time::ToString)
         .SquirrelFunc(_SC("_typename"), &Time::Typename)
         .Func(_SC("_cmp"), &Time::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Time (Time::*)(const Time &) const >(_SC("_add"), &Time::operator +)
         .Func< Time (Time::*)(const Time &) const >(_SC("_sub"), &Time::operator -)
         .Func< Time (Time::*)(const Time &) const >(_SC("_mul"), &Time::operator *)

@@ -355,7 +355,7 @@ public:
 private:
 
     // --------------------------------------------------------------------------------------------
-    Int32                           m_State; // Current plugin state.
+    Int32                           m_State; // Current plug-in state.
     HSQUIRRELVM                     m_VM; // Script virtual machine.
     Scripts                         m_Scripts; // Loaded scripts objects.
     Options                         m_Options; // Custom configuration options.

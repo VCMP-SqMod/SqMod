@@ -368,7 +368,7 @@ bool Core::Reload()
     {
         return false; // Already reloading!
     }
-    // Prevent circular reloads when we send plugin commands
+    // Prevent circular reloads when we send plug-in commands
     const BitGuardU32 bg(m_CircularLocks, static_cast< Uint32 >(CCL_RELOAD_SCRIPTS));
     // Allow reloading by default
     Core::Get().SetState(1);

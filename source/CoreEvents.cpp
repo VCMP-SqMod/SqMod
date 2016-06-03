@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
 #include "Base/Shared.hpp"
-#include "Base/Stack.hpp"
 #include "Base/Buffer.hpp"
 #include "Library/Utils/BufferWrapper.hpp"
 

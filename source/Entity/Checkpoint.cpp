@@ -3,7 +3,6 @@
 #include "Entity/Player.hpp"
 #include "Base/Color4.hpp"
 #include "Base/Vector3.hpp"
-#include "Base/Stack.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -564,7 +563,7 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqCheckpoint"),
         Class< CCheckpoint, NoConstructor< CCheckpoint > >(vm, _SC("SqCheckpoint"))
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &CCheckpoint::Cmp)
         .SquirrelFunc(_SC("_typename"), &CCheckpoint::Typename)
         .Func(_SC("_tostring"), &CCheckpoint::ToString)

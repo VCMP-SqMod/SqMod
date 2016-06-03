@@ -1,6 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Keybind.hpp"
-#include "Base/Stack.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -262,7 +261,7 @@ void Register_CKeybind(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqKeybind"),
         Class< CKeybind, NoConstructor< CKeybind > >(vm, _SC("SqKeybind"))
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &CKeybind::Cmp)
         .SquirrelFunc(_SC("_typename"), &CKeybind::Typename)
         .Func(_SC("_tostring"), &CKeybind::ToString)

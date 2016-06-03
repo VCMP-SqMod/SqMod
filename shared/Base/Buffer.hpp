@@ -29,8 +29,8 @@ private:
     typedef unsigned int Counter;
 
     // --------------------------------------------------------------------------------------------
-    Memory*     m_Ptr; /* The memory manager instance. */
-    Counter*    m_Ref; /* Reference count to the managed instance. */
+    Memory*     m_Ptr; // The memory manager instance.
+    Counter*    m_Ref; // Reference count to the managed instance.
 
     /* --------------------------------------------------------------------------------------------
      * Grab a strong reference to a memory manager.

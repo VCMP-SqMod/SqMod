@@ -513,11 +513,11 @@ void Register_Vector4(HSQUIRRELVM vm)
         .Var(_SC("w"), &Vector4::w)
         // Properties
         .Prop(_SC("Abs"), &Vector4::Abs)
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Vector4::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector4::Typename)
         .Func(_SC("_cmp"), &Vector4::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("_add"), &Vector4::operator +)
         .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("_sub"), &Vector4::operator -)
         .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("_mul"), &Vector4::operator *)

@@ -109,7 +109,7 @@ static uint8_t OnServerInitialise(void)
         }
         else
         {
-            LogFtl("Unable to load the plugin resources properly");
+            LogFtl("Unable to load the plug-in resources properly");
             // Failed to initialize
             return SQMOD_FAILURE;
         }
@@ -118,7 +118,7 @@ static uint8_t OnServerInitialise(void)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(false)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -187,7 +187,7 @@ static uint8_t OnIncomingConnection(CStr player_name, size_t name_buffer_size,
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -243,7 +243,7 @@ static uint8_t OnPlayerRequestClass(int32_t player_id, int32_t offset)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -260,7 +260,7 @@ static uint8_t OnPlayerRequestSpawn(int32_t player_id)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -325,7 +325,7 @@ static uint8_t OnPlayerRequestEnterVehicle(int32_t player_id, int32_t vehicle_id
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -560,7 +560,7 @@ static uint8_t OnPlayerMessage(int32_t player_id, CCStr message)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -577,7 +577,7 @@ static uint8_t OnPlayerCommand(int32_t player_id, CCStr message)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -594,7 +594,7 @@ static uint8_t OnPlayerPrivateMessage(int32_t player_id, int32_t target_player_i
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -728,7 +728,7 @@ static uint8_t OnPickupPickAttempt(int32_t pickup_id, int32_t player_id)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(false)
     // Return the last known plug-in state
-    return Core::Get().GetState();
+    return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -908,10 +908,10 @@ void UnbindCallbacks()
 SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
 {
     using namespace SqMod;
-    // Output plugin header
+    // Output plug-in header
     puts("");
     OutputMessage("--------------------------------------------------------------------");
-    OutputMessage("Plugin: %s", SQMOD_NAME);
+    OutputMessage("Plug-in: %s", SQMOD_NAME);
     OutputMessage("Author: %s", SQMOD_AUTHOR);
     OutputMessage("Legal: %s", SQMOD_COPYRIGHT);
     OutputMessage("--------------------------------------------------------------------");
@@ -920,15 +920,15 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     _Func = funcs;
     _Clbk = calls;
     _Info = info;
-    // Assign plugin version
+    // Assign plug-in version
     _Info->pluginVersion = SQMOD_VERSION;
     _Info->apiMajorVersion = PLUGIN_API_MAJOR;
     _Info->apiMinorVersion = PLUGIN_API_MINOR;
-    // Assign the plugin name
+    // Assign the plug-in name
     std::snprintf(_Info->name, sizeof(_Info->name), "%s", SQMOD_HOST_NAME);
     // Attempt to initialize the logger before anything else
     Logger::Get().Initialize(nullptr);
-    // Attempt to initialize the plugin core
+    // Attempt to initialize the plug-in core
     if (!Core::Get().Initialize())
     {
         LogFtl("Unable to initialize the plug-in central core");
@@ -939,7 +939,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     }
     // Bind to server callbacks
     BindCallbacks();
-    // Attempt to initialize the plugin exports
+    // Attempt to initialize the plug-in exports
     InitExports();
     // Dummy spacing
     puts("");

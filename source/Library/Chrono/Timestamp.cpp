@@ -123,10 +123,10 @@ void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & /*cns*/)
         // Constructors
         .Ctor()
         .Ctor< const Timestamp & >()
-        // Core Metamethods
+        // Core Meta-methods
         .Func(_SC("_tostring"), &Timestamp::ToString)
         .Func(_SC("_cmp"), &Timestamp::Cmp)
-        // Metamethods
+        // Meta-methods
         .Func< Timestamp (Timestamp::*)(const Timestamp &) const >(_SC("_add"), &Timestamp::operator +)
         .Func< Timestamp (Timestamp::*)(const Timestamp &) const >(_SC("_sub"), &Timestamp::operator -)
         .Func< Timestamp (Timestamp::*)(const Timestamp &) const >(_SC("_mul"), &Timestamp::operator *)

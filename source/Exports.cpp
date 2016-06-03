@@ -279,6 +279,12 @@ void InitExports()
     g_SqExports.GetTimestamp            = SqEx_GetTimestamp;
     g_SqExports.PushTimestamp           = SqEx_PushTimestamp;
 
+    //stack utilities
+    g_SqExports.PopStackInteger         = PopStackInteger;
+    g_SqExports.PopStackFloat           = PopStackFloat;
+    g_SqExports.PopStackSLong           = PopStackSLong;
+    g_SqExports.PopStackULong           = PopStackULong;
+
     // Export them to the server
     _Func->ExportFunctions(_Info->pluginId,
                             const_cast< const void ** >(reinterpret_cast< void ** >(&sqexports)),

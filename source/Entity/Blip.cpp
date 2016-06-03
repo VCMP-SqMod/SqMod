@@ -1,6 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
-#include "Base/Stack.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -390,7 +389,7 @@ void Register_CBlip(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqBlip"),
         Class< CBlip, NoConstructor< CBlip > >(vm, _SC("SqBlip"))
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &CBlip::Cmp)
         .SquirrelFunc(_SC("_typename"), &CBlip::Typename)
         .Func(_SC("_tostring"), &CBlip::ToString)

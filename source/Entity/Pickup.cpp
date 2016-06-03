@@ -2,7 +2,6 @@
 #include "Entity/Pickup.hpp"
 #include "Entity/Player.hpp"
 #include "Base/Vector3.hpp"
-#include "Base/Stack.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -450,7 +449,7 @@ void Register_CPickup(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqPickup"),
         Class< CPickup, NoConstructor< CPickup > >(vm, _SC("SqPickup"))
-        // Metamethods
+        // Meta-methods
         .Func(_SC("_cmp"), &CPickup::Cmp)
         .SquirrelFunc(_SC("_typename"), &CPickup::Typename)
         .Func(_SC("_tostring"), &CPickup::ToString)
