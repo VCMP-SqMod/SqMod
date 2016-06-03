@@ -435,9 +435,12 @@
 		<Unit filename="../modules/irc/Common.cpp" />
 		<Unit filename="../modules/irc/Common.hpp" />
 		<Unit filename="../modules/irc/Module.cpp" />
-		<Unit filename="../modules/irc/Module.hpp" />
 		<Unit filename="../modules/irc/Session.cpp" />
 		<Unit filename="../modules/irc/Session.hpp" />
+		<Unit filename="../shared/Base/Buffer.cpp" />
+		<Unit filename="../shared/Base/Buffer.hpp" />
+		<Unit filename="../shared/Base/Utility.cpp" />
+		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../shared/SqMod.cpp" />
 		<Extensions>
 			<code_completion />

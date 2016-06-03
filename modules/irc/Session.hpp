@@ -8,13 +8,6 @@
 #include <vector>
 
 // ------------------------------------------------------------------------------------------------
-#include <libircclient.h>
-#include <libirc_rfcnumeric.h>
-
-// ------------------------------------------------------------------------------------------------
-#include <sqrat.h>
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -111,47 +104,39 @@ protected:
 
 private:
 
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    Session(const Session &);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    Session & operator = (const Session &);
-
-private:
+    // --------------------------------------------------------------------------------------------
+    irc_session_t*  m_Session; // The managed IRC session structure.
 
     // --------------------------------------------------------------------------------------------
-    irc_session_t*  m_Session; /* The managed IRC session structure. */
+    String          m_Server; // Server address.
+    String          m_Passwd; // Account password.
+    String          m_Nick; // Nickname.
+    String          m_User; // User name.
+    String          m_Name; // Real name.
 
     // --------------------------------------------------------------------------------------------
-    String          m_Server; /* Server address. */
-    String          m_Passwd; /* Account password. */
-    String          m_Nick; /* Nickname. */
-    String          m_User; /* User name. */
-    String          m_Name; /* Real name. */
+    Int32           m_Port; // Server port.
 
     // --------------------------------------------------------------------------------------------
-    Int32           m_Port; /* Server port. */
+    Int32           m_LastCode; // Last error code that could not be returned directly.
+    Uint32          m_PoolTime; // How much time to wait when pooling for session events.
+    Uint32          m_Tries; // How many times to retry connection.
+    Uint32          m_Wait; // How many milliseconds to wait between each try.
+    Uint32          m_LeftTries; // How many tries are left.
+    Int64           m_NextTry; // When should the session attempt to connect again.
 
     // --------------------------------------------------------------------------------------------
-    Int32           m_LastCode; /* Last error code that could not be returned directly. */
-    Uint32          m_PoolTime; /* How much time to wait when pooling for session events. */
-    Uint32          m_Tries; /* How many times to retry connection. */
-    Uint32          m_Wait; /* How many milliseconds to wait between each try. */
-    Uint32          m_LeftTries; /* How many tries are left. */
-    Int64           m_NextTry; /* When should the session attempt to connect again. */
+    Int64           m_SessionTime; // The time when the session was created.
 
     // --------------------------------------------------------------------------------------------
-    Int64           m_SessionTime; /* The time when the session was created. */
+    bool            m_Reconnect; // Whether the session should try to reconnect.
 
     // --------------------------------------------------------------------------------------------
-    bool            m_Reconnect; /* Whether the session should try to reconnect. */
+    bool            m_IPv6; // Whether the session was connected to an ipv6 address.
 
     // --------------------------------------------------------------------------------------------
-    bool            m_IPv6; /* Whether the session was connected to an ipv6 address. */
+    String          m_Tag; // User tag.
+    Object          m_Data; // User data.
 
     /* --------------------------------------------------------------------------------------------
      * Script callbacks.
@@ -178,10 +163,6 @@ private:
     Function        m_OnDccChatReq;
     Function        m_OnDccSendReq;
 
-    // --------------------------------------------------------------------------------------------
-    String          m_Tag; /* User tag. */
-    Object          m_Data; /* User data. */
-
 public:
 
     /* --------------------------------------------------------------------------------------------
@@ -190,9 +171,29 @@ public:
     Session();
 
     /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    Session(const Session & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    Session(Session && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~Session();
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    Session & operator = (const Session & o) =  delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    Session & operator = (Session && o) =  delete;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
@@ -953,107 +954,107 @@ protected:
                                 CCStr addr, CCStr filename, Ulong size, irc_dcc_t dccid);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnConnect event to the script callback.
     */
     static void OnConnect(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnNick event to the script callback.
     */
     static void OnNick(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnQuit event to the script callback.
     */
     static void OnQuit(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnJoin event to the script callback.
     */
     static void OnJoin(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnPart event to the script callback.
     */
     static void OnPart(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnMode event to the script callback.
     */
     static void OnMode(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnUmode event to the script callback.
     */
     static void OnUmode(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnTopic event to the script callback.
     */
     static void OnTopic(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnKick event to the script callback.
     */
     static void OnKick(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnChannel event to the script callback.
     */
     static void OnChannel(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnPrivMsg event to the script callback.
     */
     static void OnPrivMsg(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnNotice event to the script callback.
     */
     static void OnNotice(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnChannelNotice event to the script callback.
     */
     static void OnChannelNotice(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnInvite event to the script callback.
     */
     static void OnInvite(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnCtcpReq event to the script callback.
     */
     static void OnCtcpReq(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnCtcpRep event to the script callback.
     */
     static void OnCtcpRep(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnCtcpAction event to the script callback.
     */
     static void OnCtcpAction(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnUnknown event to the script callback.
     */
     static void OnUnknown(irc_session_t * session, CCStr event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnNumeric event to the script callback.
     */
     static void OnNumeric(irc_session_t * session, Uint32 event, CCStr origin, CCStr * params, Uint32 count);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnDccChatReq event to the script callback.
     */
     static void OnDccChatReq(irc_session_t * session, CCStr nick, CCStr addr, irc_dcc_t dccid);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Forward the OnDccSendReq event to the script callback.
     */
     static void OnDccSendReq(irc_session_t * session, CCStr nick, CCStr addr, CCStr filename, Ulong size, irc_dcc_t dccid);
 };
