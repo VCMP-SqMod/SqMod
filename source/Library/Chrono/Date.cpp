@@ -1,7 +1,8 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono/Date.hpp"
-#include "Library/Chrono/Date.hpp"
+#include "Library/Chrono/Time.hpp"
 #include "Library/Chrono/Datetime.hpp"
+#include "Library/Chrono/Timestamp.hpp"
 #include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -355,6 +356,20 @@ Date Date::AndDays(Int32 days)
     return d;
 }
 
+// ------------------------------------------------------------------------------------------------
+Timestamp Date::GetTimestamp() const
+{
+    // Calculate the current day of the year
+    Int32 days = Chrono::DayOfYear(m_Year, m_Month, m_Day);
+    // Calculate all days till the current year
+    for (Int32 year = 0; year < m_Year; --year)
+    {
+        days += Chrono::DaysInYear(year);
+    }
+    // Return the resulted timestamp
+    return Timestamp(static_cast< Int64 >(days * 86400000000LL));
+}
+
 // ================================================================================================
 void Register_ChronoDate(HSQUIRRELVM vm, Table & /*cns*/)
 {
@@ -385,6 +400,7 @@ void Register_ChronoDate(HSQUIRRELVM vm, Table & /*cns*/)
         .Prop(_SC("LeapYear"), &Date::IsThisLeapYear)
         .Prop(_SC("YearDays"), &Date::GetYearDays)
         .Prop(_SC("MonthDays"), &Date::GetMonthDays)
+        .Prop(_SC("Timestamp"), &Date::GetTimestamp)
         // Member Methods
         .Func(_SC("AddYears"), &Date::AddYears)
         .Func(_SC("AddMonths"), &Date::AddMonths)

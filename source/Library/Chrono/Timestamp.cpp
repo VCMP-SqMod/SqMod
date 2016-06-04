@@ -1,8 +1,10 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono/Timestamp.hpp"
 #include "Library/Chrono/Timer.hpp"
+#include "Library/Chrono/Date.hpp"
+#include "Library/Chrono/Time.hpp"
+#include "Library/Chrono/Datetime.hpp"
 #include "Library/Numeric.hpp"
-#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -18,11 +20,17 @@ Timestamp::Timestamp(const SLongInt & t)
 Int32 Timestamp::Cmp(const Timestamp & o) const
 {
     if (m_Timestamp == o.m_Timestamp)
+    {
         return 0;
+    }
     else if (m_Timestamp > o.m_Timestamp)
+    {
         return 1;
+    }
     else
+    {
         return -1;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -118,7 +126,7 @@ static Timestamp SqGetYears(SQFloat ammount)
 // ================================================================================================
 void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(_SC("SqTimestamp"), Class< Timestamp >(vm, _SC("SqChronoTimestamp"))
+    RootTable(vm).Bind(_SC("SqTimestamp"), Class< Timestamp >(vm, _SC("SqTimestamp"))
         // Constructors
         .Ctor()
         .Ctor< const Timestamp & >()

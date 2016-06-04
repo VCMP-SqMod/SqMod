@@ -69,15 +69,21 @@ extern "C" {
     typedef SQRESULT        (*SqEx_LoadScript) (const SQChar * filepath);
     //long numbers
     typedef SQRESULT        (*SqEx_GetSLongValue) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
-    typedef void            (*SqEx_PushSLongObject) (HSQUIRRELVM vm, SqInt64 num);
+    typedef SQRESULT        (*SqEx_PushSLongObject) (HSQUIRRELVM vm, SqInt64 num);
     typedef SQRESULT        (*SqEx_GetULongValue) (HSQUIRRELVM vm, SQInteger idx, SqUint64 * num);
-    typedef void            (*SqEx_PushULongObject) (HSQUIRRELVM vm, SqUint64 num);
+    typedef SQRESULT        (*SqEx_PushULongObject) (HSQUIRRELVM vm, SqUint64 num);
     //time utilities
     typedef SqInt64         (*SqEx_GetCurrentSysTime) (void);
     typedef SqInt64         (*SqEx_GetEpochTimeMicro) (void);
     typedef SqInt64         (*SqEx_GetEpochTimeMilli) (void);
     typedef SQRESULT        (*SqEx_GetTimestamp) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
-    typedef void            (*SqEx_PushTimestamp) (HSQUIRRELVM vm, SqInt64 num);
+    typedef SQRESULT        (*SqEx_PushTimestamp) (HSQUIRRELVM vm, SqInt64 num);
+    typedef SQRESULT        (*SqEx_GetDate) (HSQUIRRELVM vm, SQInteger idx, int16_t * year, int8_t * month, int8_t * day);
+    typedef SQRESULT        (*SqEx_PushDate) (HSQUIRRELVM vm, int16_t year, int8_t month, int8_t day);
+    typedef SQRESULT        (*SqEx_GetTime) (HSQUIRRELVM vm, SQInteger idx, int8_t * hour, int8_t * minute, int8_t * second, int16_t * millisecond);
+    typedef SQRESULT        (*SqEx_PushTime) (HSQUIRRELVM vm, int8_t hour, int8_t minute, int8_t second, int16_t millisecond);
+    typedef SQRESULT        (*SqEx_GetDatetime) (HSQUIRRELVM vm, SQInteger idx, int16_t * year, int8_t * month, int8_t * day, int8_t * hour, int8_t * minute, int8_t * second, int16_t * millisecond);
+    typedef SQRESULT        (*SqEx_PushDatetime) (HSQUIRRELVM vm, int16_t year, int8_t month, int8_t day, int8_t hour, int8_t minute, int8_t second, int16_t millisecond);
     //stack utilities
     typedef SQInteger       (*SqEx_PopStackInteger) (HSQUIRRELVM vm, SQInteger idx);
     typedef SQFloat         (*SqEx_PopStackFloat) (HSQUIRRELVM vm, SQInteger idx);
@@ -121,6 +127,12 @@ extern "C" {
         SqEx_GetEpochTimeMilli              GetEpochTimeMilli;
         SqEx_GetTimestamp                   GetTimestamp;
         SqEx_PushTimestamp                  PushTimestamp;
+        SqEx_GetDate                        GetDate;
+        SqEx_PushDate                       PushDate;
+        SqEx_GetTime                        GetTime;
+        SqEx_PushTime                       PushTime;
+        SqEx_GetDatetime                    GetDatetime;
+        SqEx_PushDatetime                   PushDatetime;
         //stack utilities
         SqEx_PopStackInteger                PopStackInteger;
         SqEx_PopStackFloat                  PopStackFloat;

@@ -351,6 +351,10 @@ public:
         return Chrono::DaysInMonth(m_Year, m_Month);
     }
 
+    /* ------------------------------------------------------------------------------------------------
+     * Convert this date instance to a time-stamp.
+    */
+    Timestamp GetTimestamp() const;
 };
 
 } // Namespace:: SqMod

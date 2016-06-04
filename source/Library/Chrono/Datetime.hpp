@@ -564,6 +564,20 @@ public:
         return Chrono::DaysInMonth(m_Year, m_Month);
     }
 
+    /* ------------------------------------------------------------------------------------------------
+     * Retrieve the date from this date-time instance.
+    */
+    Date GetDate() const;
+
+    /* ------------------------------------------------------------------------------------------------
+     * Retrieve the time from this date-time instance.
+    */
+    Time GetTime() const;
+
+    /* ------------------------------------------------------------------------------------------------
+     * Convert this date-time instance to a time-stamp.
+    */
+    Timestamp GetTimestamp() const;
 };
 
 } // Namespace:: SqMod

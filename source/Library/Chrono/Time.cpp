@@ -2,6 +2,7 @@
 #include "Library/Chrono/Time.hpp"
 #include "Library/Chrono/Date.hpp"
 #include "Library/Chrono/Datetime.hpp"
+#include "Library/Chrono/Timestamp.hpp"
 #include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -404,6 +405,18 @@ Time Time::AndMilliseconds(Int32 milliseconds)
     return t;
 }
 
+// ------------------------------------------------------------------------------------------------
+Timestamp Time::GetTimestamp() const
+{
+    // Calculate the microseconds in the current time
+    Int64 ms = static_cast< Int64 >(m_Hour * 3600000000LL);
+    ms += static_cast< Int64 >(m_Minute * 60000000L);
+    ms += static_cast< Int64 >(m_Second * 1000000L);
+    ms += static_cast< Int64 >(m_Millisecond * 1000L);
+    // Return the resulted timestamp
+    return Timestamp(ms);
+}
+
 // ================================================================================================
 void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
 {
@@ -432,6 +445,7 @@ void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
         .Prop(_SC("Minute"), &Time::GetMinute, &Time::SetMinute)
         .Prop(_SC("Second"), &Time::GetSecond, &Time::SetSecond)
         .Prop(_SC("Millisecond"), &Time::GetMillisecond, &Time::SetMillisecond)
+        .Prop(_SC("Timestamp"), &Time::GetTimestamp)
         // Member Methods
         .Func(_SC("AddHours"), &Time::AddHours)
         .Func(_SC("AddMinutes"), &Time::AddMinutes)

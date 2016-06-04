@@ -355,6 +355,11 @@ public:
      * Add the specified amount of milliseconds to obtain a new time.
     */
     Time AndMilliseconds(Int32 milliseconds);
+
+    /* ------------------------------------------------------------------------------------------------
+     * Convert this time instance to a time-stamp.
+    */
+    Timestamp GetTimestamp() const;
 };
 
 } // Namespace:: SqMod

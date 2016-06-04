@@ -3,7 +3,9 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Library/Numeric.hpp"
-#include "Library/Chrono.hpp"
+#include "Library/Chrono/Date.hpp"
+#include "Library/Chrono/Time.hpp"
+#include "Library/Chrono/Datetime.hpp"
 #include "Library/Chrono/Timestamp.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -106,9 +108,20 @@ static SQRESULT SqEx_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SqEx_PushSLongObject(HSQUIRRELVM vm, Int64 num)
+static SQRESULT SqEx_PushSLongObject(HSQUIRRELVM vm, Int64 num)
 {
-    Var< const SLongInt & >::push(vm, SLongInt(num));
+    // Attempt to push the requested instance
+    try
+    {
+        Var< const SLongInt & >::push(vm, SLongInt(num));
+    }
+    catch (...)
+    {
+        // Specify that we failed
+        return SQ_ERROR;
+    }
+    // Specify that we succeeded
+    return SQ_OK;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -169,9 +182,20 @@ static SQRESULT SqEx_GetULongValue(HSQUIRRELVM vm, SQInteger idx, Uint64 * num)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SqEx_PushULongObject(HSQUIRRELVM vm, Uint64 num)
+static SQRESULT SqEx_PushULongObject(HSQUIRRELVM vm, Uint64 num)
 {
-    Var< const ULongInt & >::push(vm, ULongInt(num));
+    // Attempt to push the requested instance
+    try
+    {
+        Var< const ULongInt & >::push(vm, ULongInt(num));
+    }
+    catch (...)
+    {
+        // Specify that we failed
+        return SQ_ERROR;
+    }
+    // Specify that we succeeded
+    return SQ_OK;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -232,9 +256,223 @@ static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SqEx_PushTimestamp(HSQUIRRELVM vm, Int64 num)
+static SQRESULT SqEx_PushTimestamp(HSQUIRRELVM vm, Int64 num)
 {
-    Var< const Timestamp & >::push(vm, Timestamp(num));
+    // Attempt to push the requested instance
+    try
+    {
+        Var< const Timestamp & >::push(vm, Timestamp(num));
+    }
+    catch (...)
+    {
+        // Specify that we failed
+        return SQ_ERROR;
+    }
+    // Specify that we succeeded
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT SqEx_GetDate(HSQUIRRELVM vm, SQInteger idx, int16_t * year, int8_t * month, int8_t * day)
+{
+    // Is this an instance that we can treat as a Date type?
+    if (sq_gettype(vm, idx) == OT_INSTANCE)
+    {
+        // Attempt to obtain the time-stamp and it's value from the stack
+        try
+        {
+            // Attempt to retrieve the instance
+            Var< Date * > var(vm, idx);
+            // Assign the year
+            if (year != nullptr)
+            {
+                *year = var.value->GetYear();
+            }
+            // Assign the month
+            if (month != nullptr)
+            {
+                *month = var.value->GetMonth();
+            }
+            // Assign the day
+            if (day != nullptr)
+            {
+                *day = var.value->GetDay();
+            }
+        }
+        catch (...)
+        {
+            return SQ_ERROR; // Unable to obtain the value!
+        }
+    }
+    // Unrecognized value
+    else
+    {
+        return SQ_ERROR;
+    }
+    // Value retrieved
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT SqEx_PushDate(HSQUIRRELVM vm, int16_t year, int8_t month, int8_t day)
+{
+    // Attempt to push the requested instance
+    try
+    {
+        Var< const Date & >::push(vm, Date(year, month, day));
+    }
+    catch (...)
+    {
+        // Specify that we failed
+        return SQ_ERROR;
+    }
+    // Specify that we succeeded
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT SqEx_GetTime(HSQUIRRELVM vm, SQInteger idx, int8_t * hour, int8_t * minute, int8_t * second,
+                        int16_t * millisecond)
+{
+    // Is this an instance that we can treat as a Time type?
+    if (sq_gettype(vm, idx) == OT_INSTANCE)
+    {
+        // Attempt to obtain the time-stamp and it's value from the stack
+        try
+        {
+            // Attempt to retrieve the instance
+            Var< Time * > var(vm, idx);
+            // Assign the hour
+            if (hour != nullptr)
+            {
+                *hour = var.value->GetHour();
+            }
+            // Assign the minute
+            if (minute != nullptr)
+            {
+                *minute = var.value->GetMinute();
+            }
+            // Assign the second
+            if (second != nullptr)
+            {
+                *second = var.value->GetSecond();
+            }
+            // Assign the millisecond
+            if (millisecond != nullptr)
+            {
+                *millisecond = var.value->GetMillisecond();
+            }
+        }
+        catch (...)
+        {
+            return SQ_ERROR; // Unable to obtain the value!
+        }
+    }
+    // Unrecognized value
+    else
+    {
+        return SQ_ERROR;
+    }
+    // Value retrieved
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT SqEx_PushTime(HSQUIRRELVM vm, int8_t hour, int8_t minute, int8_t second,
+                        int16_t millisecond)
+{
+    // Attempt to push the requested instance
+    try
+    {
+        Var< const Time & >::push(vm, Time(hour, minute, second, millisecond));
+    }
+    catch (...)
+    {
+        // Specify that we failed
+        return SQ_ERROR;
+    }
+    // Specify that we succeeded
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT SqEx_GetDatetime(HSQUIRRELVM vm, SQInteger idx, int16_t * year, int8_t * month, int8_t * day,
+                            int8_t * hour, int8_t * minute, int8_t * second, int16_t * millisecond)
+{
+    // Is this an instance that we can treat as a Datetime type?
+    if (sq_gettype(vm, idx) == OT_INSTANCE)
+    {
+        // Attempt to obtain the time-stamp and it's value from the stack
+        try
+        {
+            // Attempt to retrieve the instance
+            Var< Datetime * > var(vm, idx);
+            // Assign the year
+            if (year != nullptr)
+            {
+                *year = var.value->GetYear();
+            }
+            // Assign the month
+            if (month != nullptr)
+            {
+                *month = var.value->GetMonth();
+            }
+            // Assign the day
+            if (day != nullptr)
+            {
+                *day = var.value->GetDay();
+            }
+            // Assign the hour
+            if (hour != nullptr)
+            {
+                *hour = var.value->GetHour();
+            }
+            // Assign the minute
+            if (minute != nullptr)
+            {
+                *minute = var.value->GetMinute();
+            }
+            // Assign the second
+            if (second != nullptr)
+            {
+                *second = var.value->GetSecond();
+            }
+            // Assign the millisecond
+            if (millisecond != nullptr)
+            {
+                *millisecond = var.value->GetMillisecond();
+            }
+        }
+        catch (...)
+        {
+            return SQ_ERROR; // Unable to obtain the value!
+        }
+    }
+    // Unrecognized value
+    else
+    {
+        return SQ_ERROR;
+    }
+    // Value retrieved
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT SqEx_PushDatetime(HSQUIRRELVM vm, int16_t year, int8_t month, int8_t day,
+                            int8_t hour, int8_t minute, int8_t second, int16_t millisecond)
+{
+    // Attempt to push the requested instance
+    try
+    {
+        Var< const Datetime & >::push(vm, Datetime(year, month, day, hour, minute, second, millisecond));
+    }
+    catch (...)
+    {
+        // Specify that we failed
+        return SQ_ERROR;
+    }
+    // Specify that we succeeded
+    return SQ_OK;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -278,6 +516,12 @@ void InitExports()
     g_SqExports.GetEpochTimeMilli       = Chrono::GetEpochTimeMilli;
     g_SqExports.GetTimestamp            = SqEx_GetTimestamp;
     g_SqExports.PushTimestamp           = SqEx_PushTimestamp;
+    g_SqExports.GetDate                 = SqEx_GetDate;
+    g_SqExports.PushDate                = SqEx_PushDate;
+    g_SqExports.GetTime                 = SqEx_GetTime;
+    g_SqExports.PushTime                = SqEx_PushTime;
+    g_SqExports.GetDatetime             = SqEx_GetDatetime;
+    g_SqExports.PushDatetime            = SqEx_PushDatetime;
 
     //stack utilities
     g_SqExports.PopStackInteger         = PopStackInteger;

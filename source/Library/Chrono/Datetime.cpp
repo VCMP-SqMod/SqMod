@@ -2,6 +2,7 @@
 #include "Library/Chrono/Datetime.hpp"
 #include "Library/Chrono/Date.hpp"
 #include "Library/Chrono/Time.hpp"
+#include "Library/Chrono/Timestamp.hpp"
 #include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -716,6 +717,39 @@ Datetime Datetime::AndMilliseconds(Int32 milliseconds)
     return dt;
 }
 
+// ------------------------------------------------------------------------------------------------
+Date Datetime::GetDate() const
+{
+    return Date(m_Year, m_Month, m_Day);
+}
+
+// ------------------------------------------------------------------------------------------------
+Time Datetime::GetTime() const
+{
+    return Time(m_Hour, m_Minute, m_Second, m_Millisecond);
+}
+
+// ------------------------------------------------------------------------------------------------
+Timestamp Datetime::GetTimestamp() const
+{
+    // Calculate the current day of the year
+    Int32 days = Chrono::DayOfYear(m_Year, m_Month, m_Day);
+    // Calculate all days till the current year
+    for (Int32 year = 0; year < m_Year; --year)
+    {
+        days += Chrono::DaysInYear(year);
+    }
+    // Calculate the microseconds in the resulted days
+    Int64 ms = static_cast< Int64 >(days * 86400000000LL);
+    // Calculate the microseconds in the current time
+    ms += static_cast< Int64 >(m_Hour * 3600000000LL);
+    ms += static_cast< Int64 >(m_Minute * 60000000L);
+    ms += static_cast< Int64 >(m_Second * 1000000L);
+    ms += static_cast< Int64 >(m_Millisecond * 1000L);
+    // Return the resulted timestamp
+    return Timestamp(ms);
+}
+
 // ================================================================================================
 void Register_ChronoDatetime(HSQUIRRELVM vm, Table & /*cns*/)
 {
@@ -758,6 +792,9 @@ void Register_ChronoDatetime(HSQUIRRELVM vm, Table & /*cns*/)
         .Prop(_SC("LeapYear"), &Datetime::IsThisLeapYear)
         .Prop(_SC("YearDays"), &Datetime::GetYearDays)
         .Prop(_SC("MonthDays"), &Datetime::GetMonthDays)
+        .Prop(_SC("Date"), &Datetime::GetDate)
+        .Prop(_SC("Time"), &Datetime::GetTime)
+        .Prop(_SC("Timestamp"), &Datetime::GetTimestamp)
         // Member Methods
         .Func(_SC("AddYears"), &Datetime::AddYears)
         .Func(_SC("AddMonths"), &Datetime::AddMonths)
