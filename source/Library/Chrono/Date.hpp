@@ -33,7 +33,7 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Base constructor.
+     * Speciffic year constructor.
     */
     Date(Uint16 year)
         : m_Delimiter(Delimiter)
@@ -42,7 +42,7 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Base constructor.
+     * Speciffic year and month constructor.
     */
     Date(Uint16 year, Uint8 month)
         : m_Delimiter(Delimiter)
@@ -51,7 +51,7 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Base constructor.
+     * Speciffic date constructor.
     */
     Date(Uint16 year, Uint8 month, Uint8 day)
         : m_Delimiter(Delimiter)
@@ -180,22 +180,6 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* ------------------------------------------------------------------------------------------------
-     * Retrieve the local delimiter character.
-    */
-    SQChar GetDelimiter() const
-    {
-        return m_Delimiter;
-    }
-
-    /* ------------------------------------------------------------------------------------------------
-     * Modify the local delimiter character.
-    */
-    void SetDelimiter(SQChar c)
-    {
-        m_Delimiter = c;
-    }
-
-    /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
     void Set(Uint16 year)
@@ -215,6 +199,35 @@ public:
      * Assign the specified values.
     */
     void Set(Uint16 year, Uint8 month, Uint8 day);
+
+    /* ------------------------------------------------------------------------------------------------
+     * Retrieve the local delimiter character.
+    */
+    SQChar GetDelimiter() const
+    {
+        return m_Delimiter;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Modify the local delimiter character.
+    */
+    void SetDelimiter(SQChar c)
+    {
+        m_Delimiter = c;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Retrieve the day component.
+    */
+    Uint16 GetDayOfYear() const
+    {
+        return DayOfYear(m_Year, m_Month, m_Day);
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Modify the day component.
+    */
+    void SetDayOfYear(Uint16 doy);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the values as a string.
@@ -266,19 +279,34 @@ public:
     void SetDay(Uint8 day);
 
     /* ------------------------------------------------------------------------------------------------
-     * Add the specified amount of years.
+     * Add the specified amount of years to the current date.
     */
-    Date AddYears(Int32 years);
+    void AddYears(Int32 years);
 
     /* ------------------------------------------------------------------------------------------------
-     * Add the specified amount of months.
+     * Add the specified amount of months to the current date.
     */
-    Date AddMonths(Int32 months);
+    void AddMonths(Int32 months);
 
     /* ------------------------------------------------------------------------------------------------
-     * Add the specified amount of days.
+     * Add the specified amount of days to the current date.
     */
-    Date AddDays(Int32 days);
+    void AddDays(Int32 days);
+
+    /* ------------------------------------------------------------------------------------------------
+     * Add the specified amount of years to obtain a new date.
+    */
+    Date AndYears(Int32 years);
+
+    /* ------------------------------------------------------------------------------------------------
+     * Add the specified amount of months to obtain a new date.
+    */
+    Date AndMonths(Int32 months);
+
+    /* ------------------------------------------------------------------------------------------------
+     * Add the specified amount of days to obtain a new date.
+    */
+    Date AndDays(Int32 days);
 
     /* ------------------------------------------------------------------------------------------------
      * See whether the associated year is a leap year.
@@ -353,6 +381,12 @@ public:
      * Retrieve the number/position of the specified day in the specified year and month.
     */
     static Uint16 DayOfYear(Uint16 year, Uint8 month, Uint8 day);
+
+    /* ------------------------------------------------------------------------------------------------
+     * Convert just the year and day of year to full date.
+    */
+    static Date ReverseDayOfyear(Uint16 year, Uint16 doy);
+
 };
 
 } // Namespace:: SqMod
