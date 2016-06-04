@@ -2,7 +2,7 @@
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include "Library/Numeric.hpp"
+#include "Library/Numeric/LongInt.hpp"
 #include "Library/Chrono/Date.hpp"
 #include "Library/Chrono/Time.hpp"
 #include "Library/Chrono/Datetime.hpp"

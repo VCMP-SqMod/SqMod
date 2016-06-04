@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------------------------
-#include "Library/Math.hpp"
-#include "Library/Numeric.hpp"
+#include "Library/Numeric/Math.hpp"
+#include "Library/Numeric/LongInt.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cmath>

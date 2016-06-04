@@ -5,7 +5,7 @@
 #include "Base/Vector2.hpp"
 #include "Base/Vector3.hpp"
 #include "Entity/Player.hpp"
-#include "Library/Numeric.hpp"
+#include "Library/Numeric/LongInt.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include "Misc/Functions.hpp"

@@ -38,8 +38,6 @@ extern void Register_Chrono(HSQUIRRELVM vm);
 extern void Register_Crypt(HSQUIRRELVM vm);
 extern void Register_IO(HSQUIRRELVM vm);
 extern void Register_Numeric(HSQUIRRELVM vm);
-extern void Register_Math(HSQUIRRELVM vm);
-extern void Register_Random(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
 extern void Register_System(HSQUIRRELVM vm);
 
@@ -79,9 +77,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Chrono(vm);
     Register_Crypt(vm);
     Register_IO(vm);
-    Register_Random(vm);
     Register_Numeric(vm);
-    Register_Math(vm);
     Register_String(vm);
     Register_System(vm);
 

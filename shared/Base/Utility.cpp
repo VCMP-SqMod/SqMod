@@ -17,7 +17,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #ifndef SQMOD_PLUGIN_API
-    #include "Library/Numeric.hpp"
+    #include "Library/Numeric/LongInt.hpp"
     #include <sqstdstring.h>
 #endif // SQMOD_PLUGIN_API
 

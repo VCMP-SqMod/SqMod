@@ -1,12 +1,14 @@
-#ifndef _LIBRARY_MATH_HPP_
-#define _LIBRARY_MATH_HPP_
+#ifndef _LIBRARY_NUMERIC_MATH_HPP_
+#define _LIBRARY_NUMERIC_MATH_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
+#include "SqBase.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
+
+
 } // Namespace:: SqMod
 
-#endif // _LIBRARY_MATH_HPP_
+#endif // _LIBRARY_NUMERIC_MATH_HPP_

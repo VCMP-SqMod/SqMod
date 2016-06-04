@@ -5,7 +5,7 @@
 #include "Library/Chrono/Time.hpp"
 #include "Library/Chrono/Timer.hpp"
 #include "Library/Chrono/Timestamp.hpp"
-#include "Library/Numeric.hpp"
+#include "Library/Numeric/LongInt.hpp"
 #include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------

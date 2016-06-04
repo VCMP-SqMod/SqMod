@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------------------------
-#include "Library/Random.hpp"
+#include "Library/Numeric/Random.hpp"
 #include "Base/Shared.hpp"
 #include "Base/Buffer.hpp"
 

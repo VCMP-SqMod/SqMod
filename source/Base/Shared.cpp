@@ -2,9 +2,9 @@
 #include "Base/Shared.hpp"
 #include "Base/Buffer.hpp"
 #include "Base/Color3.hpp"
-#include "Library/Random.hpp"
+#include "Library/Numeric/Random.hpp"
+#include "Library/Numeric/LongInt.hpp"
 #include "Library/String.hpp"
-#include "Library/Numeric.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstring>
