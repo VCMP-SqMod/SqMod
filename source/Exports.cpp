@@ -273,7 +273,7 @@ static SQRESULT SqEx_PushTimestamp(HSQUIRRELVM vm, Int64 num)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_GetDate(HSQUIRRELVM vm, SQInteger idx, int16_t * year, int8_t * month, int8_t * day)
+SQRESULT SqEx_GetDate(HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day)
 {
     // Is this an instance that we can treat as a Date type?
     if (sq_gettype(vm, idx) == OT_INSTANCE)
@@ -314,7 +314,7 @@ SQRESULT SqEx_GetDate(HSQUIRRELVM vm, SQInteger idx, int16_t * year, int8_t * mo
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_PushDate(HSQUIRRELVM vm, int16_t year, int8_t month, int8_t day)
+SQRESULT SqEx_PushDate(HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day)
 {
     // Attempt to push the requested instance
     try
@@ -331,8 +331,8 @@ SQRESULT SqEx_PushDate(HSQUIRRELVM vm, int16_t year, int8_t month, int8_t day)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_GetTime(HSQUIRRELVM vm, SQInteger idx, int8_t * hour, int8_t * minute, int8_t * second,
-                        int16_t * millisecond)
+SQRESULT SqEx_GetTime(HSQUIRRELVM vm, SQInteger idx, uint8_t * hour, uint8_t * minute,
+                        uint8_t * second, uint16_t * millisecond)
 {
     // Is this an instance that we can treat as a Time type?
     if (sq_gettype(vm, idx) == OT_INSTANCE)
@@ -378,8 +378,8 @@ SQRESULT SqEx_GetTime(HSQUIRRELVM vm, SQInteger idx, int8_t * hour, int8_t * min
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_PushTime(HSQUIRRELVM vm, int8_t hour, int8_t minute, int8_t second,
-                        int16_t millisecond)
+SQRESULT SqEx_PushTime(HSQUIRRELVM vm, uint8_t hour, uint8_t minute, uint8_t second,
+                        uint16_t millisecond)
 {
     // Attempt to push the requested instance
     try
@@ -396,8 +396,8 @@ SQRESULT SqEx_PushTime(HSQUIRRELVM vm, int8_t hour, int8_t minute, int8_t second
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_GetDatetime(HSQUIRRELVM vm, SQInteger idx, int16_t * year, int8_t * month, int8_t * day,
-                            int8_t * hour, int8_t * minute, int8_t * second, int16_t * millisecond)
+SQRESULT SqEx_GetDatetime(HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day,
+                            uint8_t * hour, uint8_t * minute, uint8_t * second, uint16_t * millisecond)
 {
     // Is this an instance that we can treat as a Datetime type?
     if (sq_gettype(vm, idx) == OT_INSTANCE)
@@ -458,8 +458,8 @@ SQRESULT SqEx_GetDatetime(HSQUIRRELVM vm, SQInteger idx, int16_t * year, int8_t 
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_PushDatetime(HSQUIRRELVM vm, int16_t year, int8_t month, int8_t day,
-                            int8_t hour, int8_t minute, int8_t second, int16_t millisecond)
+SQRESULT SqEx_PushDatetime(HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day,
+                            uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond)
 {
     // Attempt to push the requested instance
     try
