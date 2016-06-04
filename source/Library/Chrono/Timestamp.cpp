@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono/Timestamp.hpp"
 #include "Library/Chrono/Timer.hpp"
-#include "Library/Chrono.hpp"
 #include "Library/Numeric.hpp"
 #include "Base/Shared.hpp"
 
@@ -35,7 +34,7 @@ CSStr Timestamp::ToString() const
 // ------------------------------------------------------------------------------------------------
 void Timestamp::SetNow()
 {
-    m_Timestamp = GetCurrentSysTime();
+    m_Timestamp = Chrono::GetCurrentSysTime();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -65,7 +64,7 @@ void Timestamp::SetMilliseconds(const SLongInt & ammount)
 // ------------------------------------------------------------------------------------------------
 static Timestamp SqGetEpochTimeNow()
 {
-    return Timestamp(GetEpochTimeMicro());
+    return Timestamp(Chrono::GetEpochTimeMicro());
 }
 
 // ------------------------------------------------------------------------------------------------

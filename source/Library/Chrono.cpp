@@ -19,12 +19,22 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+extern void Register_ChronoDate(HSQUIRRELVM vm, Table & cns);
+extern void Register_ChronoDatetime(HSQUIRRELVM vm, Table & cns);
+extern void Register_ChronoTime(HSQUIRRELVM vm, Table & cns);
+extern void Register_ChronoTimer(HSQUIRRELVM vm, Table & cns);
+extern void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & cns);
+
+// ------------------------------------------------------------------------------------------------
+const Uint8 Chrono::MonthLengths[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+// ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
 
 /* ------------------------------------------------------------------------------------------------
  * Used by GetCurrentSysTime to obtain the system frequency on initial call.
 */
-LARGE_INTEGER GetFrequency()
+inline LARGE_INTEGER GetFrequency()
 {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
@@ -32,7 +42,7 @@ LARGE_INTEGER GetFrequency()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetCurrentSysTime()
+Int64 Chrono::GetCurrentSysTime()
 {
     // Force the following code to run on first core
     // (see http://msdn.microsoft.com/en-us/library/windows/desktop/ms644904(v=vs.85).aspx)
@@ -55,7 +65,7 @@ Int64 GetCurrentSysTime()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetEpochTimeMicro()
+Int64 Chrono::GetEpochTimeMicro()
 {
     FILETIME ft;
     GetSystemTimeAsFileTime(&ft);
@@ -70,25 +80,17 @@ Int64 GetEpochTimeMicro()
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetTickCount()
-{
-    return GetTickCount();
-}
-
-// ------------------------------------------------------------------------------------------------
+#ifndef _SQ64
 Int64 GetTickCount64()
 {
-#ifdef _SQ64
-    return GetTickCount64();
-#else
-    return 0; // Should we fallback to 32 bit?
-#endif // _SQ64
+    return 0ULL; // Should we fallback to 32 bit?
 }
+#endif // _SQ64
 
 #else
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetCurrentSysTime()
+Int64 Chrono::GetCurrentSysTime()
 {
     // POSIX implementation
     timespec time;
@@ -97,7 +99,7 @@ Int64 GetCurrentSysTime()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetEpochTimeMicro()
+Int64 Chrono::GetEpochTimeMicro()
 {
     // POSIX implementation
     timespec time;
@@ -106,7 +108,7 @@ Int64 GetEpochTimeMicro()
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetTickCount()
+Uint32 Chrono::GetTickCount()
 {
     // POSIX implementation
     struct timespec time;
@@ -118,7 +120,7 @@ Uint32 GetTickCount()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetTickCount64()
+Int64 Chrono::GetTickCount64()
 {
     struct timespec time;
     if (clock_gettime(CLOCK_MONOTONIC, &time))
@@ -131,33 +133,107 @@ Int64 GetTickCount64()
 #endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetEpochTimeMilli()
+Int64 Chrono::GetEpochTimeMilli()
 {
     return (GetEpochTimeMicro() / 1000L);
 }
 
 // ------------------------------------------------------------------------------------------------
+bool Chrono::ValidDate(Uint16 year, Uint8 month, Uint8 day)
+{
+    // Is this a valid date?
+    if (year == 0 || month == 0 || day == 0)
+    {
+        return false;
+    }
+    // Is the month within range?
+    else if (month > 12)
+    {
+        return false;
+    }
+    // Return whether the day inside the month
+    return day <= DaysInMonth(year, month);
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint8 Chrono::DaysInMonth(Uint16 year, Uint8 month)
+{
+    // Is the specified month within range?
+    if (month > 12)
+    {
+        STHROWF("Month value is out of range: %u > 12", month);
+    }
+    // Obtain the days in this month
+    Uint8 days = *(MonthLengths + month);
+    // Should we account for January?
+    if (month == 2 && IsLeapYear(year))
+    {
+        ++days;
+    }
+    // Return the resulted days
+    return days;
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint16 Chrono::DayOfYear(Uint16 year, Uint8 month, Uint8 day)
+{
+    // Start with 0 days
+    Uint16 doy = 0;
+    // Cumulate the days in months
+    for (Uint8 m = 1; m < month; ++month)
+    {
+        doy += DaysInMonth(year, m);
+    }
+    // Add the specified days
+    doy += day;
+    // Return the result
+    return doy;
+}
+
+// ------------------------------------------------------------------------------------------------
+Date Chrono::ReverseDayOfyear(Uint16 year, Uint16 doy)
+{
+    // The resulted month
+    Uint8 month = 1;
+    // Calculate the months till the specified day of year
+    for (; month < 12; ++month)
+    {
+        // Get the number of days in the current month
+        Uint32 days = DaysInMonth(year, month);
+        // Can this month fit in the remaining days?
+        if (days >= doy)
+        {
+            break; // The search is complete
+        }
+        // Subtract the month days from days of year
+        doy -= days;
+    }
+    // Return the resulted date
+    return Date(year, month, doy);
+}
+
+// ------------------------------------------------------------------------------------------------
 static SLongInt SqGetEpochTimeMicro()
 {
-    return SLongInt(GetEpochTimeMicro());
+    return SLongInt(Chrono::GetEpochTimeMicro());
 }
 
 // ------------------------------------------------------------------------------------------------
 static SLongInt SqGetEpochTimeMilli()
 {
-    return SLongInt(GetEpochTimeMilli());
+    return SLongInt(Chrono::GetEpochTimeMilli());
 }
 
 // ------------------------------------------------------------------------------------------------
 static SLongInt SqGetCurrentSysTime()
 {
-    return SLongInt(GetCurrentSysTime());
+    return SLongInt(Chrono::GetCurrentSysTime());
 }
 
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqGetTickCount()
 {
-    return GetTickCount();
+    return ConvTo< SQInteger >::From(GetTickCount());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -165,13 +241,6 @@ static SLongInt SqGetTickCount64()
 {
     return SLongInt(GetTickCount64());
 }
-
-// ------------------------------------------------------------------------------------------------
-extern void Register_ChronoDate(HSQUIRRELVM vm, Table & cns);
-extern void Register_ChronoDatetime(HSQUIRRELVM vm, Table & cns);
-extern void Register_ChronoTime(HSQUIRRELVM vm, Table & cns);
-extern void Register_ChronoTimer(HSQUIRRELVM vm, Table & cns);
-extern void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & cns);
 
 // ================================================================================================
 void Register_Chrono(HSQUIRRELVM vm)
@@ -189,7 +258,13 @@ void Register_Chrono(HSQUIRRELVM vm)
     .Func(_SC("EpochMilli"), &SqGetEpochTimeMilli)
     .Func(_SC("Current"), &SqGetCurrentSysTime)
     .Func(_SC("TickCount"), &SqGetTickCount)
-    .Func(_SC("TickCount64"), &SqGetTickCount64);
+    .Func(_SC("TickCount64"), &SqGetTickCount64)
+    .Func(_SC("IsLeapYear"), &Chrono::IsLeapYear)
+    .Func(_SC("IsDateValid"), &Chrono::ValidDate)
+    .Func(_SC("DaysInYear"), &Chrono::DaysInYear)
+    .Func(_SC("DaysInMonth"), &Chrono::DaysInMonth)
+    .Func(_SC("DayOfYear"), &Chrono::DayOfYear)
+    .Func(_SC("ReverseDayOfyear"), &Chrono::ReverseDayOfyear);
 
     RootTable(vm).Bind(_SC("SqChrono"), cns);
 }

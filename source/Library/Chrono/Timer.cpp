@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono/Timer.hpp"
 #include "Library/Chrono/Timestamp.hpp"
-#include "Library/Chrono.hpp"
 #include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -9,7 +8,7 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 Timer::Timer()
-    : m_Timestamp(GetCurrentSysTime())
+    : m_Timestamp(Chrono::GetCurrentSysTime())
 {
     /* ... */
 }
@@ -34,13 +33,13 @@ CSStr Timer::ToString() const
 // ------------------------------------------------------------------------------------------------
 void Timer::Reset()
 {
-    m_Timestamp = GetCurrentSysTime();
+    m_Timestamp = Chrono::GetCurrentSysTime();
 }
 
 // ------------------------------------------------------------------------------------------------
 Timestamp Timer::Restart()
 {
-    const Int64 now = GetCurrentSysTime(), elapsed = now - m_Timestamp;
+    const Int64 now = Chrono::GetCurrentSysTime(), elapsed = now - m_Timestamp;
     m_Timestamp = now;
     return Timestamp(elapsed);
 }
@@ -48,7 +47,7 @@ Timestamp Timer::Restart()
 // ------------------------------------------------------------------------------------------------
 Int64 Timer::RestartRaw()
 {
-    const Int64 now = GetCurrentSysTime(), elapsed = now - m_Timestamp;
+    const Int64 now = Chrono::GetCurrentSysTime(), elapsed = now - m_Timestamp;
     m_Timestamp = now;
     return elapsed;
 }
@@ -56,13 +55,13 @@ Int64 Timer::RestartRaw()
 // ------------------------------------------------------------------------------------------------
 Timestamp Timer::GetElapsedTime() const
 {
-    return Timestamp(GetCurrentSysTime() - m_Timestamp);
+    return Timestamp(Chrono::GetCurrentSysTime() - m_Timestamp);
 }
 
 // ------------------------------------------------------------------------------------------------
 Int64 Timer::GetElapsedTimeRaw() const
 {
-    return (GetCurrentSysTime() - m_Timestamp);
+    return (Chrono::GetCurrentSysTime() - m_Timestamp);
 }
 
 // ================================================================================================

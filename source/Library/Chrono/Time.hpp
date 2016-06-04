@@ -2,7 +2,7 @@
 #define _LIBRARY_CHRONO_TIME_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
+#include "Library/Chrono.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -16,6 +16,26 @@ public:
 
     // ------------------------------------------------------------------------------------------------
     static SQChar   Delimiter;
+
+protected:
+
+    /* ------------------------------------------------------------------------------------------------
+     * Compare the values of two instances.
+    */
+    Int32 Compare(const Time & o) const;
+
+private:
+
+    // ------------------------------------------------------------------------------------------------
+    Uint8   m_Hour; // Hour
+    Uint8   m_Minute; // Minute
+    Uint8   m_Second; // Second
+    Uint16  m_Millisecond; // Millisecond
+
+    // ------------------------------------------------------------------------------------------------
+    SQChar  m_Delimiter; // Component delimiter when generating strings.
+
+public:
 
     /* ------------------------------------------------------------------------------------------------
      * Default constructor.
@@ -187,22 +207,6 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* ------------------------------------------------------------------------------------------------
-     * Retrieve the local delimiter character.
-    */
-    SQChar GetDelimiter() const
-    {
-        return m_Delimiter;
-    }
-
-    /* ------------------------------------------------------------------------------------------------
-     * Modify the local delimiter character.
-    */
-    void SetDelimiter(SQChar c)
-    {
-        m_Delimiter = c;
-    }
-
-    /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
     void Set(Uint8 hour)
@@ -232,9 +236,28 @@ public:
     void Set(Uint8 hour, Uint8 minute, Uint8 second, Uint16 millisecond);
 
     /* ------------------------------------------------------------------------------------------------
+     * Retrieve the local delimiter character.
+    */
+    SQChar GetDelimiter() const
+    {
+        return m_Delimiter;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Modify the local delimiter character.
+    */
+    void SetDelimiter(SQChar c)
+    {
+        m_Delimiter = c;
+    }
+
+    /* ------------------------------------------------------------------------------------------------
      * Retrieve the values as a string.
     */
-    CSStr GetStr() const;
+    CSStr GetStr() const
+    {
+        return ToString();
+    }
 
     /* ------------------------------------------------------------------------------------------------
      * Extract the values from a string.
@@ -294,42 +317,44 @@ public:
     void SetMillisecond(Uint16 millisecond);
 
     /* ------------------------------------------------------------------------------------------------
-     * Add the specified amount of hours.
+     * Add the specified amount of hours to the current time.
     */
-    Time AddHours(Int32 hours);
+    Time & AddHours(Int32 hours);
 
     /* ------------------------------------------------------------------------------------------------
-     * Add the specified amount of minutes.
+     * Add the specified amount of minutes to the current time.
     */
-    Time AddMinutes(Int32 minutes);
+    Time & AddMinutes(Int32 minutes);
 
     /* ------------------------------------------------------------------------------------------------
-     * Add the specified amount of seconds.
+     * Add the specified amount of seconds to the current time.
     */
-    Time AddSeconds(Int32 seconds);
+    Time & AddSeconds(Int32 seconds);
 
     /* ------------------------------------------------------------------------------------------------
-     * Add the specified amount of milliseconds.
+     * Add the specified amount of milliseconds to the current time.
     */
-    Time AddMilliseconds(Int32 milliseconds);
-
-protected:
+    Time & AddMilliseconds(Int32 milliseconds);
 
     /* ------------------------------------------------------------------------------------------------
-     * Compare the values of two instances.
+     * Add the specified amount of hours to obtain a new time.
     */
-    Int32 Compare(const Time & o) const;
+    Time AndHours(Int32 hours);
 
-private:
+    /* ------------------------------------------------------------------------------------------------
+     * Add the specified amount of minutes to obtain a new time.
+    */
+    Time AndMinutes(Int32 minutes);
 
-    // ------------------------------------------------------------------------------------------------
-    Uint8   m_Hour; // Hour
-    Uint8   m_Minute; // Minute
-    Uint8   m_Second; // Second
-    Uint16  m_Millisecond; // Millisecond
+    /* ------------------------------------------------------------------------------------------------
+     * Add the specified amount of seconds to obtain a new time.
+    */
+    Time AndSeconds(Int32 seconds);
 
-    // ------------------------------------------------------------------------------------------------
-    SQChar  m_Delimiter; // Component selimiter when generating strings.
+    /* ------------------------------------------------------------------------------------------------
+     * Add the specified amount of milliseconds to obtain a new time.
+    */
+    Time AndMilliseconds(Int32 milliseconds);
 };
 
 } // Namespace:: SqMod

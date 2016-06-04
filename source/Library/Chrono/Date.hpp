@@ -2,7 +2,7 @@
 #define _LIBRARY_CHRONO_DATE_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
+#include "Library/Chrono.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -17,8 +17,24 @@ public:
     // ------------------------------------------------------------------------------------------------
     static SQChar       Delimiter;
 
+private:
+
     // ------------------------------------------------------------------------------------------------
-    static const Uint8  MonthLengths[12];
+    Uint16  m_Year; // Year
+    Uint8   m_Month; // Month
+    Uint8   m_Day; // Day
+
+    // ------------------------------------------------------------------------------------------------
+    SQChar  m_Delimiter; // Component delimiter when generating strings.
+
+protected:
+
+    /* ------------------------------------------------------------------------------------------------
+     * Compare the values of two instances.
+    */
+    Int32 Compare(const Date & o) const;
+
+public:
 
     /* ------------------------------------------------------------------------------------------------
      * Default constructor.
@@ -217,27 +233,30 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
+     * Retrieve the values as a string.
+    */
+    CSStr GetStr() const
+    {
+        return ToString();
+    }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Extract the values from a string.
+    */
+    void SetStr(CSStr str);
+
+    /* ------------------------------------------------------------------------------------------------
      * Retrieve the day component.
     */
     Uint16 GetDayOfYear() const
     {
-        return DayOfYear(m_Year, m_Month, m_Day);
+        return Chrono::DayOfYear(m_Year, m_Month, m_Day);
     }
 
     /* ------------------------------------------------------------------------------------------------
      * Modify the day component.
     */
     void SetDayOfYear(Uint16 doy);
-
-    /* ------------------------------------------------------------------------------------------------
-     * Retrieve the values as a string.
-    */
-    CSStr GetStr() const;
-
-    /* ------------------------------------------------------------------------------------------------
-     * Extract the values from a string.
-    */
-    void SetStr(CSStr str);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the year component.
@@ -281,17 +300,17 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of years to the current date.
     */
-    void AddYears(Int32 years);
+    Date & AddYears(Int32 years);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of months to the current date.
     */
-    void AddMonths(Int32 months);
+    Date & AddMonths(Int32 months);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of days to the current date.
     */
-    void AddDays(Int32 days);
+    Date & AddDays(Int32 days);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of years to obtain a new date.
@@ -313,7 +332,7 @@ public:
     */
     bool IsThisLeapYear() const
     {
-        return IsLeapYear(m_Year);
+        return Chrono::IsLeapYear(m_Year);
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -321,7 +340,7 @@ public:
     */
     Uint16 GetYearDays() const
     {
-        return DaysInYear(m_Year);
+        return Chrono::DaysInYear(m_Year);
     }
 
     /* ------------------------------------------------------------------------------------------------
@@ -329,63 +348,8 @@ public:
     */
     Uint8 GetMonthDays() const
     {
-        return DaysInMonth(m_Year, m_Month);
+        return Chrono::DaysInMonth(m_Year, m_Month);
     }
-
-protected:
-
-    /* ------------------------------------------------------------------------------------------------
-     * Compare the values of two instances.
-    */
-    Int32 Compare(const Date & o) const;
-
-private:
-
-    // ------------------------------------------------------------------------------------------------
-    Uint16          m_Year; // Year
-    Uint8           m_Month; // Month
-    Uint8           m_Day; // Day
-
-    // ------------------------------------------------------------------------------------------------
-    SQChar          m_Delimiter; // Component delimiter when generating strings.
-
-public:
-
-    /* ------------------------------------------------------------------------------------------------
-     * See whether the specified year is a leap year.
-    */
-    static bool IsLeapYear(Uint16 year)
-    {
-        return !(year % 400) || (!(year % 4) && (year % 100));
-    }
-
-    /* ------------------------------------------------------------------------------------------------
-     * See whether the specified date is valid.
-    */
-    static bool ValidDate(Uint16 year, Uint8 month, Uint8 day);
-
-    /* ------------------------------------------------------------------------------------------------
-     * retrieve the number of days in the specified year.
-    */
-    static Uint16 DaysInYear(Uint16 year)
-    {
-        return IsLeapYear(year) ? 366 : 365;
-    }
-
-    /* ------------------------------------------------------------------------------------------------
-     * Retrieve the number of days in the specified month.
-    */
-    static Uint8 DaysInMonth(Uint16 year, Uint8 month);
-
-    /* ------------------------------------------------------------------------------------------------
-     * Retrieve the number/position of the specified day in the specified year and month.
-    */
-    static Uint16 DayOfYear(Uint16 year, Uint8 month, Uint8 day);
-
-    /* ------------------------------------------------------------------------------------------------
-     * Convert just the year and day of year to full date.
-    */
-    static Date ReverseDayOfyear(Uint16 year, Uint16 doy);
 
 };
 

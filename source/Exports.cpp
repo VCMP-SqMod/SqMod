@@ -273,9 +273,9 @@ void InitExports()
     g_SqExports.PushULongObject         = SqEx_PushULongObject;
 
     //time utilities
-    g_SqExports.GetCurrentSysTime       = GetCurrentSysTime;
-    g_SqExports.GetEpochTimeMicro       = GetEpochTimeMicro;
-    g_SqExports.GetEpochTimeMilli       = GetEpochTimeMilli;
+    g_SqExports.GetCurrentSysTime       = Chrono::GetCurrentSysTime;
+    g_SqExports.GetEpochTimeMicro       = Chrono::GetEpochTimeMicro;
+    g_SqExports.GetEpochTimeMilli       = Chrono::GetEpochTimeMilli;
     g_SqExports.GetTimestamp            = SqEx_GetTimestamp;
     g_SqExports.PushTimestamp           = SqEx_PushTimestamp;
 

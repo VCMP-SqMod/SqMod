@@ -28,14 +28,14 @@ void Routine::Process()
     // Is this the first call?
     if (s_Last == 0)
     {
-        s_Last = GetCurrentSysTime();
+        s_Last = Chrono::GetCurrentSysTime();
         // We'll do it text time
         return;
     }
     // Backup the last known time-stamp
     s_Prev = s_Last;
     // Get the current time-stamp
-    s_Last = GetCurrentSysTime();
+    s_Last = Chrono::GetCurrentSysTime();
     // Calculate the elapsed time
     const Int32 delta = Int32((s_Last - s_Prev) / 1000L);
     // Process all active routines
