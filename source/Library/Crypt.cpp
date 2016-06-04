@@ -16,7 +16,8 @@ extern void Register_AES(HSQUIRRELVM vm);
 // ================================================================================================
 void Register_Crypt(HSQUIRRELVM vm)
 {
-
+    Register_Hash(vm);
+    Register_AES(vm);
 }
 
 } // Namespace:: SqMod
