@@ -1,9 +1,11 @@
 // ------------------------------------------------------------------------------------------------
 #include "Statement.hpp"
 #include "Connection.hpp"
+#include "ResultSet.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <limits>
+#include <cstring>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -67,6 +69,24 @@ Statement::Statement(const Connection & connection, CSStr query)
 }
 
 // ------------------------------------------------------------------------------------------------
+Connection Statement::GetConnection() const
+{
+    // Validate the managed handle
+    m_Handle.Validate();
+    // Return the requested information
+    return Connection(m_Handle->mConnection);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetConnection(const Connection & conn)
+{
+    // Validate the managed handle
+    m_Handle.Validate();
+    // Perform the requested operation
+    m_Handle->mConnection = conn.GetHnd();
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 Statement::Execute()
 {
     // Validate the managed handle
@@ -81,12 +101,8 @@ Int32 Statement::Execute()
     {
         THROW_CURRENT(m_Handle, "Cannot execute statement");
     }
-    else
-    {
-        return mysql_stmt_affected_rows(m_Handle);
-    }
-    // Default to a negative value to indicate error
-    return -1;
+    // Return the number of rows affected by this query
+    return mysql_stmt_affected_rows(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -104,12 +120,27 @@ Uint32 Statement::Insert()
     {
         THROW_CURRENT(m_Handle, "Cannot execute statement");
     }
-    else
+    // Return the identifier of the inserted row
+    return mysql_stmt_insert_id(m_Handle);
+}
+
+// ------------------------------------------------------------------------------------------------
+ResultSet Statement::Query()
+{
+    // Validate the managed handle
+    m_Handle.Validate();
+    // Attempt to bind the parameters
+    if (mysql_stmt_bind_param(m_Handle, m_Handle->mMyBinds))
     {
-        return mysql_stmt_insert_id(m_Handle);
+        THROW_CURRENT(m_Handle, "Cannot bind statement parameters");
     }
-    // Default to 0
-    return 0;
+    // Attempt to execute the statement
+    else if (mysql_stmt_execute(m_Handle))
+    {
+        THROW_CURRENT(m_Handle, "Cannot execute statement");
+    }
+    // Return the results of this query
+    return ResultSet(ResHnd(m_Handle));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -172,7 +203,7 @@ void Statement::SetInt32(Uint32 idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetUint32(Uint32 idx, Uint32 val) const
+void Statement::SetUint32(Uint32 idx, SQInteger val) const
 {
     // Validate the managed handle and specified index
     m_Handle.ValidateIndex(idx);
@@ -185,7 +216,31 @@ void Statement::SetUint32(Uint32 idx, Uint32 val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetInt64(Uint32 idx, Object & val) const
+void Statement::SetInt64(Uint32 idx, SQInteger val) const
+{
+    // Validate the managed handle and specified index
+    m_Handle.ValidateIndex(idx);
+    // Attempt to set the input value
+    m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONGLONG, &(m_Handle->mMyBinds[idx]));
+    // Assign the value to the input
+    m_Handle->mBinds[idx].mInt64 = ConvTo< Int64 >::From(val);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetUint64(Uint32 idx, SQInteger val) const
+{
+    // Validate the managed handle and specified index
+    m_Handle.ValidateIndex(idx);
+    // Attempt to set the input value
+    m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONGLONG, &(m_Handle->mMyBinds[idx]));
+    // Assign the value to the input
+    m_Handle->mBinds[idx].mUint64 = ConvTo< Uint64 >::From(val);
+    // Specify that this value is unsigned
+    m_Handle->mMyBinds[idx].is_unsigned = true;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetSLongInt(Uint32 idx, Object & val) const
 {
     // Validate the managed handle and specified index
     m_Handle.ValidateIndex(idx);
@@ -203,7 +258,7 @@ void Statement::SetInt64(Uint32 idx, Object & val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetUint64(Uint32 idx, Object & val) const
+void Statement::SetULongInt(Uint32 idx, Object & val) const
 {
     // Validate the managed handle and specified index
     m_Handle.ValidateIndex(idx);
@@ -220,6 +275,16 @@ void Statement::SetUint64(Uint32 idx, Object & val) const
     {
         STHROWF("Invalid long integer specified");
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetInteger(Uint32 idx, SQInteger val) const
+{
+#ifdef _SQ64
+    SetInt64(idx, val);
+#else
+    SetInt32(idx, val);
+#endif // _SQ64
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -245,6 +310,16 @@ void Statement::SetFloat64(Uint32 idx, SQFloat val) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void Statement::SetFloat(Uint32 idx, SQFloat val) const
+{
+#ifdef SQUSEDOUBLE
+    SetFloat64(idx, val);
+#else
+    SetFloat32(idx, val);
+#endif // SQUSEDOUBLE
+}
+
+// ------------------------------------------------------------------------------------------------
 void Statement::SetBoolean(Uint32 idx, bool val) const
 {
     // Validate the managed handle and specified index
@@ -253,6 +328,78 @@ void Statement::SetBoolean(Uint32 idx, bool val) const
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_TINY, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
     m_Handle->mBinds[idx].mUint64 = val;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetDate(Uint32 idx, Object & val) const
+{
+    // Validate the managed handle and specified index
+    m_Handle.ValidateIndex(idx);
+    // Attempt to set the input value
+    m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_DATE, &(m_Handle->mMyBinds[idx]));
+    // Assign the value to the input
+    SqDateToMySQLTime(val, m_Handle->mBinds[idx].mTime);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetTime(Uint32 idx, Object & val) const
+{
+    // Validate the managed handle and specified index
+    m_Handle.ValidateIndex(idx);
+    // Attempt to set the input value
+    m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_TIME, &(m_Handle->mMyBinds[idx]));
+    // Assign the value to the input
+    SqTimeToMySQLTime(val, m_Handle->mBinds[idx].mTime);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetDatetime(Uint32 idx, Object & val) const
+{
+    // Validate the managed handle and specified index
+    m_Handle.ValidateIndex(idx);
+    // Attempt to set the input value
+    m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_DATETIME, &(m_Handle->mMyBinds[idx]));
+    // Assign the value to the input
+    SqDatetimeToMySQLTime(val, m_Handle->mBinds[idx].mTime);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetString(Uint32 idx, CSStr val) const
+{
+    // Validate the managed handle and specified index
+    m_Handle.ValidateIndex(idx);
+    // Attempt to set the input value
+    m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_STRING, &(m_Handle->mMyBinds[idx]), val, std::strlen(val));
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetEnum(Uint32 idx, CSStr val) const
+{
+    // Validate the managed handle and specified index
+    m_Handle.ValidateIndex(idx);
+    // Attempt to set the input value
+    m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_ENUM, &(m_Handle->mMyBinds[idx]), val, std::strlen(val));
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetSet(Uint32 idx, CSStr val) const
+{
+    // Validate the managed handle and specified index
+    m_Handle.ValidateIndex(idx);
+    // Attempt to set the input value
+    m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_SET, &(m_Handle->mMyBinds[idx]), val, std::strlen(val));
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetBlob(Uint32 /*idx*/, Object & /*val*/) const
+{
+    // TODO...
+}
+
+// ------------------------------------------------------------------------------------------------
+void Statement::SetData(Uint32 /*idx*/, Object & /*val*/) const
+{
+    // TODO...
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -116,6 +116,7 @@ void StmtHnd::Bind::SetInput(enum_field_types type, BindType * bind, CCStr buffe
         case MYSQL_TYPE_LONG_BLOB:
         case MYSQL_TYPE_BLOB:
         case MYSQL_TYPE_ENUM:
+        case MYSQL_TYPE_SET:
         case MYSQL_TYPE_VARCHAR:
         case MYSQL_TYPE_VAR_STRING:
         case MYSQL_TYPE_STRING:

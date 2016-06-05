@@ -75,6 +75,24 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the managed handle is valid.
+    */
+    bool IsValid() const
+    {
+        return m_Handle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the currently associated statement connection.
+    */
+    Connection GetConnection() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the currently associated statement connection.
+    */
+    void SetConnection(const Connection & conn);
+
+    /* --------------------------------------------------------------------------------------------
      * Execute the statement.
     */
     Int32 Execute();
@@ -83,6 +101,11 @@ public:
      * Execute the statement.
     */
     Uint32 Insert();
+
+    /* --------------------------------------------------------------------------------------------
+     * Execute the statement.
+    */
+    ResultSet Query();
 
     /* --------------------------------------------------------------------------------------------
      * Assign a signed 8bit integer to a parameter.
@@ -112,17 +135,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Assign an unsigned 32bit integer to a parameter.
     */
-    void SetUint32(Uint32 idx, Uint32 val) const;
+    void SetUint32(Uint32 idx, SQInteger val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Assign a signed 64bit integer to a parameter.
     */
-    void SetInt64(Uint32 idx, Object & val) const;
+    void SetInt64(Uint32 idx, SQInteger val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Assign an unsigned 64bit integer to a parameter.
     */
-    void SetUint64(Uint32 idx, Object & val) const;
+    void SetUint64(Uint32 idx, SQInteger val) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assign a signed long integer to a parameter.
+    */
+    void SetSLongInt(Uint32 idx, Object & val) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assign an unsigned long integer to a parameter.
+    */
+    void SetULongInt(Uint32 idx, Object & val) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assign a native integer to a parameter.
+    */
+    void SetInteger(Uint32 idx, SQInteger val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Assign a 32bit floating point to a parameter.
@@ -135,54 +173,59 @@ public:
     void SetFloat64(Uint32 idx, SQFloat val) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Assign a native float to a parameter.
+    */
+    void SetFloat(Uint32 idx, SQFloat val) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Assign a boolean to a parameter.
     */
     void SetBoolean(Uint32 idx, bool val) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Assign a null to a parameter.
-    */
-    void SetNull(Uint32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     *
-    */
-    void SetBlob(Uint32 idx, Object & val) const;
-
-    /* --------------------------------------------------------------------------------------------
-     *
-    */
-    void SetData(Uint32 idx, Object & val) const;
-
-    /* --------------------------------------------------------------------------------------------
-     *
+     * Assign a date to a parameter.
     */
     void SetDate(Uint32 idx, Object & val) const;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assign a time to a parameter.
     */
     void SetTime(Uint32 idx, Object & val) const;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assign a date and time to a parameter.
     */
     void SetDatetime(Uint32 idx, Object & val) const;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assign a string to a parameter.
     */
-    void SetDecimal(Uint32 idx, Object & val) const;
+    void SetString(Uint32 idx, CSStr val) const;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assign an enumeration to a parameter.
     */
-    void SetString(Uint32 idx, Object & val) const;
+    void SetEnum(Uint32 idx, CSStr val) const;
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assign an enumeration to a parameter.
     */
-    void SetEnum(Uint32 idx, Object & val) const;
+    void SetSet(Uint32 idx, CSStr val) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assign a blob to a parameter.
+    */
+    void SetBlob(Uint32 idx, Object & val) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assign a buffer to a paramete.
+    */
+    void SetData(Uint32 idx, Object & val) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assign a null to a parameter.
+    */
+    void SetNull(Uint32 idx) const;
 
 };
 } // Namespace:: SqMod

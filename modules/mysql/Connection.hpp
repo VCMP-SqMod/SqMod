@@ -38,6 +38,15 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    Connection(const ConnHnd & conn)
+        : m_Handle(conn)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
     Connection(const Connection & o) = default;

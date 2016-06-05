@@ -44,6 +44,21 @@ class ResultSet;
 class Statement;
 class Transaction;
 
+/* ------------------------------------------------------------------------------------------------
+ * Replicate the values of a script Date type to a database time type.
+*/
+void SqDateToMySQLTime(Object & obj, MYSQL_TIME & t);
+
+/* ------------------------------------------------------------------------------------------------
+ * Replicate the values of a script Date type to a database time type.
+*/
+void SqTimeToMySQLTime(Object & obj, MYSQL_TIME & t);
+
+/* ------------------------------------------------------------------------------------------------
+ * Replicate the values of a script Date type to a database time type.
+*/
+void SqDatetimeToMySQLTime(Object & obj, MYSQL_TIME & t);
+
 } // Namespace:: SqMod
 
 #endif // _SQMYSQL_COMMON_HPP_
