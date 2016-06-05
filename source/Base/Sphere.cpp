@@ -1,7 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Sphere.hpp"
 #include "Base/Shared.hpp"
-#include "Library/Random.hpp"
+#include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <limits>

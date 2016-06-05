@@ -2,7 +2,7 @@
 #include "Base/Vector2i.hpp"
 #include "Base/Vector2.hpp"
 #include "Base/Shared.hpp"
-#include "Library/Random.hpp"
+#include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <limits>
