@@ -78,6 +78,14 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the managed handle is valid.
+    */
+    bool IsValid() const
+    {
+        return m_Handle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve a signed 8 bit integer from a field.
     */
     SQInteger GetInt8(Uint32 idx) const;
@@ -110,12 +118,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve a signed 64 bit integer from a field.
     */
-    Object GetInt64(Uint32 idx) const;
+    Int64 GetInt64(Uint32 idx) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve an unsigned 64 bit integer from a field.
     */
-    Object GetUint64(Uint32 idx) const;
+    Uint64 GetUint64(Uint32 idx) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a 32 bit floating point from a field.

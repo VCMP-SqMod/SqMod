@@ -90,6 +90,14 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the managed handle is valid.
+    */
+    bool IsValid() const
+    {
+        return m_Handle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Validate the managed connection handle and throw exception if it doesn't exist.
     */
     void Validate() const;

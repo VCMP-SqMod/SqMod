@@ -151,7 +151,7 @@ Uint64 ConnHnd::Handle::Execute(CSStr query, Ulong size)
         size = std::strlen(query);
     }
     // Attempt to execute the specified query
-    else if (mysql_real_query(mPtr, query, size) != 0)
+    else if (mysql_query(mPtr, query) != 0)
     {
         THROW_CURRENT_HND((*this), "Unable to execute query");
     }

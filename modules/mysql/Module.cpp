@@ -218,6 +218,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("_typename"), &Connection::Typename)
         .Func(_SC("_tostring"), &Connection::ToString)
         // Properties
+        .Prop(_SC("IsValid"), &Connection::IsValid)
         .Prop(_SC("Connected"), &Connection::Connected)
         .Prop(_SC("ErrNo"), &Connection::GetErrNo)
         .Prop(_SC("ErrStr"), &Connection::GetErrStr)
@@ -297,7 +298,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("_typename"), &ResultSet::Typename)
         .Func(_SC("_tostring"), &ResultSet::ToString)
         // Properties
-        //.Prop(_SC("Connected"), &ResultSet::Connected)
+        .Prop(_SC("IsValid"), &ResultSet::IsValid)
         // Member Methods
         .Func(_SC("SetInt8"), &ResultSet::GetInt8)
         .Func(_SC("SetUint8"), &ResultSet::GetUint8)
@@ -307,8 +308,13 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("SetUint32"), &ResultSet::GetUint32)
         .Func(_SC("SetInt64"), &ResultSet::GetInt64)
         .Func(_SC("SetUint64"), &ResultSet::GetUint64)
+        .Func(_SC("SetFloat32"), &ResultSet::GetFloat32)
+        .Func(_SC("SetFloat64"), &ResultSet::GetFloat64)
+        .Func(_SC("SetBool"), &ResultSet::GetBoolean)
+        .Func(_SC("SetBoolean"), &ResultSet::GetBoolean)
     );
 
+    RootTable(vm).Bind(_SC("SqMySQL"), sqlns);
 }
 
 } // Namespace:: SqMod
