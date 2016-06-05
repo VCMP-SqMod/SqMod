@@ -12,6 +12,14 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQInteger LongInt< Int64 >::Typename(HSQUIRRELVM vm)
+{
+    static const SQChar name[] = _SC("SLongInt");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 LongInt< Int64 >::LongInt(CSStr text) : m_Data(0), m_Text()
 {
     m_Data = std::strtoll(text, nullptr, 10);
@@ -62,6 +70,14 @@ void LongInt< Int64 >::Random(Type n)
 void LongInt< Int64 >::Random(Type m, Type n)
 {
     m_Data = GetRandomInt64(m, n);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger LongInt< Uint64 >::Typename(HSQUIRRELVM vm)
+{
+    static const SQChar name[] = _SC("ULongInt");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -121,72 +137,72 @@ void LongInt< Uint64 >::Random(Type m, Type n)
 void Register_LongInt(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SLongInt"), Class< SLongInt >(vm, _SC("SLongInt"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< SLongInt::Type >()
         .template Ctor< CCStr, SQInteger >()
-        /* Properties */
+        // Properties
         .Prop(_SC("Str"), &SLongInt::GetCStr, &SLongInt::SetStr)
         .Prop(_SC("Num"), &SLongInt::GetSNum, &SLongInt::SetNum)
-        /* Core Meta-methods */
+        // Core Meta-methods
         .Func(_SC("_tostring"), &SLongInt::ToString)
-        .Func(_SC("_typename"), &SLongInt::Typename)
+        .SquirrelFunc(_SC("_typename"), &SLongInt::Typename)
         .Func(_SC("_cmp"), &SLongInt::Cmp)
-        /* Core Functions */
+        // Core Functions
         .Func(_SC("tointeger"), &SLongInt::ToSqInteger)
         .Func(_SC("tofloat"), &SLongInt::ToSqFloat)
         .Func(_SC("tostring"), &SLongInt::ToSqString)
         .Func(_SC("tobool"), &SLongInt::ToSqBool)
         .Func(_SC("tochar"), &SLongInt::ToSqChar)
-        /* Meta-methods */
+        // Meta-methods
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_add"), &SLongInt::operator +)
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_sub"), &SLongInt::operator -)
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_mul"), &SLongInt::operator *)
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_div"), &SLongInt::operator /)
         .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_modulo"), &SLongInt::operator %)
         .Func< SLongInt (SLongInt::*)(void) const >(_SC("_unm"), &SLongInt::operator -)
-        /* Functions */
+        // Functions
         .Func(_SC("GetStr"), &SLongInt::GetCStr)
         .Func(_SC("SetStr"), &SLongInt::SetStr)
         .Func(_SC("GetNum"), &SLongInt::GetSNum)
         .Func(_SC("SetNum"), &SLongInt::SetNum)
-        /* Overloads */
+        // Overloads
         .Overload< void (SLongInt::*)(void) >(_SC("Random"), &SLongInt::Random)
         .Overload< void (SLongInt::*)(SLongInt::Type) >(_SC("Random"), &SLongInt::Random)
         .Overload< void (SLongInt::*)(SLongInt::Type, SLongInt::Type) >(_SC("Random"), &SLongInt::Random)
     );
 
     RootTable(vm).Bind(_SC("ULongInt"), Class< ULongInt >(vm, _SC("ULongInt"))
-        /* Constructors */
+        // Constructors
         .Ctor()
         .Ctor< ULongInt::Type >()
         .Ctor< CCStr, SQInteger >()
-        /* Properties */
+        // Properties
         .Prop(_SC("Str"), &ULongInt::GetCStr, &ULongInt::SetStr)
         .Prop(_SC("Num"), &ULongInt::GetSNum, &ULongInt::SetNum)
-        /* Core Meta-methods */
+        // Core Meta-methods
         .Func(_SC("_tostring"), &ULongInt::ToString)
-        .Func(_SC("_typename"), &ULongInt::Typename)
+        .SquirrelFunc(_SC("_typename"), &ULongInt::Typename)
         .Func(_SC("_cmp"), &ULongInt::Cmp)
-        /* Core Functions */
+        // Core Functions
         .Func(_SC("tointeger"), &ULongInt::ToSqInteger)
         .Func(_SC("tofloat"), &ULongInt::ToSqFloat)
         .Func(_SC("tostring"), &ULongInt::ToSqString)
         .Func(_SC("tobool"), &ULongInt::ToSqBool)
         .Func(_SC("tochar"), &ULongInt::ToSqChar)
-        /* Meta-methods */
+        // Meta-methods
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_add"), &ULongInt::operator +)
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_sub"), &ULongInt::operator -)
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_mul"), &ULongInt::operator *)
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_div"), &ULongInt::operator /)
         .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_modulo"), &ULongInt::operator %)
         .Func< ULongInt (ULongInt::*)(void) const >(_SC("_unm"), &ULongInt::operator -)
-        /* Functions */
+        // Functions
         .Func(_SC("GetStr"), &ULongInt::GetCStr)
         .Func(_SC("SetStr"), &ULongInt::SetStr)
         .Func(_SC("GetNum"), &ULongInt::GetSNum)
         .Func(_SC("SetNum"), &ULongInt::SetNum)
-        /* Overloads */
+        // Overloads
         .Overload< void (ULongInt::*)(void) >(_SC("Random"), &ULongInt::Random)
         .Overload< void (ULongInt::*)(ULongInt::Type) >(_SC("Random"), &ULongInt::Random)
         .Overload< void (ULongInt::*)(ULongInt::Type, ULongInt::Type) >(_SC("Random"), &ULongInt::Random)

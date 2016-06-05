@@ -166,30 +166,33 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Used by the script engine to compare two instances of this type.
     */
     Int32 Cmp(const LongInt< Type > & o) const
     {
         if (m_Data == o.m_Data)
+        {
             return 0;
+        }
         else if (m_Data > o.m_Data)
+        {
             return 1;
+        }
         else
+        {
             return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString();
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Used by the script engine to retrieve the name from instances of this type.
     */
-    CSStr Typename() const
-    {
-        return _SC("SLongInt");
-    }
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -429,7 +432,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Used by the script engine to compare two instances of this type.
     */
     Int32 Cmp(const LongInt< Type > & o) const
     {
@@ -448,17 +451,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString();
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Used by the script engine to retrieve the name from instances of this type.
     */
-    CSStr Typename() const
-    {
-        return _SC("ULongInt");
-    }
+    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      *
