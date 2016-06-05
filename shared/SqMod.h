@@ -72,9 +72,6 @@ extern "C" {
     typedef SQRESULT        (*SqEx_PushSLongObject) (HSQUIRRELVM vm, SqInt64 num);
     typedef SQRESULT        (*SqEx_GetULongValue) (HSQUIRRELVM vm, SQInteger idx, SqUint64 * num);
     typedef SQRESULT        (*SqEx_PushULongObject) (HSQUIRRELVM vm, SqUint64 num);
-    typedef SQRESULT        (*SqEx_GetDecimal) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * value, uint8_t * precision);
-    typedef SQRESULT        (*SqEx_GetDecimalString) (HSQUIRRELVM vm, SQInteger idx, SQChar * buffer, uint32_t size);
-    typedef SQRESULT        (*SqEx_PushDecimal) (HSQUIRRELVM vm, SqInt64 value, uint8_t precision);
     //time utilities
     typedef SqInt64         (*SqEx_GetCurrentSysTime) (void);
     typedef SqInt64         (*SqEx_GetEpochTimeMicro) (void);
@@ -124,9 +121,6 @@ extern "C" {
         SqEx_PushSLongObject                PushSLongObject;
         SqEx_GetULongValue                  GetULongValue;
         SqEx_PushULongObject                PushULongObject;
-        SqEx_GetDecimal                     GetDecimal;
-        SqEx_GetDecimalString               GetDecimalString;
-        SqEx_PushDecimal                    PushDecimal;
         //time utilities
         SqEx_GetCurrentSysTime              GetCurrentSysTime;
         SqEx_GetEpochTimeMicro              GetEpochTimeMicro;

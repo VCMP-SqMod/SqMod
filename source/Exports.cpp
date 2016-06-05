@@ -2,7 +2,6 @@
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include "Library/Numeric/Decimal.hpp"
 #include "Library/Numeric/LongInt.hpp"
 #include "Library/Chrono/Date.hpp"
 #include "Library/Chrono/Time.hpp"
@@ -189,90 +188,6 @@ static SQRESULT SqEx_PushULongObject(HSQUIRRELVM vm, Uint64 num)
     try
     {
         Var< const ULongInt & >::push(vm, ULongInt(num));
-    }
-    catch (...)
-    {
-        // Specify that we failed
-        return SQ_ERROR;
-    }
-    // Specify that we succeeded
-    return SQ_OK;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_GetDecimal(HSQUIRRELVM vm, SQInteger idx, SqInt64 * value, uint8_t * precision)
-{
-    // Is this an instance that we can treat as a Decimal type?
-    if (sq_gettype(vm, idx) == OT_INSTANCE)
-    {
-        // Attempt to obtain the time-stamp and it's value from the stack
-        try
-        {
-            // Attempt to retrieve the instance
-            Var< Decimal * > var(vm, idx);
-            // Assign the value
-            if (value != nullptr)
-            {
-                *value = var.value->GetValue();
-            }
-            // Assign the precision
-            if (precision != nullptr)
-            {
-                *precision = var.value->GetPrecision();
-            }
-        }
-        catch (...)
-        {
-            return SQ_ERROR; // Unable to obtain the value!
-        }
-    }
-    // Unrecognized value
-    else
-    {
-        return SQ_ERROR;
-    }
-    // Value retrieved
-    return SQ_OK;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_GetDecimalString(HSQUIRRELVM vm, SQInteger idx, SQChar * buffer, uint32_t size)
-{
-    // Is this an instance that we can treat as a Decimal type?
-    if (sq_gettype(vm, idx) == OT_INSTANCE)
-    {
-        // Attempt to obtain the time-stamp and it's value from the stack
-        try
-        {
-            // Attempt to retrieve the instance
-            Var< Decimal * > var(vm, idx);
-            // Generate the string
-            if (buffer != nullptr)
-            {
-                var.value->MakeString(buffer, size);
-            }
-        }
-        catch (...)
-        {
-            return SQ_ERROR; // Unable to obtain the value!
-        }
-    }
-    // Unrecognized value
-    else
-    {
-        return SQ_ERROR;
-    }
-    // Value retrieved
-    return SQ_OK;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_PushDecimal(HSQUIRRELVM vm, SqInt64 value, uint8_t precision)
-{
-    // Attempt to push the requested instance
-    try
-    {
-        Var< const Decimal & >::push(vm, Decimal(value, precision));
     }
     catch (...)
     {
@@ -594,9 +509,6 @@ void InitExports()
     g_SqExports.PushSLongObject         = SqEx_PushSLongObject;
     g_SqExports.GetULongValue           = SqEx_GetULongValue;
     g_SqExports.PushULongObject         = SqEx_PushULongObject;
-    g_SqExports.GetDecimal              = SqEx_GetDecimal;
-    g_SqExports.GetDecimalString        = SqEx_GetDecimalString;
-    g_SqExports.PushDecimal             = SqEx_PushDecimal;
 
     //time utilities
     g_SqExports.GetCurrentSysTime       = Chrono::GetCurrentSysTime;
