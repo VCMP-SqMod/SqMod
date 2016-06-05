@@ -507,6 +507,8 @@
 		<Unit filename="../source/Library/IO/INI.hpp" />
 		<Unit filename="../source/Library/Numeric.cpp" />
 		<Unit filename="../source/Library/Numeric.hpp" />
+		<Unit filename="../source/Library/Numeric/Decimal.cpp" />
+		<Unit filename="../source/Library/Numeric/Decimal.hpp" />
 		<Unit filename="../source/Library/Numeric/LongInt.cpp" />
 		<Unit filename="../source/Library/Numeric/LongInt.hpp" />
 		<Unit filename="../source/Library/Numeric/Math.cpp" />
