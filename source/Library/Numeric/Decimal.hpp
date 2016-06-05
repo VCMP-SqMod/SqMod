@@ -261,6 +261,14 @@ public:
     SLongInt GetUnbiased() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the value.
+    */
+    Int64 GetValue() const
+    {
+        return m_Value;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the precision.
     */
     Uint8 GetPrecision() const
