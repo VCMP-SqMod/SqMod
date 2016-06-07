@@ -1451,6 +1451,26 @@ Object MakeSLongObj(HSQUIRRELVM vm, Int64 val);
 Object MakeULongObj(HSQUIRRELVM vm, Uint64 val);
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve a signed 64 bit integer from an signed long integer object.
+*/
+Int64 FetchSLongObjVal(Object & val);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve a unsigned 64 bit integer from an unsigned long integer object.
+*/
+Uint64 FetchULongObjVal(Object & val);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve a signed 64 bit integer from an signed long integer object.
+*/
+Int64 FetchSLongObjVal(HSQUIRRELVM vm, Object & val);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve a unsigned 64 bit integer from an unsigned long integer object.
+*/
+Uint64 FetchULongObjVal(HSQUIRRELVM vm, Object & val);
+
+/* ------------------------------------------------------------------------------------------------
  * Attempt to pop the value at the specified index on the stack as a native integer.
 */
 SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx);
