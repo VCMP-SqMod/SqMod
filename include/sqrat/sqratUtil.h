@@ -767,7 +767,7 @@ public:
     /// Checks if there is an associated managed object
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool operator bool () const
+    operator bool () const
     {
         return m_Ptr != NULL;
     }
