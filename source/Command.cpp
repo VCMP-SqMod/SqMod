@@ -79,12 +79,35 @@ void TerminateCmdManager()
 }
 
 // ------------------------------------------------------------------------------------------------
+CmdManager::Context::Context(Int32 invoker)
+    : mBuffer(512)
+    , mInvoker(invoker)
+    , mCommand()
+    , mArgument()
+    , mInstance(nullptr)
+    , mObject()
+    , mArgv()
+    , mArgc(0)
+{
+    // Reserve enough space upfront
+    mCommand.reserve(64);
+    mArgument.reserve(512);
+}
+
+// ------------------------------------------------------------------------------------------------
+CmdManager::Guard::Guard(const CtxRef & ctx)
+    : mPrevious(CmdManager::Get().m_Context), mCurrent(ctx)
+{
+    CmdManager::Get().m_Context = mCurrent;
+}
+
+// ------------------------------------------------------------------------------------------------
 CmdManager::Guard::~Guard()
 {
-    // Release the command instance
-    CmdManager::Get().m_Instance = nullptr;
-    // Release the reference to the script object
-    CmdManager::Get().m_Object.Release();
+    if (CmdManager::Get().m_Context == mCurrent)
+    {
+        CmdManager::Get().m_Context = mPrevious;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -199,15 +222,8 @@ bool CmdManager::Attached(const CmdListener * ptr) const
 
 // ------------------------------------------------------------------------------------------------
 CmdManager::CmdManager()
-    : m_Buffer(512)
-    , m_Commands()
-    , m_Invoker(SQMOD_UNKNOWN)
-    , m_Command(64, '\0')
-    , m_Argument(512, '\0')
-    , m_Instance(nullptr)
-    , m_Object()
-    , m_Argv()
-    , m_Argc(0)
+    : m_Commands()
+    , m_Context()
     , m_OnFail()
     , m_OnAuth()
 {
@@ -243,8 +259,6 @@ void CmdManager::Deinitialize()
     }
     // Clear the command list and release all references
     m_Commands.clear();
-    // Release the script resources from this class
-    m_Argv.clear();
     // Release the global callbacks
     m_OnFail.ReleaseGently();
     m_OnAuth.ReleaseGently();
@@ -288,8 +302,10 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
         // Execution failed!
         return -1;
     }
-    // Save the invoker identifier
-    m_Invoker = invoker;
+    // Create the command execution context
+    CtxRef ctx_ref(new Context(invoker));
+    // Grab a direct reference to the context instance
+    Context & ctx = *ctx_ref;
     // Skip white-space until the command name
     while (std::isspace(*command))
     {
@@ -314,27 +330,27 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
     if (split != '\0')
     {
         // Save the command name
-        m_Command.assign(command, (split - command));
+        ctx.mCommand.assign(command, (split - command));
         // Skip white space after command name
         while (std::isspace(*split))
         {
             ++split;
         }
         // Save the command argument
-        m_Argument.assign(split);
+        ctx.mArgument.assign(split);
     }
     // No arguments specified
     else
     {
         // Save the command name
-        m_Command.assign(command);
+        ctx.mCommand.assign(command);
         // Leave argument empty
-        m_Argument.assign(_SC(""));
+        ctx.mArgument.assign(_SC(""));
     }
     // Do we have a valid command name?
     try
     {
-        ValidateName(m_Command.c_str());
+        ValidateName(ctx.mCommand.c_str());
     }
     catch (const Sqrat::Exception & e)
     {
@@ -350,91 +366,91 @@ Int32 CmdManager::Run(Int32 invoker, CCStr command)
         // Execution failed!
         return -1;
     }
-    // Make sure resources are released at the end of this function
-    Guard g;
+    // We're about to enter execution land, so let's be safe
+    const Guard g(ctx_ref);
     // Attempt to find the specified command
-    m_Object = FindByName(m_Command);
+    ctx.mObject = FindByName(ctx.mCommand);
     // Have we found anything?
-    if (m_Object.IsNull())
+    if (ctx.mObject.IsNull())
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command);
+        SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), ctx.mCommand);
         // Execution failed!
         return -1;
     }
     // Save the command instance
-    m_Instance = m_Object.Cast< CmdListener * >();
+    ctx.mInstance = ctx.mObject.Cast< CmdListener * >();
     // Is the command instance valid? (just in case)
-    if (!m_Instance)
+    if (!ctx.mInstance)
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), m_Command);
+        SqError(CMDERR_UNKNOWN_COMMAND, _SC("Unable to find the specified command"), ctx.mCommand);
         // Execution failed!
         return -1;
     }
     // Attempt to execute the command
     try
     {
-        return Exec();
+        return Exec(ctx);
     }
     catch (...)
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_EXECUTION_FAILED, _SC("Exceptions occurred during execution"), m_Invoker);
+        SqError(CMDERR_EXECUTION_FAILED, _SC("Exceptions occurred during execution"), ctx.mInvoker);
     }
     // Execution failed
     return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CmdManager::Exec()
+Int32 CmdManager::Exec(Context & ctx)
 {
     // Clear previous arguments
-    m_Argv.clear();
+    ctx.mArgv.clear();
     // Reset the argument counter
-    m_Argc = 0;
+    ctx.mArgc = 0;
     // Make sure the invoker has enough authority to execute this command
-    if (!m_Instance->AuthCheckID(m_Invoker))
+    if (!ctx.mInstance->AuthCheckID(ctx.mInvoker))
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_INSUFFICIENT_AUTH, _SC("Insufficient authority to execute command"), m_Invoker);
+        SqError(CMDERR_INSUFFICIENT_AUTH, _SC("Insufficient authority to execute command"), ctx.mInvoker);
         // Execution failed!
         return -1;
     }
     // Make sure an executer was specified
-    else if (m_Instance->GetOnExec().IsNull())
+    else if (ctx.mInstance->GetOnExec().IsNull())
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_MISSING_EXECUTER, _SC("No executer was specified for this command"), m_Invoker);
+        SqError(CMDERR_MISSING_EXECUTER, _SC("No executer was specified for this command"), ctx.mInvoker);
         // Execution failed!
         return -1;
     }
     // See if there are any arguments to parse
-    else if (!m_Argument.empty() && !Parse())
+    else if (!ctx.mArgument.empty() && !Parse(ctx))
     {
         // The error message was reported while parsing
         return -1;
     }
     // Make sure we have enough arguments specified
-    else if (m_Instance->GetMinArgC() > m_Argc)
+    else if (ctx.mInstance->GetMinArgC() > ctx.mArgc)
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_INCOMPLETE_ARGS, _SC("Incomplete command arguments"), m_Instance->GetMinArgC());
+        SqError(CMDERR_INCOMPLETE_ARGS, _SC("Incomplete command arguments"), ctx.mInstance->GetMinArgC());
         // Execution failed!
         return -1;
     }
     // The check during the parsing may omit the last argument
-    else if (m_Instance->GetMaxArgC() < m_Argc)
+    else if (ctx.mInstance->GetMaxArgC() < ctx.mArgc)
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_EXTRANEOUS_ARGS, _SC("Extraneous command arguments"), m_Instance->GetMaxArgC());
+        SqError(CMDERR_EXTRANEOUS_ARGS, _SC("Extraneous command arguments"), ctx.mInstance->GetMaxArgC());
         // Execution failed!
         return -1;
     }
     // Check argument types against the command specifiers
-    for (Uint32 arg = 0; arg < m_Argc; ++arg)
+    for (Uint32 arg = 0; arg < ctx.mArgc; ++arg)
     {
-        if (!m_Instance->ArgCheck(arg, m_Argv[arg].first))
+        if (!ctx.mInstance->ArgCheck(arg, ctx.mArgv[arg].first))
         {
             // Tell the script callback to deal with the error
             SqError(CMDERR_UNSUPPORTED_ARG, _SC("Unsupported command argument"), arg);
@@ -445,44 +461,44 @@ Int32 CmdManager::Exec()
     // Result of the command execution
     SQInteger result = -1;
     // Clear any data from the buffer to make room for the error message
-    m_Buffer.At(0) = '\0';
+    ctx.mBuffer.At(0) = '\0';
     // Whether the command execution failed
     bool failed = false;
     // Do we have to call the command with an associative container?
-    if (m_Instance->m_Associate)
+    if (ctx.mInstance->m_Associate)
     {
         // Create the associative container
         Table args(DefaultVM::Get());
         // Copy the arguments into the table
-        for (Uint32 arg = 0; arg < m_Argc; ++arg)
+        for (Uint32 arg = 0; arg < ctx.mArgc; ++arg)
         {
             // Do we have use the argument index as the key?
-            if (m_Instance->m_ArgTags[arg].empty())
+            if (ctx.mInstance->m_ArgTags[arg].empty())
             {
-                args.SetValue(SQInteger(arg), m_Argv[arg].second);
+                args.SetValue(SQInteger(arg), ctx.mArgv[arg].second);
             }
             // Nope, we have a name for this argument!
             else
             {
-                args.SetValue(m_Instance->m_ArgTags[arg].c_str(), m_Argv[arg].second);
+                args.SetValue(ctx.mInstance->m_ArgTags[arg].c_str(), ctx.mArgv[arg].second);
             }
         }
         // Attempt to execute the command with the specified arguments
         try
         {
-            result = m_Instance->Execute(Core::Get().GetPlayer(m_Invoker).mObj, args);
+            result = ctx.mInstance->Execute(Core::Get().GetPlayer(ctx.mInvoker).mObj, args);
         }
         catch (const Sqrat::Exception & e)
         {
             // Let's store the exception message
-            m_Buffer.Write(0, e.Message().c_str(), e.Message().size());
+            ctx.mBuffer.Write(0, e.Message().c_str(), e.Message().size());
             // Specify that the command execution failed
             failed = true;
         }
         catch (const std::exception & e)
         {
             // Let's store the exception message
-            m_Buffer.WriteF(0, "Application exception occurred [%s]", e.what());
+            ctx.mBuffer.WriteF(0, "Application exception occurred [%s]", e.what());
             // Specify that the command execution failed
             failed = true;
         }
@@ -490,28 +506,28 @@ Int32 CmdManager::Exec()
     else
     {
         // Reserve an array for the extracted arguments
-        Array args(DefaultVM::Get(), m_Argc);
+        Array args(DefaultVM::Get(), ctx.mArgc);
         // Copy the arguments into the array
-        for (Uint32 arg = 0; arg < m_Argc; ++arg)
+        for (Uint32 arg = 0; arg < ctx.mArgc; ++arg)
         {
-            args.Bind(SQInteger(arg), m_Argv[arg].second);
+            args.Bind(SQInteger(arg), ctx.mArgv[arg].second);
         }
         // Attempt to execute the command with the specified arguments
         try
         {
-            result = m_Instance->Execute(Core::Get().GetPlayer(m_Invoker).mObj, args);
+            result = ctx.mInstance->Execute(Core::Get().GetPlayer(ctx.mInvoker).mObj, args);
         }
         catch (const Sqrat::Exception & e)
         {
             // Let's store the exception message
-            m_Buffer.Write(0, e.Message().c_str(), e.Message().size());
+            ctx.mBuffer.Write(0, e.Message().c_str(), e.Message().size());
             // Specify that the command execution failed
             failed = true;
         }
         catch (const std::exception & e)
         {
             // Let's store the exception message
-            m_Buffer.WriteF(0, "Application exception occurred [%s]", e.what());
+            ctx.mBuffer.WriteF(0, "Application exception occurred [%s]", e.what());
             // Specify that the command execution failed
             failed = true;
         }
@@ -520,14 +536,14 @@ Int32 CmdManager::Exec()
     if (failed)
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_EXECUTION_FAILED, _SC("Command execution failed"), m_Buffer.Data());
+        SqError(CMDERR_EXECUTION_FAILED, _SC("Command execution failed"), ctx.mBuffer.Data());
         // Is there a script callback that handles failures?
-        if (!m_Instance->m_OnFail.IsNull())
+        if (!ctx.mInstance->m_OnFail.IsNull())
         {
             // Then attempt to relay the result to that function
             try
             {
-                m_Instance->m_OnFail.Execute(Core::Get().GetPlayer(m_Invoker).mObj, result);
+                ctx.mInstance->m_OnFail.Execute(Core::Get().GetPlayer(ctx.mInvoker).mObj, result);
             }
             catch (const Sqrat::Exception & e)
             {
@@ -549,12 +565,12 @@ Int32 CmdManager::Exec()
         // Tell the script callback to deal with the error
         SqError(CMDERR_EXECUTION_ABORTED, _SC("Command execution aborted"), result);
         // Is there a script callback that handles failures?
-        if (!m_Instance->m_OnFail.IsNull())
+        if (!ctx.mInstance->m_OnFail.IsNull())
         {
             // Then attempt to relay the result to that function
             try
             {
-                m_Instance->m_OnFail.Execute(Core::Get().GetPlayer(m_Invoker).mObj, result);
+                ctx.mInstance->m_OnFail.Execute(Core::Get().GetPlayer(ctx.mInvoker).mObj, result);
             }
             catch (const Sqrat::Exception & e)
             {
@@ -569,12 +585,12 @@ Int32 CmdManager::Exec()
         }
     }
     // Is there a callback that must be executed after a successful execution?
-    else if (!m_Instance->m_OnPost.IsNull())
+    else if (!ctx.mInstance->m_OnPost.IsNull())
     {
             // Then attempt to relay the result to that function
             try
             {
-                m_Instance->m_OnPost.Execute(Core::Get().GetPlayer(m_Invoker).mObj, result);
+                ctx.mInstance->m_OnPost.Execute(Core::Get().GetPlayer(ctx.mInvoker).mObj, result);
             }
             catch (const Sqrat::Exception & e)
             {
@@ -592,23 +608,23 @@ Int32 CmdManager::Exec()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CmdManager::Parse()
+bool CmdManager::Parse(Context & ctx)
 {
     // Is there anything to parse?
-    if (m_Argument.empty())
+    if (ctx.mArgument.empty())
     {
         return true; // Done parsing!
     }
     // Obtain the flags of the currently processed argument
-    Uint8 arg_flags = m_Instance->m_ArgSpec[m_Argc];
+    Uint8 arg_flags = ctx.mInstance->m_ArgSpec[ctx.mArgc];
     // Adjust the internal buffer if necessary (mostly never)
-    m_Buffer.Adjust(m_Argument.size());
+    ctx.mBuffer.Adjust(ctx.mArgument.size());
     // The iterator to the currently processed character
-    String::const_iterator itr = m_Argument.cbegin();
+    String::const_iterator itr = ctx.mArgument.cbegin();
     // Previous and currently processed character
     String::value_type prev = 0, elem = 0;
     // Maximum arguments allowed to be processed
-    const Uint8 max_arg = m_Instance->m_MaxArgc;
+    const Uint8 max_arg = ctx.mInstance->m_MaxArgc;
     // Process loop result
     bool good = true;
     // Process the specified command text
@@ -617,7 +633,7 @@ bool CmdManager::Parse()
         // Extract the current characters before advancing
         prev = elem, elem = *itr;
         // See if we have anything left to parse or we have what we need already
-        if (elem == '\0' || m_Argc >= max_arg)
+        if (elem == '\0' || ctx.mArgc >= max_arg)
         {
             break; // We only parse what we need or what we have!
         }
@@ -627,12 +643,12 @@ bool CmdManager::Parse()
             // Remember the current stack size
             const StackGuard sg;
             // Skip white-space characters
-            itr = std::find_if(itr, m_Argument.cend(), IsNotCType(std::isspace));
+            itr = std::find_if(itr, ctx.mArgument.cend(), IsNotCType(std::isspace));
             // Anything left to copy to the argument?
-            if (itr != m_Argument.end())
+            if (itr != ctx.mArgument.end())
             {
                 // Transform it into a script object
-                sq_pushstring(DefaultVM::Get(), &(*itr), std::distance(itr, m_Argument.cend()));
+                sq_pushstring(DefaultVM::Get(), &(*itr), std::distance(itr, ctx.mArgument.cend()));
             }
             // Just push an empty string
             else
@@ -640,9 +656,9 @@ bool CmdManager::Parse()
                 sq_pushstring(DefaultVM::Get(), _SC(""), 0);
             }
             // Get the object from the stack and add it to the argument list along with it's type
-            m_Argv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
+            ctx.mArgv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
             // Include this argument into the count
-            ++m_Argc;
+            ++ctx.mArgc;
             // Nothing left to parse
             break;
         }
@@ -650,8 +666,8 @@ bool CmdManager::Parse()
         else if ((elem == '\'' || elem == '"') && prev != '\\')
         {
             // Obtain the beginning and ending of the internal buffer
-            SStr str = m_Buffer.Begin< SQChar >();
-            SStr end = (m_Buffer.End< SQChar >() - 1); // + null terminator
+            SStr str = ctx.mBuffer.Begin< SQChar >();
+            SStr end = (ctx.mBuffer.End< SQChar >() - 1); // + null terminator
             // Save the closing quote type
             const SQChar close = elem;
             // Skip the opening quote
@@ -665,7 +681,7 @@ bool CmdManager::Parse()
                 if (elem == '\0')
                 {
                     // Tell the script callback to deal with the error
-                    SqError(CMDERR_SYNTAX_ERROR, _SC("String argument not closed properly"), m_Argc);
+                    SqError(CMDERR_SYNTAX_ERROR, _SC("String argument not closed properly"), ctx.mArgc);
                     // Parsing aborted
                     good = false;
                     // Stop parsing
@@ -692,7 +708,7 @@ bool CmdManager::Parse()
                 else if  (str >= end)
                 {
                     // We should already have a buffer as big as the entire command!
-                    SqError(CMDERR_BUFFER_OVERFLOW, _SC("Command buffer was exceeded unexpectedly"), m_Invoker);
+                    SqError(CMDERR_BUFFER_OVERFLOW, _SC("Command buffer was exceeded unexpectedly"), ctx.mInvoker);
                     // Parsing aborted
                     good = false;
                     // Stop parsing
@@ -709,7 +725,7 @@ bool CmdManager::Parse()
                 break; // Propagate the failure!
             }
             // Swap the beginning and ending of the extracted string
-            end = str, str = m_Buffer.Begin();
+            end = str, str = ctx.mBuffer.Begin();
             // Make sure the string is null terminated
             *end = '\0';
             // Do we have to make the string lowercase?
@@ -743,15 +759,15 @@ bool CmdManager::Parse()
                 sq_pushstring(DefaultVM::Get(), str, end - str - 1);
             }
             // Get the object from the stack and add it to the argument list along with it's type
-            m_Argv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
+            ctx.mArgv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
             // Advance to the next argument and obtain its flags
-            arg_flags = m_Instance->m_ArgSpec[++m_Argc];
+            arg_flags = ctx.mInstance->m_ArgSpec[++ctx.mArgc];
         }
         // Ignore white-space characters until another valid character is found
         else if (!std::isspace(elem) && (std::isspace(prev) || prev == '\0'))
         {
             // Find the first space character that marks the end of the argument
-            String::const_iterator pos = std::find_if(itr, m_Argument.cend(), IsCType(std::isspace));
+            String::const_iterator pos = std::find_if(itr, ctx.mArgument.cend(), IsCType(std::isspace));
             // Obtain both ends of the argument string
             CCStr str = &(*itr), end = &(*pos);
             // Compute the argument string size
@@ -777,7 +793,7 @@ bool CmdManager::Parse()
                     // Transform it into a script object
                     sq_pushinteger(DefaultVM::Get(), ConvTo< SQInteger >::From(value));
                     // Get the object from the stack and add it to the argument list along with it's type
-                    m_Argv.emplace_back(CMDARG_INTEGER, Var< Object >(DefaultVM::Get(), -1).value);
+                    ctx.mArgv.emplace_back(CMDARG_INTEGER, Var< Object >(DefaultVM::Get(), -1).value);
                     // We've identified the correct value type
                     identified = false;
                 }
@@ -801,7 +817,7 @@ bool CmdManager::Parse()
                     // Transform it into a script object
                     sq_pushfloat(DefaultVM::Get(), ConvTo< SQFloat >::From(value));
                     // Get the object from the stack and add it to the argument list along with it's type
-                    m_Argv.emplace_back(CMDARG_FLOAT, Var< Object >(DefaultVM::Get(), -1).value);
+                    ctx.mArgv.emplace_back(CMDARG_FLOAT, Var< Object >(DefaultVM::Get(), -1).value);
                     // We've identified the correct value type
                     identified = false;
                 }
@@ -841,7 +857,7 @@ bool CmdManager::Parse()
                 if (identified)
                 {
                     // Get the object from the stack and add it to the argument list along with it's type
-                    m_Argv.emplace_back(CMDARG_BOOLEAN, Var< Object >(DefaultVM::Get(), -1).value);
+                    ctx.mArgv.emplace_back(CMDARG_BOOLEAN, Var< Object >(DefaultVM::Get(), -1).value);
                 }
             }
             // If everything else failed then simply treat the value as a string
@@ -853,23 +869,23 @@ bool CmdManager::Parse()
                 if (arg_flags & CMDARG_LOWER)
                 {
                     // Convert all characters from the argument string into the buffer
-                    for (CStr chr = m_Buffer.Data(); str < end; ++str, ++chr)
+                    for (CStr chr = ctx.mBuffer.Data(); str < end; ++str, ++chr)
                     {
                         *chr = static_cast< CharT >(std::tolower(*str));
                     }
                     // Transform it into a script object
-                    sq_pushstring(DefaultVM::Get(), m_Buffer.Get< SQChar >(), sz);
+                    sq_pushstring(DefaultVM::Get(), ctx.mBuffer.Get< SQChar >(), sz);
                 }
                 // Do we have to make the string uppercase?
                 else if (arg_flags & CMDARG_UPPER)
                 {
                     // Convert all characters from the argument string into the buffer
-                    for (CStr chr = m_Buffer.Data(); str < end; ++str, ++chr)
+                    for (CStr chr = ctx.mBuffer.Data(); str < end; ++str, ++chr)
                     {
                         *chr = static_cast< CharT >(std::toupper(*str));
                     }
                     // Transform it into a script object
-                    sq_pushstring(DefaultVM::Get(), m_Buffer.Get< SQChar >(), sz);
+                    sq_pushstring(DefaultVM::Get(), ctx.mBuffer.Get< SQChar >(), sz);
                 }
                 else
                 {
@@ -877,13 +893,13 @@ bool CmdManager::Parse()
                     sq_pushstring(DefaultVM::Get(), str, sz);
                 }
                 // Get the object from the stack and add it to the argument list along with it's type
-                m_Argv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
+                ctx.mArgv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
             }
             // Advance to the next argument and obtain its flags
-            arg_flags = m_Instance->m_ArgSpec[++m_Argc];
+            arg_flags = ctx.mInstance->m_ArgSpec[++ctx.mArgc];
         }
         // Is there anything left to parse?
-        if (itr >= m_Argument.end())
+        if (itr >= ctx.mArgument.end())
         {
             break;
         }
@@ -1727,6 +1743,12 @@ static void Cmd_SetOnAuth(Object & env, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
+static bool Cmd_IsContext()
+{
+    return CmdManager::Get().IsContext();
+}
+
+// ------------------------------------------------------------------------------------------------
 static Object & Cmd_GetInvoker()
 {
     return Core::Get().GetPlayer(CmdManager::Get().GetInvoker()).mObj;
@@ -1835,6 +1857,7 @@ void Register_Command(HSQUIRRELVM vm)
     cmdns.Func(_SC("GetOnAuth"), &Cmd_GetOnAuth);
     cmdns.Func(_SC("SetOnAuth"), &Cmd_SetOnAuth);
     cmdns.Func(_SC("BindAuth"), &Cmd_SetOnAuth);
+    cmdns.Func(_SC("Context"), &Cmd_IsContext);
     cmdns.Func(_SC("Invoker"), &Cmd_GetInvoker);
     cmdns.Func(_SC("InvokerID"), &Cmd_GetInvokerID);
     cmdns.Func(_SC("Instance"), &Cmd_GetObject);

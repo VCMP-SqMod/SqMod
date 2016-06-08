@@ -119,6 +119,11 @@ Array & NullArray();
 Function & NullFunction();
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve a reference to a null string.
+*/
+String & NullString();
+
+/* ------------------------------------------------------------------------------------------------
  * Compute the next power of two for the specified number.
 */
 inline Uint32 NextPow2(Uint32 num)

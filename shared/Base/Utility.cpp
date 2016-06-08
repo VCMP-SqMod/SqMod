@@ -269,6 +269,14 @@ Function & NullFunction()
 }
 
 // ------------------------------------------------------------------------------------------------
+String & NullString()
+{
+    static String s;
+    s.resize(0);
+    return s;
+}
+
+// ------------------------------------------------------------------------------------------------
 CSStr ConvNum< Int8 >::ToStr(Int8 v)
 {
     // Write the numeric value to the buffer

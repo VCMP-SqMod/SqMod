@@ -30,15 +30,75 @@ private:
 
 private:
 
+    // --------------------------------------------------------------------------------------------
+    typedef std::pair< Uint8, Object >  CmdArg; // Can hold the argument value and type.
+    typedef std::vector< CmdArg >       CmdArgs; // A list of extracted arguments.
+
     /* --------------------------------------------------------------------------------------------
-     * Helper class implementing RAII to release the command object and instance.
+     * Holds the execution context of a command.
     */
-    struct Guard
+    struct Context
     {
+    public:
+
+        // ----------------------------------------------------------------------------------------
+        Buffer          mBuffer; // Shared buffer used to extract arguments.
+
+        // ----------------------------------------------------------------------------------------
+        const Int32     mInvoker; // The identifier of the last player that invoked a command.
+        String          mCommand; // The extracted command name.
+        String          mArgument; // The extracted command argument.
+        CmdListener*    mInstance; // Pointer to the currently executed command.
+        Object          mObject; // Script object of the currently exectued command.
+
+        // ----------------------------------------------------------------------------------------
+        CmdArgs         mArgv; // Extracted command arguments.
+        Uint32          mArgc; // Extracted arguments count.
+
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        Guard() = default;
+        Context(Int32 invoker);
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy constructor. (disabled)
+        */
+        Context(const Context & o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move constructor. (disabled)
+        */
+        Context(Context && o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy assignment operator. (disabled)
+        */
+        Context & operator = (const Context & o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move assignment operator. (disabled)
+        */
+        Context & operator = (Context && o) = delete;
+    };
+
+    // --------------------------------------------------------------------------------------------
+    typedef SharedPtr< Context > CtxRef; // Shared reference to an execution context.
+
+    /* --------------------------------------------------------------------------------------------
+     * Helper class implementing RAII to release the command context.
+    */
+    struct Guard
+    {
+    public:
+
+        // ----------------------------------------------------------------------------------------
+        CtxRef mPrevious; // Previous context when this guard was created.
+        CtxRef mCurrent; // The context managed by this guard.
+
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
+        Guard(const CtxRef & ctx);
 
         /* ----------------------------------------------------------------------------------------
          * Copy constructor.
@@ -127,26 +187,11 @@ private:
     // --------------------------------------------------------------------------------------------
     typedef std::vector< Command >      CmdList;
 
-    // --------------------------------------------------------------------------------------------
-    typedef std::pair< Uint8, Object >  CmdArg;
-    typedef std::vector< CmdArg >       CmdArgs;
-
 private:
 
     // --------------------------------------------------------------------------------------------
-    Buffer          m_Buffer; // Shared buffer used to extract arguments.
     CmdList         m_Commands; // List of available command instances.
-
-    // --------------------------------------------------------------------------------------------
-    Int32           m_Invoker; // The identifier of the last player that invoked a command.
-    String          m_Command; // The extracted command name.
-    String          m_Argument; // The extracted command argument.
-    CmdListener*    m_Instance; // Pointer to the currently executed command.
-    Object          m_Object; // Script object of the currently exectued command.
-
-    // --------------------------------------------------------------------------------------------
-    CmdArgs         m_Argv; // Extracted command arguments.
-    Uint32          m_Argc; // Extracted arguments count.
+    CtxRef          m_Context; // The context of the currently executed command.
 
     // --------------------------------------------------------------------------------------------
     Function        m_OnFail; // Callback when something failed while running a command.
@@ -304,9 +349,23 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the last invoker.
     */
+    bool IsContext() const
+    {
+        return !!m_Context;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the identifier of the last invoker.
+    */
     Int32 GetInvoker() const
     {
-        return m_Invoker;
+        // See if there's an execution context available
+        if (!m_Context)
+        {
+            STHROWF("No active execution context");
+        }
+        // Return the requested information
+        return m_Context->mInvoker;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -314,7 +373,13 @@ public:
     */
     const CmdListener * GetInstance() const
     {
-        return m_Instance;
+        // See if there's an execution context available
+        if (!m_Context)
+        {
+            STHROWF("No active execution context");
+        }
+        // Return the requested information
+        return m_Context->mInstance;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -322,7 +387,13 @@ public:
     */
     const Object & GetObject() const
     {
-        return m_Object;
+        // See if there's an execution context available
+        if (!m_Context)
+        {
+            STHROWF("No active execution context");
+        }
+        // Return the requested information
+        return m_Context->mObject;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -330,7 +401,13 @@ public:
     */
     const String & GetCommand() const
     {
-        return m_Command;
+        // See if there's an execution context available
+        if (!m_Context)
+        {
+            STHROWF("No active execution context");
+        }
+        // Return the requested information
+        return m_Context->mCommand;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -338,7 +415,13 @@ public:
     */
     const String & GetArgument() const
     {
-        return m_Argument;
+        // See if there's an execution context available
+        if (!m_Context)
+        {
+            STHROWF("No active execution context");
+        }
+        // Return the requested information
+        return m_Context->mArgument;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -351,12 +434,12 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Attempt to execute the specified command.
     */
-    Int32 Exec();
+    Int32 Exec(Context & ctx);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to parse the specified argument.
     */
-    bool Parse();
+    bool Parse(Context & ctx);
 
 public:
 
