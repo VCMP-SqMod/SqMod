@@ -617,7 +617,7 @@ StackStrF::StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt)
             // Keep a strong reference to the object
             sq_addref(vm, &mObj);
             // Attempt to retrieve the string value from the stack
-            mRes = sq_getstring(vm, idx, &mPtr);
+            mRes = sq_getstringandsize(vm, idx, &mPtr, &mLen);
         }
         // Did the retrieval succeeded but ended up with a null string pointer?
         if (SQ_SUCCEEDED(mRes) && !mPtr)
@@ -641,7 +641,7 @@ StackStrF::StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt)
                 // Keep a strong reference to the object
                 sq_addref(vm, &mObj);
                 // Attempt to obtain the string pointer
-                mRes = sq_getstring(vm, -1, &mPtr);
+                mRes = sq_getstringandsize(vm, -1, &mPtr, &mLen);
             }
         }
         // Pop a value from the stack regardless of the result
@@ -661,6 +661,54 @@ StackStrF::~StackStrF()
     {
         sq_release(mVM, &mObj);
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr SqTypeName(SQObjectType type)
+{
+    switch (type)
+    {
+        case OT_NULL:           return _SC("null");
+        case OT_INTEGER:        return _SC("integer");
+        case OT_FLOAT:          return _SC("float");
+        case OT_BOOL:           return _SC("bool");
+        case OT_STRING:         return _SC("string");
+        case OT_TABLE:          return _SC("table");
+        case OT_ARRAY:          return _SC("array");
+        case OT_USERDATA:       return _SC("userdata");
+        case OT_CLOSURE:        return _SC("closure");
+        case OT_NATIVECLOSURE:  return _SC("nativeclosure");
+        case OT_GENERATOR:      return _SC("generator");
+        case OT_USERPOINTER:    return _SC("userpointer");
+        case OT_THREAD:         return _SC("thread");
+        case OT_FUNCPROTO:      return _SC("funcproto");
+        case OT_CLASS:          return _SC("class");
+        case OT_INSTANCE:       return _SC("instance");
+        case OT_WEAKREF:        return _SC("weakref");
+        case OT_OUTER:          return _SC("outer");
+        default:                return _SC("unknown");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+String SqTypeName(HSQUIRRELVM vm, SQInteger idx)
+{
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Attempt to retrieve the type name of the specified value
+    if (SQ_FAILED(sq_typeof(vm, idx)))
+    {
+        return _SC("unknown");
+    }
+    // Attempt to convert the obtained value to a string
+    StackStrF val(vm, -1, false);
+    // Did the conversion failed?
+    if (SQ_FAILED(val.mRes))
+    {
+        return _SC("unknown");
+    }
+    // Return the obtained string value
+    return String(val.mPtr, val.mLen);
 }
 
 // ------------------------------------------------------------------------------------------------

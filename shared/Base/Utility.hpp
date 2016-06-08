@@ -1400,6 +1400,16 @@ struct StackStrF
 };
 
 /* ------------------------------------------------------------------------------------------------
+ * Netrieve the string representation of a certain type.
+*/
+CSStr SqTypeName(SQObjectType type);
+
+/* ------------------------------------------------------------------------------------------------
+ * Netrieve the string representation of a certain type from a value on the stack.
+*/
+String SqTypeName(HSQUIRRELVM vm, SQInteger idx);
+
+/* ------------------------------------------------------------------------------------------------
  * Create a script object from the specified value on the default VM.
 */
 template < typename T > Object MakeObject(const T & v)
