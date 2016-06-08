@@ -53,6 +53,7 @@ void Core::ResetInst(PlayerInst & inst)
 {
     inst.mID = -1;
     inst.mFlags = ENF_DEFAULT;
+    inst.mTrackPosition = 0;
     inst.mLastWeapon = -1;
     inst.mLastHealth = 0.0;
     inst.mLastArmour = 0.0;
@@ -66,6 +67,8 @@ void Core::ResetInst(VehicleInst & inst)
 {
     inst.mID = -1;
     inst.mFlags = ENF_DEFAULT;
+    inst.mTrackPosition = 0;
+    inst.mTrackRotation = 0;
     inst.mLastPrimaryColour = -1;
     inst.mLastSecondaryColour = -1;
     inst.mLastHealth = 0.0;

@@ -591,6 +591,51 @@ public:
     bool Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of tracked position changes for the managed vehicle entity.
+    */
+    SQInteger GetTrackPosition() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of tracked position changes for the managed vehicle entity.
+    */
+    void SetTrackPosition(SQInteger num) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of tracked rotation changes for the managed vehicle entity.
+    */
+    SQInteger GetTrackRotation() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of tracked rotation changes for the managed vehicle entity.
+    */
+    void SetTrackRotation(SQInteger num) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the last known primary color for the managed vehicle entity.
+    */
+    Int32 GetLastPrimaryColour() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the last known secondary color for the managed vehicle entity.
+    */
+    Int32 GetLastSecondaryColour() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the last known health for the managed vehicle entity.
+    */
+    Float32 GetLastHealth() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the last known position for the managed player entity.
+    */
+    const Vector3 & GetLastPosition() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the last known rotation for the managed player entity.
+    */
+    const Quaternion & GetLastRotation() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed vehicle entity.
     */
     Float32 GetPositionX() const;

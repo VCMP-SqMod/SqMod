@@ -716,6 +716,16 @@ public:
     void SetMessagePrefix(Uint32 index, CSStr prefix);
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of tracked position changes for the managed player entity.
+    */
+    SQInteger GetTrackPosition() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of tracked position changes for the managed player entity.
+    */
+    void SetTrackPosition(SQInteger num) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the last known weapon for the managed player entity.
     */
     Int32 GetLastWeapon() const;

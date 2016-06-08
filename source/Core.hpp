@@ -220,6 +220,9 @@ protected:
         Object          mObj;
 
         // ----------------------------------------------------------------------------------------
+        SQInteger       mTrackPosition;
+
+        // ----------------------------------------------------------------------------------------
         Int32           mLastWeapon;
         Float32         mLastHealth;
         Float32         mLastArmour;
@@ -311,6 +314,10 @@ protected:
         Uint16          mFlags;
         CVehicle *      mInst;
         Object          mObj;
+
+        // ----------------------------------------------------------------------------------------
+        SQInteger       mTrackPosition;
+        SQInteger       mTrackRotation;
 
         // ----------------------------------------------------------------------------------------
         Int32           mLastPrimaryColour;

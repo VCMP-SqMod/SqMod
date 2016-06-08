@@ -1175,6 +1175,24 @@ void CPlayer::SetMessagePrefix(Uint32 index, CSStr prefix)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::GetTrackPosition() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetPlayer(m_ID).mTrackPosition;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetTrackPosition(SQInteger num) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Assign the requested information
+    Core::Get().GetPlayer(m_ID).mTrackPosition = num;
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetLastWeapon() const
 {
     // Validate the managed identifier
@@ -2075,6 +2093,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Away"), &CPlayer::IsAway)
         .Prop(_SC("Spec"), &CPlayer::GetSpectator, &CPlayer::SetSpectator)
         .Prop(_SC("Authority"), &CPlayer::GetAuthority, &CPlayer::SetAuthority)
+        .Prop(_SC("TrackPosition"), &CPlayer::GetTrackPosition, &CPlayer::SetTrackPosition)
         .Prop(_SC("LastWeapon"), &CPlayer::GetLastWeapon)
         .Prop(_SC("LastHealth"), &CPlayer::GetLastHealth)
         .Prop(_SC("LastArmour"), &CPlayer::GetLastArmour)

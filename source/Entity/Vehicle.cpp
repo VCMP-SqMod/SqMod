@@ -985,6 +985,87 @@ bool CVehicle::Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) co
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger CVehicle::GetTrackPosition() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetVehicle(m_ID).mTrackPosition;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetTrackPosition(SQInteger num) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Assign the requested information
+    Core::Get().GetVehicle(m_ID).mTrackPosition = num;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CVehicle::GetTrackRotation() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetVehicle(m_ID).mTrackRotation;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetTrackRotation(SQInteger num) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Assign the requested information
+    Core::Get().GetVehicle(m_ID).mTrackRotation = num;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CVehicle::GetLastPrimaryColour() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetVehicle(m_ID).mLastPrimaryColour;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 CVehicle::GetLastSecondaryColour() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetVehicle(m_ID).mLastSecondaryColour;
+}
+
+// ------------------------------------------------------------------------------------------------
+Float32 CVehicle::GetLastHealth() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetVehicle(m_ID).mLastHealth;
+}
+
+// ------------------------------------------------------------------------------------------------
+const Vector3 & CVehicle::GetLastPosition() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetVehicle(m_ID).mLastPosition;
+}
+
+// ------------------------------------------------------------------------------------------------
+const Quaternion & CVehicle::GetLastRotation() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetVehicle(m_ID).mLastRotation;
+}
+
+// ------------------------------------------------------------------------------------------------
 Float32 CVehicle::GetPositionX() const
 {
     // Validate the managed identifier
@@ -1678,6 +1759,13 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("HorizontalTurretRotation"), &CVehicle::GetHorizontalTurretRotation)
         .Prop(_SC("VerTurretRotation"), &CVehicle::GetVerticalTurretRotation)
         .Prop(_SC("VerticalTurretRotation"), &CVehicle::GetVerticalTurretRotation)
+        .Prop(_SC("TrackPosition"), &CVehicle::GetTrackPosition, &CVehicle::SetTrackPosition)
+        .Prop(_SC("TrackRotation"), &CVehicle::GetTrackRotation, &CVehicle::SetTrackRotation)
+        .Prop(_SC("LastPrimaryColour"), &CVehicle::GetLastPrimaryColour)
+        .Prop(_SC("LastSecondaryColour"), &CVehicle::GetLastSecondaryColour)
+        .Prop(_SC("LastHealth"), &CVehicle::GetLastHealth)
+        .Prop(_SC("LastPosition"), &CVehicle::GetLastPosition)
+        .Prop(_SC("LastRotation"), &CVehicle::GetLastRotation)
         .Prop(_SC("PosX"), &CVehicle::GetPositionX, &CVehicle::SetPositionX)
         .Prop(_SC("PosY"), &CVehicle::GetPositionY, &CVehicle::SetPositionY)
         .Prop(_SC("PosZ"), &CVehicle::GetPositionZ, &CVehicle::SetPositionZ)

@@ -921,7 +921,15 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
     if (pos != inst.mLastPosition)
     {
         // Trigger the event specific to this change
-        EmitPlayerPosition(player_id);
+        if (inst.mTrackPosition != 0)
+        {
+            EmitPlayerPosition(player_id);
+            // Should we decrease the tracked position changes?
+            if (inst.mTrackPosition)
+            {
+                --inst.mTrackPosition;
+            }
+        }
         // Update the tracked value
         inst.mLastPosition = pos;
     }
@@ -980,7 +988,15 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
         case vcmpVehicleUpdatePosition:
         {
             // Trigger the event specific to this change
-            EmitVehiclePosition(vehicle_id);
+            if (inst.mTrackPosition != 0)
+            {
+                EmitVehiclePosition(vehicle_id);
+                // Should we decrease the tracked position changes?
+                if (inst.mTrackPosition)
+                {
+                    --inst.mTrackPosition;
+                }
+            }
             // Update the tracked value
             _Func->GetVehiclePosition(vehicle_id, &inst.mLastPosition.x,
                                         &inst.mLastPosition.y, &inst.mLastPosition.z);
@@ -1019,13 +1035,19 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
         } break;
         case vcmpVehicleUpdateRotation:
         {
-            Quaternion rot;
-            // Obtain the current position of this instance
-            _Func->GetVehicleRotation(vehicle_id, &rot.x, &rot.y, &rot.z, &rot.w);
             // Trigger the event specific to this change
-            EmitVehicleRotation(vehicle_id);
-            // Update the tracked value
-            inst.mLastRotation = rot;
+            if (inst.mTrackRotation != 0)
+            {
+                EmitVehicleRotation(vehicle_id);
+                // Should we decrease the tracked rotation changes?
+                if (inst.mTrackRotation)
+                {
+                    --inst.mTrackRotation;
+                }
+            }
+            // Obtain the current rotation of this instance
+            _Func->GetVehicleRotation(vehicle_id, &inst.mLastRotation.x, &inst.mLastRotation.y,
+                                                    &inst.mLastRotation.z, &inst.mLastRotation.w);
         } break;
         default:
         {
