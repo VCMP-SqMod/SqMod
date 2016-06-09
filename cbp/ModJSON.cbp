@@ -410,9 +410,20 @@
 			<Add directory="../shared" />
 			<Add directory="../include" />
 			<Add directory="../config/common" />
+			<Add directory="../external/Jansson" />
 		</Compiler>
 		<Unit filename="../modules/json/Common.cpp" />
 		<Unit filename="../modules/json/Common.hpp" />
+		<Unit filename="../modules/json/JArray.cpp" />
+		<Unit filename="../modules/json/JArray.hpp" />
+		<Unit filename="../modules/json/JObject.cpp" />
+		<Unit filename="../modules/json/JObject.hpp" />
+		<Unit filename="../modules/json/JValue.cpp" />
+		<Unit filename="../modules/json/JValue.hpp" />
+		<Unit filename="../modules/json/Library.c">
+			<Option compilerVar="CC" />
+			<Option compiler="gcc" use="1" buildCommand="$compiler -Wno-unused-function -Wno-maybe-uninitialized $options $includes -c $file -o $object" />
+		</Unit>
 		<Unit filename="../modules/json/Module.cpp" />
 		<Unit filename="../shared/Base/Buffer.cpp" />
 		<Unit filename="../shared/Base/Buffer.hpp" />

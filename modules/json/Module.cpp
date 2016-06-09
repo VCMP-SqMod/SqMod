@@ -158,9 +158,22 @@ void UnbindCallbacks()
 }
 
 // ------------------------------------------------------------------------------------------------
+extern void Register_Common(Table & jns);
+extern void Register_JArray(Table & jns);
+extern void Register_JObject(Table & jns);
+extern void Register_JValue(Table & jns);
+
+// ------------------------------------------------------------------------------------------------
 void RegisterAPI(HSQUIRRELVM vm)
 {
+    Table jns(vm);
 
+    Register_Common(jns);
+    Register_JArray(jns);
+    Register_JObject(jns);
+    Register_JValue(jns);
+
+    RootTable(vm).Bind(_SC("SqJSON"), jns);
 }
 
 } // Namespace:: SqMod
