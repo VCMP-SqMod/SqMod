@@ -108,7 +108,7 @@ Int64 Chrono::GetEpochTimeMicro()
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 Chrono::GetTickCount()
+Uint32 GetTickCount()
 {
     // POSIX implementation
     struct timespec time;
@@ -120,7 +120,7 @@ Uint32 Chrono::GetTickCount()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 Chrono::GetTickCount64()
+Int64 GetTickCount64()
 {
     struct timespec time;
     if (clock_gettime(CLOCK_MONOTONIC, &time))
