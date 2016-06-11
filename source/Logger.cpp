@@ -99,6 +99,8 @@ static inline CCStr GetLevelTag(Uint8 level)
     }
 }
 
+#ifndef SQMOD_OS_WINDOWS
+
 /* ------------------------------------------------------------------------------------------------
  * Identify the message prefix and color.
 */
@@ -116,6 +118,26 @@ static inline CCStr GetColoredLevelTag(Uint8 level)
         default: return "\033[21;0m[[UNK]\033[0m";
     }
 }
+
+/* ------------------------------------------------------------------------------------------------
+ * Identify the message prefix and color.
+*/
+static inline CCStr GetColoredLevelTagDim(Uint8 level)
+{
+    switch (level)
+    {
+        case LOGL_DBG: return "\033[21;94m[[DBG]\033[2m";
+        case LOGL_USR: return "\033[21;37m[[USR]\033[2m";
+        case LOGL_SCS: return "\033[21;92m[[SCS]\033[2m";
+        case LOGL_INF: return "\033[21;96m[[INF]\033[2m";
+        case LOGL_WRN: return "\033[21;93m[[WRN]\033[2m";
+        case LOGL_ERR: return "\033[21;91m[[ERR]\033[2m";
+        case LOGL_FTL: return "\033[21;95m[[FTL]\033[2m";
+        default: return "\033[21;0m[[UNK]\033[0m";
+    }
+}
+
+#endif // SQMOD_OS_WINDOWS
 
 /* ------------------------------------------------------------------------------------------------
  * Output a logging message to the console window.
@@ -136,18 +158,19 @@ static inline void OutputConsoleMessage(Uint8 level, bool sub, CCStr tms, CCStr 
         std::printf("%s ", GetLevelTag(level));
     }
     SetConsoleTextAttribute(hstdout, sub ? LC_NORMAL : LC_WHITE);
-    std::puts(msg);
+    std::printf("%s\n", msg);
     SetConsoleTextAttribute(hstdout, csb_state.wAttributes);
 #else
     if (tms)
     {
-        std::printf("%s %s ", GetColoredLevelTag(level), tms);
+        std::printf("%s %s %s[\033[0m]\n",
+            sub ? GetColoredLevelTagDim(level) : GetColoredLevelTag(level), tms, msg);
     }
     else
     {
-        std::printf("%s ", GetColoredLevelTag(level));
+        std::printf("%s %s[\033[0m]\n",
+            sub ? GetColoredLevelTagDim(level) : GetColoredLevelTag(level), msg);
     }
-    std::puts(msg);
 #endif // SQMOD_OS_WINDOWS
 }
 
