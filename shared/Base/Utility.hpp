@@ -1468,22 +1468,22 @@ Object MakeULongObj(HSQUIRRELVM vm, Uint64 val);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve a signed 64 bit integer from an signed long integer object.
 */
-Int64 FetchSLongObjVal(Object & val);
+Int64 FetchSLongObjVal(const Object & val);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve a unsigned 64 bit integer from an unsigned long integer object.
 */
-Uint64 FetchULongObjVal(Object & val);
+Uint64 FetchULongObjVal(const Object & val);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve a signed 64 bit integer from an signed long integer object.
 */
-Int64 FetchSLongObjVal(HSQUIRRELVM vm, Object & val);
+Int64 FetchSLongObjVal(HSQUIRRELVM vm, const Object & val);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve a unsigned 64 bit integer from an unsigned long integer object.
 */
-Uint64 FetchULongObjVal(HSQUIRRELVM vm, Object & val);
+Uint64 FetchULongObjVal(HSQUIRRELVM vm, const Object & val);
 
 /* ------------------------------------------------------------------------------------------------
  * Attempt to pop the value at the specified index on the stack as a native integer.

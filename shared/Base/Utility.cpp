@@ -807,45 +807,45 @@ Object MakeULongObj(HSQUIRRELVM vm, Uint64 val)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 FetchSLongObjVal(Object & val)
+Int64 FetchSLongObjVal(const Object & val)
 {
     // Obtain the initial stack size
     const StackGuard sg(DefaultVM::Get());
     // Push the specified object onto the stack
-    Var< Object & >::push(DefaultVM::Get(), val);
+    Var< const Object & >::push(DefaultVM::Get(), val);
     // Retrieve and return the object value from the stack
     return PopStackSLong(DefaultVM::Get(), -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint64 FetchULongObjVal(Object & val)
+Uint64 FetchULongObjVal(const Object & val)
 {
     // Obtain the initial stack size
     const StackGuard sg(DefaultVM::Get());
     // Push the specified object onto the stack
-    Var< Object & >::push(DefaultVM::Get(), val);
+    Var< const Object & >::push(DefaultVM::Get(), val);
     // Retrieve and return the object value from the stack
     return PopStackSLong(DefaultVM::Get(), -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 FetchSLongObjVal(HSQUIRRELVM vm, Object & val)
+Int64 FetchSLongObjVal(HSQUIRRELVM vm, const Object & val)
 {
     // Obtain the initial stack size
     const StackGuard sg(vm);
     // Push the specified object onto the stack
-    Var< Object & >::push(vm, val);
+    Var< const Object & >::push(vm, val);
     // Retrieve and return the object value from the stack
     return PopStackSLong(vm, -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint64 FetchULongObjVal(HSQUIRRELVM vm, Object & val)
+Uint64 FetchULongObjVal(HSQUIRRELVM vm, const Object & val)
 {
     // Obtain the initial stack size
     const StackGuard sg(vm);
     // Push the specified object onto the stack
-    Var< Object & >::push(vm, val);
+    Var< const Object & >::push(vm, val);
     // Retrieve and return the object value from the stack
     return PopStackSLong(vm, -1);
 }
