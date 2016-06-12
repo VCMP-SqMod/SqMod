@@ -601,6 +601,45 @@ public:
         }
     }
 
+#ifdef SCRAT_USE_CXX11_OPTIMIZATIONS
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Move constructor
+    ///
+    /// \param other SharedPtr to move
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    SharedPtr(SharedPtr<T>&& other)
+        : m_Ptr(other.m_Ptr)
+        , m_RefCount(other.m_RefCount)
+        , m_RefCountRefCount(other.m_RefCountRefCount)
+    {
+        other.m_Ptr              = NULL;
+        other.m_RefCount         = NULL;
+        other.m_RefCountRefCount = NULL;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Move constructor
+    ///
+    /// \param other SharedPtr to move
+    ///
+    /// \tparam U Type of pointer (usually doesnt need to be defined explicitly)
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template <class U>
+    SharedPtr(SharedPtr<U>&& other)
+        : m_Ptr(static_cast<T*>(other.m_Ptr))
+        , m_RefCount(other.m_RefCount)
+        , m_RefCountRefCount(other.m_RefCountRefCount)
+    {
+        other.m_Ptr              = NULL;
+        other.m_RefCount         = NULL;
+        other.m_RefCountRefCount = NULL;
+    }
+
+#endif // SCRAT_USE_CXX11_OPTIMIZATIONS
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Copy constructor
     ///
@@ -693,6 +732,65 @@ public:
 
         return *this;
     }
+
+#ifdef SCRAT_USE_CXX11_OPTIMIZATIONS
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Assigns the SharedPtr
+    ///
+    /// \param other SharedPtr to move
+    ///
+    /// \return The SharedPtr itself
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    SharedPtr<T>& operator=(SharedPtr<T>&& other)
+    {
+        if (m_Ptr != other.m_Ptr)
+        {
+            Reset();
+
+            m_Ptr = other.m_Ptr;
+            m_RefCount = other.m_RefCount;
+            m_RefCountRefCount = other.m_RefCountRefCount;
+
+            other.m_Ptr              = NULL;
+            other.m_RefCount         = NULL;
+            other.m_RefCountRefCount = NULL;
+        }
+
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Assigns the SharedPtr
+    ///
+    /// \param other SharedPtr to move
+    ///
+    /// \tparam U Type of pointer (usually doesnt need to be defined explicitly)
+    ///
+    /// \return The SharedPtr itself
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template <class U>
+    SharedPtr<T>& operator=(SharedPtr<U>&& other)
+    {
+        if (m_Ptr != static_cast<T*>(other.m_Ptr))
+        {
+            Reset();
+
+            m_Ptr = static_cast<T*>(other.m_Ptr);
+            m_RefCount = other.m_RefCount;
+            m_RefCountRefCount = other.m_RefCountRefCount;
+
+            other.m_Ptr              = NULL;
+            other.m_RefCount         = NULL;
+            other.m_RefCountRefCount = NULL;
+        }
+
+        return *this;
+    }
+
+#endif // SCRAT_USE_CXX11_OPTIMIZATIONS
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Sets up a new object to be managed by the SharedPtr
@@ -1027,6 +1125,45 @@ public:
         }
     }
 
+#ifdef SCRAT_USE_CXX11_OPTIMIZATIONS
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Move constructor
+    ///
+    /// \param other WeakPtr to move
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    WeakPtr(WeakPtr<T>&& other)
+        : m_Ptr(other.m_Ptr)
+        , m_RefCount(other.m_RefCount)
+        , m_RefCountRefCount(other.m_RefCountRefCount)
+    {
+        other.m_Ptr              = NULL;
+        other.m_RefCount         = NULL;
+        other.m_RefCountRefCount = NULL;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Move constructor
+    ///
+    /// \param other WeakPtr to move
+    ///
+    /// \tparam U Type of pointer (usually doesnt need to be defined explicitly)
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template <class U>
+    WeakPtr(WeakPtr<U>&& other)
+        : m_Ptr(static_cast<T*>(other.m_Ptr))
+        , m_RefCount(other.m_RefCount)
+        , m_RefCountRefCount(other.m_RefCountRefCount)
+    {
+        other.m_Ptr              = NULL;
+        other.m_RefCount         = NULL;
+        other.m_RefCountRefCount = NULL;
+    }
+
+#endif // SCRAT_USE_CXX11_OPTIMIZATIONS
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Copy constructor
     ///
@@ -1116,6 +1253,65 @@ public:
 
         return *this;
     }
+
+#ifdef SCRAT_USE_CXX11_OPTIMIZATIONS
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Assigns the WeakPtr
+    ///
+    /// \param other WeakPtr to move
+    ///
+    /// \return The WeakPtr itself
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    WeakPtr<T>& operator=(WeakPtr<T>&& other)
+    {
+        if (m_Ptr != other.m_Ptr)
+        {
+            Reset();
+
+            m_Ptr              = other.m_Ptr;
+            m_RefCount         = other.m_RefCount;
+            m_RefCountRefCount = other.m_RefCountRefCount;
+
+            other.m_Ptr              = NULL;
+            other.m_RefCount         = NULL;
+            other.m_RefCountRefCount = NULL;
+        }
+
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Assigns the WeakPtr
+    ///
+    /// \param other WeakPtr to move
+    ///
+    /// \tparam U Type of pointer (usually doesnt need to be defined explicitly)
+    ///
+    /// \return The WeakPtr itself
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template <class U>
+    WeakPtr<T>& operator=(WeakPtr<U>&& other)
+    {
+        if (m_Ptr != static_cast<T*>(other.m_Ptr))
+        {
+            Reset();
+
+            m_Ptr              = static_cast<T*>(other.m_Ptr);
+            m_RefCount         = other.m_RefCount;
+            m_RefCountRefCount = other.m_RefCountRefCount;
+
+            other.m_Ptr              = NULL;
+            other.m_RefCount         = NULL;
+            other.m_RefCountRefCount = NULL;
+        }
+
+        return *this;
+    }
+
+#endif // SCRAT_USE_CXX11_OPTIMIZATIONS
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Assigns the WeakPtr
