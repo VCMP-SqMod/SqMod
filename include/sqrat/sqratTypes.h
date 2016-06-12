@@ -651,6 +651,7 @@ private:
 public:
 
     SQChar* value; ///< The actual value of get operations
+    SQInteger size; ///< The size of the obtained string
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Attempts to get the value off the stack at idx as a character array
@@ -662,7 +663,7 @@ public:
     Var(HSQUIRRELVM vm, SQInteger idx) {
         sq_tostring(vm, idx);
         sq_getstackobj(vm, -1, &obj);
-        sq_getstring(vm, -1, (const SQChar**)&value);
+        sq_getstringandsize(vm, -1, (const SQChar**)&value, &size);
         sq_addref(vm, &obj);
         sq_pop(vm,1);
         v = vm;
@@ -705,6 +706,7 @@ private:
 public:
 
     const SQChar* value; ///< The actual value of get operations
+    SQInteger size; ///< The size of the obtained string
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Attempts to get the value off the stack at idx as a character array
@@ -716,7 +718,7 @@ public:
     Var(HSQUIRRELVM vm, SQInteger idx) {
         sq_tostring(vm, idx);
         sq_getstackobj(vm, -1, &obj);
-        sq_getstring(vm, -1, &value);
+        sq_getstringandsize(vm, -1, &value, &size);
         sq_addref(vm, &obj);
         sq_pop(vm,1);
         v = vm;
@@ -763,9 +765,10 @@ struct Var<string> {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Var(HSQUIRRELVM vm, SQInteger idx) {
         const SQChar* ret;
+        SQInteger len;
         sq_tostring(vm, idx);
-        sq_getstring(vm, -1, &ret);
-        value = string(ret, sq_getsize(vm, -1));
+        sq_getstringandsize(vm, -1, &ret, &len);
+        value.assign(ret, len);
         sq_pop(vm,1);
     }
 
@@ -798,9 +801,10 @@ struct Var<const string&> {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Var(HSQUIRRELVM vm, SQInteger idx) {
         const SQChar* ret;
+        SQInteger len;
         sq_tostring(vm, idx);
-        sq_getstring(vm, -1, &ret);
-        value = string(ret, sq_getsize(vm, -1));
+        sq_getstringandsize(vm, -1, &ret, &len);
+        value.assign(ret, len);
         sq_pop(vm,1);
     }
 
@@ -834,9 +838,10 @@ struct Var<std::string> {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Var(HSQUIRRELVM vm, SQInteger idx) {
         const SQChar* ret;
+        SQInteger len;
         sq_tostring(vm, idx);
-        sq_getstring(vm, -1, &ret);
-        value = wstring_to_string(string(ret, sq_getsize(vm, -1)));
+        sq_getstringandsize(vm, -1, &ret, &len);
+        value = wstring_to_string(string(ret, len));
         sq_pop(vm,1);
     }
 
@@ -870,9 +875,10 @@ struct Var<const std::string&> {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Var(HSQUIRRELVM vm, SQInteger idx) {
         const SQChar* ret;
+        SQInteger len;
         sq_tostring(vm, idx);
-        sq_getstring(vm, -1, &ret);
-        value = wstring_to_string(string(ret, sq_getsize(vm, -1)));
+        sq_getstringandsize(vm, -1, &ret, &len);
+        value = wstring_to_string(string(ret, len));
         sq_pop(vm,1);
     }
 
@@ -902,6 +908,7 @@ private:
 public:
 
     char* value; ///< The actual value of get operations
+    String::size_type size; ///< The size of the obtained string
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Attempts to get the value off the stack at idx as a character array
@@ -913,14 +920,16 @@ public:
     Var(HSQUIRRELVM vm, SQInteger idx) {
         std::string holder;
         const SQChar *sv;
+        SQInteger len;
         sq_tostring(vm, idx);
         sq_getstackobj(vm, -1, &obj);
-        sq_getstring(vm, -1, &sv);
+        sq_getstringandsize(vm, -1, &sv, &len);
         sq_addref(vm, &obj);
         sq_pop(vm,1);
         v = vm;
-        holder = wstring_to_string(string(sv));
+        holder = wstring_to_string(string(sv, len));
         value = strdup(holder.c_str());
+        size = holder.size();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -961,6 +970,7 @@ private:
 public:
 
     char* value; ///< The actual value of get operations
+    String::size_type size; ///< The size of the obtained string
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Attempts to get the value off the stack at idx as a character array
@@ -972,14 +982,16 @@ public:
     Var(HSQUIRRELVM vm, SQInteger idx) {
         std::string holder;
         const SQChar *sv;
+        SQInteger len;
         sq_tostring(vm, idx);
         sq_getstackobj(vm, -1, &obj);
-        sq_getstring(vm, -1, &sv);
+        sq_getstringandsize(vm, -1, &sv, &len);
         sq_addref(vm, &obj);
         sq_pop(vm,1);
         v = vm;
-        holder = wstring_to_string(string(sv));
+        holder = wstring_to_string(string(sv, len));
         value = strdup(holder.c_str());
+        size = holder.size();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
