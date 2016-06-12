@@ -465,15 +465,16 @@ inline string FormatTypeError(HSQUIRRELVM vm, SQInteger idx, const string& expec
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 inline string LastErrorString(HSQUIRRELVM vm) {
     const SQChar* sqErr;
+    SQInteger size;
     sq_getlasterror(vm);
     if (sq_gettype(vm, -1) == OT_NULL) {
         sq_pop(vm, 1);
         return string();
     }
     sq_tostring(vm, -1);
-    sq_getstring(vm, -1, &sqErr);
+    sq_getstringandsize(vm, -1, &sqErr, &size);
     sq_pop(vm, 2);
-    return string(sqErr);
+    return string(sqErr, size);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
