@@ -813,6 +813,38 @@ Color3 GetColor(CSStr name)
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqPackRGB(SQInteger r, SQInteger g, SQInteger b)
+{
+    return static_cast< Int32 >(SQMOD_PACK_RGB(
+            ConvTo< Uint8 >::From(r),
+            ConvTo< Uint8 >::From(g),
+            ConvTo< Uint8 >::From(b)
+        ));
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqPackRGBA(SQInteger r, SQInteger g, SQInteger b, SQInteger a)
+{
+    return static_cast< Int32 >(SQMOD_PACK_RGBA(
+            ConvTo< Uint8 >::From(r),
+            ConvTo< Uint8 >::From(g),
+            ConvTo< Uint8 >::From(b),
+            ConvTo< Uint8 >::From(a)
+        ));
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqPackARGB(SQInteger r, SQInteger g, SQInteger b, SQInteger a)
+{
+    return static_cast< Int32 >(SQMOD_PACK_ARGB(
+            ConvTo< Uint8 >::From(a),
+            ConvTo< Uint8 >::From(r),
+            ConvTo< Uint8 >::From(g),
+            ConvTo< Uint8 >::From(b)
+        ));
+}
+
 // ================================================================================================
 void Register_Base(HSQUIRRELVM vm)
 {
@@ -830,7 +862,9 @@ void Register_Base(HSQUIRRELVM vm)
     .Func(_SC("ClampMaxF"), &ClampMax< SQFloat >)
     .Func(_SC("NextPow2"), &NextPow2)
     .Func(_SC("SToB"), &SToB)
-    .Func(_SC("GetColor"), &GetColor);
+    .Func(_SC("PackRGB"), &SqPackRGB)
+    .Func(_SC("PackRGBA"), &SqPackRGBA)
+    .Func(_SC("PackARGB"), &SqPackARGB);
 }
 
 } // Namespace:: SqMod
