@@ -886,8 +886,16 @@ Object & CPlayer::GetVehicle() const
 {
     // Validate the managed identifier
     Validate();
-    // Return the requested information
-    return Core::Get().GetVehicle(_Func->GetPlayerVehicleId(m_ID)).mObj;
+    // Retrieve the identifier of the vehicle
+    const Int32 id = _Func->GetPlayerVehicleId(m_ID);
+    // Validate the obtained identifier
+    if (VALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        // Return the requested information
+        return Core::Get().GetVehicle(id).mObj;
+    }
+    // Default to a null object
+    return NullObject();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1070,8 +1078,16 @@ Object & CPlayer::StandingOnVehicle() const
 {
     // Validate the managed identifier
     Validate();
-    // Return the requested information
-    return Core::Get().GetVehicle(_Func->GetPlayerStandingOnVehicle(m_ID)).mObj;
+    // Retrieve the identifier of the vehicle
+    const Int32 id = _Func->GetPlayerStandingOnVehicle(m_ID);
+    // Validate the obtained identifier
+    if (VALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        // Return the requested information
+        return Core::Get().GetVehicle(id).mObj;
+    }
+    // Default to a null object
+    return NullObject();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1079,8 +1095,16 @@ Object & CPlayer::StandingOnObject() const
 {
     // Validate the managed identifier
     Validate();
-    // Return the requested information
-    return Core::Get().GetObject(_Func->GetPlayerStandingOnObject(m_ID)).mObj;
+    // Retrieve the identifier of the object
+    const Int32 id = _Func->GetPlayerStandingOnObject(m_ID);
+    // Validate the obtained identifier
+    if (VALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+    {
+        // Return the requested information
+        return Core::Get().GetObject(id).mObj;
+    }
+    // Default to a null object
+    return NullObject();
 }
 
 // ------------------------------------------------------------------------------------------------
