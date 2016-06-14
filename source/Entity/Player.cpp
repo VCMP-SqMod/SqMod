@@ -183,10 +183,10 @@ CSStr CPlayer::GetIP() const
     Validate();
     // Clear any previous string (just in case)
     s_Buffer[0] = '\0';
-    // Query the server for the ip of the managed player
+    // Query the server for the IP of the managed player
     if (_Func->GetPlayerIP(m_ID, s_Buffer, sizeof(s_Buffer)) == vcmpErrorBufferTooSmall)
     {
-        STHROWF("The available buffer was too small to contain the ip address");
+        STHROWF("The available buffer was too small to contain the IP address");
     }
     // Return the requested information
     return s_Buffer;
@@ -199,7 +199,7 @@ CSStr CPlayer::GetUID() const
     Validate();
     // Clear any previous string (just in case)
     s_Buffer[0] = '\0';
-    // Query the server for the uid of the managed player
+    // Query the server for the UID of the managed player
     if (_Func->GetPlayerUID(m_ID, s_Buffer, sizeof(s_Buffer)) == vcmpErrorBufferTooSmall)
     {
         STHROWF("The available buffer was too small to contain the unique id");
@@ -215,10 +215,10 @@ CSStr CPlayer::GetUID2() const
     Validate();
     // Clear any previous string (just in case)
     s_Buffer[0] = '\0';
-    // Query the server for the uid2 of the managed player
+    // Query the server for the UID2 of the managed player
     if (_Func->GetPlayerUID2(m_ID, s_Buffer, sizeof(s_Buffer)) == vcmpErrorBufferTooSmall)
     {
-        STHROWF("The available buffer was too small to contain the unique idv2");
+        STHROWF("The available buffer was too small to contain the unique id v2");
     }
     // Return the requested information
     return s_Buffer;
@@ -307,8 +307,13 @@ void CPlayer::SetOption(Int32 option_id, bool toggle)
 {
     // Attempt to obtain the current value of the specified option
     const bool value = _Func->GetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id));
+    // Do we even have to modify the specified option?
+    if (value == toggle)
+    {
+        return; // Nothing to change!
+    }
     // Attempt to modify the current value of the specified option
-    if (_Func->SetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id),
+    else if (_Func->SetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id),
                                 toggle) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid option identifier: %d", option_id);
@@ -324,8 +329,13 @@ void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & p
 {
     // Attempt to obtain the current value of the specified option
     const bool value = _Func->GetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id));
+    // Do we even have to modify the specified option?
+    if (value == toggle)
+    {
+        return; // Nothing to change!
+    }
     // Attempt to modify the current value of the specified option
-    if (_Func->SetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id),
+    else if (_Func->SetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id),
                                 toggle) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid option identifier: %d", option_id);
@@ -334,7 +344,7 @@ void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & p
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_OPTION);
-        // Now forard the evnet call
+        // Now forward the event call
         Core::Get().EmitPlayerOption(m_ID, option_id, value, header, payload);
     }
 }
