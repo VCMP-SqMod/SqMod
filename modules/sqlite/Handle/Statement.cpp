@@ -1,45 +1,41 @@
 // ------------------------------------------------------------------------------------------------
 #include "Handle/Statement.hpp"
+#include "Handle/Connection.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-void StmtHnd::Validate() const
+StmtHnd::StmtHnd(const ConnRef & conn)
+    : mPtr(nullptr)
+    , mStatus(SQLITE_OK)
+    , mConn(conn)
+    , mQuery()
+    , mColumns(0)
+    , mParameters(0)
+    , mIndexes()
+    , mGood(false)
+    , mDone(false)
 {
-    // Is the handle valid?
-    if ((m_Hnd == nullptr) || (m_Hnd->mPtr == nullptr))
-    {
-        STHROWF("Invalid SQLite statement reference");
-    }
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-StmtHnd::Handle::~Handle()
+StmtHnd::~StmtHnd()
 {
     // Is there anything to finalize?
-    if (!mPtr)
-    {
-        return; // Nothing to finalize
-    }
-    // Are we dealing with a memory leak? Technically shouldn't reach this situation!
-    else if (mRef != 0)
-    {
-        // Should we deal with undefined behavior instead? How bad is one statement left alive?
-        _SqMod->LogErr("SQLite statement is still referenced (%s)", mQuery.c_str());
-    }
-    else
+    if (mPtr != nullptr)
     {
         // Attempt to finalize the statement
         if ((sqlite3_finalize(mPtr)) != SQLITE_OK)
         {
-            _SqMod->LogErr("Unable to finalize SQLite statement [%s]", mConn.ErrMsg());
+            _SqMod->LogErr("Unable to finalize SQLite statement [%s]", mConn->ErrMsg());
         }
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void StmtHnd::Handle::Create(CSStr query)
+void StmtHnd::Create(CSStr query)
 {
     // Make sure a previous statement doesn't exist
     if (mPtr)
@@ -59,7 +55,7 @@ void StmtHnd::Handle::Create(CSStr query)
         STHROWF("Unable to prepare statement. Invalid query string");
     }
     // Attempt to prepare a statement with the specified query string
-    else if ((mStatus = sqlite3_prepare_v2(mConn, mQuery.c_str(), (Int32)mQuery.size(),
+    else if ((mStatus = sqlite3_prepare_v2(mConn->mPtr, mQuery.c_str(), (Int32)mQuery.size(),
                                             &mPtr, nullptr)) != SQLITE_OK)
     {
         // Clear the query string since it failed
@@ -67,17 +63,19 @@ void StmtHnd::Handle::Create(CSStr query)
         // Explicitly make sure the handle is null
         mPtr = nullptr;
         // Now it's safe to throw the error
-        STHROWF("Unable to prepare statement [%s]", mConn.ErrMsg());
+        STHROWF("Unable to prepare statement [%s]", mConn->ErrMsg());
     }
     else
     {
         // Obtain the number of available columns
         mColumns = sqlite3_column_count(mPtr);
+        // Obtain the number of available parameters
+        mParameters = sqlite3_bind_parameter_count(mPtr);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 StmtHnd::Handle::GetColumnIndex(CSStr name)
+Int32 StmtHnd::GetColumnIndex(CSStr name)
 {
     // Validate the handle
     if (!mPtr)
@@ -112,6 +110,30 @@ Int32 StmtHnd::Handle::GetColumnIndex(CSStr name)
     }
     // No such column exists (expecting the invoker to validate the result)
     return -1;
+}
+
+// ------------------------------------------------------------------------------------------------
+CCStr StmtHnd::ErrStr() const
+{
+    return mConn ? sqlite3_errstr(sqlite3_errcode(mConn->mPtr)) : _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
+CCStr StmtHnd::ErrMsg() const
+{
+    return mConn ? sqlite3_errmsg(mConn->mPtr) : _SC("");
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 StmtHnd::ErrNo() const
+{
+    return mConn ? sqlite3_errcode(mConn->mPtr) : SQLITE_NOMEM;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 StmtHnd::ExErrNo() const
+{
+    return mConn ? sqlite3_extended_errcode(mConn->mPtr) : SQLITE_NOMEM;
 }
 
 } // Namespace:: SqMod

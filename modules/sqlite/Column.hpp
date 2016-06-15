@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Helper class used to manage statement columns.
+ * Tsed to manage and interact with statement columns.
 */
 class Column
 {
@@ -21,23 +21,60 @@ private:
     Int32       m_Index; // The index of the managed column.
 
     // --------------------------------------------------------------------------------------------
-    StmtHnd     m_Stmt; // The statement where the column exist.
+    StmtRef     m_Handle; // The statement where the column exist.
+
+protected:
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the statement reference and index, and throw an error if they're invalid.
+     * Validate the managed statement handle and throw an error if invalid.
     */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void Validate(CCStr file, Int32 line) const;
+#else
     void Validate() const;
+#endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the statement reference, index and row, and throw an error if they're invalid.
+     * Validate the managed statement handle and throw an error if invalid.
     */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateCreated(CCStr file, Int32 line) const;
+#else
+    void ValidateCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const StmtRef & GetValid(CCStr file, Int32 line) const;
+#else
+    const StmtRef & GetValid() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const StmtRef & GetCreated(CCStr file, Int32 line) const;
+#else
+    const StmtRef & GetCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the statement reference and row, and throw an error if they're invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateRow(CCStr file, Int32 line) const;
+#else
     void ValidateRow() const;
+#endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Column(const StmtHnd & stmt, Int32 idx)
-        : m_Index(idx), m_Stmt(stmt)
+    Column(const StmtRef & stmt, Int32 idx)
+        : m_Index(idx), m_Handle(stmt)
     {
         /* ... */
     }
@@ -48,7 +85,7 @@ public:
      * Default constructor (null).
     */
     Column()
-        : m_Index(-1), m_Stmt()
+        : m_Index(-1), m_Handle()
     {
         /* ... */
     }
@@ -56,29 +93,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Column(const Column & o)
-        : m_Index(o.m_Index), m_Stmt(o.m_Stmt)
-    {
-        /* ... */
-    }
+    Column(const Column & o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Destructor.
+     * Move constructor.
     */
-    ~Column()
-    {
-        /* Let the reference manager destroy the statement when necessary. */
-    }
+    Column(Column && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Column operator = (const Column & o)
-    {
-        m_Index = o.m_Index;
-        m_Stmt = o.m_Stmt;
-        return *this;
-    }
+    Column & operator = (const Column & o) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    Column & operator = (Column && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two connection handles.
@@ -109,11 +139,11 @@ public:
     */
     Int32 Cmp(const Column & o) const
     {
-        if (m_Stmt == o.m_Stmt)
+        if (m_Handle.Get() == o.m_Handle.Get())
         {
             return 0;
         }
-        else if (m_Stmt.HndPtr() > o.m_Stmt.HndPtr())
+        else if (m_Handle.Get() > o.m_Handle.Get())
         {
             return 1;
         }
@@ -141,7 +171,7 @@ public:
     */
     bool IsValid() const
     {
-        return (bool)m_Stmt; // An invalid statement means an invalid column
+        return m_Handle; // An invalid statement means an invalid column
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -149,7 +179,7 @@ public:
     */
     Uint32 GetRefCount() const
     {
-        return m_Stmt.Count();
+        return m_Handle.Count();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -175,14 +205,19 @@ public:
     */
     void Release()
     {
-        m_Stmt = StmtHnd();
+        m_Handle.Reset();
         m_Index = -1;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the associated column cel as a 32bit integer.
+     * Retrieve the value inside the associated column cel as a dynamic type.
     */
-    Int32 GetNumber() const;
+    Object GetValue() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the associated column cel as a numeric type.
+    */
+    Object GetNumber() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value inside the associated column cel as a native script integer.
@@ -210,14 +245,19 @@ public:
     bool GetBoolean() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the associated column cel as a memory blob.
-    */
-    Object GetBlob() const;
-
-    /* --------------------------------------------------------------------------------------------
      * Retrieve the value inside the associated column cel as a character.
     */
     SQChar GetChar() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the associated column cel as a memory buffer.
+    */
+    Object GetBuffer() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the associated column cel as a memory blob.
+    */
+    Object GetBlob() const;
 
     /* --------------------------------------------------------------------------------------------
      * Check whether the associated column is null.

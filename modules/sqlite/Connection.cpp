@@ -14,61 +14,148 @@ SQInteger Connection::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Connection::Connection()
-    : m_Handle()
+void Connection::TraceOutput(void * /*ptr*/, CCStr sql)
 {
-    /* ... */
+    _SqMod->LogInf("SQLite Trace: %s", sql);
 }
 
 // ------------------------------------------------------------------------------------------------
-Connection::Connection(CSStr name)
-    : m_Handle(name)
+void Connection::ProfileOutput(void * /*ptr*/, CCStr sql, sqlite3_uint64 time)
 {
-    if (m_Handle.m_Hnd)
-    {
-        m_Handle->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
-    }
+    _SqMod->LogInf("SQLite profile (time: %llu): %s", time, sql);
 }
 
 // ------------------------------------------------------------------------------------------------
-Connection::Connection(CSStr name, Int32 flags)
-    : m_Handle(name)
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void Connection::Validate(CCStr file, Int32 line) const
 {
-    if (m_Handle.m_Hnd)
+    if (!m_Handle)
     {
-        m_Handle->Create(name, flags, nullptr);
+        SqThrowF("Invalid SQLite connection reference =>[%s:%d]", file, line);
     }
+}
+#else
+void Connection::Validate() const
+{
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid SQLite connection reference");
+    }
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void Connection::ValidateOpened(CCStr file, Int32 line) const
+{
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid SQLite connection reference =>[%s:%d]", file, line);
+    }
+    else if (m_Handle->mPtr == nullptr)
+    {
+        SqThrowF("Invalid SQLite connection =>[%s:%d]", file, line);
+    }
+}
+#else
+void Connection::ValidateOpened() const
+{
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid SQLite connection reference");
+    }
+    else if (m_Handle->mPtr == nullptr)
+    {
+        SqThrowF("Invalid SQLite connection");
+    }
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+const ConnRef & Connection::GetValid(CCStr file, Int32 line) const
+{
+    Validate(file, line);
+    return m_Handle;
+}
+#else
+const ConnRef & Connection::GetValid() const
+{
+    Validate();
+    return m_Handle;
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+const ConnRef & Connection::GetOpened(CCStr file, Int32 line) const
+{
+    ValidateOpened(file, line);
+    return m_Handle;
+}
+#else
+const ConnRef & Connection::GetOpened() const
+{
+    ValidateOpened();
+    return m_Handle;
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+void Connection::Open(CSStr name)
+{
+    // Make sure another database isn't opened
+    if (GET_VALID_HND(*this)->mPtr != nullptr)
+    {
+        STHROWF("Already referencing a valid database connection");
+    }
+    // Perform the requested operation
+    m_Handle->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
 }
 
 // ------------------------------------------------------------------------------------------------
-Connection::Connection(CSStr name, Int32 flags, CSStr vfs)
-    : m_Handle(name)
+void Connection::Open(CSStr name, Int32 flags)
 {
-    if (m_Handle.m_Hnd)
+    // Make sure another database isn't opened
+    if (GET_VALID_HND(*this)->mPtr != nullptr)
     {
-        m_Handle->Create(name, flags, vfs);
+        STHROWF("Already referencing a valid database connection");
     }
+    // Perform the requested operation
+    m_Handle->Create(name, flags, nullptr);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Connection::Open(CSStr name, Int32 flags, CSStr vfs)
+{
+    // Make sure another database isn't opened
+    if (GET_VALID_HND(*this)->mPtr != nullptr)
+    {
+        STHROWF("Already referencing a valid database connection");
+    }
+    // Perform the requested operation
+    m_Handle->Create(name, flags, vfs);
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::Exec(CSStr str)
 {
-    // Validate the handle
-    m_Handle.Validate();
+    VALIDATE_OPENED_HND(*this);
     // Attempt to execute the specified query
-    if ((m_Handle = sqlite3_exec(m_Handle, str, nullptr, nullptr, nullptr)) != SQLITE_OK)
+    m_Handle->mStatus = sqlite3_exec(m_Handle->mPtr, str, nullptr, nullptr, nullptr);
+    // Validate the execution result
+    if (m_Handle->mStatus != SQLITE_OK)
     {
-        STHROWF("Unable to execute query [%s]", m_Handle.ErrMsg());
+        STHROWF("Unable to execute query [%s]", m_Handle->ErrMsg());
     }
     // Return rows affected by this query
-    return sqlite3_changes(m_Handle);
+    return sqlite3_changes(m_Handle->mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
 Object Connection::Query(CSStr str) const
 {
-    // Validate the handle
-    m_Handle.Validate();
+    VALIDATE_OPENED_HND(*this);
     // Return the requested information
     return Object(new Statement(m_Handle, str));
 }
@@ -76,8 +163,7 @@ Object Connection::Query(CSStr str) const
 // ------------------------------------------------------------------------------------------------
 void Connection::Queue(CSStr str)
 {
-    // Validate the handle
-    m_Handle.Validate();
+    VALIDATE_HND(*this);
     // Is there a query to commit?
     if (IsQueryEmpty(str))
     {
@@ -90,10 +176,8 @@ void Connection::Queue(CSStr str)
 // ------------------------------------------------------------------------------------------------
 bool Connection::IsReadOnly() const
 {
-    // Validate the handle
-    m_Handle.Validate();
     // Request the desired information
-    const int result = sqlite3_db_readonly(m_Handle, "main");
+    const int result = sqlite3_db_readonly(GET_OPENED_HND(*this)->mPtr, "main");
     // Verify the result
     if (result == -1)
     {
@@ -106,15 +190,13 @@ bool Connection::IsReadOnly() const
 // ------------------------------------------------------------------------------------------------
 bool Connection::TableExists(CCStr name) const
 {
-    // Validate the handle
-    m_Handle.Validate();
     // Prepare a statement to inspect the master table
-    Statement stmt(m_Handle, "SELECT count(*) FROM [sqlite_master] WHERE [type]='table' AND [name]=?");
+    Statement stmt(GET_OPENED_HND(*this), "SELECT count(*) FROM [sqlite_master] WHERE [type]='table' AND [name]=?");
     // Could the statement be created?
     if (stmt.IsValid())
     {
         // Bind the specified name onto the statement parameter
-        stmt.IndexBindS(1, name);
+        stmt.IndexBindString(1, name);
         // Attempt to step the statement and obtain a value
         if (stmt.Step())
         {
@@ -126,42 +208,66 @@ bool Connection::TableExists(CCStr name) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Connection::GetLastInsertRowID() const
+void Connection::SetTracing(bool toggle)
 {
-    // Validate the handle
-    m_Handle.Validate();
-    // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
-    // Push a long integer instance with the requested value on the stack
-    _SqMod->PushSLongObject(_SqVM, sqlite3_last_insert_rowid(m_Handle));
-    // Get the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    // Check whether changes are necessary
+    if (GET_OPENED_HND(*this)->mTrace == toggle)
+    {
+        return; // No point in proceeding
+    }
+    // Do we have to disable it?
+    else if (m_Handle->mTrace)
+    {
+        sqlite3_trace(m_Handle->mPtr, nullptr, nullptr);
+    }
+    // Go ahead and enable tracing
+    else
+    {
+        sqlite3_trace(m_Handle->mPtr, &Connection::TraceOutput, nullptr);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Connection::SetProfiling(bool toggle)
+{
+    // Check whether changes are necessary
+    if (GET_OPENED_HND(*this)->mProfile == toggle)
+    {
+        return; // No point in proceeding
+    }
+    // Do we have to disable it?
+    else if (m_Handle->mProfile)
+    {
+        sqlite3_profile(m_Handle->mPtr, nullptr, nullptr);
+    }
+    // Go ahead and enable profiling
+    else
+    {
+        sqlite3_profile(m_Handle->mPtr, &Connection::ProfileOutput, nullptr);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 void Connection::SetBusyTimeout(Int32 millis)
 {
-    // Validate the handle
-    m_Handle.Validate();
-    // Apply requested timeout
-    if ((m_Handle = sqlite3_busy_timeout(m_Handle, millis)) != SQLITE_OK)
+    VALIDATE_OPENED_HND(*this);
+    // Apply the requested timeout
+    if ((m_Handle->mStatus = sqlite3_busy_timeout(m_Handle->mPtr, millis)) != SQLITE_OK)
     {
-        STHROWF("Unable to set busy timeout [%s]", m_Handle.ErrMsg());
+        STHROWF("Unable to set busy timeout [%s]", m_Handle->ErrMsg());
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::GetInfo(Int32 operation, bool highwater, bool reset)
 {
-    // Don't even bother to continue if there's no valid connection handle
-    m_Handle.Validate();
     // Where to retrieve the information
     Int32 cur_value;
     Int32 hiwtr_value;
     // Attempt to retrieve the specified information
-    if ((m_Handle = sqlite3_db_status(m_Handle, operation, &cur_value, &hiwtr_value, reset)) != SQLITE_OK)
+    if ((m_Handle->mStatus = sqlite3_db_status(GET_OPENED_HND(*this)->mPtr, operation, &cur_value, &hiwtr_value, reset)) != SQLITE_OK)
     {
-        STHROWF("Unable to get runtime status information", m_Handle.ErrMsg());
+        STHROWF("Unable to get runtime status information", m_Handle->ErrMsg());
     }
     // Return the high-water value if requested
     else if (highwater)
@@ -175,42 +281,52 @@ Int32 Connection::GetInfo(Int32 operation, bool highwater, bool reset)
 // ------------------------------------------------------------------------------------------------
 void Connection::ReserveQueue(Uint32 num)
 {
-    // Validate the handle
-    m_Handle.Validate();
+    VALIDATE_HND(*this);
     // Perform the requested operation
     m_Handle->mQueue.reserve(m_Handle->mQueue.size() + num);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::Flush(Uint32 num)
+void Connection::PopQueue()
 {
-    // Validate the handle
-    m_Handle.Validate();
-    // We need to supply a null callback
-    Object env;
-    Function func;
-    // Attempt to flush the requested amount of queries
-    return m_Handle->Flush(num, env, func);
+    VALIDATE_HND(*this);
+    // Perform the requested operation
+    if (!GET_VALID_HND(*this)->mQueue.empty())
+    {
+        m_Handle->mQueue.pop_back();
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::Flush(Uint32 num, Object & env, Function & func)
+Int32 Connection::Flush()
 {
-    // Validate the handle
-    m_Handle.Validate();
-    // Attempt to flush the requested amount of queries
-    return m_Handle->Flush(num, env, func);
+    VALIDATE_OPENED_HND(*this);
+    // Perform the requested operation
+    return m_Handle->Flush(m_Handle->mQueue.size(), NullObject(), NullFunction());
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::TraceOutput(void * /*ptr*/, CCStr sql)
+Int32 Connection::Flush(SQInteger num)
 {
-    _SqMod->LogInf("SQLite Trace: %s", sql);
+    VALIDATE_OPENED_HND(*this);
+    // Perform the requested operation
+    return m_Handle->Flush(ConvTo< Uint32 >::From(num), NullObject(), NullFunction());
 }
 
-void Connection::ProfileOutput(void * /*ptr*/, CCStr sql, sqlite3_uint64 time)
+// ------------------------------------------------------------------------------------------------
+Int32 Connection::Flush(Object & env, Function & func)
 {
-    _SqMod->LogInf("SQLite profile (time: %llu): %s", time, sql);
+    VALIDATE_OPENED_HND(*this);
+    // Perform the requested operation
+    return m_Handle->Flush(m_Handle->mQueue.size(), env, func);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 Connection::Flush(SQInteger num, Object & env, Function & func)
+{
+    VALIDATE_OPENED_HND(*this);
+    // Perform the requested operation
+    return m_Handle->Flush(ConvTo< Uint32 >::From(num), env, func);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -252,12 +368,14 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
         return val.mRes; // Propagate the error!
     }
     // Attempt to execute the specified query
-    else if ((conn->m_Handle = sqlite3_exec(conn->m_Handle, val.mPtr, nullptr, nullptr, nullptr)) != SQLITE_OK)
+    conn->m_Handle->mStatus = sqlite3_exec(conn->m_Handle->mPtr, val.mPtr, nullptr, nullptr, nullptr);
+    // Validate the result
+    if (conn->m_Handle->mStatus != SQLITE_OK)
     {
-        return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", conn->m_Handle.ErrMsg()));
+        return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", conn->m_Handle->ErrMsg()));
     }
     // Push the number of changes onto the stack
-    sq_pushinteger(vm, sqlite3_changes(conn->m_Handle));
+    sq_pushinteger(vm, sqlite3_changes(conn->m_Handle->mPtr));
     // This function returned a value
     return 1;
 }
@@ -301,7 +419,7 @@ SQInteger Connection::QueueF(HSQUIRRELVM vm)
         return val.mRes; // Propagate the error!
     }
     // Attempt to queue the specified query
-    conn->m_Handle->mQueue.emplace_back(val.mPtr);
+    conn->m_Handle->mQueue.emplace_back(val.mPtr, val.mLen);
     // This function does not return a value
     return 0;
 }
@@ -355,6 +473,72 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
     }
     // This function returned a value
     return 1;
+}
+
+// ================================================================================================
+void Register_Connection(Table & sqlns)
+{
+    sqlns.Bind(_SC("Connection"),
+        Class< Connection >(sqlns.GetVM(), _SC("SqSQLiteConnection"))
+        // Constructors
+        .Ctor()
+        .Ctor< CCStr >()
+        .Ctor< CCStr, Int32 >()
+        .Ctor< CCStr, Int32, CCStr >()
+        // Meta-methods
+        .Func(_SC("_cmp"), &Connection::Cmp)
+        .SquirrelFunc(_SC("_typename"), &Connection::Typename)
+        .Func(_SC("_tostring"), &Connection::ToString)
+        // Properties
+        .Prop(_SC("IsValid"), &Connection::IsValid)
+        .Prop(_SC("Connected"), &Connection::IsConnected)
+        .Prop(_SC("References"), &Connection::GetRefCount)
+        .Prop(_SC("Status"), &Connection::GetStatus)
+        .Prop(_SC("Flags"), &Connection::GetFlags)
+        .Prop(_SC("Name"), &Connection::GetName)
+        .Prop(_SC("VFS"), &Connection::GetVFS)
+        .Prop(_SC("ErrCode"), &Connection::GetErrorCode)
+        .Prop(_SC("ExErrCode"), &Connection::GetExtendedErrorCode)
+        .Prop(_SC("ExtendedErrCode"), &Connection::GetExtendedErrorCode)
+        .Prop(_SC("ErrStr"), &Connection::GetErrStr)
+        .Prop(_SC("ErrMsg"), &Connection::GetErrMsg)
+        .Prop(_SC("ReadOnly"), &Connection::IsReadOnly)
+        .Prop(_SC("Autocommit"), &Connection::GetAutoCommit)
+        .Prop(_SC("LastInsertRowId"), &Connection::GetLastInsertRowID)
+        .Prop(_SC("Changes"), &Connection::GetChanges)
+        .Prop(_SC("TotalChanges"), &Connection::GetTotalChanges)
+        .Prop(_SC("Trace"), &Connection::GetTracing, &Connection::SetTracing)
+        .Prop(_SC("Profile"), &Connection::GetProfiling, &Connection::SetProfiling)
+        .Prop(_SC("QueueSize"), &Connection::QueueSize)
+        // Member Methods
+        .Func(_SC("Release"), &Connection::Release)
+        .Func(_SC("Exec"), &Connection::Exec)
+        .Func(_SC("Queue"), &Connection::Queue)
+        .Func(_SC("Query"), &Connection::Query)
+        .Func(_SC("TableExists"), &Connection::TableExists)
+        .Func(_SC("InterruptOperation"), &Connection::InterruptOperation)
+        .Func(_SC("SetBusyTimeout"), &Connection::SetBusyTimeout)
+        .Func(_SC("ReleaseMemory"), &Connection::ReleaseMemory)
+        .Func(_SC("ReserveQueue"), &Connection::ReserveQueue)
+        .Func(_SC("CompactQueue"), &Connection::CompactQueue)
+        .Func(_SC("ClearQueue"), &Connection::ClearQueue)
+        .Func(_SC("PopQueue"), &Connection::PopQueue)
+        // Member Overloads
+        .Overload< void (Connection::*)(CSStr) >(_SC("Open"), &Connection::Open)
+        .Overload< void (Connection::*)(CSStr, Int32) >(_SC("Open"), &Connection::Open)
+        .Overload< void (Connection::*)(CSStr, Int32, CSStr) >(_SC("Open"), &Connection::Open)
+        .Overload< Int32 (Connection::*)(Int32) >(_SC("GetInfo"), &Connection::GetInfo)
+        .Overload< Int32 (Connection::*)(Int32, bool) >(_SC("GetInfo"), &Connection::GetInfo)
+        .Overload< Int32 (Connection::*)(Int32, bool, bool) >(_SC("GetInfo"), &Connection::GetInfo)
+        .Overload< Int32 (Connection::*)(void) >(_SC("Flush"), &Connection::Flush)
+        .Overload< Int32 (Connection::*)(SQInteger) >(_SC("Flush"), &Connection::Flush)
+        .Overload< Int32 (Connection::*)(Object &, Function &) >(_SC("Flush"), &Connection::Flush)
+        .Overload< Int32 (Connection::*)(SQInteger, Object &, Function &) >(_SC("Flush"), &Connection::Flush)
+        // Squirrel Methods
+        .SquirrelFunc(_SC("ExecF"), &Connection::ExecF)
+        .SquirrelFunc(_SC("QueueF"), &Connection::QueueF)
+        .SquirrelFunc(_SC("QueryF"), &Connection::QueryF)
+    );
 }
 
 } // Namespace:: SqMod

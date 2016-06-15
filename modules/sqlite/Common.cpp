@@ -209,4 +209,20 @@ CCStr TableToQueryColumns(Table & tbl)
     return GetTempBuff();
 }
 
+// ================================================================================================
+void Register_Common(Table & sqlns)
+{
+    sqlns.Func(_SC("IsQueryEmpty"), &IsQueryEmpty)
+        .Func(_SC("GetErrStr"), &GetErrStr)
+        .Func(_SC("SetSoftHeapLimit"), &SetSoftHeapLimit)
+        .Func(_SC("ReleaseMemory"), &ReleaseMemory)
+        .Func(_SC("MemoryUsage"), &GetMemoryUsage)
+        .Func(_SC("EscapeString"), &EscapeString)
+        .Func(_SC("EscapeStringEx"), &EscapeStringEx)
+        .Func(_SC("Escape"), &EscapeString)
+        .Func(_SC("EscapeEx"), &EscapeStringEx)
+        .Func(_SC("ArrayToQueryColumns"), &ArrayToQueryColumns)
+        .Func(_SC("TableToQueryColumns"), &TableToQueryColumns);
+}
+
 } // Namespace:: SqMod

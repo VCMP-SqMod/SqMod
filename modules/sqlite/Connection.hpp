@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class used to manage a connection to an SQLite database.
+ * Used to manage and interact with a database connection.
 */
 class Connection
 {
@@ -22,35 +22,99 @@ protected:
 private:
 
     // --------------------------------------------------------------------------------------------
-    ConnHnd m_Handle; // The handle to the managed database connection resource.
+    ConnRef m_Handle; // Reference to the managed connection.
+
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Callback function for ActivateTracing()
+    */
+    static void TraceOutput(void * ptr, CCStr sql);
+
+    /* --------------------------------------------------------------------------------------------
+     * Callback function for ActivateProfiling()
+    */
+    static void ProfileOutput(void * ptr, CCStr sql, sqlite3_uint64 time);
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed connection handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void Validate(CCStr file, Int32 line) const;
+#else
+    void Validate() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed connection handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateOpened(CCStr file, Int32 line) const;
+#else
+    void ValidateOpened() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed connection handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const ConnRef & GetValid(CCStr file, Int32 line) const;
+#else
+    const ConnRef & GetValid() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed connection handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const ConnRef & GetOpened(CCStr file, Int32 line) const;
+#else
+    const ConnRef & GetOpened() const;
+#endif // _DEBUG
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    Connection();
+    Connection()
+        : m_Handle()
+    {
+        /* ... */
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(CSStr name);
+    Connection(CSStr name)
+        : m_Handle(new ConnHnd())
+    {
+        GET_VALID_HND(*this)->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(CSStr name, Int32 flags);
+    Connection(CSStr name, Int32 flags)
+        : m_Handle(new ConnHnd())
+    {
+        GET_VALID_HND(*this)->Create(name, flags, nullptr);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(CSStr name, Int32 flags, CSStr vfs);
+    Connection(CSStr name, Int32 flags, CSStr vfs)
+        : m_Handle(new ConnHnd())
+    {
+        GET_VALID_HND(*this)->Create(name, flags, vfs);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
     */
-    Connection(const ConnHnd & h)
-        : m_Handle(h)
+    Connection(const ConnRef & c)
+        : m_Handle(c)
     {
         /* ... */
     }
@@ -58,28 +122,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Connection(const Connection & o)
-        : m_Handle(o.m_Handle)
-    {
-        /* ... */
-    }
+    Connection(const Connection & o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Destructor.
+     * Move constructor.
     */
-    ~Connection()
-    {
-        /* Let the reference manager destroy the connection when necessary. */
-    }
+    Connection(Connection && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Connection & operator = (const Connection & o)
-    {
-        m_Handle = o.m_Handle;
-        return *this;
-    }
+    Connection & operator = (const Connection & o) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    Connection & operator = (Connection && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two connections.
@@ -102,7 +160,7 @@ public:
     */
     operator sqlite3 * ()
     {
-        return m_Handle;
+        return m_Handle ? m_Handle->mPtr : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -110,7 +168,7 @@ public:
     */
     operator sqlite3 * () const
     {
-        return m_Handle;
+        return m_Handle ? m_Handle->mPtr : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -118,11 +176,11 @@ public:
     */
     Int32 Cmp(const Connection & o) const
     {
-        if (m_Handle == m_Handle)
+        if (m_Handle.Get() == o.m_Handle.Get())
         {
             return 0;
         }
-        else if (m_Handle.m_Hnd > o.m_Handle.m_Hnd)
+        else if (m_Handle.Get() > o.m_Handle.Get())
         {
             return 1;
         }
@@ -135,12 +193,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const
+    const String & ToString() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mName.c_str();
+        return m_Handle ? m_Handle->mName : NullString();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -149,7 +204,15 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this connection is valid.
+     * Retrieve the associated connection handle.
+    */
+    const ConnRef & GetHandle() const
+    {
+        return m_Handle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed connection handle is valid.
     */
     bool IsValid() const
     {
@@ -157,11 +220,11 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated connection handle.
+     * See whether the managed connection handle was connected.
     */
-    const ConnHnd & GetHandle() const
+    bool IsConnected() const
     {
-        return m_Handle;
+        return m_Handle && (m_Handle->mPtr != nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -177,7 +240,7 @@ public:
     */
     void Release()
     {
-        m_Handle.Drop();
+        m_Handle.Reset();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -185,10 +248,7 @@ public:
     */
     Int32 GetStatus() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mStatus;
+        return GET_VALID_HND(*this)->mStatus;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -196,32 +256,23 @@ public:
     */
     Int32 GetFlags() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mFlags;
+        return GET_VALID_HND(*this)->mFlags;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the name used to create this database connection.
     */
-    CSStr GetName() const
+    const String & GetName() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mName.c_str();
+        return GET_VALID_HND(*this)->mName;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the virtual file system used to create this database connection.
     */
-    CSStr GetVFS() const
+    const String GetVFS() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mVFS.c_str();
+        return GET_VALID_HND(*this)->mVFS;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -229,10 +280,7 @@ public:
     */
     Int32 GetErrorCode() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle.ErrNo();
+        return GET_VALID_HND(*this)->ErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -240,10 +288,7 @@ public:
     */
     Int32 GetExtendedErrorCode() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle.ExErrNo();
+        return GET_VALID_HND(*this)->ExErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -251,10 +296,7 @@ public:
     */
     CSStr GetErrStr() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle.ErrStr();
+        return GET_VALID_HND(*this)->ErrStr();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -262,44 +304,23 @@ public:
     */
     CSStr GetErrMsg() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle.ErrMsg();
+        return GET_VALID_HND(*this)->ErrMsg();
     }
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(CSStr name)
-    {
-        if (m_Handle.m_Hnd)
-        {
-            m_Handle->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
-        }
-    }
+    void Open(CSStr name);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(CSStr name, Int32 flags)
-    {
-        if (m_Handle.m_Hnd)
-        {
-            m_Handle->Create(name, flags, nullptr);
-        }
-    }
+    void Open(CSStr name, Int32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(CSStr name, Int32 flags, CSStr vfs)
-    {
-        if (m_Handle.m_Hnd)
-        {
-            m_Handle->Create(name, flags, vfs);
-        }
-    }
+    void Open(CSStr name, Int32 flags, CSStr vfs);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to execute the specified query.
@@ -331,16 +352,16 @@ public:
     */
     bool GetAutoCommit() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return sqlite3_get_autocommit(m_Handle);
+        return sqlite3_get_autocommit(GET_OPENED_HND(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Get the row-id of the most recent successful INSERT into the database from the current connection.
     */
-    Object GetLastInsertRowID() const;
+    Object GetLastInsertRowID() const
+    {
+        return MakeSLongObj(sqlite3_last_insert_rowid(GET_OPENED_HND(*this)->mPtr));
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Returns the number of database rows that were changed, inserted or deleted
@@ -348,10 +369,7 @@ public:
     */
     Int32 GetChanges() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return sqlite3_changes(m_Handle);
+        return sqlite3_changes(GET_OPENED_HND(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -360,10 +378,7 @@ public:
     */
     Int32 GetTotalChanges() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return sqlite3_total_changes(m_Handle);
+        return sqlite3_total_changes(GET_OPENED_HND(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -371,70 +386,26 @@ public:
     */
     bool GetTracing() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mTrace;
+        return GET_VALID_HND(*this)->mTrace;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Activate or deactivate tracing on this database connection.
     */
-    void SetTracing(bool toggle)
-    {
-        // Validate the handle
-        m_Handle.Validate();
-        // Check whether changes are necessary
-        if (m_Handle->mTrace == toggle)
-        {
-            return; // No point in proceeding
-        }
-        // Do we have to disable it?
-        else if (m_Handle->mTrace)
-        {
-            sqlite3_trace(m_Handle, nullptr, nullptr);
-        }
-        // Go ahead and enable tracing
-        else
-        {
-            sqlite3_trace(m_Handle, &Connection::TraceOutput, nullptr);
-        }
-    }
+    void SetTracing(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * See if this database connection has profiling enabled.
     */
     bool GetProfiling() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mProfile;
+        return GET_VALID_HND(*this)->mProfile;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Activate or deactivate profiling on this database connection.
     */
-    void SetProfiling(bool toggle)
-    {
-        // Validate the handle
-        m_Handle.Validate();
-        // Check whether changes are necessary
-        if (m_Handle->mProfile == toggle)
-        {
-            return; // No point in proceeding
-        }
-        // Do we have to disable it?
-        else if (m_Handle->mProfile)
-        {
-            sqlite3_profile(m_Handle, nullptr, nullptr);
-        }
-        // Go ahead and enable profiling
-        else
-        {
-            sqlite3_profile(m_Handle, &Connection::ProfileOutput, nullptr);
-        }
-    }
+    void SetProfiling(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * Set a busy handler that sleeps for a specified amount of time when a table is locked.
@@ -446,10 +417,7 @@ public:
     */
     void InterruptOperation() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Perform the requested action
-        sqlite3_interrupt(m_Handle);
+        sqlite3_interrupt(GET_OPENED_HND(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -457,10 +425,7 @@ public:
     */
     void ReleaseMemory() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Perform the requested action
-        sqlite3_db_release_memory(m_Handle);
+        sqlite3_db_release_memory(GET_OPENED_HND(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -474,7 +439,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns internal runtime status information associated with the current database connection.
     */
-    Int32 GetInfo(Int32 operation, bool highwater = false)
+    Int32 GetInfo(Int32 operation, bool highwater)
     {
         return GetInfo(operation, highwater, false);
     }
@@ -482,17 +447,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns internal runtime status information associated with the current database connection.
     */
-    Int32 GetInfo(Int32 operation, bool highwater = false, bool reset = false);
+    Int32 GetInfo(Int32 operation, bool highwater, bool reset);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of queries in the queue.
     */
     Uint32 QueueSize() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return (Uint32)m_Handle->mQueue.size();
+        return ConvTo< Uint32 >::From(GET_VALID_HND(*this)->mQueue.size());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -505,10 +467,7 @@ public:
     */
     void CompactQueue()
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Perform the requested operation
-        m_Handle->mQueue.shrink_to_fit();
+        GET_VALID_HND(*this)->mQueue.shrink_to_fit();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -516,57 +475,33 @@ public:
     */
     void ClearQueue()
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Perform the requested operation
-        m_Handle->mQueue.clear();
+        GET_VALID_HND(*this)->mQueue.clear();
     }
 
     /* --------------------------------------------------------------------------------------------
      * Remove the last query from the queue.
     */
-    void PopQueue()
-    {
-        // Validate the handle
-        m_Handle.Validate();
-        // Perform the requested action
-        if (!m_Handle->mQueue.empty())
-        {
-            m_Handle->mQueue.pop_back();
-        }
-    }
+    void PopQueue();
 
     /* --------------------------------------------------------------------------------------------
      * Flush all queries from the queue.
     */
-    Int32 Flush()
-    {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return Flush(m_Handle->mQueue.size());
-    }
+    Int32 Flush();
 
     /* --------------------------------------------------------------------------------------------
      * Flush a specific amount of queries from the queue.
     */
-    Int32 Flush(Uint32 num);
+    Int32 Flush(SQInteger num);
 
     /* --------------------------------------------------------------------------------------------
      * Flush all queries from the queue and handle errors manually.
     */
-    Int32 Flush(Object & env, Function & func)
-    {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return Flush(m_Handle->mQueue.size(), env, func);
-    }
+    Int32 Flush(Object & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * Flush a specific amount of queries from the queue and handle errors manually.
     */
-    Int32 Flush(Uint32 num, Object & env, Function & func);
+    Int32 Flush(SQInteger num, Object & env, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to execute the specified query.
@@ -582,18 +517,6 @@ public:
      * Attempt to create a statement from the specified query.
     */
     static SQInteger QueryF(HSQUIRRELVM vm);
-
-protected:
-
-    /* --------------------------------------------------------------------------------------------
-     * Callback function for ActivateTracing()
-    */
-    static void TraceOutput(void * ptr, const char * sql);
-
-    /* --------------------------------------------------------------------------------------------
-     * Callback function for ActivateProfiling()
-    */
-    static void ProfileOutput(void * ptr, const char * sql, sqlite3_uint64 time);
 };
 
 } // Namespace:: SqMod

@@ -22,7 +22,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct using the direct connection handle.
     */
-    Transaction(const ConnHnd & db);
+    Transaction(const ConnRef & db);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -50,6 +50,35 @@ public:
     Transaction & operator = (Transaction && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to convert an instance of this type to a string.
+    */
+    const String & ToString() const
+    {
+        return m_Handle ? m_Handle->mName : NullString();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to retrieve the name from instances of this type.
+    */
+    static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated statement handle.
+    */
+    const ConnRef & GetHandle() const
+    {
+        return m_Handle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed handle is valid.
+    */
+    bool IsValid() const
+    {
+        return m_Handle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Attempt to commit changes to the database.
     */
     bool Commit();
@@ -65,7 +94,7 @@ public:
 private:
 
     // --------------------------------------------------------------------------------------------
-    ConnHnd     m_Connection; // The database connection handle where the transaction began.
+    ConnRef     m_Handle; // The database connection handle where the transaction began.
     bool        m_Committed; // Whether changes were successfully committed to the database.
 };
 

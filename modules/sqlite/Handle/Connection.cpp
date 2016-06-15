@@ -5,36 +5,29 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-void ConnHnd::Validate() const
+ConnHnd::ConnHnd()
+    : mPtr(nullptr)
+    , mStatus(SQLITE_OK)
+    , mQueue()
+    , mFlags(0)
+    , mName()
+    , mVFS()
+    , mMemory(false)
+    , mTrace(false)
+    , mProfile(false)
 {
-    // Is the handle valid?
-    if ((m_Hnd == nullptr) || (m_Hnd->mPtr == nullptr))
-    {
-        STHROWF("Invalid SQLite connection reference");
-    }
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-ConnHnd::Handle::~Handle()
+ConnHnd::~ConnHnd()
 {
     // Is there anything to close?
-    if (!mPtr)
+    if (mPtr != nullptr)
     {
-        return; // Nothing to close
-    }
-    // Are we dealing with a memory leak? Technically shouldn't reach this situation!
-    else if (mRef != 0)
-    {
-        // Should we deal with undefined behavior instead? How bad is one connection left open?
-        _SqMod->LogErr("SQLite connection is still referenced (%s)", mName.c_str());
-    }
-    else
-    {
-        // NOTE: Should we call sqlite3_interrupt(...) before closing?
-        Object env;
-        Function func;
         // Flush remaining queries in the queue and ignore the result
-        Flush(mQueue.size(), env, func);
+        Flush(mQueue.size(), NullObject(), NullFunction());
+        // NOTE: Should we call sqlite3_interrupt(...) before closing?
         // Attempt to close the database
         if ((sqlite3_close(mPtr)) != SQLITE_OK)
         {
@@ -44,7 +37,7 @@ ConnHnd::Handle::~Handle()
 }
 
 // ------------------------------------------------------------------------------------------------
-void ConnHnd::Handle::Create(CSStr name, Int32 flags, CSStr vfs)
+void ConnHnd::Create(CSStr name, Int32 flags, CSStr vfs)
 {
     // Make sure a previous connection doesn't exist
     if (mPtr)
@@ -63,7 +56,7 @@ void ConnHnd::Handle::Create(CSStr name, Int32 flags, CSStr vfs)
         String msg(sqlite3_errmsg(mPtr) ? sqlite3_errmsg(mPtr) : _SC("Unknown reason"));
         // Must be destroyed regardless of result
         sqlite3_close(mPtr);
-        // Explicitly make sure it's null
+        // Prevent further use of this handle
         mPtr = nullptr;
         // Now its safe to throw the error
         STHROWF("Unable to connect to database [%s]", msg.c_str());
@@ -77,7 +70,7 @@ void ConnHnd::Handle::Create(CSStr name, Int32 flags, CSStr vfs)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 ConnHnd::Handle::Flush(Uint32 num, Object & env, Function & func)
+Int32 ConnHnd::Flush(Uint32 num, Object & env, Function & func)
 {
     // Do we even have a valid connection?
     if (!mPtr)

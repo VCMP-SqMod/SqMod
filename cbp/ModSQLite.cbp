@@ -421,6 +421,7 @@
 		<Unit filename="../modules/sqlite/Common.hpp" />
 		<Unit filename="../modules/sqlite/Connection.cpp" />
 		<Unit filename="../modules/sqlite/Connection.hpp" />
+		<Unit filename="../modules/sqlite/Constants.cpp" />
 		<Unit filename="../modules/sqlite/Handle/Connection.cpp" />
 		<Unit filename="../modules/sqlite/Handle/Connection.hpp" />
 		<Unit filename="../modules/sqlite/Handle/Statement.cpp" />

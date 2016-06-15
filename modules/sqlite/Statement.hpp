@@ -8,38 +8,101 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class used to manage an SQLite statement.
+ * Used to manage and interact a database statement.
 */
 class Statement
 {
 private:
 
     // --------------------------------------------------------------------------------------------
-    StmtHnd m_Handle; // The handle to the managed database statement resource.
+    StmtRef m_Handle; // Reference to the managed statement.
 
 protected:
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the statement reference and index, and throw an error if they're invalid.
+     * Validate the managed statement handle and throw an error if invalid.
     */
-    void ValidateIndex(Int32 idx) const;
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void Validate(CCStr file, Int32 line) const;
+#else
+    void Validate() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateCreated(CCStr file, Int32 line) const;
+#else
+    void ValidateCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const StmtRef & GetValid(CCStr file, Int32 line) const;
+#else
+    const StmtRef & GetValid() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const StmtRef & GetCreated(CCStr file, Int32 line) const;
+#else
+    const StmtRef & GetCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the statement reference and column index, and throw an error if they're invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateColumn(Int32 idx, CCStr file, Int32 line) const;
+#else
+    void ValidateColumn(Int32 idx) const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the statement reference and parameter index, and throw an error if they're invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateParameter(Int32 idx, CCStr file, Int32 line) const;
+#else
+    void ValidateParameter(Int32 idx) const;
+#endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the statement reference and row, and throw an error if they're invalid.
     */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateRow(CCStr file, Int32 line) const;
+#else
     void ValidateRow() const;
+#endif // _DEBUG
+
+public:
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Statement();
+    Statement()
+        : m_Handle()
+    {
+        /* ... */
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const ConnHnd & connection, CSStr query);
+    Statement(const ConnRef & connection, CSStr query)
+        : m_Handle(new StmtHnd(connection))
+    {
+        GET_VALID_HND(*this)->Create(query);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
@@ -49,8 +112,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
     */
-    Statement(const StmtHnd & h)
-        : m_Handle(h)
+    Statement(const StmtRef & s)
+        : m_Handle(s)
     {
         /* ... */
     }
@@ -58,35 +121,29 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Statement(const Statement & o)
-        : m_Handle(o.m_Handle)
-    {
-        /* ... */
-    }
+    Statement(const Statement & o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Destructor.
+     * Move constructor.
     */
-    ~Statement()
-    {
-        /* Let the reference manager destroy the statement when necessary. */
-    }
+    Statement(Statement && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Statement & operator = (const Statement & o)
-    {
-        m_Handle = o.m_Handle;
-        return *this;
-    }
+    Statement & operator = (const Statement & o) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    Statement & operator = (Statement && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two connections.
     */
     bool operator == (const Statement & o) const
     {
-        return (m_Handle.m_Hnd == o.m_Handle.m_Hnd);
+        return (m_Handle.Get() == o.m_Handle.Get());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -94,7 +151,7 @@ public:
     */
     bool operator != (const Statement & o) const
     {
-        return (m_Handle.m_Hnd != o.m_Handle.m_Hnd);
+        return (m_Handle.Get() != o.m_Handle.Get());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -102,7 +159,7 @@ public:
     */
     operator sqlite3_stmt * ()
     {
-        return (sqlite3_stmt *)m_Handle;
+        return m_Handle ? m_Handle->mPtr : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -110,7 +167,7 @@ public:
     */
     operator sqlite3_stmt * () const
     {
-        return (sqlite3_stmt *)m_Handle;
+        return m_Handle ? m_Handle->mPtr : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -118,11 +175,11 @@ public:
     */
     Int32 Cmp(const Statement & o) const
     {
-        if (m_Handle.m_Hnd == o.m_Handle.m_Hnd)
+        if (m_Handle.Get() == o.m_Handle.Get())
         {
             return 0;
         }
-        else if (m_Handle.m_Hnd > o.m_Handle.m_Hnd)
+        else if (m_Handle.Get() > o.m_Handle.Get())
         {
             return 1;
         }
@@ -135,15 +192,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const
+    const String & ToString() const
     {
-        // Validate the handle
-        if (m_Handle)
-        {
-            return m_Handle->mQuery.c_str();
-        }
-        // Request failed
-        return _SC("");
+        return m_Handle ? m_Handle->mQuery : NullString();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -152,7 +203,15 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this statement is valid.
+     * Retrieve the associated statement handle.
+    */
+    const StmtRef & GetHandle() const
+    {
+        return m_Handle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed handle is valid.
     */
     bool IsValid() const
     {
@@ -160,17 +219,17 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated statement handle.
+     * See whether the managed statement is valid.
     */
-    const StmtHnd & GetHandle() const
+    bool IsPrepared() const
     {
-        return m_Handle;
+        return m_Handle && (m_Handle->mPtr != nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Return the number of active references to this statement handle.
     */
-    Uint32 GetRefCount() const
+    Uint32 GetReferences() const
     {
         return m_Handle.Count();
     }
@@ -185,7 +244,7 @@ public:
     */
     void Release()
     {
-        m_Handle.Drop();
+        m_Handle.Reset();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -193,10 +252,7 @@ public:
     */
     Int32 GetStatus() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mStatus;
+        return GET_VALID_HND(*this)->mStatus;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -204,10 +260,7 @@ public:
     */
     Int32 GetErrorCode() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle.ErrNo();
+        return GET_VALID_HND(*this)->ErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -215,10 +268,7 @@ public:
     */
     Int32 GetExtendedErrorCode() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle.ExErrNo();
+        return GET_VALID_HND(*this)->ExErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -226,10 +276,7 @@ public:
     */
     CSStr GetErrStr() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle.ErrStr();
+        return GET_VALID_HND(*this)->ErrStr();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -237,10 +284,7 @@ public:
     */
     CSStr GetErrMsg() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle.ErrMsg();
+        return GET_VALID_HND(*this)->ErrMsg();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -248,21 +292,23 @@ public:
     */
     Int32 GetColumns() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mColumns;
+        return GET_VALID_HND(*this)->mColumns;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of specified parameters.
+    */
+    Int32 GetParameters() const
+    {
+        return GET_VALID_HND(*this)->mParameters;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the query string used to create this statement.
     */
-    CSStr GetQuery() const
+    const String & GetQuery() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mQuery.c_str();
+        return GET_VALID_HND(*this)->mQuery;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -270,10 +316,7 @@ public:
     */
     bool GetGood() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mGood;
+        return GET_CREATED_HND(*this)->mGood;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -281,10 +324,7 @@ public:
     */
     bool GetDone() const
     {
-        // Validate the handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mDone;
+        return GET_CREATED_HND(*this)->mDone;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -310,110 +350,110 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the values from an array starting at the specified index.
     */
-    void IndexBindA(Int32 idx, const Array & arr);
+    Statement & IndexBindArray(Int32 idx, const Array & arr);
 
     /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a integer value at the the specified parameter index.
+     * Attempt to bind the a numeric value at the the specified parameter index.
     */
-    void IndexBindI(Int32 idx, Int32 value);
+    Statement & IndexBindValue(Int32 idx, Int32 value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a long integer value at the the specified parameter index.
     */
-    void IndexBindL(Int32 idx, const Object & value);
+    Statement & IndexBindLong(Int32 idx, const Object & value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a native integer value at the the specified parameter index.
     */
-    void IndexBindV(Int32 idx, SQInteger value);
+    Statement & IndexBindInteger(Int32 idx, SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a floating point value at the the specified parameter index.
     */
-    void IndexBindF(Int32 idx, SQFloat value);
+    Statement & IndexBindFloat(Int32 idx, SQFloat value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a string value at the the specified parameter index.
     */
-    void IndexBindS(Int32 idx, CSStr value);
+    Statement & IndexBindString(Int32 idx, CSStr value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a boolean value at the the specified parameter index.
     */
-    void IndexBindB(Int32 idx, bool value);
+    Statement & IndexBindBool(Int32 idx, bool value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a null value at the the specified parameter index.
     */
-    void IndexBindN(Int32 idx);
+    Statement & IndexBindNull(Int32 idx);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the values from an associative container.
     */
-    void NameBindT(const Table & tbl);
+    Statement & NameBindTable(const Table & tbl);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a integer value at the specified parameter name.
     */
-    void NameBindI(CSStr name, Int32 value);
+    Statement & NameBindValue(CSStr name, Int32 value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a long integer value at the specified parameter name.
     */
-    void NameBindL(CSStr name, const Object & value);
+    Statement & NameBindLong(CSStr name, const Object & value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a native integer value at the specified parameter name.
     */
-    void NameBindV(CSStr name, SQInteger value);
+    Statement & NameBindInteger(CSStr name, SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a floating point value at the specified parameter name.
     */
-    void NameBindF(CSStr name, SQFloat value);
+    Statement & NameBindFloat(CSStr name, SQFloat value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a string value at the specified parameter name.
     */
-    void NameBindS(CSStr name, CSStr value);
+    Statement & NameBindString(CSStr name, CSStr value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a boolean value at the specified parameter name.
     */
-    void NameBindB(CSStr name, bool value);
+    Statement & NameBindBool(CSStr name, bool value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the a null value at the specified parameter name.
     */
-    void NameBindN(CSStr name);
+    Statement & NameBindNull(CSStr name);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the specified value at the specified parameter index.
     */
-    void IndexBind(Int32 idx, const Object & value);
+    Statement & IndexBind(Int32 idx, const Object & value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the specified value at the specified parameter name.
     */
-    void NameBind(CSStr name, const Object & value);
+    Statement & NameBind(CSStr name, const Object & value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the specified value at the specified parameter.
     */
-    void Bind(const Object & param, const Object & value);
+    Statement & Bind(const Object & param, const Object & value);
 
     /* --------------------------------------------------------------------------------------------
-     * Fetch the value at the specifie column index.
+     * Fetch the value at the specific column index.
     */
     Object FetchColumnIndex(Int32 idx) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Fetch the value at the specifie column name.
+     * Fetch the value at the specific column name.
     */
     Object FetchColumnName(CSStr name) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Fetch the value at the specifie column.
+     * Fetch the value at the specific column.
     */
     Object FetchColumn(const Object & column) const;
 
@@ -448,9 +488,14 @@ public:
     Table FetchTable(Int32 min, Int32 max) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Check whether a specific index is in range.
+     * Check whether a specific column index is in range.
     */
-    bool CheckIndex(Int32 idx) const;
+    bool CheckColumn(Int32 idx) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether a specific parameter index is in range.
+    */
+    bool CheckParameter(Int32 idx) const;
 
     /* --------------------------------------------------------------------------------------------
      * Check whether the specified column is null.
@@ -496,6 +541,21 @@ public:
      * Retrieve the column with the specified name or index.
     */
     Object GetColumn(const Object & column) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of columns available in the current row.
+    */
+    Int32 GetDataCount() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the parameter index associated with the specified name.
+    */
+    Int32 GetParameterIndex(CSStr name) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the parameter name associated with the specified index.
+    */
+    CSStr GetParameterName(Int32 idx) const;
 };
 
 } // Namespace:: SqMod

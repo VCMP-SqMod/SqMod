@@ -32,6 +32,55 @@ class Transaction;
 #define SQSQLITE_VERSION_PATCH 1
 
 /* ------------------------------------------------------------------------------------------------
+ * Handle validation.
+*/
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    #define VALIDATE_HND(x) (x).Validate(__FILE__, __LINE__)
+    #define VALIDATE_OPENED_HND(x) (x).ValidateOpened(__FILE__, __LINE__)
+    #define VALIDATE_CREATED_HND(x) (x).ValidateCreated(__FILE__, __LINE__)
+    #define VALIDATE_COLUMN_HND(x, i) (x).ValidateColumn((i), __FILE__, __LINE__)
+    #define VALIDATE_PARAMETER_HND(x, i) (x).ValidateParameter((i), __FILE__, __LINE__)
+    #define VALIDATE_ROW_HND(x) (x).ValidateRow(__FILE__, __LINE__)
+    #define GET_VALID_HND(x) (x).GetValid(__FILE__, __LINE__)
+    #define GET_OPENED_HND(x) (x).GetValid(__FILE__, __LINE__)
+    #define GET_CREATED_HND(x) (x).GetCreated(__FILE__, __LINE__)
+#else
+    #define VALIDATE_HND(x) (x).Validate()
+    #define VALIDATE_OPENED_HND(x) (x).ValidateOpened()
+    #define VALIDATE_CREATED_HND(x) (x).ValidateCreated()
+    #define VALIDATE_COLUMN_HND(x, i) (x).ValidateColumn((i))
+    #define VALIDATE_PARAMETER_HND(x, i) (x).ValidateParameter((i))
+    #define VALIDATE_ROW_HND(x) (x).ValidateRow()
+    #define GET_VALID_HND(x) (x).GetValid()
+    #define GET_OPENED_HND(x) (x).GetValid()
+    #define GET_CREATED_HND(x) (x).GetCreated()
+#endif // _DEBUG
+
+/* ------------------------------------------------------------------------------------------------
+ * Helper macros for architecture differences.
+*/
+
+#ifdef _SQ64
+    #define sqlite3_bind_integer    sqlite3_bind_int64
+    #define sqlite3_column_integer  sqlite3_column_int64
+#else
+    #define sqlite3_bind_integer    sqlite3_bind_int
+    #define sqlite3_column_integer  sqlite3_column_int
+#endif
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations.
+*/
+struct ConnHnd;
+struct StmtHnd;
+
+/* ------------------------------------------------------------------------------------------------
+ * Common typedefs.
+*/
+typedef SharedPtr< ConnHnd > ConnRef;
+typedef SharedPtr< StmtHnd > StmtRef;
+
+/* ------------------------------------------------------------------------------------------------
  * Generate a formatted query.
 */
 CSStr QFmtStr(CSStr str, ...);
