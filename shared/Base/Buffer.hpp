@@ -231,13 +231,53 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit size constructor.
     */
-    Buffer(SzType n)
+    Buffer(SzType size)
         : m_Ptr(nullptr)
         , m_Cap(0)
         , m_Cur(0)
         , m_Mem(MemRef::Get())
     {
-        Request(n < 8 ? 8 : n);
+        Request(size < 8 ? 8 : size);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit size and cursor position constructor.
+    */
+    Buffer(SzType size, SzType pos)
+        : m_Ptr(nullptr)
+        , m_Cap(0)
+        , m_Cur(0)
+        , m_Mem(MemRef::Get())
+    {
+        Request(size < 8 ? 8 : size);
+        Move(pos);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit size and buffer constructor.
+    */
+    Buffer(ConstPtr data, SzType size)
+        : m_Ptr(nullptr)
+        , m_Cap(0)
+        , m_Cur(0)
+        , m_Mem(MemRef::Get())
+    {
+        Request(size < 8 ? 8 : size);
+        m_Cur += Write(m_Cur, data, size);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit size, data and cursor position constructor.
+    */
+    Buffer(ConstPtr data, SzType size, SzType pos)
+        : m_Ptr(nullptr)
+        , m_Cap(0)
+        , m_Cur(0)
+        , m_Mem(MemRef::Get())
+    {
+        Request(size < 8 ? 8 : size);
+        m_Cur += Write(m_Cur, data, size);
+        Move(pos);
     }
 
     /* --------------------------------------------------------------------------------------------
