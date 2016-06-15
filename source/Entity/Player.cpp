@@ -1140,8 +1140,16 @@ Object & CPlayer::GetSpectator() const
 {
     // Validate the managed identifier
     Validate();
-    // Return the requested information
-    return Core::Get().GetPlayer(_Func->GetPlayerSpectateTarget(m_ID)).mObj;
+    // Retrieve the identifier of the player
+    const Int32 id = _Func->GetPlayerSpectateTarget(m_ID);
+    // Validated the obtained identifier
+    if (_Func->GetLastError() != vcmpErrorNoSuchEntity && VALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+    {
+        // Return the requested information
+        return Core::Get().GetPlayer(id).mObj;
+    }
+    // Default to a null object
+    return NullObject();
 }
 
 // ------------------------------------------------------------------------------------------------
