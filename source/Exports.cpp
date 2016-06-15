@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
+#include "Base/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include "Library/Numeric/LongInt.hpp"
@@ -476,6 +477,42 @@ SQRESULT SqEx_PushDatetime(HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t
 }
 
 // ------------------------------------------------------------------------------------------------
+SQRESULT SqEx_PushBuffer(HSQUIRRELVM vm, SQInteger size, SQInteger cursor)
+{
+    // Attempt to push the requested instance
+    try
+    {
+        Var< const Buffer & >::push(vm, Buffer(ConvTo< Buffer::SzType >::From(size),
+                                                ConvTo< Buffer::SzType >::From(cursor)));
+    }
+    catch (...)
+    {
+        // Specify that we failed
+        return SQ_ERROR;
+    }
+    // Specify that we succeeded
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT SqEx_PushBufferData(HSQUIRRELVM vm, const char * data, SQInteger size, SQInteger cursor)
+{
+    // Attempt to push the requested instance
+    try
+    {
+        Var< const Buffer & >::push(vm, Buffer(data, ConvTo< Buffer::SzType >::From(size),
+                                                ConvTo< Buffer::SzType >::From(cursor)));
+    }
+    catch (...)
+    {
+        // Specify that we failed
+        return SQ_ERROR;
+    }
+    // Specify that we succeeded
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
 void InitExports()
 {
     static HSQEXPORTS sqexports = &g_SqExports;
@@ -528,6 +565,10 @@ void InitExports()
     g_SqExports.PopStackFloat           = PopStackFloat;
     g_SqExports.PopStackSLong           = PopStackSLong;
     g_SqExports.PopStackULong           = PopStackULong;
+
+    //buffer utilities
+    g_SqExports.PushBuffer              = SqEx_PushBuffer;
+    g_SqExports.PushBufferData          = SqEx_PushBufferData;
 
     // Export them to the server
     _Func->ExportFunctions(_Info->pluginId,

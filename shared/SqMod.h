@@ -89,6 +89,9 @@ extern "C" {
     typedef SQFloat         (*SqEx_PopStackFloat) (HSQUIRRELVM vm, SQInteger idx);
     typedef SqInt64         (*SqEx_PopStackSLong) (HSQUIRRELVM vm, SQInteger idx);
     typedef SqUint64        (*SqEx_PopStackULong) (HSQUIRRELVM vm, SQInteger idx);
+    //buffer utilities
+    typedef SQRESULT        (*SqEx_PushBuffer) (HSQUIRRELVM vm, SQInteger size, SQInteger cursor);
+    typedef SQRESULT        (*SqEx_PushBufferData) (HSQUIRRELVM vm, const char * data, SQInteger size, SQInteger cursor);
 
     /* --------------------------------------------------------------------------------------------
      * Allows modules to interface with the plug-in API without linking of any sorts
@@ -138,6 +141,9 @@ extern "C" {
         SqEx_PopStackFloat                  PopStackFloat;
         SqEx_PopStackSLong                  PopStackSLong;
         SqEx_PopStackULong                  PopStackULong;
+        //buffer utilities
+        SqEx_PushBuffer                     PushBuffer;
+        SqEx_PushBufferData                 PushBufferData;
     } sq_exports, SQEXPORTS, *HSQEXPORTS;
 
     /* --------------------------------------------------------------------------------------------
