@@ -1075,7 +1075,16 @@ bool CPlayer::IsCameraLocked() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAnimation(Int32 group, Int32 anim) const
+void CPlayer::SetAnimation(Int32 anim) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerAnimation(m_ID, 0, anim);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetAnimation(Int32 anim, Int32 group) const
 {
     // Validate the managed identifier
     Validate();
@@ -2166,8 +2175,6 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("RemoveWeapon"), &CPlayer::RemoveWeapon)
         .Func(_SC("StripWeapons"), &CPlayer::StripWeapons)
         .Func(_SC("RestoreCamera"), &CPlayer::RestoreCamera)
-        .Func(_SC("SetAnim"), &CPlayer::SetAnimation)
-        .Func(_SC("Animation"), &CPlayer::SetAnimation)
         .Func(_SC("Spectating"), &CPlayer::GetSpectator)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
@@ -2198,6 +2205,10 @@ void Register_CPlayer(HSQUIRRELVM vm)
             (_SC("StartStream"), &CPlayer::StartStream)
         .Overload< void (CPlayer::*)(Uint32) >
             (_SC("StartStream"), &CPlayer::StartStream)
+        .Overload< void (CPlayer::*)(Int32) const >
+            (_SC("SetAnimation"), &CPlayer::SetAnimation)
+        .Overload< void (CPlayer::*)(Int32, Int32) const >
+            (_SC("SetAnimation"), &CPlayer::SetAnimation)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("Msg"), &CPlayer::Msg)
         .SquirrelFunc(_SC("MsgP"), &CPlayer::MsgP)

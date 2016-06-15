@@ -663,7 +663,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the animation of the managed player entity.
     */
-    void SetAnimation(Int32 group, Int32 anim) const;
+    void SetAnimation(Int32 anim) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the animation of the managed player entity.
+    */
+    void SetAnimation(Int32 anim, Int32 group) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle that the managed player entity is standing on.
