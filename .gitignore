@@ -7,7 +7,7 @@
 /bin/
 /lib/
 /obj/
-sandbox/*.*
+/sandbox/*.*
 # MySQL on windows
 /include/mysql/
 /config/mingw32/mysql/
