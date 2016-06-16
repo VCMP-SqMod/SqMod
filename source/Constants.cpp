@@ -1057,7 +1057,7 @@ static Enumeration RegisterEnum(HSQUIRRELVM vm, CSStr name, const EnumElement * 
     // Allocate an empty enumeration
     Enumeration e(vm);
     // Register the values from the received data
-    for (Uint32 n = 0; n < count; ++n, ++count)
+    for (Uint32 n = 0; n < count; ++n, ++data)
     {
         e.Const(data->Name, data->Value);
     }
@@ -1111,7 +1111,6 @@ void Register_Constants(HSQUIRRELVM vm)
         .Const(_SC("Infinity"),     static_cast< float >(INFINITY))
         .Const(_SC("Inf"),          static_cast< float >(INFINITY))
         .Const(_SC("Nan"),          static_cast< float >(NAN))
-
     );
 
     RegisterEnum(vm, _SC("SqArchitectre"),      g_ArchitectureEnum,     SQENUMCOUNT(g_ArchitectureEnum));
