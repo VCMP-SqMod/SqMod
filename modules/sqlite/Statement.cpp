@@ -193,7 +193,7 @@ Object Statement::GetConnection() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::Reset()
+Statement & Statement::Reset()
 {
     VALIDATE_CREATED_HND(*this);
     // Specify that we don't have a row available and we haven't finished stepping
@@ -206,10 +206,12 @@ void Statement::Reset()
     {
         STHROWF("Unable to reset statement [%s]", m_Handle->ErrStr());
     }
+    // Allow further chaining of operations
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::Clear()
+Statement & Statement::Clear()
 {
     VALIDATE_CREATED_HND(*this);
     // Specify that we don't have a row available and we haven't finished stepping
@@ -222,6 +224,8 @@ void Statement::Clear()
     {
         STHROWF("Unable to clear statement [%s]", m_Handle->ErrStr());
     }
+    // Allow further chaining of operations
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------

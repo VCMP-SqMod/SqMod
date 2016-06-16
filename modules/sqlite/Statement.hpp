@@ -330,12 +330,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Reset the statement back to its initial position to be stepped again.
     */
-    void Reset();
+    Statement & Reset();
 
     /* --------------------------------------------------------------------------------------------
      * Clear any values binded to this statement.
     */
-    void Clear();
+    Statement & Clear();
 
     /* --------------------------------------------------------------------------------------------
      * Execute this statement and don't expect any rows to be returned.
