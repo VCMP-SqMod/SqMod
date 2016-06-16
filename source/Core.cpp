@@ -192,28 +192,52 @@ bool Core::Initialize()
         return false; // Can't execute scripts without a valid API!
     }
 
+    // Used to obtain collections of script paths
+    CSimpleIniA::TNamesDepend bundles, scripts;
+
     // Attempt to retrieve the list of scripts specified in the configuration file
-    CSimpleIniA::TNamesDepend scripts;
-    conf.GetAllValues("Scripts", "Source", scripts);
-    // See if any script was specified
-    if (scripts.size() <= 0 && !conf.GetBoolValue("Squirrel", "EmptyInit", false))
-    {
-        LogWrn("No scripts specified in the configuration file");
-        // No point in loading the plug-in
-        return false;
-    }
-    else
+    if (conf.GetAllValues("Scripts", "Source", scripts) && scripts.size() > 0)
     {
         LogDbg("Found (%u) scripts in the configuration file", scripts.size());
         // Sort the list in it's original order
         scripts.sort(CSimpleIniA::Entry::LoadOrder());
-        // Process each specified script paths
+        // Process each specified script path
         for (const auto & script : scripts)
         {
             // Attempt to queue the specified script path for loading
             LoadScript(script.pItem);
         }
     }
+
+    // Attempt to retrieve the list of bundles specified in the configuration file
+    if (conf.GetAllValues("Scripts", "Bundle", bundles) && bundles.size() > 0)
+    {
+        LogDbg("Found (%u) bundles in the configuration file", bundles.size());
+        // Sort the list in it's original order
+        bundles.sort(CSimpleIniA::Entry::LoadOrder());
+        // Process each specified script bundle
+        for (const auto & bundle : bundles)
+        {
+            // Attempt to retrieve the list of scripts specified in the current bundle
+            if (!conf.GetAllValues(bundle.pItem, "Source", scripts))
+            {
+                LogWrn("Unable to locate script bundle (%s)", bundle.pItem);
+            }
+            else if (scripts.size() > 0)
+            {
+                LogDbg("Found (%u) scripts in bundle (%s)", scripts.size(), bundle.pItem);
+                // Sort the list in it's original order
+                scripts.sort(CSimpleIniA::Entry::LoadOrder());
+                // Process each specified script path
+                for (const auto & script : scripts)
+                {
+                    // Attempt to queue the specified script path for loading
+                    LoadScript(script.pItem);
+                }
+            }
+        }
+    }
+
     // See if any script could be queued for loading
     if (m_Scripts.empty() && !conf.GetBoolValue("Squirrel", "EmptyInit", false))
     {
