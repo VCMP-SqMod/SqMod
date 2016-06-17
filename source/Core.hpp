@@ -6,6 +6,7 @@
 #include "Base/Vector3.hpp"
 #include "Base/Quaternion.hpp"
 #include "Base/Color4.hpp"
+#include "Base/ScriptSrc.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <vector>
@@ -356,7 +357,9 @@ public:
     typedef std::vector< VehicleInst >          Vehicles;
 
     // --------------------------------------------------------------------------------------------
-    typedef std::unordered_map< String, Script >    Scripts;
+    typedef std::vector< ScriptSrc >                Scripts;
+
+    // --------------------------------------------------------------------------------------------
     typedef std::unordered_map< String, String >    Options;
 
 private:

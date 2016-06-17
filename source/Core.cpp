@@ -301,27 +301,27 @@ bool Core::Execute()
         // Attempt to load and compile the script file
         try
         {
-            s.second.CompileFile(s.first);
+            s.mExec.CompileFile(s.mPath);
         }
         catch (const Sqrat::Exception & e)
         {
-            LogFtl("Unable to compile: %s", s.first.c_str());
+            LogFtl("Unable to compile: %s", s.mPath.c_str());
             // Failed to executed properly
             return false;
         }
         // Attempt to execute the compiled script code
         try
         {
-            s.second.Run();
+            s.mExec.Run();
         }
         catch (const Sqrat::Exception & e)
         {
-            LogFtl("Unable to execute: %s", s.first.c_str());
+            LogFtl("Unable to execute: %s", s.mPath.c_str());
             // Failed to executed properly
             return false;
         }
         // At this point the script should be completely loaded
-        LogScs("Successfully executed script: %s", s.first.c_str());
+        LogScs("Successfully executed script: %s", s.mPath.c_str());
     }
 
     // Import already existing entities
@@ -357,7 +357,6 @@ void Core::Terminate()
     m_Objects.clear();
     m_Pickups.clear();
     m_Checkpoints.clear();
-    m_Scripts.clear();
     // Release all resources from routines
     TerminateRoutines();
     // Release all resources from command manager
@@ -442,7 +441,9 @@ bool Core::LoadScript(CSStr filepath)
     // Get the file path as a string
     String path(filepath);
     // See if it wasn't already loaded
-    if (m_Scripts.find(path) != m_Scripts.end())
+    if (std::find_if(m_Scripts.cbegin(), m_Scripts.cend(), [&path](Scripts::const_reference s) {
+        return (s.mPath == path);
+    }) != m_Scripts.end())
     {
         LogWrn("Script was specified before: %s", path.c_str());
     }
@@ -450,7 +451,7 @@ bool Core::LoadScript(CSStr filepath)
     else
     {
         // Create a new script container and insert it into the script pool
-        m_Scripts.emplace(std::move(path), Script(m_VM));
+        m_Scripts.emplace_back(m_VM, path, false);
     }
     // At this point the script exists in the pool
     return true;
