@@ -59,6 +59,7 @@ Core::Core()
     , m_ReloadPayload()
     , m_IncomingNameBuffer(nullptr)
     , m_IncomingNameCapacity(0)
+    , m_Debugging(false)
 {
     /* ... */
 }
@@ -160,6 +161,8 @@ bool Core::Initialize()
     DefaultVM::Set(m_VM);
     // Configure error handling
     ErrorHandling::Enable(conf.GetBoolValue("Squirrel", "ErrorHandling", true));
+    // See if debugging options should be enabled
+    m_Debugging = conf.GetBoolValue("Squirrel", "Debugging", false);
 
     LogDbg("Registering the standard libraries");
     // Push the root table on the stack
@@ -451,7 +454,7 @@ bool Core::LoadScript(CSStr filepath)
     else
     {
         // Create a new script container and insert it into the script pool
-        m_Scripts.emplace_back(m_VM, path, false);
+        m_Scripts.emplace_back(m_VM, path, m_Debugging);
     }
     // At this point the script exists in the pool
     return true;

@@ -390,6 +390,9 @@ private:
     CStr                            m_IncomingNameBuffer; // Name of an incoming connection.
     size_t                          m_IncomingNameCapacity; // Incoming connection name size.
 
+    // --------------------------------------------------------------------------------------------
+    bool                            m_Debugging; // Enable debugging features, if any.
+
 public:
 
     /* --------------------------------------------------------------------------------------------
