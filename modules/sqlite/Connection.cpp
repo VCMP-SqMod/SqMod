@@ -104,6 +104,11 @@ const ConnRef & Connection::GetOpened() const
 // ------------------------------------------------------------------------------------------------
 void Connection::Open(CSStr name)
 {
+    // Should we create a connection handle?
+    if (!m_Handle)
+    {
+        m_Handle = ConnRef(new ConnHnd());
+    }
     // Make sure another database isn't opened
     if (GET_VALID_HND(*this)->mPtr != nullptr)
     {
@@ -116,6 +121,11 @@ void Connection::Open(CSStr name)
 // ------------------------------------------------------------------------------------------------
 void Connection::Open(CSStr name, Int32 flags)
 {
+    // Should we create a connection handle?
+    if (!m_Handle)
+    {
+        m_Handle = ConnRef(new ConnHnd());
+    }
     // Make sure another database isn't opened
     if (GET_VALID_HND(*this)->mPtr != nullptr)
     {
@@ -128,6 +138,11 @@ void Connection::Open(CSStr name, Int32 flags)
 // ------------------------------------------------------------------------------------------------
 void Connection::Open(CSStr name, Int32 flags, CSStr vfs)
 {
+    // Should we create a connection handle?
+    if (!m_Handle)
+    {
+        m_Handle = ConnRef(new ConnHnd());
+    }
     // Make sure another database isn't opened
     if (GET_VALID_HND(*this)->mPtr != nullptr)
     {
