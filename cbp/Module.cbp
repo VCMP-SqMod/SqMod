@@ -445,6 +445,8 @@
 		<Unit filename="../source/Base/Color4.hpp" />
 		<Unit filename="../source/Base/Quaternion.cpp" />
 		<Unit filename="../source/Base/Quaternion.hpp" />
+		<Unit filename="../source/Base/ScriptSrc.cpp" />
+		<Unit filename="../source/Base/ScriptSrc.hpp" />
 		<Unit filename="../source/Base/Shared.cpp" />
 		<Unit filename="../source/Base/Shared.hpp" />
 		<Unit filename="../source/Base/Sphere.cpp" />
