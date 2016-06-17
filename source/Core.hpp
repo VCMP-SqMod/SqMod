@@ -384,8 +384,8 @@ private:
     Object                          m_ReloadPayload; // The specified reload payload.
 
     // --------------------------------------------------------------------------------------------
-    CStr                            m_IncomingNameBuffer; // Name of an incomming connection.
-    size_t                          m_IncomingNameCapacity; // Incomming connection name size.
+    CStr                            m_IncomingNameBuffer; // Name of an incoming connection.
+    size_t                          m_IncomingNameCapacity; // Incoming connection name size.
 
 public:
 
@@ -439,7 +439,7 @@ public:
     CSStr GetOption(CSStr name) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value of the specified option or the fallback value if it doesn't exist.
+     * Retrieve the value of the specified option or the fall back value if it doesn't exist.
     */
     CSStr GetOption(CSStr name, CSStr value) const;
 
@@ -540,7 +540,7 @@ protected:
                                         SQInteger line, SQInteger column);
 
     /* --------------------------------------------------------------------------------------------
-     * Entity scaners.
+     * Entity scanners.
     */
     void ImportBlips();
     void ImportCheckpoints();
@@ -561,7 +561,7 @@ protected:
     Object & AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
-     * Entity deallocators.
+     * Entity deallocator.
     */
     void DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload);
     void DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payload);
