@@ -19,9 +19,6 @@ class Core;
 */
 class ScriptSrc
 {
-    // --------------------------------------------------------------------------------------------
-    friend class Core;
-
 public:
 
     // --------------------------------------------------------------------------------------------
@@ -33,8 +30,6 @@ public:
     String      mData; // The contents of the script file.
     Line        mLine; // List of lines of code in the data.
 
-private:
-
     /* --------------------------------------------------------------------------------------------
      * Read file contents and calculate information about the lines of code.
     */
@@ -44,8 +39,6 @@ private:
      * Default constructor.
     */
     ScriptSrc(HSQUIRRELVM vm, const String & path, bool info = false);
-
-public:
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.

@@ -150,8 +150,13 @@ ScriptSrc::ScriptSrc(HSQUIRRELVM vm, const String & path, bool info)
     {
         throw std::runtime_error("Invalid or empty script path");
     }
+    // Is the specified virtual machine invalid?
+    else if (!vm)
+    {
+        throw std::runtime_error("Invalid virtual machine pointer");
+    }
     // Should we load the file contents for debugging purposes?
-    if (info)
+    else if (info)
     {
         Process();
     }
