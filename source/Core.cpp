@@ -309,7 +309,7 @@ bool Core::Execute()
         catch (const Sqrat::Exception & e)
         {
             LogFtl("Unable to compile: %s", s.mPath.c_str());
-            // Failed to executed properly
+            // Failed to execute properly
             return false;
         }
         // Attempt to execute the compiled script code
@@ -320,7 +320,7 @@ bool Core::Execute()
         catch (const Sqrat::Exception & e)
         {
             LogFtl("Unable to execute: %s", s.mPath.c_str());
-            // Failed to executed properly
+            // Failed to execute properly
             return false;
         }
         // At this point the script should be completely loaded
