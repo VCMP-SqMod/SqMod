@@ -4,8 +4,8 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <cctype>
-
-// ------------------------------------------------------------------------------------------------
+#include <cstdlib>
+#include <limits>
 #include <utility>
 
 // ------------------------------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 #else
     #include <linux/limits.h>
     #include <unistd.h>
-#endif
+#endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -31,6 +31,49 @@ namespace SqMod {
     // Character to be used when working with path
     typedef CharT PChar;
 #endif // SQMOD_OS_WINDOWS
+
+// ------------------------------------------------------------------------------------------------
+Buffer GetRealFilePath(CSStr path)
+{
+    // Make sure the specified path is valid
+    if (!path || *path == '\0')
+    {
+        STHROWF("Cannot obtain real path of empty or invalid path");
+    }
+    // Allocate a buffer large enough to hold a full path
+    Buffer b(SQMOD_MAX_PATH);
+
+#ifdef SQMOD_OS_WINDOWS
+    // Attempt to obtain the full path to the file
+    DWORD ret = ::GetFullPathName(path, b.Size< PChar >(), b.Get< PChar >(), nullptr);
+    // Should we allocate a bigger buffer?
+    if (ret > b.Size< PChar >())
+    {
+        // Grab a bigger buffer
+        b.Adjust(ret);
+        // Grab the path again
+        ret = GetFullPathName(path, b.Size< PChar >(), b.Get< PChar >(), nullptr);
+    }
+    // Did we fail to obtain a path?
+    if (ret == 0 && ::GetLastError() != 0)
+    {
+        STHROWLASTF("Cannot obtain real path of (%s)", path);
+    }
+    // Adjust the buffer cursor
+    b.Move(ret);
+#else
+    // Attempt to obtain the full path to the file
+    if (!realpath(path, b.Data()))
+    {
+        STHROWLASTF("Cannot obtain real path of (%s)", path);
+    }
+    // Adjust the buffer cursor
+    b.Move(std::strlen(b.Data()));
+#endif // SQMOD_OS_WINDOWS
+
+    // Return ownership of the buffer
+    return std::move(b);
+}
 
 // ------------------------------------------------------------------------------------------------
 SQInteger SysPath::Typename(HSQUIRRELVM vm)

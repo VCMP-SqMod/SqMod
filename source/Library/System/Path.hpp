@@ -11,6 +11,11 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve the full path of file.
+*/
+Buffer GetRealFilePath(CSStr path);
+
+/* ------------------------------------------------------------------------------------------------
  * This class represents filesystem paths in a platform-independent manner.
 */
 class SysPath
