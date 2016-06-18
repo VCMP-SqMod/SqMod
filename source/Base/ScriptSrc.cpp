@@ -136,27 +136,31 @@ void ScriptSrc::Process()
     {
         mLine.push_back(line);
     }
+    // Specify that this script contains line information
+    mInfo = true;
 }
 
 // ------------------------------------------------------------------------------------------------
-ScriptSrc::ScriptSrc(HSQUIRRELVM vm, const String & path, bool info)
+ScriptSrc::ScriptSrc(HSQUIRRELVM vm, String && path, bool delay, bool info)
     : mExec(vm)
-    , mPath(path)
+    , mPath(std::move(path))
     , mData()
     , mLine()
+    , mInfo(info)
+    , mDelay(delay)
 {
-    // Is the specified path empty?
-    if (mPath.empty())
-    {
-        throw std::runtime_error("Invalid or empty script path");
-    }
     // Is the specified virtual machine invalid?
-    else if (!vm)
+    if (!vm)
     {
         throw std::runtime_error("Invalid virtual machine pointer");
     }
+    // Is the specified path empty?
+    else if (mPath.empty())
+    {
+        throw std::runtime_error("Invalid or empty script path");
+    }
     // Should we load the file contents for debugging purposes?
-    else if (info)
+    else if (mInfo)
     {
         Process();
     }

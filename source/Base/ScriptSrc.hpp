@@ -29,6 +29,8 @@ public:
     String      mPath; // Path to the script file.
     String      mData; // The contents of the script file.
     Line        mLine; // List of lines of code in the data.
+    bool        mInfo; // Whether this script contains line information.
+    bool        mDelay; // Don't execute immediately after compilation.
 
     /* --------------------------------------------------------------------------------------------
      * Read file contents and calculate information about the lines of code.
@@ -36,9 +38,18 @@ public:
     void Process();
 
     /* --------------------------------------------------------------------------------------------
-     * Default constructor.
+     * Base constructor.
     */
-    ScriptSrc(HSQUIRRELVM vm, const String & path, bool info = false);
+    ScriptSrc(HSQUIRRELVM vm, const String & path, bool delay = false, bool info = false)
+        : ScriptSrc(vm, String(path), delay, info) 
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    ScriptSrc(HSQUIRRELVM vm, String && path, bool delay = false, bool info = false);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
