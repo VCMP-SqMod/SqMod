@@ -172,6 +172,11 @@ const Color3 & GetRandomColor();
 */
 Color3 GetColor(CSStr name);
 
+/* ------------------------------------------------------------------------------------------------
+ * Throw the last system error as an exception.
+*/
+void SqThrowLastF(CSStr msg, ...);
+
 } // Namespace:: SqMod
 
 #endif // _BASE_SHARED_HPP_

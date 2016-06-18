@@ -7,8 +7,16 @@
 #include "Library/String.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <cerrno>
+#include <cstdio>
 #include <cstring>
+#include <cstdarg>
 #include <algorithm>
+
+// ------------------------------------------------------------------------------------------------
+#ifdef SQMOD_OS_WINDOWS
+    #include <windows.h>
+#endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -811,6 +819,48 @@ Color3 GetColor(CSStr name)
         // Default to blank
         default: return Color3::NIL;
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+void SqThrowLastF(CSStr msg, ...)
+{
+    // Acquire a moderately sized buffer
+    Buffer b(128);
+    // Prepare the arguments list
+    va_list args;
+    va_start (args, msg);
+    // Attempt to run the specified format
+    if (b.WriteF(0, msg, args) == 0)
+    {
+        b.At(0) = '\0'; // Make sure the string is null terminated
+    }
+    // Finalize the argument list
+    va_end(args);
+#ifdef SQMOD_OS_WINDOWS
+    // Get the error message, if any.
+    const DWORD error_num = ::GetLastError();
+    // Was there an error recorded?
+    if(error_num == 0)
+    {
+        // Invoker is responsible for making sure this doesn't happen!
+        SqThrowF("%s [Unknown error]", b.Data());
+    }
+    // The resulted message buffer
+    LPSTR msg_buff = nullptr;
+    // Attempt to obtain the error message
+    const std::size_t size = FormatMessageA(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr, error_num, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        reinterpret_cast< LPSTR >(&msg_buff), 0, nullptr);
+    // Copy the message buffer before freeing it
+    std::string message(msg_buff, size);
+    //Free the message buffer
+    LocalFree(msg_buff);
+    // Now it's safe to throw the error
+    SqThrowF("%s [%s]", b.Data(), message.c_str());
+#else
+    SqThrowF("%s [%s]", b.Data(), std::strerror(errno));
+#endif // SQMOD_OS_WINDOWS
 }
 
 // ------------------------------------------------------------------------------------------------

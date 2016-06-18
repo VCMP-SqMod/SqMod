@@ -528,9 +528,11 @@ enum CmdError
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
     #define STHROW(e, m, ...) throw e(m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] ", ##__VA_ARGS__)
     #define STHROWF(m, ...) SqThrowF(m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] ", ##__VA_ARGS__)
+    #define STHROWLASTF(m, ...) SqThrowLastF(m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] ", ##__VA_ARGS__)
 #else
     #define STHROW(e, m, ...) throw e(m, ##__VA_ARGS__)
     #define STHROWF(m, ...) SqThrowF(m, ##__VA_ARGS__)
+    #define STHROWLASTF(m, ...) SqThrowLastF(m, ##__VA_ARGS__)
 #endif // _DEBUG
 
 /* ------------------------------------------------------------------------------------------------
