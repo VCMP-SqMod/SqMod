@@ -297,8 +297,8 @@ bool Core::Execute()
     // Tell modules to do their monkey business
     _Func->SendPluginCommand(0xDEADBABE, "");
 
-    LogDbg("Attempting to execute the specified scripts");
-    // Go through each specified script
+    LogDbg("Attempting to compile the specified scripts");
+    // Compile scripts first so that the constants can take effect
     for (auto & s : m_Scripts)
     {
         // Attempt to load and compile the script file
@@ -312,6 +312,14 @@ bool Core::Execute()
             // Failed to execute properly
             return false;
         }
+        // At this point the script should be completely loaded
+        LogDbg("Successfully compiled script: %s", s.mPath.c_str());
+    }
+
+    LogDbg("Attempting to execute the specified scripts");
+    // Execute scripts only after compilation successful
+    for (auto & s : m_Scripts)
+    {
         // Attempt to execute the compiled script code
         try
         {
