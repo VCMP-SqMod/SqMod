@@ -66,7 +66,7 @@ extern "C" {
     //logging utilities
     typedef void            (*SqEx_LogMessage) (const SQChar * fmt, ...);
     //script loading
-    typedef SQRESULT        (*SqEx_LoadScript) (const SQChar * filepath);
+    typedef SQRESULT        (*SqEx_LoadScript) (const SQChar * filepath, SQBool delay);
     //numeric utilities
     typedef SQRESULT        (*SqEx_GetSLongValue) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
     typedef SQRESULT        (*SqEx_PushSLongObject) (HSQUIRRELVM vm, SqInt64 num);

@@ -39,6 +39,56 @@ extern void InitializeCmdManager();
 extern void TerminateCmdManager();
 
 // ------------------------------------------------------------------------------------------------
+extern Buffer GetRealFilePath(CSStr path);
+
+/* ------------------------------------------------------------------------------------------------
+ * Loader used to process a section from the configuration file and look for scripts to load.
+*/
+class ScriptLoader
+{
+    // --------------------------------------------------------------------------------------------
+    CSimpleIniA & m_Config; // The processed configuration.
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    ScriptLoader(CSimpleIniA & conf)
+        : m_Config(conf)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Function call operator.
+    */
+    bool operator () (CCStr key, CCStr val) const
+    {
+        // Validate the specified key
+        if (!key || *key == '\0')
+        {
+            return true; // Move to the next element!
+        }
+        // Identify the load option
+        if (std::strcmp(key, "Section") == 0)
+        {
+            return m_Config.ProcAllValues(val, ScriptLoader(m_Config));
+        }
+        else if (std::strcmp(key, "Compile") == 0)
+        {
+            return Core::Get().LoadScript(val, true);
+        }
+        else if (std::strcmp(key, "Execute") == 0)
+        {
+            return Core::Get().LoadScript(val, false);
+        }
+        // Move to the next element!
+        return true;
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
 Core Core::s_Inst;
 
 // ------------------------------------------------------------------------------------------------
@@ -60,6 +110,7 @@ Core::Core()
     , m_IncomingNameBuffer(nullptr)
     , m_IncomingNameCapacity(0)
     , m_Debugging(false)
+    , m_Executed(false)
 {
     /* ... */
 }
@@ -195,49 +246,16 @@ bool Core::Initialize()
         return false; // Can't execute scripts without a valid API!
     }
 
-    // Used to obtain collections of script paths
-    CSimpleIniA::TNamesDepend bundles, scripts;
-
-    // Attempt to retrieve the list of scripts specified in the configuration file
-    if (conf.GetAllValues("Scripts", "Source", scripts) && scripts.size() > 0)
+    CSimpleIniA::TNamesDepend scripts;
+    // Attempt to retrieve the list of keys to make sure there's actually something to process
+    if (conf.GetAllKeys("Scripts", scripts) && scripts.size() > 0)
     {
-        LogDbg("Found (%u) scripts in the configuration file", scripts.size());
-        // Sort the list in it's original order
-        scripts.sort(CSimpleIniA::Entry::LoadOrder());
-        // Process each specified script path
-        for (const auto & script : scripts)
+        // Attempt to load the specified scripts
+        if (!conf.ProcAllValues("Scripts", ScriptLoader(conf)))
         {
-            // Attempt to queue the specified script path for loading
-            LoadScript(script.pItem);
-        }
-    }
-
-    // Attempt to retrieve the list of bundles specified in the configuration file
-    if (conf.GetAllValues("Scripts", "Bundle", bundles) && bundles.size() > 0)
-    {
-        LogDbg("Found (%u) bundles in the configuration file", bundles.size());
-        // Sort the list in it's original order
-        bundles.sort(CSimpleIniA::Entry::LoadOrder());
-        // Process each specified script bundle
-        for (const auto & bundle : bundles)
-        {
-            // Attempt to retrieve the list of scripts specified in the current bundle
-            if (!conf.GetAllValues(bundle.pItem, "Source", scripts))
-            {
-                LogWrn("Unable to locate script bundle (%s)", bundle.pItem);
-            }
-            else if (scripts.size() > 0)
-            {
-                LogDbg("Found (%u) scripts in bundle (%s)", scripts.size(), bundle.pItem);
-                // Sort the list in it's original order
-                scripts.sort(CSimpleIniA::Entry::LoadOrder());
-                // Process each specified script path
-                for (const auto & script : scripts)
-                {
-                    // Attempt to queue the specified script path for loading
-                    LoadScript(script.pItem);
-                }
-            }
+            LogErr("Unable to load the specified scripts");
+            // Either no script was found or failed to load
+            return false;
         }
     }
 
@@ -301,6 +319,12 @@ bool Core::Execute()
     // Compile scripts first so that the constants can take effect
     for (auto & s : m_Scripts)
     {
+        // Is this script already compiled?
+        if (!s.mExec.IsNull())
+        {
+            continue; // Already compiled!
+        }
+
         // Attempt to load and compile the script file
         try
         {
@@ -312,14 +336,15 @@ bool Core::Execute()
             // Failed to execute properly
             return false;
         }
-        // At this point the script should be completely loaded
-        LogDbg("Successfully compiled script: %s", s.mPath.c_str());
-    }
 
-    LogDbg("Attempting to execute the specified scripts");
-    // Execute scripts only after compilation successful
-    for (auto & s : m_Scripts)
-    {
+        LogDbg("Successfully compiled script: %s", s.mPath.c_str());
+
+        // Should we delay the execution of this script?
+        if (s.mDelay)
+        {
+            continue; // Execute later!
+        }
+
         // Attempt to execute the compiled script code
         try
         {
@@ -331,7 +356,32 @@ bool Core::Execute()
             // Failed to execute properly
             return false;
         }
-        // At this point the script should be completely loaded
+
+        LogScs("Successfully executed script: %s", s.mPath.c_str());
+    }
+
+    LogDbg("Attempting to execute the specified scripts");
+    // Execute scripts only after compilation successful
+    for (auto & s : m_Scripts)
+    {
+        // Was this script delayed from execution?
+        if (!s.mDelay)
+        {
+            continue; // Already executed!
+        }
+
+        // Attempt to execute the compiled script code
+        try
+        {
+            s.mExec.Run();
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            LogFtl("Unable to execute: %s", s.mPath.c_str());
+            // Failed to execute properly
+            return false;
+        }
+
         LogScs("Successfully executed script: %s", s.mPath.c_str());
     }
 
@@ -348,7 +398,7 @@ bool Core::Execute()
     EmitScriptLoaded();
 
     // Successfully executed
-    return true;
+    return (m_Executed = true);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -386,6 +436,8 @@ void Core::Terminate()
         ResetFunc();
         // Release the script instances
         m_Scripts.clear();
+        // Specify that no scripts are left executed
+        m_Executed = false;
         // Assertions during close may cause double delete/close!
         HSQUIRRELVM sq_vm = m_VM;
         m_VM = nullptr;
@@ -442,15 +494,35 @@ void Core::SetOption(CSStr name, CSStr value)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::LoadScript(CSStr filepath)
+bool Core::LoadScript(CSStr filepath, bool delay)
 {
     // Is the specified path empty?
     if (!filepath || *filepath == '\0')
     {
-        return false; // Simply ignore it!
+        LogErr("Cannot load script with empty or invalid path");
+        // Failed to load
+        return false;
     }
-    // Get the file path as a string
-    String path(filepath);
+    Buffer bpath;
+    // Attempt to get the real file path
+    try
+    {
+        bpath = GetRealFilePath(filepath);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        LogErr("Unable to load script: %s", e.Message().c_str());
+        // Failed to load
+        return false;
+    }
+    catch (const std::exception & e)
+    {
+        LogErr("Unable to load script: %s", e.what());
+        // Failed to load
+        return false;
+    }
+    // Make the path into a string
+    String path(bpath.Data(), bpath.Position());
     // See if it wasn't already loaded
     if (std::find_if(m_Scripts.cbegin(), m_Scripts.cend(), [&path](Scripts::const_reference s) {
         return (s.mPath == path);
@@ -458,11 +530,45 @@ bool Core::LoadScript(CSStr filepath)
     {
         LogWrn("Script was specified before: %s", path.c_str());
     }
+    // Were the scripts already executed? Then there's no need to queue them
+    else if (m_Executed)
+    {
+        // Create a new script container and insert it into the script pool
+        m_Scripts.emplace_back(m_VM, std::move(path), delay, m_Debugging);
+
+        // Attempt to load and compile the script file
+        try
+        {
+            m_Scripts.back().mExec.CompileFile(m_Scripts.back().mPath);
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            LogFtl("Unable to compile: %s", m_Scripts.back().mPath.c_str());
+            // Failed to execute properly
+            return false;
+        }
+        // At this point the script should be completely loaded
+        LogDbg("Successfully compiled script: %s", m_Scripts.back().mPath.c_str());
+
+        // Attempt to execute the compiled script code
+        try
+        {
+            m_Scripts.back().mExec.Run();
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            LogFtl("Unable to execute: %s", m_Scripts.back().mPath.c_str());
+            // Failed to execute properly
+            return false;
+        }
+        // At this point the script should be completely loaded
+        LogScs("Successfully executed script: %s", m_Scripts.back().mPath.c_str());
+    }
     // We don't compile the scripts yet. We just store their path and prepare the objects
     else
     {
         // Create a new script container and insert it into the script pool
-        m_Scripts.emplace_back(m_VM, path, m_Debugging);
+        m_Scripts.emplace_back(m_VM, std::move(path), delay, m_Debugging);
     }
     // At this point the script exists in the pool
     return true;

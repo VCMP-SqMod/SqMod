@@ -40,10 +40,10 @@ static HSQUIRRELVM GetSquirrelVM()
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQRESULT SqEx_LoadScript(const SQChar * filepath)
+static SQRESULT SqEx_LoadScript(const SQChar * filepath, SQBool delay)
 {
     // Attempt to add the specified script to the load queue
-    if (Core::Get().LoadScript(filepath))
+    if (Core::Get().LoadScript(filepath, delay))
     {
         return SQ_OK; // The script as added or already existed
     }

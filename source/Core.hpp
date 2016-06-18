@@ -392,6 +392,7 @@ private:
 
     // --------------------------------------------------------------------------------------------
     bool                            m_Debugging; // Enable debugging features, if any.
+    bool                            m_Executed; // Whether the scripts were executed.
 
 public:
 
@@ -437,6 +438,22 @@ public:
     Int32 GetState() const
     {
         return m_State;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether debugging option was enabled in the plugin.
+    */
+    bool IsDebugging() const
+    {
+        return m_Debugging;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether all queued scripts were executed and the plugin fully started.
+    */
+    bool IsExecuted() const
+    {
+        return m_Executed;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -515,7 +532,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Adds a script to the load queue.
     */
-    bool LoadScript(CSStr filepath);
+    bool LoadScript(CSStr filepath, bool delay);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the name for the currently assigned incoming connection.
