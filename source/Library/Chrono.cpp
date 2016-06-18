@@ -10,6 +10,13 @@
 
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
+
+#if defined(_SQ64) && (_WIN32_WINNT < 0x0600)
+    // We need this for the GetTickCount64() function
+    #undef _WIN32_WINNT
+    #define _WIN32_WINNT 0x0600
+#endif // _SQ64
+
     #include <windows.h>
 #else
     #include <time.h>
@@ -83,7 +90,7 @@ Int64 Chrono::GetEpochTimeMicro()
 #ifndef _SQ64
 Int64 GetTickCount64()
 {
-    return 0ULL; // Should we fallback to 32 bit?
+    return static_cast< Int64 >(GetTickCount()); // Fall-back to 32 bit?
 }
 #endif // _SQ64
 
