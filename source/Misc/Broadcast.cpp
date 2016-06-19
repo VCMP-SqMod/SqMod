@@ -115,7 +115,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
             // Attempt to treat the value as a hex color
             color = ConvTo< Uint32 >::From(std::strtoull(++str, nullptr, 16));
             // Adjust the color if necessary
-            switch (ClampMin(--len, 0))
+            switch (ClampMin(--len, static_cast< SQInteger >(0)))
             {
                 case 0:
                 {
@@ -164,7 +164,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
             // Attempt to treat the value as a hex color
             color = ConvTo< Uint32 >::From(std::strtoull(str, nullptr, 16));
             // Adjust the color if necessary
-            switch (ClampMin(len-2, 0))
+            switch (ClampMin(len-2, static_cast< SQInteger >(0)))
             {
                 case 0:
                 {
