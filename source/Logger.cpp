@@ -237,11 +237,10 @@ void Logger::SetLogFilename(CCStr filename)
     }
     // Make sure the internal buffer has some memory
     m_Buffer.Adjust(1024);
-    // Generate the filename using the current timestamp
-    std::time_t t = std::time(nullptr);
-    std::strftime(m_Buffer.Data(), m_Buffer.Size(), filename, std::localtime(&t));
-    // Is the resulted filename valid?
-    if (m_Buffer.At(0) != '\0')
+    // Obtain the current time for generating the filename
+    const std::time_t t = std::time(nullptr);
+    // Generate the filename using the current time-stamp
+    if (std::strftime(m_Buffer.Data(), m_Buffer.Size(), filename, std::localtime(&t)) > 0)
     {
         m_Filename.assign(m_Buffer.Data());
     }
@@ -552,6 +551,114 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
     return 0;
 }
 
+// ------------------------------------------------------------------------------------------------
+static void SqLogClose()
+{
+    Logger::Get().Close();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogInitialize(CSStr filename)
+{
+    Logger::Get().Initialize(filename);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogToggleConsoleTime(bool toggle)
+{
+    Logger::Get().ToggleConsoleTime(toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqLogConsoleHasTime()
+{
+    return Logger::Get().ConsoleHasTime();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogToggleLogFileTime(bool toggle)
+{
+    Logger::Get().ToggleLogFileTime(toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqLogLogFileHasTime()
+{
+    return Logger::Get().LogFileHasTime();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogSetConsoleLevels(SQInteger level)
+{
+    Logger::Get().SetConsoleLevels(ConvTo< Uint8 >::From(level));
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqLogGetConsoleLevels()
+{
+    return Logger::Get().GetConsoleLevels();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogSetLogFileLevels(SQInteger level)
+{
+    Logger::Get().SetLogFileLevels(ConvTo< Uint8 >::From(level));
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqLogGetLogFileLevels()
+{
+    return Logger::Get().GetLogFileLevels();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogEnableConsoleLevel(SQInteger level)
+{
+    Logger::Get().EnableConsoleLevel(ConvTo< Uint8 >::From(level));
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogDisableConsoleLevel(SQInteger level)
+{
+    Logger::Get().DisableConsoleLevel(ConvTo< Uint8 >::From(level));
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogToggleConsoleLevel(SQInteger level, bool toggle)
+{
+    Logger::Get().ToggleConsoleLevel(ConvTo< Uint8 >::From(level), toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogEnableLogFileLevel(SQInteger level)
+{
+    Logger::Get().EnableLogFileLevel(ConvTo< Uint8 >::From(level));
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogDisableLogFileLevel(SQInteger level)
+{
+    Logger::Get().DisableLogFileLevel(ConvTo< Uint8 >::From(level));
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogToggleLogFileLevel(SQInteger level, bool toggle)
+{
+    Logger::Get().ToggleLogFileLevel(ConvTo< Uint8 >::From(level), toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+static const String & SqLogGetLogFilename()
+{
+    return Logger::Get().GetLogFilename();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogSetLogFilename(CSStr filename)
+{
+    Logger::Get().SetLogFilename(filename);
+}
+
 // ================================================================================================
 void Register_Log(HSQUIRRELVM vm)
 {
@@ -571,6 +678,24 @@ void Register_Log(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("SWrn"), &LogBasicMessage< LOGL_WRN, true >)
         .SquirrelFunc(_SC("SErr"), &LogBasicMessage< LOGL_ERR, true >)
         .SquirrelFunc(_SC("SFtl"), &LogBasicMessage< LOGL_FTL, true >)
+        .Func(_SC("Close"), &SqLogClose)
+        .Func(_SC("Initialize"), &SqLogInitialize)
+        .Func(_SC("ToggleConsoleTime"), &SqLogToggleConsoleTime)
+        .Func(_SC("ConsoleHasTime"), &SqLogConsoleHasTime)
+        .Func(_SC("ToggleLogFileTime"), &SqLogToggleLogFileTime)
+        .Func(_SC("LogFileHasTime"), &SqLogLogFileHasTime)
+        .Func(_SC("SetConsoleLevels"), &SqLogSetConsoleLevels)
+        .Func(_SC("GetConsoleLevels"), &SqLogGetConsoleLevels)
+        .Func(_SC("SetLogFileLevels"), &SqLogSetLogFileLevels)
+        .Func(_SC("GetLogFileLevels"), &SqLogGetLogFileLevels)
+        .Func(_SC("EnableConsoleLevel"), &SqLogEnableConsoleLevel)
+        .Func(_SC("DisableConsoleLevel"), &SqLogDisableConsoleLevel)
+        .Func(_SC("ToggleConsoleLevel"), &SqLogToggleConsoleLevel)
+        .Func(_SC("EnableLogFileLevel"), &SqLogEnableLogFileLevel)
+        .Func(_SC("DisableLogFileLevel"), &SqLogDisableLogFileLevel)
+        .Func(_SC("ToggleLogFileLevel"), &SqLogToggleLogFileLevel)
+        .Func(_SC("GetLogFilename"), &SqLogGetLogFilename)
+        .Func(_SC("SetLogFilename"), &SqLogSetLogFilename)
     );
 }
 
