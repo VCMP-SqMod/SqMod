@@ -720,7 +720,7 @@ static const EnumElement g_SkinEnum[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
-static const EnumElement g_KeycodeEnum[] = {
+static const EnumElement g_KeyCodeEnum[] = {
     {_SC("Unknown"),              SQMOD_UNKNOWN},
     {_SC("Abnt_c1"),              SQMOD_KEYCODE_ABNT_C1},
     {_SC("Abnt_c2"),              SQMOD_KEYCODE_ABNT_C2},
@@ -1135,7 +1135,7 @@ void Register_Constants(HSQUIRRELVM vm)
     RegisterEnum(vm, _SC("SqWep"),              g_WeaponEnum,           SQENUMCOUNT(g_WeaponEnum));
     RegisterEnum(vm, _SC("SqVeh"),              g_VehicleEnum,          SQENUMCOUNT(g_VehicleEnum));
     RegisterEnum(vm, _SC("SqSkin"),             g_SkinEnum,             SQENUMCOUNT(g_SkinEnum));
-    RegisterEnum(vm, _SC("SqKeycode"),          g_KeycodeEnum,          SQENUMCOUNT(g_KeycodeEnum));
+    RegisterEnum(vm, _SC("SqKeyCode"),          g_KeyCodeEnum,          SQENUMCOUNT(g_KeyCodeEnum));
     RegisterEnum(vm, _SC("SqASCII"),            g_AsciiEnum,            SQENUMCOUNT(g_AsciiEnum));
 }
 
