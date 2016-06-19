@@ -2,6 +2,7 @@
 #include "Entity/Player.hpp"
 #include "Entity/Vehicle.hpp"
 #include "Base/Color3.hpp"
+#include "Base/Color4.hpp"
 #include "Base/Vector3.hpp"
 #include "Library/Utils/BufferWrapper.hpp"
 #include "Core.hpp"
@@ -1594,19 +1595,43 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing message value");
     }
     // The player instance
-    CPlayer * player = nullptr;
-    // The message color
-    Color3 color;
+    CPlayer * player;
     // Attempt to extract the argument values
     try
     {
         player = Var< CPlayer * >(vm, 1).value;
-        color = Var< Color3 >(vm, 2).value;
     }
     catch (const Sqrat::Exception & e)
     {
         // Propagate the error
         return sq_throwerror(vm, e.Message().c_str());
+    }
+    // Failed to retrieve a Color4 value
+    bool failed = false;
+    // The message color
+    Color4 color;
+    // Attempt to extract the argument values
+    try
+    {
+        color = Var< Color4 >(vm, 2).value;
+    }
+    catch (...)
+    {
+        failed = true;
+    }
+    // Did we failed to retrieve a Color4 instance?
+    if (failed)
+    {
+        // Attempt to extract the argument values
+        try
+        {
+            color = Var< Color3 >(vm, 2).value;
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            // Propagate the error
+            return sq_throwerror(vm, e.Message().c_str());
+        }
     }
     // Do we have a valid player instance?
     if (!player)
@@ -1720,26 +1745,27 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
     // Was the message color specified?
-    if (top <= 3)
+    if (top <= 4)
     {
         return sq_throwerror(vm, "Missing message color");
     }
     // Was the message value specified?
-    else if (top <= 4)
+    else if (top <= 5)
     {
         return sq_throwerror(vm, "Missing message value");
     }
     // The player instance
     CPlayer * player = nullptr;
     // The message color
-    Uint8 r, g, b;
+    Uint32 color;
     // Attempt to extract the argument values
     try
     {
         player = Var< CPlayer * >(vm, 1).value;
-        r = Var< Uint8 >(vm, 2).value;
-        g = Var< Uint8 >(vm, 3).value;
-        b = Var< Uint8 >(vm, 4).value;
+        color = SQMOD_PACK_RGBA(Var< Uint8 >(vm, 2).value,
+                                Var< Uint8 >(vm, 3).value,
+                                Var< Uint8 >(vm, 4).value,
+                                Var< Uint8 >(vm, 5).value);
     }
     catch (const Sqrat::Exception & e)
     {
@@ -1757,14 +1783,14 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Invalid player reference");
     }
     // Attempt to generate the string value
-    StackStrF val(vm, 5);
+    StackStrF val(vm, 6);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
         return val.mRes; // Propagate the error!
     }
     // Send the resulted message string
-    const vcmpError result = _Func->SendClientMessage(player->GetID(), SQMOD_PACK_RGBA(r, g, b, 0),
+    const vcmpError result = _Func->SendClientMessage(player->GetID(), color,
                                                         "%s%s%s",
                                                         player->mMessagePrefix.c_str(),
                                                         val.mPtr,
