@@ -532,6 +532,7 @@
 		<Unit filename="../source/Logger.cpp" />
 		<Unit filename="../source/Logger.hpp" />
 		<Unit filename="../source/Main.cpp" />
+		<Unit filename="../source/Misc/Broadcast.cpp" />
 		<Unit filename="../source/Misc/Functions.cpp" />
 		<Unit filename="../source/Misc/Functions.hpp" />
 		<Unit filename="../source/Misc/Model.cpp" />
