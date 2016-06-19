@@ -17,6 +17,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+extern SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int32 & msgidx);
+
+// ------------------------------------------------------------------------------------------------
 Color3  CPlayer::s_Color3;
 Vector3 CPlayer::s_Vector3;
 
@@ -1581,228 +1584,6 @@ void CPlayer::SetColorB(Int32 g) const
 }
 
 // ------------------------------------------------------------------------------------------------
-static inline bool SqCanBeInteger(HSQUIRRELVM vm, Int32 idx)
-{
-    switch (sq_gettype(vm, idx))
-    {
-        case OT_NULL:
-        case OT_INTEGER:
-        case OT_FLOAT:
-        case OT_BOOL:
-            return true;
-        default:
-            return false;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-static SQRESULT SqGrabColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int32 & msgidx)
-{
-    const Int32 top = sq_gettop(vm);
-    // Is the color argument a Color3/Color4 instance?
-    if (sq_gettype(vm, idx) == OT_INSTANCE)
-    {
-        // Whether it failed to retrieve a Color3 value
-        bool failed = false;
-        // Attempt to extract a Color3 value
-        try
-        {
-            color = (Var< Color3 >(vm, idx).value.GetRGBA() | 0xFF);
-        }
-        catch (...)
-        {
-            failed = true;
-        }
-        // Did we failed to retrieve a Color3 instance?
-        if (failed)
-        {
-            // Attempt to extract a Color4 value
-            try
-            {
-                color = Var< Color4 >(vm, idx).value.GetRGBA();
-            }
-            catch (const Sqrat::Exception & e)
-            {
-                return sq_throwerror(vm, e.Message().c_str());
-            }
-        }
-        // The message starts right after the color
-        msgidx += 1;
-    }
-    // Is the color argument an unpacked RGBA color?
-    else if ((top - msgidx) >= 4 && SqCanBeInteger(vm, idx)
-                        && SqCanBeInteger(vm, idx+1)
-                        && SqCanBeInteger(vm, idx+2)
-                        && SqCanBeInteger(vm, idx+3))
-    {
-        color = SQMOD_PACK_RGBA(ConvTo< Uint8 >::From(PopStackInteger(vm, idx)),
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+1)),
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+2)),
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+3)));
-        // The message starts right after the color
-        msgidx += 4;
-    }
-    // Is the color argument an unpacked RGB color?
-    else if ((top - msgidx) >= 3 && SqCanBeInteger(vm, idx)
-                        && SqCanBeInteger(vm, idx+1)
-                        && SqCanBeInteger(vm, idx+2))
-    {
-        color = SQMOD_PACK_RGBA(ConvTo< Uint8 >::From(PopStackInteger(vm, idx)),
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+1)),
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+2)),
-                                0xFF);
-        // The message starts right after the color
-        msgidx += 3;
-    }
-    // Is the color argument an packed RGBA color?
-    else if (SqCanBeInteger(vm, idx))
-    {
-        color = static_cast< Uint32 >(PopStackInteger(vm, idx));
-        // The message starts right after the color
-        msgidx += 1;
-    }
-    // Is the first argument a string which can be interpreted as a color?
-    else if (sq_gettype(vm, idx) == OT_STRING)
-    {
-        CSStr str = nullptr;
-        SQInteger len = 0;
-        // Attempt to retrieve the color argument as a string
-        if (SQ_FAILED(sq_getstringandsize(vm, idx, &str, &len)))
-        {
-            return sq_throwerror(vm, "Cannot retrieve the color string");
-        }
-        // Do we even have any color?
-        else if (!str || *str == '\0')
-        {
-            return sq_throwerror(vm, "Invalid or empty color string");
-        }
-        // Skip white space at the beginning
-        while (std::isspace(*str) != 0)
-        {
-            ++str, --len;
-        }
-        // Is the first character a number sign?
-        if (*str == '#')
-        {
-            // Attempt to treat the value as a hex color
-            color = ConvTo< Uint32 >::From(std::strtoull(++str, nullptr, 16));
-            // Adjust the color if necessary
-            switch (ClampMin(--len, 0))
-            {
-                case 0:
-                {
-                    color = 0x000000FF;
-                } break;
-                case 1:
-                {
-                    color <<= 28;
-                    color |= 0x00000FF;
-                } break;
-                case 2:
-                {
-                    color <<= 24;
-                    color |= 0x0000FF;
-                } break;
-                case 3:
-                {
-                    color <<= 20;
-                    color |= 0x000FF;
-                } break;
-                case 4:
-                {
-                    color <<= 16;
-                    color |= 0x00FF;
-                } break;
-                case 5:
-                {
-                    color <<= 12;
-                    color |= 0x0FF;
-                } break;
-                case 6:
-                {
-                    color <<= 8;
-                    color |= 0xFF;
-                } break;
-                case 7:
-                {
-                    color <<= 4;
-                    color |= 0x0;
-                } break;
-            }
-        }
-        // Are the first characters 0x so we can treat this as hex?
-        else if (*str == '0' && (*(str+1) == 'x' || *(str+1) == 'X'))
-        {
-            // Attempt to treat the value as a hex color
-            color = ConvTo< Uint32 >::From(std::strtoull(str, nullptr, 16));
-            // Adjust the color if necessary
-            switch (ClampMin(len-2, 0))
-            {
-                case 0:
-                {
-                    color = 0x000000FF;
-                } break;
-                case 1:
-                {
-                    color <<= 28;
-                    color |= 0x00000FF;
-                } break;
-                case 2:
-                {
-                    color <<= 24;
-                    color |= 0x0000FF;
-                } break;
-                case 3:
-                {
-                    color <<= 20;
-                    color |= 0x000FF;
-                } break;
-                case 4:
-                {
-                    color <<= 16;
-                    color |= 0x00FF;
-                } break;
-                case 5:
-                {
-                    color <<= 12;
-                    color |= 0x0FF;
-                } break;
-                case 6:
-                {
-                    color <<= 8;
-                    color |= 0xFF;
-                } break;
-                case 7:
-                {
-                    color <<= 4;
-                    color |= 0x0;
-                } break;
-            }
-        }
-        else
-        {
-            // Attempt to treat the value as a color name
-            try
-            {
-                color = (::SqMod::GetColor(str).GetRGBA() | 0xFF);
-            }
-            catch (...)
-            {
-                return sq_throwerror(vm, "Cannot identify color string");
-            }
-        }
-        // The message starts right after the color
-        msgidx += 1;
-    }
-    else
-    {
-        return sq_throwerror(vm, "Unable to identify a valid color");
-    }
-    // At this point we've extracted the color
-    return SQ_OK;
-}
-
-// ------------------------------------------------------------------------------------------------
 SQInteger CPlayer::Msg(HSQUIRRELVM vm)
 {
     // The function needs at least 2 arguments
@@ -1847,7 +1628,7 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     // The message color
     Uint32 color = 0;
     // Attempt to identify and extract the color
-    const SQRESULT res = SqGrabColor(vm, 2, color, msgidx);
+    const SQRESULT res = SqGrabPlayerMessageColor(vm, 2, color, msgidx);
     // Did we fail to identify a color?
     if (SQ_FAILED(res))
     {
@@ -2034,7 +1815,7 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     // The message color
     Uint32 color = 0;
     // Attempt to identify and extract the color
-    const SQRESULT res = SqGrabColor(vm, 3, color, msgidx);
+    const SQRESULT res = SqGrabPlayerMessageColor(vm, 3, color, msgidx);
     // Did we fail to identify a color?
     if (SQ_FAILED(res))
     {
