@@ -8,9 +8,6 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-extern Object CreateBufferWrapperMove(Buffer && b);
-
-// ------------------------------------------------------------------------------------------------
 void Core::EmitCustomEvent(Int32 group, Int32 header, Object & payload)
 {
     Emit(mOnCustomEvent, group, header, payload);
@@ -1064,19 +1061,42 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
 // ------------------------------------------------------------------------------------------------
 void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t size)
 {
+    PlayerInst & _player = m_Players.at(player_id);
+    // Don't even bother if there's no one listening
+    if (_player.mOnClientScriptData.IsNull() && mOnClientScriptData.IsNull())
+    {
+        return;
+    }
     // Allocate a buffer with the received size
     Buffer b(size);
     // Replicate the data to the allocated buffer
     b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), size);
-    // Wrap the buffer into a script object
-    const Object o = CreateBufferWrapperMove(std::move(b));
-    // Wrap the buffer into a script object
+    // Prepare an object for the obtained buffer
+    Object o;
+    // Attempt to create the requested buffer
+    try
+    {
+        // Remember the current stack size
+        const StackGuard sg;
+        // Create a protected instance of a buffer wrapper
+        AutoDelete< BufferWrapper > ad(new BufferWrapper(std::move(b)));
+        // Transform the pointer into a script object
+        PushVar< BufferWrapper * >(DefaultVM::Get(), ad.Get());
+        // The script took over the instance now
+        ad.Release();
+        // Get the object from the stack and store it
+        o = Var< Object >(DefaultVM::Get(), -1).value;
+    }
+    catch (const std::exception & e)
+    {
+        STHROWF("%s", e.what()); // Re-package
+    }
+    // Make sure the buffer cannot be null at this point
     if (o.IsNull())
     {
         STHROWF("Unable to transform script data into buffer");
     }
     // Forward the event call
-    PlayerInst & _player = m_Players.at(player_id);
     Emit(_player.mOnClientScriptData, o, size);
     Emit(mOnClientScriptData, _player.mObj, o, size);
 }

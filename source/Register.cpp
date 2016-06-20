@@ -40,6 +40,7 @@ extern void Register_IO(HSQUIRRELVM vm);
 extern void Register_Numeric(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
 extern void Register_System(HSQUIRRELVM vm);
+extern void Register_Utils(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_Constants(HSQUIRRELVM vm);
@@ -80,6 +81,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Numeric(vm);
     Register_String(vm);
     Register_System(vm);
+    Register_Utils(vm);
 
     Register_Constants(vm);
     Register_Log(vm);
