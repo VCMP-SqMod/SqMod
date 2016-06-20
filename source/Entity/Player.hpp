@@ -708,6 +708,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the authority level of the managed player entity.
     */
+    void PlaySound(Int32 sound_id) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the authority level of the managed player entity.
+    */
     Int32 GetAuthority() const;
 
     /* --------------------------------------------------------------------------------------------

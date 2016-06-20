@@ -1193,6 +1193,15 @@ void CPlayer::Redirect(CSStr ip, Uint32 port, CSStr nick, CSStr server_pass, CSS
 }
 
 // ------------------------------------------------------------------------------------------------
+void CPlayer::PlaySound(Int32 sound_id) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->PlaySound(_Func->GetPlayerUniqueWorld(m_ID), sound_id, NAN, NAN, NAN);
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetAuthority() const
 {
     // Validate the managed identifier
@@ -2287,6 +2296,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Spectating"), &CPlayer::GetSpectator)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
+        .Func(_SC("PlaySound"), &CPlayer::PlaySound)
         .Func(_SC("GetMsgPrefix"), &CPlayer::GetMessagePrefix)
         .Func(_SC("SetMsgPrefix"), &CPlayer::SetMessagePrefix)
         .Func(_SC("StreamByte"), &CPlayer::StreamByte)
