@@ -729,25 +729,20 @@ Object & Core::NewKeybind(Int32 slot, bool release, Int32 primary, Int32 seconda
     {
         slot = _Func->GetKeyBindUnusedSlot();
     }
-    // Validate the keybind slot
-    if (slot < 0)
+    // Validate the keybind slot returned by the server
+    if (INVALID_ENTITYEX(slot, SQMOD_KEYBIND_POOL))
     {
-        STHROWF("Out of keybind slots");
+        STHROWF("Server returned invalid keybind slot: %d", slot);
     }
     // Request the server to create this entity
-    const Int32 id = _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
+    const vcmpError result = _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
     // See if the entity creation failed on the server
-    if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
+    if (result == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Out of bounds keybind argument: %d", id);
-    }
-    // Validate the identifier returned by the server
-    else if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
-    {
-        STHROWF("Server returned invalid keybind: %d", id);
+        STHROWF("Out of bounds keybind argument: %d", slot);
     }
     // Attempt to allocate this entity and return the result
-    return AllocKeybind(id, true, header, payload);
+    return AllocKeybind(slot, true, header, payload);
 }
 
 // --------------------------------------------------------------------------------------------
