@@ -177,6 +177,99 @@ Color3 GetColor(CSStr name);
 */
 void SqThrowLastF(CSStr msg, ...);
 
+/* ------------------------------------------------------------------------------------------------
+ * RAII approach to delete an instance of a class if not released.
+*/
+template < typename T > class AutoDelete
+{
+private:
+
+    // --------------------------------------------------------------------------------------------
+    T * m_Inst; // The managed instance.
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    AutoDelete(T * inst)
+        : m_Inst(inst)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    AutoDelete(const AutoDelete & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    AutoDelete(AutoDelete && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~AutoDelete()
+    {
+        if (m_Inst)
+        {
+            delete m_Inst;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator.
+    */
+    AutoDelete & operator = (const AutoDelete & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    AutoDelete & operator = (AutoDelete && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed instance.
+    */
+    operator T * ()
+    {
+        return m_Inst;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed instance.
+    */
+    operator  const T * () const
+    {
+        return m_Inst;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Released the managed instance.
+    */
+    void Release()
+    {
+        m_Inst = nullptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the managed instance.
+    */
+    T * Get()
+    {
+        return m_Inst;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the managed instance.
+    */
+    const T * Get() const
+    {
+        return m_Inst;
+    }
+};
+
 } // Namespace:: SqMod
 
 #endif // _BASE_SHARED_HPP_
