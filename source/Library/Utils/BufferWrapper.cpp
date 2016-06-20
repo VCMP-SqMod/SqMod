@@ -133,7 +133,7 @@ SQInteger BufferWrapper::ReadShort()
                     sizeof(Int16), m_Buffer->Position(), m_Buffer->Capacity());
     }
     // Read one element from the buffer
-    const Int16 value = m_Buffer->Cursor< Int16 >();
+    const Int16 value = *reinterpret_cast< Int16 * >(&m_Buffer->Cursor());
     // Advance the buffer cursor
     m_Buffer->Advance< Int16 >(1);
     // Return the requested information
@@ -152,7 +152,7 @@ SQInteger BufferWrapper::ReadInt()
                     sizeof(Int32), m_Buffer->Position(), m_Buffer->Capacity());
     }
     // Read one element from the buffer
-    const Int32 value = m_Buffer->Cursor< Int32 >();
+    const Int32 value = *reinterpret_cast< Int32 * >(&m_Buffer->Cursor());
     // Advance the buffer cursor
     m_Buffer->Advance< Int32 >(1);
     // Return the requested information
@@ -171,7 +171,7 @@ SQFloat BufferWrapper::ReadFloat()
                     sizeof(Float32), m_Buffer->Position(), m_Buffer->Capacity());
     }
     // Read one element from the buffer
-    const Float32 value = m_Buffer->Cursor< Float32 >();
+    const Float32 value = *reinterpret_cast< Float32 * >(&m_Buffer->Cursor());
     // Advance the buffer cursor
     m_Buffer->Advance< Float32 >(1);
     // Return the requested information
@@ -190,7 +190,7 @@ Object BufferWrapper::ReadString()
                     sizeof(Int16), m_Buffer->Position(), m_Buffer->Capacity());
     }
     // Read one element from the buffer
-    Int16 length = m_Buffer->Cursor< Int16 >();
+    Int16 length = *reinterpret_cast< Int16 * >(&m_Buffer->Cursor());
     // Convert the length to little endian
     length = ((length >> 8) & 0xFF) | ((length & 0xFF) << 8);
     // Validate the obtained length
