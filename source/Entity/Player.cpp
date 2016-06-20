@@ -768,7 +768,16 @@ Int32 CPlayer::GetAlpha() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAlpha(Int32 alpha, Int32 fade) const
+void CPlayer::SetAlpha(Int32 alpha) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerAlpha(m_ID, alpha, 0);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetAlphaEx(Int32 alpha, Int32 fade) const
 {
     // Validate the managed identifier
     Validate();
@@ -2266,6 +2275,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("SetPos"), &CPlayer::SetPositionEx)
         .Func(_SC("SetPosition"), &CPlayer::SetPositionEx)
         .Func(_SC("SetSpeed"), &CPlayer::SetSpeedEx)
+        .Func(_SC("SetAlpha"), &CPlayer::SetAlphaEx)
         .Func(_SC("Disembark"), &CPlayer::Disembark)
         .Func(_SC("SetWeapon"), &CPlayer::SetWeaponEx)
         .Func(_SC("GiveWeapon"), &CPlayer::GiveWeapon)

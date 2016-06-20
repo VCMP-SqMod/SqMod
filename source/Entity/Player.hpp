@@ -518,7 +518,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the alpha of the managed player entity.
     */
-    void SetAlpha(Int32 alpha, Int32 fade) const;
+    void SetAlpha(Int32 alpha) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the alpha of the managed player entity.
+    */
+    void SetAlphaEx(Int32 alpha, Int32 fade) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the aim position of the managed player entity.
