@@ -60,6 +60,15 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Buffer constructor.
     */
+    BufferWrapper(const Buffer & b)
+        : m_Buffer(new Buffer(b))
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Buffer constructor.
+    */
     BufferWrapper(Buffer && b)
         : m_Buffer(new Buffer(std::move(b)))
     {

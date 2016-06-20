@@ -12,6 +12,56 @@ namespace SqMod {
 extern void Register_BufferInterpreter(Table & bns);
 
 // ------------------------------------------------------------------------------------------------
+Object CreateBufferWrapperCopy(const Buffer & b)
+{
+    // Attempt to create the requested buffer
+    try
+    {
+        // Remember the current stack size
+        const StackGuard sg;
+        // Transform the pointer into a script object
+        PushVar< const BufferWrapper & >(DefaultVM::Get(), BufferWrapper(b));
+        // Get the object from the stack and return it
+        return Var< Object >(DefaultVM::Get(), -1).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        throw e; // Re-throw
+    }
+    catch (const std::exception & e)
+    {
+        STHROWF("%s", e.what()); // Re-package
+    }
+    // Shouldn't really reach this point
+    return NullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
+Object CreateBufferWrapperMove(Buffer && b)
+{
+    // Attempt to create the requested buffer
+    try
+    {
+        // Remember the current stack size
+        const StackGuard sg;
+        // Transform the pointer into a script object
+        PushVar< const BufferWrapper & >(DefaultVM::Get(), BufferWrapper(std::move(b)));
+        // Get the object from the stack and return it
+        return Var< Object >(DefaultVM::Get(), -1).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        throw e; // Re-throw
+    }
+    catch (const std::exception & e)
+    {
+        STHROWF("%s", e.what()); // Re-package
+    }
+    // Shouldn't really reach this point
+    return NullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
 Object BufferWrapper::Create(SzType n)
 {
     // Attempt to create the requested buffer
@@ -301,6 +351,7 @@ void Register_Buffer(HSQUIRRELVM vm)
         Class< BufferWrapper >(vm, _SC("SqBufferWrapper"))
         // Constructors
         .Ctor()
+        .Ctor< const BufferWrapper & >()
         // Properties
         .Prop(_SC("Front"), &BufferWrapper::GetFront, &BufferWrapper::SetFront)
         .Prop(_SC("Next"), &BufferWrapper::GetNext, &BufferWrapper::SetNext)

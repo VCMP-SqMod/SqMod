@@ -8,6 +8,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+extern Object CreateBufferWrapperMove(Buffer && b);
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitCustomEvent(Int32 group, Int32 header, Object & payload)
 {
     Emit(mOnCustomEvent, group, header, payload);
@@ -1066,7 +1069,7 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
     // Replicate the data to the allocated buffer
     b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), size);
     // Wrap the buffer into a script object
-    const Object o = MakeObject(m_VM, BufferWrapper(std::move(b)));
+    const Object o = CreateBufferWrapperMove(std::move(b));
     // Wrap the buffer into a script object
     if (o.IsNull())
     {
