@@ -27,6 +27,13 @@ namespace SqMod {
 #define SQJSON_VERSION_PATCH 1
 
 /* ------------------------------------------------------------------------------------------------
+ * Forward declarations.
+*/
+class JValue;
+class JArray;
+class JObject;
+
+/* ------------------------------------------------------------------------------------------------
  * Implements RAII to free the strings obtained from dumps even after exceptions.
 */
 struct CStrGuard
@@ -56,11 +63,20 @@ struct CStrGuard
 };
 
 /* ------------------------------------------------------------------------------------------------
- * Forward declarations.
+ * Class that represents an error occurred while parsing JSON data.
 */
-class JValue;
-class JArray;
-class JObject;
+struct JError
+{
+public:
+
+    // --------------------------------------------------------------------------------------------
+    json_error_t mErr; // The managed error instance.
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    JError();
+};
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the string representation of JSON value type.
@@ -74,6 +90,11 @@ inline CSStr JSONTypeStr(json_t * ptr)
 {
     return (ptr == nullptr) ? _SC("unknown") : JSONTypeToStr(json_typeof(ptr));
 }
+
+/* ------------------------------------------------------------------------------------------------
+ * Convert a script value from the stack to a JSON object.
+*/
+Object SqFromJSON(HSQUIRRELVM vm, json_t * jval);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert a script value from the stack to a JSON object.

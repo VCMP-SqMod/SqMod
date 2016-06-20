@@ -249,7 +249,90 @@ public:
         return (m_Ptr != nullptr);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is object.
+    */
+    bool IsObject() const
+    {
+        return json_is_object(m_Ptr);
+    }
 
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is array.
+    */
+    bool IsArray() const
+    {
+        return json_is_array(m_Ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is string.
+    */
+    bool IsString() const
+    {
+        return json_is_string(m_Ptr);
+    }
+ 
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is integer.
+    */
+    bool IsInteger() const
+    {
+        return json_is_integer(m_Ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is real number.
+    */
+    bool IsReal() const
+    {
+        return json_is_real(m_Ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is number.
+    */
+    bool IsNumber() const
+    {
+        return json_is_number(m_Ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is boolean true.
+    */
+    bool IsTrue() const
+    {
+        return json_is_true(m_Ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is boolean false.
+    */
+    bool IsFalse() const
+    {
+        return json_is_false(m_Ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is boolean.
+    */
+    bool IsBoolean() const
+    {
+        return json_is_boolean(m_Ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the managed value is null.
+    */
+    bool IsNull() const
+    {
+        return json_is_null(m_Ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the script equivalent of the managed value.
+    */
+    Object GetValue() const;
 };
 
 } // Namespace:: SqMod

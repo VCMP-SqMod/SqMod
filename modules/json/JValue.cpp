@@ -28,6 +28,12 @@ Object JValue::ToString() const
     return Var< Object >(_SqVM, -1).value;
 }
 
+// ------------------------------------------------------------------------------------------------
+Object JValue::GetValue() const
+{
+    return Object();
+}
+
 // ================================================================================================
 void Register_JValue(Table & jns)
 {
@@ -40,7 +46,17 @@ void Register_JValue(Table & jns)
         .SquirrelFunc(_SC("_typename"), &JValue::Typename)
         .Func(_SC("_tostring"), &JValue::ToString)
         // Properties
-        //.Prop(_SC("Prop"), &JValue::Prop)
+        .Prop(_SC("IsObject"), &JValue::IsObject)
+        .Prop(_SC("IsArray"), &JValue::IsArray)
+        .Prop(_SC("IsString"), &JValue::IsString)
+        .Prop(_SC("IsInteger"), &JValue::IsInteger)
+        .Prop(_SC("IsReal"), &JValue::IsReal)
+        .Prop(_SC("IsNumber"), &JValue::IsNumber)
+        .Prop(_SC("IsTrue"), &JValue::IsTrue)
+        .Prop(_SC("IsFalse"), &JValue::IsFalse)
+        .Prop(_SC("IsBoolean"), &JValue::IsBoolean)
+        .Prop(_SC("IsNull"), &JValue::IsNull)
+        .Prop(_SC("Value"), &JValue::GetValue)
         // Member Methods
         //.Func(_SC("Func"), &JValue::Func)
     );

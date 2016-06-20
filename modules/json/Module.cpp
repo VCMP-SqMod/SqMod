@@ -174,6 +174,16 @@ void RegisterAPI(HSQUIRRELVM vm)
     Register_JValue(jns);
 
     RootTable(vm).Bind(_SC("SqJSON"), jns);
+
+    Sqrat::ConstTable(vm)
+        .Const(_SC("JSON_OBJECT"),  JSON_OBJECT)
+        .Const(_SC("JSON_ARRAY"),   JSON_ARRAY)
+        .Const(_SC("JSON_STRING"),  JSON_STRING)
+        .Const(_SC("JSON_INTEGER"), JSON_INTEGER)
+        .Const(_SC("JSON_REAL"),    JSON_REAL)
+        .Const(_SC("JSON_TRUE"),    JSON_TRUE)
+        .Const(_SC("JSON_FALSE"),   JSON_FALSE)
+        .Const(_SC("JSON_NULL"),    JSON_NULL);
 }
 
 } // Namespace:: SqMod

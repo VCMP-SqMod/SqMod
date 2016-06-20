@@ -41,6 +41,49 @@ void SqThrowLast(HSQUIRRELVM vm, CSStr msg)
     // Throw the resulting error message
     STHROWF("%s [%s]", msg, val.mPtr);
 }
+ 
+// ------------------------------------------------------------------------------------------------
+Object SqFromJSON(HSQUIRRELVM vm, json_t * jval)
+{
+    switch (json_typeof(jval))
+    {
+        case JSON_OBJECT:
+        {
+
+        } break;
+        case JSON_ARRAY:
+        {
+
+        } break;
+        case JSON_STRING:
+        {
+
+        } break;
+        case JSON_INTEGER:
+        {
+
+        } break;
+        case JSON_REAL:
+        {
+
+        } break;
+        case JSON_TRUE:
+        {
+
+        } break;
+        case JSON_FALSE:
+        {
+
+        } break;
+        case JSON_NULL:
+        {
+
+        } break;
+        default: STHROWF("Unknown JSON value type");
+    }
+
+    return Object();
+}
 
 // ------------------------------------------------------------------------------------------------
 json_t * SqToJSON(HSQUIRRELVM vm, SQInteger idx)
