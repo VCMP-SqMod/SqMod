@@ -428,7 +428,7 @@
 		<Unit filename="../modules/xml/Wrapper/ParseResult.hpp" />
 		<Unit filename="../shared/Base/Buffer.cpp" />
 		<Unit filename="../shared/Base/Buffer.hpp" />
-		<Unit filename="../shared/Base/Utility.cpp" />
+		<Unit filename="../shared/Base/Module.cpp" />
 		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../shared/SqMod.cpp" />
 		<Extensions>
