@@ -724,6 +724,16 @@ Object & Core::NewCheckpoint(Int32 player, Int32 world, bool sphere, Float32 x, 
 Object & Core::NewKeybind(Int32 slot, bool release, Int32 primary, Int32 secondary, Int32 alternative,
                             Int32 header, Object & payload)
 {
+    // Should we obtain a new keybind slot automatically?
+    if (slot < 0)
+    {
+        slot = _Func->GetKeyBindUnusedSlot();
+    }
+    // Validate the keybind slot
+    if (slot < 0)
+    {
+        STHROWF("Out of keybind slots");
+    }
     // Request the server to create this entity
     const Int32 id = _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
     // See if the entity creation failed on the server
