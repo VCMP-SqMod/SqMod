@@ -1066,7 +1066,12 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
     // Replicate the data to the allocated buffer
     b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), size);
     // Wrap the buffer into a script object
-    Object o = MakeObject(m_VM, BufferWrapper(std::move(b)));
+    const Object o = MakeObject(m_VM, BufferWrapper(std::move(b)));
+    // Wrap the buffer into a script object
+    if (o.IsNull())
+    {
+        STHROWF("Unable to transform script data into buffer");
+    }
     // Forward the event call
     PlayerInst & _player = m_Players.at(player_id);
     Emit(_player.mOnClientScriptData, o, size);
