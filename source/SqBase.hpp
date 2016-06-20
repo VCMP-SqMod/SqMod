@@ -597,7 +597,7 @@ enum CmdError
  * INITIAL ENTITY POOLS
 */
 
-#define SQMOD_BLIP_POOL         128
+#define SQMOD_BLIP_POOL         100
 #define SQMOD_CHECKPOINT_POOL   2000
 #define SQMOD_KEYBIND_POOL      256
 #define SQMOD_OBJECT_POOL       3000
