@@ -256,6 +256,12 @@ static Array Keybind_FindActive()
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger Keybind_UnusedSlot()
+{
+    return _Func->GetKeyBindUnusedSlot();
+}
+
 // ================================================================================================
 void Register_CKeybind(HSQUIRRELVM vm)
 {
@@ -287,6 +293,7 @@ void Register_CKeybind(HSQUIRRELVM vm)
         .StaticFunc(_SC("FindByID"), &Keybind_FindByID)
         .StaticFunc(_SC("FindByTag"), &Keybind_FindByTag)
         .StaticFunc(_SC("FindActive"), &Keybind_FindActive)
+        .StaticFunc(_SC("UnusedSlot"), &Keybind_UnusedSlot)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, bool, Int32, Int32, Int32) >
             (_SC("CreateEx"), &Keybind_CreateEx)
