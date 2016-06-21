@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Vehicle.hpp"
 #include "Entity/Player.hpp"
-#include "Base/Algo.hpp"
 #include "Base/Quaternion.hpp"
 #include "Base/Vector2.hpp"
 #include "Base/Vector3.hpp"
@@ -1625,79 +1624,6 @@ static Object & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, Fl
                             header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-static const Object & Vehicle_FindByID(Int32 id)
-{
-    // Perform a range check on the specified identifier
-    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
-    {
-        STHROWF("The specified vehicle identifier is invalid: %d", id);
-    }
-    // Obtain the ends of the entity pool
-    Core::Vehicles::const_iterator itr = Core::Get().GetVehicles().cbegin();
-    Core::Vehicles::const_iterator end = Core::Get().GetVehicles().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does the identifier match the specified one?
-        if (itr->mID == id)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a vehicle matching the specified identifier
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static const Object & Vehicle_FindByTag(CSStr tag)
-{
-    // Perform a validity check on the specified tag
-    if (!tag || *tag == '\0')
-    {
-        STHROWF("The specified vehicle tag is invalid: null/empty");
-    }
-    // Obtain the ends of the entity pool
-    Core::Vehicles::const_iterator itr = Core::Get().GetVehicles().cbegin();
-    Core::Vehicles::const_iterator end = Core::Get().GetVehicles().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does this entity even exist and does the tag match the specified one?
-        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a vehicle matching the specified tag
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static Array Vehicle_FindActive()
-{
-    const StackGuard sg;
-    // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
-    // Process each entity in the pool
-    Algo::Collect(Core::Get().GetVehicles().cbegin(), Core::Get().GetVehicles().cend(),
-        [](Core::Vehicles::const_reference inst) -> bool {
-            return VALID_ENTITY(inst.mID);
-        },
-        [](Core::Vehicles::const_reference inst) -> void {
-            // Push the script object on the stack
-            sq_pushobject(DefaultVM::Get(), inst.mObj.GetObject());
-            // Append the object at the back of the array
-            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -2)))
-            {
-                STHROWF("Unable to append entity instance to the list");
-            }
-        }
-    );
-    // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
-}
-
 // ================================================================================================
 void Register_CVehicle(HSQUIRRELVM vm)
 {
@@ -1855,10 +1781,6 @@ void Register_CVehicle(HSQUIRRELVM vm)
             (_SC("Embark"), &CVehicle::Embark)
         .Overload< bool (CVehicle::*)(CPlayer &, Int32, bool, bool) const >
             (_SC("Embark"), &CVehicle::Embark)
-        // Static Functions
-        .StaticFunc(_SC("FindByID"), &Vehicle_FindByID)
-        .StaticFunc(_SC("FindByTag"), &Vehicle_FindByTag)
-        .StaticFunc(_SC("FindActive"), &Vehicle_FindActive)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Float32, Int32, Int32) >
             (_SC("CreateEx"), &Vehicle_CreateEx)

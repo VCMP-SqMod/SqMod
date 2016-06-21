@@ -1,6 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Keybind.hpp"
-#include "Base/Algo.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -181,79 +180,6 @@ static Object & Keybind_Create(bool release, Int32 primary, Int32 secondary, Int
 }
 
 // ------------------------------------------------------------------------------------------------
-static const Object & Keybind_FindByID(Int32 id)
-{
-    // Perform a range check on the specified identifier
-    if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
-    {
-        STHROWF("The specified keybind identifier is invalid: %d", id);
-    }
-    // Obtain the ends of the entity pool
-    Core::Keybinds::const_iterator itr = Core::Get().GetKeybinds().cbegin();
-    Core::Keybinds::const_iterator end = Core::Get().GetKeybinds().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does the identifier match the specified one?
-        if (itr->mID == id)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a keybind matching the specified identifier
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static const Object & Keybind_FindByTag(CSStr tag)
-{
-    // Perform a validity check on the specified tag
-    if (!tag || *tag == '\0')
-    {
-        STHROWF("The specified keybind tag is invalid: null/empty");
-    }
-    // Obtain the ends of the entity pool
-    Core::Keybinds::const_iterator itr = Core::Get().GetKeybinds().cbegin();
-    Core::Keybinds::const_iterator end = Core::Get().GetKeybinds().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does this entity even exist and does the tag match the specified one?
-        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a keybind matching the specified tag
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static Array Keybind_FindActive()
-{
-    const StackGuard sg;
-    // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
-    // Process each entity in the pool
-    Algo::Collect(Core::Get().GetKeybinds().cbegin(), Core::Get().GetKeybinds().cend(),
-        [](Core::Keybinds::const_reference inst) -> bool {
-            return VALID_ENTITY(inst.mID);
-        },
-        [](Core::Keybinds::const_reference inst) -> void {
-            // Push the script object on the stack
-            sq_pushobject(DefaultVM::Get(), inst.mObj.GetObject());
-            // Append the object at the back of the array
-            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -2)))
-            {
-                STHROWF("Unable to append entity instance to the list");
-            }
-        }
-    );
-    // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
-}
-
-// ------------------------------------------------------------------------------------------------
 static SQInteger Keybind_UnusedSlot()
 {
     return _Func->GetKeyBindUnusedSlot();
@@ -287,9 +213,6 @@ void Register_CKeybind(HSQUIRRELVM vm)
         .Prop(_SC("Third"), &CKeybind::GetThird)
         .Prop(_SC("Release"), &CKeybind::IsRelease)
         // Static Functions
-        .StaticFunc(_SC("FindByID"), &Keybind_FindByID)
-        .StaticFunc(_SC("FindByTag"), &Keybind_FindByTag)
-        .StaticFunc(_SC("FindActive"), &Keybind_FindActive)
         .StaticFunc(_SC("UnusedSlot"), &Keybind_UnusedSlot)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, bool, Int32, Int32, Int32) >

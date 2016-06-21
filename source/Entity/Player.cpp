@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Player.hpp"
 #include "Entity/Vehicle.hpp"
-#include "Base/Algo.hpp"
 #include "Base/Color3.hpp"
 #include "Base/Color4.hpp"
 #include "Base/Vector3.hpp"
@@ -2062,110 +2061,6 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     return 0;
 }
 
-// ------------------------------------------------------------------------------------------------
-static const Object & Player_FindByID(Int32 id)
-{
-    // Perform a range check on the specified identifier
-    if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
-    {
-        STHROWF("The specified player identifier is invalid: %d", id);
-    }
-    // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
-    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does the identifier match the specified one?
-        if (itr->mID == id)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a player matching the specified identifier
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static const Object & Player_FindByTag(CSStr tag)
-{
-    // Perform a validity check on the specified tag
-    if (!tag || *tag == '\0')
-    {
-        STHROWF("The specified player tag is invalid: null/empty");
-    }
-    // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
-    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does this entity even exist and does the tag match the specified one?
-        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a player matching the specified tag
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static Array Player_FindActive()
-{
-    const StackGuard sg;
-    // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
-    // Process each entity in the pool
-    Algo::Collect(Core::Get().GetPlayers().cbegin(), Core::Get().GetPlayers().cend(),
-        [](Core::Players::const_reference inst) -> bool {
-            return VALID_ENTITY(inst.mID);
-        },
-        [](Core::Players::const_reference inst) -> void {
-            // Push the script object on the stack
-            sq_pushobject(DefaultVM::Get(), inst.mObj.GetObject());
-            // Append the object at the back of the array
-            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -2)))
-            {
-                STHROWF("Unable to append entity instance to the list");
-            }
-        }
-    );
-    // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
-}
-
-// ------------------------------------------------------------------------------------------------
-static const Object & Player_FindAuto(Object & by)
-{
-    switch (by.GetType())
-    {
-        case OT_INTEGER:
-        {
-            return Core::Get().GetPlayer(by.Cast< Int32 >()).mObj;
-        } break;
-        case OT_FLOAT:
-        {
-            return Core::Get().GetPlayer(std::round(by.Cast< Float32 >())).mObj;
-        } break;
-        case OT_STRING:
-        {
-            // Obtain the argument as a string
-            String str(by.Cast< String >());
-            // Attempt to locate the player with this name
-            Int32 id = _Func->GetPlayerIdFromName(&str[0]);
-            // Was there a player with this name?
-            if (VALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
-            {
-                Core::Get().GetPlayer(id).mObj;
-            }
-        } break;
-        default: STHROWF("Unsupported search identifier");
-    }
-    // Default to a null object
-    return NullObject();
-}
-
 // ================================================================================================
 void Register_CPlayer(HSQUIRRELVM vm)
 {
@@ -2334,11 +2229,6 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("AnnounceEx"), &CPlayer::AnnounceEx)
         .SquirrelFunc(_SC("Text"), &CPlayer::Announce)
         .SquirrelFunc(_SC("TextEx"), &CPlayer::AnnounceEx)
-        // Static Functions
-        .StaticFunc(_SC("Find"), &Player_FindAuto)
-        .StaticFunc(_SC("FindByID"), &Player_FindByID)
-        .StaticFunc(_SC("FindByTag"), &Player_FindByTag)
-        .StaticFunc(_SC("FindActive"), &Player_FindActive)
     );
 }
 

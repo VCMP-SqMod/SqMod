@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Pickup.hpp"
 #include "Entity/Player.hpp"
-#include "Base/Algo.hpp"
 #include "Base/Vector3.hpp"
 #include "Core.hpp"
 
@@ -368,79 +367,6 @@ static Object & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const Ve
                             header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-static const Object & Pickup_FindByID(Int32 id)
-{
-    // Perform a range check on the specified identifier
-    if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
-    {
-        STHROWF("The specified pickup identifier is invalid: %d", id);
-    }
-    // Obtain the ends of the entity pool
-    Core::Pickups::const_iterator itr = Core::Get().GetPickups().cbegin();
-    Core::Pickups::const_iterator end = Core::Get().GetPickups().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does the identifier match the specified one?
-        if (itr->mID == id)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a pickup matching the specified identifier
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static const Object & Pickup_FindByTag(CSStr tag)
-{
-    // Perform a validity check on the specified tag
-    if (!tag || *tag == '0')
-    {
-        STHROWF("The specified pickup tag is invalid: null/empty");
-    }
-    // Obtain the ends of the entity pool
-    Core::Pickups::const_iterator itr = Core::Get().GetPickups().cbegin();
-    Core::Pickups::const_iterator end = Core::Get().GetPickups().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does this entity even exist and does the tag match the specified one?
-        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a pickup matching the specified tag
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static Array Pickup_FindActive()
-{
-    const StackGuard sg;
-    // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
-    // Process each entity in the pool
-    Algo::Collect(Core::Get().GetPickups().cbegin(), Core::Get().GetPickups().cend(),
-        [](Core::Pickups::const_reference inst) -> bool {
-            return VALID_ENTITY(inst.mID);
-        },
-        [](Core::Pickups::const_reference inst) -> void {
-            // Push the script object on the stack
-            sq_pushobject(DefaultVM::Get(), inst.mObj.GetObject());
-            // Append the object at the back of the array
-            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -2)))
-            {
-                STHROWF("Unable to append entity instance to the list");
-            }
-        }
-    );
-    // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
-}
-
 // ================================================================================================
 void Register_CPickup(HSQUIRRELVM vm)
 {
@@ -482,10 +408,6 @@ void Register_CPickup(HSQUIRRELVM vm)
         .Func(_SC("Refresh"), &CPickup::Refresh)
         .Func(_SC("SetPos"), &CPickup::SetPositionEx)
         .Func(_SC("SetPosition"), &CPickup::SetPositionEx)
-        // Static Functions
-        .StaticFunc(_SC("FindByID"), &Pickup_FindByID)
-        .StaticFunc(_SC("FindByTag"), &Pickup_FindByTag)
-        .StaticFunc(_SC("FindActive"), &Pickup_FindActive)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, Int32, Int32, Float32, Float32, Float32, Int32, bool) >
             (_SC("CreateEx"), &Pickup_CreateEx)

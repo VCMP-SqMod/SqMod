@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Checkpoint.hpp"
 #include "Entity/Player.hpp"
-#include "Base/Algo.hpp"
 #include "Base/Color4.hpp"
 #include "Base/Vector3.hpp"
 #include "Core.hpp"
@@ -482,79 +481,6 @@ static Object & Checkpoint_Create(CPlayer & player, Int32 world, bool sphere, co
                                 color.r, color.g, color.b, color.a, radius, header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-static const Object & Checkpoint_FindByID(Int32 id)
-{
-    // Perform a range check on the specified identifier
-    if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
-    {
-        STHROWF("The specified checkpoint identifier is invalid: %d", id);
-    }
-    // Obtain the ends of the entity pool
-    Core::Checkpoints::const_iterator itr = Core::Get().GetCheckpoints().cbegin();
-    Core::Checkpoints::const_iterator end = Core::Get().GetCheckpoints().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does the identifier match the specified one?
-        if (itr->mID == id)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a checkpoint matching the specified identifier
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static const Object & Checkpoint_FindByTag(CSStr tag)
-{
-    // Perform a validity check on the specified tag
-    if (!tag || *tag == '\0')
-    {
-        STHROWF("The specified checkpoint tag is invalid: null/empty");
-    }
-    // Obtain the ends of the entity pool
-    Core::Checkpoints::const_iterator itr = Core::Get().GetCheckpoints().cbegin();
-    Core::Checkpoints::const_iterator end = Core::Get().GetCheckpoints().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does this entity even exist and does the tag match the specified one?
-        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a checkpoint matching the specified tag
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static Array Checkpoint_FindActive()
-{
-    const StackGuard sg;
-    // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
-    // Process each entity in the pool
-    Algo::Collect(Core::Get().GetCheckpoints().cbegin(), Core::Get().GetCheckpoints().cend(),
-        [](Core::Checkpoints::const_reference inst) -> bool {
-            return VALID_ENTITY(inst.mID);
-        },
-        [](Core::Checkpoints::const_reference inst) -> void {
-            // Push the script object on the stack
-            sq_pushobject(DefaultVM::Get(), inst.mObj.GetObject());
-            // Append the object at the back of the array
-            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -2)))
-            {
-                STHROWF("Unable to append entity instance to the list");
-            }
-        }
-    );
-    // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
-}
-
 // ================================================================================================
 void Register_CCheckpoint(HSQUIRRELVM vm)
 {
@@ -603,10 +529,6 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
             (_SC("SetColor"), &CCheckpoint::SetColorEx)
         .Overload< void (CCheckpoint::*)(Uint8, Uint8, Uint8, Uint8) const >
             (_SC("SetColor"), &CCheckpoint::SetColorEx)
-        // Static Functions
-        .StaticFunc(_SC("FindByID"), &Checkpoint_FindByID)
-        .StaticFunc(_SC("FindByTag"), &Checkpoint_FindByTag)
-        .StaticFunc(_SC("FindActive"), &Checkpoint_FindActive)
         // Static Overloads
         .StaticOverload< Object & (*)(CPlayer &, Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
             (_SC("CreateEx"), &Checkpoint_CreateEx)

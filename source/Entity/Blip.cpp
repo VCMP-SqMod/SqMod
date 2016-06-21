@@ -1,6 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
-#include "Base/Algo.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -287,100 +286,6 @@ static Object & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int32
                             header, payload);
 }
 
-// ------------------------------------------------------------------------------------------------
-static const Object & Blip_FindByID(Int32 id)
-{
-    // Perform a range check on the specified identifier
-    if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
-        STHROWF("The specified blip identifier is invalid: %d", id);
-    // Obtain the ends of the entity pool
-    Core::Blips::const_iterator itr = Core::Get().GetBlips().cbegin();
-    Core::Blips::const_iterator end = Core::Get().GetBlips().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does the identifier match the specified one?
-        if (itr->mID == id)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a blip matching the specified identifier
-    return NullObject();
-}
-
-static const Object & Blip_FindByTag(CSStr tag)
-{
-    // Perform a validity check on the specified tag
-    if (!tag || *tag == '\0')
-    {
-        STHROWF("The specified blip tag is invalid: null/empty");
-    }
-    // Obtain the ends of the entity pool
-    Core::Blips::const_iterator itr = Core::Get().GetBlips().cbegin();
-    Core::Blips::const_iterator end = Core::Get().GetBlips().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does this entity even exist and does the tag match the specified one?
-        if (itr->mInst != nullptr && itr->mInst->GetTag().compare(tag) == 0)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a blip matching the specified tag
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static const Object & Blip_FindBySprID(Int32 sprid)
-{
-    // Perform a range check on the specified identifier
-    if (sprid < 0)
-    {
-        STHROWF("The specified sprite identifier is invalid: %d", sprid);
-    }
-    // Obtain the ends of the entity pool
-    Core::Blips::const_iterator itr = Core::Get().GetBlips().cbegin();
-    Core::Blips::const_iterator end = Core::Get().GetBlips().cend();
-    // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Does the identifier match the specified one?
-        if (itr->mSprID == sprid)
-        {
-            return itr->mObj; // Stop searching and return this entity
-        }
-    }
-    // Unable to locate a blip matching the specified identifier
-    return NullObject();
-}
-
-// ------------------------------------------------------------------------------------------------
-static Array Blip_FindActive()
-{
-    const StackGuard sg;
-    // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
-    // Process each entity in the pool
-    Algo::Collect(Core::Get().GetBlips().cbegin(), Core::Get().GetBlips().cend(),
-        [](Core::Blips::const_reference inst) -> bool {
-            return VALID_ENTITY(inst.mID);
-        },
-        [](Core::Blips::const_reference inst) -> void {
-            // Push the script object on the stack
-            sq_pushobject(DefaultVM::Get(), inst.mObj.GetObject());
-            // Append the object at the back of the array
-            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -2)))
-            {
-                STHROWF("Unable to append entity instance to the list");
-            }
-        }
-    );
-    // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
-}
-
 // ================================================================================================
 void Register_CBlip(HSQUIRRELVM vm)
 {
@@ -418,11 +323,6 @@ void Register_CBlip(HSQUIRRELVM vm)
         .Prop(_SC("Green"), &CBlip::GetColorG)
         .Prop(_SC("Blue"), &CBlip::GetColorB)
         .Prop(_SC("Alpha"), &CBlip::GetColorA)
-        // Static Functions
-        .StaticFunc(_SC("FindByID"), &Blip_FindByID)
-        .StaticFunc(_SC("FindByTag"), &Blip_FindByTag)
-        .StaticFunc(_SC("FindActive"), &Blip_FindActive)
-        .StaticFunc(_SC("FindBySprID"), &Blip_FindBySprID)
         // Static Overloads
         .StaticOverload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
             (_SC("CreateEx"), &Blip_CreateEx)
