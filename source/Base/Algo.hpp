@@ -31,16 +31,16 @@ void Collect(Iterator first, Iterator last, Inspector inspect, Collector collect
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Collect all elements within the specified range where the tag matches the specified one.
+ * Collect all elements within the specified range where the string matches or not the specified one.
 */
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
-void CollectIfTagEquals(Iterator first, Iterator last,
+void EachEquals(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str)
+                        CSStr str, bool neg)
 {
     for (; first != last; ++first)
     {
-        if (inspect(*first) && retrieve(*first).compare(str) == 0)
+        if (inspect(*first) && (retrieve(*first).compare(str) == 0) == neg)
         {
             collect(*first);
         }
@@ -48,54 +48,13 @@ void CollectIfTagEquals(Iterator first, Iterator last,
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Collect all elements within the specified range where the tag does not match the specified one.
-*/
-template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
-void CollectIfTagNotEquals(Iterator first, Iterator last,
-                        Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str)
-{
-    for (; first != last; ++first)
-    {
-        if (inspect(*first) && retrieve(*first).compare(str) != 0)
-        {
-            collect(*first);
-        }
-    }
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Collect all elements within the specified range where the tag begins with the specified string.
-*/
-template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
-void CollectIfTagBegins(Iterator first, Iterator last,
-                        Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len)
-{
-    for (; first != last; ++first)
-    {
-        if (!inspect(*first))
-        {
-            continue;
-        }
-        // Retrieve the tag
-        const String & tag = retrieve(*first);
-        // Compare the tag
-        if (tag.size() > len && tag.compare(0, len, str) == 0)
-        {
-            collect(*first);
-        }
-    }
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Collect all elements within the specified range where the tag does not begin with the specified
+ * Collect all elements within the specified range where the string begins or not with the specified
  * string.
 */
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
-void CollectIfTagNotBegins(Iterator first, Iterator last,
+void EachBegins(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len)
+                        CSStr str, std::size_t len, bool neg)
 {
     for (; first != last; ++first)
     {
@@ -106,7 +65,7 @@ void CollectIfTagNotBegins(Iterator first, Iterator last,
         // Retrieve the tag
         const String & tag = retrieve(*first);
         // Compare the tag
-        if (tag.size() > len && tag.compare(0, len, str) != 0)
+        if (tag.size() > len && (tag.compare(0, len, str) == 0) == neg)
         {
             collect(*first);
         }
@@ -114,37 +73,13 @@ void CollectIfTagNotBegins(Iterator first, Iterator last,
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Collect all elements within the specified range where the tag ends with the specified string.
-*/
-template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
-void CollectIfTagEnds(Iterator first, Iterator last,
-                        Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len)
-{
-    for (; first != last; ++first)
-    {
-        if (!inspect(*first))
-        {
-            continue;
-        }
-        // Retrieve the tag
-        const String & tag = retrieve(*first);
-        // Compare the tag
-        if (tag.size() > len && tag.compare(tag.size() - len, len, str) == 0)
-        {
-            collect(*first);
-        }
-    }
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Collect all elements within the specified range where the tag does not end with the specified
+ * Collect all elements within the specified range where the string ends or not with the specified
  * string.
 */
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
-void CollectIfTagNotEnds(Iterator first, Iterator last,
+void EachEnds(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len)
+                        CSStr str, std::size_t len, bool neg)
 {
     for (; first != last; ++first)
     {
@@ -155,7 +90,7 @@ void CollectIfTagNotEnds(Iterator first, Iterator last,
         // Retrieve the tag
         const String & tag = retrieve(*first);
         // Compare the tag
-        if (tag.size() > len && tag.compare(tag.size() - len, len, str) != 0)
+        if (tag.size() > len && (tag.compare(tag.size() - len, len, str) == 0) == neg)
         {
             collect(*first);
         }
@@ -163,34 +98,17 @@ void CollectIfTagNotEnds(Iterator first, Iterator last,
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Collect all elements within the specified range where the tag contains the specified string.
-*/
-template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
-void CollectIfTagContains(Iterator first, Iterator last,
-                        Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str)
-{
-    for (; first != last; ++first)
-    {
-        if (inspect(*first) && retrieve(*first).find(str) != String::npos)
-        {
-            collect(*first);
-        }
-    }
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Collect all elements within the specified range where the tag does not contain the specified
+ * Collect all elements within the specified range where the string contains or not the specified
  * string.
 */
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
-void CollectIfTagNotContains(Iterator first, Iterator last,
+void EachContains(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str)
+                        CSStr str, bool neg)
 {
     for (; first != last; ++first)
     {
-        if (inspect(*first) && retrieve(*first).find(str) == String::npos)
+        if (inspect(*first) && (retrieve(*first).find(str) != String::npos) == neg)
         {
             collect(*first);
         }
@@ -198,130 +116,31 @@ void CollectIfTagNotContains(Iterator first, Iterator last,
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Find the first element within the specified range where the tag matches the specified one.
+ * Find the first element within the specified range where the string matches or not the specified one.
 */
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
-bool FindIfTagEquals(Iterator first, Iterator last,
+void FirstEquals(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str)
+                        CSStr str, bool neg)
 {
     for (; first != last; ++first)
     {
-        if (inspect(*first) && retrieve(*first).compare(str) == 0)
+        if (inspect(*first) && (retrieve(*first).compare(str) == 0) == neg)
         {
             receive(*first);
-            return true;
+            break;
         }
     }
-    return false;
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Find the first element within the specified range where the tag does not match the specified one.
-*/
-template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
-bool FindIfTagNotEquals(Iterator first, Iterator last,
-                        Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str)
-{
-    for (; first != last; ++first)
-    {
-        if (inspect(*first) && retrieve(*first).compare(str) != 0)
-        {
-            receive(*first);
-            return true;
-        }
-    }
-    return false;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Find the first element within the specified range where the tag begins with the specified string.
-*/
-template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
-bool FindIfTagBegins(Iterator first, Iterator last,
-                        Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, std::size_t len)
-{
-    for (; first != last; ++first)
-    {
-        if (!inspect(*first))
-        {
-            continue;
-        }
-        // Retrieve the tag
-        const String & tag = retrieve(*first);
-        // Compare the tag
-        if (tag.size() > len && tag.compare(0, len, str) == 0)
-        {
-            receive(*first);
-            return true;
-        }
-    }
-    return false;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Find the first element within the specified range where the tag does not begin with the
- * specified string.
-*/
-template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
-bool FindIfTagNotBegins(Iterator first, Iterator last,
-                        Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, std::size_t len)
-{
-    for (; first != last; ++first)
-    {
-        if (!inspect(*first))
-        {
-            continue;
-        }
-        // Retrieve the tag
-        const String & tag = retrieve(*first);
-        // Compare the tag
-        if (tag.size() > len && tag.compare(0, len, str) != 0)
-        {
-            receive(*first);
-            return true;
-        }
-    }
-    return false;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Find the first element within the specified range where the tag ends with the specified string.
-*/
-template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
-bool FindIfTagEnds(Iterator first, Iterator last,
-                        Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, std::size_t len)
-{
-    for (; first != last; ++first)
-    {
-        if (!inspect(*first))
-        {
-            continue;
-        }
-        // Retrieve the tag
-        const String & tag = retrieve(*first);
-        // Compare the tag
-        if (tag.size() > len && tag.compare(tag.size() - len, len, str) == 0)
-        {
-            receive(*first);
-            return true;
-        }
-    }
-    return false;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Find the first element within the specified range where the tag does not end with the specified
+ * Find the first element within the specified range where the string begins or not with the specified
  * string.
 */
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
-bool FindIfTagNotEnds(Iterator first, Iterator last,
+void FirstBegins(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, std::size_t len)
+                        CSStr str, std::size_t len, bool neg)
 {
     for (; first != last; ++first)
     {
@@ -332,52 +151,57 @@ bool FindIfTagNotEnds(Iterator first, Iterator last,
         // Retrieve the tag
         const String & tag = retrieve(*first);
         // Compare the tag
-        if (tag.size() > len && tag.compare(tag.size() - len, len, str) != 0)
+        if (tag.size() > len && (tag.compare(0, len, str) == 0) == neg)
         {
             receive(*first);
-            return true;
+            break;
         }
     }
-    return false;
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Find the first element within the specified range where the tag contains the specified string.
-*/
-template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
-bool FindIfTagContains(Iterator first, Iterator last,
-                        Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str)
-{
-    for (; first != last; ++first)
-    {
-        if (inspect(*first) && retrieve(*first).find(str) != String::npos)
-        {
-            receive(*first);
-            return true;
-        }
-    }
-    return false;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Find the first element within the specified range where the tag does not contain the specified
+ * Find the first element within the specified range where the string ends or not with the specified
  * string.
 */
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
-bool FindIfTagNotContains(Iterator first, Iterator last,
+void FirstEnds(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str)
+                        CSStr str, std::size_t len, bool neg)
 {
     for (; first != last; ++first)
     {
-        if (inspect(*first) && retrieve(*first).find(str) == String::npos)
+        if (!inspect(*first))
+        {
+            continue;
+        }
+        // Retrieve the tag
+        const String & tag = retrieve(*first);
+        // Compare the tag
+        if (tag.size() > len && (tag.compare(tag.size() - len, len, str) == 0) == neg)
         {
             receive(*first);
-            return true;
+            break;
         }
     }
-    return false;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Find the first element within the specified range where the string contains or not the specified
+ * string.
+*/
+template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
+void FirstContains(Iterator first, Iterator last,
+                        Inspector inspect, Retriever retrieve, Receiver receive,
+                        CSStr str, bool neg)
+{
+    for (; first != last; ++first)
+    {
+        if (inspect(*first) && (retrieve(*first).find(str) != String::npos) == neg)
+        {
+            receive(*first);
+            break;
+        }
+    }
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -835,9 +659,9 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the tag matches the specified one.
+     * Collect all entities of this type where the string match or not the specified one.
     */
-    static inline Array AllWhereTagEquals(CSStr tag)
+    static inline Array AllWhereTagEquals(bool neg, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -845,16 +669,15 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        CollectIfTagEquals(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), AppendElem(), tag);
+        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, neg);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the tag does not match the specified one.
+     * Collect all entities of this type where the string begins or not with the specified string.
     */
-    static inline Array AllWhereTagNotEquals(CSStr tag)
+    static inline Array AllWhereTagBegins(bool neg, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -862,16 +685,15 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        CollectIfTagNotEquals(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), AppendElem(), tag);
+        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), neg);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the tag begins with the specified string.
+     * Collect all entities of this type where the string ends or not with the specified string.
     */
-    static inline Array AllWhereTagBegins(CSStr tag)
+    static inline Array AllWhereTagEnds(bool neg, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -879,16 +701,15 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        CollectIfTagBegins(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), AppendElem(), tag, std::strlen(tag));
+        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), neg);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the does not begin with the specified string.
+     * Collect all entities of this type where the string contains or not the specified string.
     */
-    static inline Array AllWhereTagNotBegins(CSStr tag)
+    static inline Array AllWhereTagContains(bool neg, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -896,198 +717,65 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        CollectIfTagNotBegins(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), AppendElem(), tag, std::strlen(tag));
+        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, neg);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the tag ends with the specified string.
+     * Retrieve the first entity of this type where the tag matches or not the specified one.
     */
-    static inline Array AllWhereTagEnds(CSStr tag)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Remember the current stack size
-        const StackGuard sg;
-        // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
-        // Process each entity in the pool
-        CollectIfTagEnds(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), AppendElem(), tag, std::strlen(tag));
-        // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the tag does not end with the specified string.
-    */
-    static inline Array AllWhereTagNotEnds(CSStr tag)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Remember the current stack size
-        const StackGuard sg;
-        // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
-        // Process each entity in the pool
-        CollectIfTagNotEnds(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), AppendElem(), tag, std::strlen(tag));
-        // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the tag contains the specified string.
-    */
-    static inline Array AllWhereTagContains(CSStr tag)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Remember the current stack size
-        const StackGuard sg;
-        // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
-        // Process each entity in the pool
-        CollectIfTagContains(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), AppendElem(), tag);
-        // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the tag does not contain the specified string.
-    */
-    static inline Array AllWhereTagNotContains(CSStr tag)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Remember the current stack size
-        const StackGuard sg;
-        // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
-        // Process each entity in the pool
-        CollectIfTagNotContains(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), AppendElem(), tag);
-        // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the first entity of this type where the tag matches the specified one.
-    */
-    static inline Object FirstWhereTagEquals(CSStr tag)
+    static inline Object FirstWhereTagEquals(bool neg, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
-        FindIfTagEquals(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), recv, tag);
+        FirstEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), recv, tag, neg);
         // Return the received element, if any
-        return recv;
+        return recv.mObj;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the first entity of this type where the tag does not match the specified one.
+     * Retrieve the first entity of this type where the tag begins or not with the specified string.
     */
-    static inline Object FirstWhereTagNotEquals(CSStr tag)
+    static inline Object FirstWhereTagBegins(bool neg, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
-        FindIfTagNotEquals(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), recv, tag);
+        FirstBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), recv, tag, strlen(tag), neg);
         // Return the received element, if any
-        return recv;
+        return recv.mObj;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the first entity of this type where the tag begins with the specified string.
+     * Retrieve the first entity of this type where the tag ends or not with the specified string.
     */
-    static inline Object FirstWhereTagBegins(CSStr tag)
+    static inline Object FirstWhereTagEnds(bool neg, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
-        CollectIfTagBegins(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), recv, tag, std::strlen(tag));
+        FirstEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), recv, tag, strlen(tag), neg);
         // Return the received element, if any
-        return recv;
+        return recv.mObj;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the first entity of this type where the does not begin with the specified string.
+     * Retrieve the first entity of this type where the tag contains or not the specified string.
     */
-    static inline Object FirstWhereTagNotBegins(CSStr tag)
+    static inline Object FirstWhereTagContains(bool neg, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
-        FindIfTagNotBegins(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), recv, tag, std::strlen(tag));
+        FirstContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), recv, tag, neg);
         // Return the received element, if any
-        return recv;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the first entity of this type where the tag ends with the specified string.
-    */
-    static inline Object FirstWhereTagEnds(CSStr tag)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Create a new element receiver
-        RecvElem recv;
-        // Process each entity in the pool
-        FindIfTagEnds(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), recv, tag, std::strlen(tag));
-        // Return the received element, if any
-        return recv;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the first entity of this type where the tag does not end with the specified string.
-    */
-    static inline Object FirstWhereTagNotEnds(CSStr tag)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Create a new element receiver
-        RecvElem recv;
-        // Process each entity in the pool
-        FindIfTagNotEnds(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), recv, tag, std::strlen(tag));
-        // Return the received element, if any
-        return recv;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the first entity of this type where the tag contains the specified string.
-    */
-    static inline Object FirstWhereTagContains(CSStr tag)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Create a new element receiver
-        RecvElem recv;
-        // Process each entity in the pool
-        FindIfTagContains(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), recv, tag);
-        // Return the received element, if any
-        return recv;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the first entity of this type where the tag does not contain the specified string.
-    */
-    static inline Object FirstWhereTagNotContains(CSStr tag)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Create a new element receiver
-        RecvElem recv;
-        // Process each entity in the pool
-        FindIfTagNotContains(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), recv, tag);
-        // Return the received element, if any
-        return recv;
+        return recv.mObj;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1104,121 +792,57 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the tag matches the specified one.
+     * Process all entities of this type where the string matches or not the specified one.
     */
-    static inline Uint32 EachWhereTagEquals(CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagEquals(bool neg, CSStr tag, Object & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        CollectIfTagEquals(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), fwd, tag);
+        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), fwd, tag, neg);
         // Return the forward count
         return fwd.mCount;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the tag does not match the specified one.
+     * Process all entities of this type where the string begins with the specified string.
     */
-    static inline Uint32 EachWhereTagNotEquals(CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagBegins(bool neg, CSStr tag, Object & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        CollectIfTagNotEquals(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), fwd, tag);
+        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), fwd, tag, strlen(tag), neg);
         // Return the forward count
         return fwd.mCount;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the tag begins with the specified string.
+     * Process all entities of this type where the string ends or not with the specified string.
     */
-    static inline Uint32 EachWhereTagBegins(CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagEnds(bool neg, CSStr tag, Object & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        CollectIfTagBegins(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), fwd, tag, std::strlen(tag));
+        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), fwd, tag, strlen(tag), neg);
         // Return the forward count
         return fwd.mCount;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the does not begin with the specified string.
+     * Process all entities of this type where the string contains the specified string.
     */
-    static inline Uint32 EachWhereTagNotBegins(CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagContains(bool neg, CSStr tag, Object & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        CollectIfTagNotBegins(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), fwd, tag, std::strlen(tag));
-        // Return the forward count
-        return fwd.mCount;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the tag ends with the specified string.
-    */
-    static inline Uint32 EachWhereTagEnds(CSStr tag, Object & env, Function & func)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Create a new element forwarder
-        ForwardElem fwd(env, func);
-        // Process each entity in the pool
-        CollectIfTagEnds(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), fwd, tag, std::strlen(tag));
-        // Return the forward count
-        return fwd.mCount;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the tag does not end with the specified string.
-    */
-    static inline Uint32 EachWhereTagNotEnds(CSStr tag, Object & env, Function & func)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Create a new element forwarder
-        ForwardElem fwd(env, func);
-        // Process each entity in the pool
-        CollectIfTagNotEnds(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), fwd, tag, std::strlen(tag));
-        // Return the forward count
-        return fwd.mCount;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the tag contains the specified string.
-    */
-    static inline Uint32 EachWhereTagContains(CSStr tag, Object & env, Function & func)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Create a new element forwarder
-        ForwardElem fwd(env, func);
-        // Process each entity in the pool
-        CollectIfTagContains(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), fwd, tag);
-        // Return the forward count
-        return fwd.mCount;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the tag does not contain the specified string.
-    */
-    static inline Uint32 EachWhereTagNotContains(CSStr tag, Object & env, Function & func)
-    {
-        SQMOD_VALID_TAG_STR(tag)
-        // Create a new element forwarder
-        ForwardElem fwd(env, func);
-        // Process each entity in the pool
-        CollectIfTagNotContains(Inst::CBegin(), Inst::CEnd(),
-                                ValidInst(), InstTag(), fwd, tag);
+        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), fwd, tag, neg);
         // Return the forward count
         return fwd.mCount;
     }
