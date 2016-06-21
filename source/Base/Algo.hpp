@@ -65,7 +65,14 @@ void EachBegins(Iterator first, Iterator last,
         // Retrieve the string
         const auto & s = retrieve(*first);
         // Compare the string
-        if (s.size() >= len && (s.compare(0, len, str) == 0) == neg)
+        if (s.size() >= len)
+        {
+            if ((s.compare(0, len, str) == 0) == neg)
+            {
+                collect(*first);
+            }
+        }
+        else if (!neg)
         {
             collect(*first);
         }
@@ -90,7 +97,14 @@ void EachEnds(Iterator first, Iterator last,
         // Retrieve the string
         const auto & s = retrieve(*first);
         // Compare the tag
-        if (s.size() >= len && (s.compare(s.size() - len, len, str) == 0) == neg)
+        if (s.size() >= len)
+        {
+            if ((s.compare(s.size() - len, len, str) == 0) == neg)
+            {
+                collect(*first);
+            }
+        }
+        else if (!neg)
         {
             collect(*first);
         }
@@ -151,7 +165,15 @@ void FirstBegins(Iterator first, Iterator last,
         // Retrieve the string
         const auto & s = retrieve(*first);
         // Compare the string
-        if (s.size() >= len && (s.compare(0, len, str) == 0) == neg)
+        if (s.size() >= len)
+        {
+            if ((s.compare(0, len, str) == 0) == neg)
+            {
+                receive(*first);
+                break;
+            }
+        }
+        else if (!neg)
         {
             receive(*first);
             break;
@@ -177,7 +199,15 @@ void FirstEnds(Iterator first, Iterator last,
         // Retrieve the string
         const auto & s = retrieve(*first);
         // Compare the string
-        if (s.size() >= len && (s.compare(s.size() - len, len, str) == 0) == neg)
+        if (s.size() >= len)
+        {
+            if ((s.compare(s.size() - len, len, str) == 0) == neg)
+            {
+                receive(*first);
+                break;
+            }
+        }
+        else if (!neg)
         {
             receive(*first);
             break;
