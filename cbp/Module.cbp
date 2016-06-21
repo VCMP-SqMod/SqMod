@@ -437,6 +437,8 @@
 		<Unit filename="../shared/Base/Utility.hpp" />
 		<Unit filename="../source/Base/AABB.cpp" />
 		<Unit filename="../source/Base/AABB.hpp" />
+		<Unit filename="../source/Base/Algo.cpp" />
+		<Unit filename="../source/Base/Algo.hpp" />
 		<Unit filename="../source/Base/Circle.cpp" />
 		<Unit filename="../source/Base/Circle.hpp" />
 		<Unit filename="../source/Base/Color3.cpp" />

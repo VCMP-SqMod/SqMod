@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Checkpoint.hpp"
 #include "Entity/Player.hpp"
+#include "Base/Algo.hpp"
 #include "Base/Color4.hpp"
 #include "Base/Vector3.hpp"
 #include "Core.hpp"
@@ -532,28 +533,24 @@ static const Object & Checkpoint_FindByTag(CSStr tag)
 // ------------------------------------------------------------------------------------------------
 static Array Checkpoint_FindActive()
 {
-    // Remember the initial stack size
-    StackGuard sg;
-    // Obtain the ends of the entity pool
-    Core::Checkpoints::const_iterator itr = Core::Get().GetCheckpoints().cbegin();
-    Core::Checkpoints::const_iterator end = Core::Get().GetCheckpoints().cend();
+    const StackGuard sg;
     // Allocate an empty array on the stack
     sq_newarray(DefaultVM::Get(), 0);
     // Process each entity in the pool
-    for (; itr != end; ++itr)
-    {
-        // Is this entity instance active?
-        if (VALID_ENTITY(itr->mID))
-        {
+    Algo::Collect(Core::Get().GetCheckpoints().cbegin(), Core::Get().GetCheckpoints().cend(),
+        [](Core::Checkpoints::const_reference inst) -> bool {
+            return VALID_ENTITY(inst.mID);
+        },
+        [](Core::Checkpoints::const_reference inst) -> void {
             // Push the script object on the stack
-            sq_pushobject(DefaultVM::Get(), (HSQOBJECT &)((*itr).mObj));
+            sq_pushobject(DefaultVM::Get(), inst.mObj.GetObject());
             // Append the object at the back of the array
-            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -1)))
+            if (SQ_FAILED(sq_arrayappend(DefaultVM::Get(), -2)))
             {
                 STHROWF("Unable to append entity instance to the list");
             }
         }
-    }
+    );
     // Return the array at the top of the stack
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
