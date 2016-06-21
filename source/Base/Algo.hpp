@@ -62,10 +62,10 @@ void EachBegins(Iterator first, Iterator last,
         {
             continue;
         }
-        // Retrieve the tag
-        const String & tag = retrieve(*first);
-        // Compare the tag
-        if (tag.size() > len && (tag.compare(0, len, str) == 0) == neg)
+        // Retrieve the string
+        const auto & s = retrieve(*first);
+        // Compare the string
+        if (s.size() > len && (s.compare(0, len, str) == 0) == neg)
         {
             collect(*first);
         }
@@ -87,10 +87,10 @@ void EachEnds(Iterator first, Iterator last,
         {
             continue;
         }
-        // Retrieve the tag
-        const String & tag = retrieve(*first);
+        // Retrieve the string
+        const auto & s = retrieve(*first);
         // Compare the tag
-        if (tag.size() > len && (tag.compare(tag.size() - len, len, str) == 0) == neg)
+        if (s.size() > len && (s.compare(s.size() - len, len, str) == 0) == neg)
         {
             collect(*first);
         }
@@ -148,10 +148,10 @@ void FirstBegins(Iterator first, Iterator last,
         {
             continue;
         }
-        // Retrieve the tag
-        const String & tag = retrieve(*first);
-        // Compare the tag
-        if (tag.size() > len && (tag.compare(0, len, str) == 0) == neg)
+        // Retrieve the string
+        const auto & s = retrieve(*first);
+        // Compare the string
+        if (s.size() > len && (s.compare(0, len, str) == 0) == neg)
         {
             receive(*first);
             break;
@@ -174,10 +174,10 @@ void FirstEnds(Iterator first, Iterator last,
         {
             continue;
         }
-        // Retrieve the tag
-        const String & tag = retrieve(*first);
-        // Compare the tag
-        if (tag.size() > len && (tag.compare(tag.size() - len, len, str) == 0) == neg)
+        // Retrieve the string
+        const auto & s = retrieve(*first);
+        // Compare the string
+        if (s.size() > len && (s.compare(s.size() - len, len, str) == 0) == neg)
         {
             receive(*first);
             break;
@@ -659,7 +659,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the string match or not the specified one.
+     * Collect all entities of this type where the tag matches or not the specified one.
     */
     static inline Array AllWhereTagEquals(bool neg, CSStr tag)
     {
@@ -675,7 +675,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the string begins or not with the specified string.
+     * Collect all entities of this type where the tag begins or not with the specified string.
     */
     static inline Array AllWhereTagBegins(bool neg, CSStr tag)
     {
@@ -691,7 +691,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the string ends or not with the specified string.
+     * Collect all entities of this type where the tag ends or not with the specified string.
     */
     static inline Array AllWhereTagEnds(bool neg, CSStr tag)
     {
@@ -707,7 +707,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Collect all entities of this type where the string contains or not the specified string.
+     * Collect all entities of this type where the tag contains or not the specified string.
     */
     static inline Array AllWhereTagContains(bool neg, CSStr tag)
     {
@@ -792,7 +792,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the string matches or not the specified one.
+     * Process all entities of this type where the tag matches or not the specified one.
     */
     static inline Uint32 EachWhereTagEquals(bool neg, CSStr tag, Object & env, Function & func)
     {
@@ -806,7 +806,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the string begins with the specified string.
+     * Process all entities of this type where the tag begins with the specified string.
     */
     static inline Uint32 EachWhereTagBegins(bool neg, CSStr tag, Object & env, Function & func)
     {
@@ -820,7 +820,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the string ends or not with the specified string.
+     * Process all entities of this type where the tag ends or not with the specified string.
     */
     static inline Uint32 EachWhereTagEnds(bool neg, CSStr tag, Object & env, Function & func)
     {
@@ -834,7 +834,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Process all entities of this type where the string contains the specified string.
+     * Process all entities of this type where the tag contains the specified string.
     */
     static inline Uint32 EachWhereTagContains(bool neg, CSStr tag, Object & env, Function & func)
     {
