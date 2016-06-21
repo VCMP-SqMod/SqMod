@@ -19,6 +19,7 @@ extern void Register_Vector2i(HSQUIRRELVM vm);
 extern void Register_Vector3(HSQUIRRELVM vm);
 extern void Register_Vector4(HSQUIRRELVM vm);
 extern void Register_Base(HSQUIRRELVM vm);
+extern void Register_Algo(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_CBlip(HSQUIRRELVM vm);
@@ -66,6 +67,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Vector3(vm);
     Register_Vector4(vm);
     Register_Base(vm);
+    Register_Algo(vm);
 
     Register_CBlip(vm);
     Register_CCheckpoint(vm);
