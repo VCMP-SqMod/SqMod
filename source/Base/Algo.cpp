@@ -14,6 +14,32 @@
 namespace SqMod {
 namespace Algo {
 
+// ------------------------------------------------------------------------------------------------
+static const Object & Blip_FindBySprID(Int32 sprid)
+{
+    // Perform a range check on the specified identifier
+    if (sprid < 0)
+    {
+        STHROWF("The specified sprite identifier is invalid: %d", sprid);
+    }
+    // Obtain the ends of the entity pool
+    Core::Blips::const_iterator itr = Core::Get().GetBlips().cbegin();
+    Core::Blips::const_iterator end = Core::Get().GetBlips().cend();
+    // Process each entity in the pool
+    for (; itr != end; ++itr)
+    {
+        // Does the identifier match the specified one?
+        if (itr->mSprID == sprid)
+        {
+            return itr->mObj; // Stop searching and return this entity
+        }
+    }
+    // Unable to locate a blip matching the specified identifier
+    return NullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
+
 // ================================================================================================
 void Register(HSQUIRRELVM vm)
 {
@@ -25,6 +51,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagBegins"), &Entity< CBlip >::FirstWhereTagBegins)
         .Func(_SC("TagEnds"), &Entity< CBlip >::FirstWhereTagEnds)
         .Func(_SC("TagContains"), &Entity< CBlip >::FirstWhereTagContains)
+        .Func(_SC("WithSprID"), &Blip_FindBySprID)
     );
 
     fns.Bind(_SC("Checkpoint"), Table(vm)
