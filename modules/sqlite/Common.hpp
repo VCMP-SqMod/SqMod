@@ -42,7 +42,7 @@ class Transaction;
     #define VALIDATE_PARAMETER_HND(x, i) (x).ValidateParameter((i), __FILE__, __LINE__)
     #define VALIDATE_ROW_HND(x) (x).ValidateRow(__FILE__, __LINE__)
     #define GET_VALID_HND(x) (x).GetValid(__FILE__, __LINE__)
-    #define GET_OPENED_HND(x) (x).GetValid(__FILE__, __LINE__)
+    #define GET_OPENED_HND(x) (x).GetOpened(__FILE__, __LINE__)
     #define GET_CREATED_HND(x) (x).GetCreated(__FILE__, __LINE__)
 #else
     #define VALIDATE_HND(x) (x).Validate()
@@ -52,7 +52,7 @@ class Transaction;
     #define VALIDATE_PARAMETER_HND(x, i) (x).ValidateParameter((i))
     #define VALIDATE_ROW_HND(x) (x).ValidateRow()
     #define GET_VALID_HND(x) (x).GetValid()
-    #define GET_OPENED_HND(x) (x).GetValid()
+    #define GET_OPENED_HND(x) (x).GetOpened()
     #define GET_CREATED_HND(x) (x).GetCreated()
 #endif // _DEBUG
 
