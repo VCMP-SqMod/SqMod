@@ -1205,6 +1205,9 @@ void CPlayer::PlaySound(Int32 sound_id) const
 Object & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius) const
 {
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, x, y, z, r, g, b, a, radius,
                                         SQMOD_CREATE_DEFAULT, NullObject());
 }
@@ -1214,6 +1217,9 @@ Object & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float3
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
                             Int32 header, Object & payload) const
 {
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, x, y, z, r, g, b, a,
                                         radius, header, payload);
 }
@@ -1222,6 +1228,9 @@ Object & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float3
 Object & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos,
                         const Color4 & color, Float32 radius) const
 {
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, pos.x, pos.y, pos.z,
                                         color.r, color.g, color.b, color.a, radius,
                                         SQMOD_CREATE_DEFAULT, NullObject());
@@ -1231,6 +1240,9 @@ Object & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos
 Object & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos, const Color4 & color,
                                     Float32 radius, Int32 header, Object & payload) const
 {
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, pos.x, pos.y, pos.z,
                                         color.r, color.g, color.b, color.a, radius, header, payload);
 }
