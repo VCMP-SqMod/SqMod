@@ -711,6 +711,31 @@ public:
     void PlaySound(Int32 sound_id) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Create a checkpoint or sphere for this player.
+    */
+    Object & CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a checkpoint or sphere for this player.
+    */
+    Object & CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
+                            Int32 header, Object & payload) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a checkpoint or sphere for this player.
+    */
+    Object & CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos,
+                        const Color4 & color, Float32 radius) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a checkpoint or sphere for this player.
+    */
+    Object & CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos, const Color4 & color,
+                                    Float32 radius, Int32 header, Object & payload) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the authority level of the managed player entity.
     */
     Int32 GetAuthority() const;

@@ -1202,6 +1202,40 @@ void CPlayer::PlaySound(Int32 sound_id) const
 }
 
 // ------------------------------------------------------------------------------------------------
+Object & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius) const
+{
+    return Core::Get().NewCheckpoint(m_ID, world, sphere, x, y, z, r, g, b, a, radius,
+                                        SQMOD_CREATE_DEFAULT, NullObject());
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
+                            Int32 header, Object & payload) const
+{
+    return Core::Get().NewCheckpoint(m_ID, world, sphere, x, y, z, r, g, b, a,
+                                        radius, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos,
+                        const Color4 & color, Float32 radius) const
+{
+    return Core::Get().NewCheckpoint(m_ID, world, sphere, pos.x, pos.y, pos.z,
+                                        color.r, color.g, color.b, color.a, radius,
+                                        SQMOD_CREATE_DEFAULT, NullObject());
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos, const Color4 & color,
+                                    Float32 radius, Int32 header, Object & payload) const
+{
+    return Core::Get().NewCheckpoint(m_ID, world, sphere, pos.x, pos.y, pos.z,
+                                        color.r, color.g, color.b, color.a, radius, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetAuthority() const
 {
     // Validate the managed identifier
@@ -2251,6 +2285,14 @@ void Register_CPlayer(HSQUIRRELVM vm)
             (_SC("SetAnimation"), &CPlayer::SetAnimation)
         .Overload< void (CPlayer::*)(Int32, Int32) const >
             (_SC("SetAnimation"), &CPlayer::SetAnimation)
+        .Overload< Object & (CPlayer::*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) const >
+            (_SC("CreateCheckpointEx"), &CPlayer::CreateCheckpointEx)
+        .Overload< Object & (CPlayer::*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, Object &) const >
+            (_SC("CreateCheckpointEx"), &CPlayer::CreateCheckpointEx)
+        .Overload< Object & (CPlayer::*)(Int32, bool, const Vector3 &, const Color4 &, Float32) const >
+            (_SC("CreateCheckpoint"), &CPlayer::CreateCheckpoint)
+        .Overload< Object & (CPlayer::*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, Object &) const >
+            (_SC("CreateCheckpoint"), &CPlayer::CreateCheckpoint)
         // Static Functions
         .StaticFunc(_SC("Find"), &Player_FindAuto)
         // Raw Squirrel Methods

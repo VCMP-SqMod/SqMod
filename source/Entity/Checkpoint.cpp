@@ -448,36 +448,34 @@ void CCheckpoint::SetColorA(Int32 a) const
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Checkpoint_CreateEx(CPlayer & player, Int32 world, bool sphere,
-                            Float32 x, Float32 y, Float32 z,
+static Object & Checkpoint_CreateEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius)
 {
-    return Core::Get().NewCheckpoint(player.GetID(), world, sphere, x, y, z, r, g, b, a, radius,
+    return Core::Get().NewCheckpoint(-1, world, sphere, x, y, z, r, g, b, a, radius,
                                 SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & Checkpoint_CreateEx(CPlayer & player, Int32 world, bool sphere,
-                            Float32 x, Float32 y, Float32 z,
+static Object & Checkpoint_CreateEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
                             Int32 header, Object & payload)
 {
-    return Core::Get().NewCheckpoint(player.GetID(), world, sphere, x, y, z, r, g, b, a,
+    return Core::Get().NewCheckpoint(-1, world, sphere, x, y, z, r, g, b, a,
                                 radius, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Checkpoint_Create(CPlayer & player, Int32 world, bool sphere, const Vector3 & pos,
+static Object & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & pos,
                             const Color4 & color, Float32 radius)
 {
-    return Core::Get().NewCheckpoint(player.GetID(), world, sphere, pos.x, pos.y, pos.z,
+    return Core::Get().NewCheckpoint(-1, world, sphere, pos.x, pos.y, pos.z,
                                 color.r, color.g, color.b, color.a, radius,
                                 SQMOD_CREATE_DEFAULT, NullObject());
 }
 
-static Object & Checkpoint_Create(CPlayer & player, Int32 world, bool sphere, const Vector3 & pos,
+static Object & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & pos,
                             const Color4 & color, Float32 radius, Int32 header, Object & payload)
 {
-    return Core::Get().NewCheckpoint(player.GetID(), world, sphere, pos.x, pos.y, pos.z,
+    return Core::Get().NewCheckpoint(-1, world, sphere, pos.x, pos.y, pos.z,
                                 color.r, color.g, color.b, color.a, radius, header, payload);
 }
 
@@ -530,13 +528,13 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Overload< void (CCheckpoint::*)(Uint8, Uint8, Uint8, Uint8) const >
             (_SC("SetColor"), &CCheckpoint::SetColorEx)
         // Static Overloads
-        .StaticOverload< Object & (*)(CPlayer &, Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
+        .StaticOverload< Object & (*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
             (_SC("CreateEx"), &Checkpoint_CreateEx)
-        .StaticOverload< Object & (*)(CPlayer &, Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, Object &) >
+        .StaticOverload< Object & (*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, Object &) >
             (_SC("CreateEx"), &Checkpoint_CreateEx)
-        .StaticOverload< Object & (*)(CPlayer &, Int32, bool, const Vector3 &, const Color4 &, Float32) >
+        .StaticOverload< Object & (*)(Int32, bool, const Vector3 &, const Color4 &, Float32) >
             (_SC("Create"), &Checkpoint_Create)
-        .StaticOverload< Object & (*)(CPlayer &, Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, Object &) >
+        .StaticOverload< Object & (*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, Object &) >
             (_SC("Create"), &Checkpoint_Create)
     );
 }
