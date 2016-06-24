@@ -413,11 +413,12 @@ void Core::Terminate()
     }
     // Release all entity resources by clearing the containers
     m_Players.clear();
-    m_Blips.clear();
-    m_Keybinds.clear();
+    m_Vehicles.clear();
     m_Objects.clear();
     m_Pickups.clear();
     m_Checkpoints.clear();
+    m_Blips.clear();
+    m_Keybinds.clear();
     // Release all resources from routines
     TerminateRoutines();
     // Release all resources from command manager
