@@ -385,6 +385,9 @@ bool Core::Execute()
         LogScs("Successfully executed script: %s", s.mPath.c_str());
     }
 
+    // Notify the script callback that the scripts were loaded
+    EmitScriptLoaded();
+
     // Import already existing entities
     ImportPlayers();
     ImportBlips();
@@ -393,9 +396,6 @@ bool Core::Execute()
     ImportObjects();
     ImportPickups();
     ImportVehicles();
-
-    // Notify the script callback that the scripts were loaded
-    EmitScriptLoaded();
 
     // Successfully executed
     return (m_Executed = true);
