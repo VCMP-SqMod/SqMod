@@ -129,7 +129,7 @@ void Core::ImportVehicles()
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
+Core::BlipInst & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
@@ -141,7 +141,7 @@ Object & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        return inst.mObj; // Return the existing instance
+        return inst; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CBlip(id);
@@ -151,6 +151,7 @@ Object & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
     if (!inst.mInst || inst.mObj.IsNull())
     {
         ResetInst(inst);
+        // Now we can throw the error
         STHROWF("Unable to create a blip instance for: %d", id);
     }
     // Assign the specified entity identifier
@@ -166,12 +167,12 @@ Object & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
     }
     // Let the script callbacks know about this entity
     EmitBlipCreated(id, header, payload);
-    // Return the script object
-    return inst.mObj;
+    // Return the allocated instance
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payload)
+Core::CheckpointInst & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
@@ -183,7 +184,7 @@ Object & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payl
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        return inst.mObj; // Return the existing instance
+        return inst; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CCheckpoint(id);
@@ -193,6 +194,7 @@ Object & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payl
     if (!inst.mInst || inst.mObj.IsNull())
     {
         ResetInst(inst);
+        // Now we can throw the error
         STHROWF("Unable to create a checkpoint instance for: %d", id);
     }
     // Assign the specified entity identifier
@@ -208,12 +210,12 @@ Object & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payl
     }
     // Let the script callbacks know about this entity
     EmitCheckpointCreated(id, header, payload);
-    // Return the script object
-    return inst.mObj;
+    // Return the allocated instance
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload)
+Core::KeybindInst & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
@@ -225,7 +227,7 @@ Object & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        return inst.mObj; // Return the existing instance
+        return inst; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CKeybind(id);
@@ -235,6 +237,7 @@ Object & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload
     if (!inst.mInst || inst.mObj.IsNull())
     {
         ResetInst(inst);
+        // Now we can throw the error
         STHROWF("Unable to create a keybind instance for: %d", id);
     }
     // Assign the specified entity identifier
@@ -250,12 +253,12 @@ Object & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload
     }
     // Let the script callbacks know about this entity
     EmitKeybindCreated(id, header, payload);
-    // Return the script object
-    return inst.mObj;
+    // Return the allocated instance
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
+Core::ObjectInst & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
@@ -267,7 +270,7 @@ Object & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        return inst.mObj; // Return the existing instance
+        return inst; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CObject(id);
@@ -277,6 +280,7 @@ Object & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
     if (!inst.mInst || inst.mObj.IsNull())
     {
         ResetInst(inst);
+        // Now we can throw the error
         STHROWF("Unable to create a object instance for: %d", id);
     }
     // Assign the specified entity identifier
@@ -292,12 +296,12 @@ Object & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
     }
     // Let the script callbacks know about this entity
     EmitObjectCreated(id, header, payload);
-    // Return the script object
-    return inst.mObj;
+    // Return the allocated instance
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
+Core::PickupInst & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
@@ -309,7 +313,7 @@ Object & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        return inst.mObj; // Return the existing instance
+        return inst; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CPickup(id);
@@ -319,6 +323,7 @@ Object & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
     if (!inst.mInst || inst.mObj.IsNull())
     {
         ResetInst(inst);
+        // Now we can throw the error
         STHROWF("Unable to create a pickup instance for: %d", id);
     }
     // Assign the specified entity identifier
@@ -334,12 +339,12 @@ Object & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
     }
     // Let the script callbacks know about this entity
     EmitPickupCreated(id, header, payload);
-    // Return the script object
-    return inst.mObj;
+    // Return the allocated instance
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload)
+Core::VehicleInst & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
@@ -351,7 +356,7 @@ Object & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload
     // Make sure that the instance isn't already allocated
     if (VALID_ENTITY(inst.mID))
     {
-        return inst.mObj; // Return the existing instance
+        return inst; // Return the existing instance
     }
     // Instantiate the entity manager
     inst.mInst = new CVehicle(id);
@@ -361,6 +366,7 @@ Object & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload
     if (!inst.mInst || inst.mObj.IsNull())
     {
         ResetInst(inst);
+        // Now we can throw the error
         STHROWF("Unable to create a vehicle instance for: %d", id);
     }
     // Assign the specified entity identifier
@@ -376,8 +382,8 @@ Object & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload
     }
     // Let the script callbacks know about this entity
     EmitVehicleCreated(id, header, payload);
-    // Return the script object
-    return inst.mObj;
+    // Return the allocated instance
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -691,8 +697,15 @@ Object & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z
     {
         STHROWF("Server returned invalid blip: %d", id);
     }
-    // Attempt to allocate this entity and return the result
-    return AllocBlip(id, true, header, payload);
+    // Attempt to allocate this entity and grab the reference to the instance
+    BlipInst & inst = AllocBlip(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -716,8 +729,15 @@ Object & Core::NewCheckpoint(Int32 player, Int32 world, bool sphere, Float32 x, 
     {
         STHROWF("Server returned invalid checkpoint: %d", id);
     }
-    // Attempt to allocate this entity and return the result
-    return AllocCheckpoint(id, true, header, payload);
+    // Attempt to allocate this entity and grab the reference to the instance
+    CheckpointInst & inst = AllocCheckpoint(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -741,8 +761,15 @@ Object & Core::NewKeybind(Int32 slot, bool release, Int32 primary, Int32 seconda
     {
         STHROWF("Out of bounds keybind argument: %d", slot);
     }
-    // Attempt to allocate this entity and return the result
-    return AllocKeybind(slot, true, header, payload);
+    // Attempt to allocate this entity and grab the reference to the instance
+    KeybindInst & inst = AllocKeybind(slot, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -761,8 +788,15 @@ Object & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32
     {
         STHROWF("Server returned invalid object: %d", id);
     }
-    // Attempt to allocate this entity and return the result
-    return AllocObject(id, true, header, payload);
+    // Attempt to allocate this entity and grab the reference to the instance
+    ObjectInst & inst = AllocObject(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -782,8 +816,15 @@ Object & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
     {
         STHROWF("Server returned invalid pickup: %d", id);
     }
-    // Attempt to allocate this entity and return the result
-    return AllocPickup(id, true, header, payload);
+    // Attempt to allocate this entity and grab the reference to the instance
+    PickupInst & inst = AllocPickup(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -791,6 +832,7 @@ Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float3
                             Float32 angle, Int32 primary, Int32 secondary,
                             Int32 header, Object & payload)
 {
+
     // Request the server to create this entity
     const Int32 id = _Func->CreateVehicle(model, world, x, y, z, angle, primary, secondary);
     // See if the entity creation failed on the server
@@ -807,8 +849,15 @@ Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float3
     {
         STHROWF("Server returned invalid vehicle: %d", id);
     }
-    // Attempt to allocate this entity and return the result
-    return AllocVehicle(id, true, header, payload);
+    // Attempt to allocate this entity and grab the reference to the instance
+    VehicleInst & inst = AllocVehicle(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
 }
 
 // --------------------------------------------------------------------------------------------

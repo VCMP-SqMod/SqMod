@@ -685,7 +685,7 @@ void Core::BindEvent(Int32 id, Object & env, Function & func)
 Core::BlipInst::~BlipInst()
 {
     // Should we notify that this entity is being cleaned up?
-    if (mID >= 0)
+    if (VALID_ENTITY(mID))
     {
         Core::Get().EmitBlipDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
     }
@@ -698,8 +698,11 @@ Core::BlipInst::~BlipInst()
         mInst->m_Data.Release();
     }
     // Are we supposed to clean up this entity?
-    if (mID >= 0 && (mFlags & ENF_OWNED))
+    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
+        // Block the entity pool changes notification from triggering the destroy event
+        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        // Now attempt to destroy this entity from the server
         _Func->DestroyCoordBlip(mID);
     }
     // Don't release the callbacks abruptly in destructor
@@ -710,7 +713,7 @@ Core::BlipInst::~BlipInst()
 Core::CheckpointInst::~CheckpointInst()
 {
     // Should we notify that this entity is being cleaned up?
-    if (mID >= 0)
+    if (VALID_ENTITY(mID))
     {
         Core::Get().EmitCheckpointDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
     }
@@ -723,8 +726,11 @@ Core::CheckpointInst::~CheckpointInst()
         mInst->m_Data.Release();
     }
     // Are we supposed to clean up this entity?
-    if (mID >= 0 && (mFlags & ENF_OWNED))
+    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
+        // Block the entity pool changes notification from triggering the destroy event
+        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        // Now attempt to destroy this entity from the server
         _Func->DeleteCheckPoint(mID);
     }
     // Don't release the callbacks abruptly in destructor
@@ -735,7 +741,7 @@ Core::CheckpointInst::~CheckpointInst()
 Core::KeybindInst::~KeybindInst()
 {
     // Should we notify that this entity is being cleaned up?
-    if (mID >= 0)
+    if (VALID_ENTITY(mID))
     {
         Core::Get().EmitKeybindDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
     }
@@ -748,8 +754,11 @@ Core::KeybindInst::~KeybindInst()
         mInst->m_Data.Release();
     }
     // Are we supposed to clean up this entity?
-    if (mID >= 0 && (mFlags & ENF_OWNED))
+    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
+        // Block the entity pool changes notification from triggering the destroy event
+        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        // Now attempt to destroy this entity from the server
         _Func->RemoveKeyBind(mID);
     }
     // Don't release the callbacks abruptly in destructor
@@ -760,7 +769,7 @@ Core::KeybindInst::~KeybindInst()
 Core::ObjectInst::~ObjectInst()
 {
     // Should we notify that this entity is being cleaned up?
-    if (mID >= 0)
+    if (VALID_ENTITY(mID))
     {
         Core::Get().EmitObjectDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
     }
@@ -773,8 +782,11 @@ Core::ObjectInst::~ObjectInst()
         mInst->m_Data.Release();
     }
     // Are we supposed to clean up this entity?
-    if (mID >= 0 && (mFlags & ENF_OWNED))
+    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
+        // Block the entity pool changes notification from triggering the destroy event
+        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        // Now attempt to destroy this entity from the server
         _Func->DeleteObject(mID);
     }
     // Don't release the callbacks abruptly in destructor
@@ -785,7 +797,7 @@ Core::ObjectInst::~ObjectInst()
 Core::PickupInst::~PickupInst()
 {
     // Should we notify that this entity is being cleaned up?
-    if (mID >= 0)
+    if (VALID_ENTITY(mID))
     {
         Core::Get().EmitPickupDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
     }
@@ -798,8 +810,11 @@ Core::PickupInst::~PickupInst()
         mInst->m_Data.Release();
     }
     // Are we supposed to clean up this entity?
-    if (mID >= 0 && (mFlags & ENF_OWNED))
+    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
+        // Block the entity pool changes notification from triggering the destroy event
+        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        // Now attempt to destroy this entity from the server
         _Func->DeletePickup(mID);
     }
     // Don't release the callbacks abruptly in destructor
@@ -810,7 +825,7 @@ Core::PickupInst::~PickupInst()
 Core::PlayerInst::~PlayerInst()
 {
     // Should we notify that this entity is being cleaned up?
-    if (mID >= 0)
+    if (VALID_ENTITY(mID))
     {
         Core::Get().EmitPlayerDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
     }
@@ -832,7 +847,7 @@ Core::PlayerInst::~PlayerInst()
 Core::VehicleInst::~VehicleInst()
 {
     // Should we notify that this entity is being cleaned up?
-    if (mID >= 0)
+    if (VALID_ENTITY(mID))
     {
         Core::Get().EmitVehicleDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
     }
@@ -845,8 +860,11 @@ Core::VehicleInst::~VehicleInst()
         mInst->m_Data.Release();
     }
     // Are we supposed to clean up this entity?
-    if (mID >= 0 && (mFlags & ENF_OWNED))
+    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
+        // Block the entity pool changes notification from triggering the destroy event
+        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        // Now attempt to destroy this entity from the server
         _Func->DeleteVehicle(mID);
     }
     // Don't release the callbacks abruptly in destructor

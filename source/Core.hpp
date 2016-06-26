@@ -576,12 +576,12 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Entity allocators.
     */
-    Object & AllocBlip(Int32 id, bool owned, Int32 header, Object & payload);
-    Object & AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payload);
-    Object & AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload);
-    Object & AllocObject(Int32 id, bool owned, Int32 header, Object & payload);
-    Object & AllocPickup(Int32 id, bool owned, Int32 header, Object & payload);
-    Object & AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload);
+    BlipInst & AllocBlip(Int32 id, bool owned, Int32 header, Object & payload);
+    CheckpointInst & AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payload);
+    KeybindInst & AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload);
+    ObjectInst & AllocObject(Int32 id, bool owned, Int32 header, Object & payload);
+    PickupInst & AllocPickup(Int32 id, bool owned, Int32 header, Object & payload);
+    VehicleInst & AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Entity deallocator.
