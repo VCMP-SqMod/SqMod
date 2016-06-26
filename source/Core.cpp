@@ -406,7 +406,6 @@ void Core::Terminate()
 {
     if (m_VM)
     {
-
         LogDbg("Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(0xDEADC0DE, "");
@@ -444,6 +443,10 @@ void Core::Terminate()
         m_VM = nullptr;
         // Attempt to close the VM
         sq_close(sq_vm);
+
+        LogDbg("Signaling outside plug-ins to release the virtual machine");
+        // Tell modules to do their monkey business
+        _Func->SendPluginCommand(0xDEADBEAF, "");
     }
 }
 

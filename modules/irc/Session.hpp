@@ -26,8 +26,8 @@ public:
     static void Process();
 
     /* --------------------------------------------------------------------------------------------
-      * Terminate all sessions and release their resources.
-     */
+     * Terminate all sessions and release their resources.
+    */
     static void Terminate();
 
 protected:

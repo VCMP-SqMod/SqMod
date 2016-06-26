@@ -80,9 +80,16 @@ void OnSquirrelTerminate()
     NullTable().Release();
     NullArray().Release();
     NullFunction().ReleaseGently();
+    // Release script resources...
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The virtual machined was closed and all memory associated with it was released.
+*/
+void OnSquirrelReleased()
+{
     // Release the current virtual machine, if any
     DefaultVM::Set(nullptr);
-    // Release script resources...
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -122,6 +129,9 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
         break;
         case SQMOD_TERMINATE_CMD:
             OnSquirrelTerminate();
+        break;
+        case SQMOD_RELEASED_CMD:
+            OnSquirrelReleased();
         break;
         default: break;
     }

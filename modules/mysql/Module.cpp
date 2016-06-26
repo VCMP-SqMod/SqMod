@@ -1,12 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Common.hpp"
-#include "Account.hpp"
-#include "Column.hpp"
-#include "Connection.hpp"
-#include "ResultSet.hpp"
-#include "Savepoint.hpp"
-#include "Statement.hpp"
-#include "Transaction.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdio>
@@ -87,9 +80,15 @@ void OnSquirrelTerminate()
     NullTable().Release();
     NullArray().Release();
     NullFunction().ReleaseGently();
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The virtual machined was closed and all memory associated with it was released.
+*/
+void OnSquirrelReleased()
+{
     // Release the current virtual machine, if any
     DefaultVM::Set(nullptr);
-    // Release script resources...
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -130,6 +129,9 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
         case SQMOD_TERMINATE_CMD:
             OnSquirrelTerminate();
         break;
+        case SQMOD_RELEASED_CMD:
+            OnSquirrelReleased();
+        break;
         default: break;
     }
     return 1;
@@ -166,153 +168,14 @@ void UnbindCallbacks()
 }
 
 // ------------------------------------------------------------------------------------------------
+extern void Register_Account(Table & sqlns);
+
+// ------------------------------------------------------------------------------------------------
 void RegisterAPI(HSQUIRRELVM vm)
 {
     Table sqlns(vm);
 
-    sqlns.Bind(_SC("Account"), Class< Account >(vm, _SC("SqMySQLAccount"))
-        // Constructors
-        .Ctor< const Account & >()
-        .Ctor< CSStr, CSStr >()
-        .Ctor< CSStr, CSStr, CSStr >()
-        .Ctor< CSStr, CSStr, CSStr, CSStr >()
-        .Ctor< CSStr, CSStr, CSStr, CSStr, SQInteger >()
-        .Ctor< CSStr, CSStr, CSStr, CSStr, SQInteger, CSStr >()
-        // Core Meta-methods
-        .Func(_SC("_cmp"), &Account::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Account::Typename)
-        .Func(_SC("_tostring"), &Account::ToString)
-        // Properties
-        .Prop(_SC("Port"), &Account::GetPortNum, &Account::SetPortNum)
-        .Prop(_SC("Host"), &Account::GetHost, &Account::SetHost)
-        .Prop(_SC("User"), &Account::GetUser, &Account::SetUser)
-        .Prop(_SC("Pass"), &Account::GetPass, &Account::SetPass)
-        .Prop(_SC("Socket"), &Account::GetSocket, &Account::SetSocket)
-        .Prop(_SC("Flags"), &Account::GetFlags, &Account::SetFlags)
-        .Prop(_SC("SSL_Key"), &Account::GetSSL_Key, &Account::SetSSL_Key)
-        .Prop(_SC("SSL_Cert"), &Account::GetSSL_Cert, &Account::SetSSL_Cert)
-        .Prop(_SC("SSL_CA"), &Account::GetSSL_CA, &Account::SetSSL_CA)
-        .Prop(_SC("SSL_CA_Path"), &Account::GetSSL_CA_Path, &Account::SetSSL_CA_Path)
-        .Prop(_SC("SSL_Cipher"), &Account::GetSSL_Cipher, &Account::SetSSL_Cipher)
-        .Prop(_SC("AutoCommit"), &Account::GetAutoCommit, &Account::SetAutoCommit)
-        .Prop(_SC("Options"), &Account::GetOptionsTable)
-        .Prop(_SC("OptionsCount"), &Account::OptionsCount)
-        .Prop(_SC("OptionsEmpty"), &Account::OptionsEmpty)
-        // Member Methods
-        .Func(_SC("EnableFlags"), &Account::EnableFlags)
-        .Func(_SC("DisableFlags"), &Account::DisableFlags)
-        .Func(_SC("SetSSL"), &Account::SetSSL)
-        .Func(_SC("GetOption"), &Account::GetOption)
-        .Func(_SC("SetOption"), &Account::SetOption)
-        .Func(_SC("RemoveOption"), &Account::RemoveOption)
-        .Func(_SC("OptionsClear"), &Account::OptionsClear)
-        .Func(_SC("Connect"), &Account::Connect)
-    );
-
-    sqlns.Bind(_SC("Connection"), Class< Connection >(vm, _SC("SqMySQLConnection"))
-        // Constructors
-        .Ctor()
-        .Ctor< const Account & >()
-        // Core Meta-methods
-        .Func(_SC("_cmp"), &Connection::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Connection::Typename)
-        .Func(_SC("_tostring"), &Connection::ToString)
-        // Properties
-        .Prop(_SC("IsValid"), &Connection::IsValid)
-        .Prop(_SC("Connected"), &Connection::Connected)
-        .Prop(_SC("ErrNo"), &Connection::GetErrNo)
-        .Prop(_SC("ErrStr"), &Connection::GetErrStr)
-        .Prop(_SC("LastErrNo"), &Connection::GetLastErrNo)
-        .Prop(_SC("LastErrStr"), &Connection::GetLastErrStr)
-        .Prop(_SC("Port"), &Connection::GetPortNum)
-        .Prop(_SC("Host"), &Connection::GetHost)
-        .Prop(_SC("User"), &Connection::GetUser)
-        .Prop(_SC("Pass"), &Connection::GetPass)
-        .Prop(_SC("Name"), &Connection::GetName, &Connection::SetName)
-        .Prop(_SC("Socket"), &Connection::GetSocket)
-        .Prop(_SC("Flags"), &Connection::GetFlags)
-        .Prop(_SC("SSL_Key"), &Connection::GetSSL_Key)
-        .Prop(_SC("SSL_Cert"), &Connection::GetSSL_Cert)
-        .Prop(_SC("SSL_CA"), &Connection::GetSSL_CA)
-        .Prop(_SC("SSL_CA_Path"), &Connection::GetSSL_CA_Path)
-        .Prop(_SC("SSL_Cipher"), &Connection::GetSSL_Cipher)
-        .Prop(_SC("Charset"), &Connection::GetCharset, &Connection::SetCharset)
-        .Prop(_SC("AutoCommit"), &Connection::GetAutoCommit, &Connection::SetAutoCommit)
-        .Prop(_SC("InTransaction"), &Connection::GetInTransaction)
-        // Member Methods
-        .Func(_SC("Disconnect"), &Connection::Disconnect)
-        .Func(_SC("SelectDb"), &Connection::SetName)
-        .Func(_SC("Execute"), &Connection::Execute)
-        .Func(_SC("Insert"), &Connection::Insert)
-        .Func(_SC("Query"), &Connection::Query)
-        .Func(_SC("Statement"), &Connection::GetStatement)
-        .Func(_SC("Transaction"), &Connection::GetTransaction)
-    );
-
-    sqlns.Bind(_SC("Statement"), Class< Statement >(vm, _SC("SqMySQLStatement"))
-        // Constructors
-        .Ctor()
-        // Core Meta-methods
-        .Func(_SC("_cmp"), &Statement::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Statement::Typename)
-        .Func(_SC("_tostring"), &Statement::ToString)
-        // Properties
-        .Prop(_SC("IsValid"), &Statement::IsValid)
-        .Prop(_SC("Connection"), &Statement::GetConnection, &Statement::SetConnection)
-        // Member Methods
-        .Func(_SC("Execute"), &Statement::Execute)
-        .Func(_SC("Insert"), &Statement::Insert)
-        .Func(_SC("Query"), &Statement::Query)
-        .Func(_SC("SetInt8"), &Statement::SetInt8)
-        .Func(_SC("SetUint8"), &Statement::SetUint8)
-        .Func(_SC("SetInt16"), &Statement::SetInt16)
-        .Func(_SC("SetUint16"), &Statement::SetUint16)
-        .Func(_SC("SetInt32"), &Statement::SetInt32)
-        .Func(_SC("SetUint32"), &Statement::SetUint32)
-        .Func(_SC("SetInt64"), &Statement::SetInt64)
-        .Func(_SC("SetUint64"), &Statement::SetUint64)
-        .Func(_SC("SetSLongInt"), &Statement::SetSLongInt)
-        .Func(_SC("SetULongInt"), &Statement::SetULongInt)
-        .Func(_SC("SetInteger"), &Statement::SetInteger)
-        .Func(_SC("SetFloat32"), &Statement::SetFloat32)
-        .Func(_SC("SetFloat64"), &Statement::SetFloat64)
-        .Func(_SC("SetFloat"), &Statement::SetFloat)
-        .Func(_SC("SetBoolean"), &Statement::SetBoolean)
-        .Func(_SC("SetDate"), &Statement::SetDate)
-        .Func(_SC("SetTime"), &Statement::SetTime)
-        .Func(_SC("SetDatetime"), &Statement::SetDatetime)
-        .Func(_SC("SetString"), &Statement::SetString)
-        .Func(_SC("SetEnum"), &Statement::SetEnum)
-        .Func(_SC("SetSet"), &Statement::SetSet)
-        .Func(_SC("SetBlob"), &Statement::SetBlob)
-        .Func(_SC("SetData"), &Statement::SetData)
-        .Func(_SC("SetBuffer"), &Statement::SetData)
-        .Func(_SC("SetNull"), &Statement::SetNull)
-    );
-
-    sqlns.Bind(_SC("ResultSet"), Class< ResultSet >(vm, _SC("SqMySQLResultSet"))
-        // Constructors
-        .Ctor()
-        // Core Meta-methods
-        .Func(_SC("_cmp"), &ResultSet::Cmp)
-        .SquirrelFunc(_SC("_typename"), &ResultSet::Typename)
-        .Func(_SC("_tostring"), &ResultSet::ToString)
-        // Properties
-        .Prop(_SC("IsValid"), &ResultSet::IsValid)
-        // Member Methods
-        .Func(_SC("SetInt8"), &ResultSet::GetInt8)
-        .Func(_SC("SetUint8"), &ResultSet::GetUint8)
-        .Func(_SC("SetInt16"), &ResultSet::GetInt16)
-        .Func(_SC("SetUint16"), &ResultSet::GetUint16)
-        .Func(_SC("SetInt32"), &ResultSet::GetInt32)
-        .Func(_SC("SetUint32"), &ResultSet::GetUint32)
-        .Func(_SC("SetInt64"), &ResultSet::GetInt64)
-        .Func(_SC("SetUint64"), &ResultSet::GetUint64)
-        .Func(_SC("SetFloat32"), &ResultSet::GetFloat32)
-        .Func(_SC("SetFloat64"), &ResultSet::GetFloat64)
-        .Func(_SC("SetBool"), &ResultSet::GetBoolean)
-        .Func(_SC("SetBoolean"), &ResultSet::GetBoolean)
-    );
+    Register_Account(sqlns);
 
     RootTable(vm).Bind(_SC("SqMySQL"), sqlns);
 }
