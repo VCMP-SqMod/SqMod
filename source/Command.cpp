@@ -259,6 +259,8 @@ void CmdManager::Deinitialize()
     }
     // Clear the command list and release all references
     m_Commands.clear();
+	// Release the current context if any
+	m_Context.Reset();
     // Release the global callbacks
     m_OnFail.ReleaseGently();
     m_OnAuth.ReleaseGently();
