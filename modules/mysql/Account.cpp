@@ -202,4 +202,48 @@ Connection Account::Connect() const
     return Connection(*this);
 }
 
+// ================================================================================================
+void Register_Account(Table & sqlns)
+{
+    sqlns.Bind(_SC("Account")
+        , Class< Account >(sqlns.GetVM(), _SC("SqMySQLAccount"))
+        // Constructors
+        .Ctor< const Account & >()
+        .Ctor< CSStr, CSStr >()
+        .Ctor< CSStr, CSStr, CSStr >()
+        .Ctor< CSStr, CSStr, CSStr, CSStr >()
+        .Ctor< CSStr, CSStr, CSStr, CSStr, SQInteger >()
+        .Ctor< CSStr, CSStr, CSStr, CSStr, SQInteger, CSStr >()
+        // Core Meta-methods
+        .Func(_SC("_cmp"), &Account::Cmp)
+        .SquirrelFunc(_SC("_typename"), &Account::Typename)
+        .Func(_SC("_tostring"), &Account::ToString)
+        // Properties
+        .Prop(_SC("Port"), &Account::GetPortNum, &Account::SetPortNum)
+        .Prop(_SC("Host"), &Account::GetHost, &Account::SetHost)
+        .Prop(_SC("User"), &Account::GetUser, &Account::SetUser)
+        .Prop(_SC("Pass"), &Account::GetPass, &Account::SetPass)
+        .Prop(_SC("Socket"), &Account::GetSocket, &Account::SetSocket)
+        .Prop(_SC("Flags"), &Account::GetFlags, &Account::SetFlags)
+        .Prop(_SC("SSL_Key"), &Account::GetSSL_Key, &Account::SetSSL_Key)
+        .Prop(_SC("SSL_Cert"), &Account::GetSSL_Cert, &Account::SetSSL_Cert)
+        .Prop(_SC("SSL_CA"), &Account::GetSSL_CA, &Account::SetSSL_CA)
+        .Prop(_SC("SSL_CA_Path"), &Account::GetSSL_CA_Path, &Account::SetSSL_CA_Path)
+        .Prop(_SC("SSL_Cipher"), &Account::GetSSL_Cipher, &Account::SetSSL_Cipher)
+        .Prop(_SC("AutoCommit"), &Account::GetAutoCommit, &Account::SetAutoCommit)
+        .Prop(_SC("Options"), &Account::GetOptionsTable)
+        .Prop(_SC("OptionsCount"), &Account::OptionsCount)
+        .Prop(_SC("OptionsEmpty"), &Account::OptionsEmpty)
+        // Member Methods
+        .Func(_SC("EnableFlags"), &Account::EnableFlags)
+        .Func(_SC("DisableFlags"), &Account::DisableFlags)
+        .Func(_SC("SetSSL"), &Account::SetSSL)
+        .Func(_SC("GetOption"), &Account::GetOption)
+        .Func(_SC("SetOption"), &Account::SetOption)
+        .Func(_SC("RemoveOption"), &Account::RemoveOption)
+        .Func(_SC("OptionsClear"), &Account::OptionsClear)
+        .Func(_SC("Connect"), &Account::Connect)
+    );
+}
+
 } // Namespace:: SqMod

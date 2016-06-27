@@ -11,79 +11,107 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-void ConnHnd::Validate() const
+void ConnHnd::GrabCurrent()
 {
-    // Is the handle valid?
-    if ((m_Hnd == nullptr) || (m_Hnd->mPtr == nullptr))
-    {
-        STHROWF("Invalid MySQL connection reference");
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void ConnHnd::Handle::ThrowCurrent(CCStr act, CCStr file, Int32 line)
-#else
-    void ConnHnd::Handle::ThrowCurrent(CCStr act)
-#endif // _DEBUG
-{
-    // Grab the error number and message
     mErrNo = mysql_errno(mPtr);
     mErrStr.assign(mysql_error(mPtr));
-    // Throw the exception with the resulted message
-#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    throw Sqrat::Exception(FmtStr("%s (%u) : %s =>[%s:%d]", act,
-                            mErrNo, mErrStr.c_str(), file, line));
-#else
-    throw Sqrat::Exception(FmtStr("%s (%u) : %s", act,
-                            mErrNo, mErrStr.c_str()));
-#endif // _DEBUG
 }
 
 // ------------------------------------------------------------------------------------------------
-ConnHnd::Handle::Handle(const Account & acc)
-    : mPtr(mysql_init(NULL))
-    , mRef(0)
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void ConnHnd::ThrowCurrent(CCStr act, CCStr file, Int32 line)
+{
+    GrabCurrent();
+    // Throw the exception with the resulted message
+    throw Sqrat::Exception(FmtStr("%s (%u) : %s =>[%s:%d]", act,
+                            mErrNo, mErrStr.c_str(), file, line));
+}
+#else
+void ConnHnd::ThrowCurrent(CCStr act)
+{
+    GrabCurrent();
+    // Throw the exception with the resulted message
+    throw Sqrat::Exception(FmtStr("%s (%u) : %s", act,
+                            mErrNo, mErrStr.c_str()));
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+ConnHnd::ConnHnd()
+    : mPtr(nullptr)
     , mErrNo(0)
     , mErrStr(_SC(""))
-    , mPort(acc.GetPortNum())
-    , mHost(acc.GetHost())
-    , mUser(acc.GetUser())
-    , mPass(acc.GetPass())
-    , mName(acc.GetName())
-    , mSocket(acc.GetSocket())
-    , mFlags(acc.GetFlags())
-    , mSSL_Key(acc.GetSSL_Key())
-    , mSSL_Cert(acc.GetSSL_Cert())
-    , mSSL_CA(acc.GetSSL_CA())
-    , mSSL_CA_Path(acc.GetSSL_CA_Path())
-    , mSSL_Cipher(acc.GetSSL_Cipher())
+    , mPort()
+    , mHost()
+    , mUser()
+    , mPass()
+    , mName()
+    , mSocket()
+    , mFlags()
+    , mSSL_Key()
+    , mSSL_Cert()
+    , mSSL_CA()
+    , mSSL_CA_Path()
+    , mSSL_Cipher()
     , mCharset()
-    , mAutoCommit(acc.GetAutoCommit())
+    , mAutoCommit()
     , mInTransaction(false)
 {
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+ConnHnd::~ConnHnd()
+{
+    Disconnect();
+}
+
+// ------------------------------------------------------------------------------------------------
+void ConnHnd::Create(const Account & acc)
+{
+    // Is this connection already created?
+    if (mPtr != nullptr)
+    {
+        STHROWF("MySQL connection was already created");
+    }
+    // Attempt to initialize a connection handle
+    mPtr = mysql_init(NULL);
     // See if a connection handle could be initialized
     if (!mPtr)
     {
-        THROW_CURRENT_HND((*this), "Cannot create MYSQL object");
+        STHROWF("Cannot initialize MYSQL connection structure");
     }
+    // Store all the account information
+    mPort = acc.GetPortNum();
+    mHost = acc.GetHost();
+    mUser = acc.GetUser();
+    mPass = acc.GetPass();
+    mName = acc.GetName();
+    mSocket = acc.GetSocket();
+    mFlags = acc.GetFlags();
+    mSSL_Key = acc.GetSSL_Key();
+    mSSL_Cert = acc.GetSSL_Cert();
+    mSSL_CA = acc.GetSSL_CA();
+    mSSL_CA_Path = acc.GetSSL_CA_Path();
+    mSSL_Cipher = acc.GetSSL_Cipher();
+    mAutoCommit = acc.GetAutoCommit();
     // Attempt to configure SSL if specified
-    else if (!mSSL_Key.empty() && mysql_ssl_set(mPtr, mSSL_Key.c_str(), mSSL_Cert.c_str(), mSSL_CA.c_str(),
+    if (!mSSL_Key.empty() && mysql_ssl_set(mPtr, mSSL_Key.c_str(), mSSL_Cert.c_str(), mSSL_CA.c_str(),
                                                 mSSL_CA_Path.c_str(), mSSL_Cipher.c_str()) != 0)
     {
-        THROW_CURRENT_HND((*this), "Cannot configure SSL");
+        SQMOD_THROW_CURRENT(*this, "Cannot configure SSL");
     }
     // Attempt to connect to the specified server
     else if (!mysql_real_connect(mPtr, mHost.c_str(), mUser.c_str(), mPass.c_str(),
-                            mName.empty() ? nullptr : mName.c_str(), mPort,
-                            mSocket.empty() ? nullptr : mSocket.c_str(), mFlags))
+                            (mName.empty() ? nullptr : mName.c_str()), mPort,
+                            (mSocket.empty() ? nullptr : mSocket.c_str()), mFlags))
     {
-        THROW_CURRENT_HND((*this), "Cannot connect to database");
+        SQMOD_THROW_CURRENT(*this, "Cannot connect to database");
     }
     // Attempt configure the auto-commit option
     else if (mysql_autocommit(mPtr, mAutoCommit) != 0)
     {
-        THROW_CURRENT_HND((*this), "Cannot configure auto-commit");
+        SQMOD_THROW_CURRENT(*this, "Cannot configure auto-commit");
     }
     // Get iterators to the options container
     Account::Options::const_iterator itr = acc.GetOptions().cbegin();
@@ -99,7 +127,7 @@ ConnHnd::Handle::Handle(const Account & acc)
         // Execute the resulted query
         if (Execute(sql.c_str(), static_cast< Ulong >(sql.size())) != 1)
         {
-            THROW_CURRENT_HND((*this), "Unable to apply option");
+            SQMOD_THROW_CURRENT(*this, "Unable to apply option");
         }
     }
     MY_CHARSET_INFO charsetinfo;
@@ -113,13 +141,7 @@ ConnHnd::Handle::Handle(const Account & acc)
 }
 
 // ------------------------------------------------------------------------------------------------
-ConnHnd::Handle::~Handle()
-{
-    Disconnect();
-}
-
-// ------------------------------------------------------------------------------------------------
-void ConnHnd::Handle::Disconnect()
+void ConnHnd::Disconnect()
 {
     if (mPtr != nullptr)
     {
@@ -133,7 +155,7 @@ void ConnHnd::Handle::Disconnect()
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint64 ConnHnd::Handle::Execute(CSStr query, Ulong size)
+Uint64 ConnHnd::Execute(CSStr query, Ulong size)
 {
     // Make sure that we are connected
     if (!mPtr)
@@ -151,10 +173,11 @@ Uint64 ConnHnd::Handle::Execute(CSStr query, Ulong size)
         size = std::strlen(query);
     }
     // Attempt to execute the specified query
-    else if (mysql_query(mPtr, query) != 0)
+    else if (mysql_real_query(mPtr, query, size))
     {
-        THROW_CURRENT_HND((*this), "Unable to execute query");
+        SQMOD_THROW_CURRENT(*this, "Unable to execute query");
     }
+
     // Where the number of affected rows will be stored
     Uint64 affected = 0UL;
     // Count the number of affected rows by any "upsert" statement
@@ -162,6 +185,7 @@ Uint64 ConnHnd::Handle::Execute(CSStr query, Ulong size)
     {
         // Attempt to retrieve a buffered result set from the executed query
         ResType * result = mysql_store_result(mPtr);
+
         // If we have a result, then this was a SELECT statement and we should not count it
         // because it returns the number of selected rows and not modified/affected
         if (result)
@@ -177,15 +201,16 @@ Uint64 ConnHnd::Handle::Execute(CSStr query, Ulong size)
         }
         else
         {
-            THROW_CURRENT_HND((*this), "Unable to count affected rows");
+            SQMOD_THROW_CURRENT(*this, "Unable to count affected rows");
         }
         // Prepare the next result from the executed query
         // If return code is 0 then we have a result ready to process
         const Int32 status = mysql_next_result(mPtr);
+
         // If return code is higher than 0 then an error occurred
         if (status > 0)
         {
-            THROW_CURRENT_HND((*this), "Unable to prepare next result");
+            SQMOD_THROW_CURRENT(*this, "Unable to prepare next result");
         }
         // If return code is less than 0 then there are no results left
         else if (status < 0)

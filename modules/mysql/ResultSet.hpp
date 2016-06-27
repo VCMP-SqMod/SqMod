@@ -2,7 +2,7 @@
 #define _SQMYSQL_RESULTSET_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Handle/Result.hpp"
+#include "Handle/ResultSet.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -15,7 +15,54 @@ class ResultSet
 private:
 
     // --------------------------------------------------------------------------------------------
-    ResHnd  m_Handle; // The managed result set.
+    ResRef  m_Handle; // Reference to the actual database result-set.
+
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void Validate(CCStr file, Int32 line) const;
+#else
+    void Validate() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateCreated(CCStr file, Int32 line) const;
+#else
+    void ValidateCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const ResRef & GetValid(CCStr file, Int32 line) const;
+#else
+    const ResRef & GetValid() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const ResRef & GetCreated(CCStr file, Int32 line) const;
+#else
+    const ResRef & GetCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the statement reference and field index, and throw an error if they're invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateField(Int32 idx, CCStr file, Int32 line) const;
+#else
+    void ValidateField(Int32 idx) const;
+#endif // _DEBUG
 
 public:
 
@@ -29,9 +76,27 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Base constructor.
+     * Connection constructor.
     */
-    ResultSet(const ResHnd & hnd)
+    ResultSet(const ConnRef & conn)
+        : m_Handle(new ResHnd())
+    {
+        m_Handle->Create(conn);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Statement constructor.
+    */
+    ResultSet(const StmtRef & stmt)
+        : m_Handle(new ResHnd())
+    {
+        m_Handle->Create(stmt);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Handle constructor.
+    */
+    ResultSet(const ResRef & hnd)
         : m_Handle(hnd)
     {
         /* ... */
@@ -65,12 +130,35 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const ResultSet & o) const;
+    Int32 Cmp(const ResultSet & o) const
+    {
+        if (m_Handle.Get() == o.m_Handle.Get())
+        {
+            return 0;
+        }
+        else if (m_Handle.Get() > o.m_Handle.Get())
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    CSStr ToString() const
+    {
+        // Do we have a valid handle?
+        if (m_Handle)
+        {
+            ToStrF("%u", m_Handle->mFieldCount);
+        }
+        // Default to a negative value
+        return _SC("-1");
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to retrieve the name from instances of this type.
@@ -139,7 +227,6 @@ public:
      * Retrieve a boolean from a field.
     */
     bool GetBoolean(Uint32 idx) const;
-
 };
 
 } // Namespace:: SqMod

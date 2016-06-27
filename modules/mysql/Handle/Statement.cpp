@@ -10,51 +10,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-void StmtHnd::Validate() const
-{
-    // Is the handle valid?
-    if ((m_Hnd == nullptr) || (m_Hnd->mPtr == nullptr))
-    {
-        STHROWF("Invalid MySQL statement reference");
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void StmtHnd::ValidateIndex(Uint32 idx) const
-{
-    // Is the handle valid?
-    if ((m_Hnd == nullptr) || (m_Hnd->mPtr == nullptr))
-    {
-        STHROWF("Invalid MySQL statement reference");
-    }
-    else if (idx >= m_Hnd->mParams)
-    {
-        STHROWF("Parameter index is out of range: %u >= %lu", idx, m_Hnd->mParams);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void StmtHnd::Handle::ThrowCurrent(CCStr act, CCStr file, Int32 line)
-#else
-    void StmtHnd::Handle::ThrowCurrent(CCStr act)
-#endif // _DEBUG
-{
-    // Grab the error number and message
-    mErrNo = mysql_stmt_errno(mPtr);
-    mErrStr.assign(mysql_stmt_error(mPtr));
-    // Throw the exception with the resulted message
-#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    throw Sqrat::Exception(FmtStr("%s (%u) : %s =>[%s:%d]", act,
-                            mErrNo, mErrStr.c_str(), file, line));
-#else
-    throw Sqrat::Exception(FmtStr("%s (%u) : %s", act,
-                            mErrNo, mErrStr.c_str()));
-#endif // _DEBUG
-}
-
-// ------------------------------------------------------------------------------------------------
-void StmtHnd::Bind::SetInput(enum_field_types type, BindType * bind, CCStr buffer, Ulong length)
+void StmtBind::SetInput(enum_field_types type, BindType * bind, CCStr buffer, Ulong length)
 {
     // Associate the library bind point with our bind wrapper
     mBind = bind;
@@ -138,53 +94,86 @@ void StmtHnd::Bind::SetInput(enum_field_types type, BindType * bind, CCStr buffe
 }
 
 // ------------------------------------------------------------------------------------------------
-StmtHnd::Handle::Handle(const ConnHnd & conn, CSStr query)
-    : mPtr(mysql_stmt_init(conn))
-    , mRef(1)
-    , mErrNo(0)
-    , mParams(0)
-    , mBinds(nullptr)
-    , mMyBinds(nullptr)
-    , mConnection(conn)
-    , mQuery(query ? query : _SC(""))
+void StmtHnd::GrabCurrent()
 {
-    // Validate the obtained statement handle
-    if (!mPtr)
-    {
-        THROW_CURRENT(mConnection, "Cannot initialize statement");
-    }
-    // Attempt to prepare the statement
-    else if (mysql_stmt_prepare(mPtr, mQuery.c_str(), mQuery.size()))
-    {
-        THROW_CURRENT_HND((*this), "Cannot prepare statement");
-    }
-    // Retrieve the amount of parameters supported by this statement
-    mParams = mysql_stmt_param_count(mPtr);
-    // Are there any parameters to allocate?
-    if (mParams <= 0)
-    {
-        return;
-    }
-    // Allocate the necessary structures
-    mBinds = new Bind[mParams];
-    mMyBinds = new BindType[mParams];
-    // Reset the allocated structures
-    std::memset(mBinds, 0, sizeof(Bind) * mParams);
-    std::memset(mMyBinds, 0, sizeof(BindType) * mParams);
+    mErrNo = mysql_stmt_errno(mPtr);
+    mErrStr.assign(mysql_stmt_error(mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
-StmtHnd::Handle::~Handle()
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void StmtHnd::ThrowCurrent(CCStr act, CCStr file, Int32 line)
+{
+    GrabCurrent();
+    // Throw the exception with the resulted message
+    throw Sqrat::Exception(FmtStr("%s (%u) : %s =>[%s:%d]", act,
+                            mErrNo, mErrStr.c_str(), file, line));
+}
+#else
+void StmtHnd::ThrowCurrent(CCStr act)
+{
+    GrabCurrent();
+    // Throw the exception with the resulted message
+    throw Sqrat::Exception(FmtStr("%s (%u) : %s", act,
+                            mErrNo, mErrStr.c_str()));
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void StmtHnd::ValidateParam(Uint32 idx, CCStr file, Int32 line) const
+{
+    // Is the handle valid?
+    if (mPtr == nullptr)
+    {
+        STHROWF("Invalid MySQL statement reference =>[%s:%d]", file, line);
+    }
+    else if (idx >= mParams)
+    {
+        STHROWF("Parameter index is out of range: %u >= %lu =>[%s:%d]", idx, mParams, file, line);
+    }
+}
+#else
+void StmtHnd::ValidateParam(Uint32 idx) const
+{
+    // Is the handle valid?
+    if (mPtr == nullptr)
+    {
+        STHROWF("Invalid MySQL statement reference");
+    }
+    else if (idx >= mParams)
+    {
+        STHROWF("Parameter index is out of range: %u >= %lu", idx, mParams);
+    }
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+StmtHnd::StmtHnd()
+    : mPtr(nullptr)
+    , mErrNo(0)
+    , mErrStr(_SC(""))
+    , mParams(0)
+    , mBinds(nullptr)
+    , mMyBinds(nullptr)
+    , mConnection()
+    , mQuery(_SC(""))
+{
+
+}
+
+// ------------------------------------------------------------------------------------------------
+StmtHnd::~StmtHnd()
 {
     // Should delete native bindings?
     if (mMyBinds)
     {
-        delete [] mMyBinds;
+        delete [] (mMyBinds);
     }
     // Should we delete binding wrappers?
     if (mBinds)
     {
-        delete [] mBinds;
+        delete [] (mBinds);
     }
     // Should we release any statement?
     if (mPtr)
@@ -194,6 +183,67 @@ StmtHnd::Handle::~Handle()
 }
 
 // ------------------------------------------------------------------------------------------------
+void StmtHnd::Create(const ConnRef & conn, CSStr query)
+{
+    // Is this statement already created?
+    if (mPtr != nullptr)
+    {
+        STHROWF("MySQL statement was already created");
+    }
+    // Validate the specified connection handle
+    else if (!conn)
+    {
+        STHROWF("Invalid MySQL connection reference");
+    }
+    else if (conn->mPtr == nullptr)
+    {
+        STHROWF("Invalid MySQL connection");
+    }
+    // Validate the specified query string
+    else if (!query || *query == '\0')
+    {
+        STHROWF("Invalid or empty MySQL query");
+    }
+    // Store the connection handle and query string
+    mConnection = conn;
+    mQuery.assign(query);
+    // Attempt to initialize the statement handle
+    mPtr = mysql_stmt_init(mConnection->mPtr);
+    // Validate the obtained statement handle
+    if (!mPtr)
+    {
+        SQMOD_THROW_CURRENT(*mConnection, "Cannot initialize MySQL statement");
+    }
+    // Attempt to prepare the statement with the given query
+    else if (mysql_stmt_prepare(mPtr, mQuery.c_str(), mQuery.size()))
+    {
+        SQMOD_THROW_CURRENT(*this, "Cannot prepare MySQL statement");
+    }
+    // Retrieve the amount of parameters supported by this statement
+    mParams = mysql_stmt_param_count(mPtr);
+    // Are there any parameters to allocate?
+    if (mParams <= 0)
+    {
+        // We're done here!
+        return;
+    }
+    // Allocate the binding wrappers
+    mBinds = new StmtBind[mParams];
+    // Validate the allocated memory
+    if (!mBinds)
+    {
+        STHROWF("Unable to allocate MySQL bind point wrappers");
+    }
+    // Allocate the binding points
+    mMyBinds = new BindType[mParams];
+    // Validate the allocated memory
+    if (!mMyBinds)
+    {
+        STHROWF("Unable to allocate MySQL bind point structures");
+    }
+    // Reset the allocated points
+    std::memset(mMyBinds, 0, sizeof(BindType) * mParams);
+}
 
 
 } // Namespace:: SqMod

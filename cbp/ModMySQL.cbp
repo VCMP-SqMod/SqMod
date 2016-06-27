@@ -448,8 +448,8 @@
 		<Unit filename="../modules/mysql/Connection.hpp" />
 		<Unit filename="../modules/mysql/Handle/Connection.cpp" />
 		<Unit filename="../modules/mysql/Handle/Connection.hpp" />
-		<Unit filename="../modules/mysql/Handle/Result.cpp" />
-		<Unit filename="../modules/mysql/Handle/Result.hpp" />
+		<Unit filename="../modules/mysql/Handle/ResultSet.cpp" />
+		<Unit filename="../modules/mysql/Handle/ResultSet.hpp" />
 		<Unit filename="../modules/mysql/Handle/Statement.cpp" />
 		<Unit filename="../modules/mysql/Handle/Statement.hpp" />
 		<Unit filename="../modules/mysql/Module.cpp" />
@@ -461,6 +461,8 @@
 		<Unit filename="../modules/mysql/Statement.hpp" />
 		<Unit filename="../modules/mysql/Transaction.cpp" />
 		<Unit filename="../modules/mysql/Transaction.hpp" />
+		<Unit filename="../modules/mysql/Wrapper/CharsetInfo.cpp" />
+		<Unit filename="../modules/mysql/Wrapper/CharsetInfo.hpp" />
 		<Unit filename="../shared/Base/Buffer.cpp" />
 		<Unit filename="../shared/Base/Buffer.hpp" />
 		<Unit filename="../shared/Base/Module.cpp" />

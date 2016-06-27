@@ -19,135 +19,170 @@ SQInteger Statement::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Statement::Cmp(const Statement & o) const
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void Statement::Validate(CCStr file, Int32 line) const
 {
-    if (m_Handle == o.m_Handle)
+    if (!m_Handle)
     {
-        return 0;
-    }
-    else if (m_Handle.HndPtr() > o.m_Handle.HndPtr())
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
+        SqThrowF("Invalid MySQL statement reference =>[%s:%d]", file, line);
     }
 }
+#else
+void Statement::Validate() const
+{
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid MySQL statement reference");
+    }
+}
+#endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-CSStr Statement::ToString() const
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void Statement::ValidateCreated(CCStr file, Int32 line) const
 {
-    // Do we have a valid handle?
-    if (m_Handle)
+    if (!m_Handle)
     {
-        m_Handle->mQuery.c_str();
+        SqThrowF("Invalid MySQL statement reference =>[%s:%d]", file, line);
     }
-    // Default to an empty string
-    return _SC("");
+    else if (m_Handle->mPtr == nullptr)
+    {
+        SqThrowF("Invalid MySQL statement =>[%s:%d]", file, line);
+    }
 }
+#else
+void Statement::ValidateCreated() const
+{
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid MySQL statement reference");
+    }
+    else if (m_Handle->mPtr == nullptr)
+    {
+        SqThrowF("Invalid MySQL statement");
+    }
+}
+#endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-Statement::Statement()
-    : m_Handle()
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+const StmtRef & Statement::GetValid(CCStr file, Int32 line) const
 {
-
+    Validate(file, line);
+    return m_Handle;
 }
+#else
+const StmtRef & Statement::GetValid() const
+{
+    Validate();
+    return m_Handle;
+}
+#endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-Statement::Statement(const ConnHnd & connection, CSStr query)
-    : m_Handle(connection, query)
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+const StmtRef & Statement::GetCreated(CCStr file, Int32 line) const
 {
-
+    ValidateCreated(file, line);
+    return m_Handle;
 }
+#else
+const StmtRef & Statement::GetCreated() const
+{
+    ValidateCreated();
+    return m_Handle;
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void Statement::ValidateParam(Int32 idx, CCStr file, Int32 line) const
+{
+    ValidateCreated(file, line);
+    m_Handle->ValidateParam(idx, file, line);
+}
+#else
+void Statement::ValidateParam(Int32 idx) const
+{
+    ValidateCreated();
+    m_Handle->ValidateParam(idx);
+}
+#endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
 Statement::Statement(const Connection & connection, CSStr query)
-    : m_Handle(connection.GetHnd(), query)
+    : Statement(connection.GetHandle(), query)
 {
-
+    /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 Connection Statement::GetConnection() const
 {
-    // Validate the managed handle
-    m_Handle.Validate();
-    // Return the requested information
-    return Connection(m_Handle->mConnection);
+    return Connection(SQMOD_GET_VALID(*this)->mConnection);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Statement::SetConnection(const Connection & conn)
 {
-    // Validate the managed handle
-    m_Handle.Validate();
-    // Perform the requested operation
-    m_Handle->mConnection = conn.GetHnd();
+    SQMOD_GET_VALID(*this)->mConnection = conn.GetHandle();
 }
 
 // ------------------------------------------------------------------------------------------------
 Int32 Statement::Execute()
 {
-    // Validate the managed handle
-    m_Handle.Validate();
     // Attempt to bind the parameters
-    if (mysql_stmt_bind_param(m_Handle, m_Handle->mMyBinds))
+    if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->mPtr, m_Handle->mMyBinds))
     {
-        THROW_CURRENT(m_Handle, "Cannot bind statement parameters");
+        SQMOD_THROW_CURRENT(*m_Handle, "Cannot bind MySQL statement parameters");
     }
     // Attempt to execute the statement
-    else if (mysql_stmt_execute(m_Handle))
+    else if (mysql_stmt_execute(m_Handle->mPtr))
     {
-        THROW_CURRENT(m_Handle, "Cannot execute statement");
+        SQMOD_THROW_CURRENT(*m_Handle, "Cannot execute MySQL statement");
     }
     // Return the number of rows affected by this query
-    return mysql_stmt_affected_rows(m_Handle);
+    return mysql_stmt_affected_rows(m_Handle->mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
 Uint32 Statement::Insert()
 {
-    // Validate the managed handle
-    m_Handle.Validate();
     // Attempt to bind the parameters
-    if (mysql_stmt_bind_param(m_Handle, m_Handle->mMyBinds))
+    if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->mPtr, m_Handle->mMyBinds))
     {
-        THROW_CURRENT(m_Handle, "Cannot bind statement parameters");
+        SQMOD_THROW_CURRENT(*m_Handle, "Cannot bind MySQL statement parameters");
     }
     // Attempt to execute the statement
-    else if (mysql_stmt_execute(m_Handle))
+    else if (mysql_stmt_execute(m_Handle->mPtr))
     {
-        THROW_CURRENT(m_Handle, "Cannot execute statement");
+        SQMOD_THROW_CURRENT(*m_Handle, "Cannot execute MySQL statement");
     }
     // Return the identifier of the inserted row
-    return mysql_stmt_insert_id(m_Handle);
+    return mysql_stmt_insert_id(m_Handle->mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
 ResultSet Statement::Query()
 {
-    // Validate the managed handle
-    m_Handle.Validate();
     // Attempt to bind the parameters
-    if (mysql_stmt_bind_param(m_Handle, m_Handle->mMyBinds))
+    if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->mPtr, m_Handle->mMyBinds))
     {
-        THROW_CURRENT(m_Handle, "Cannot bind statement parameters");
+        SQMOD_THROW_CURRENT(*m_Handle, "Cannot bind MySQL statement parameters");
     }
     // Attempt to execute the statement
-    else if (mysql_stmt_execute(m_Handle))
+    else if (mysql_stmt_execute(m_Handle->mPtr))
     {
-        THROW_CURRENT(m_Handle, "Cannot execute statement");
+        SQMOD_THROW_CURRENT(*m_Handle, "Cannot execute MySQL statement");
     }
     // Return the results of this query
-    return ResultSet(ResHnd(m_Handle));
+    return ResultSet(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Statement::SetInt8(Uint32 idx, SQInteger val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_TINY, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -157,8 +192,7 @@ void Statement::SetInt8(Uint32 idx, SQInteger val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetUint8(Uint32 idx, SQInteger val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_TINY, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -170,8 +204,7 @@ void Statement::SetUint8(Uint32 idx, SQInteger val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetInt16(Uint32 idx, SQInteger val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_SHORT, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -181,8 +214,7 @@ void Statement::SetInt16(Uint32 idx, SQInteger val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetUint16(Uint32 idx, SQInteger val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_SHORT, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -194,8 +226,7 @@ void Statement::SetUint16(Uint32 idx, SQInteger val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetInt32(Uint32 idx, SQInteger val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONG, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -205,8 +236,7 @@ void Statement::SetInt32(Uint32 idx, SQInteger val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetUint32(Uint32 idx, SQInteger val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONG, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -218,8 +248,7 @@ void Statement::SetUint32(Uint32 idx, SQInteger val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetInt64(Uint32 idx, SQInteger val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONGLONG, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -229,8 +258,7 @@ void Statement::SetInt64(Uint32 idx, SQInteger val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetUint64(Uint32 idx, SQInteger val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONGLONG, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -242,39 +270,23 @@ void Statement::SetUint64(Uint32 idx, SQInteger val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetSLongInt(Uint32 idx, Object & val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONGLONG, &(m_Handle->mMyBinds[idx]));
-    // Obtain the initial stack size
-    const StackGuard sg;
-    // Push the specified object onto the stack
-    Var< Object >::push(_SqVM, val);
-    // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(_SqMod->GetSLongValue(_SqVM, -1, &(m_Handle->mBinds[idx].mInt64))))
-    {
-        STHROWF("Invalid long integer specified");
-    }
+    // Attempt to assign the numeric value inside the specified object
+    m_Handle->mBinds[idx].mInt64 = FetchSLongObjVal(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Statement::SetULongInt(Uint32 idx, Object & val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONGLONG, &(m_Handle->mMyBinds[idx]));
+    // Attempt to assign the numeric value inside the specified object
+    m_Handle->mBinds[idx].mUint64 = FetchULongObjVal(val);
     // Specify that this value is unsigned
     m_Handle->mMyBinds[idx].is_unsigned = true;
-    // Obtain the initial stack size
-    const StackGuard sg;
-    // Push the specified object onto the stack
-    Var< Object >::push(_SqVM, val);
-    // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(_SqMod->GetULongValue(_SqVM, -1, &(m_Handle->mBinds[idx].mUint64))))
-    {
-        STHROWF("Invalid long integer specified");
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -290,8 +302,7 @@ void Statement::SetInteger(Uint32 idx, SQInteger val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetFloat32(Uint32 idx, SQFloat val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_FLOAT, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -301,8 +312,7 @@ void Statement::SetFloat32(Uint32 idx, SQFloat val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetFloat64(Uint32 idx, SQFloat val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_DOUBLE, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -322,8 +332,7 @@ void Statement::SetFloat(Uint32 idx, SQFloat val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetBoolean(Uint32 idx, bool val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_TINY, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -333,8 +342,7 @@ void Statement::SetBoolean(Uint32 idx, bool val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetDate(Uint32 idx, Object & val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_DATE, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -344,8 +352,7 @@ void Statement::SetDate(Uint32 idx, Object & val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetTime(Uint32 idx, Object & val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_TIME, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -355,8 +362,7 @@ void Statement::SetTime(Uint32 idx, Object & val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetDatetime(Uint32 idx, Object & val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_DATETIME, &(m_Handle->mMyBinds[idx]));
     // Assign the value to the input
@@ -366,8 +372,7 @@ void Statement::SetDatetime(Uint32 idx, Object & val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetString(Uint32 idx, CSStr val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_STRING, &(m_Handle->mMyBinds[idx]), val, std::strlen(val));
 }
@@ -375,8 +380,7 @@ void Statement::SetString(Uint32 idx, CSStr val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetEnum(Uint32 idx, CSStr val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_ENUM, &(m_Handle->mMyBinds[idx]), val, std::strlen(val));
 }
@@ -384,8 +388,7 @@ void Statement::SetEnum(Uint32 idx, CSStr val) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetSet(Uint32 idx, CSStr val) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_SET, &(m_Handle->mMyBinds[idx]), val, std::strlen(val));
 }
@@ -405,10 +408,57 @@ void Statement::SetData(Uint32 /*idx*/, Object & /*val*/) const
 // ------------------------------------------------------------------------------------------------
 void Statement::SetNull(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_NULL, &(m_Handle->mMyBinds[idx]));
+}
+
+// ================================================================================================
+void Register_Statement(Table & sqlns)
+{
+    sqlns.Bind(_SC("Statement")
+        , Class< Statement >(sqlns.GetVM(), _SC("SqMySQLStatement"))
+        // Constructors
+        .Ctor()
+        .Ctor< const Statement & >()
+        .Ctor< const Connection &, CSStr >()
+        // Core Meta-methods
+        .Func(_SC("_cmp"), &Statement::Cmp)
+        .SquirrelFunc(_SC("_typename"), &Statement::Typename)
+        .Func(_SC("_tostring"), &Statement::ToString)
+        // Properties
+        .Prop(_SC("IsValid"), &Statement::IsValid)
+        .Prop(_SC("Connection"), &Statement::GetConnection, &Statement::SetConnection)
+        // Member Methods
+        .Func(_SC("Execute"), &Statement::Execute)
+        .Func(_SC("Insert"), &Statement::Insert)
+        .Func(_SC("Query"), &Statement::Query)
+        .Func(_SC("SetInt8"), &Statement::SetInt8)
+        .Func(_SC("SetUint8"), &Statement::SetUint8)
+        .Func(_SC("SetInt16"), &Statement::SetInt16)
+        .Func(_SC("SetUint16"), &Statement::SetUint16)
+        .Func(_SC("SetInt32"), &Statement::SetInt32)
+        .Func(_SC("SetUint32"), &Statement::SetUint32)
+        .Func(_SC("SetInt64"), &Statement::SetInt64)
+        .Func(_SC("SetUint64"), &Statement::SetUint64)
+        .Func(_SC("SetSLongInt"), &Statement::SetSLongInt)
+        .Func(_SC("SetULongInt"), &Statement::SetULongInt)
+        .Func(_SC("SetInteger"), &Statement::SetInteger)
+        .Func(_SC("SetFloat32"), &Statement::SetFloat32)
+        .Func(_SC("SetFloat64"), &Statement::SetFloat64)
+        .Func(_SC("SetFloat"), &Statement::SetFloat)
+        .Func(_SC("SetBoolean"), &Statement::SetBoolean)
+        .Func(_SC("SetDate"), &Statement::SetDate)
+        .Func(_SC("SetTime"), &Statement::SetTime)
+        .Func(_SC("SetDatetime"), &Statement::SetDatetime)
+        .Func(_SC("SetString"), &Statement::SetString)
+        .Func(_SC("SetEnum"), &Statement::SetEnum)
+        .Func(_SC("SetSet"), &Statement::SetSet)
+        .Func(_SC("SetBlob"), &Statement::SetBlob)
+        .Func(_SC("SetData"), &Statement::SetData)
+        .Func(_SC("SetBuffer"), &Statement::SetData)
+        .Func(_SC("SetNull"), &Statement::SetNull)
+    );
 }
 
 } // Namespace:: SqMod

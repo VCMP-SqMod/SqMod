@@ -15,19 +15,74 @@ class Statement
 private:
 
     // --------------------------------------------------------------------------------------------
-    StmtHnd m_Handle; // Reference to the managed statement.
+    StmtRef m_Handle; // Reference to the actual database statement.
+
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void Validate(CCStr file, Int32 line) const;
+#else
+    void Validate() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateCreated(CCStr file, Int32 line) const;
+#else
+    void ValidateCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const StmtRef & GetValid(CCStr file, Int32 line) const;
+#else
+    const StmtRef & GetValid() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const StmtRef & GetCreated(CCStr file, Int32 line) const;
+#else
+    const StmtRef & GetCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the statement reference and parameter index, and throw an error if they're invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateParam(Int32 idx, CCStr file, Int32 line) const;
+#else
+    void ValidateParam(Int32 idx) const;
+#endif // _DEBUG
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Statement();
+    Statement()
+        : m_Handle()
+    {
+        /* ... */
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const ConnHnd & connection, CSStr query);
+    Statement(const ConnRef & connection, CSStr query)
+        : m_Handle(new StmtHnd())
+    {
+        m_Handle->Create(connection, query);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
@@ -45,11 +100,6 @@ public:
     Statement(Statement && o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~Statement() = default;
-
-    /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
     Statement & operator = (const Statement & o) = default;
@@ -62,17 +112,48 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Statement & o) const;
+    Int32 Cmp(const Statement & o) const
+    {
+        if (m_Handle.Get() == o.m_Handle.Get())
+        {
+            return 0;
+        }
+        else if (m_Handle.Get() > o.m_Handle.Get())
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    const String & ToString() const
+    {
+        // Do we have a valid handle?
+        if (m_Handle)
+        {
+            m_Handle->mQuery;
+        }
+        // Default to an empty string
+        return NullString();
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to retrieve the name from instances of this type.
     */
     static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated connection handle.
+    */
+    const StmtRef & GetHandle() const
+    {
+        return m_Handle;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed handle is valid.

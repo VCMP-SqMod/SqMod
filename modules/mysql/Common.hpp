@@ -27,22 +27,45 @@ namespace SqMod {
  * Handle validation.
 */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    #define THROW_CURRENT(x, a) x.GetHnd().ThrowCurrent(a, __FILE__, __LINE__)
-    #define THROW_CURRENT_HND(x, a) x.ThrowCurrent(a, __FILE__, __LINE__)
+    #define SQMOD_THROW_CURRENT(x, a)       (x).ThrowCurrent(a, __FILE__, __LINE__)
+    #define SQMOD_VALIDATE(x)               (x).Validate(__FILE__, __LINE__)
+    #define SQMOD_VALIDATE_CREATED(x)       (x).ValidateCreated(__FILE__, __LINE__)
+    #define SQMOD_VALIDATE_PARAM(x, i)      (x).ValidateParam((i), __FILE__, __LINE__)
+    #define SQMOD_VALIDATE_FIELD(x, i)      (x).ValidateField((i), __FILE__, __LINE__)
+    #define SQMOD_GET_VALID(x)              (x).GetValid(__FILE__, __LINE__)
+    #define SQMOD_GET_CREATED(x)            (x).GetCreated(__FILE__, __LINE__)
 #else
-    #define THROW_CURRENT(x, a) x.GetHnd().ThrowCurrent(a)
-    #define THROW_CURRENT_HND(x, a) x.ThrowCurrent(a)
+    #define SQMOD_THROW_CURRENT(x, a)       (x).ThrowCurrent(a)
+    #define SQMOD_VALIDATE(x)               (x).Validate()
+    #define SQMOD_VALIDATE_CREATED(x)       (x).ValidateCreated()
+    #define SQMOD_VALIDATE_PARAM(x, i)      (x).ValidateParam((i))
+    #define SQMOD_VALIDATE_FIELD(x, i)      (x).ValidateField((i))
+    #define SQMOD_VALIDATE_ROW(x)           (x).ValidateRow()
+    #define SQMOD_GET_VALID(x)              (x).GetValid()
+    #define SQMOD_GET_CREATED(x)            (x).GetCreated()
 #endif // _DEBUG
 
 /* ------------------------------------------------------------------------------------------------
  * Forward declarations.
 */
+struct ConnHnd;
+struct StmtHnd;
+struct ResHnd;
+
+// ------------------------------------------------------------------------------------------------
 class Account;
 class Column;
 class Connection;
 class ResultSet;
 class Statement;
 class Transaction;
+
+/* ------------------------------------------------------------------------------------------------
+ * Common typedefs.
+*/
+typedef SharedPtr< ConnHnd > ConnRef;
+typedef SharedPtr< StmtHnd > StmtRef;
+typedef SharedPtr< ResHnd > ResRef;
 
 /* ------------------------------------------------------------------------------------------------
  * Replicate the values of a script Date type to a database time type.

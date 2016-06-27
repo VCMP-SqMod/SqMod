@@ -15,7 +15,45 @@ class Connection
 private:
 
     // --------------------------------------------------------------------------------------------
-    ConnHnd         m_Handle; // Handle to the actual database connection.
+    ConnRef     m_Handle; // Reference to the actual database connection.
+
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed connection handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void Validate(CCStr file, Int32 line) const;
+#else
+    void Validate() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed connection handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateCreated(CCStr file, Int32 line) const;
+#else
+    void ValidateCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed connection handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const ConnRef & GetValid(CCStr file, Int32 line) const;
+#else
+    const ConnRef & GetValid() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed connection handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const ConnRef & GetCreated(CCStr file, Int32 line) const;
+#else
+    const ConnRef & GetCreated() const;
+#endif // _DEBUG
 
 public:
 
@@ -32,15 +70,15 @@ public:
      * Base constructor.
     */
     Connection(const Account & acc)
-        : m_Handle(acc)
+        : m_Handle(new ConnHnd())
     {
-        /* ... */
+        m_Handle->Create(acc);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Connection(const ConnHnd & conn)
+    Connection(const ConnRef & conn)
         : m_Handle(conn)
     {
         /* ... */
@@ -57,14 +95,6 @@ public:
     Connection(Connection && o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~Connection()
-    {
-        // Let the handle deal with closing the connection if necessary
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
     Connection & operator = (const Connection & o) = default;
@@ -77,17 +107,42 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Connection & o) const;
+    Int32 Cmp(const Connection & o) const
+    {
+        if (m_Handle.Get() == o.m_Handle.Get())
+        {
+            return 0;
+        }
+        else if (m_Handle.Get() > o.m_Handle.Get())
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    CSStr ToString() const
+    {
+        return m_Handle ? mysql_get_host_info(m_Handle->mPtr) : _SC("");
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to retrieve the name from instances of this type.
     */
     static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated connection handle.
+    */
+    const ConnRef & GetHandle() const
+    {
+        return m_Handle;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed handle is valid.
@@ -98,80 +153,43 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the managed connection handle and throw exception if it doesn't exist.
+     * See whether the managed connection handle was connected.
     */
-    void Validate() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the managed connection handle.
-    */
-    operator ConnHnd & ()
+    bool IsConnected() const
     {
-        return m_Handle;
+        return m_Handle && (m_Handle->mPtr != nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the managed connection handle.
+     * Return the number of active references to this connection handle.
     */
-    operator const ConnHnd & () const
+    Uint32 GetRefCount() const
     {
-        return m_Handle;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the managed connection handle.
-    */
-    ConnHnd & GetHnd()
-    {
-        return m_Handle;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the managed connection handle.
-    */
-    const ConnHnd & GetHnd() const
-    {
-        return m_Handle;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether a successful connection was made or not.
-    */
-    bool Connected() const
-    {
-        return m_Handle;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Disconnect from the currently connected database.
-    */
-    void Disconnect()
-    {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Perform the requested operation
-        m_Handle->Disconnect();
+        return m_Handle.Count();
     }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current error number.
     */
-    SQInteger GetErrNo() const;
+    SQInteger GetErrNo() const
+    {
+        return static_cast< SQInteger >(mysql_errno(SQMOD_GET_CREATED(*this)->mPtr));
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current error message.
     */
-    CSStr GetErrStr() const;
+    CSStr GetErrStr() const
+    {
+        return mysql_error(SQMOD_GET_CREATED(*this)->mPtr);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last received error number.
     */
     SQInteger GetLastErrNo() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return static_cast< SQInteger >(m_Handle->mErrNo);
+        return static_cast< SQInteger >(SQMOD_GET_VALID(*this)->mErrNo);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -179,10 +197,7 @@ public:
     */
     const String & GetLastErrStr() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mErrStr;
+        return SQMOD_GET_VALID(*this)->mErrStr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -190,10 +205,7 @@ public:
     */
     SQInteger GetPortNum() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return static_cast< SQInteger >(m_Handle->mPort);
+        return static_cast< SQInteger >(SQMOD_GET_VALID(*this)->mPort);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -201,10 +213,7 @@ public:
     */
     const String & GetHost() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mHost;
+        return SQMOD_GET_VALID(*this)->mHost;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -212,10 +221,7 @@ public:
     */
     const String & GetUser() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mUser;
+        return SQMOD_GET_VALID(*this)->mUser;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -223,10 +229,7 @@ public:
     */
     const String & GetPass() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mPass;
+        return SQMOD_GET_VALID(*this)->mPass;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -234,26 +237,34 @@ public:
     */
     const String & GetName() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mName;
+        return SQMOD_GET_VALID(*this)->mName;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the selected database name.
     */
-    void SetName(CSStr name);
+    void SetName(CSStr name)
+    {
+        // Validate the specified name
+        if (!name)
+        {
+            STHROWF("Invalid MySQL database name");
+        }
+        // Attempt to select the database with the given name
+        else if (mysql_select_db(SQMOD_GET_CREATED(*this)->mPtr, name) != 0)
+        {
+            SQMOD_THROW_CURRENT(*m_Handle, "Cannot select MySQL database");
+        }
+        // Remember the database name
+        m_Handle->mName.assign(name);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the connection socket.
     */
     const String & GetSocket() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mSocket;
+        return SQMOD_GET_VALID(*this)->mSocket;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -261,10 +272,7 @@ public:
     */
     SQInteger GetFlags() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return static_cast< SQInteger >(m_Handle->mFlags);
+        return static_cast< SQInteger >(SQMOD_GET_VALID(*this)->mFlags);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -272,10 +280,7 @@ public:
     */
     const String & GetSSL_Key() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mSSL_Key;
+        return SQMOD_GET_VALID(*this)->mSSL_Key;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -283,10 +288,7 @@ public:
     */
     const String & GetSSL_Cert() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mSSL_Cert;
+        return SQMOD_GET_VALID(*this)->mSSL_Cert;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -294,10 +296,7 @@ public:
     */
     const String & GetSSL_CA() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mSSL_CA;
+        return SQMOD_GET_VALID(*this)->mSSL_CA;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -305,10 +304,7 @@ public:
     */
     const String & GetSSL_CA_Path() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mSSL_CA_Path;
+        return SQMOD_GET_VALID(*this)->mSSL_CA_Path;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -316,10 +312,7 @@ public:
     */
     const String & GetSSL_Cipher() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mSSL_Cipher;
+        return SQMOD_GET_VALID(*this)->mSSL_Cipher;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -327,48 +320,76 @@ public:
     */
     const String & GetCharset() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mCharset;
+        return SQMOD_GET_VALID(*this)->mCharset;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the default character set for the managed connection.
     */
-    void SetCharset(CSStr charset);
+    void SetCharset(CSStr charset)
+    {
+        // Validate the specified string
+        if (!charset)
+        {
+            STHROWF("Invalid charset string");
+        }
+        // Attempt to Set the default character set for the managed connection
+        else if (mysql_set_character_set(SQMOD_GET_CREATED(*this)->mPtr, charset) != 0)
+        {
+            SQMOD_THROW_CURRENT(*m_Handle, "Cannot apply character set");
+        }
+        // Remember the character set
+        m_Handle->mCharset.assign(charset);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * See whether auto-commit is enabled or not.
     */
     bool GetAutoCommit() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mAutoCommit;
+        return SQMOD_GET_VALID((*this))->mAutoCommit;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Set whether auto-commit should be enabled or not.
     */
-    void SetAutoCommit(bool toggle);
+    void SetAutoCommit(bool toggle)
+    {
+        // Attempt to toggle auto-commit if necessary
+        if (SQMOD_GET_CREATED(*this)->mAutoCommit != toggle &&
+            mysql_autocommit(m_Handle->mPtr, toggle) != 0)
+        {
+            SQMOD_THROW_CURRENT(*m_Handle, "Cannot toggle auto-commit");
+        }
+        else
+        {
+            m_Handle->mAutoCommit = toggle;
+        }
+    }
 
     /* --------------------------------------------------------------------------------------------
      * See whether the connection is in the middle of a transaction.
     */
     bool GetInTransaction() const
     {
-        // Validate the managed handle
-        m_Handle.Validate();
-        // Return the requested information
-        return m_Handle->mInTransaction;
+        return SQMOD_GET_VALID(*this)->mInTransaction;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Disconnect from the currently connected database.
+    */
+    void Disconnect()
+    {
+        SQMOD_GET_CREATED(*this)->Disconnect();
     }
 
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    Object Execute(CSStr query);
+    Object Execute(CSStr query)
+    {
+        return MakeULongObj(SQMOD_GET_CREATED(*this)->Execute(query));
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.

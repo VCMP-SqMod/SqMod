@@ -8,8 +8,8 @@
 		<Project filename="ModXML.cbp" />
 		<Project filename="ModJSON.cbp" />
 		<Project filename="ModSQLite.cbp" />
-		<Project filename="ModMMDB.cbp" />
 		<Project filename="ModMySQL.cbp" />
+		<Project filename="ModMMDB.cbp" />
 		<Project filename="ModMongoose.cbp" />
 		<Project filename="ModSample.cbp" />
 	</Workspace>

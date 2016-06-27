@@ -169,6 +169,9 @@ void UnbindCallbacks()
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_Account(Table & sqlns);
+extern void Register_Connection(Table & sqlns);
+extern void Register_ResultSet(Table & sqlns);
+extern void Register_Statement(Table & sqlns);
 
 // ------------------------------------------------------------------------------------------------
 void RegisterAPI(HSQUIRRELVM vm)
@@ -176,6 +179,9 @@ void RegisterAPI(HSQUIRRELVM vm)
     Table sqlns(vm);
 
     Register_Account(sqlns);
+    Register_Connection(sqlns);
+    Register_ResultSet(sqlns);
+    Register_Statement(sqlns);
 
     RootTable(vm).Bind(_SC("SqMySQL"), sqlns);
 }

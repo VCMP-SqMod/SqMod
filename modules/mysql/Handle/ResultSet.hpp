@@ -1,22 +1,25 @@
-#ifndef _SQMYSQL_HANDLE_STATEMENT_HPP_
-#define _SQMYSQL_HANDLE_STATEMENT_HPP_
+#ifndef _SQMYSQL_HANDLE_RESULTSET_HPP_
+#define _SQMYSQL_HANDLE_RESULTSET_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Handle/Connection.hpp"
+#include "Handle/Statement.hpp"
 #include "Base/Buffer.hpp"
+
+// ------------------------------------------------------------------------------------------------
+#include <unordered_map>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * The structure that holds the data associated with a certain bind point.
+ * The structure that holds the data associated with a certain field.
 */
-struct StmtBind
+struct ResBind
 {
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef MYSQL_STMT      Type; // The managed type.
+    typedef MYSQL_RES       Type; // The managed type.
 
     // --------------------------------------------------------------------------------------------
     typedef Type*           Pointer; // Pointer to the managed type.
@@ -27,27 +30,32 @@ public:
     typedef const Type&     ConstRef; // Constant reference to the managed type.
 
     // --------------------------------------------------------------------------------------------
+    typedef MYSQL_FIELD     FieldType; // Database field type.
     typedef MYSQL_BIND      BindType; // Database bind type.
     typedef MYSQL_TIME      TimeType; // Database time type.
+    typedef MYSQL_ROW       RowType; // Database row type.
     typedef my_bool         BoolType; // Database boolean type.
+
+    // --------------------------------------------------------------------------------------------
+    typedef std::unordered_map< String, Uint32 > IndexMap;
 
 public:
 
     // --------------------------------------------------------------------------------------------
-    BoolType        mIsNull; // Allows the database to specify if the parameter is null.
-    BoolType        mError; // Allows the database if errors occured on this parameter.
-    Buffer          mData; // Buffer to store non fundamental data for the parameter.
+    BoolType        mIsNull; // Allows the database to specify if the field is null.
+    BoolType        mError; // Allows the database if errors occured on this field.
+    Buffer          mData; // Buffer to store non fundamental data for the field.
     BindType *      mBind; // The associated database bind point handle.
-    TimeType        mTime; // Structure used to store time data from database.
+    TimeType        mTime; // Structure used to retrieve time data from database.
 
     // --------------------------------------------------------------------------------------------
     union
     {
-        Uint64      mUint64; // Store unsigned integer values for the parameter.
-        Int64       mInt64; // Store signed integer values for the parameter.
-        Int32       mInt32[2]; // Store 32 bit signed integer values for the parameter.
-        Float64     mFloat64; // Store 32 bit floating point values for the parameter.
-        Float32     mFloat32[2]; // Store 64 bit floating point values for the parameter.
+        Uint64      mUint64; // Retrieve unsigned integer values from a field.
+        Int64       mInt64; // Retrieve signed integer values from a field.
+        Int32       mInt32[2]; // Retrieve 32 bit signed integer values from a field.
+        Float64     mFloat64; // Retrieve 32 bit floating point values from a field.
+        Float32     mFloat32[2]; // Retrieve 64 bit floating point values from the field.
     };
 
 public:
@@ -55,7 +63,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    StmtBind()
+    ResBind()
         : mIsNull(0), mError(0), mData(), mBind(nullptr), mTime(), mUint64(0)
     {
         /* ... */
@@ -64,22 +72,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    StmtBind(const StmtBind & o) = delete;
+    ResBind(const ResBind & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor. (disabled)
     */
-    StmtBind(StmtBind && o) = delete;
+    ResBind(ResBind && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    StmtBind & operator = (const StmtBind & o) = delete;
+    ResBind & operator = (const ResBind & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator. (disabled)
     */
-    StmtBind & operator = (StmtBind && o) = delete;
+    ResBind & operator = (ResBind && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the used buffer.
@@ -94,24 +102,24 @@ public:
     */
     Ulong GetLength() const
     {
-        return (mBind == nullptr) ? 0 : mBind->buffer_length;
+        return mBind == nullptr ? 0 : mBind->buffer_length;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Configure the input of a certain statement parameter.
+     * Configure the output to match the requirements of a certain field.
     */
-    void SetInput(enum_field_types type, BindType * bind, CCStr buffer = nullptr, Ulong length = 0);
+    void SetOutput(const FieldType & field, BindType * bind);
 };
 
 /* ------------------------------------------------------------------------------------------------
- * The structure that holds the data associated with a certain statement handle.
+ * The structure that holds the data associated with a certain result-set handle.
 */
-struct StmtHnd
+struct ResHnd
 {
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef MYSQL_STMT      Type; // The managed type.
+    typedef MYSQL_RES       Type; // The managed type.
 
     // --------------------------------------------------------------------------------------------
     typedef Type*           Pointer; // Pointer to the managed type.
@@ -122,45 +130,52 @@ public:
     typedef const Type&     ConstRef; // Constant reference to the managed type.
 
     // --------------------------------------------------------------------------------------------
+    typedef MYSQL_FIELD     FieldType; // Database field type.
     typedef MYSQL_BIND      BindType; // Database bind type.
     typedef MYSQL_TIME      TimeType; // Database time type.
+    typedef MYSQL_ROW       RowType; // Database row type.
     typedef my_bool         BoolType; // Database boolean type.
+
+    // --------------------------------------------------------------------------------------------
+    typedef std::unordered_map< String, Uint32 > IndexMap; // Name to index association of fields.
 
 public:
 
     // --------------------------------------------------------------------------------------------
-    Pointer         mPtr; // The managed statement handle.
+    Pointer         mPtr; // The managed result-set handle.
 
     // --------------------------------------------------------------------------------------------
-    Uint32          mErrNo; // Last received error string.
-    String          mErrStr; // Last received error message.
+    Uint32          mFieldCount; // Number of fields in the result-set.
+    Ulong *         mLengths; // Data length when the result-set came from a connection.
+    FieldType *     mFields; // Fields in the results set.
+    ResBind *       mBinds; // Bind wrappers.
+    BindType *      mMyBinds; // Bind points.
+    RowType         mRow; // Row data.
 
     // --------------------------------------------------------------------------------------------
-    Ulong           mParams; // Number of parameters in the statement.
-    StmtBind *      mBinds; // List of parameter binds.
-    BindType *      mMyBinds; // List of parameter binds.
+    ConnRef         mConnection; // Associated connection.
+    StmtRef         mStatement; // Associated statement.
+    IndexMap        mIndexes; // Field names and their associated index.
 
-    // --------------------------------------------------------------------------------------------
-    ConnRef         mConnection; // Reference to the associated connection.
-    String          mQuery; // The query string.
+public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    StmtHnd();
+    ResHnd();
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~StmtHnd();
+    ~ResHnd();
 
     /* --------------------------------------------------------------------------------------------
-     * Grab the current error in the associated statement handle.
+     * Grab the current error in the associated statement or connection handle.
     */
     void GrabCurrent();
 
     /* --------------------------------------------------------------------------------------------
-     * Grab the current error in the associated statement handle and throw it.
+     * Grab the current error in the associated statement or connection handle and throw it.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
     void ThrowCurrent(CCStr act, CCStr file, Int32 line);
@@ -169,21 +184,26 @@ public:
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the associated statement handle and parameter index and throw an error if invalid.
+     * Validate the statement handle and field index and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void ValidateParam(Uint32 idx, CCStr file, Int32 line) const;
+    void ValidateField(Uint32 idx, CCStr file, Int32 line) const;
 #else
-    void ValidateParam(Uint32 idx) const;
+    void ValidateField(Uint32 idx) const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
-     * Create the actual statement.
+     * Create the result-set from a Connection.
     */
-    void Create(const ConnRef & conn, CSStr query);
+    void Create(const ConnRef & conn);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create the result-set from a Statement.
+    */
+    void Create(const StmtRef & stmt);
 };
 
 
 } // Namespace:: SqMod
 
-#endif // _SQMYSQL_HANDLE_STATEMENT_HPP_
+#endif // _SQMYSQL_HANDLE_RESULTSET_HPP_

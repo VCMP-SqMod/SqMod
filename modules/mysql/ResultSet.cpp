@@ -13,39 +13,100 @@ SQInteger ResultSet::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 ResultSet::Cmp(const ResultSet & o) const
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void ResultSet::Validate(CCStr file, Int32 line) const
 {
-    if (m_Handle == o.m_Handle)
+    if (!m_Handle)
     {
-        return 0;
-    }
-    else if (m_Handle.HndPtr() > o.m_Handle.HndPtr())
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
+        SqThrowF("Invalid MySQL result-set reference =>[%s:%d]", file, line);
     }
 }
+#else
+void ResultSet::Validate() const
+{
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid MySQL result-set reference");
+    }
+}
+#endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-CSStr ResultSet::ToString() const
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void ResultSet::ValidateCreated(CCStr file, Int32 line) const
 {
-    // Do we have a valid handle?
-    if (m_Handle)
+    if (!m_Handle)
     {
-        ToStrF("%u", m_Handle->mFieldCount);
+        SqThrowF("Invalid MySQL result-set reference =>[%s:%d]", file, line);
     }
-    // Default to an empty string
-    return _SC("");
+    else if (m_Handle->mPtr == nullptr)
+    {
+        SqThrowF("Invalid MySQL result-set =>[%s:%d]", file, line);
+    }
 }
+#else
+void ResultSet::ValidateCreated() const
+{
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid MySQL result-set reference");
+    }
+    else if (m_Handle->mPtr == nullptr)
+    {
+        SqThrowF("Invalid MySQL result-set");
+    }
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+const ResRef & ResultSet::GetValid(CCStr file, Int32 line) const
+{
+    Validate(file, line);
+    return m_Handle;
+}
+#else
+const ResRef & ResultSet::GetValid() const
+{
+    Validate();
+    return m_Handle;
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+const ResRef & ResultSet::GetCreated(CCStr file, Int32 line) const
+{
+    ValidateCreated(file, line);
+    return m_Handle;
+}
+#else
+const ResRef & ResultSet::GetCreated() const
+{
+    ValidateCreated();
+    return m_Handle;
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void ResultSet::ValidateField(Int32 idx, CCStr file, Int32 line) const
+{
+    ValidateCreated(file, line);
+    m_Handle->ValidateField(idx, file, line);
+}
+#else
+void ResultSet::ValidateField(Int32 idx) const
+{
+    ValidateCreated();
+    m_Handle->ValidateField(idx);
+}
+#endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
 SQInteger ResultSet::GetInt8(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -58,8 +119,7 @@ SQInteger ResultSet::GetInt8(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 SQInteger ResultSet::GetUint8(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -72,8 +132,7 @@ SQInteger ResultSet::GetUint8(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 SQInteger ResultSet::GetInt16(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -86,8 +145,7 @@ SQInteger ResultSet::GetInt16(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 SQInteger ResultSet::GetUint16(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -100,8 +158,7 @@ SQInteger ResultSet::GetUint16(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 SQInteger ResultSet::GetInt32(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -114,8 +171,7 @@ SQInteger ResultSet::GetInt32(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 SQInteger ResultSet::GetUint32(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -128,8 +184,7 @@ SQInteger ResultSet::GetUint32(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 Int64 ResultSet::GetInt64(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -142,8 +197,7 @@ Int64 ResultSet::GetInt64(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 Uint64 ResultSet::GetUint64(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -156,8 +210,7 @@ Uint64 ResultSet::GetUint64(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 SQFloat ResultSet::GetFloat32(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -170,8 +223,7 @@ SQFloat ResultSet::GetFloat32(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 SQFloat ResultSet::GetFloat64(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -184,8 +236,7 @@ SQFloat ResultSet::GetFloat64(Uint32 idx) const
 // ------------------------------------------------------------------------------------------------
 bool ResultSet::GetBoolean(Uint32 idx) const
 {
-    // Validate the managed handle and specified index
-    m_Handle.ValidateIndex(idx);
+    SQMOD_VALIDATE_FIELD(*this, idx);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -195,5 +246,34 @@ bool ResultSet::GetBoolean(Uint32 idx) const
     return ConvTo< bool >::From(*reinterpret_cast< Uint8 ** >(m_Handle->mRow)[idx]);
 }
 
+// ================================================================================================
+void Register_ResultSet(Table & sqlns)
+{
+    sqlns.Bind(_SC("ResultSet")
+        , Class< ResultSet >(sqlns.GetVM(), _SC("SqMySQLResultSet"))
+        // Constructors
+        .Ctor()
+        .Ctor< const ResultSet & >()
+        // Core Meta-methods
+        .Func(_SC("_cmp"), &ResultSet::Cmp)
+        .SquirrelFunc(_SC("_typename"), &ResultSet::Typename)
+        .Func(_SC("_tostring"), &ResultSet::ToString)
+        // Properties
+        .Prop(_SC("IsValid"), &ResultSet::IsValid)
+        // Member Methods
+        .Func(_SC("GetInt8"), &ResultSet::GetInt8)
+        .Func(_SC("GetUint8"), &ResultSet::GetUint8)
+        .Func(_SC("GetInt16"), &ResultSet::GetInt16)
+        .Func(_SC("GetUint16"), &ResultSet::GetUint16)
+        .Func(_SC("GetInt32"), &ResultSet::GetInt32)
+        .Func(_SC("GetUint32"), &ResultSet::GetUint32)
+        .Func(_SC("GetInt64"), &ResultSet::GetInt64)
+        .Func(_SC("GetUint64"), &ResultSet::GetUint64)
+        .Func(_SC("GetFloat32"), &ResultSet::GetFloat32)
+        .Func(_SC("GetFloat64"), &ResultSet::GetFloat64)
+        .Func(_SC("GetBool"), &ResultSet::GetBoolean)
+        .Func(_SC("GetBoolean"), &ResultSet::GetBoolean)
+    );
+}
 
 } // Namespace:: SqMod
