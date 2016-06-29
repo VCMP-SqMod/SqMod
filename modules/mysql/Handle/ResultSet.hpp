@@ -201,6 +201,27 @@ public:
      * Create the result-set from a Statement.
     */
     void Create(const StmtRef & stmt);
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the current position of the row cursor for the last Next().
+    */
+    Uint64 RowIndex() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of rows in the result set.
+    */
+    Uint64 RowCount() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the next row from the query.
+    */
+    bool Next();
+
+    /* --------------------------------------------------------------------------------------------
+     * Seeks to an arbitrary row in a query result set.
+    */
+    bool SetRowIndex(Uint64 index);
+
 };
 
 

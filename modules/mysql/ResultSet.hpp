@@ -174,6 +174,46 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Returns the current position of the row cursor for the last Next().
+    */
+    Object RowIndex() const
+    {
+        return MakeULongObj(SQMOD_GET_CREATED(*this)->RowIndex());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of rows in the result set.
+    */
+    Object RowCount() const
+    {
+        return MakeULongObj(SQMOD_GET_CREATED(*this)->RowCount());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the next row from the query.
+    */
+    bool Next() const
+    {
+        return SQMOD_GET_CREATED(*this)->Next();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Seeks to an arbitrary row in a query result set.
+    */
+    bool SetRowIndex(SQInteger index) const
+    {
+        return SQMOD_GET_CREATED(*this)->SetRowIndex(ConvTo< Uint64 >::From(index));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Seeks to an arbitrary row in a query result set.
+    */
+    bool SetLongRowIndex(Object & index) const
+    {
+        return SQMOD_GET_CREATED(*this)->SetRowIndex(FetchULongObjVal(index));
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve a signed 8 bit integer from a field.
     */
     SQInteger GetInt8(Uint32 idx) const;

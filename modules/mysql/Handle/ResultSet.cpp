@@ -326,4 +326,81 @@ void ResHnd::Create(const StmtRef & stmt)
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+Uint64 ResHnd::RowIndex() const
+{
+    // Is this result-set even valid?
+    if (!mPtr)
+    {
+        STHROWF("Invalid MySQL result-set");
+    }
+    // Did we come from a statement?
+    else if (mStatement)
+    {
+        return (Uint64)mysql_stmt_row_tell(mStatement->mPtr);
+    }
+    // Just retrieve it from the result set
+    return (Uint64)mysql_row_tell(mPtr);
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint64 ResHnd::RowCount() const
+{
+    // Is this result-set even valid?
+    if (!mPtr)
+    {
+        STHROWF("Invalid MySQL result-set");
+    }
+    // Did we come from a statement?
+    else if (mStatement)
+    {
+        return mysql_stmt_num_rows(mStatement->mPtr);
+    }
+    // Just retrieve it from the result set
+    return mysql_num_rows(mPtr);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool ResHnd::Next()
+{
+    // Is this result-set even valid?
+    if (!mPtr)
+    {
+        STHROWF("Invalid MySQL result-set");
+    }
+    // Did we come from a statement?
+    if (mStatement)
+    {
+        // Step the statement
+        return !mysql_stmt_fetch(mStatement->mPtr);
+    }
+    // Fetch another row from the result set
+    mRow = mysql_fetch_row(mPtr);
+    // Fetch the data lengths
+    mLengths = mysql_fetch_lengths(mPtr);
+    // Return whether the fetched row is valid
+    return (mRow != NULL);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool ResHnd::SetRowIndex(Uint64 index)
+{
+    // Is this result-set even valid?
+    if (!mPtr)
+    {
+        STHROWF("Invalid MySQL result-set");
+    }
+    // Did we come from a statement?
+    else if (mStatement)
+    {
+        mysql_stmt_data_seek(mStatement->mPtr, index);
+    }
+    else
+    {
+        mysql_data_seek(mPtr, index);
+    }
+    // Step the result set
+    return Next();
+}
+
 } // Namespace:: SqMod
