@@ -267,6 +267,11 @@ public:
      * Retrieve a boolean from a field.
     */
     bool GetBoolean(Uint32 idx) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a string from a field.
+    */
+    CSStr GetString(Uint32 idx) const;
 };
 
 } // Namespace:: SqMod

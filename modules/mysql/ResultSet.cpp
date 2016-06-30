@@ -249,6 +249,14 @@ bool ResultSet::GetBoolean(Uint32 idx) const
     return ConvTo< bool >::From(std::strtol(m_Handle->mRow[idx], nullptr, 10));
 }
 
+// ------------------------------------------------------------------------------------------------
+CSStr ResultSet::GetString(Uint32 idx) const
+{
+    SQMOD_VALIDATE_FIELD(*this, idx);
+    // Retrieve the value directly from the row
+    return m_Handle->mRow[idx];
+}
+
 // ================================================================================================
 void Register_ResultSet(Table & sqlns)
 {
@@ -281,6 +289,7 @@ void Register_ResultSet(Table & sqlns)
         .Func(_SC("GetFloat64"), &ResultSet::GetFloat64)
         .Func(_SC("GetBool"), &ResultSet::GetBoolean)
         .Func(_SC("GetBoolean"), &ResultSet::GetBoolean)
+        .Func(_SC("GetString"), &ResultSet::GetString)
     );
 }
 
