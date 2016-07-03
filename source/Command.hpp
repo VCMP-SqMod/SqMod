@@ -806,6 +806,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of managed command listeners.
+    */
+    SQInteger GetCount() const
+    {
+        return ConvTo< SQInteger >::From(GetValid()->m_Commands.size());
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * See whether an execution context is currently active.
     */
     bool IsContext() const
@@ -1170,6 +1178,24 @@ public:
     bool Attached() const
     {
         return (!m_Controller.Expired() && m_Controller.Lock()->Attached(this));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the manager associated with this command listener instance.
+    */
+    Object GetManager() const
+    {
+        // Are we even associated with a controller?
+        if (!m_Controller)
+        {
+            return NullObject(); // Default to null
+        }
+        // Obtain the initial stack size
+        const StackGuard sg;
+        // Push the instance on the stack
+        ClassType< Manager >::PushInstance(DefaultVM::Get(), m_Controller.Lock()->m_Manager);
+        // Grab the instance from the stack
+        return Var< Object >(DefaultVM::Get(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
