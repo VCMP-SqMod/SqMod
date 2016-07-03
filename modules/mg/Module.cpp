@@ -65,6 +65,11 @@ void OnSquirrelLoad()
     }
     // Set this as the default database
     DefaultVM::Set(_SqVM);
+    // Prevent common null objects from using dead virtual machines
+    NullArray() = Array();
+    NullTable() = Table();
+    NullObject() = Object();
+    NullFunction() = Function();
     // Register the module API
     RegisterAPI(_SqVM);
     // Notify about the current status

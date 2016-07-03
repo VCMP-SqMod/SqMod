@@ -214,6 +214,12 @@ bool Core::Initialize()
     // See if debugging options should be enabled
     m_Debugging = conf.GetBoolValue("Squirrel", "Debugging", false);
 
+    // Prevent common null objects from using dead virtual machines
+    NullArray() = Array();
+    NullTable() = Table();
+    NullObject() = Object();
+    NullFunction() = Function();
+
     LogDbg("Registering the standard libraries");
     // Push the root table on the stack
     sq_pushroottable(m_VM);
