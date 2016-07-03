@@ -27,10 +27,10 @@ SQInteger Listener::Typename(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 Guard::Guard(const CtrRef & ctr, Object & invoker)
     : mController(ctr)
-    , mPrevious(mController->GetCtx())
+    , mPrevious(mController->m_Context)
     , mCurrent(new Context(invoker))
 {
-    /* ... */
+    mController->m_Context = mCurrent;
 }
 
 // ------------------------------------------------------------------------------------------------
