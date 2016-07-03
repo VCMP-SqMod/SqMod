@@ -394,56 +394,6 @@ enum EntityFlags
     ENF_LOCKED      = (2 << 1)
 };
 
-// ------------------------------------------------------------------------------------------------
-enum CmdArgType
-{
-    CMDARG_ANY         = 0,
-    CMDARG_INTEGER     = (1 << 1),
-    CMDARG_FLOAT       = (1 << 2),
-    CMDARG_BOOLEAN     = (1 << 3),
-    CMDARG_STRING      = (1 << 4),
-    CMDARG_LOWER       = (1 << 5),
-    CMDARG_UPPER       = (1 << 6),
-    CMDARG_GREEDY      = (1 << 7)
-};
-
-// ------------------------------------------------------------------------------------------------
-enum CmdError
-{
-    // The command failed for unknown reasons
-    CMDERR_UNKNOWN = 0,
-    // The command failed to execute because there was nothing to execute
-    CMDERR_EMPTY_COMMAND,
-    // The command failed to execute because the command name was invalid after processing
-    CMDERR_INVALID_COMMAND,
-    // The command failed to execute because there was a syntax error in the arguments
-    CMDERR_SYNTAX_ERROR,
-    // The command failed to execute because there was no such command
-    CMDERR_UNKNOWN_COMMAND,
-    // The command failed to execute because there was no callback to handle the execution
-    CMDERR_MISSING_EXECUTER,
-    // The command failed to execute because the invoker does not have the proper authority
-    CMDERR_INSUFFICIENT_AUTH,
-    // The command was unable to execute because the argument limit was not reached
-    CMDERR_INCOMPLETE_ARGS,
-    // The command was unable to execute because the argument limit was exceeded
-    CMDERR_EXTRANEOUS_ARGS,
-    // Command was unable to execute due to argument type mismatch
-    CMDERR_UNSUPPORTED_ARG,
-    // The command arguments contained more data than the internal buffer can handle
-    CMDERR_BUFFER_OVERFLOW,
-    // The command failed to complete execution due to a runtime exception
-    CMDERR_EXECUTION_FAILED,
-    // The command completed the execution but returned a negative result
-    CMDERR_EXECUTION_ABORTED,
-    // The post execution callback failed to execute due to a runtime exception
-    CMDERR_POST_PROCESSING_FAILED,
-    // The callback that was supposed to deal with the failure also failed due to a runtime exception
-    CMDERR_UNRESOLVED_FAILURE,
-    // Maximum command error identifier
-    CMDERR_MAX
-};
-
 } // Namespace:: SqMod
 
 /* ------------------------------------------------------------------------------------------------
