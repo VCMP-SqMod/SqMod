@@ -1645,7 +1645,7 @@ public:
         else if (!m_OnAuth.IsNull())
         {
             // Ask the specified authority inspector if this execution should be allowed
-            const SharedPtr< bool > ret = m_OnAuth.Evaluate< bool, const Object & >(invoker);
+            const SharedPtr< bool > ret = m_OnAuth.Evaluate< bool, const Object &, Listener * >(invoker, this);
             // See what the custom authority inspector said or default to disallow
             return !ret ? false : *ret;
         }
@@ -1653,7 +1653,7 @@ public:
         else if (!m_Controller.Expired() && !m_Controller.Lock()->GetOnAuth().IsNull())
         {
             // Ask the specified authority inspector if this execution should be allowed
-            const SharedPtr< bool > ret = m_Controller.Lock()->GetOnAuth().Evaluate< bool, const Object & >(invoker);
+            const SharedPtr< bool > ret = m_Controller.Lock()->GetOnAuth().Evaluate< bool, const Object &, Listener * >(invoker, this);
             // See what the custom authority inspector said or default to disallow
             return !ret ? false : *ret;
         }
