@@ -35,8 +35,7 @@ extern bool RegisterAPI(HSQUIRRELVM vm);
 // ------------------------------------------------------------------------------------------------
 extern void InitializeRoutines();
 extern void TerminateRoutines();
-extern void InitializeCmdManager();
-extern void TerminateCmdManager();
+extern void TerminateCommands();
 
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(CSStr path);
@@ -295,8 +294,6 @@ bool Core::Initialize()
 
     // Initialize routines
     InitializeRoutines();
-    // Initialize commands
-    InitializeCmdManager();
 
     // Initialization successful
     return true;
@@ -420,8 +417,8 @@ void Core::Terminate()
     m_Keybinds.clear();
     // Release all resources from routines
     TerminateRoutines();
-    // Release all resources from command manager
-    TerminateCmdManager();
+    // Release all resources from command managers
+    TerminateCommands();
     // In case there's a payload for reload
     m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them
