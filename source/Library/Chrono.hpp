@@ -104,6 +104,11 @@ public:
      * Convert just the year and day of year to full date.
     */
     static Date ReverseDayOfyear(Uint16 year, Uint16 doy);
+
+    /* --------------------------------------------------------------------------------------------
+     * Calculate the number of days in the specified date range.
+    */
+    static Int64 DateRangeToSeconds(Uint16 _year, Uint8 _month, Uint8 _day, Uint16 year_, Uint8 month_, Uint8 day_);
 };
 
 } // Namespace:: SqMod

@@ -220,6 +220,40 @@ Date Chrono::ReverseDayOfyear(Uint16 year, Uint16 doy)
 }
 
 // ------------------------------------------------------------------------------------------------
+Int64 Chrono::DateRangeToSeconds(Uint16 _year, Uint8 _month, Uint8 _day, Uint16 year_, Uint8 month_, Uint8 day_)
+{
+    // Are we within the same year?
+    if (_year == year_)
+    {
+        return (DayOfYear(_year, _month, _day) - DayOfYear(year_, month_, day_)) * 86400ULL;
+    }
+    // Should we negate the result when returning it?
+    bool neg = false;
+    // Is the start year greater than the end year?
+    if (_year > year_)
+    {
+        std::swap(_year, year_);
+        std::swap(_month, month_);
+        std::swap(_day, day_);
+        // Negate the result
+        neg = true;
+    }
+    // Calculate the remaining days from the first year
+    Int64 num = DaysInYear(_year) - DayOfYear(_year, _month, _day);
+    // Calculate the days withing the years range
+    while (++_year < year_)
+    {
+        num += DaysInYear(_year);
+    }
+    // Calculate the days up to the last day
+    num += DayOfYear(year_, month_, day_);
+    // Convert the obtained days in seconds
+    num *= 86400ULL;
+    // Return the result
+    return neg ? -num : num;
+}
+
+// ------------------------------------------------------------------------------------------------
 static SLongInt SqGetEpochTimeMicro()
 {
     return SLongInt(Chrono::GetEpochTimeMicro());
