@@ -77,6 +77,12 @@ extern "C" {
     typedef SqInt64         (*SqEx_GetCurrentSysTime) (void);
     typedef SqInt64         (*SqEx_GetEpochTimeMicro) (void);
     typedef SqInt64         (*SqEx_GetEpochTimeMilli) (void);
+    typedef SQBool          (*SqEx_ValidDate) (uint16_t year, uint8_t month, uint8_t day);
+    typedef SQBool          (*SqEx_IsLeapYear) (uint16_t year);
+    typedef uint16_t        (*SqEx_DaysInYear) (uint16_t year);
+    typedef uint8_t         (*SqEx_DaysInMonth) (uint16_t year, uint8_t month);
+    typedef uint16_t        (*SqEx_DayOfYear) (uint16_t year, uint8_t month, uint8_t day);
+    typedef SqInt64         (*SqEx_DateRangeToSeconds) (uint16_t lyear, uint8_t lmonth, uint8_t lday, uint16_t ryear, uint8_t rmonth, uint8_t rday);
     typedef SQRESULT        (*SqEx_GetTimestamp) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
     typedef SQRESULT        (*SqEx_PushTimestamp) (HSQUIRRELVM vm, SqInt64 num);
     typedef SQRESULT        (*SqEx_GetDate) (HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day);
@@ -129,6 +135,12 @@ extern "C" {
         SqEx_GetCurrentSysTime              GetCurrentSysTime;
         SqEx_GetEpochTimeMicro              GetEpochTimeMicro;
         SqEx_GetEpochTimeMilli              GetEpochTimeMilli;
+        SqEx_ValidDate                      ValidDate;
+        SqEx_IsLeapYear                     IsLeapYear;
+        SqEx_DaysInYear                     DaysInYear;
+        SqEx_DaysInMonth                    DaysInMonth;
+        SqEx_DayOfYear                      DayOfYear;
+        SqEx_DateRangeToSeconds             DateRangeToSeconds;
         SqEx_GetTimestamp                   GetTimestamp;
         SqEx_PushTimestamp                  PushTimestamp;
         SqEx_GetDate                        GetDate;
@@ -147,6 +159,68 @@ extern "C" {
         SqEx_PushBufferData                 PushBufferData;
     } sq_exports, SQEXPORTS, *HSQEXPORTS;
 
+#ifdef SQMOD_PLUGIN_API
+
+    //primitive functions
+    extern SqEx_GetSquirrelAPI                  SqMod_GetSquirrelAPI;
+    extern SqEx_GetSquirrelVM                   SqMod_GetSquirrelVM;
+
+    //logging utilities
+    extern SqEx_LogMessage                      SqMod_LogDbg;
+    extern SqEx_LogMessage                      SqMod_LogUsr;
+    extern SqEx_LogMessage                      SqMod_LogScs;
+    extern SqEx_LogMessage                      SqMod_LogInf;
+    extern SqEx_LogMessage                      SqMod_LogWrn;
+    extern SqEx_LogMessage                      SqMod_LogErr;
+    extern SqEx_LogMessage                      SqMod_LogFtl;
+    extern SqEx_LogMessage                      SqMod_LogSDbg;
+    extern SqEx_LogMessage                      SqMod_LogSUsr;
+    extern SqEx_LogMessage                      SqMod_LogSScs;
+    extern SqEx_LogMessage                      SqMod_LogSInf;
+    extern SqEx_LogMessage                      SqMod_LogSWrn;
+    extern SqEx_LogMessage                      SqMod_LogSErr;
+    extern SqEx_LogMessage                      SqMod_LogSFtl;
+
+    //script loading
+    extern SqEx_LoadScript                      SqMod_LoadScript;
+
+    //numeric utilities
+    extern SqEx_GetSLongValue                   SqMod_GetSLongValue;
+    extern SqEx_PushSLongObject                 SqMod_PushSLongObject;
+    extern SqEx_GetULongValue                   SqMod_GetULongValue;
+    extern SqEx_PushULongObject                 SqMod_PushULongObject;
+
+    //time utilities
+    extern SqEx_GetCurrentSysTime               SqMod_GetCurrentSysTime;
+    extern SqEx_GetEpochTimeMicro               SqMod_GetEpochTimeMicro;
+    extern SqEx_GetEpochTimeMilli               SqMod_GetEpochTimeMilli;
+    extern SqEx_ValidDate                       SqMod_ValidDate;
+    extern SqEx_IsLeapYear                      SqMod_IsLeapYear;
+    extern SqEx_DaysInYear                      SqMod_DaysInYear;
+    extern SqEx_DaysInMonth                     SqMod_DaysInMonth;
+    extern SqEx_DayOfYear                       SqMod_DayOfYear;
+    extern SqEx_DateRangeToSeconds              SqMod_DateRangeToSeconds;
+    extern SqEx_GetTimestamp                    SqMod_GetTimestamp;
+    extern SqEx_PushTimestamp                   SqMod_PushTimestamp;
+    extern SqEx_GetDate                         SqMod_GetDate;
+    extern SqEx_PushDate                        SqMod_PushDate;
+    extern SqEx_GetTime                         SqMod_GetTime;
+    extern SqEx_PushTime                        SqMod_PushTime;
+    extern SqEx_GetDatetime                     SqMod_GetDatetime;
+    extern SqEx_PushDatetime                    SqMod_PushDatetime;
+
+    //stack utilities
+    extern SqEx_PopStackInteger                 SqMod_PopStackInteger;
+    extern SqEx_PopStackFloat                   SqMod_PopStackFloat;
+    extern SqEx_PopStackSLong                   SqMod_PopStackSLong;
+    extern SqEx_PopStackULong                   SqMod_PopStackULong;
+
+    //buffer utilities
+    extern SqEx_PushBuffer                      SqMod_PushBuffer;
+    extern SqEx_PushBufferData                  SqMod_PushBufferData;
+
+#endif // SQMOD_PLUGIN_API
+
     /* --------------------------------------------------------------------------------------------
      * Import the functions from the main squirrel plug-in.
     */
@@ -158,9 +232,19 @@ extern "C" {
     SQUIRREL_API SQRESULT sq_api_expand(HSQAPI sqapi);
 
     /* --------------------------------------------------------------------------------------------
+     * Assign the functions from the specified API structure into the global functions.
+    */
+    SQUIRREL_API SQRESULT sqmod_api_expand(HSQEXPORTS sqmodapi);
+
+    /* --------------------------------------------------------------------------------------------
      * Undo changes done by sq_api_expand.
     */
     SQUIRREL_API void sq_api_collapse();
+
+    /* --------------------------------------------------------------------------------------------
+     * Undo changes done by sqmod_api_expand.
+    */
+    SQUIRREL_API void sqmod_api_collapse();
 
 #ifdef __cplusplus
 } /*extern "C"*/

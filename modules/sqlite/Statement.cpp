@@ -756,7 +756,7 @@ Object Statement::FetchColumnIndex(Int32 idx) const
             // Retrieve the the actual blob data that must be returned
             CCStr data = reinterpret_cast< CCStr >(sqlite3_column_blob(m_Handle->mPtr, idx));
             // Attempt to create a buffer with the blob data on the stack
-            if (SQ_FAILED(_SqMod->PushBufferData(DefaultVM::Get(), data, size, size)))
+            if (SQ_FAILED(SqMod_PushBufferData(DefaultVM::Get(), data, size, size)))
             {
                 STHROWF("Unable to allocate buffer of at least (%d) bytes", size);
             }
@@ -874,7 +874,7 @@ Array Statement::FetchArray(Int32 min, Int32 max) const
                 // Retrieve the the actual blob data that must be returned
                 CCStr data = reinterpret_cast< CCStr >(sqlite3_column_blob(m_Handle->mPtr, idx));
                 // Attempt to create a buffer with the blob data on the stack
-                if (SQ_FAILED(_SqMod->PushBufferData(DefaultVM::Get(), data, size, size)))
+                if (SQ_FAILED(SqMod_PushBufferData(DefaultVM::Get(), data, size, size)))
                 {
                     STHROWF("Unable to allocate buffer of at least (%d) bytes", size);
                 }
@@ -981,7 +981,7 @@ Table Statement::FetchTable(Int32 min, Int32 max) const
                 // Retrieve the the actual blob data that must be returned
                 CCStr data = reinterpret_cast< CCStr >(sqlite3_column_blob(m_Handle->mPtr, idx));
                 // Attempt to create a buffer with the blob data on the stack
-                if (SQ_FAILED(_SqMod->PushBufferData(DefaultVM::Get(), data, size, size)))
+                if (SQ_FAILED(SqMod_PushBufferData(DefaultVM::Get(), data, size, size)))
                 {
                     STHROWF("Unable to allocate buffer of at least (%d) bytes", size);
                 }

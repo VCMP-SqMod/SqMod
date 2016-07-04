@@ -200,6 +200,18 @@ static SQRESULT SqEx_PushULongObject(HSQUIRRELVM vm, Uint64 num)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQBool SqEx_ValidDate(uint16_t year, uint8_t month, uint8_t day)
+{
+    return Chrono::ValidDate(year, month, day);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQBool SqEx_IsLeapYear(uint16_t year)
+{
+    return Chrono::IsLeapYear(year);
+}
+
+// ------------------------------------------------------------------------------------------------
 static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 {
     // Validate the specified number pointer and value type
@@ -551,6 +563,12 @@ void InitExports()
     g_SqExports.GetCurrentSysTime       = Chrono::GetCurrentSysTime;
     g_SqExports.GetEpochTimeMicro       = Chrono::GetEpochTimeMicro;
     g_SqExports.GetEpochTimeMilli       = Chrono::GetEpochTimeMilli;
+    g_SqExports.ValidDate               = SqEx_ValidDate;
+    g_SqExports.IsLeapYear              = SqEx_IsLeapYear;
+    g_SqExports.DaysInYear              = Chrono::DaysInYear;
+    g_SqExports.DaysInMonth             = Chrono::DaysInMonth;
+    g_SqExports.DayOfYear               = Chrono::DayOfYear;
+    g_SqExports.DateRangeToSeconds      = Chrono::DateRangeToSeconds;
     g_SqExports.GetTimestamp            = SqEx_GetTimestamp;
     g_SqExports.PushTimestamp           = SqEx_PushTimestamp;
     g_SqExports.GetDate                 = SqEx_GetDate;

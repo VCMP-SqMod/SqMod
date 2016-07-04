@@ -111,12 +111,12 @@ void Session::Update()
     else if (!irc_is_connected(m_Session))
     {
         // Do we meet the condition to attempt to reconnect?
-        if (m_Reconnect && (m_LeftTries != 0) && (m_NextTry <= _SqMod->GetEpochTimeMicro()))
+        if (m_Reconnect && (m_LeftTries != 0) && (m_NextTry <= SqMod_GetEpochTimeMicro()))
         {
             // Take out one try
             --m_LeftTries;
             // Update the time-point for the next try
-            m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
+            m_NextTry = (SqMod_GetEpochTimeMicro() + (m_Wait * 1000LL));
             // Attempt to reconnect
             if (m_IPv6)
             {
@@ -155,13 +155,13 @@ void Session::Update()
     // Call select()
     if (select(maxfd + 1, &in_set, &out_set, 0, &tv) < 0)
     {
-        _SqMod->LogErr("Unable to select() on IRC session");
+        SqMod_LogErr("Unable to select() on IRC session");
     }
     // Call irc_process_select_descriptors() for the session
     if (irc_process_select_descriptors (m_Session, &in_set, &out_set))
     {
         // @TODO: The connection failed, or the server disconnected. Handle it!
-        _SqMod->LogWrn("The IRC connection failed, or the server disconnected.");
+        SqMod_LogWrn("The IRC connection failed, or the server disconnected.");
     }
 }
 
@@ -256,7 +256,7 @@ bool Session::ValidateEventSession(Session * ptr)
         return true;
     }
     // We can't throw an error here so we simply log it
-    _SqMod->LogErr("Cannot forward IRC event without a session instance");
+    SqMod_LogErr("Cannot forward IRC event without a session instance");
     // Invalid session instance
     return false;
 }
@@ -442,7 +442,7 @@ Object Session::GetNextTry() const
     // Obtain the initial stack size
     const StackGuard sg(_SqVM);
     // Attempt to push a time-stamp instance on the stack
-    _SqMod->PushTimestamp(_SqVM, m_NextTry);
+    SqMod_PushTimestamp(_SqVM, m_NextTry);
     // Obtain the object from the stack and return it
     return Var< Object >(_SqVM, -1).value;
 }
@@ -457,7 +457,7 @@ void Session::SetNextTry(Object & tm)
     // The resulted times-tamp value
     Int64 microseconds = 0;
     // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(_SqMod->GetTimestamp(_SqVM, -1, &microseconds)))
+    if (SQ_FAILED(SqMod_GetTimestamp(_SqVM, -1, &microseconds)))
     {
         STHROWF("Invalid time-stamp specified");
     }
@@ -473,12 +473,12 @@ Object Session::GetSessionTime() const
     // Attempt to push a time-stamp instance on the stack
     if (m_SessionTime)
     {
-        _SqMod->PushTimestamp(_SqVM, _SqMod->GetEpochTimeMicro() - m_SessionTime);
+        SqMod_PushTimestamp(_SqVM, SqMod_GetEpochTimeMicro() - m_SessionTime);
     }
     // This session was not connected yet
     else
     {
-        _SqMod->PushTimestamp(_SqVM, 0);
+        SqMod_PushTimestamp(_SqVM, 0);
     }
     // Obtain the object from the stack and return it
     return Var< Object >(_SqVM, -1).value;
@@ -506,7 +506,7 @@ Int32 Session::Connect()
     // Reset the number of tries
     m_LeftTries = m_Tries;
     // Set the time-point for the next try
-    m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
+    m_NextTry = (SqMod_GetEpochTimeMicro() + (m_Wait * 1000LL));
     // This is not an IPv6 connection
     m_IPv6 = false;
     // Attempt to connect the session and return the result
@@ -557,7 +557,7 @@ Int32 Session::Connect(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSSt
     // Reset the number of tries
     m_LeftTries = m_Tries;
     // Set the time-point for the next connection try
-    m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
+    m_NextTry = (SqMod_GetEpochTimeMicro() + (m_Wait * 1000LL));
     // This is not an IPv6 connection
     m_IPv6 = false;
     // Attempt to connect the session and return the result
@@ -591,7 +591,7 @@ Int32 Session::Connect6()
     // Reset the number of tries
     m_LeftTries = m_Tries;
     // Set the time-point for the next try
-    m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
+    m_NextTry = (SqMod_GetEpochTimeMicro() + (m_Wait * 1000LL));
     // This is an IPv6 connection
     m_IPv6 = true;
     // Attempt to connect the session and return the result
@@ -642,7 +642,7 @@ Int32 Session::Connect6(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSS
     // Reset the number of tries
     m_LeftTries = m_Tries;
     // Set the time-point for the next connection try
-    m_NextTry = (_SqMod->GetEpochTimeMicro() + (m_Wait * 1000LL));
+    m_NextTry = (SqMod_GetEpochTimeMicro() + (m_Wait * 1000LL));
     // This is an IPv6 connection
     m_IPv6 = true;
     // Attempt to connect the session and return the result
@@ -699,15 +699,15 @@ void Session::ForwardEvent(Function & listener, CCStr event, CCStr origin, CCStr
     }
     catch (const Sqrat::Exception & e)
     {
-        _SqMod->LogErr("IRC event [%s] => Squirrel error [%s]", event, e.Message().c_str());
+        SqMod_LogErr("IRC event [%s] => Squirrel error [%s]", event, e.Message().c_str());
     }
     catch (const std::exception & e)
     {
-        _SqMod->LogErr("IRC event [%s] => Program error [%s]", event, e.what());
+        SqMod_LogErr("IRC event [%s] => Program error [%s]", event, e.what());
     }
     catch (...)
     {
-        _SqMod->LogErr("IRC event [%s] => Unknown error", event);
+        SqMod_LogErr("IRC event [%s] => Unknown error", event);
     }
 }
 
@@ -743,15 +743,15 @@ void Session::ForwardEvent(Function & listener, Uint32 event,
     }
     catch (const Sqrat::Exception & e)
     {
-        _SqMod->LogErr("IRC event [%s] => Squirrel error [%s]", event, e.Message().c_str());
+        SqMod_LogErr("IRC event [%s] => Squirrel error [%s]", event, e.Message().c_str());
     }
     catch (const std::exception & e)
     {
-        _SqMod->LogErr("IRC event [%s] => Program error [%s]", event, e.what());
+        SqMod_LogErr("IRC event [%s] => Program error [%s]", event, e.what());
     }
     catch (...)
     {
-        _SqMod->LogErr("IRC event [%s] => Unknown error", event);
+        SqMod_LogErr("IRC event [%s] => Unknown error", event);
     }
 }
 
@@ -778,7 +778,7 @@ void Session::OnConnect(irc_session_t * session, CCStr event, CCStr origin, CCSt
         // Prevent any attempts to reconnect now
         inst->m_Reconnect = false;
         // Save the connection time-stamp to calculate session uptime
-        inst->m_SessionTime = _SqMod->GetEpochTimeMicro();
+        inst->m_SessionTime = SqMod_GetEpochTimeMicro();
         // Now forward event
         ForwardEvent(inst->m_OnConnect, event, origin, params, count);
     }

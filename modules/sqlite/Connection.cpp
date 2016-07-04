@@ -16,13 +16,13 @@ SQInteger Connection::Typename(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 void Connection::TraceOutput(void * /*ptr*/, CCStr sql)
 {
-    _SqMod->LogInf("SQLite Trace: %s", sql);
+    SqMod_LogInf("SQLite Trace: %s", sql);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Connection::ProfileOutput(void * /*ptr*/, CCStr sql, sqlite3_uint64 time)
 {
-    _SqMod->LogInf("SQLite profile (time: %llu): %s", time, sql);
+    SqMod_LogInf("SQLite profile (time: %llu): %s", time, sql);
 }
 
 // ------------------------------------------------------------------------------------------------

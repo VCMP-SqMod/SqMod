@@ -31,7 +31,7 @@ ConnHnd::~ConnHnd()
         // Attempt to close the database
         if ((sqlite3_close(mPtr)) != SQLITE_OK)
         {
-            _SqMod->LogErr("Unable to close SQLite connection [%s]", sqlite3_errmsg(mPtr));
+            SqMod_LogErr("Unable to close SQLite connection [%s]", sqlite3_errmsg(mPtr));
         }
     }
 }
@@ -127,15 +127,15 @@ Int32 ConnHnd::Flush(Uint32 num, Object & env, Function & func)
             }
             catch (const Sqrat::Exception & e)
             {
-                _SqMod->LogErr("Squirrel error caught in flush handler [%s]", e.Message().c_str());
+                SqMod_LogErr("Squirrel error caught in flush handler [%s]", e.Message().c_str());
             }
             catch (const std::exception & e)
             {
-                _SqMod->LogErr("Program error caught in flush handler [%s]", e.what());
+                SqMod_LogErr("Program error caught in flush handler [%s]", e.what());
             }
             catch (...)
             {
-                _SqMod->LogErr("Unknown error caught in flush handler");
+                SqMod_LogErr("Unknown error caught in flush handler");
             }
         }
     }

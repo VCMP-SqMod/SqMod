@@ -747,7 +747,7 @@ Object MakeSLongObj(Int64 val)
     const StackGuard sg(vm);
 #ifdef SQMOD_PLUGIN_API
     // Push a long integer instance with the requested value on the stack
-    _SqMod->PushSLongObject(vm, val);
+    SqMod_PushSLongObject(vm, val);
 #else
     // Transform the specified value into a script object
     PushVar< SLongInt >(vm, SLongInt(val));
@@ -765,7 +765,7 @@ Object MakeULongObj(Uint64 val)
     const StackGuard sg(vm);
 #ifdef SQMOD_PLUGIN_API
     // Push a long integer instance with the requested value on the stack
-    _SqMod->PushULongObject(vm, val);
+    SqMod_PushULongObject(vm, val);
 #else
     // Transform the specified value into a script object
     PushVar< ULongInt >(vm, ULongInt(val));
@@ -781,7 +781,7 @@ Object MakeSLongObj(HSQUIRRELVM vm, Int64 val)
     const StackGuard sg(vm);
 #ifdef SQMOD_PLUGIN_API
     // Push a long integer instance with the requested value on the stack
-    _SqMod->PushSLongObject(vm, val);
+    SqMod_PushSLongObject(vm, val);
 #else
     // Transform the specified value into a script object
     PushVar< SLongInt >(vm, SLongInt(val));
@@ -797,7 +797,7 @@ Object MakeULongObj(HSQUIRRELVM vm, Uint64 val)
     const StackGuard sg(vm);
 #ifdef SQMOD_PLUGIN_API
     // Push a long integer instance with the requested value on the stack
-    _SqMod->PushULongObject(vm, val);
+    SqMod_PushULongObject(vm, val);
 #else
     // Transform the specified value into a script object
     PushVar< ULongInt >(vm, ULongInt(val));
@@ -854,7 +854,7 @@ Uint64 FetchULongObjVal(HSQUIRRELVM vm, const Object & val)
 SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx)
 {
 #ifdef SQMOD_PLUGIN_API
-    return _SqMod->PopStackInteger(vm, idx);
+    return SqMod_PopStackInteger(vm, idx);
 #else
     // Identify which type must be extracted
     switch (sq_gettype(vm, idx))
@@ -927,7 +927,7 @@ SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx)
 SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx)
 {
 #ifdef SQMOD_PLUGIN_API
-    return _SqMod->PopStackFloat(vm, idx);
+    return SqMod_PopStackFloat(vm, idx);
 #else
     // Identify which type must be extracted
     switch (sq_gettype(vm, idx))
@@ -1004,7 +1004,7 @@ SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx)
 Int64 PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
 {
 #ifdef SQMOD_PLUGIN_API
-    return _SqMod->PopStackSLong(vm, idx);
+    return SqMod_PopStackSLong(vm, idx);
 #else
     // Identify which type must be extracted
     switch (sq_gettype(vm, idx))
@@ -1077,7 +1077,7 @@ Int64 PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
 Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx)
 {
 #ifdef SQMOD_PLUGIN_API
-    return _SqMod->PopStackULong(vm, idx);
+    return SqMod_PopStackULong(vm, idx);
 #else
     // Identify which type must be extracted
     switch (sq_gettype(vm, idx))

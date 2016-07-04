@@ -37,8 +37,10 @@ void OnSquirrelInitialize()
     }
     else
     {
+        // Expand the Squirrel plug-in API into global functions
+        sqmod_api_expand(_SqMod);
         // Obtain the Squirrel API
-        _SqAPI = _SqMod->GetSquirrelAPI();
+        _SqAPI = SqMod_GetSquirrelAPI();
         // Expand the Squirrel API into global functions
         sq_api_expand(_SqAPI);
     }
@@ -55,7 +57,7 @@ void OnSquirrelLoad()
         return; // Unable to proceed!
     }
     // Obtain the Squirrel API and VM
-    _SqVM = _SqMod->GetSquirrelVM();
+    _SqVM = SqMod_GetSquirrelVM();
     // Make sure that a valid virtual machine exists
     if (!_SqVM)
     {

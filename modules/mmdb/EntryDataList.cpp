@@ -316,7 +316,7 @@ Object EntryDataList::GetLong() const
     // Obtain the initial stack size
     const StackGuard sg(_SqVM);
     // Push a long integer instance with the requested value on the stack
-    _SqMod->PushULongObject(_SqVM, longint);
+    SqMod_PushULongObject(_SqVM, longint);
     // Get the object from the stack and return it
     return Var< Object >(_SqVM, -1).value;
 }

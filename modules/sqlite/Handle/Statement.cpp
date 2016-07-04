@@ -29,7 +29,7 @@ StmtHnd::~StmtHnd()
         // Attempt to finalize the statement
         if ((sqlite3_finalize(mPtr)) != SQLITE_OK)
         {
-            _SqMod->LogErr("Unable to finalize SQLite statement [%s]", mConn->ErrMsg());
+            SqMod_LogErr("Unable to finalize SQLite statement [%s]", mConn->ErrMsg());
         }
     }
 }

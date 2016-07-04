@@ -29,7 +29,7 @@ void ConnectionHnd::EvFwd(Pointer nc, Int32 ev_type, void * ev_data)
 {
     if (!nc->user_data)
     {
-        _SqMod->LogErr("Event dispatched without valid instance");
+        SqMod_LogErr("Event dispatched without valid instance");
     }
     else
     {
