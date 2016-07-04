@@ -225,18 +225,14 @@ Int64 Chrono::DateRangeToSeconds(Uint16 _year, Uint8 _month, Uint8 _day, Uint16 
     // Are we within the same year?
     if (_year == year_)
     {
-        return (DayOfYear(_year, _month, _day) - DayOfYear(year_, month_, day_)) * 86400ULL;
+        return std::abs((DayOfYear(_year, _month, _day) - DayOfYear(year_, month_, day_)) * 86400ULL);
     }
-    // Should we negate the result when returning it?
-    bool neg = false;
     // Is the start year greater than the end year?
-    if (_year > year_)
+    else if (_year > year_)
     {
         std::swap(_year, year_);
         std::swap(_month, month_);
         std::swap(_day, day_);
-        // Negate the result
-        neg = true;
     }
     // Calculate the remaining days from the first year
     Int64 num = DaysInYear(_year) - DayOfYear(_year, _month, _day);
@@ -250,7 +246,7 @@ Int64 Chrono::DateRangeToSeconds(Uint16 _year, Uint8 _month, Uint8 _day, Uint16 
     // Convert the obtained days in seconds
     num *= 86400ULL;
     // Return the result
-    return neg ? -num : num;
+    return std::abs(num);
 }
 
 // ------------------------------------------------------------------------------------------------
