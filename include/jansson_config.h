@@ -53,8 +53,11 @@
 
 #define json_int_t long long
 #define json_strtoint strtoll
-#define JSON_INTEGER_FORMAT "I64d"
-
+#if defined(_WIN32) || defined(WIN32)
+    #define JSON_INTEGER_FORMAT "I64d"
+#else
+    #define JSON_INTEGER_FORMAT "lld"
+#endif
 
 /* If locale.h and localeconv() are available, define to 1, otherwise to 0. */
 #define JSON_HAVE_LOCALECONV 1

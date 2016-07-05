@@ -1,4 +1,4 @@
-/* #undef HAVE_ENDIAN_H */
+#define HAVE_ENDIAN_H 1
 #define HAVE_FCNTL_H 1
 #define HAVE_SCHED_H 1
 #define HAVE_UNISTD_H 1
