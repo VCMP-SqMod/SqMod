@@ -1400,12 +1400,12 @@ struct StackStrF
 };
 
 /* ------------------------------------------------------------------------------------------------
- * Netrieve the string representation of a certain type.
+ * Retrieve the string representation of a certain type.
 */
 CSStr SqTypeName(SQObjectType type);
 
 /* ------------------------------------------------------------------------------------------------
- * Netrieve the string representation of a certain type from a value on the stack.
+ * Retrieve the string representation of a certain type from a value on the stack.
 */
 String SqTypeName(HSQUIRRELVM vm, SQInteger idx);
 
