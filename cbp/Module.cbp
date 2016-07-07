@@ -527,10 +527,8 @@
 		<Unit filename="../source/Library/System/Path.hpp" />
 		<Unit filename="../source/Library/Utils.cpp" />
 		<Unit filename="../source/Library/Utils.hpp" />
-		<Unit filename="../source/Library/Utils/BufferInterpreter.cpp" />
-		<Unit filename="../source/Library/Utils/BufferInterpreter.hpp" />
-		<Unit filename="../source/Library/Utils/BufferWrapper.cpp" />
-		<Unit filename="../source/Library/Utils/BufferWrapper.hpp" />
+		<Unit filename="../source/Library/Utils/Buffer.cpp" />
+		<Unit filename="../source/Library/Utils/Buffer.hpp" />
 		<Unit filename="../source/Logger.cpp" />
 		<Unit filename="../source/Logger.hpp" />
 		<Unit filename="../source/Main.cpp" />

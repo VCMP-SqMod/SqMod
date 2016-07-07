@@ -2,7 +2,7 @@
 #include "Core.hpp"
 #include "Base/Shared.hpp"
 #include "Base/Buffer.hpp"
-#include "Library/Utils/BufferWrapper.hpp"
+#include "Library/Utils/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -1079,9 +1079,9 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
         // Remember the current stack size
         const StackGuard sg;
         // Create a protected instance of a buffer wrapper
-        AutoDelete< BufferWrapper > ad(new BufferWrapper(std::move(b)));
+        AutoDelete< SqBuffer > ad(new SqBuffer(std::move(b)));
         // Transform the pointer into a script object
-        PushVar< BufferWrapper * >(DefaultVM::Get(), ad.Get());
+        PushVar< SqBuffer * >(DefaultVM::Get(), ad.Get());
         // The script took over the instance now
         ad.Release();
         // Get the object from the stack and store it

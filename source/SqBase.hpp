@@ -276,7 +276,7 @@ typedef LongInt< Int64 > SLongInt;
 typedef LongInt< Uint64 > ULongInt;
 
 // ------------------------------------------------------------------------------------------------
-class BufferWrapper;
+class SqBuffer;
 
 /* ------------------------------------------------------------------------------------------------
  * FORWARD DECLARATIONS

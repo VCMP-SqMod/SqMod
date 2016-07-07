@@ -1198,7 +1198,7 @@ static CSStr StrImplode(Array & arr, SQChar chr)
 static CSStr FromArray(Array & arr)
 {
     // Determine array size
-    const Int32 length = static_cast< Int32 >(arr.Length());
+    const Int32 length = ConvTo< Int32 >::From(arr.Length());
     // Obtain a temporary buffer
     Buffer b(length * sizeof(Int32));
     // Get array elements as integers
@@ -1206,7 +1206,7 @@ static CSStr FromArray(Array & arr)
     // Overwrite integers with characters
     for (Int32 n = 0; n < length; ++n)
     {
-        b.At(n) = static_cast< SQChar >(b.At< Int32 >(n));
+        b.At(n) = ConvTo< SQChar >::From(b.At< Int32 >(n * sizeof(Int32)));
     }
     // Terminate the resulted string
     b.At(length) = '\0';

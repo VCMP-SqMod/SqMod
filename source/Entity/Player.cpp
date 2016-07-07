@@ -4,7 +4,7 @@
 #include "Base/Color3.hpp"
 #include "Base/Color4.hpp"
 #include "Base/Vector3.hpp"
-#include "Library/Utils/BufferWrapper.hpp"
+#include "Library/Utils/Buffer.hpp"
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -1497,7 +1497,7 @@ Uint32 CPlayer::GetBufferCapacity() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SendBuffer(const BufferWrapper & buffer) const
+void CPlayer::SendBuffer(const SqBuffer & buffer) const
 {
     // Validate the managed identifier
     Validate();

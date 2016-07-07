@@ -2,6 +2,7 @@
 #define _BASE_BUFFER_HPP_
 
 // ------------------------------------------------------------------------------------------------
+#include <cmath>
 #include <cassert>
 #include <cstdarg>
 
@@ -214,6 +215,14 @@ private:
         cur = 0;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Round a size value.
+    */
+    template < typename T > static inline SzType RoundSz(T n)
+    {
+        return static_cast< SzType >(floor(n));
+    }
+
 public:
 
     /* --------------------------------------------------------------------------------------------
@@ -380,7 +389,15 @@ public:
     */
     operator bool () const
     {
-        return m_Ptr;
+        return (m_Ptr != nullptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Negation operator.
+    */
+    operator ! () const
+    {
+        return (!m_Ptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -420,8 +437,20 @@ public:
     */
     template < typename T = Value > T & At(SzType n)
     {
-        assert(n < static_cast< SzType >(m_Cap / sizeof(T)));
-        return reinterpret_cast< T * >(m_Ptr)[n];
+        // Make sure that the buffer can host at least one element of this type
+        if (m_Cap < sizeof(T))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Make sure that the specified element is withing buffer range
+        else if (n > (m_Cap - sizeof(T)))
+        {
+            ThrowMemExcept("Element of size (%d) at index (%u) is out of buffer capacity (%u)",
+                            sizeof(T), n, m_Cap);
+        }
+        // Return the requested element
+        return *reinterpret_cast< T * >(m_Ptr + n);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -429,8 +458,20 @@ public:
     */
     template < typename T = Value > const T & At(SzType n) const
     {
-        assert(n < static_cast< SzType >(m_Cap / sizeof(T)));
-        return reinterpret_cast< const T * >(m_Ptr)[n];
+        // Make sure that the buffer can host at least one element of this type
+        if (m_Cap < sizeof(T))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Make sure that the specified element is withing buffer range
+        else if (n > (m_Cap - sizeof(T)))
+        {
+            ThrowMemExcept("Element of size (%d) at index (%u) is out of buffer capacity (%u)",
+                            sizeof(T), n, m_Cap);
+        }
+        // Return the requested element
+        return *reinterpret_cast< const T * >(m_Ptr + n);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -470,8 +511,14 @@ public:
     */
     template < typename T = Value > T & Front()
     {
-        assert(m_Cap >= sizeof(T));
-        return reinterpret_cast< T * >(m_Ptr)[0];
+        // Make sure that the buffer can host at least one element of this type
+        if (m_Cap < sizeof(T))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Return the requested element
+        return *reinterpret_cast< T * >(m_Ptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -479,8 +526,14 @@ public:
     */
     template < typename T = Value > const T & Front() const
     {
-        assert(m_Cap >= sizeof(T));
-        return reinterpret_cast< const T * >(m_Ptr)[0];
+        // Make sure that the buffer can host at least one element of this type
+        if (m_Cap < sizeof(T))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Return the requested element
+        return *reinterpret_cast< T * >(m_Ptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -488,8 +541,14 @@ public:
     */
     template < typename T = Value > T & Next()
     {
-        assert(m_Cap >= (sizeof(T) * 2));
-        return reinterpret_cast< T * >(m_Ptr)[1];
+        // Make sure that the buffer can host at least two elements of this type
+        if (m_Cap < (sizeof(T) * 2))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host two elements of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Return the requested element
+        return *reinterpret_cast< T * >(m_Ptr + sizeof(T));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -497,8 +556,14 @@ public:
     */
     template < typename T = Value > const T & Next() const
     {
-        assert(m_Cap >= (sizeof(T) * 2));
-        return reinterpret_cast< const T * >(m_Ptr)[1];
+        // Make sure that the buffer can host at least two elements of this type
+        if (m_Cap < (sizeof(T) * 2))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host two elements of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Return the requested element
+        return *reinterpret_cast< const T * >(m_Ptr + sizeof(T));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -506,8 +571,14 @@ public:
     */
     template < typename T = Value > T & Back()
     {
-        assert(m_Cap >= sizeof(T));
-        return reinterpret_cast< T * >(m_Ptr)[(m_Cap / sizeof(T))-1];
+        // Make sure that the buffer can host at least one element of this type
+        if (m_Cap < sizeof(T))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Return the requested element
+        return *reinterpret_cast< T * >(m_Ptr + (m_Cap - sizeof(T)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -515,8 +586,14 @@ public:
     */
     template < typename T = Value > const T & Back() const
     {
-        assert(m_Cap >= sizeof(T));
-        return reinterpret_cast< const T * >(m_Ptr)[(m_Cap / sizeof(T))-1];
+        // Make sure that the buffer can host at least one element of this type
+        if (m_Cap < sizeof(T))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Return the requested element
+        return *reinterpret_cast< const T * >(m_Ptr + (m_Cap - sizeof(T)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -524,8 +601,14 @@ public:
     */
     template < typename T = Value > T & Prev()
     {
-        assert(m_Cap >= (sizeof(T) * 2));
-        return reinterpret_cast< T * >(m_Ptr)[(m_Cap / sizeof(T))-2];
+        // Make sure that the buffer can host at least two elements of this type
+        if (m_Cap < (sizeof(T) * 2))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host two elements of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Return the requested element
+        return *reinterpret_cast< T * >(m_Ptr + (m_Cap - (sizeof(T) * 2)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -533,8 +616,14 @@ public:
     */
     template < typename T = Value > const T & Prev() const
     {
-        assert(m_Cap >= (sizeof(T) * 2));
-        return reinterpret_cast< const T * >(m_Ptr)[(m_Cap / sizeof(T))-2];
+        // Make sure that the buffer can host at least two elements of this type
+        if (m_Cap < (sizeof(T) * 2))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host two elements of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // Return the requested element
+        return *reinterpret_cast< const T * >(m_Ptr + (m_Cap - (sizeof(T) * 2)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -543,7 +632,7 @@ public:
     template < typename T = Value > void Advance(SzType n)
     {
         // Do we need to scale the buffer?
-        if ((m_Cur + (n * sizeof(T))) >= m_Cap)
+        if ((m_Cur + (n * sizeof(T))) > m_Cap)
         {
             Grow(m_Cur + (n * sizeof(T)));
         }
@@ -574,7 +663,7 @@ public:
     template < typename T = Value > void Move(SzType n)
     {
         // Do we need to scale the buffer?
-        if ((n * sizeof(T)) >= m_Cap)
+        if ((n * sizeof(T)) > m_Cap)
         {
             Grow(n * sizeof(T));
         }
@@ -588,12 +677,12 @@ public:
     template < typename T = Value > void Push(T v)
     {
         // Do we need to scale the buffer?
-        if ((m_Cur + sizeof(T)) >= m_Cap)
+        if ((m_Cur + sizeof(T)) > m_Cap)
         {
             Grow(m_Cap + sizeof(T));
         }
         // Assign the specified value
-        reinterpret_cast< T * >(m_Ptr)[m_Cur] = v;
+        *reinterpret_cast< T * >(m_Ptr + m_Cur) = v;
         // Move to the next element
         m_Cur += sizeof(T);
     }
@@ -603,8 +692,14 @@ public:
     */
     template < typename T = Value > T & Cursor()
     {
-        assert((m_Cur / sizeof(T)) < (m_Cap / sizeof(T)));
-        return reinterpret_cast< T * >(m_Ptr)[m_Cur];
+        // Make sure that at least one element of this type exists after the cursor
+        if ((m_Cur + sizeof(T)) > m_Cap)
+        {
+            ThrowMemExcept("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)",
+                            sizeof(T), m_Cur, m_Cap);
+        }
+        // Return the requested element
+        return *reinterpret_cast< T * >(m_Ptr + m_Cur);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -612,8 +707,14 @@ public:
     */
     template < typename T = Value > const T & Cursor() const
     {
-        assert((m_Cur / sizeof(T)) < (m_Cap / sizeof(T)));
-        return reinterpret_cast< const T * >(m_Ptr)[m_Cur];
+        // Make sure that at least one element of this type exists after the cursor
+        if ((m_Cur + sizeof(T)) > m_Cap)
+        {
+            ThrowMemExcept("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)",
+                            sizeof(T), m_Cur, m_Cap);
+        }
+        // Return the requested element
+        return *reinterpret_cast< const T * >(m_Ptr + m_Cur);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -621,8 +722,14 @@ public:
     */
     template < typename T = Value > T & Before()
     {
-        assert(m_Cur >= sizeof(T));
-        return reinterpret_cast< T * >(m_Ptr)[(m_Cur / sizeof(T))-1];
+        // The cursor must have at least one element of this type behind
+        if (m_Cur < sizeof(T))
+        {
+            ThrowMemExcept("Cannot read an element of size (%u) before the cursor at (%u)",
+                            sizeof(T), m_Cur);
+        }
+        // Return the requested element
+        return *reinterpret_cast< T * >(m_Ptr + (m_Cur - sizeof(T)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -630,8 +737,14 @@ public:
     */
     template < typename T = Value > const T & Before() const
     {
-        assert(m_Cur >= sizeof(T));
-        return reinterpret_cast< const T * >(m_Ptr)[(m_Cur / sizeof(T))-1];
+        // The cursor must have at least one element of this type behind
+        if (m_Cur < sizeof(T))
+        {
+            ThrowMemExcept("Cannot read an element of size (%u) before the cursor at (%u)",
+                            sizeof(T), m_Cur);
+        }
+        // Return the requested element
+        return *reinterpret_cast< const T * >(m_Ptr + (m_Cur - sizeof(T)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -639,8 +752,20 @@ public:
     */
     template < typename T = Value > T & After()
     {
-        assert(m_Cap >= sizeof(T) && (m_Cur + sizeof(T)) <= (m_Cap - sizeof(T)));
-        return reinterpret_cast< T * >(m_Ptr)[(m_Cur / sizeof(T))+1];
+        // Make sure that the buffer can host at least one element of this type
+        if (m_Cap < sizeof(T))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // There must be buffer left for at least two elements of this type after the cursor
+        else if ((m_Cur + (sizeof(T) * 2)) > m_Cap)
+        {
+            ThrowMemExcept("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)",
+                            sizeof(T), m_Cur + sizeof(T), m_Cap);
+        }
+        // Return the requested element
+        return *reinterpret_cast< T * >(m_Ptr + m_Cur + sizeof(T));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -648,8 +773,20 @@ public:
     */
     template < typename T = Value > const T & After() const
     {
-        assert(m_Cap >= sizeof(T) && (m_Cur + sizeof(T)) <= (m_Cap - sizeof(T)));
-        return reinterpret_cast< const T * >(m_Ptr)[(m_Cur / sizeof(T))+1];
+        // Make sure that the buffer can host at least one element of this type
+        if (m_Cap < sizeof(T))
+        {
+            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+                            m_Cap, sizeof(T));
+        }
+        // There must be buffer left for at least two elements of this type after the cursor
+        else if ((m_Cur + (sizeof(T) * 2)) > m_Cap)
+        {
+            ThrowMemExcept("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)",
+                            sizeof(T), m_Cur + sizeof(T), m_Cap);
+        }
+        // Return the requested element
+        return *reinterpret_cast< const T * >(m_Ptr + m_Cur + sizeof(T));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -677,9 +814,25 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the current buffer capacity in byte count.
+    */
+    template < typename T = Value > SzType CapacityAs() const
+    {
+        return static_cast< SzType >(m_Cap / sizeof(T));
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the current position of the cursor in the buffer.
     */
-    template < typename T = Value > SzType Position() const
+    SzType Position() const
+    {
+        return m_Cur;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current position of the cursor in the buffer.
+    */
+    template < typename T = Value > SzType PositionAs() const
     {
         return static_cast< SzType >(m_Cur / sizeof(T));
     }
@@ -687,9 +840,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of unused buffer after the edit cursor.
     */
-    template < typename T = Value > SzType Remaining() const
+    SzType Remaining() const
     {
-        return static_cast< SzType >((m_Cap - m_Cur) / sizeof(T));
+        return m_Cap - m_Cur;
     }
 
     /* --------------------------------------------------------------------------------------------

@@ -853,7 +853,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Send the specified buffer contents to the managed player entity.
     */
-    void SendBuffer(const BufferWrapper & buffer) const;
+    void SendBuffer(const SqBuffer & buffer) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed player entity.

@@ -1,5 +1,5 @@
-#ifndef _LIBRARY_UTILS_BUFFERWRAPPER_HPP_
-#define _LIBRARY_UTILS_BUFFERWRAPPER_HPP_
+#ifndef _LIBRARY_UTILS_BUFFER_HPP_
+#define _LIBRARY_UTILS_BUFFER_HPP_
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -8,13 +8,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// ------------------------------------------------------------------------------------------------
-template < typename T > class BufferInterpreter;
-
 /* ------------------------------------------------------------------------------------------------
  * Squirrel wrapper for the shared buffer class.
 */
-class BufferWrapper
+class SqBuffer
 {
 private:
 
@@ -49,9 +46,27 @@ public:
     static Object Create(SzType n);
 
     /* --------------------------------------------------------------------------------------------
-     * Base constructor.
+     * Default constructor.
     */
-    BufferWrapper(const SRef & ref)
+    SqBuffer()
+        : m_Buffer(new Buffer())
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Allocate constructor.
+    */
+    SqBuffer(SQInteger n)
+        : m_Buffer(new Buffer(ConvTo< SzType >::From(n)))
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference constructor.
+    */
+    SqBuffer(const SRef & ref)
         : m_Buffer(ref)
     {
         /* ... */
@@ -60,7 +75,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Buffer constructor.
     */
-    BufferWrapper(const Buffer & b)
+    SqBuffer(const Buffer & b)
         : m_Buffer(new Buffer(b))
     {
         /* ... */
@@ -69,7 +84,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Buffer constructor.
     */
-    BufferWrapper(Buffer && b)
+    SqBuffer(Buffer && b)
         : m_Buffer(new Buffer(std::move(b)))
     {
         /* ... */
@@ -78,27 +93,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    BufferWrapper(const BufferWrapper & o) = default;
+    SqBuffer(const SqBuffer & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    BufferWrapper(BufferWrapper && o) = default;
+    SqBuffer(SqBuffer && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~BufferWrapper() = default;
+    ~SqBuffer() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    BufferWrapper & operator = (const BufferWrapper & o) = default;
+    SqBuffer & operator = (const SqBuffer & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    BufferWrapper & operator = (BufferWrapper && o) = default;
+    SqBuffer & operator = (SqBuffer && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a reference to the managed memory buffer.
@@ -140,33 +155,23 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve a certain element type at the specified position.
     */
-    Value Get(SzType n) const
+    Value Get(SQInteger n) const
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (n >= m_Buffer->Size())
-        {
-            STHROWF("Index (%u) is out of bounds (%u)", n, m_Buffer->Size());
-        }
         // Return the requested element
-        return m_Buffer->At(n);
+        return m_Buffer->At(ConvTo< SzType >::From(n));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Modify a certain element type at the specified position.
     */
-    void Set(SzType n, Value v)
+    void Set(SQInteger n, SQInteger v)
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (n >= m_Buffer->Size())
-        {
-            STHROWF("Index (%u) is out of bounds (%u)", n, m_Buffer->Size());
-        }
         // Return the requested element
-        m_Buffer->At(n) = v;
+        m_Buffer->At(ConvTo< SzType >::From(n)) = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -176,12 +181,6 @@ public:
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < sizeof(Value))
-        {
-            STHROWF("Value size (%u starting at 0) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
         return m_Buffer->Front();
     }
@@ -189,18 +188,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element at the front of the buffer.
     */
-    void SetFront(Value v)
+    void SetFront(SQInteger v)
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < sizeof(Value))
-        {
-            STHROWF("Value size (%u starting at 0) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
-        m_Buffer->Front() = v;
+        m_Buffer->Front() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -210,12 +203,6 @@ public:
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < (sizeof(Value) * 2))
-        {
-            STHROWF("Value size (%u starting at %u) is out of bounds (%u)",
-                        sizeof(Value), sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
         return m_Buffer->Next();
     }
@@ -223,18 +210,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element after the first element in the buffer.
     */
-    void SetNext(Value v)
+    void SetNext(SQInteger v)
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < (sizeof(Value) * 2))
-        {
-            STHROWF("Value size (%u starting at %u) is out of bounds (%u)",
-                        sizeof(Value), sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
-        m_Buffer->Next() = v;
+        m_Buffer->Next() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -244,12 +225,6 @@ public:
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < sizeof(Value))
-        {
-            STHROWF("Value size (%u starting at 0) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
         return m_Buffer->Back();
     }
@@ -257,18 +232,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element at the back of the buffer.
     */
-    void SetBack(Value v)
+    void SetBack(SQInteger v)
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < sizeof(Value))
-        {
-            STHROWF("Value size (%u starting at 0) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
-        m_Buffer->Back() = v;
+        m_Buffer->Back() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -278,12 +247,6 @@ public:
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < (sizeof(Value) * 2))
-        {
-            STHROWF("Value size (%u starting at %u) is out of bounds (%u)",
-                        sizeof(Value), sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
         return m_Buffer->Prev();
     }
@@ -291,62 +254,56 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element before the last element in the buffer.
     */
-    void SetPrev(Value v)
+    void SetPrev(SQInteger v)
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < (sizeof(Value) * 2))
-        {
-            STHROWF("Value size (%u starting at %u) is out of bounds (%u)",
-                        sizeof(Value), sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
-        m_Buffer->Prev() = v;
+        m_Buffer->Prev() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Reposition the edit cursor to the specified number of elements ahead.
     */
-    void Advance(SzType n)
+    void Advance(SQInteger n)
     {
         // Validate the managed buffer reference
         Validate();
         // Perform the requested operation
-        m_Buffer->Advance(n);
+        m_Buffer->Advance(ConvTo< SzType >::From(n));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Reposition the edit cursor to the specified number of elements behind.
     */
-    void Retreat(SzType n)
+    void Retreat(SQInteger n)
     {
         // Validate the managed buffer reference
         Validate();
         // Perform the requested operation
-        m_Buffer->Retreat(n);
+        m_Buffer->Retreat(ConvTo< SzType >::From(n));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Reposition the edit cursor to a fixed position within the buffer.
     */
-    void Move(SzType n)
+    void Move(SQInteger n)
     {
         // Validate the managed buffer reference
         Validate();
         // Perform the requested operation
-        m_Buffer->Move(n);
+        m_Buffer->Move(ConvTo< SzType >::From(n));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Append a value to the current cursor location and advance the cursor.
     */
-    void Push(Value v)
+    void Push(SQInteger v)
     {
         // Validate the managed buffer reference
         Validate();
         // Perform the requested operation
-        m_Buffer->Push(v);
+        m_Buffer->Push(ConvTo< Value >::From(v));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -356,12 +313,6 @@ public:
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Position() >= m_Buffer->Size())
-        {
-            STHROWF("Value size (%u starting at %u) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Position(), m_Buffer->Capacity());
-        }
         // Return the requested element
         return m_Buffer->Cursor();
     }
@@ -369,18 +320,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element at the cursor position.
     */
-    void SetCursor(Value v)
+    void SetCursor(SQInteger v)
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Position() >= m_Buffer->Size())
-        {
-            STHROWF("Value size (%u starting at %u) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Position(), m_Buffer->Capacity());
-        }
         // Return the requested element
-        m_Buffer->Cursor() = v;
+        m_Buffer->Cursor() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -390,12 +335,6 @@ public:
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Position() < sizeof(Value))
-        {
-            STHROWF("Value size (%u starting at 0) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
         return m_Buffer->Before();
     }
@@ -403,18 +342,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element before the cursor position.
     */
-    void SetBefore(Value v)
+    void SetBefore(SQInteger v)
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Position() < sizeof(Value))
-        {
-            STHROWF("Value size (%u starting at 0) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Capacity());
-        }
         // Return the requested element
-        m_Buffer->Before() = v;
+        m_Buffer->Before() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -424,13 +357,6 @@ public:
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < sizeof(Value) ||
-            (m_Buffer->Position() + sizeof(Value)) > (m_Buffer->Capacity() - sizeof(Value)))
-        {
-            STHROWF("Value size (%u starting at %u) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Position(), m_Buffer->Capacity());
-        }
         // Return the requested element
         return m_Buffer->After();
     }
@@ -438,19 +364,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element after the cursor position.
     */
-    void SetAfter(Value v)
+    void SetAfter(SQInteger v)
     {
         // Validate the managed buffer reference
         Validate();
-        // Are we out of the memory buffer range?
-        if (m_Buffer->Capacity() < sizeof(Value) ||
-            (m_Buffer->Position() + sizeof(Value)) > (m_Buffer->Capacity() - sizeof(Value)))
-        {
-            STHROWF("Value size (%u starting at %u) is out of bounds (%u)",
-                        sizeof(Value), m_Buffer->Position(), m_Buffer->Capacity());
-        }
         // Return the requested element
-        m_Buffer->After() = v;
+        m_Buffer->After() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -469,7 +388,7 @@ public:
         // Validate the managed buffer reference
         Validate();
         // Return the requested information
-        return m_Buffer->Size();
+        return m_Buffer->CapacityAs< Value >();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -508,25 +427,25 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Grow the size of the internal buffer by the specified amount of bytes.
     */
-    void Grow(SzType n)
+    void Grow(SQInteger n)
     {
         // Validate the managed buffer reference
         Validate();
         // Perform the requested operation
-        return m_Buffer->Grow(n * sizeof(Value));
+        return m_Buffer->Grow(ConvTo< SzType >::From(n) * sizeof(Value));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Makes sure there is enough capacity to hold the specified element count.
     */
-    void Adjust(SzType n)
+    void Adjust(SQInteger n)
     {
         // Validate the managed buffer reference
         Validate();
         // Attempt to perform the requested operation
         try
         {
-            Buffer bkp(m_Buffer->Adjust(n * sizeof(Value)));
+            Buffer bkp(m_Buffer->Adjust(ConvTo< SzType >::From(n) * sizeof(Value)));
             // Copy the data into the new buffer
             m_Buffer->Write(0, bkp.Data(), bkp.Capacity());
             m_Buffer->Move(bkp.Position());
@@ -538,116 +457,354 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Write a 8 bit byte to the stream buffer.
+     * Write a signed 8 bit integer to the buffer.
     */
-    void WriteByte(SQInteger val);
+    void WriteInt8(SQInteger val)
+    {
+        // Validate the managed buffer reference
+        Validate();
+        // Perform the requested operation
+        m_Buffer->Push< Int8 >(ConvTo< Int8 >::From(val));
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Write a 16 bit short to the stream buffer.
+     * Write an unsigned 8 bit integer to the buffer.
     */
-    void WriteShort(SQInteger val);
+    void WriteUint8(SQInteger val)
+    {
+        // Validate the managed buffer reference
+        Validate();
+        // Perform the requested operation
+        m_Buffer->Push< Uint8 >(ConvTo< Uint8 >::From(val));
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Write a 32 bit integer to the stream buffer.
+     * Write a signed 16 bit integer to the buffer.
     */
-    void WriteInt(SQInteger val);
+    void WriteInt16(SQInteger val)
+    {
+        // Validate the managed buffer reference
+        Validate();
+        // Perform the requested operation
+        m_Buffer->Push< Int16 >(ConvTo< Int16 >::From(val));
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Write a 32 bit float to the stream buffer.
+     * Write an unsigned 16 bit integer to the buffer.
     */
-    void WriteFloat(SQFloat val);
+    void WriteUint16(SQInteger val)
+    {
+        // Validate the managed buffer reference
+        Validate();
+        // Perform the requested operation
+        m_Buffer->Push< Uint16 >(ConvTo< Uint16 >::From(val));
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Write a string to the stream buffer.
+     * Write a signed 32 bit integer to the buffer.
+    */
+    void WriteInt32(SQInteger val)
+    {
+        // Validate the managed buffer reference
+        Validate();
+        // Perform the requested operation
+        m_Buffer->Push< Int32 >(ConvTo< Int32 >::From(val));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Write an unsigned 32 bit integer to the buffer.
+    */
+    void WriteUint32(SQInteger val)
+    {
+        // Validate the managed buffer reference
+        Validate();
+        // Perform the requested operation
+        m_Buffer->Push< Uint32 >(ConvTo< Uint32 >::From(val));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a signed 64 bit integer to the buffer.
+    */
+    void WriteInt64(const SLongInt & val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write an unsigned 64 bit integer to the buffer.
+    */
+    void WriteUint64(const ULongInt & val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a 32 bit float to the buffer.
+    */
+    void WriteFloat32(SQFloat val)
+    {
+        // Validate the managed buffer reference
+        Validate();
+        // Perform the requested operation
+        m_Buffer->Push< Float32 >(ConvTo< Float32 >::From(val));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a 64 bit float to the buffer.
+    */
+    void WriteFloat64(SQFloat val)
+    {
+        // Validate the managed buffer reference
+        Validate();
+        // Perform the requested operation
+        m_Buffer->Push< Float64 >(ConvTo< Float64 >::From(val));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a string to the buffer.
     */
     void WriteString(CSStr val);
 
     /* --------------------------------------------------------------------------------------------
-     * Write a raw string to the stream buffer.
+     * Write a raw string to the buffer.
     */
     void WriteRawString(CSStr val);
 
     /* --------------------------------------------------------------------------------------------
-     * Read a 8 bit byte to the stream buffer.
+     * Write a AABB to the buffer.
     */
-    SQInteger ReadByte();
+    void WriteAABB(const AABB & val);
 
     /* --------------------------------------------------------------------------------------------
-     * Read a 16 bit short to the stream buffer.
+     * Write a Circle to the buffer.
     */
-    SQInteger ReadShort();
+    void WriteCircle(const Circle & val);
 
     /* --------------------------------------------------------------------------------------------
-     * Read a 32 bit integer to the stream buffer.
+     * Write a Color3 to the buffer.
     */
-    SQInteger ReadInt();
+    void WriteColor3(const Color3 & val);
 
     /* --------------------------------------------------------------------------------------------
-     * Read a 32 bit float to the stream buffer.
+     * Write a Color4 to the buffer.
     */
-    SQFloat ReadFloat();
+    void WriteColor4(const Color4 & val);
 
     /* --------------------------------------------------------------------------------------------
-     * Read a string to the stream buffer.
+     * Write a Quaternion to the buffer.
+    */
+    void WriteQuaternion(const Quaternion & val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a Sphere to the buffer.
+    */
+    void WriteSphere(const Sphere &val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a Vector2 to the buffer.
+    */
+    void WriteVector2(const Vector2 & val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a Vector2i to the buffer.
+    */
+    void WriteVector2i(const Vector2i & val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a Vector3 to the buffer.
+    */
+    void WriteVector3(const Vector3 & val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a Vector4 to the buffer.
+    */
+    void WriteVector4(const Vector4 & val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a signed 8 bit integer from the buffer.
+    */
+    SQInteger ReadInt8()
+    {
+        // Validate the managed buffer reference
+        ValidateDeeper();
+        // Read one element from the buffer
+        const Int8 value = m_Buffer->Cursor< Int8 >();
+        // Advance the buffer cursor
+        m_Buffer->Advance< Int8 >(1);
+        // Return the requested information
+        return ConvTo< SQInteger >::From(value);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Read an unsigned 8 bit integer from the buffer.
+    */
+    SQInteger ReadUint8()
+    {
+        // Validate the managed buffer reference
+        ValidateDeeper();
+        // Read one element from the buffer
+        const Uint8 value = m_Buffer->Cursor< Uint8 >();
+        // Advance the buffer cursor
+        m_Buffer->Advance< Uint8 >(1);
+        // Return the requested information
+        return ConvTo< SQInteger >::From(value);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Read a signed 16 bit integer from the buffer.
+    */
+    SQInteger ReadInt16()
+    {
+        // Validate the managed buffer reference
+        ValidateDeeper();
+        // Read one element from the buffer
+        const Int16 value = m_Buffer->Cursor< Int16 >();
+        // Advance the buffer cursor
+        m_Buffer->Advance< Int16 >(1);
+        // Return the requested information
+        return ConvTo< SQInteger >::From(value);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Read an unsigned 16 bit integer from the buffer.
+    */
+    SQInteger ReadUint16()
+    {
+        // Validate the managed buffer reference
+        ValidateDeeper();
+        // Read one element from the buffer
+        const Uint16 value = m_Buffer->Cursor< Uint16 >();
+        // Advance the buffer cursor
+        m_Buffer->Advance< Uint16 >(1);
+        // Return the requested information
+        return ConvTo< SQInteger >::From(value);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Read a signed 32 bit integer from the buffer.
+    */
+    SQInteger ReadInt32()
+    {
+        // Validate the managed buffer reference
+        ValidateDeeper();
+        // Read one element from the buffer
+        const Int32 value = m_Buffer->Cursor< Int32 >();
+        // Advance the buffer cursor
+        m_Buffer->Advance< Int32 >(1);
+        // Return the requested information
+        return ConvTo< SQInteger >::From(value);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Read an unsigned 32 bit integer from the buffer.
+    */
+    SQInteger ReadUint32()
+    {
+        // Validate the managed buffer reference
+        ValidateDeeper();
+        // Read one element from the buffer
+        const Uint32 value = m_Buffer->Cursor< Uint32 >();
+        // Advance the buffer cursor
+        m_Buffer->Advance< Uint32 >(1);
+        // Return the requested information
+        return ConvTo< SQInteger >::From(value);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Read a signed 64 bit integer from the buffer.
+    */
+    SLongInt ReadInt64();
+
+    /* --------------------------------------------------------------------------------------------
+     * Read an unsigned 64 bit integer from the buffer.
+    */
+    ULongInt ReadUint64();
+
+    /* --------------------------------------------------------------------------------------------
+     * Read a 32 bit float from the buffer.
+    */
+    SQFloat ReadFloat32()
+    {
+        // Validate the managed buffer reference
+        ValidateDeeper();
+        // Read one element from the buffer
+        const Float32 value = m_Buffer->Cursor< Float32 >();
+        // Advance the buffer cursor
+        m_Buffer->Advance< Float32 >(1);
+        // Return the requested information
+        return ConvTo< SQFloat >::From(value);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Read a 64 bit float from the buffer.
+    */
+    SQFloat ReadFloat64()
+    {
+        // Validate the managed buffer reference
+        ValidateDeeper();
+        // Read one element from the buffer
+        const Float64 value = m_Buffer->Cursor< Float64 >();
+        // Advance the buffer cursor
+        m_Buffer->Advance< Float64 >(1);
+        // Return the requested information
+        return ConvTo< SQFloat >::From(value);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Read a string from the buffer.
     */
     Object ReadString();
 
     /* --------------------------------------------------------------------------------------------
-     * Read a raw string to the stream buffer.
+     * Read a raw string from the buffer.
     */
     Object ReadRawString(Uint32 len);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a signed 8 bit interpreter to this buffer.
+     * Read a AABB from the buffer.
     */
-    BufferInterpreter< Int8 > GetInt8Interpreter() const;
+    AABB ReadAABB();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve an unsigned 8 bit interpreter to this buffer.
+     * Read a Circle from the buffer.
     */
-    BufferInterpreter< Uint8 > GetUint8Interpreter() const;
+    Circle ReadCircle();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a signed 16 bit interpreter to this buffer.
+     * Read a Color3 from the buffer.
     */
-    BufferInterpreter< Int16 > GetInt16Interpreter() const;
+    Color3 ReadColor3();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve an unsigned 16 bit interpreter to this buffer.
+     * Read a Color4 from the buffer.
     */
-    BufferInterpreter< Uint16 > GetUint16Interpreter() const;
+    Color4 ReadColor4();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a signed 32 bit interpreter to this buffer.
+     * Read a Quaternion from the buffer.
     */
-    BufferInterpreter< Int32 > GetInt32Interpreter() const;
+    Quaternion ReadQuaternion();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve an unsigned 32 bit interpreter to this buffer.
+     * Read a Sphere from the buffer.
     */
-    BufferInterpreter< Uint32 > GetUint32Interpreter() const;
+    Sphere ReadSphere();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a signed 64 bit interpreter to this buffer.
+     * Read a Vector2 from the buffer.
     */
-    BufferInterpreter< Int64 > GetInt64Interpreter() const;
+    Vector2 ReadVector2();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve an unsigned 64 bit interpreter to this buffer.
+     * Read a Vector2i from the buffer.
     */
-    BufferInterpreter< Uint64 > GetUint64Interpreter() const;
+    Vector2i ReadVector2i();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a 32 bit floating point interpreter to this buffer.
+     * Read a Vector3 from the buffer.
     */
-    BufferInterpreter< Float32 > GetFloat32Interpreter() const;
+    Vector3 ReadVector3();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a 64 bit floating point interpreter to this buffer.
+     * Read a Vector4 from the buffer.
     */
-    BufferInterpreter< Float64 > GetFloat64Interpreter() const;
+    Vector4 ReadVector4();
 };
 
 } // Namespace:: SqMod
 
-#endif // _LIBRARY_UTILS_BUFFERWRAPPER_HPP_
+#endif // _LIBRARY_UTILS_BUFFER_HPP_

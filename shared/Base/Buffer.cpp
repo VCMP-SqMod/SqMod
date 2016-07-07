@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Buffer.hpp"
+#include "sqrat/sqratUtil.h"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
@@ -30,7 +31,7 @@ inline unsigned int NextPow2(unsigned int num)
 void ThrowMemExcept(const char * msg, ...)
 {
     // Exception messages should be concise
-    char buffer[128];
+    char buffer[256];
     // Variable arguments structure
     va_list args;
     // Get the specified arguments
@@ -40,10 +41,10 @@ void ThrowMemExcept(const char * msg, ...)
     // Check for formatting errors
     if (ret < 0)
     {
-        throw std::runtime_error("Unknown memory error");
+        throw Sqrat::Exception("Unknown memory error");
     }
     // Throw the actual exception
-    throw std::runtime_error(buffer);
+    throw Sqrat::Exception(buffer);
 }
 
 /* ------------------------------------------------------------------------------------------------
