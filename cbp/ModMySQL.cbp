@@ -23,6 +23,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
+					<Add library="mysql" />
 					<Add directory="../lib/mingw32-d" />
 				</Linker>
 				<ExtraCommands>
@@ -47,6 +48,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m32" />
+					<Add library="mysql" />
 					<Add directory="../lib/mingw32" />
 				</Linker>
 				<ExtraCommands>
@@ -71,6 +73,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
+					<Add library="mysql" />
 					<Add directory="../lib/mingw64-d" />
 				</Linker>
 				<ExtraCommands>
@@ -96,6 +99,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
+					<Add library="mysql" />
 					<Add directory="../lib/mingw64" />
 				</Linker>
 				<ExtraCommands>
@@ -119,6 +123,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
+					<Add library="mysqlclient" />
 					<Add directory="../lib/gcc32-d" />
 				</Linker>
 				<ExtraCommands>
@@ -143,6 +148,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m32" />
+					<Add library="mysqlclient" />
 					<Add directory="../lib/gcc32" />
 				</Linker>
 				<ExtraCommands>
@@ -167,6 +173,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
+					<Add library="mysqlclient" />
 					<Add directory="../lib/gcc64-d" />
 				</Linker>
 				<ExtraCommands>
@@ -192,6 +199,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
+					<Add library="mysqlclient" />
 					<Add directory="../lib/gcc64" />
 				</Linker>
 				<ExtraCommands>
@@ -219,6 +227,7 @@
 				<Linker>
 					<Add option="-m32" />
 					<Add option="-static" />
+					<Add library="mysql" />
 					<Add directory="../lib/mingw32-d" />
 				</Linker>
 				<ExtraCommands>
@@ -247,6 +256,7 @@
 					<Add option="-s" />
 					<Add option="-m32" />
 					<Add option="-static" />
+					<Add library="mysql" />
 					<Add directory="../lib/mingw32" />
 				</Linker>
 				<ExtraCommands>
@@ -275,6 +285,7 @@
 				<Linker>
 					<Add option="-m64" />
 					<Add option="-static" />
+					<Add library="mysql" />
 					<Add directory="../lib/mingw64-d" />
 				</Linker>
 				<ExtraCommands>
@@ -304,6 +315,7 @@
 					<Add option="-s" />
 					<Add option="-m64" />
 					<Add option="-static" />
+					<Add library="mysql" />
 					<Add directory="../lib/mingw64" />
 				</Linker>
 				<ExtraCommands>
@@ -331,6 +343,7 @@
 				<Linker>
 					<Add option="-m32" />
 					<Add option="-Bstatic" />
+					<Add library="mysqlclient" />
 					<Add directory="../lib/gcc32-d" />
 				</Linker>
 				<ExtraCommands>
@@ -359,6 +372,7 @@
 					<Add option="-s" />
 					<Add option="-m32" />
 					<Add option="-Bstatic" />
+					<Add library="mysqlclient" />
 					<Add directory="../lib/gcc32" />
 				</Linker>
 				<ExtraCommands>
@@ -387,6 +401,7 @@
 				<Linker>
 					<Add option="-m64" />
 					<Add option="-Bstatic" />
+					<Add library="mysqlclient" />
 					<Add directory="../lib/gcc64-d" />
 				</Linker>
 				<ExtraCommands>
@@ -416,6 +431,7 @@
 					<Add option="-s" />
 					<Add option="-m64" />
 					<Add option="-Bstatic" />
+					<Add library="mysqlclient" />
 					<Add directory="../lib/gcc64" />
 				</Linker>
 				<ExtraCommands>
@@ -435,17 +451,16 @@
 			<Add directory="../include" />
 			<Add directory="../config/common" />
 		</Compiler>
-		<Linker>
-			<Add library="mysql" />
-		</Linker>
 		<Unit filename="../modules/mysql/Account.cpp" />
 		<Unit filename="../modules/mysql/Account.hpp" />
-		<Unit filename="../modules/mysql/Column.cpp" />
-		<Unit filename="../modules/mysql/Column.hpp" />
 		<Unit filename="../modules/mysql/Common.cpp" />
 		<Unit filename="../modules/mysql/Common.hpp" />
 		<Unit filename="../modules/mysql/Connection.cpp" />
 		<Unit filename="../modules/mysql/Connection.hpp" />
+		<Unit filename="../modules/mysql/Convert.cpp" />
+		<Unit filename="../modules/mysql/Convert.hpp" />
+		<Unit filename="../modules/mysql/Field.cpp" />
+		<Unit filename="../modules/mysql/Field.hpp" />
 		<Unit filename="../modules/mysql/Handle/Connection.cpp" />
 		<Unit filename="../modules/mysql/Handle/Connection.hpp" />
 		<Unit filename="../modules/mysql/Handle/ResultSet.cpp" />
@@ -453,6 +468,8 @@
 		<Unit filename="../modules/mysql/Handle/Statement.cpp" />
 		<Unit filename="../modules/mysql/Handle/Statement.hpp" />
 		<Unit filename="../modules/mysql/Module.cpp" />
+		<Unit filename="../modules/mysql/Parameter.cpp" />
+		<Unit filename="../modules/mysql/Parameter.hpp" />
 		<Unit filename="../modules/mysql/ResultSet.cpp" />
 		<Unit filename="../modules/mysql/ResultSet.hpp" />
 		<Unit filename="../modules/mysql/Savepoint.cpp" />

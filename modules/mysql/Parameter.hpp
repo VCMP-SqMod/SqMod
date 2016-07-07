@@ -1,5 +1,5 @@
-#ifndef _SQMYSQL_COLUMN_HPP_
-#define _SQMYSQL_COLUMN_HPP_
+#ifndef _SQMYSQL_PARAMETER_HPP_
+#define _SQMYSQL_PARAMETER_HPP_
 
 // ------------------------------------------------------------------------------------------------
 #include "Common.hpp"
@@ -14,4 +14,4 @@ namespace SqMod {
 
 } // Namespace:: SqMod
 
-#endif // _SQMYSQL_COLUMN_HPP_
+#endif // _SQMYSQL_PARAMETER_HPP_

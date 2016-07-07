@@ -2,6 +2,12 @@
 #include "Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -16,7 +22,7 @@ void SqDateToMySQLTime(Object & obj, MYSQL_TIME & t)
         // Push the specified object onto the stack
         Var< Object >::push(_SqVM, obj);
         // Attempt to get the values inside the specified object
-        if (SQ_FAILED(_SqMod->GetDate(_SqVM, -1, &year, &month, &day)))
+        if (SQ_FAILED(SqMod_GetDate(_SqVM, -1, &year, &month, &day)))
         {
             STHROWF("Invalid date specified");
         }
@@ -45,7 +51,7 @@ void SqTimeToMySQLTime(Object & obj, MYSQL_TIME & t)
         // Push the specified object onto the stack
         Var< Object >::push(_SqVM, obj);
         // Attempt to get the values inside the specified object
-        if (SQ_FAILED(_SqMod->GetTime(_SqVM, -1, &hour, &minute, &second, &milli)))
+        if (SQ_FAILED(SqMod_GetTime(_SqVM, -1, &hour, &minute, &second, &milli)))
         {
             STHROWF("Invalid time specified");
         }
@@ -71,7 +77,7 @@ void SqDatetimeToMySQLTime(Object & obj, MYSQL_TIME & t)
         // Push the specified object onto the stack
         Var< Object >::push(_SqVM, obj);
         // Attempt to get the values inside the specified object
-        if (SQ_FAILED(_SqMod->GetDatetime(_SqVM, -1, &year, &month, &day, &hour, &minute, &second, &milli)))
+        if (SQ_FAILED(SqMod_GetDatetime(_SqVM, -1, &year, &month, &day, &hour, &minute, &second, &milli)))
         {
             STHROWF("Invalid date and time specified");
         }

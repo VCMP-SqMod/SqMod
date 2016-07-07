@@ -41,7 +41,7 @@ void SqThrowLast(HSQUIRRELVM vm, CSStr msg)
     // Throw the resulting error message
     STHROWF("%s [%s]", msg, val.mPtr);
 }
- 
+
 // ------------------------------------------------------------------------------------------------
 Object SqFromJSON(HSQUIRRELVM vm, json_t * jval)
 {
@@ -218,7 +218,13 @@ json_t * SqToJSON(HSQUIRRELVM vm, SQInteger idx)
             // Return the resulted array
             return arr;
         } break;
-        default: STHROWF("Unknown conversion for type: %s", SqTypeName(vm, idx));
+        default:
+        {
+            // Grab the type name of the object on the stack
+            const String tn(SqTypeName(vm, idx));
+            // Now throw the error with the obtained name
+            STHROWF("Unknown conversion for type: %s", tn.c_str());
+        }
     }
     // Should not reach this point
     return nullptr;

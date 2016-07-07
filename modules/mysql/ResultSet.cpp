@@ -116,7 +116,7 @@ SQInteger ResultSet::GetInt8(Uint32 idx) const
         return ConvTo< Int8 >::From(m_Handle->mBinds[idx].mInt64);
     }
     // Retrieve the value directly from the row
-    return ConvTo< Int8 >::From(std::strtol(m_Handle->mRow[idx], nullptr, 10));
+    return DbConvTo< Int8 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ SQInteger ResultSet::GetUint8(Uint32 idx) const
         return ConvTo< Uint8 >::From(m_Handle->mBinds[idx].mInt64);
     }
     // Retrieve the value directly from the row
-    return ConvTo< Uint8 >::From(std::strtoul(m_Handle->mRow[idx], nullptr, 10));
+    return DbConvTo< Uint8 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ SQInteger ResultSet::GetInt16(Uint32 idx) const
         return ConvTo< Int16 >::From(m_Handle->mBinds[idx].mInt64);
     }
     // Retrieve the value directly from the row
-    return ConvTo< Int16 >::From(std::strtol(m_Handle->mRow[idx], nullptr, 10));
+    return DbConvTo< Int16 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ SQInteger ResultSet::GetUint16(Uint32 idx) const
         return ConvTo< Uint16 >::From(m_Handle->mBinds[idx].mInt64);
     }
     // Retrieve the value directly from the row
-    return ConvTo< Uint16 >::From(std::strtoul(m_Handle->mRow[idx], nullptr, 10));
+    return DbConvTo< Uint16 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ SQInteger ResultSet::GetInt32(Uint32 idx) const
         return ConvTo< Int32 >::From(m_Handle->mBinds[idx].mInt64);
     }
     // Retrieve the value directly from the row
-    return ConvTo< Int32 >::From(std::strtol(m_Handle->mRow[idx], nullptr, 10));
+    return DbConvTo< Int32 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ SQInteger ResultSet::GetUint32(Uint32 idx) const
         return ConvTo< Uint32 >::From(m_Handle->mBinds[idx].mInt64);
     }
     // Retrieve the value directly from the row
-    return ConvTo< Uint32 >::From(std::strtoul(m_Handle->mRow[idx], nullptr, 10));
+    return DbConvTo< Uint32 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ Int64 ResultSet::GetInt64(Uint32 idx) const
         return ConvTo< Int64 >::From(m_Handle->mBinds[idx].mInt64);
     }
     // Retrieve the value directly from the row
-    return std::strtoll(m_Handle->mRow[idx], nullptr, 10);
+    return DbConvTo< Int64 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -207,7 +207,7 @@ Uint64 ResultSet::GetUint64(Uint32 idx) const
         return ConvTo< Uint64 >::From(m_Handle->mBinds[idx].mInt64);
     }
     // Retrieve the value directly from the row
-    return std::strtoull(m_Handle->mRow[idx], nullptr, 10);
+    return DbConvTo< Uint64 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
 }
 
 // ------------------------------------------------------------------------------------------------
