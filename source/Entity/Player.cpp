@@ -2064,7 +2064,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.what()));
+        return sq_throwerror(vm, e.what());
     }
 
     // Do we have a valid player instance?
