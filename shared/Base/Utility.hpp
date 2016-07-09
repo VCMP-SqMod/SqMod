@@ -1096,7 +1096,7 @@ template <> struct ConvTo< CCStr >
 /* ------------------------------------------------------------------------------------------------
  * Force a value to be within a certain range.
 */
-template< typename T > inline T Clamp(T val, T min, T max)
+template< typename T, typename U, typename V > inline T Clamp(T val, U min, V max)
 {
     // Is the specified value bellow the minimum?
     if (val < min)
@@ -1115,7 +1115,7 @@ template< typename T > inline T Clamp(T val, T min, T max)
 /* ------------------------------------------------------------------------------------------------
  * Force a value to be higher then than the imposed limit.
 */
-template< typename T > inline T ClampMin(T val, T min)
+template< typename T, typename U > inline T ClampMin(T val, U min)
 {
     // Is the specified value bellow the minimum?
     if (val < min)
@@ -1129,7 +1129,7 @@ template< typename T > inline T ClampMin(T val, T min)
 /* ------------------------------------------------------------------------------------------------
  * Force a value to be smaller then than the imposed limit.
 */
-template< typename T > inline T ClampMax(T val, T max)
+template< typename T, typename U > inline T ClampMax(T val, U max)
 {
     // Is the specified value above the maximum?
     if (val > max)
@@ -1436,54 +1436,86 @@ template < typename T > Object MakeObject(HSQUIRRELVM vm, const T & v)
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Create a script string object from a buffer.
+ * Create a script string instance from a buffer.
 */
 Object BufferToStrObj(const Buffer & b);
 
 /* ------------------------------------------------------------------------------------------------
- * Create a script string object from a portion of a buffer.
+ * Create a script string instance from a portion of a buffer.
 */
 Object BufferToStrObj(const Buffer & b, Uint32 size);
 
 /* ------------------------------------------------------------------------------------------------
- * Create a signed long integer object from an integer.
+ * Create a signed long integer instance from an integer.
 */
-Object MakeSLongObj(Int64 val);
+Object MakeSLongObj(Int64 value);
 
 /* ------------------------------------------------------------------------------------------------
- * Create a unsigned long integer object from an integer.
+ * Create a unsigned long integer instance from an integer.
 */
-Object MakeULongObj(Uint64 val);
+Object MakeULongObj(Uint64 value);
 
 /* ------------------------------------------------------------------------------------------------
- * Create a signed long integer object from an integer.
+ * Create a signed long integer instance from an integer.
 */
-Object MakeSLongObj(HSQUIRRELVM vm, Int64 val);
+Object MakeSLongObj(HSQUIRRELVM vm, Int64 value);
 
 /* ------------------------------------------------------------------------------------------------
- * Create a unsigned long integer object from an integer.
+ * Create a unsigned long integer instance from an integer.
 */
-Object MakeULongObj(HSQUIRRELVM vm, Uint64 val);
+Object MakeULongObj(HSQUIRRELVM vm, Uint64 value);
 
 /* ------------------------------------------------------------------------------------------------
- * Retrieve a signed 64 bit integer from an signed long integer object.
+ * Retrieve a signed 64 bit integer from an signed long integer instance.
 */
-Int64 FetchSLongObjVal(const Object & val);
+Int64 FetchSLongObjVal(const Object & value);
 
 /* ------------------------------------------------------------------------------------------------
- * Retrieve a unsigned 64 bit integer from an unsigned long integer object.
+ * Retrieve a unsigned 64 bit integer from an unsigned long integer instance.
 */
-Uint64 FetchULongObjVal(const Object & val);
+Uint64 FetchULongObjVal(const Object & value);
 
 /* ------------------------------------------------------------------------------------------------
- * Retrieve a signed 64 bit integer from an signed long integer object.
+ * Retrieve the date components from a date instance.
 */
-Int64 FetchSLongObjVal(HSQUIRRELVM vm, const Object & val);
+SQRESULT FetchDateObjVal(const Object & value, Uint16 & year, Uint8 & month, Uint8 & day);
 
 /* ------------------------------------------------------------------------------------------------
- * Retrieve a unsigned 64 bit integer from an unsigned long integer object.
+ * Retrieve the date components from a date instance as a string.
 */
-Uint64 FetchULongObjVal(HSQUIRRELVM vm, const Object & val);
+CSStr FetchDateObjStr(const Object & value);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the time components from a date instance.
+*/
+SQRESULT FetchTimeObjVal(const Object & value, Uint8 & hour, Uint8 & minute, Uint8 & second);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the time components from a date instance.
+*/
+SQRESULT FetchTimeObjVal(const Object & value, Uint8 & hour, Uint8 & minute, Uint8 & second, Uint16 & millisecond);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the time components from a date instance as a string.
+*/
+CSStr FetchTimeObjStr(const Object & value);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the date-time components from a date-time instance.
+*/
+SQRESULT FetchDatetimeObjVal(const Object & value, Uint16 & year, Uint8 & month, Uint8 & day, Uint8 & hour,
+                                Uint8 & minute, Uint8 & second);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the date-time components from a date-time instance.
+*/
+SQRESULT FetchDatetimeObjVal(const Object & value, Uint16 & year, Uint8 & month, Uint8 & day, Uint8 & hour,
+                                Uint8 & minute, Uint8 & second, Uint16 & millisecond);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the date-time components from a date-time instance as a string.
+*/
+CSStr FetchDatetimeObjStr(const Object & value);
 
 /* ------------------------------------------------------------------------------------------------
  * Attempt to pop the value at the specified index on the stack as a native integer.

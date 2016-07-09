@@ -739,7 +739,7 @@ Object BufferToStrObj(const Buffer & b, Uint32 size)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object MakeSLongObj(Int64 val)
+Object MakeSLongObj(Int64 value)
 {
     // Obtain the default virtual machine
     HSQUIRRELVM vm = DefaultVM::Get();
@@ -747,17 +747,17 @@ Object MakeSLongObj(Int64 val)
     const StackGuard sg(vm);
 #ifdef SQMOD_PLUGIN_API
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushSLongObject(vm, val);
+    SqMod_PushSLongObject(vm, value);
 #else
     // Transform the specified value into a script object
-    PushVar< SLongInt >(vm, SLongInt(val));
+    PushVar< SLongInt >(vm, SLongInt(value));
 #endif // SQMOD_PLUGIN_API
     // Obtain the object from the stack and return it
     return Var< Object >(vm, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
-Object MakeULongObj(Uint64 val)
+Object MakeULongObj(Uint64 value)
 {
     // Obtain the default virtual machine
     HSQUIRRELVM vm = DefaultVM::Get();
@@ -765,89 +765,295 @@ Object MakeULongObj(Uint64 val)
     const StackGuard sg(vm);
 #ifdef SQMOD_PLUGIN_API
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushULongObject(vm, val);
+    SqMod_PushULongObject(vm, value);
 #else
     // Transform the specified value into a script object
-    PushVar< ULongInt >(vm, ULongInt(val));
+    PushVar< ULongInt >(vm, ULongInt(value));
 #endif // SQMOD_PLUGIN_API
     // Obtain the object from the stack and return it
     return Var< Object >(vm, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
-Object MakeSLongObj(HSQUIRRELVM vm, Int64 val)
+Object MakeSLongObj(HSQUIRRELVM vm, Int64 value)
 {
     // Obtain the initial stack size
     const StackGuard sg(vm);
 #ifdef SQMOD_PLUGIN_API
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushSLongObject(vm, val);
+    SqMod_PushSLongObject(vm, value);
 #else
     // Transform the specified value into a script object
-    PushVar< SLongInt >(vm, SLongInt(val));
+    PushVar< SLongInt >(vm, SLongInt(value));
 #endif // SQMOD_PLUGIN_API
     // Obtain the object from the stack and return it
     return Var< Object >(vm, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
-Object MakeULongObj(HSQUIRRELVM vm, Uint64 val)
+Object MakeULongObj(HSQUIRRELVM vm, Uint64 value)
 {
     // Obtain the initial stack size
     const StackGuard sg(vm);
 #ifdef SQMOD_PLUGIN_API
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushULongObject(vm, val);
+    SqMod_PushULongObject(vm, value);
 #else
     // Transform the specified value into a script object
-    PushVar< ULongInt >(vm, ULongInt(val));
+    PushVar< ULongInt >(vm, ULongInt(value));
 #endif // SQMOD_PLUGIN_API
     // Obtain the object from the stack and return it
     return Var< Object >(vm, -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 FetchSLongObjVal(const Object & val)
+Int64 FetchSLongObjVal(const Object & value)
 {
-    // Obtain the initial stack size
-    const StackGuard sg(DefaultVM::Get());
-    // Push the specified object onto the stack
-    Var< const Object & >::push(DefaultVM::Get(), val);
-    // Retrieve and return the object value from the stack
-    return PopStackSLong(DefaultVM::Get(), -1);
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint64 FetchULongObjVal(const Object & val)
-{
-    // Obtain the initial stack size
-    const StackGuard sg(DefaultVM::Get());
-    // Push the specified object onto the stack
-    Var< const Object & >::push(DefaultVM::Get(), val);
-    // Retrieve and return the object value from the stack
-    return PopStackSLong(DefaultVM::Get(), -1);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int64 FetchSLongObjVal(HSQUIRRELVM vm, const Object & val)
-{
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
     // Obtain the initial stack size
     const StackGuard sg(vm);
     // Push the specified object onto the stack
-    Var< const Object & >::push(vm, val);
+    Var< const Object & >::push(vm, value);
     // Retrieve and return the object value from the stack
     return PopStackSLong(vm, -1);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint64 FetchULongObjVal(HSQUIRRELVM vm, const Object & val)
+Uint64 FetchULongObjVal(const Object & value)
 {
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
     // Obtain the initial stack size
     const StackGuard sg(vm);
     // Push the specified object onto the stack
-    Var< const Object & >::push(vm, val);
+    Var< const Object & >::push(vm, value);
     // Retrieve and return the object value from the stack
     return PopStackSLong(vm, -1);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT FetchDateObjVal(const Object & value, Uint16 & year, Uint8 & month, Uint8 & day)
+{
+#ifdef SQMOD_PLUGIN_API
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, value);
+    // Grab the date components from the date instance
+    return SqMod_GetDate(vm, -1, &year, &month, &day);
+#else
+    STHROWF("This method is only available in modules");
+    // Should not reach this point
+    return SQ_ERROR;
+    // Avoid unused parameter warnings
+    SQMOD_UNUSED_VAR(value);
+    SQMOD_UNUSED_VAR(year);
+    SQMOD_UNUSED_VAR(month);
+    SQMOD_UNUSED_VAR(day);
+#endif // SQMOD_PLUGIN_API
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr FetchDateObjStr(const Object & value)
+{
+#ifdef SQMOD_PLUGIN_API
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, value);
+    // Grab the date instance as a string
+    const StackStrF val(vm, -1, false);
+    // Validate the result
+    if (SQ_FAILED(val.mRes))
+    {
+        return _SC("1000-01-01");
+    }
+    // Copy the string into the common buffer
+    std::strncpy(g_Buffer, val.mPtr, sizeof(g_Buffer));
+    // Return the obtained string
+    return g_Buffer;
+#else
+    STHROWF("This method is only available in modules");
+    // Should not reach this point
+    return nullptr;
+    // Avoid unused parameter warnings
+    SQMOD_UNUSED_VAR(value);
+#endif // SQMOD_PLUGIN_API
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT FetchTimeObjVal(const Object & value, Uint8 & hour, Uint8 & minute, Uint8 & second)
+{
+#ifdef SQMOD_PLUGIN_API
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, value);
+    // Grab the date components from the date instance
+    return SqMod_GetTime(vm, -1, &hour, &minute, &second, nullptr);
+#else
+    STHROWF("This method is only available in modules");
+    // Should not reach this point
+    return SQ_ERROR;
+    // Avoid unused parameter warnings
+    SQMOD_UNUSED_VAR(value);
+    SQMOD_UNUSED_VAR(hour);
+    SQMOD_UNUSED_VAR(minute);
+    SQMOD_UNUSED_VAR(second);
+#endif // SQMOD_PLUGIN_API
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT FetchTimeObjVal(const Object & value, Uint8 & hour, Uint8 & minute, Uint8 & second, Uint16 & millisecond)
+{
+#ifdef SQMOD_PLUGIN_API
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, value);
+    // Grab the date components from the date instance
+    return SqMod_GetTime(vm, -1, &hour, &minute, &second, &millisecond);
+#else
+    STHROWF("This method is only available in modules");
+    // Should not reach this point
+    return SQ_ERROR;
+    // Avoid unused parameter warnings
+    SQMOD_UNUSED_VAR(value);
+    SQMOD_UNUSED_VAR(hour);
+    SQMOD_UNUSED_VAR(minute);
+    SQMOD_UNUSED_VAR(second);
+    SQMOD_UNUSED_VAR(millisecond);
+#endif // SQMOD_PLUGIN_API
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr FetchTimeObjStr(const Object & value)
+{
+#ifdef SQMOD_PLUGIN_API
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, value);
+    // Grab the time instance as a string
+    const StackStrF val(vm, -1, false);
+    // Validate the result
+    if (SQ_FAILED(val.mRes))
+    {
+        return _SC("00:00:00");
+    }
+    // Copy the string into the common buffer
+    std::strncpy(g_Buffer, val.mPtr, sizeof(g_Buffer));
+    // Remove the millisecond part from the string, if any
+    g_Buffer[8] = '\0';
+    // Return the obtained string
+    return g_Buffer;
+#else
+    STHROWF("This method is only available in modules");
+    // Should not reach this point
+    return nullptr;
+    // Avoid unused parameter warnings
+    SQMOD_UNUSED_VAR(value);
+#endif // SQMOD_PLUGIN_API
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT FetchDatetimeObjVal(const Object & value, Uint16 & year, Uint8 & month, Uint8 & day, Uint8 & hour,
+                                Uint8 & minute, Uint8 & second)
+{
+#ifdef SQMOD_PLUGIN_API
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, value);
+    // Grab the date components from the date instance
+    return SqMod_GetDatetime(vm, -1, &year, &month, &day, &hour, &minute, &second, nullptr);
+#else
+    STHROWF("This method is only available in modules");
+    // Should not reach this point
+    return SQ_ERROR;
+    // Avoid unused parameter warnings
+    SQMOD_UNUSED_VAR(value);
+    SQMOD_UNUSED_VAR(year);
+    SQMOD_UNUSED_VAR(month);
+    SQMOD_UNUSED_VAR(day);
+    SQMOD_UNUSED_VAR(hour);
+    SQMOD_UNUSED_VAR(minute);
+    SQMOD_UNUSED_VAR(second);
+#endif // SQMOD_PLUGIN_API
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT FetchDatetimeObjVal(const Object & value, Uint16 & year, Uint8 & month, Uint8 & day, Uint8 & hour,
+                                Uint8 & minute, Uint8 & second, Uint16 & millisecond)
+{
+#ifdef SQMOD_PLUGIN_API
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, value);
+    // Grab the date components from the date instance
+    return SqMod_GetDatetime(vm, -1, &year, &month, &day, &hour, &minute, &second, &millisecond);
+#else
+    STHROWF("This method is only available in modules");
+    // Should not reach this point
+    return SQ_ERROR;
+    // Avoid unused parameter warnings
+    SQMOD_UNUSED_VAR(value);
+    SQMOD_UNUSED_VAR(year);
+    SQMOD_UNUSED_VAR(month);
+    SQMOD_UNUSED_VAR(day);
+    SQMOD_UNUSED_VAR(hour);
+    SQMOD_UNUSED_VAR(minute);
+    SQMOD_UNUSED_VAR(second);
+    SQMOD_UNUSED_VAR(millisecond);
+#endif // SQMOD_PLUGIN_API
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr FetchDatetimeObjStr(const Object & value)
+{
+#ifdef SQMOD_PLUGIN_API
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, value);
+    // Grab the date-time instance as a string
+    const StackStrF val(vm, -1, false);
+    // Validate the result
+    if (SQ_FAILED(val.mRes))
+    {
+        return _SC("1000-01-01 00:00:00");
+    }
+    // Copy the string into the common buffer
+    std::strncpy(g_Buffer, val.mPtr, sizeof(g_Buffer));
+    // Remove the millisecond part from the string, if any
+    g_Buffer[19] = '\0';
+    // Return the obtained string
+    return g_Buffer;
+#else
+    STHROWF("This method is only available in modules");
+    // Should not reach this point
+    return nullptr;
+    // Avoid unused parameter warnings
+    SQMOD_UNUSED_VAR(value);
+#endif // SQMOD_PLUGIN_API
 }
 
 // ------------------------------------------------------------------------------------------------

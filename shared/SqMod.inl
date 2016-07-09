@@ -595,62 +595,66 @@ void sq_api_collapse()
 #ifdef SQMOD_PLUGIN_API
 
 //primitive functions
-SqEx_GetSquirrelAPI                  SqMod_GetSquirrelAPI                       = NULL;
-SqEx_GetSquirrelVM                   SqMod_GetSquirrelVM                        = NULL;
+SqEx_GetSquirrelAPI                     SqMod_GetSquirrelAPI                        = NULL;
+SqEx_GetSquirrelVM                      SqMod_GetSquirrelVM                         = NULL;
 
 //logging utilities
-SqEx_LogMessage                      SqMod_LogDbg                               = NULL;
-SqEx_LogMessage                      SqMod_LogUsr                               = NULL;
-SqEx_LogMessage                      SqMod_LogScs                               = NULL;
-SqEx_LogMessage                      SqMod_LogInf                               = NULL;
-SqEx_LogMessage                      SqMod_LogWrn                               = NULL;
-SqEx_LogMessage                      SqMod_LogErr                               = NULL;
-SqEx_LogMessage                      SqMod_LogFtl                               = NULL;
-SqEx_LogMessage                      SqMod_LogSDbg                              = NULL;
-SqEx_LogMessage                      SqMod_LogSUsr                              = NULL;
-SqEx_LogMessage                      SqMod_LogSScs                              = NULL;
-SqEx_LogMessage                      SqMod_LogSInf                              = NULL;
-SqEx_LogMessage                      SqMod_LogSWrn                              = NULL;
-SqEx_LogMessage                      SqMod_LogSErr                              = NULL;
-SqEx_LogMessage                      SqMod_LogSFtl                              = NULL;
+SqEx_LogMessage                         SqMod_LogDbg                                = NULL;
+SqEx_LogMessage                         SqMod_LogUsr                                = NULL;
+SqEx_LogMessage                         SqMod_LogScs                                = NULL;
+SqEx_LogMessage                         SqMod_LogInf                                = NULL;
+SqEx_LogMessage                         SqMod_LogWrn                                = NULL;
+SqEx_LogMessage                         SqMod_LogErr                                = NULL;
+SqEx_LogMessage                         SqMod_LogFtl                                = NULL;
+SqEx_LogMessage                         SqMod_LogSDbg                               = NULL;
+SqEx_LogMessage                         SqMod_LogSUsr                               = NULL;
+SqEx_LogMessage                         SqMod_LogSScs                               = NULL;
+SqEx_LogMessage                         SqMod_LogSInf                               = NULL;
+SqEx_LogMessage                         SqMod_LogSWrn                               = NULL;
+SqEx_LogMessage                         SqMod_LogSErr                               = NULL;
+SqEx_LogMessage                         SqMod_LogSFtl                               = NULL;
 
 //script loading
-SqEx_LoadScript                      SqMod_LoadScript                           = NULL;
+SqEx_LoadScript                         SqMod_LoadScript                            = NULL;
 
 //numeric utilities
-SqEx_GetSLongValue                   SqMod_GetSLongValue                        = NULL;
-SqEx_PushSLongObject                 SqMod_PushSLongObject                      = NULL;
-SqEx_GetULongValue                   SqMod_GetULongValue                        = NULL;
-SqEx_PushULongObject                 SqMod_PushULongObject                      = NULL;
+SqEx_GetSLongValue                      SqMod_GetSLongValue                         = NULL;
+SqEx_PushSLongObject                    SqMod_PushSLongObject                       = NULL;
+SqEx_GetULongValue                      SqMod_GetULongValue                         = NULL;
+SqEx_PushULongObject                    SqMod_PushULongObject                       = NULL;
 
 //time utilities
-SqEx_GetCurrentSysTime               SqMod_GetCurrentSysTime                    = NULL;
-SqEx_GetEpochTimeMicro               SqMod_GetEpochTimeMicro                    = NULL;
-SqEx_GetEpochTimeMilli               SqMod_GetEpochTimeMilli                    = NULL;
-SqEx_ValidDate                       SqMod_ValidDate                            = NULL;
-SqEx_IsLeapYear                      SqMod_IsLeapYear                           = NULL;
-SqEx_DaysInYear                      SqMod_DaysInYear                           = NULL;
-SqEx_DaysInMonth                     SqMod_DaysInMonth                          = NULL;
-SqEx_DayOfYear                       SqMod_DayOfYear                            = NULL;
-SqEx_DateRangeToSeconds              SqMod_DateRangeToSeconds                   = NULL;
-SqEx_GetTimestamp                    SqMod_GetTimestamp                         = NULL;
-SqEx_PushTimestamp                   SqMod_PushTimestamp                        = NULL;
-SqEx_GetDate                         SqMod_GetDate                              = NULL;
-SqEx_PushDate                        SqMod_PushDate                             = NULL;
-SqEx_GetTime                         SqMod_GetTime                              = NULL;
-SqEx_PushTime                        SqMod_PushTime                             = NULL;
-SqEx_GetDatetime                     SqMod_GetDatetime                          = NULL;
-SqEx_PushDatetime                    SqMod_PushDatetime                         = NULL;
+SqEx_GetCurrentSysTime                  SqMod_GetCurrentSysTime                     = NULL;
+SqEx_GetEpochTimeMicro                  SqMod_GetEpochTimeMicro                     = NULL;
+SqEx_GetEpochTimeMilli                  SqMod_GetEpochTimeMilli                     = NULL;
+SqEx_ValidDate                          SqMod_ValidDate                             = NULL;
+SqEx_IsLeapYear                         SqMod_IsLeapYear                            = NULL;
+SqEx_DaysInYear                         SqMod_DaysInYear                            = NULL;
+SqEx_DaysInMonth                        SqMod_DaysInMonth                           = NULL;
+SqEx_DayOfYear                          SqMod_DayOfYear                             = NULL;
+SqEx_DateRangeToSeconds                 SqMod_DateRangeToSeconds                    = NULL;
+SqEx_GetTimestamp                       SqMod_GetTimestamp                          = NULL;
+SqEx_PushTimestamp                      SqMod_PushTimestamp                         = NULL;
+SqEx_GetDate                            SqMod_GetDate                               = NULL;
+SqEx_PushDate                           SqMod_PushDate                              = NULL;
+SqEx_GetTime                            SqMod_GetTime                               = NULL;
+SqEx_PushTime                           SqMod_PushTime                              = NULL;
+SqEx_GetDatetime                        SqMod_GetDatetime                           = NULL;
+SqEx_PushDatetime                       SqMod_PushDatetime                          = NULL;
 
 //stack utilities
-SqEx_PopStackInteger                 SqMod_PopStackInteger                      = NULL;
-SqEx_PopStackFloat                   SqMod_PopStackFloat                        = NULL;
-SqEx_PopStackSLong                   SqMod_PopStackSLong                        = NULL;
-SqEx_PopStackULong                   SqMod_PopStackULong                        = NULL;
+SqEx_PopStackInteger                    SqMod_PopStackInteger                       = NULL;
+SqEx_PopStackFloat                      SqMod_PopStackFloat                         = NULL;
+SqEx_PopStackSLong                      SqMod_PopStackSLong                         = NULL;
+SqEx_PopStackULong                      SqMod_PopStackULong                         = NULL;
 
 //buffer utilities
-SqEx_PushBuffer                      SqMod_PushBuffer                           = NULL;
-SqEx_PushBufferData                  SqMod_PushBufferData                       = NULL;
+SqEx_PushBuffer                         SqMod_PushBuffer                            = NULL;
+SqEx_PushBufferData                     SqMod_PushBufferData                        = NULL;
+SqEx_GetBufferInfo                      SqMod_GetBufferInfo                         = NULL;
+SqEx_GetBufferData                      SqMod_GetBufferData                         = NULL;
+SqEx_GetBufferSize                      SqMod_GetBufferSize                         = NULL;
+SqEx_GetBufferCursor                    SqMod_GetBufferCursor                       = NULL;
 
 #endif // SQMOD_PLUGIN_API
 
