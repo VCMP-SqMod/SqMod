@@ -8,6 +8,7 @@
 #include "Library/Chrono/Time.hpp"
 #include "Library/Chrono/Datetime.hpp"
 #include "Library/Chrono/Timestamp.hpp"
+#include "Library/Utils/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cmath>
@@ -494,8 +495,7 @@ SQRESULT SqEx_PushBuffer(HSQUIRRELVM vm, SQInteger size, SQInteger cursor)
     // Attempt to push the requested instance
     try
     {
-        Var< const Buffer & >::push(vm, Buffer(ConvTo< Buffer::SzType >::From(size),
-                                                ConvTo< Buffer::SzType >::From(cursor)));
+        Var< const SqBuffer & >::push(vm, SqBuffer(size, cursor));
     }
     catch (...)
     {
@@ -512,8 +512,7 @@ SQRESULT SqEx_PushBufferData(HSQUIRRELVM vm, const char * data, SQInteger size, 
     // Attempt to push the requested instance
     try
     {
-        Var< const Buffer & >::push(vm, Buffer(data, ConvTo< Buffer::SzType >::From(size),
-                                                ConvTo< Buffer::SzType >::From(cursor)));
+        Var< const SqBuffer & >::push(vm, SqBuffer(data, size, cursor));
     }
     catch (...)
     {
@@ -522,6 +521,126 @@ SQRESULT SqEx_PushBufferData(HSQUIRRELVM vm, const char * data, SQInteger size, 
     }
     // Specify that we succeeded
     return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQRESULT SqEx_GetBufferInfo(HSQUIRRELVM vm, SQInteger idx, const char ** ptr, SQInteger * size, SQInteger * cursor)
+{
+    // Attempt to obtain the requested information
+    try
+    {
+        // Attempt to retrieve the instance
+        Var< SqBuffer * > var(vm, idx);
+        // Validate the obtained buffer
+        if (!(var.value) || !(var.value->GetRef()) || !(*var.value->GetRef()))
+        {
+            // Should we obtain the buffer contents?
+            if (ptr)
+            {
+                *ptr = nullptr; // Default to null data
+            }
+            // Should we obtain the buffer length?
+            if (size)
+            {
+                *size = 0; // Default to 0 length
+            }
+            // Should we obtain the cursor position?
+            if (cursor)
+            {
+                *cursor = 0; // Default to position 0
+            }
+        }
+        // Grab the internal buffer
+        const Buffer & b = *var.value->GetRef();
+        // Should we obtain the buffer contents?
+        if (ptr)
+        {
+            *ptr = b.Data();
+        }
+        // Should we obtain the buffer length?
+        if (size)
+        {
+            *size = ConvTo< SQInteger >::From(b.Capacity());
+        }
+        // Should we obtain the cursor position?
+        if (cursor)
+        {
+            *cursor = ConvTo< SQInteger >::From(b.Position());
+        }
+    }
+    catch (...)
+    {
+        // Specify that we failed
+        return SQ_ERROR;
+    }
+    // Specify that we succeeded
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+const char * SqEx_GetBufferData(HSQUIRRELVM vm, SQInteger idx)
+{
+    // Attempt to obtain the requested information
+    try
+    {
+        // Attempt to retrieve the instance
+        Var< SqBuffer * > var(vm, idx);
+        // Validate the obtained buffer and return the requested information
+        if ((var.value) && (var.value->GetRef()) && (*var.value->GetRef()))
+        {
+            return var.value->GetRef()->Data();
+        }
+    }
+    catch (...)
+    {
+        // Just ignore it...
+    }
+    // Specify that we failed
+    return nullptr;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger SqEx_GetBufferSize(HSQUIRRELVM vm, SQInteger idx)
+{
+    // Attempt to obtain the requested information
+    try
+    {
+        // Attempt to retrieve the instance
+        Var< SqBuffer * > var(vm, idx);
+        // Validate the obtained buffer and return the requested information
+        if ((var.value) && (var.value->GetRef()) && (*var.value->GetRef()))
+        {
+            return ConvTo< SQInteger >::From(var.value->GetRef()->Capacity());
+        }
+    }
+    catch (...)
+    {
+        // Just ignore it...
+    }
+    // Specify that we failed
+    return -1;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger SqEx_GetBufferCursor(HSQUIRRELVM vm, SQInteger idx)
+{
+    // Attempt to obtain the requested information
+    try
+    {
+        // Attempt to retrieve the instance
+        Var< SqBuffer * > var(vm, idx);
+        // Validate the obtained buffer and return the requested information
+        if ((var.value) && (var.value->GetRef()) && (*var.value->GetRef()))
+        {
+            return ConvTo< SQInteger >::From(var.value->GetRef()->Position());
+        }
+    }
+    catch (...)
+    {
+        // Just ignore it...
+    }
+    // Specify that we failed
+    return -1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -587,6 +706,10 @@ void InitExports()
     //buffer utilities
     g_SqExports.PushBuffer              = SqEx_PushBuffer;
     g_SqExports.PushBufferData          = SqEx_PushBufferData;
+    g_SqExports.GetBufferInfo           = SqEx_GetBufferInfo;
+    g_SqExports.GetBufferData           = SqEx_GetBufferData;
+    g_SqExports.GetBufferSize           = SqEx_GetBufferSize;
+    g_SqExports.GetBufferCursor         = SqEx_GetBufferCursor;
 
     // Export them to the server
     _Func->ExportFunctions(_Info->pluginId,

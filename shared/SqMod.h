@@ -99,6 +99,10 @@ extern "C" {
     //buffer utilities
     typedef SQRESULT        (*SqEx_PushBuffer) (HSQUIRRELVM vm, SQInteger size, SQInteger cursor);
     typedef SQRESULT        (*SqEx_PushBufferData) (HSQUIRRELVM vm, const char * data, SQInteger size, SQInteger cursor);
+    typedef SQRESULT        (*SqEx_GetBufferInfo) (HSQUIRRELVM vm, SQInteger idx, const char ** ptr, SQInteger * size, SQInteger * cursor);
+    typedef const char *    (*SqEx_GetBufferData) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SQInteger       (*SqEx_GetBufferSize) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SQInteger       (*SqEx_GetBufferCursor) (HSQUIRRELVM vm, SQInteger idx);
 
     /* --------------------------------------------------------------------------------------------
      * Allows modules to interface with the plug-in API without linking of any sorts
@@ -157,6 +161,10 @@ extern "C" {
         //buffer utilities
         SqEx_PushBuffer                     PushBuffer;
         SqEx_PushBufferData                 PushBufferData;
+        SqEx_GetBufferInfo                  GetBufferInfo;
+        SqEx_GetBufferData                  GetBufferData;
+        SqEx_GetBufferSize                  GetBufferSize;
+        SqEx_GetBufferCursor                GetBufferCursor;
     } sq_exports, SQEXPORTS, *HSQEXPORTS;
 
 #ifdef SQMOD_PLUGIN_API
@@ -218,6 +226,10 @@ extern "C" {
     //buffer utilities
     extern SqEx_PushBuffer                      SqMod_PushBuffer;
     extern SqEx_PushBufferData                  SqMod_PushBufferData;
+    extern SqEx_GetBufferInfo                   SqMod_GetBufferInfo;
+    extern SqEx_GetBufferData                   SqMod_GetBufferData;
+    extern SqEx_GetBufferSize                   SqMod_GetBufferSize;
+    extern SqEx_GetBufferCursor                 SqMod_GetBufferCursor;
 
 #endif // SQMOD_PLUGIN_API
 

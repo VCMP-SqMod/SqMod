@@ -64,6 +64,33 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Allocate constructor.
+    */
+    SqBuffer(SQInteger n, SQInteger c)
+        : m_Buffer(new Buffer(ConvTo< SzType >::From(n), ConvTo< SzType >::From(c)))
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    SqBuffer(ConstPtr p, SQInteger n)
+        : m_Buffer(new Buffer(p, ConvTo< SzType >::From(n)))
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    SqBuffer(ConstPtr p, SQInteger n, SQInteger c)
+        : m_Buffer(new Buffer(p, ConvTo< SzType >::From(n), ConvTo< SzType >::From(c)))
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Reference constructor.
     */
     SqBuffer(const SRef & ref)

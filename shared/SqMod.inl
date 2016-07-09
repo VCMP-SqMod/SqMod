@@ -665,62 +665,66 @@ SQRESULT sqmod_api_expand(HSQEXPORTS sqmodapi)
 #ifdef SQMOD_PLUGIN_API
 
     //primitive functions
-    SqMod_GetSquirrelAPI                       = sqmodapi->GetSquirrelAPI;
-    SqMod_GetSquirrelVM                        = sqmodapi->GetSquirrelVM;
+    SqMod_GetSquirrelAPI                        = sqmodapi->GetSquirrelAPI;
+    SqMod_GetSquirrelVM                         = sqmodapi->GetSquirrelVM;
 
     //logging utilities
-    SqMod_LogDbg                               = sqmodapi->LogDbg;
-    SqMod_LogUsr                               = sqmodapi->LogUsr;
-    SqMod_LogScs                               = sqmodapi->LogScs;
-    SqMod_LogInf                               = sqmodapi->LogInf;
-    SqMod_LogWrn                               = sqmodapi->LogWrn;
-    SqMod_LogErr                               = sqmodapi->LogErr;
-    SqMod_LogFtl                               = sqmodapi->LogFtl;
-    SqMod_LogSDbg                              = sqmodapi->LogSDbg;
-    SqMod_LogSUsr                              = sqmodapi->LogSUsr;
-    SqMod_LogSScs                              = sqmodapi->LogSScs;
-    SqMod_LogSInf                              = sqmodapi->LogSInf;
-    SqMod_LogSWrn                              = sqmodapi->LogSWrn;
-    SqMod_LogSErr                              = sqmodapi->LogSErr;
-    SqMod_LogSFtl                              = sqmodapi->LogSFtl;
+    SqMod_LogDbg                                = sqmodapi->LogDbg;
+    SqMod_LogUsr                                = sqmodapi->LogUsr;
+    SqMod_LogScs                                = sqmodapi->LogScs;
+    SqMod_LogInf                                = sqmodapi->LogInf;
+    SqMod_LogWrn                                = sqmodapi->LogWrn;
+    SqMod_LogErr                                = sqmodapi->LogErr;
+    SqMod_LogFtl                                = sqmodapi->LogFtl;
+    SqMod_LogSDbg                               = sqmodapi->LogSDbg;
+    SqMod_LogSUsr                               = sqmodapi->LogSUsr;
+    SqMod_LogSScs                               = sqmodapi->LogSScs;
+    SqMod_LogSInf                               = sqmodapi->LogSInf;
+    SqMod_LogSWrn                               = sqmodapi->LogSWrn;
+    SqMod_LogSErr                               = sqmodapi->LogSErr;
+    SqMod_LogSFtl                               = sqmodapi->LogSFtl;
 
     //script loading
-    SqMod_LoadScript                           = sqmodapi->LoadScript;
+    SqMod_LoadScript                            = sqmodapi->LoadScript;
 
     //numeric utilities
-    SqMod_GetSLongValue                        = sqmodapi->GetSLongValue;
-    SqMod_PushSLongObject                      = sqmodapi->PushSLongObject;
-    SqMod_GetULongValue                        = sqmodapi->GetULongValue;
-    SqMod_PushULongObject                      = sqmodapi->PushULongObject;
+    SqMod_GetSLongValue                         = sqmodapi->GetSLongValue;
+    SqMod_PushSLongObject                       = sqmodapi->PushSLongObject;
+    SqMod_GetULongValue                         = sqmodapi->GetULongValue;
+    SqMod_PushULongObject                       = sqmodapi->PushULongObject;
 
     //time utilities
-    SqMod_GetCurrentSysTime                    = sqmodapi->GetCurrentSysTime;
-    SqMod_GetEpochTimeMicro                    = sqmodapi->GetEpochTimeMicro;
-    SqMod_GetEpochTimeMilli                    = sqmodapi->GetEpochTimeMilli;
-    SqMod_ValidDate                            = sqmodapi->ValidDate;
-    SqMod_IsLeapYear                           = sqmodapi->IsLeapYear;
-    SqMod_DaysInYear                           = sqmodapi->DaysInYear;
-    SqMod_DaysInMonth                          = sqmodapi->DaysInMonth;
-    SqMod_DayOfYear                            = sqmodapi->DayOfYear;
-    SqMod_DateRangeToSeconds                   = sqmodapi->DateRangeToSeconds;
-    SqMod_GetTimestamp                         = sqmodapi->GetTimestamp;
-    SqMod_PushTimestamp                        = sqmodapi->PushTimestamp;
-    SqMod_GetDate                              = sqmodapi->GetDate;
-    SqMod_PushDate                             = sqmodapi->PushDate;
-    SqMod_GetTime                              = sqmodapi->GetTime;
-    SqMod_PushTime                             = sqmodapi->PushTime;
-    SqMod_GetDatetime                          = sqmodapi->GetDatetime;
-    SqMod_PushDatetime                         = sqmodapi->PushDatetime;
+    SqMod_GetCurrentSysTime                     = sqmodapi->GetCurrentSysTime;
+    SqMod_GetEpochTimeMicro                     = sqmodapi->GetEpochTimeMicro;
+    SqMod_GetEpochTimeMilli                     = sqmodapi->GetEpochTimeMilli;
+    SqMod_ValidDate                             = sqmodapi->ValidDate;
+    SqMod_IsLeapYear                            = sqmodapi->IsLeapYear;
+    SqMod_DaysInYear                            = sqmodapi->DaysInYear;
+    SqMod_DaysInMonth                           = sqmodapi->DaysInMonth;
+    SqMod_DayOfYear                             = sqmodapi->DayOfYear;
+    SqMod_DateRangeToSeconds                    = sqmodapi->DateRangeToSeconds;
+    SqMod_GetTimestamp                          = sqmodapi->GetTimestamp;
+    SqMod_PushTimestamp                         = sqmodapi->PushTimestamp;
+    SqMod_GetDate                               = sqmodapi->GetDate;
+    SqMod_PushDate                              = sqmodapi->PushDate;
+    SqMod_GetTime                               = sqmodapi->GetTime;
+    SqMod_PushTime                              = sqmodapi->PushTime;
+    SqMod_GetDatetime                           = sqmodapi->GetDatetime;
+    SqMod_PushDatetime                          = sqmodapi->PushDatetime;
 
     //stack utilities
-    SqMod_PopStackInteger                      = sqmodapi->PopStackInteger;
-    SqMod_PopStackFloat                        = sqmodapi->PopStackFloat;
-    SqMod_PopStackSLong                        = sqmodapi->PopStackSLong;
-    SqMod_PopStackULong                        = sqmodapi->PopStackULong;
+    SqMod_PopStackInteger                       = sqmodapi->PopStackInteger;
+    SqMod_PopStackFloat                         = sqmodapi->PopStackFloat;
+    SqMod_PopStackSLong                         = sqmodapi->PopStackSLong;
+    SqMod_PopStackULong                         = sqmodapi->PopStackULong;
 
     //buffer utilities
-    SqMod_PushBuffer                           = sqmodapi->PushBuffer;
-    SqMod_PushBufferData                       = sqmodapi->PushBufferData;
+    SqMod_PushBuffer                            = sqmodapi->PushBuffer;
+    SqMod_PushBufferData                        = sqmodapi->PushBufferData;
+    SqMod_GetBufferInfo                         = sqmodapi->GetBufferInfo;
+    SqMod_GetBufferData                         = sqmodapi->GetBufferData;
+    SqMod_GetBufferSize                         = sqmodapi->GetBufferSize;
+    SqMod_GetBufferCursor                       = sqmodapi->GetBufferCursor;
 
 #endif // SQMOD_PLUGIN_API
 
@@ -733,62 +737,66 @@ void sqmod_api_collapse()
 #ifdef SQMOD_PLUGIN_API
 
     //primitive functions
-    SqMod_GetSquirrelAPI                       = NULL;
-    SqMod_GetSquirrelVM                        = NULL;
+    SqMod_GetSquirrelAPI                        = NULL;
+    SqMod_GetSquirrelVM                         = NULL;
 
     //logging utilities
-    SqMod_LogDbg                               = NULL;
-    SqMod_LogUsr                               = NULL;
-    SqMod_LogScs                               = NULL;
-    SqMod_LogInf                               = NULL;
-    SqMod_LogWrn                               = NULL;
-    SqMod_LogErr                               = NULL;
-    SqMod_LogFtl                               = NULL;
-    SqMod_LogSDbg                              = NULL;
-    SqMod_LogSUsr                              = NULL;
-    SqMod_LogSScs                              = NULL;
-    SqMod_LogSInf                              = NULL;
-    SqMod_LogSWrn                              = NULL;
-    SqMod_LogSErr                              = NULL;
-    SqMod_LogSFtl                              = NULL;
+    SqMod_LogDbg                                = NULL;
+    SqMod_LogUsr                                = NULL;
+    SqMod_LogScs                                = NULL;
+    SqMod_LogInf                                = NULL;
+    SqMod_LogWrn                                = NULL;
+    SqMod_LogErr                                = NULL;
+    SqMod_LogFtl                                = NULL;
+    SqMod_LogSDbg                               = NULL;
+    SqMod_LogSUsr                               = NULL;
+    SqMod_LogSScs                               = NULL;
+    SqMod_LogSInf                               = NULL;
+    SqMod_LogSWrn                               = NULL;
+    SqMod_LogSErr                               = NULL;
+    SqMod_LogSFtl                               = NULL;
 
     //script loading
-    SqMod_LoadScript                           = NULL;
+    SqMod_LoadScript                            = NULL;
 
     //numeric utilities
-    SqMod_GetSLongValue                        = NULL;
-    SqMod_PushSLongObject                      = NULL;
-    SqMod_GetULongValue                        = NULL;
-    SqMod_PushULongObject                      = NULL;
+    SqMod_GetSLongValue                         = NULL;
+    SqMod_PushSLongObject                       = NULL;
+    SqMod_GetULongValue                         = NULL;
+    SqMod_PushULongObject                       = NULL;
 
     //time utilities
-    SqMod_GetCurrentSysTime                    = NULL;
-    SqMod_GetEpochTimeMicro                    = NULL;
-    SqMod_GetEpochTimeMilli                    = NULL;
-    SqMod_ValidDate                            = NULL;
-    SqMod_IsLeapYear                           = NULL;
-    SqMod_DaysInYear                           = NULL;
-    SqMod_DaysInMonth                          = NULL;
-    SqMod_DayOfYear                            = NULL;
-    SqMod_DateRangeToSeconds                   = NULL;
-    SqMod_GetTimestamp                         = NULL;
-    SqMod_PushTimestamp                        = NULL;
-    SqMod_GetDate                              = NULL;
-    SqMod_PushDate                             = NULL;
-    SqMod_GetTime                              = NULL;
-    SqMod_PushTime                             = NULL;
-    SqMod_GetDatetime                          = NULL;
-    SqMod_PushDatetime                         = NULL;
+    SqMod_GetCurrentSysTime                     = NULL;
+    SqMod_GetEpochTimeMicro                     = NULL;
+    SqMod_GetEpochTimeMilli                     = NULL;
+    SqMod_ValidDate                             = NULL;
+    SqMod_IsLeapYear                            = NULL;
+    SqMod_DaysInYear                            = NULL;
+    SqMod_DaysInMonth                           = NULL;
+    SqMod_DayOfYear                             = NULL;
+    SqMod_DateRangeToSeconds                    = NULL;
+    SqMod_GetTimestamp                          = NULL;
+    SqMod_PushTimestamp                         = NULL;
+    SqMod_GetDate                               = NULL;
+    SqMod_PushDate                              = NULL;
+    SqMod_GetTime                               = NULL;
+    SqMod_PushTime                              = NULL;
+    SqMod_GetDatetime                           = NULL;
+    SqMod_PushDatetime                          = NULL;
 
     //stack utilities
-    SqMod_PopStackInteger                      = NULL;
-    SqMod_PopStackFloat                        = NULL;
-    SqMod_PopStackSLong                        = NULL;
-    SqMod_PopStackULong                        = NULL;
+    SqMod_PopStackInteger                       = NULL;
+    SqMod_PopStackFloat                         = NULL;
+    SqMod_PopStackSLong                         = NULL;
+    SqMod_PopStackULong                         = NULL;
 
     //buffer utilities
-    SqMod_PushBuffer                           = NULL;
-    SqMod_PushBufferData                       = NULL;
+    SqMod_PushBuffer                            = NULL;
+    SqMod_PushBufferData                        = NULL;
+    SqMod_GetBufferInfo                         = NULL;
+    SqMod_GetBufferData                         = NULL;
+    SqMod_GetBufferSize                         = NULL;
+    SqMod_GetBufferCursor                       = NULL;
 
 #endif // SQMOD_PLUGIN_API
 }
