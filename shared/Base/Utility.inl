@@ -860,6 +860,7 @@ SQRESULT FetchDateObjVal(const Object & value, Uint16 & year, Uint8 & month, Uin
 CSStr FetchDateObjStr(const Object & value)
 {
 #ifdef SQMOD_PLUGIN_API
+    static SQChar buffer[32];
     // Grab the associated object virtual machine
     HSQUIRRELVM vm = value.GetVM();
     // Remember the current stack size
@@ -874,9 +875,9 @@ CSStr FetchDateObjStr(const Object & value)
         return _SC("1000-01-01");
     }
     // Copy the string into the common buffer
-    std::strncpy(g_Buffer, val.mPtr, sizeof(g_Buffer));
+    std::strncpy(buffer, val.mPtr, sizeof(buffer));
     // Return the obtained string
-    return g_Buffer;
+    return buffer;
 #else
     STHROWF("This method is only available in modules");
     // Should not reach this point
@@ -939,6 +940,7 @@ SQRESULT FetchTimeObjVal(const Object & value, Uint8 & hour, Uint8 & minute, Uin
 CSStr FetchTimeObjStr(const Object & value)
 {
 #ifdef SQMOD_PLUGIN_API
+    static SQChar buffer[32];
     // Grab the associated object virtual machine
     HSQUIRRELVM vm = value.GetVM();
     // Remember the current stack size
@@ -953,11 +955,11 @@ CSStr FetchTimeObjStr(const Object & value)
         return _SC("00:00:00");
     }
     // Copy the string into the common buffer
-    std::strncpy(g_Buffer, val.mPtr, sizeof(g_Buffer));
+    std::strncpy(buffer, val.mPtr, sizeof(buffer));
     // Remove the millisecond part from the string, if any
-    g_Buffer[8] = '\0';
+    buffer[8] = '\0';
     // Return the obtained string
-    return g_Buffer;
+    return buffer;
 #else
     STHROWF("This method is only available in modules");
     // Should not reach this point
@@ -1028,6 +1030,7 @@ SQRESULT FetchDatetimeObjVal(const Object & value, Uint16 & year, Uint8 & month,
 CSStr FetchDatetimeObjStr(const Object & value)
 {
 #ifdef SQMOD_PLUGIN_API
+    static SQChar buffer[32];
     // Grab the associated object virtual machine
     HSQUIRRELVM vm = value.GetVM();
     // Remember the current stack size
@@ -1042,11 +1045,11 @@ CSStr FetchDatetimeObjStr(const Object & value)
         return _SC("1000-01-01 00:00:00");
     }
     // Copy the string into the common buffer
-    std::strncpy(g_Buffer, val.mPtr, sizeof(g_Buffer));
+    std::strncpy(buffer, val.mPtr, sizeof(buffer));
     // Remove the millisecond part from the string, if any
-    g_Buffer[19] = '\0';
+    buffer[19] = '\0';
     // Return the obtained string
-    return g_Buffer;
+    return buffer;
 #else
     STHROWF("This method is only available in modules");
     // Should not reach this point
@@ -1119,7 +1122,7 @@ SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx)
             {
                 // Just ignore it...
             }
-            // Attempt to get the size of the instance as a fallback
+            // Attempt to get the size of the instance as a fall back
             return sq_getsize(vm, idx);
         } break;
         default: break;
@@ -1196,7 +1199,7 @@ SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx)
             {
                 // Just ignore it...
             }
-            // Attempt to get the size of the instance as a fallback
+            // Attempt to get the size of the instance as a fall back
             return ConvTo< SQFloat >::From(sq_getsize(vm, idx));
         } break;
         default: break;
@@ -1269,7 +1272,7 @@ Int64 PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
             {
                 // Just ignore it...
             }
-            // Attempt to get the size of the instance as a fallback
+            // Attempt to get the size of the instance as a fall back
             return static_cast< Int64 >(sq_getsize(vm, idx));
         } break;
         default: break;
@@ -1342,7 +1345,7 @@ Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx)
             {
                 // Just ignore it...
             }
-            // Attempt to get the size of the instance as a fallback
+            // Attempt to get the size of the instance as a fall back
             return ConvTo< Uint64 >::From(sq_getsize(vm, idx));
         } break;
         default: break;
