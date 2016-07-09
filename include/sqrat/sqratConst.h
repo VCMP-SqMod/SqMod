@@ -124,6 +124,20 @@ public:
     /// \return The Enumeration itself so the call can be chained
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    virtual Enumeration& Const(const SQChar* name, const double val) {
+        BindValue<double>(name, val, false);
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds an enumeration value
+    ///
+    /// \param name Name of the value as it will appear in Squirrel
+    /// \param val  Value to bind
+    ///
+    /// \return The Enumeration itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     virtual Enumeration& Const(const SQChar* name, const SQChar* val) {
         BindValue<const SQChar*>(name, val, false);
         return *this;

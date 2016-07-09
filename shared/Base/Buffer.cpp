@@ -31,7 +31,7 @@ inline unsigned int NextPow2(unsigned int num)
 void ThrowMemExcept(const char * msg, ...)
 {
     // Exception messages should be concise
-    char buffer[256];
+    SQChar buffer[256];
     // Variable arguments structure
     va_list args;
     // Get the specified arguments
@@ -41,7 +41,7 @@ void ThrowMemExcept(const char * msg, ...)
     // Check for formatting errors
     if (ret < 0)
     {
-        throw Sqrat::Exception("Unknown memory error");
+        throw Sqrat::Exception(_SC("Unknown memory error"));
     }
     // Throw the actual exception
     throw Sqrat::Exception(buffer);
