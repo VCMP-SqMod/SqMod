@@ -76,7 +76,7 @@ void UnbindCallbacks();
 */ catch (const Sqrat::Exception & e) /*
 */ { /*
 */  LogErr("Squirrel exception caught (" #ev ") event"); /*
-*/  LogInf("Message: %s", e.Message().c_str()); /*
+*/  LogInf("Message: %s", e.what()); /*
 */ } /*
 */ catch (const std::exception & e) /*
 */ { /*

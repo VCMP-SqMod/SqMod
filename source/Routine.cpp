@@ -322,7 +322,7 @@ void Routine::Execute()
     }
     catch (const Sqrat::Exception & e)
     {
-        LogErr("Routine [%s] => Squirrel error [%s]", m_Tag.c_str(), e.Message().c_str());
+        LogErr("Routine [%s] => Squirrel error [%s]", m_Tag.c_str(), e.what());
     }
     catch (const std::exception & e)
     {

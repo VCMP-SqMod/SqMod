@@ -127,7 +127,7 @@ Int32 ConnHnd::Flush(Uint32 num, Object & env, Function & func)
             }
             catch (const Sqrat::Exception & e)
             {
-                SqMod_LogErr("Squirrel error caught in flush handler [%s]", e.Message().c_str());
+                SqMod_LogErr("Squirrel error caught in flush handler [%s]", e.what());
             }
             catch (const std::exception & e)
             {

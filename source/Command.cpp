@@ -208,7 +208,7 @@ Int32 Controller::Run(const Guard & guard, CCStr command)
     catch (const Sqrat::Exception & e)
     {
         // Tell the script callback to deal with the error
-        SqError(CMDERR_INVALID_COMMAND, e.Message().c_str(), guard.mCurrent->mInvoker);
+        SqError(CMDERR_INVALID_COMMAND, e.what(), guard.mCurrent->mInvoker);
         // Execution failed!
         return -1;
     }
@@ -350,7 +350,7 @@ Int32 Controller::Exec(Context & ctx)
         catch (const Sqrat::Exception & e)
         {
             // Let's store the exception message
-            ctx.mBuffer.Write(0, e.Message().c_str(), e.Message().size());
+            ctx.mBuffer.Write(0, e.what(), e.Message().size());
             // Specify that the command execution failed
             failed = true;
         }
@@ -379,7 +379,7 @@ Int32 Controller::Exec(Context & ctx)
         catch (const Sqrat::Exception & e)
         {
             // Let's store the exception message
-            ctx.mBuffer.Write(0, e.Message().c_str(), e.Message().size());
+            ctx.mBuffer.Write(0, e.what(), e.Message().size());
             // Specify that the command execution failed
             failed = true;
         }

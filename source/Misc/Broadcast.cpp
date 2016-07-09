@@ -51,7 +51,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
             }
             catch (const Sqrat::Exception & e)
             {
-                return sq_throwerror(vm, e.Message().c_str());
+                return sq_throwerror(vm, e.what());
             }
         }
         // The message starts right after the color
@@ -328,7 +328,7 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Perform a range check on the specified prefix index
@@ -421,7 +421,7 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Perform a range check on the specified prefix index
@@ -637,7 +637,7 @@ static SQInteger SqBroadcastAnnounceEx(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Attempt to generate the string value

@@ -699,7 +699,7 @@ void Session::ForwardEvent(Function & listener, CCStr event, CCStr origin, CCStr
     }
     catch (const Sqrat::Exception & e)
     {
-        SqMod_LogErr("IRC event [%s] => Squirrel error [%s]", event, e.Message().c_str());
+        SqMod_LogErr("IRC event [%s] => Squirrel error [%s]", event, e.what());
     }
     catch (const std::exception & e)
     {
@@ -743,7 +743,7 @@ void Session::ForwardEvent(Function & listener, Uint32 event,
     }
     catch (const Sqrat::Exception & e)
     {
-        SqMod_LogErr("IRC event [%s] => Squirrel error [%s]", event, e.Message().c_str());
+        SqMod_LogErr("IRC event [%s] => Squirrel error [%s]", event, e.what());
     }
     catch (const std::exception & e)
     {
@@ -1014,7 +1014,7 @@ SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
     catch (const Sqrat::Exception & e)
     {
         // Propagate the error
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     // Do we have a valid session instance?
     if (!session)
@@ -1078,7 +1078,7 @@ SQInteger Session::CmdMeF(HSQUIRRELVM vm)
     catch (const Sqrat::Exception & e)
     {
         // Propagate the error
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     // Do we have a valid session instance?
     if (!session)
@@ -1142,7 +1142,7 @@ SQInteger Session::CmdNoticeF(HSQUIRRELVM vm)
     catch (const Sqrat::Exception & e)
     {
         // Propagate the error
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     // Do we have a valid session instance?
     if (!session)

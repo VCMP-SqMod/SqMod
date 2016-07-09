@@ -363,7 +363,7 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
     catch (const Sqrat::Exception & e)
     {
         // Propagate the error
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     // Do we have a valid connection instance?
     if (!conn)
@@ -414,7 +414,7 @@ SQInteger Connection::QueueF(HSQUIRRELVM vm)
     catch (const Sqrat::Exception & e)
     {
         // Propagate the error
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     // Do we have a valid connection instance?
     if (!conn)
@@ -458,7 +458,7 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
     catch (const Sqrat::Exception & e)
     {
         // Propagate the error
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     // Do we have a valid connection instance?
     if (!conn)
@@ -484,7 +484,7 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     // This function returned a value
     return 1;

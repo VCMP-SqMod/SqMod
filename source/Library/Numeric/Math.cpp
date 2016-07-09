@@ -191,7 +191,7 @@ static SQInteger SqNanL(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     catch (const std::exception e)
     {
@@ -696,7 +696,7 @@ static SQInteger SqRoundL(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     catch (const std::exception e)
     {

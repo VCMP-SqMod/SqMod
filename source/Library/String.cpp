@@ -83,7 +83,7 @@ static SQInteger SqLeftStr(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     catch (...)
     {
@@ -182,7 +182,7 @@ static SQInteger SqLeftOffsetStr(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     catch (...)
     {
@@ -274,7 +274,7 @@ static SQInteger SqRightStr(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     catch (...)
     {
@@ -373,7 +373,7 @@ static SQInteger SqRightOffsetStr(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     catch (...)
     {
@@ -460,7 +460,7 @@ static SQInteger SqCenterStr(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     catch (...)
     {
@@ -1096,7 +1096,7 @@ static SQInteger SqStrExplode(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
     catch (...)
     {

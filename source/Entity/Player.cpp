@@ -1673,7 +1673,7 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     catch (const Sqrat::Exception & e)
     {
         // Propagate the error
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Do we have a valid player instance?
@@ -1747,7 +1747,7 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Do we have a valid player instance?
@@ -1770,7 +1770,7 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Perform a range check on the specified prefix index
@@ -1841,7 +1841,7 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Do we have a valid player instance?
@@ -1864,7 +1864,7 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Perform a range check on the specified prefix index
@@ -1937,7 +1937,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Do we have a valid player instance?
@@ -1994,7 +1994,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what());
     }
 
     // Do we have a valid player instance?
@@ -2064,7 +2064,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     }
     catch (const Sqrat::Exception & e)
     {
-        return sq_throwerror(vm, e.Message().c_str());
+        return sq_throwerror(vm, e.what()));
     }
 
     // Do we have a valid player instance?

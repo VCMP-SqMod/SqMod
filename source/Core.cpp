@@ -518,7 +518,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
     }
     catch (const Sqrat::Exception & e)
     {
-        LogErr("Unable to load script: %s", e.Message().c_str());
+        LogErr("Unable to load script: %s", e.what());
         // Failed to load
         return false;
     }

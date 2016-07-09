@@ -394,7 +394,7 @@ protected:
         catch (const Sqrat::Exception & e)
         {
             // We can only log this incident and in the future maybe also include the location
-            LogErr("Command error callback failed [%s]", e.Message().c_str());
+            LogErr("Command error callback failed [%s]", e.what());
         }
     }
 
