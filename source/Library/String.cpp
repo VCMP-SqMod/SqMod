@@ -1060,13 +1060,57 @@ static bool OnlyDelimiter(CSStr str, SQChar chr)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Array StrExplode(CSStr str, SQChar chr, bool empty)
+static SQInteger SqStrExplode(HSQUIRRELVM vm)
 {
+    const Int32 top = sq_gettop(vm);
+    // Was the delimiter character specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, _SC("Missing delimiter character"));
+    }
+    // Was the boolean empty specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, _SC("Missing boolean empty"));
+    }
+    // Was the string value specified?
+    else if (top <= 3)
+    {
+        return sq_throwerror(vm, _SC("Missing string value"));
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 4);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // The delimiter character and boolean empty
+    SQChar delim = 0;
+    bool empty = 0;
+    // Attempt to retrieve the remaining arguments from the stack
+    try
+    {
+        delim = Var< SQChar >(vm, 2).value;
+        empty = Var< bool >(vm, 3).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        return sq_throwerror(vm, e.Message().c_str());
+    }
+    catch (...)
+    {
+        return sq_throwerror(vm, _SC("Unable to retrieve arguments"));
+    }
+    // Grab the string value to a shorter name
+    CSStr str = val.mPtr;
+    // Create an empty array on the stack
+    sq_newarray(vm, 0);
     // See if we actually have something to explode
     if(!str || *str == '\0')
     {
-        // Default to an empty array
-        return Array(DefaultVM::Get(), 0);
+        // Specify that we have an argument on the stack
+        return 1;
     }
     // Don't modify the specified string pointer
     CSStr itr = str, last = str;
@@ -1076,7 +1120,7 @@ static Array StrExplode(CSStr str, SQChar chr, bool empty)
     while (*itr != '\0')
     {
         // Is this our delimiter?
-        if (*(itr++) == chr)
+        if (*(itr++) == delim)
         {
             // Are we allowed to include empty elements?
             if (empty || (itr - last) > 1)
@@ -1089,39 +1133,46 @@ static Array StrExplode(CSStr str, SQChar chr, bool empty)
         }
     }
     // Were there no delimiters found and can we include empty elements?
-    if (num == 0 && !empty && (str[1] == '\0' || OnlyDelimiter(str, chr)))
+    if (num == 0 && !empty && (str[1] == '\0' || OnlyDelimiter(str, delim)))
     {
-        // Default to an empty array
-        return Array(DefaultVM::Get(), 0);
+        // Specify that we have an argument on the stack
+        return 1;
     }
     // Have we found any delimiters?
     else if (num == 0)
     {
-        // Create an array with just one element
-        Array arr(DefaultVM::Get(), 1);
         // Test against strings with only delimiters
-        if (str[1] == '\0' || OnlyDelimiter(str, chr))
+        if (str[1] == '\0' || OnlyDelimiter(str, delim))
         {
-            arr.SetValue(0, _SC("")); // Add an empty string
+            sq_pushstring(vm, _SC(""), 0); // Add an empty string
         }
         else
         {
-            arr.SetValue(0, str); // Add the whole string
+            sq_pushstring(vm, val.mPtr, val.mLen); // Add the whole string
         }
-        // Return the resulted array
-        return arr;
+        // Append the string on the stack to the array
+        const SQRESULT r = sq_arrayappend(vm, -2);
+        // Check the result
+        if (SQ_FAILED(r))
+        {
+            return r; // Propagate the error
+        }
+        // Specify that we have an argument on the stack
+        return 1;
     }
     // Is there anything after the last delimiter?
-    if (itr != last && *last != chr)
+    if (itr != last && *last != delim)
     {
         ++num; // Add it to the counter
     }
+    SQRESULT r = SQ_OK;
     // Pre-allocate an array with the number of found delimiters
-    Array arr(DefaultVM::Get(), num);
-    // Remember the initial stack size
-    StackGuard sg;
-    // Push the array object on the stack
-    sq_pushobject(DefaultVM::Get(), arr.GetObject());
+    r = sq_arrayresize(vm, -1, num);
+    // Check the result
+    if (SQ_FAILED(r))
+    {
+        return r; // Propagate the error
+    }
     // Don't modify the specified string pointer
     itr = str, last = str;
     // Reset the counter and use it as the element index
@@ -1130,38 +1181,48 @@ static Array StrExplode(CSStr str, SQChar chr, bool empty)
     while (*itr != '\0')
     {
         // Is this our delimiter?
-        if (*itr++ == chr)
+        if (*itr++ == delim)
         {
             // Are we allowed to include empty elements?
             if (empty || (itr - last) > 1)
             {
                 // Push the element index on the stack and advance to the next one
-                sq_pushinteger(DefaultVM::Get(), num++);
+                sq_pushinteger(vm, num++);
                 // Push the string portion on the stack
-                sq_pushstring(DefaultVM::Get(), last, itr - last - 1);
+                sq_pushstring(vm, last, itr - last - 1);
                 // Assign the string onto the
-                sq_set(DefaultVM::Get(), -3);
+                r = sq_set(vm, -3);
+                // Check the result
+                if (SQ_FAILED(r))
+                {
+                    return r; // Propagate the error
+                }
             }
             // Update the last delimiter position
             last = itr;
         }
     }
     // Is there anything after the last delimiter?
-    if (itr != last && *last != chr)
+    if (itr != last && *last != delim)
     {
         // Push the element index on the stack
-        sq_pushinteger(DefaultVM::Get(), num);
+        sq_pushinteger(vm, num);
         // Add the remaining string as an element
-        sq_pushstring(DefaultVM::Get(), last, itr - last);
+        sq_pushstring(vm, last, itr - last);
         // Assign the string onto the
-        sq_set(DefaultVM::Get(), -3);
+        r = sq_set(vm, -3);
+        // Check the result
+        if (SQ_FAILED(r))
+        {
+            return r; // Propagate the error
+        }
     }
-    // Return the resulted array and let the stack guard handle the cleanup
-    return arr;
+    // Specify that we have an argument on the stack
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
-static CSStr StrImplode(Array & arr, SQChar chr)
+static CSStr StrImplode(SQChar chr, Array & arr)
 {
     // Determine array size
     const Int32 length = static_cast< Int32 >(arr.Length());
@@ -1236,7 +1297,7 @@ void Register_String(HSQUIRRELVM vm)
     Table strns(vm);
 
     strns.Func(_SC("FromArray"), &FromArray)
-    .Func(_SC("Explode"), &StrExplode)
+    .SquirrelFunc(_SC("Explode"), &SqStrExplode)
     .Func(_SC("Implode"), &StrImplode)
     .SquirrelFunc(_SC("Center"), &SqCenterStr)
     .SquirrelFunc(_SC("Left"), &SqLeftStr)
