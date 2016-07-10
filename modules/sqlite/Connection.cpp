@@ -370,10 +370,15 @@ SQInteger Connection::ExecF(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Invalid SQLite connection instance");
     }
-    // Do we have a valid connection identifier?
-    else if (!(conn->m_Handle))
+    // Validate the connection info
+    try
     {
-        return sq_throwerror(vm, "Invalid SQLite connection reference");
+        SQMOD_VALIDATE_CREATED(*conn);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
     }
     // Attempt to retrieve the value from the stack as a string
     StackStrF val(vm, 2);
@@ -421,10 +426,15 @@ SQInteger Connection::QueueF(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Invalid SQLite connection instance");
     }
-    // Do we have a valid connection identifier?
-    else if (!(conn->m_Handle))
+    // Validate the connection info
+    try
     {
-        return sq_throwerror(vm, "Invalid SQLite connection reference");
+        SQMOD_VALIDATE_CREATED(*conn);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
     }
     // Attempt to retrieve the value from the stack as a string
     StackStrF val(vm, 2);
@@ -465,10 +475,15 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Invalid SQLite connection instance");
     }
-    // Do we have a valid connection identifier?
-    else if (!(conn->m_Handle))
+    // Validate the connection info
+    try
     {
-        return sq_throwerror(vm, "Invalid SQLite connection reference");
+        SQMOD_VALIDATE_CREATED(*conn);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
     }
     // Attempt to retrieve the value from the stack as a string
     StackStrF val(vm, 2);
