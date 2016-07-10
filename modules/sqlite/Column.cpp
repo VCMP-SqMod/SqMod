@@ -1,7 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Column.hpp"
-#include "Connection.hpp"
-#include "Statement.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cerrno>
@@ -10,6 +8,17 @@
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
+
+// ------------------------------------------------------------------------------------------------
+static inline bool IsDigitsOnly(CSStr str)
+{
+    while (std::isdigit(*str) || std::isspace(*str))
+    {
+        ++str;
+    }
+    // Return whether we reached the end while searching
+    return *str == '\0';
+}
 
 // ------------------------------------------------------------------------------------------------
 SQInteger Column::Typename(HSQUIRRELVM vm)
@@ -119,6 +128,30 @@ const StmtRef & Column::GetCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void Column::ValidateColumn(Int32 idx, CCStr file, Int32 line) const
+{
+    ValidateCreated(file, line);
+    // Is the specified index in range?
+    if (!m_Handle->CheckColumn(idx))
+    {
+        SqThrowF("Column index is out of range: %d:%d =>[%s:%d]", idx, m_Handle->mColumns,
+                    file, line);
+    }
+}
+#else
+void Column::ValidateColumn(Int32 idx) const
+{
+    ValidateCreated();
+    // Is the specified index in range?
+    if (!m_Handle->CheckColumn(idx))
+    {
+        SqThrowF("Column index is out of range: %d:%d", idx, m_Handle->mColumns);
+    }
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
 void Column::ValidateRow(CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
@@ -141,24 +174,131 @@ void Column::ValidateRow() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
+void Column::SetIndex(const Object & column)
+{
+    // Where the index will be extracted
+    Int32 idx = -1;
+    // Grab the object virtual machine
+    HSQUIRRELVM vm = column.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, column);
+    // Identify the type of column was given
+    switch  (column.GetType())
+    {
+        // Is this a string value?
+        case OT_STRING:
+        {
+            // Obtain the object from the stack as a string
+            const StackStrF val(vm, -1, false);
+            // Validate the result
+            if (SQ_FAILED(val.mRes))
+            {
+                STHROWF("%s", LastErrorString(vm).c_str());
+            }
+            // Is the obtained string empty?
+            else if (val.mLen <= 0)
+            {
+                STHROWF("Cannot use an empty column name");
+            }
+            // Attempt to find a column with the specified name
+            idx = m_Handle->GetColumnIndex(val.mPtr);
+        } break;
+        // Is this an integer value? (or at least can be easily converted to one)
+        case OT_INTEGER:
+        case OT_FLOAT:
+        case OT_BOOL:
+        {
+            idx = ConvTo< Int32 >::From(SqMod_PopStackInteger(vm, -1));
+        } break;
+        // Is this an instance that we can extract either a string or integer from it?
+        case OT_INSTANCE:
+        {
+            // Obtain the object from the stack as a string
+            const StackStrF val(vm, -1, false);
+            // Validate the result
+            if (SQ_FAILED(val.mRes))
+            {
+                STHROWF("%s", LastErrorString(vm).c_str());
+            }
+            // Is the obtained string empty?
+            else if (val.mLen <= 0)
+            {
+                STHROWF("Cannot use an empty column name");
+            }
+            // Check if this value is made only of digits
+            else if (IsDigitsOnly(val.mPtr))
+            {
+                idx = ConvNum< Int32 >::FromStr(val.mPtr);
+            }
+            // Attempt to find a column with the specified name
+            else
+            {
+                idx = m_Handle->GetColumnIndex(val.mPtr);
+            }
+        } break;
+        // We don't recognize this kind of value!
+        default: STHROWF("Unknown column index of type (%s)", SqTypeName(column.GetType()));
+    }
+    // Validate the obtained column index
+    SQMOD_VALIDATE_COLUMN(*this, idx);
+    // Assign the new index
+    m_Index = idx;
+}
+
+// ------------------------------------------------------------------------------------------------
 Object Column::GetStatement() const
 {
-    // Return the requested information
-    return Object(new Statement(m_Handle));
+    return GetStatementObj(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
 Object Column::GetConnection() const
 {
-    VALIDATE_HND(*this);
-    // Return the requested information
-    return Object(new Connection(m_Handle->mConn));
+    return GetConnectionObj(SQMOD_GET_VALID(*this)->mConn);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Column::IsNull() const
+{
+    return (sqlite3_column_type(SQMOD_GET_CREATED(*this)->mPtr, m_Index) == SQLITE_NULL);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr Column::GetName() const
+{
+    return sqlite3_column_name(SQMOD_GET_CREATED(*this)->mPtr, m_Index);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr Column::GetOriginName() const
+{
+#ifdef SQLITE_ENABLE_COLUMN_METADATA
+    return sqlite3_column_origin_name(SQMOD_GET_CREATED(*this)->mPtr, m_Index);
+#else
+    STHROWF("The module was compiled without this feature");
+    // Request failed
+    return _SC("");
+#endif
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 Column::GetType() const
+{
+    return sqlite3_column_type(SQMOD_GET_CREATED(*this)->mPtr, m_Index);
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 Column::GetBytes() const
+{
+    return sqlite3_column_bytes(SQMOD_GET_CREATED(*this)->mPtr, m_Index);
 }
 
 // ------------------------------------------------------------------------------------------------
 Object Column::GetValue() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
     const StackGuard sg;
     // Identify which type of value must be pushed on the stack
@@ -195,7 +335,7 @@ Object Column::GetValue() const
             // Retrieve the the actual blob data that must be returned
             CCStr data = reinterpret_cast< CCStr >(sqlite3_column_blob(m_Handle->mPtr, m_Index));
             // Attempt to create a buffer with the blob data on the stack
-            if (SQ_FAILED(SqMod_PushBufferData(DefaultVM::Get(), data, size, size)))
+            if (SQ_FAILED(SqMod_PushBufferData(DefaultVM::Get(), data, size, 0)))
             {
                 STHROWF("Unable to allocate buffer of at least (%d) bytes", size);
             }
@@ -210,7 +350,7 @@ Object Column::GetValue() const
 // ------------------------------------------------------------------------------------------------
 Object Column::GetNumber() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
     const StackGuard sg;
     // Identify which type of value must be pushed on the stack
@@ -264,7 +404,7 @@ Object Column::GetNumber() const
 // ------------------------------------------------------------------------------------------------
 SQInteger Column::GetInteger() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
     return sqlite3_column_integer(m_Handle->mPtr, m_Index);
 }
@@ -272,7 +412,7 @@ SQInteger Column::GetInteger() const
 // ------------------------------------------------------------------------------------------------
 SQFloat Column::GetFloat() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
     return ConvTo< SQFloat >::From(sqlite3_column_double(m_Handle->mPtr, m_Index));
 }
@@ -280,7 +420,7 @@ SQFloat Column::GetFloat() const
 // ------------------------------------------------------------------------------------------------
 Object Column::GetLong() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
     return MakeSLongObj(sqlite3_column_int64(m_Handle->mPtr, m_Index));
 }
@@ -288,7 +428,7 @@ Object Column::GetLong() const
 // ------------------------------------------------------------------------------------------------
 Object Column::GetString() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
     const StackGuard sg(_SqVM);
     // Push the column text on the stack
@@ -301,7 +441,7 @@ Object Column::GetString() const
 // ------------------------------------------------------------------------------------------------
 bool Column::GetBoolean() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
     return sqlite3_column_int(m_Handle->mPtr, m_Index) > 0;
 }
@@ -309,7 +449,7 @@ bool Column::GetBoolean() const
 // ------------------------------------------------------------------------------------------------
 SQChar Column::GetChar() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
     return (SQChar)sqlite3_column_int(m_Handle->mPtr, m_Index);
 }
@@ -317,7 +457,7 @@ SQChar Column::GetChar() const
 // ------------------------------------------------------------------------------------------------
 Object Column::GetBuffer() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Remember the current stack size
     const StackGuard sg;
     // Retrieve the size of the blob that must be allocated
@@ -336,7 +476,7 @@ Object Column::GetBuffer() const
 // ------------------------------------------------------------------------------------------------
 Object Column::GetBlob() const
 {
-    VALIDATE_ROW_HND(*this);
+    SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
     const StackGuard sg(_SqVM);
     // Obtain the size of the data
@@ -367,52 +507,6 @@ Object Column::GetBlob() const
     return Var< Object >(_SqVM, -1).value;
 }
 
-// ------------------------------------------------------------------------------------------------
-bool Column::IsNull() const
-{
-    VALIDATE_CREATED_HND(*this);
-    // Return the requested information
-    return (sqlite3_column_type(m_Handle->mPtr, m_Index) == SQLITE_NULL);
-}
-
-// ------------------------------------------------------------------------------------------------
-CSStr Column::GetName() const
-{
-    VALIDATE_CREATED_HND(*this);
-    // Return the requested information
-    return sqlite3_column_name(m_Handle->mPtr, m_Index);
-}
-
-// ------------------------------------------------------------------------------------------------
-CSStr Column::GetOriginName() const
-{
-#ifdef SQLITE_ENABLE_COLUMN_METADATA
-    VALIDATE_CREATED_HND(*this);
-    // Return the requested information
-    return sqlite3_column_origin_name(m_Handle->mPtr, m_Index);
-#else
-    STHROWF("The module was compiled without this feature");
-    // Request failed
-    return _SC("");
-#endif
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 Column::GetType() const
-{
-    VALIDATE_CREATED_HND(*this);
-    // Return the requested information
-    return sqlite3_column_type(m_Handle->mPtr, m_Index);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 Column::GetBytes() const
-{
-    VALIDATE_CREATED_HND(*this);
-    // Return the requested information
-    return sqlite3_column_bytes(m_Handle->mPtr, m_Index);
-}
-
 // ================================================================================================
 void Register_Column(Table & sqlns)
 {
@@ -431,6 +525,11 @@ void Register_Column(Table & sqlns)
         .Prop(_SC("Index"), &Column::GetIndex)
         .Prop(_SC("Statement"), &Column::GetNumber)
         .Prop(_SC("Connection"), &Column::GetConnection)
+        .Prop(_SC("IsNull"), &Column::IsNull)
+        .Prop(_SC("Name"), &Column::GetName)
+        .Prop(_SC("OriginName"), &Column::GetOriginName)
+        .Prop(_SC("Type"), &Column::GetType)
+        .Prop(_SC("Bytes"), &Column::GetBytes)
         .Prop(_SC("Value"), &Column::GetValue)
         .Prop(_SC("Number"), &Column::GetNumber)
         .Prop(_SC("Integer"), &Column::GetInteger)
@@ -441,11 +540,6 @@ void Register_Column(Table & sqlns)
         .Prop(_SC("Char"), &Column::GetChar)
         .Prop(_SC("Buffer"), &Column::GetBuffer)
         .Prop(_SC("Blob"), &Column::GetBlob)
-        .Prop(_SC("IsNull"), &Column::IsNull)
-        .Prop(_SC("Name"), &Column::GetName)
-        .Prop(_SC("OriginName"), &Column::GetOriginName)
-        .Prop(_SC("Type"), &Column::GetType)
-        .Prop(_SC("Bytes"), &Column::GetBytes)
         // Member Methods
         .Func(_SC("Release"), &Column::Release)
     );

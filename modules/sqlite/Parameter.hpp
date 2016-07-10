@@ -1,16 +1,19 @@
-#ifndef _SQSQLITE_COLUMN_HPP_
-#define _SQSQLITE_COLUMN_HPP_
+#ifndef _SQSQLITE_PARAMETER_HPP_
+#define _SQSQLITE_PARAMETER_HPP_
 
 // ------------------------------------------------------------------------------------------------
 #include "Handle/Statement.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <cctype>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Tsed to manage and interact with statement columns.
+ * Used to manage and interact with parameters from a database statement.
 */
-class Column
+class Parameter
 {
     // --------------------------------------------------------------------------------------------
     friend class Statement;
@@ -18,8 +21,8 @@ class Column
 private:
 
     // --------------------------------------------------------------------------------------------
-    Int32       m_Index; // The index of the managed column.
-    StmtRef     m_Handle; // The statement where the column exist.
+    Int32       m_Index; // The index of the managed parameter.
+    StmtRef     m_Handle; // Reference to the managed statement.
 
 protected:
 
@@ -60,21 +63,12 @@ protected:
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the statement reference and column index, and throw an error if they're invalid.
+     * Validate the statement reference and parameter index, and throw an error if they're invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void ValidateColumn(Int32 idx, CCStr file, Int32 line) const;
+    void ValidateParam(Int32 idx, CCStr file, Int32 line) const;
 #else
-    void ValidateColumn(Int32 idx) const;
-#endif // _DEBUG
-
-    /* --------------------------------------------------------------------------------------------
-     * Validate the statement reference and row, and throw an error if they're invalid.
-    */
-#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void ValidateRow(CCStr file, Int32 line) const;
-#else
-    void ValidateRow() const;
+    void ValidateParam(Int32 idx) const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -82,7 +76,7 @@ protected:
     */
     void SetIndex(Int32 idx)
     {
-        SQMOD_VALIDATE_COLUMN(*this, idx);
+        SQMOD_VALIDATE_PARAM(*this, idx);
         // Assign the new index
         m_Index = idx;
     }
@@ -92,30 +86,30 @@ protected:
     */
     void SetIndex(CSStr name)
     {
-        SetIndex(SQMOD_GET_CREATED(*this)->GetColumnIndex(name));
+        SetIndex(sqlite3_bind_parameter_index(SQMOD_GET_CREATED(*this)->mPtr, name));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the index to the specified value.
     */
-    void SetIndex(const Object & column);
+    void SetIndex(const Object & param);
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null).
     */
-    Column()
-        : m_Index(-1), m_Handle()
+    Parameter()
+        : m_Index(0), m_Handle()
     {
         /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
-     * No column constructor.
+     * No parameter constructor.
     */
-    Column(const StmtRef & stmt)
-        : m_Index(-1), m_Handle(stmt)
+    Parameter(const StmtRef & stmt)
+        : m_Index(0), m_Handle(stmt)
     {
         /* ... */
     }
@@ -123,67 +117,67 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Index constructor.
     */
-    Column(const StmtRef & stmt, Int32 idx)
+    Parameter(const StmtRef & stmt, Int32 idx)
         : m_Index(idx), m_Handle(stmt)
     {
-        SQMOD_VALIDATE_COLUMN(*this, m_Index);
+        SQMOD_VALIDATE_PARAM(*this, m_Index);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Name constructor.
     */
-    Column(const StmtRef & stmt, CSStr name)
-        : m_Index(stmt ? stmt->GetColumnIndex(name) : -1), m_Handle(stmt)
+    Parameter(const StmtRef & stmt, CSStr name)
+        : m_Index(stmt ? sqlite3_bind_parameter_index(stmt->mPtr, name) : 0), m_Handle(stmt)
     {
-        SQMOD_VALIDATE_COLUMN(*this, m_Index);
+        SQMOD_VALIDATE_PARAM(*this, m_Index);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Dynamic constructor.
     */
-    Column(const StmtRef & stmt, const Object & column)
-        : m_Index(-1), m_Handle(stmt)
+    Parameter(const StmtRef & stmt, const Object & param)
+        : m_Index(0), m_Handle(stmt)
     {
         if (!m_Handle)
         {
             STHROWF("Invalid SQLite statement reference");
         }
         // Extract the index
-        SetIndex(column);
+        SetIndex(param);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Column(const Column & o) = default;
+    Parameter(const Parameter & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Column(Column && o) = default;
+    Parameter(Parameter && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Column & operator = (const Column & o) = default;
+    Parameter & operator = (const Parameter & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Column & operator = (Column && o) = default;
+    Parameter & operator = (Parameter && o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Perform an equality comparison between two table column indexes.
+     * Perform an equality comparison between two parameter indexes.
     */
-    bool operator == (const Column & o) const
+    bool operator == (const Parameter & o) const
     {
         return (m_Index == o.m_Index);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Perform an inequality comparison between two table column indexes.
+     * Perform an inequality comparison between two parameter indexes.
     */
-    bool operator != (const Column & o) const
+    bool operator != (const Parameter & o) const
     {
         return (m_Index != o.m_Index);
     }
@@ -199,7 +193,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Column & o) const
+    Int32 Cmp(const Parameter & o) const
     {
         if (m_Index == o.m_Index)
         {
@@ -224,7 +218,7 @@ public:
         // Can we attempt to return the parameter name?
         if (m_Handle && m_Index)
         {
-            val = sqlite3_column_name(m_Handle->mPtr, m_Index);
+            val = sqlite3_bind_parameter_name(m_Handle->mPtr, m_Index);
         }
         else
         {
@@ -244,7 +238,7 @@ public:
     */
     bool IsValid() const
     {
-        return m_Handle; // An invalid statement means an invalid column
+        return m_Handle; // An invalid statement means an invalid parameter
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -256,7 +250,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the referenced column index.
+     * Retrieve the associated parameter index.
     */
     Int32 GetIndex() const
     {
@@ -264,100 +258,179 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the referenced database statement.
+     * Retrieve the associated database statement.
     */
     Object GetStatement() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the referenced database connection.
+     * Retrieve the associated database connection.
     */
     Object GetConnection() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Release the reference to the referenced database statement and column index.
+     * Retrieve the name of the referenced parameter.
+    */
+    CSStr GetName() const
+    {
+        return sqlite3_bind_parameter_name(SQMOD_GET_CREATED(*this)->mPtr, m_Index);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the reference to the associated database statement and parameter index.
     */
     void Release()
     {
         m_Handle.Reset();
-        m_Index = -1;
+        m_Index = 0;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Check whether the referenced column is null.
+     * Attempt to bind a dynamic value at the referenced parameter index.
     */
-    bool IsNull() const;
+    void SetValue(const Object & value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the name of the referenced column index.
+     * Attempt to bind a boolean value at the referenced parameter index.
     */
-    CSStr GetName() const;
+    void SetBool(bool value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the column origin name if the library was compiled with such feature.
+     * Attempt to bind a character value at the referenced parameter index.
     */
-    CSStr GetOriginName() const;
+    void SetChar(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the type identifier of the referenced column index.
+     * Attempt to bind a native integer value at the referenced parameter index.
     */
-    Int32 GetType() const;
+    void SetInteger(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the size in bytes of the referenced column index.
+     * Attempt to bind a signed 8 bit integer value at the referenced parameter index.
     */
-    Int32 GetBytes() const;
+    void SetInt8(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a dynamic type.
+     * Attempt to bind an unsigned 8 bit integer value at the referenced parameter index.
     */
-    Object GetValue() const;
+    void SetUint8(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a numeric type.
+     * Attempt to bind a signed 16 bit integer value at the referenced parameter index.
     */
-    Object GetNumber() const;
+    void SetInt16(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a native script integer.
+     * Attempt to bind an unsigned 16 bit integer value at the referenced parameter index.
     */
-    SQInteger GetInteger() const;
+    void SetUint16(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a native script floating point.
+     * Attempt to bind a signed 32 bit integer value at the referenced parameter index.
     */
-    SQFloat GetFloat() const;
+    void SetInt32(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a long integer.
+     * Attempt to bind an unsigned 32 bit integer value at the referenced parameter index.
     */
-    Object GetLong() const;
+    void SetUint32(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a string.
+     * Attempt to bind a signed 64 bit integer value at the referenced parameter index.
     */
-    Object GetString() const;
+    void SetInt64(const Object & value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a boolean.
+     * Attempt to bind an unsigned 64 bit integer value at the referenced parameter index.
     */
-    bool GetBoolean() const;
+    void SetUint64(const Object & value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a character.
+     * Attempt to bind a native floating point value at the referenced parameter index.
     */
-    SQChar GetChar() const;
+    void SetFloat(SQFloat value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a memory buffer.
+     * Attempt to bind a 32 bit floating point value at the referenced parameter index.
     */
-    Object GetBuffer() const;
+    void SetFloat32(SQFloat value);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value inside the referenced column as a memory blob.
+     * Attempt to bind a 64 bit floating point value at the referenced parameter index.
     */
-    Object GetBlob() const;
+    void SetFloat64(SQFloat value);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a string value at the referenced parameter index.
+    */
+    void SetString(CSStr value);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a string value at the referenced parameter index.
+    */
+    void SetStringEx(CSStr value, Int32 length);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a zeroed blob value at the referenced parameter index.
+    */
+    void SetZeroBlob(SQInteger size);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a blob value at the referenced parameter index.
+    */
+    void SetBlob(const Object & value);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a buffer value at the referenced parameter index.
+    */
+    void SetData(const Object & value);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a date value at the referenced parameter index.
+    */
+    void SetDate(const Object & value);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a date value at the referenced parameter index.
+    */
+    void SetDateEx(SQInteger year, SQInteger month, SQInteger day);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a time value at the referenced parameter index.
+    */
+    void SetTime(const Object & value);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a time value at the referenced parameter index.
+    */
+    void SetTimeEx(SQInteger hour, SQInteger minute, SQInteger second);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a date-time value at the referenced parameter index.
+    */
+    void SetDatetime(const Object & value);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a date-time value at the referenced parameter index.
+    */
+    void SetDatetimeEx(SQInteger year, SQInteger month, SQInteger day, SQInteger hour, SQInteger minute, SQInteger second);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind the current timestamp at the referenced parameter index.
+    */
+    void SetNow();
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a null value at the referenced parameter index.
+    */
+    void SetNull();
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a string value at the referenced parameter index.
+    */
+    static SQInteger SetStringF(HSQUIRRELVM vm);
+
 };
 
 } // Namespace:: SqMod
 
-#endif // _SQSQLITE_COLUMN_HPP_
+#endif // _SQSQLITE_PARAMETER_HPP_

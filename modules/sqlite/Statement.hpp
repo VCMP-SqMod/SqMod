@@ -3,6 +3,8 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Handle/Statement.hpp"
+#include "Parameter.hpp"
+#include "Column.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -68,9 +70,9 @@ protected:
      * Validate the statement reference and parameter index, and throw an error if they're invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void ValidateParameter(Int32 idx, CCStr file, Int32 line) const;
+    void ValidateParam(Int32 idx, CCStr file, Int32 line) const;
 #else
-    void ValidateParameter(Int32 idx) const;
+    void ValidateParam(Int32 idx) const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -99,7 +101,7 @@ public:
     Statement(const ConnRef & connection, CSStr query)
         : m_Handle(new StmtHnd(connection))
     {
-        GET_VALID_HND(*this)->Create(query);
+        SQMOD_GET_VALID(*this)->Create(query);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -250,7 +252,7 @@ public:
     */
     Int32 GetStatus() const
     {
-        return GET_VALID_HND(*this)->mStatus;
+        return SQMOD_GET_VALID(*this)->mStatus;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -258,7 +260,7 @@ public:
     */
     Int32 GetErrorCode() const
     {
-        return GET_VALID_HND(*this)->ErrNo();
+        return SQMOD_GET_VALID(*this)->ErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -266,7 +268,7 @@ public:
     */
     Int32 GetExtendedErrorCode() const
     {
-        return GET_VALID_HND(*this)->ExErrNo();
+        return SQMOD_GET_VALID(*this)->ExErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -274,7 +276,7 @@ public:
     */
     CSStr GetErrStr() const
     {
-        return GET_VALID_HND(*this)->ErrStr();
+        return SQMOD_GET_VALID(*this)->ErrStr();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -282,7 +284,7 @@ public:
     */
     CSStr GetErrMsg() const
     {
-        return GET_VALID_HND(*this)->ErrMsg();
+        return SQMOD_GET_VALID(*this)->ErrMsg();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -290,7 +292,7 @@ public:
     */
     Int32 GetColumns() const
     {
-        return GET_VALID_HND(*this)->mColumns;
+        return SQMOD_GET_VALID(*this)->mColumns;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -298,7 +300,7 @@ public:
     */
     Int32 GetParameters() const
     {
-        return GET_VALID_HND(*this)->mParameters;
+        return SQMOD_GET_VALID(*this)->mParameters;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -306,7 +308,7 @@ public:
     */
     const String & GetQuery() const
     {
-        return GET_VALID_HND(*this)->mQuery;
+        return SQMOD_GET_VALID(*this)->mQuery;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -314,7 +316,7 @@ public:
     */
     bool GetGood() const
     {
-        return GET_CREATED_HND(*this)->mGood;
+        return SQMOD_GET_CREATED(*this)->mGood;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -322,7 +324,117 @@ public:
     */
     bool GetDone() const
     {
-        return GET_CREATED_HND(*this)->mDone;
+        return SQMOD_GET_CREATED(*this)->mDone;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether a specific parameter index is within range.
+    */
+    bool CheckParameter(Int32 idx) const
+    {
+        return SQMOD_GET_VALID(*this)->CheckParameter(idx);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the parameter index associated with the specified name.
+    */
+    Int32 GetParameterIndex(CSStr name) const
+    {
+        return sqlite3_bind_parameter_index(SQMOD_GET_VALID(*this)->mPtr, name);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the parameter name associated with the specified index.
+    */
+    CSStr GetParameterName(Int32 idx) const
+    {
+        // Validate the specified index
+        if (!idx)
+        {
+            STHROWF("Invalid parameter index (%d)", idx);
+        }
+        // Attempt to locate the name at the specified index
+        CSStr name = sqlite3_bind_parameter_name(SQMOD_GET_VALID(*this)->mPtr, idx);
+        // Validate the obtained string
+        if (!name)
+        {
+            STHROWF("No such parameter exists (%d)", idx);
+        }
+        // Return the obtained string
+        return name;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether a specific column index is within range.
+    */
+    bool CheckColumn(Int32 idx) const
+    {
+        return SQMOD_GET_VALID(*this)->CheckColumn(idx);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of columns available in the current row.
+    */
+    Int32 GetDataCount() const
+    {
+        return sqlite3_data_count(SQMOD_GET_VALID(*this)->mPtr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether the specified column is null.
+    */
+    bool IsColumnNull(Int32 idx) const
+    {
+        return (sqlite3_column_type(SQMOD_GET_VALID(*this)->mPtr, idx) == SQLITE_NULL);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the column index associated with the specified name.
+    */
+    Int32 GetColumnIndex(CSStr name) const
+    {
+        return SQMOD_GET_VALID(*this)->GetColumnIndex(name);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the column name associated with the specified index.
+    */
+    CSStr GetColumnName(Int32 idx) const
+    {
+        return sqlite3_column_name(SQMOD_GET_VALID(*this)->mPtr, idx);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the column origin name if the library was compiled with such feature.
+    */
+    CSStr GetColumnOriginName(Int32 idx) const
+    {
+#ifdef SQLITE_ENABLE_COLUMN_METADATA
+        return sqlite3_column_origin_name(SQMOD_GET_VALID(*this)->mPtr, idx);
+#else
+        // The compiler moans when extra warnings are enabled
+        SQMOD_UNUSED_VAR(idx);
+        // Stop the execution here!
+        STHROWF("The module was compiled without this feature");
+        // We have to return something
+        return _SC("");
+#endif
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the type identifier of the column associated with the specified index.
+    */
+    Int32 GetColumnType(Int32 idx) const
+    {
+        return sqlite3_column_type(SQMOD_GET_VALID(*this)->mPtr, idx);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the size in bytes of the column associated with the specified index.
+    */
+    Int32 GetColumnBytes(Int32 idx) const
+    {
+        return sqlite3_column_bytes(SQMOD_GET_VALID(*this)->mPtr, idx);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -346,214 +458,423 @@ public:
     bool Step();
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the parameter with the specified name or index.
+    */
+    Object GetParameter(const Object & param) const
+    {
+        return Object(new Parameter(m_Handle, param));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a dynamic value at the specified parameter index.
+    */
+    Statement & SetValue(const Object & param, const Object & value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetValue(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a boolean value at the specified parameter index.
+    */
+    Statement & SetBool(const Object & param, bool value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetBool(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a character value at the specified parameter index.
+    */
+    Statement & SetChar(const Object & param, SQInteger value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetChar(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a native integer value at the specified parameter index.
+    */
+    Statement & SetInteger(const Object & param, SQInteger value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetInteger(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a signed 8 bit integer value at the specified parameter index.
+    */
+    Statement & SetInt8(const Object & param, SQInteger value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetInt8(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind an unsigned 8 bit integer value at the specified parameter index.
+    */
+    Statement & SetUint8(const Object & param, SQInteger value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetUint8(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a signed 16 bit integer value at the specified parameter index.
+    */
+    Statement & SetInt16(const Object & param, SQInteger value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetInt16(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind an unsigned 16 bit integer value at the specified parameter index.
+    */
+    Statement & SetUint16(const Object & param, SQInteger value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetUint16(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a signed 32 bit integer value at the specified parameter index.
+    */
+    Statement & SetInt32(const Object & param, SQInteger value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetInt32(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind an unsigned 32 bit integer value at the specified parameter index.
+    */
+    Statement & SetUint32(const Object & param, SQInteger value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetUint32(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a signed 64 bit integer value at the specified parameter index.
+    */
+    Statement & SetInt64(const Object & param, const Object & value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetInt64(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind an unsigned 64 bit integer value at the specified parameter index.
+    */
+    Statement & SetUint64(const Object & param, const Object & value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetUint64(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a native floating point value at the specified parameter index.
+    */
+    Statement & SetFloat(const Object & param, SQFloat value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetFloat(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a 32 bit floating point value at the specified parameter index.
+    */
+    Statement & SetFloat32(const Object & param, SQFloat value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetFloat32(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a 64 bit floating point value at the specified parameter index.
+    */
+    Statement & SetFloat64(const Object & param, SQFloat value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetFloat64(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a string value at the specified parameter index.
+    */
+    Statement & SetString(const Object & param, CSStr value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetString(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a zeroed blob value at the specified parameter index.
+    */
+    Statement & SetZeroBlob(const Object & param, SQInteger size)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetZeroBlob(size);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a blob value at the specified parameter index.
+    */
+    Statement & SetBlob(const Object & param, const Object & value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetBlob(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a buffer value at the specified parameter index.
+    */
+    Statement & SetData(const Object & param, const Object & value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetData(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a date value at the specified parameter index.
+    */
+    Statement & SetDate(const Object & param, const Object & value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetDate(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a date value at the specified parameter index.
+    */
+    Statement & SetDateEx(const Object & param, SQInteger year, SQInteger month, SQInteger day)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetDateEx(year, month, day);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a time value at the specified parameter index.
+    */
+    Statement & SetTime(const Object & param, const Object & value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetTime(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a time value at the specified parameter index.
+    */
+    Statement & SetTimeEx(const Object & param, SQInteger hour, SQInteger minute, SQInteger second)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetTimeEx(hour, minute, second);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a date-time value at the specified parameter index.
+    */
+    Statement & SetDatetime(const Object & param, const Object & value)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetDatetime(value);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a date-time value at the specified parameter index.
+    */
+    Statement & SetDatetimeEx(const Object & param, SQInteger year, SQInteger month, SQInteger day,
+                                    SQInteger hour, SQInteger minute, SQInteger second)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetDatetimeEx(year, month, day, hour, minute, second);
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind the current timestamp at the specified parameter index.
+    */
+    Statement & SetNow(const Object & param)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetNow();
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to bind a null value at the specified parameter index.
+    */
+    Statement & SetNull(const Object & param)
+    {
+        Parameter(SQMOD_GET_CREATED(*this), param).SetNull();
+        // Allow chaining of operations
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Attempt to bind the values from an array starting at the specified index.
     */
-    Statement & IndexBindArray(Int32 idx, const Array & arr);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a numeric value at the the specified parameter index.
-    */
-    Statement & IndexBindValue(Int32 idx, Int32 value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a long integer value at the the specified parameter index.
-    */
-    Statement & IndexBindLong(Int32 idx, const Object & value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a native integer value at the the specified parameter index.
-    */
-    Statement & IndexBindInteger(Int32 idx, SQInteger value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a floating point value at the the specified parameter index.
-    */
-    Statement & IndexBindFloat(Int32 idx, SQFloat value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a string value at the the specified parameter index.
-    */
-    Statement & IndexBindString(Int32 idx, CSStr value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a boolean value at the the specified parameter index.
-    */
-    Statement & IndexBindBool(Int32 idx, bool value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a null value at the the specified parameter index.
-    */
-    Statement & IndexBindNull(Int32 idx);
+    Statement & SetArray(Int32 idx, const Array & arr);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the values from an associative container.
     */
-    Statement & NameBindTable(const Table & tbl);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a integer value at the specified parameter name.
-    */
-    Statement & NameBindValue(CSStr name, Int32 value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a long integer value at the specified parameter name.
-    */
-    Statement & NameBindLong(CSStr name, const Object & value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a native integer value at the specified parameter name.
-    */
-    Statement & NameBindInteger(CSStr name, SQInteger value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a floating point value at the specified parameter name.
-    */
-    Statement & NameBindFloat(CSStr name, SQFloat value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a string value at the specified parameter name.
-    */
-    Statement & NameBindString(CSStr name, CSStr value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a boolean value at the specified parameter name.
-    */
-    Statement & NameBindBool(CSStr name, bool value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the a null value at the specified parameter name.
-    */
-    Statement & NameBindNull(CSStr name);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the specified value at the specified parameter index.
-    */
-    Statement & IndexBind(Int32 idx, const Object & value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the specified value at the specified parameter name.
-    */
-    Statement & NameBind(CSStr name, const Object & value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind the specified value at the specified parameter.
-    */
-    Statement & Bind(const Object & param, const Object & value);
-
-    /* --------------------------------------------------------------------------------------------
-     * Fetch the value at the specific column index.
-    */
-    Object FetchColumnIndex(Int32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Fetch the value at the specific column name.
-    */
-    Object FetchColumnName(CSStr name) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Fetch the value at the specific column.
-    */
-    Object FetchColumn(const Object & column) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Fetch the row as an array container.
-    */
-    Array FetchArray() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Fetch the row as an array container.
-    */
-    Array FetchArray(Int32 min) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Fetch the row as an array container.
-    */
-    Array FetchArray(Int32 min, Int32 max) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Fetch the row as an associative container.
-    */
-    Table FetchTable() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Fetch the row as an associative container.
-    */
-    Table FetchTable(Int32 min) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Fetch the row as an associative container.
-    */
-    Table FetchTable(Int32 min, Int32 max) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check whether a specific column index is in range.
-    */
-    bool CheckColumn(Int32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check whether a specific parameter index is in range.
-    */
-    bool CheckParameter(Int32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check whether the specified column is null.
-    */
-    bool IsColumnNull(Int32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the column index associated with the specified name.
-    */
-    Int32 GetColumnIndex(CSStr name) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the column name associated with the specified index.
-    */
-    CSStr GetColumnName(Int32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the column origin name if the library was compiled with such feature.
-    */
-    CSStr GetColumnOriginName(Int32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the type identifier of the column associated with the specified index.
-    */
-    Int32 GetColumnType(Int32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the size in bytes of the column associated with the specified index.
-    */
-    Int32 GetColumnBytes(Int32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the column with the specified index.
-    */
-    Object GetColumnByIndex(Int32 idx) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the column with the specified name.
-    */
-    Object GetColumnByName(CSStr name) const;
+    Statement & SetTable(const Table & tbl);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the column with the specified name or index.
     */
-    Object GetColumn(const Object & column) const;
+    Object GetColumn(const Object & column) const
+    {
+        return Object(new Column(m_Handle, column));
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the amount of columns available in the current row.
+     * Retrieve the value inside the referenced column as a dynamic type.
     */
-    Int32 GetDataCount() const;
+    Object GetValue(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetValue();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the parameter index associated with the specified name.
+     * Retrieve the value inside the referenced column as a numeric type.
     */
-    Int32 GetParameterIndex(CSStr name) const;
+    Object GetNumber(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetNumber();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the parameter name associated with the specified index.
+     * Retrieve the value inside the referenced column as a native script integer.
     */
-    CSStr GetParameterName(Int32 idx) const;
+    SQInteger GetInteger(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetInteger();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the referenced column as a native script floating point.
+    */
+    SQFloat GetFloat(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetFloat();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the referenced column as a long integer.
+    */
+    Object GetLong(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetLong();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the referenced column as a string.
+    */
+    Object GetString(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetString();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the referenced column as a boolean.
+    */
+    bool GetBoolean(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetBoolean();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the referenced column as a character.
+    */
+    SQChar GetChar(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetChar();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the referenced column as a memory buffer.
+    */
+    Object GetBuffer(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetBuffer();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the referenced column as a memory blob.
+    */
+    Object GetBlob(const Object & column) const
+    {
+        return Column(SQMOD_GET_CREATED(*this), column).GetBlob();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the row as an array container.
+    */
+    Array GetArray() const
+    {
+        return GetArray(0, SQMOD_GET_CREATED(*this)->mColumns);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the row as an array container.
+    */
+    Array GetArray(Int32 min) const
+    {
+        return GetArray(min, SQMOD_GET_CREATED(*this)->mColumns);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the row as an array container.
+    */
+    Array GetArray(Int32 min, Int32 max) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the row as an associative container.
+    */
+    Table GetTable() const
+    {
+        return GetTable(0, SQMOD_GET_CREATED(*this)->mColumns);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the row as an associative container.
+    */
+    Table GetTable(Int32 min) const
+    {
+        return GetTable(min, SQMOD_GET_CREATED(*this)->mColumns);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the row as an associative container.
+    */
+    Table GetTable(Int32 min, Int32 max) const;
 };
 
 } // Namespace:: SqMod

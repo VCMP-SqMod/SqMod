@@ -35,25 +35,23 @@ class Transaction;
  * Handle validation.
 */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    #define VALIDATE_HND(x) (x).Validate(__FILE__, __LINE__)
-    #define VALIDATE_OPENED_HND(x) (x).ValidateOpened(__FILE__, __LINE__)
-    #define VALIDATE_CREATED_HND(x) (x).ValidateCreated(__FILE__, __LINE__)
-    #define VALIDATE_COLUMN_HND(x, i) (x).ValidateColumn((i), __FILE__, __LINE__)
-    #define VALIDATE_PARAMETER_HND(x, i) (x).ValidateParameter((i), __FILE__, __LINE__)
-    #define VALIDATE_ROW_HND(x) (x).ValidateRow(__FILE__, __LINE__)
-    #define GET_VALID_HND(x) (x).GetValid(__FILE__, __LINE__)
-    #define GET_OPENED_HND(x) (x).GetOpened(__FILE__, __LINE__)
-    #define GET_CREATED_HND(x) (x).GetCreated(__FILE__, __LINE__)
+    #define SQMOD_THROW_CURRENT(x, a)       (x).ThrowCurrent(a, __FILE__, __LINE__)
+    #define SQMOD_VALIDATE(x)               (x).Validate(__FILE__, __LINE__)
+    #define SQMOD_VALIDATE_CREATED(x)       (x).ValidateCreated(__FILE__, __LINE__)
+    #define SQMOD_VALIDATE_PARAM(x, i)      (x).ValidateParam((i), __FILE__, __LINE__)
+    #define SQMOD_VALIDATE_COLUMN(x, i)     (x).ValidateColumn((i), __FILE__, __LINE__)
+    #define SQMOD_VALIDATE_ROW(x)           (x).ValidateRow(__FILE__, __LINE__)
+    #define SQMOD_GET_VALID(x)              (x).GetValid(__FILE__, __LINE__)
+    #define SQMOD_GET_CREATED(x)            (x).GetCreated(__FILE__, __LINE__)
 #else
-    #define VALIDATE_HND(x) (x).Validate()
-    #define VALIDATE_OPENED_HND(x) (x).ValidateOpened()
-    #define VALIDATE_CREATED_HND(x) (x).ValidateCreated()
-    #define VALIDATE_COLUMN_HND(x, i) (x).ValidateColumn((i))
-    #define VALIDATE_PARAMETER_HND(x, i) (x).ValidateParameter((i))
-    #define VALIDATE_ROW_HND(x) (x).ValidateRow()
-    #define GET_VALID_HND(x) (x).GetValid()
-    #define GET_OPENED_HND(x) (x).GetOpened()
-    #define GET_CREATED_HND(x) (x).GetCreated()
+    #define SQMOD_THROW_CURRENT(x, a)       (x).ThrowCurrent(a)
+    #define SQMOD_VALIDATE(x)               (x).Validate()
+    #define SQMOD_VALIDATE_CREATED(x)       (x).ValidateCreated()
+    #define SQMOD_VALIDATE_PARAM(x, i)      (x).ValidateParam((i))
+    #define SQMOD_VALIDATE_COLUMN(x, i)     (x).ValidateColumn((i))
+    #define SQMOD_VALIDATE_ROW(x)           (x).ValidateRow()
+    #define SQMOD_GET_VALID(x)              (x).GetValid()
+    #define SQMOD_GET_CREATED(x)            (x).GetCreated()
 #endif // _DEBUG
 
 /* ------------------------------------------------------------------------------------------------
@@ -79,6 +77,16 @@ struct StmtHnd;
 */
 typedef SharedPtr< ConnHnd > ConnRef;
 typedef SharedPtr< StmtHnd > StmtRef;
+
+/* ------------------------------------------------------------------------------------------------
+ * Obtain a script object from a connection handle. (meant to avoid having to include the header)
+*/
+Object GetConnectionObj(const ConnRef & conn);
+
+/* ------------------------------------------------------------------------------------------------
+ * Obtain a script object from a statement handle. (meant to avoid having to include the header)
+*/
+Object GetStatementObj(const StmtRef & stmt);
 
 /* ------------------------------------------------------------------------------------------------
  * Generate a formatted query.

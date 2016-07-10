@@ -49,9 +49,9 @@ protected:
      * Validate the managed connection handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void ValidateOpened(CCStr file, Int32 line) const;
+    void ValidateCreated(CCStr file, Int32 line) const;
 #else
-    void ValidateOpened() const;
+    void ValidateCreated() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -67,9 +67,9 @@ protected:
      * Validate the managed connection handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    const ConnRef & GetOpened(CCStr file, Int32 line) const;
+    const ConnRef & GetCreated(CCStr file, Int32 line) const;
 #else
-    const ConnRef & GetOpened() const;
+    const ConnRef & GetCreated() const;
 #endif // _DEBUG
 
 public:
@@ -89,7 +89,7 @@ public:
     Connection(CSStr name)
         : m_Handle(new ConnHnd())
     {
-        GET_VALID_HND(*this)->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
+        SQMOD_GET_VALID(*this)->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ public:
     Connection(CSStr name, Int32 flags)
         : m_Handle(new ConnHnd())
     {
-        GET_VALID_HND(*this)->Create(name, flags, nullptr);
+        SQMOD_GET_VALID(*this)->Create(name, flags, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ public:
     Connection(CSStr name, Int32 flags, CSStr vfs)
         : m_Handle(new ConnHnd())
     {
-        GET_VALID_HND(*this)->Create(name, flags, vfs);
+        SQMOD_GET_VALID(*this)->Create(name, flags, vfs);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -248,7 +248,7 @@ public:
     */
     Int32 GetStatus() const
     {
-        return GET_VALID_HND(*this)->mStatus;
+        return SQMOD_GET_VALID(*this)->mStatus;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -256,7 +256,7 @@ public:
     */
     Int32 GetFlags() const
     {
-        return GET_VALID_HND(*this)->mFlags;
+        return SQMOD_GET_VALID(*this)->mFlags;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -264,7 +264,7 @@ public:
     */
     const String & GetName() const
     {
-        return GET_VALID_HND(*this)->mName;
+        return SQMOD_GET_VALID(*this)->mName;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -272,7 +272,7 @@ public:
     */
     const String GetVFS() const
     {
-        return GET_VALID_HND(*this)->mVFS;
+        return SQMOD_GET_VALID(*this)->mVFS;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -280,7 +280,7 @@ public:
     */
     Int32 GetErrorCode() const
     {
-        return GET_VALID_HND(*this)->ErrNo();
+        return SQMOD_GET_VALID(*this)->ErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -288,7 +288,7 @@ public:
     */
     Int32 GetExtendedErrorCode() const
     {
-        return GET_VALID_HND(*this)->ExErrNo();
+        return SQMOD_GET_VALID(*this)->ExErrNo();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -296,7 +296,7 @@ public:
     */
     CSStr GetErrStr() const
     {
-        return GET_VALID_HND(*this)->ErrStr();
+        return SQMOD_GET_VALID(*this)->ErrStr();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -304,7 +304,7 @@ public:
     */
     CSStr GetErrMsg() const
     {
-        return GET_VALID_HND(*this)->ErrMsg();
+        return SQMOD_GET_VALID(*this)->ErrMsg();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -352,7 +352,7 @@ public:
     */
     bool GetAutoCommit() const
     {
-        return sqlite3_get_autocommit(GET_OPENED_HND(*this)->mPtr);
+        return sqlite3_get_autocommit(SQMOD_GET_CREATED(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -360,7 +360,7 @@ public:
     */
     Object GetLastInsertRowID() const
     {
-        return MakeSLongObj(sqlite3_last_insert_rowid(GET_OPENED_HND(*this)->mPtr));
+        return MakeSLongObj(sqlite3_last_insert_rowid(SQMOD_GET_CREATED(*this)->mPtr));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -369,7 +369,7 @@ public:
     */
     Int32 GetChanges() const
     {
-        return sqlite3_changes(GET_OPENED_HND(*this)->mPtr);
+        return sqlite3_changes(SQMOD_GET_CREATED(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -378,7 +378,7 @@ public:
     */
     Int32 GetTotalChanges() const
     {
-        return sqlite3_total_changes(GET_OPENED_HND(*this)->mPtr);
+        return sqlite3_total_changes(SQMOD_GET_CREATED(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -386,7 +386,7 @@ public:
     */
     bool GetTracing() const
     {
-        return GET_VALID_HND(*this)->mTrace;
+        return SQMOD_GET_VALID(*this)->mTrace;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -399,7 +399,7 @@ public:
     */
     bool GetProfiling() const
     {
-        return GET_VALID_HND(*this)->mProfile;
+        return SQMOD_GET_VALID(*this)->mProfile;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -417,7 +417,7 @@ public:
     */
     void InterruptOperation() const
     {
-        sqlite3_interrupt(GET_OPENED_HND(*this)->mPtr);
+        sqlite3_interrupt(SQMOD_GET_CREATED(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ public:
     */
     void ReleaseMemory() const
     {
-        sqlite3_db_release_memory(GET_OPENED_HND(*this)->mPtr);
+        sqlite3_db_release_memory(SQMOD_GET_CREATED(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ public:
     */
     Uint32 QueueSize() const
     {
-        return ConvTo< Uint32 >::From(GET_VALID_HND(*this)->mQueue.size());
+        return ConvTo< Uint32 >::From(SQMOD_GET_VALID(*this)->mQueue.size());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -467,7 +467,7 @@ public:
     */
     void CompactQueue()
     {
-        GET_VALID_HND(*this)->mQueue.shrink_to_fit();
+        SQMOD_GET_VALID(*this)->mQueue.shrink_to_fit();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -475,7 +475,7 @@ public:
     */
     void ClearQueue()
     {
-        GET_VALID_HND(*this)->mQueue.clear();
+        SQMOD_GET_VALID(*this)->mQueue.clear();
     }
 
     /* --------------------------------------------------------------------------------------------

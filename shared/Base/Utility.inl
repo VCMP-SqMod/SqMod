@@ -970,6 +970,34 @@ CSStr FetchTimeObjStr(const Object & value)
 }
 
 // ------------------------------------------------------------------------------------------------
+Int32 FetchTimeObjSeconds(const Object & value)
+{
+#ifdef SQMOD_PLUGIN_API
+    // Grab the associated object virtual machine
+    HSQUIRRELVM vm = value.GetVM();
+    // Remember the current stack size
+    const StackGuard sg(vm);
+    // Push the specified object onto the stack
+    Var< const Object & >::push(vm, value);
+    // The time components
+    uint8_t h = 0, m = 0, s = 0;
+    // Grab the time components from the time instance
+    if (SQ_FAILED(SqMod_GetTime(vm, -1, &h, &m, &s, nullptr)))
+    {
+        STHROWF("Unable to obtain the time info");
+    }
+    // Return the number of seconds in the specified time
+    return ((h * (60 * 60)) + (m * 60) + s);
+#else
+    STHROWF("This method is only available in modules");
+    // Should not reach this point
+    return 0;
+    // Avoid unused parameter warnings
+    SQMOD_UNUSED_VAR(value);
+#endif // SQMOD_PLUGIN_API
+}
+
+// ------------------------------------------------------------------------------------------------
 SQRESULT FetchDatetimeObjVal(const Object & value, Uint16 & year, Uint8 & month, Uint8 & day, Uint8 & hour,
                                 Uint8 & minute, Uint8 & second)
 {

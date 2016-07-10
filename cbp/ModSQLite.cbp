@@ -427,6 +427,8 @@
 		<Unit filename="../modules/sqlite/Handle/Statement.cpp" />
 		<Unit filename="../modules/sqlite/Handle/Statement.hpp" />
 		<Unit filename="../modules/sqlite/Module.cpp" />
+		<Unit filename="../modules/sqlite/Parameter.cpp" />
+		<Unit filename="../modules/sqlite/Parameter.hpp" />
 		<Unit filename="../modules/sqlite/Statement.cpp" />
 		<Unit filename="../modules/sqlite/Statement.hpp" />
 		<Unit filename="../modules/sqlite/Transaction.cpp" />

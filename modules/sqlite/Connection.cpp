@@ -46,7 +46,7 @@ void Connection::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Connection::ValidateOpened(CCStr file, Int32 line) const
+void Connection::ValidateCreated(CCStr file, Int32 line) const
 {
     if (!m_Handle)
     {
@@ -58,7 +58,7 @@ void Connection::ValidateOpened(CCStr file, Int32 line) const
     }
 }
 #else
-void Connection::ValidateOpened() const
+void Connection::ValidateCreated() const
 {
     if (!m_Handle)
     {
@@ -88,15 +88,15 @@ const ConnRef & Connection::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ConnRef & Connection::GetOpened(CCStr file, Int32 line) const
+const ConnRef & Connection::GetCreated(CCStr file, Int32 line) const
 {
-    ValidateOpened(file, line);
+    ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const ConnRef & Connection::GetOpened() const
+const ConnRef & Connection::GetCreated() const
 {
-    ValidateOpened();
+    ValidateCreated();
     return m_Handle;
 }
 #endif // _DEBUG
@@ -110,7 +110,7 @@ void Connection::Open(CSStr name)
         m_Handle = ConnRef(new ConnHnd());
     }
     // Make sure another database isn't opened
-    if (GET_VALID_HND(*this)->mPtr != nullptr)
+    if (SQMOD_GET_VALID(*this)->mPtr != nullptr)
     {
         STHROWF("Already referencing a valid database connection");
     }
@@ -127,7 +127,7 @@ void Connection::Open(CSStr name, Int32 flags)
         m_Handle = ConnRef(new ConnHnd());
     }
     // Make sure another database isn't opened
-    if (GET_VALID_HND(*this)->mPtr != nullptr)
+    if (SQMOD_GET_VALID(*this)->mPtr != nullptr)
     {
         STHROWF("Already referencing a valid database connection");
     }
@@ -144,7 +144,7 @@ void Connection::Open(CSStr name, Int32 flags, CSStr vfs)
         m_Handle = ConnRef(new ConnHnd());
     }
     // Make sure another database isn't opened
-    if (GET_VALID_HND(*this)->mPtr != nullptr)
+    if (SQMOD_GET_VALID(*this)->mPtr != nullptr)
     {
         STHROWF("Already referencing a valid database connection");
     }
@@ -155,7 +155,7 @@ void Connection::Open(CSStr name, Int32 flags, CSStr vfs)
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::Exec(CSStr str)
 {
-    VALIDATE_OPENED_HND(*this);
+    SQMOD_VALIDATE_CREATED(*this);
     // Attempt to execute the specified query
     m_Handle->mStatus = sqlite3_exec(m_Handle->mPtr, str, nullptr, nullptr, nullptr);
     // Validate the execution result
@@ -170,7 +170,7 @@ Int32 Connection::Exec(CSStr str)
 // ------------------------------------------------------------------------------------------------
 Object Connection::Query(CSStr str) const
 {
-    VALIDATE_OPENED_HND(*this);
+    SQMOD_VALIDATE_CREATED(*this);
     // Return the requested information
     return Object(new Statement(m_Handle, str));
 }
@@ -178,7 +178,7 @@ Object Connection::Query(CSStr str) const
 // ------------------------------------------------------------------------------------------------
 void Connection::Queue(CSStr str)
 {
-    VALIDATE_HND(*this);
+    SQMOD_VALIDATE(*this);
     // Is there a query to commit?
     if (IsQueryEmpty(str))
     {
@@ -192,7 +192,7 @@ void Connection::Queue(CSStr str)
 bool Connection::IsReadOnly() const
 {
     // Request the desired information
-    const int result = sqlite3_db_readonly(GET_OPENED_HND(*this)->mPtr, "main");
+    const int result = sqlite3_db_readonly(SQMOD_GET_CREATED(*this)->mPtr, "main");
     // Verify the result
     if (result == -1)
     {
@@ -206,12 +206,12 @@ bool Connection::IsReadOnly() const
 bool Connection::TableExists(CCStr name) const
 {
     // Prepare a statement to inspect the master table
-    Statement stmt(GET_OPENED_HND(*this), "SELECT count(*) FROM [sqlite_master] WHERE [type]='table' AND [name]=?");
+    Statement stmt(SQMOD_GET_CREATED(*this), "SELECT count(*) FROM [sqlite_master] WHERE [type]='table' AND [name]=?");
     // Could the statement be created?
     if (stmt.IsValid())
     {
         // Bind the specified name onto the statement parameter
-        stmt.IndexBindString(1, name);
+        Parameter(stmt.GetHandle(), 1).SetString(name);
         // Attempt to step the statement and obtain a value
         if (stmt.Step())
         {
@@ -226,7 +226,7 @@ bool Connection::TableExists(CCStr name) const
 void Connection::SetTracing(bool toggle)
 {
     // Check whether changes are necessary
-    if (GET_OPENED_HND(*this)->mTrace == toggle)
+    if (SQMOD_GET_CREATED(*this)->mTrace == toggle)
     {
         return; // No point in proceeding
     }
@@ -246,7 +246,7 @@ void Connection::SetTracing(bool toggle)
 void Connection::SetProfiling(bool toggle)
 {
     // Check whether changes are necessary
-    if (GET_OPENED_HND(*this)->mProfile == toggle)
+    if (SQMOD_GET_CREATED(*this)->mProfile == toggle)
     {
         return; // No point in proceeding
     }
@@ -265,7 +265,7 @@ void Connection::SetProfiling(bool toggle)
 // ------------------------------------------------------------------------------------------------
 void Connection::SetBusyTimeout(Int32 millis)
 {
-    VALIDATE_OPENED_HND(*this);
+    SQMOD_VALIDATE_CREATED(*this);
     // Apply the requested timeout
     if ((m_Handle->mStatus = sqlite3_busy_timeout(m_Handle->mPtr, millis)) != SQLITE_OK)
     {
@@ -280,7 +280,7 @@ Int32 Connection::GetInfo(Int32 operation, bool highwater, bool reset)
     Int32 cur_value;
     Int32 hiwtr_value;
     // Attempt to retrieve the specified information
-    if ((m_Handle->mStatus = sqlite3_db_status(GET_OPENED_HND(*this)->mPtr, operation, &cur_value, &hiwtr_value, reset)) != SQLITE_OK)
+    if ((m_Handle->mStatus = sqlite3_db_status(SQMOD_GET_CREATED(*this)->mPtr, operation, &cur_value, &hiwtr_value, reset)) != SQLITE_OK)
     {
         STHROWF("Unable to get runtime status information", m_Handle->ErrMsg());
     }
@@ -296,7 +296,7 @@ Int32 Connection::GetInfo(Int32 operation, bool highwater, bool reset)
 // ------------------------------------------------------------------------------------------------
 void Connection::ReserveQueue(Uint32 num)
 {
-    VALIDATE_HND(*this);
+    SQMOD_VALIDATE(*this);
     // Perform the requested operation
     m_Handle->mQueue.reserve(m_Handle->mQueue.size() + num);
 }
@@ -304,9 +304,9 @@ void Connection::ReserveQueue(Uint32 num)
 // ------------------------------------------------------------------------------------------------
 void Connection::PopQueue()
 {
-    VALIDATE_HND(*this);
+    SQMOD_VALIDATE(*this);
     // Perform the requested operation
-    if (!GET_VALID_HND(*this)->mQueue.empty())
+    if (!SQMOD_GET_VALID(*this)->mQueue.empty())
     {
         m_Handle->mQueue.pop_back();
     }
@@ -315,7 +315,7 @@ void Connection::PopQueue()
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::Flush()
 {
-    VALIDATE_OPENED_HND(*this);
+    SQMOD_VALIDATE_CREATED(*this);
     // Perform the requested operation
     return m_Handle->Flush(m_Handle->mQueue.size(), NullObject(), NullFunction());
 }
@@ -323,7 +323,7 @@ Int32 Connection::Flush()
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::Flush(SQInteger num)
 {
-    VALIDATE_OPENED_HND(*this);
+    SQMOD_VALIDATE_CREATED(*this);
     // Perform the requested operation
     return m_Handle->Flush(ConvTo< Uint32 >::From(num), NullObject(), NullFunction());
 }
@@ -331,7 +331,7 @@ Int32 Connection::Flush(SQInteger num)
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::Flush(Object & env, Function & func)
 {
-    VALIDATE_OPENED_HND(*this);
+    SQMOD_VALIDATE_CREATED(*this);
     // Perform the requested operation
     return m_Handle->Flush(m_Handle->mQueue.size(), env, func);
 }
@@ -339,7 +339,7 @@ Int32 Connection::Flush(Object & env, Function & func)
 // ------------------------------------------------------------------------------------------------
 Int32 Connection::Flush(SQInteger num, Object & env, Function & func)
 {
-    VALIDATE_OPENED_HND(*this);
+    SQMOD_VALIDATE_CREATED(*this);
     // Perform the requested operation
     return m_Handle->Flush(ConvTo< Uint32 >::From(num), env, func);
 }

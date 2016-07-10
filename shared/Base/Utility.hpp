@@ -1501,6 +1501,11 @@ SQRESULT FetchTimeObjVal(const Object & value, Uint8 & hour, Uint8 & minute, Uin
 CSStr FetchTimeObjStr(const Object & value);
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve the time components from a date instance as the number of seconds.
+*/
+Int32 FetchTimeObjSeconds(const Object & value);
+
+/* ------------------------------------------------------------------------------------------------
  * Retrieve the date-time components from a date-time instance.
 */
 SQRESULT FetchDatetimeObjVal(const Object & value, Uint16 & year, Uint8 & month, Uint8 & day, Uint8 & hour,
