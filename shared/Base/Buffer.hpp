@@ -395,7 +395,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Negation operator.
     */
-    operator ! () const
+    bool operator ! () const
     {
         return (!m_Ptr);
     }
