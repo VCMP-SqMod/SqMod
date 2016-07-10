@@ -428,10 +428,6 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagBegins"), &Entity< CPickup >::FirstWhereTagBegins)
         .Func(_SC("TagEnds"), &Entity< CPickup >::FirstWhereTagEnds)
         .Func(_SC("TagContains"), &Entity< CPickup >::FirstWhereTagContains)
-        .Func(_SC("NameEquals"), &Player_FirstWhereNameEquals)
-        .Func(_SC("NameBegins"), &Player_FirstWhereNameBegins)
-        .Func(_SC("NameEnds"), &Player_FirstWhereNameEnds)
-        .Func(_SC("NameContains"), &Player_FirstWhereNameContains)
     );
 
     fns.Bind(_SC("Player"), Table(vm)
@@ -440,6 +436,10 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagBegins"), &Entity< CPlayer >::FirstWhereTagBegins)
         .Func(_SC("TagEnds"), &Entity< CPlayer >::FirstWhereTagEnds)
         .Func(_SC("TagContains"), &Entity< CPlayer >::FirstWhereTagContains)
+        .Func(_SC("NameEquals"), &Player_FirstWhereNameEquals)
+        .Func(_SC("NameBegins"), &Player_FirstWhereNameBegins)
+        .Func(_SC("NameEnds"), &Player_FirstWhereNameEnds)
+        .Func(_SC("NameContains"), &Player_FirstWhereNameContains)
     );
 
     fns.Bind(_SC("Vehicle"), Table(vm)
