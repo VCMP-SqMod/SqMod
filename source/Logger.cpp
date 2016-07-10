@@ -88,14 +88,14 @@ static inline CCStr GetLevelTag(Uint8 level)
 {
     switch (level)
     {
-        case LOGL_DBG: return "[DBG]";
-        case LOGL_USR: return "[USR]";
-        case LOGL_SCS: return "[SCS]";
-        case LOGL_INF: return "[INF]";
-        case LOGL_WRN: return "[WRN]";
-        case LOGL_ERR: return "[ERR]";
-        case LOGL_FTL: return "[FTL]";
-        default: return "[UNK]";
+        case LOGL_DBG:  return "[DBG]";
+        case LOGL_USR:  return "[USR]";
+        case LOGL_SCS:  return "[SCS]";
+        case LOGL_INF:  return "[INF]";
+        case LOGL_WRN:  return "[WRN]";
+        case LOGL_ERR:  return "[ERR]";
+        case LOGL_FTL:  return "[FTL]";
+        default:        return "[UNK]";
     }
 }
 
@@ -108,14 +108,14 @@ static inline CCStr GetColoredLevelTag(Uint8 level)
 {
     switch (level)
     {
-        case LOGL_DBG: return "\033[21;94m[[DBG]\033[0m";
-        case LOGL_USR: return "\033[21;37m[[USR]\033[0m";
-        case LOGL_SCS: return "\033[21;92m[[SCS]\033[0m";
-        case LOGL_INF: return "\033[21;96m[[INF]\033[0m";
-        case LOGL_WRN: return "\033[21;93m[[WRN]\033[0m";
-        case LOGL_ERR: return "\033[21;91m[[ERR]\033[0m";
-        case LOGL_FTL: return "\033[21;95m[[FTL]\033[0m";
-        default: return "\033[21;0m[[UNK]\033[0m";
+        case LOGL_DBG:  return "\033[21;94m[DBG]\033[0m";
+        case LOGL_USR:  return "\033[21;37m[USR]\033[0m";
+        case LOGL_SCS:  return "\033[21;92m[SCS]\033[0m";
+        case LOGL_INF:  return "\033[21;96m[INF]\033[0m";
+        case LOGL_WRN:  return "\033[21;93m[WRN]\033[0m";
+        case LOGL_ERR:  return "\033[21;91m[ERR]\033[0m";
+        case LOGL_FTL:  return "\033[21;95m[FTL]\033[0m";
+        default:        return "\033[21;0m[UNK]\033[0m";
     }
 }
 
@@ -126,14 +126,14 @@ static inline CCStr GetColoredLevelTagDim(Uint8 level)
 {
     switch (level)
     {
-        case LOGL_DBG: return "\033[21;94m[[DBG]\033[2m";
-        case LOGL_USR: return "\033[21;37m[[USR]\033[2m";
-        case LOGL_SCS: return "\033[21;92m[[SCS]\033[2m";
-        case LOGL_INF: return "\033[21;96m[[INF]\033[2m";
-        case LOGL_WRN: return "\033[21;93m[[WRN]\033[2m";
-        case LOGL_ERR: return "\033[21;91m[[ERR]\033[2m";
-        case LOGL_FTL: return "\033[21;95m[[FTL]\033[2m";
-        default: return "\033[21;0m[[UNK]\033[0m";
+        case LOGL_DBG:  return "\033[21;94m[DBG]\033[2m";
+        case LOGL_USR:  return "\033[21;37m[USR]\033[2m";
+        case LOGL_SCS:  return "\033[21;92m[SCS]\033[2m";
+        case LOGL_INF:  return "\033[21;96m[INF]\033[2m";
+        case LOGL_WRN:  return "\033[21;93m[WRN]\033[2m";
+        case LOGL_ERR:  return "\033[21;91m[ERR]\033[2m";
+        case LOGL_FTL:  return "\033[21;95m[FTL]\033[2m";
+        default:        return "\033[21;0m[UNK]\033[0m";
     }
 }
 
@@ -163,12 +163,12 @@ static inline void OutputConsoleMessage(Uint8 level, bool sub, CCStr tms, CCStr 
 #else
     if (tms)
     {
-        std::printf("%s %s %s[\033[0m]\n",
+        std::printf("%s %s %s\033[0m\n",
             sub ? GetColoredLevelTagDim(level) : GetColoredLevelTag(level), tms, msg);
     }
     else
     {
-        std::printf("%s %s[\033[0m]\n",
+        std::printf("%s %s\033[0m\n",
             sub ? GetColoredLevelTagDim(level) : GetColoredLevelTag(level), msg);
     }
 #endif // SQMOD_OS_WINDOWS
