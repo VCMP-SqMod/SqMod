@@ -244,7 +244,7 @@ Int32 Statement::Exec()
         case SQLITE_BUSY:   STHROWF("Database was busy");
         case SQLITE_ERROR:  STHROWF("Runtime error occurred");
         case SQLITE_MISUSE: STHROWF("Statement misuse");
-        default:            STHROWF("Unknown failure");
+        default:            STHROWF("Unknown failure [%s]", m_Handle->ErrStr());
     }
     // Operation failed (shouldn't reach this point!)
     return -1;
@@ -284,7 +284,7 @@ bool Statement::Step()
         case SQLITE_BUSY:   STHROWF("Database was busy");
         case SQLITE_ERROR:  STHROWF("Runtime error occurred");
         case SQLITE_MISUSE: STHROWF("Statement misuse");
-        default:            STHROWF("Unknown failure");
+        default:            STHROWF("Unknown failure [%s]", m_Handle->ErrStr());
     }
     // Operation failed (shouldn't reach this point!)
     return false;
