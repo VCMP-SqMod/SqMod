@@ -173,7 +173,7 @@ Uint64 ConnHnd::Execute(CSStr query, Ulong size)
         size = std::strlen(query);
     }
     // Attempt to execute the specified query
-    else if (mysql_real_query(mPtr, query, size))
+    if (mysql_real_query(mPtr, query, size))
     {
         SQMOD_THROW_CURRENT(*this, "Unable to execute query");
     }
