@@ -199,7 +199,7 @@ Uint64 ConnHnd::Execute(CSStr query, Ulong size)
             // Sum the number of affected rows by this statement
             affected += mysql_affected_rows(mPtr);
         }
-        else
+        else if (mysql_errno(mPtr) != 0)
         {
             SQMOD_THROW_CURRENT(*this, "Unable to count affected rows");
         }
