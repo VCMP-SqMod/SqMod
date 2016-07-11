@@ -279,9 +279,27 @@ struct Command
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Construct a command and extract the listener from the specified script object.
+    */
+    Command(std::size_t hash, const String & name, Object && obj)
+        : mHash(hash), mName(name), mPtr(obj.Cast< Listener * >()), mObj(obj)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Construct a command with the given parameters.
     */
     Command(std::size_t hash, const String & name, Listener * ptr, const Object & obj)
+        : mHash(hash), mName(name), mPtr(ptr), mObj(obj)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct a command with the given parameters.
+    */
+    Command(std::size_t hash, const String & name, Listener * ptr, Object && obj)
         : mHash(hash), mName(name), mPtr(ptr), mObj(obj)
     {
         /* ... */
@@ -416,7 +434,23 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Attach a command listener to a certain name.
     */
-    Object & Attach(Object & obj, Listener * ptr);
+    Object & Attach(Object & obj, Listener * ptr)
+    {
+        return Attach(Object(obj), ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attach a command listener to a certain name.
+    */
+    Object & Attach(const Object & obj, Listener * ptr)
+    {
+        return Attach(Object(obj), ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attach a command listener to a certain name.
+    */
+    Object & Attach(Object && obj, Listener * ptr);
 
     /* --------------------------------------------------------------------------------------------
      * Detach a command listener from a certain name.
@@ -766,6 +800,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of references to the managed controller.
+    */
+    Uint32 GetRefCount() const
+    {
+        return m_Controller.Count();
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Run a command under a specific invoker.
     */
     Int32 Run(Object & invoker, CSStr command)
@@ -1056,14 +1098,6 @@ public:
         // Set the specified minimum and maximum allowed arguments
         SetMinArgC(min);
         SetMaxArgC(max);
-        // Default to no authority check
-        m_Authority = -1;
-        // Default to unprotected command
-        m_Protected = false;
-        // Default to unsuspended command
-        m_Suspended = false;
-        // Default to non-associative arguments
-        m_Associate = false;
         // Generate information for the command
         GenerateInfo(false);
     }
@@ -1138,6 +1172,14 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of weak references to the managed controller.
+    */
+    Uint32 GetRefCount() const
+    {
+        return m_Controller.Count();
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Attach the listener instance to the associated command name.
     */
     void Attach(const Manager & mgr)
@@ -1186,7 +1228,7 @@ public:
     Object GetManager() const
     {
         // Are we even associated with a controller?
-        if (!m_Controller)
+        if (m_Controller.Expired())
         {
             return NullObject(); // Default to null
         }
@@ -1489,7 +1531,7 @@ public:
     void SetOnExec(Object & env, Function & func)
     {
         // Make sure that we are allowed to store script resources
-        if (!m_Controller)
+        if (m_Controller.Expired())
         {
             STHROWF("Detached commands cannot store script resources");
         }
@@ -1511,7 +1553,7 @@ public:
     void SetOnAuth(Object & env, Function & func)
     {
         // Make sure that we are allowed to store script resources
-        if (!m_Controller)
+        if (m_Controller.Expired())
         {
             STHROWF("Detached commands cannot store script resources");
         }
@@ -1533,7 +1575,7 @@ public:
     void SetOnPost(Object & env, Function & func)
     {
         // Make sure that we are allowed to store script resources
-        if (!m_Controller)
+        if (m_Controller.Expired())
         {
             STHROWF("Detached listeners cannot store script resources");
         }
@@ -1555,7 +1597,7 @@ public:
     void SetOnFail(Object & env, Function & func)
     {
         // Make sure that we are allowed to store script resources
-        if (!m_Controller)
+        if (m_Controller.Expired())
         {
             STHROWF("Detached listeners cannot store script resources");
         }

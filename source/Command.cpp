@@ -49,7 +49,7 @@ Command::~Command()
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & Controller::Attach(Object & obj, Listener * ptr)
+Object & Controller::Attach(Object && obj, Listener * ptr)
 {
     // Is there anything that we can attach
     if (obj.IsNull() && ptr == nullptr)
@@ -102,7 +102,7 @@ Object & Controller::Attach(Object & obj, Listener * ptr)
         }
     }
     // Attempt to insert the command
-    m_Commands.emplace_back(hash, name, ptr, obj);
+    m_Commands.emplace_back(hash, name, ptr, std::move(obj));
     // Attempt to associate with the listener
     if (m_Manager)
     {
@@ -140,7 +140,7 @@ Object Manager::Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 ma
     // Attempt to attach the command listener to the controller
     Object & o = m_Controller->Attach(obj, ptr);
     // Return the script object
-    return o; 
+    return o;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1022,6 +1022,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("_tostring"), &Manager::ToString)
         // Member Properties
         .Prop(_SC("Count"), &Manager::GetCount)
+        .Prop(_SC("References"), &Manager::GetRefCount)
         .Prop(_SC("IsContext"), &Manager::IsContext)
         .Prop(_SC("OnFail"), &Manager::GetOnFail)
         .Prop(_SC("OnAuth"), &Manager::GetOnAuth)
@@ -1064,6 +1065,7 @@ void Register(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("_typename"), &Listener::Typename)
         .Func(_SC("_tostring"), &Listener::ToString)
         // Member Properties
+        .Prop(_SC("References"), &Listener::GetRefCount)
         .Prop(_SC("Attached"), &Listener::Attached)
         .Prop(_SC("Manager"), &Listener::GetManager)
         .Prop(_SC("Name"), &Listener::GetName, &Listener::SetName)
