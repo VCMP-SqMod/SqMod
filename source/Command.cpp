@@ -126,13 +126,9 @@ Object Manager::Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 ma
     // Create the command listener
     {
         // Create a new instance of this class and make sure it can't get leaked due to exceptions
-        AutoDelete< Listener > ad(new Listener(name, spec,tags, min, max, auth, prot, assoc));
-        // Obtain the initial stack size
-        const StackGuard sg;
-        // Push the instance on the stack
-        ClassType< Listener >::PushInstance(DefaultVM::Get(), ad.Get());
-        // Grab the script object with the instance instance from the stack
-        obj = Var< Object >(DefaultVM::Get(), -1).value;
+        AutoDelete< Listener > ad(new Listener(name, spec, tags, min, max, auth, prot, assoc));
+        // Transform the instance into a script object
+        obj = Object(ad.Get());
         // Validate the obtained script object
         if (obj.IsNull())
         {
@@ -143,6 +139,7 @@ Object Manager::Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 ma
     }
     // Attempt to attach the command listener to the controller
     Object & o = m_Controller->Attach(obj, ptr);
+    // Return the script object
     return o; 
 }
 
