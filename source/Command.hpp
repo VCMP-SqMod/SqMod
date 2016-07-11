@@ -1324,11 +1324,11 @@ public:
     {
         if (help)
         {
-            m_Help.clear();
+            m_Help.assign(help);
         }
         else
         {
-            m_Help.assign(help);
+            m_Help.clear();
         }
     }
 
@@ -1347,11 +1347,11 @@ public:
     {
         if (info)
         {
-            m_Info.clear();
+            m_Info.assign(info);
         }
         else
         {
-            m_Info.assign(info);
+            m_Info.clear();
         }
     }
 
