@@ -1290,11 +1290,11 @@ public:
         // Assign the specifier, if any
         if (spec)
         {
-            m_Spec.clear();
+            m_Spec.assign(spec);
         }
         else
         {
-            m_Spec.assign(spec);
+            m_Spec.clear();
         }
     }
 
