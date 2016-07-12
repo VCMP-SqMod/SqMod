@@ -476,6 +476,11 @@ public:
     void SetHealth(Float32 amount) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Fix the damage and restore health for the managed vehicle entity.
+    */
+    void Fix() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the primary color of the managed vehicle entity.
     */
     Int32 GetPrimaryColor() const;

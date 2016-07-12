@@ -738,6 +738,16 @@ void CVehicle::SetHealth(Float32 amount) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CVehicle::Fix() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetVehicleHealth(m_ID, 1000);
+    _Func->SetVehicleDamageData(m_ID, 0);
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CVehicle::GetPrimaryColor() const
 {
     // Validate the managed identifier
@@ -1734,6 +1744,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Func(_SC("SetSpawnRotation"), &CVehicle::SetSpawnRotationEx)
         .Func(_SC("SetSpawnEulerRot"), &CVehicle::SetSpawnRotationEulerEx)
         .Func(_SC("SetSpawnEulerRotation"), &CVehicle::SetSpawnRotationEulerEx)
+        .Func(_SC("Fix"), &CVehicle::Fix)
         .Func(_SC("SetColors"), &CVehicle::SetColors)
         .Func(_SC("GetPartStatus"), &CVehicle::GetPartStatus)
         .Func(_SC("SetPartStatus"), &CVehicle::SetPartStatus)
