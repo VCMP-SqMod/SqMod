@@ -80,9 +80,9 @@ protected:
     static void Insert(Routine * routine, bool associate = true);
 
     /* --------------------------------------------------------------------------------------------
-     * Insert a routine instance from the pool to not be processed.
+     * Remove a routine instance from the pool to not be processed.
     */
-    static void Remove(Routine * routine);
+    static void Remove(Routine * routine, bool forget = false);
 
     /* --------------------------------------------------------------------------------------------
      * Release routine resources.

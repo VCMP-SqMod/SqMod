@@ -184,7 +184,7 @@ void Routine::Insert(Routine * routine, bool associate)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Routine::Remove(Routine * routine)
+void Routine::Remove(Routine * routine, bool forget)
 {
     // Do we even have what to remove?
     if (!routine)
@@ -196,7 +196,7 @@ void Routine::Remove(Routine * routine)
     do {
         // Search for the slot with the specified routine instance
         itr = std::find_if(s_Routines.begin(), s_Routines.end(),
-            [routine](Element & e) -> bool { return (e.second == routine); });
+            [routine](const Element & e) -> bool { return (e.second == routine); });
         // Was this routine instance activated?
         if (itr != s_Routines.end())
         {
@@ -207,7 +207,14 @@ void Routine::Remove(Routine * routine)
     // Reset the routine instance slot
     routine->m_Slot = 0xFFFF;
     // Release any strong reference to this routine instance
-    Dissociate(routine);
+    if (forget)
+    {
+        Forget(routine);
+    }
+    else
+    {
+        Dissociate(routine);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -239,11 +246,6 @@ void Routine::Execute()
     if (m_Suspended || m_Callback.IsNull())
     {
         return; // We're done here!
-    }
-    // Make sure that we have a known number of arguments
-    else if (m_Arguments > 14)
-    {
-        STHROWF("Routine [%s] => Out of range argument count [%d]", m_Tag.c_str(), m_Arguments);
     }
     // Attempt to forward the call
     try
@@ -314,6 +316,12 @@ void Routine::Execute()
                                     m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13);
             } break;
             case 14:
+            {
+                m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
+                                    m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13, m_Arg14);
+            } break;
+            // Should not reach this point but just in case
+            default:
             {
                 m_Callback.Execute(m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
                                     m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13, m_Arg14);
@@ -581,17 +589,10 @@ Routine::Routine(Object & env, Function & func, Interval interval, Iterator iter
 // ------------------------------------------------------------------------------------------------
 Routine::~Routine()
 {
-    // Remove this instance from the pool
-    Forget(this);
-    // Was the routine already terminated?
-    if (!m_Terminated)
-    {
-        return; // Nothing to release!
-    }
-    // Remove it from the pool
-    Remove(this);
     // Release script resources
     Release();
+    // Remove it from the pool of instances, just in case
+    Forget(this);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -679,6 +680,9 @@ Routine & Routine::Activate()
     // Make sure no slot is associated
     else if (m_Slot >= s_Routines.size())
     {
+        // Keep a strong reference to the script object
+        Associate(this);
+        // Insert it into the pool of active routines
         Insert(this);
     }
     // Allow chaining
@@ -690,7 +694,7 @@ Routine & Routine::Deactivate()
 {
     // Validate the routine lifetime
     Validate();
-    // Remove it from the pool
+    // Remove it from the active pool
     Remove(this);
     // Allow chaining
     return *this;
@@ -704,10 +708,10 @@ Routine & Routine::Terminate()
     {
         STHROWF("Routine was already terminated");
     }
-    // Remove it from the pool
-    Remove(this);
     // Release script resources
     Release();
+    // Remove it from the active pool
+    Remove(this, true);
     // Mark it as terminated
     m_Terminated = true;
     // Allow chaining
