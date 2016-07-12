@@ -40,6 +40,55 @@ Guard::~Guard()
 }
 
 // ------------------------------------------------------------------------------------------------
+Command::Command(std::size_t hash, const String & name, Listener * ptr, const CtrPtr & ctr)
+    : mHash(hash), mName(name), mPtr(ptr), mObj(ptr), mCtr(ctr)
+{
+    if (mPtr)
+    {
+        mPtr->m_Controller = mCtr; // Create controller association
+    }
+}
+// ------------------------------------------------------------------------------------------------
+Command::Command(std::size_t hash, const String & name, const Object & obj, const CtrPtr & ctr)
+    : mHash(hash), mName(name), mPtr(obj.Cast< Listener * >()), mObj(obj), mCtr(ctr)
+{
+    if (mPtr)
+    {
+        mPtr->m_Controller = mCtr; // Create controller association
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Command::Command(std::size_t hash, const String & name, Object && obj, const CtrPtr & ctr)
+    : mHash(hash), mName(name), mPtr(obj.Cast< Listener * >()), mObj(obj), mCtr(ctr)
+{
+    if (mPtr)
+    {
+        mPtr->m_Controller = mCtr; // Create controller association
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Command::Command(std::size_t hash, const String & name, Listener * ptr, const Object & obj, const CtrPtr & ctr)
+    : mHash(hash), mName(name), mPtr(ptr), mObj(obj), mCtr(ctr)
+{
+    if (mPtr)
+    {
+        mPtr->m_Controller = mCtr; // Create controller association
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Command::Command(std::size_t hash, const String & name, Listener * ptr, Object && obj, const CtrPtr & ctr)
+    : mHash(hash), mName(name), mPtr(ptr), mObj(obj), mCtr(ctr)
+{
+    if (mPtr)
+    {
+        mPtr->m_Controller = mCtr; // Create controller association
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 Command::~Command()
 {
     if (mPtr)
@@ -102,12 +151,7 @@ Object & Controller::Attach(Object && obj, Listener * ptr)
         }
     }
     // Attempt to insert the command
-    m_Commands.emplace_back(hash, name, ptr, std::move(obj));
-    // Attempt to associate with the listener
-    if (m_Manager)
-    {
-        ptr->m_Controller = m_Manager->GetCtr();
-    }
+    m_Commands.emplace_back(hash, name, ptr, std::move(obj), m_Manager->GetCtr());
     // Return the script object of the listener
     return m_Commands.back().mObj;
 }

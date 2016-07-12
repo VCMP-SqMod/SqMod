@@ -34,11 +34,11 @@ class Listener;
 
 // ------------------------------------------------------------------------------------------------
 typedef SharedPtr< Context >        CtxRef; // Shared reference to an execution context.
-typedef WeakPtr< Context >          CtxWRef; // Shared reference to an execution context.
+typedef WeakPtr< Context >          CtxPtr; // Shared reference to an execution context.
 
 // ------------------------------------------------------------------------------------------------
 typedef SharedPtr< Controller >     CtrRef; // Shared reference to a command controller.
-typedef WeakPtr< Controller >       CtrWRef; // Shared reference to a command controller.
+typedef WeakPtr< Controller >       CtrPtr; // Shared reference to a command controller.
 
 // ------------------------------------------------------------------------------------------------
 typedef std::pair< Uint8, Object >  Argument; // Can hold the argument value and type.
@@ -259,61 +259,50 @@ struct Command
     String          mName; // The unique name that identifies this command.
     Listener*       mPtr; // The listener that reacts to this command.
     Object          mObj; // A strong reference to the script object.
+    CtrPtr          mCtr; // The associated contoller.
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command and the also create a script object from the specified listener.
     */
-    Command(std::size_t hash, const String & name, Listener * ptr)
-        : mHash(hash), mName(name), mPtr(ptr), mObj(ptr)
-    {
-        /* ... */
-    }
+    Command(std::size_t hash, const String & name, Listener * ptr, const CtrPtr & ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command and extract the listener from the specified script object.
     */
-    Command(std::size_t hash, const String & name, const Object & obj)
-        : mHash(hash), mName(name), mPtr(obj.Cast< Listener * >()), mObj(obj)
-    {
-        /* ... */
-    }
+    Command(std::size_t hash, const String & name, const Object & obj, const CtrPtr & ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command and extract the listener from the specified script object.
     */
-    Command(std::size_t hash, const String & name, Object && obj)
-        : mHash(hash), mName(name), mPtr(obj.Cast< Listener * >()), mObj(obj)
-    {
-        /* ... */
-    }
+    Command(std::size_t hash, const String & name, Object && obj, const CtrPtr & ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command with the given parameters.
     */
-    Command(std::size_t hash, const String & name, Listener * ptr, const Object & obj)
-        : mHash(hash), mName(name), mPtr(ptr), mObj(obj)
-    {
-        /* ... */
-    }
+    Command(std::size_t hash, const String & name, Listener * ptr, const Object & obj, const CtrPtr & ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command with the given parameters.
     */
-    Command(std::size_t hash, const String & name, Listener * ptr, Object && obj)
-        : mHash(hash), mName(name), mPtr(ptr), mObj(obj)
-    {
-        /* ... */
-    }
+    Command(std::size_t hash, const String & name, Listener * ptr, Object && obj, const CtrPtr & ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Command(const Command & o) = default;
+    Command(const Command & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Command(Command && o) = default;
+    Command(Command && o)
+        : mHash(o.mHash)
+        , mName(std::move(o.mName))
+        , mPtr(o.mPtr)
+        , mObj(o.mObj)
+        , mCtr(o.mCtr)
+    {
+        o.mPtr = nullptr;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -323,12 +312,24 @@ struct Command
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Command & operator = (const Command & o) = default;
+    Command & operator = (const Command & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Command & operator = (Command && o) = default;
+    Command & operator = (Command && o)
+    {
+        if (this != &o)
+        {
+            mHash = o.mHash;
+            mName = std::move(o.mName);
+            mPtr = o.mPtr;
+            mObj = o.mObj;
+            mCtr = o.mCtr;
+            o.mPtr = nullptr;
+        }
+        return *this;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -1749,7 +1750,7 @@ protected:
 private:
 
     // --------------------------------------------------------------------------------------------
-    CtrWRef     m_Controller; // Manager that controls this command listener.
+    CtrPtr     m_Controller; // Manager that controls this command listener.
 
     // --------------------------------------------------------------------------------------------
     String      m_Name; // Name of the command that triggers this listener.
