@@ -54,6 +54,9 @@ void Core::ResetInst(PlayerInst & inst)
     inst.mID = -1;
     inst.mFlags = ENF_DEFAULT;
     inst.mTrackPosition = 0;
+    inst.mTrackHeading = 0;
+    inst.mTrackPositionHeader = 0;
+    inst.mTrackPositionPayload.Release();
     inst.mLastWeapon = -1;
     inst.mLastHealth = 0.0;
     inst.mLastArmour = 0.0;

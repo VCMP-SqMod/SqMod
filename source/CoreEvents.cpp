@@ -712,7 +712,7 @@ void Core::EmitPlayerHeading(Int32 player_id, Float32 old_heading, Float32 new_h
 void Core::EmitPlayerPosition(Int32 player_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnPosition);
+    Emit(_player.mOnPosition, _player.mTrackPositionHeader, _player.mTrackPositionPayload);
     Emit(mOnPlayerPosition, _player.mObj);
 }
 
@@ -909,7 +909,15 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
     if (!EpsEq(heading, inst.mLastHeading))
     {
         // Trigger the event specific to this change
-        EmitPlayerHeading(player_id, inst.mLastHeading, heading);
+        if (inst.mTrackHeading != 0)
+        {
+            EmitPlayerHeading(player_id, inst.mLastHeading, heading);
+            // Should we decrease the tracked position changes?
+            if (inst.mTrackHeading)
+            {
+                --inst.mTrackHeading;
+            }
+        }
         // Update the tracked value
         inst.mLastHeading = heading;
     }

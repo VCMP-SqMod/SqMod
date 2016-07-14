@@ -761,9 +761,24 @@ public:
     SQInteger GetTrackPosition() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the amount of tracked position changes for the managed player entity.
+     * Modify the amount of tracked position changes for the managed player entity.
     */
     void SetTrackPosition(SQInteger num) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the amount of tracked position changes for the managed player entity.
+    */
+    void SetTrackPositionEx(SQInteger num, Int32 header, const Object & payload) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the amount of tracked heading changes for the managed player entity.
+    */
+    SQInteger GetTrackHeading() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the amount of tracked heading changes for the managed player entity.
+    */
+    void SetTrackHeading(SQInteger num) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known weapon for the managed player entity.

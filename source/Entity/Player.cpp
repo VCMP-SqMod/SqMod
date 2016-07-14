@@ -1312,6 +1312,35 @@ void CPlayer::SetTrackPosition(SQInteger num) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CPlayer::SetTrackPositionEx(SQInteger num, Int32 header, const Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Assign the requested information
+    Core::Get().GetPlayer(m_ID).mTrackPosition = num;
+    Core::Get().GetPlayer(m_ID).mTrackPositionHeader = header;
+    Core::Get().GetPlayer(m_ID).mTrackPositionPayload = payload;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::GetTrackHeading() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetPlayer(m_ID).mTrackHeading;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetTrackHeading(SQInteger num) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Assign the requested information
+    Core::Get().GetPlayer(m_ID).mTrackHeading = num;
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetLastWeapon() const
 {
     // Validate the managed identifier
@@ -2223,6 +2252,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Spec"), &CPlayer::GetSpectator, &CPlayer::SetSpectator)
         .Prop(_SC("Authority"), &CPlayer::GetAuthority, &CPlayer::SetAuthority)
         .Prop(_SC("TrackPosition"), &CPlayer::GetTrackPosition, &CPlayer::SetTrackPosition)
+        .Prop(_SC("TrackHeading"), &CPlayer::GetTrackHeading, &CPlayer::SetTrackHeading)
         .Prop(_SC("LastWeapon"), &CPlayer::GetLastWeapon)
         .Prop(_SC("LastHealth"), &CPlayer::GetLastHealth)
         .Prop(_SC("LastArmor"), &CPlayer::GetLastArmour)
@@ -2268,6 +2298,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("PlaySound"), &CPlayer::PlaySound)
         .Func(_SC("GetMsgPrefix"), &CPlayer::GetMessagePrefix)
         .Func(_SC("SetMsgPrefix"), &CPlayer::SetMessagePrefix)
+        .Func(_SC("SetTrackPosition"), &CPlayer::SetTrackPositionEx)
         .Func(_SC("StreamByte"), &CPlayer::StreamByte)
         .Func(_SC("StreamShort"), &CPlayer::StreamShort)
         .Func(_SC("StreamInt"), &CPlayer::StreamInt)
