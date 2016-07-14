@@ -7,6 +7,7 @@
 // ------------------------------------------------------------------------------------------------
 #include <cstring>
 #include <vector>
+#include <functional>
 
 // ------------------------------------------------------------------------------------------------
 #define SQMOD_VALID_TAG_STR(t) if (!t) { STHROWF("The specified tag is invalid"); }
@@ -563,6 +564,22 @@ template < typename T > struct RecvElemFunc
     {
         return mObj;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed object.
+    */
+    operator Object & ()
+    {
+        return mObj;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed object.
+    */
+    operator const Object & () const
+    {
+        return mObj;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -699,7 +716,7 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, neg);
+        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
@@ -715,7 +732,7 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), neg);
+        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), !neg);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
@@ -731,7 +748,7 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), neg);
+        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), !neg);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
@@ -747,7 +764,7 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, neg);
+        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
@@ -761,7 +778,8 @@ public:
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
-        FirstEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), recv, tag, neg);
+        FirstEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< RecvElem >(recv), tag, !neg);
         // Return the received element, if any
         return recv.mObj;
     }
@@ -775,7 +793,8 @@ public:
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
-        FirstBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), recv, tag, strlen(tag), neg);
+        FirstBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< RecvElem >(recv), tag, strlen(tag), !neg);
         // Return the received element, if any
         return recv.mObj;
     }
@@ -789,7 +808,8 @@ public:
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
-        FirstEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), recv, tag, strlen(tag), neg);
+        FirstEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< RecvElem >(recv), tag, strlen(tag), !neg);
         // Return the received element, if any
         return recv.mObj;
     }
@@ -803,7 +823,8 @@ public:
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
-        FirstContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), recv, tag, neg);
+        FirstContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< RecvElem >(recv), tag, !neg);
         // Return the received element, if any
         return recv.mObj;
     }
@@ -816,7 +837,8 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        Collect(Inst::CBegin(), Inst::CEnd(), ValidInst(), fwd);
+        Collect(Inst::CBegin(), Inst::CEnd(), ValidInst(),
+                        std::reference_wrapper< ForwardElem >(fwd));
         // Return the forward count
         return fwd.mCount;
     }
@@ -830,7 +852,8 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), fwd, tag, neg);
+        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElem >(fwd), tag, !neg);
         // Return the forward count
         return fwd.mCount;
     }
@@ -844,7 +867,8 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), fwd, tag, strlen(tag), neg);
+        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg);
         // Return the forward count
         return fwd.mCount;
     }
@@ -858,7 +882,8 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), fwd, tag, strlen(tag), neg);
+        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg);
         // Return the forward count
         return fwd.mCount;
     }
@@ -872,7 +897,8 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), fwd, tag, neg);
+        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElem >(fwd), tag, !neg);
         // Return the forward count
         return fwd.mCount;
     }

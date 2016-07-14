@@ -20,10 +20,8 @@ namespace Algo {
 /* ------------------------------------------------------------------------------------------------
  * Used to fake a string so a raw buffer can be used with search algorithms.
 */
-class FakeString
+struct FakeString
 {
-public:
-
     // --------------------------------------------------------------------------------------------
     SQChar          mBuffer[SQMOD_PLAYER_TMP_BUFFER]; // Buffer to hold the data.
     std::size_t     mSize; // The size of the data in the buffer.
@@ -61,12 +59,20 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the string buffer.
+    */
+    CSStr c_str() const
+    {
+        return mBuffer;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Find in buffer contents of another string.
     */
     std::size_t find(CSStr s) const
     {
         CCStr r = std::strstr(mBuffer, s);
-        return r == nullptr ? String::npos : (r - mBuffer);
+        return (r == nullptr) ? String::npos : (r - mBuffer);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -141,7 +147,7 @@ static inline Array Player_AllWhereNameEquals(bool neg, CSStr name)
     // Process each entity in the pool
     EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                ValidInstFunc< CPlayer >(), PlayerName(),
-               AppendElemFunc< CPlayer >(), name, neg);
+               AppendElemFunc< CPlayer >(), name, !neg);
     // Return the array at the top of the stack
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
@@ -159,7 +165,7 @@ static inline Array Player_AllWhereNameBegins(bool neg, CSStr name)
     // Process each entity in the pool
     EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                AppendElemFunc< CPlayer >(), name, strlen(name), neg);
+                AppendElemFunc< CPlayer >(), name, strlen(name), !neg);
     // Return the array at the top of the stack
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
@@ -177,7 +183,7 @@ static inline Array Player_AllWhereNameEnds(bool neg, CSStr name)
     // Process each entity in the pool
     EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                AppendElemFunc< CPlayer >(), name, strlen(name), neg);
+                AppendElemFunc< CPlayer >(), name, strlen(name), !neg);
     // Return the array at the top of the stack
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
@@ -195,7 +201,7 @@ static inline Array Player_AllWhereNameContains(bool neg, CSStr name)
     // Process each entity in the pool
     EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                AppendElemFunc< CPlayer >(), name, neg);
+                AppendElemFunc< CPlayer >(), name, !neg);
     // Return the array at the top of the stack
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
@@ -210,7 +216,8 @@ static inline Object Player_FirstWhereNameEquals(bool neg, CSStr name)
     RecvElemFunc< CPlayer > recv;
     // Process each entity in the pool
     FirstEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
-                ValidInstFunc< CPlayer >(), PlayerName(), recv, name, neg);
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, !neg);
     // Return the received element, if any
     return recv.mObj;
 }
@@ -225,7 +232,8 @@ static inline Object Player_FirstWhereNameBegins(bool neg, CSStr name)
     RecvElemFunc< CPlayer > recv;
     // Process each entity in the pool
     FirstBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
-                ValidInstFunc< CPlayer >(), PlayerName(), recv, name, strlen(name), neg);
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, strlen(name), !neg);
     // Return the received element, if any
     return recv.mObj;
 }
@@ -240,7 +248,8 @@ static inline Object Player_FirstWhereNameEnds(bool neg, CSStr name)
     RecvElemFunc< CPlayer > recv;
     // Process each entity in the pool
     FirstEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
-                ValidInstFunc< CPlayer >(), PlayerName(), recv, name, strlen(name), neg);
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, strlen(name), !neg);
     // Return the received element, if any
     return recv.mObj;
 }
@@ -255,7 +264,8 @@ static inline Object Player_FirstWhereNameContains(bool neg, CSStr name)
     RecvElemFunc< CPlayer > recv;
     // Process each entity in the pool
     FirstContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
-                ValidInstFunc< CPlayer >(), PlayerName(), recv, name, neg);
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, !neg);
     // Return the received element, if any
     return recv.mObj;
 }
@@ -270,7 +280,8 @@ static inline Uint32 Player_EachWhereNameEquals(bool neg, CSStr name, Object & e
     ForwardElemFunc< CPlayer > fwd(env, func);
     // Process each entity in the pool
     EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
-                ValidInstFunc< CPlayer >(), PlayerName(), fwd, name, neg);
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg);
     // Return the forward count
     return fwd.mCount;
 }
@@ -285,7 +296,8 @@ static inline Uint32 Player_EachWhereNameBegins(bool neg, CSStr name, Object & e
     ForwardElemFunc< CPlayer > fwd(env, func);
     // Process each entity in the pool
     EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
-                ValidInstFunc< CPlayer >(), PlayerName(), fwd, name, strlen(name), neg);
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, strlen(name), !neg);
     // Return the forward count
     return fwd.mCount;
 }
@@ -300,7 +312,8 @@ static inline Uint32 Player_EachWhereNameEnds(bool neg, CSStr name, Object & env
     ForwardElemFunc< CPlayer > fwd(env, func);
     // Process each entity in the pool
     EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
-                ValidInstFunc< CPlayer >(), PlayerName(), fwd, name, strlen(name), neg);
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, strlen(name), !neg);
     // Return the forward count
     return fwd.mCount;
 }
@@ -315,7 +328,8 @@ static inline Uint32 Player_EachWhereNameContains(bool neg, CSStr name, Object &
     ForwardElemFunc< CPlayer > fwd(env, func);
     // Process each entity in the pool
     EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
-                ValidInstFunc< CPlayer >(), PlayerName(), fwd, name, neg);
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg);
     // Return the forward count
     return fwd.mCount;
 }
