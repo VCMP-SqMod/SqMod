@@ -621,7 +621,15 @@ public:
     */
     void SetOnFail(Object & env, Function & func)
     {
-        m_OnFail = Function(env.GetVM(), env, func.GetFunc());
+        // Was there a custom environment specified?
+        if (env.IsNull())
+        {
+            m_OnFail = func;
+        }
+        else
+        {
+            m_OnFail = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -637,7 +645,15 @@ public:
     */
     void SetOnAuth(Object & env, Function & func)
     {
-        m_OnAuth = Function(env.GetVM(), env, func.GetFunc());
+        // Was there a custom environment specified?
+        if (env.IsNull())
+        {
+            m_OnAuth = func;
+        }
+        else
+        {
+            m_OnAuth = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1619,8 +1635,15 @@ public:
         {
             STHROWF("Detached commands cannot store script resources");
         }
-        // Apply the specified information
-        m_OnExec = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        // Was there a custom environment specified?
+        else if (env.IsNull())
+        {
+            m_OnExec = func;
+        }
+        else
+        {
+            m_OnExec = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1641,8 +1664,15 @@ public:
         {
             STHROWF("Detached commands cannot store script resources");
         }
-        // Apply the specified information
-        m_OnAuth = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        // Was there a custom environment specified?
+        else if (env.IsNull())
+        {
+            m_OnAuth = func;
+        }
+        else
+        {
+            m_OnAuth = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1663,8 +1693,15 @@ public:
         {
             STHROWF("Detached listeners cannot store script resources");
         }
-        // Apply the specified information
-        m_OnPost = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        // Was there a custom environment specified?
+        else if (env.IsNull())
+        {
+            m_OnPost = func;
+        }
+        else
+        {
+            m_OnPost = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1685,8 +1722,15 @@ public:
         {
             STHROWF("Detached listeners cannot store script resources");
         }
-        // Apply the specified information
-        m_OnFail = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        // Was there a custom environment specified?
+        else if (env.IsNull())
+        {
+            m_OnFail = func;
+        }
+        else
+        {
+            m_OnFail = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
