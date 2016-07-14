@@ -703,6 +703,57 @@ public:
         // Return the requested information
         return m_Context->mArgument;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve all command listeners in an array.
+    */
+    Array GetCommandsArray() const
+    {
+        // Allocate an array with an adequate size
+        Array arr(DefaultVM::Get(), m_Commands.size());
+        // Index of the currently processed command listener
+        SQInteger index = 0;
+        // Populate the array with the command listeners
+        for (const auto & cmd : m_Commands)
+        {
+            arr.SetValue(index++, cmd.mObj);
+        }
+        // Return the resulted array
+        return arr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve all command listeners in a table.
+    */
+    Table GetCommandsTable() const
+    {
+        // Allocate an empty table
+        Table tbl(DefaultVM::Get());
+        // Populate the table with the command listeners
+        for (const auto & cmd : m_Commands)
+        {
+            tbl.SetValue(cmd.mName.c_str(), cmd.mObj);
+        }
+        // Return the resulted table
+        return tbl;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Process all command listeners with a function.
+    */
+    void ForeachCommand(Function & func) const
+    {
+        // Make sure that the specified function works
+        if (func.IsNull())
+        {
+            return;
+        }
+        // Process all the managed command listeners
+        for (const auto & cmd : m_Commands)
+        {
+            func.Execute(cmd.mObj);
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -926,6 +977,38 @@ public:
     const String & GetArgument() const
     {
         return GetValid()->GetArgument();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve all command listeners in an array.
+    */
+    Array GetCommandsArray() const
+    {
+        return GetValid()->GetCommandsArray();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve all command listeners in a table.
+    */
+    Table GetCommandsTable() const
+    {
+        return GetValid()->GetCommandsTable();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Process all command listeners with a function.
+    */
+    void ForeachCommand(Object & env, Function & func) const
+    {
+        if (env.IsNull())
+        {
+            GetValid()->ForeachCommand(func);
+        }
+        else
+        {
+            Function fn(env.GetVM(), env, func.GetFunc());
+            GetValid()->ForeachCommand(fn);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
