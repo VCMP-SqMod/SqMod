@@ -1754,7 +1754,7 @@ public:
         // Perform the requested check
         return  (f == CMDARG_ANY) ||    // Requires check?
                 (f & flag) ||           // Exact match?
-                (f & CMDARG_GREEDY && flag & CMDARG_STRING);
+                ((f & CMDARG_GREEDY) && (flag & CMDARG_STRING));
     }
 
     /* --------------------------------------------------------------------------------------------
