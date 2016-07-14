@@ -911,12 +911,13 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
         // Trigger the event specific to this change
         if (inst.mTrackHeading != 0)
         {
-            EmitPlayerHeading(player_id, inst.mLastHeading, heading);
             // Should we decrease the tracked position changes?
             if (inst.mTrackHeading)
             {
                 --inst.mTrackHeading;
             }
+            // Now emit the event
+            EmitPlayerHeading(player_id, inst.mLastHeading, heading);
         }
         // Update the tracked value
         inst.mLastHeading = heading;
@@ -931,12 +932,13 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
         // Trigger the event specific to this change
         if (inst.mTrackPosition != 0)
         {
-            EmitPlayerPosition(player_id);
             // Should we decrease the tracked position changes?
             if (inst.mTrackPosition)
             {
                 --inst.mTrackPosition;
             }
+            // Now emit the event
+            EmitPlayerPosition(player_id);
         }
         // Update the tracked value
         inst.mLastPosition = pos;
@@ -998,12 +1000,13 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
             // Trigger the event specific to this change
             if (inst.mTrackPosition != 0)
             {
-                EmitVehiclePosition(vehicle_id);
                 // Should we decrease the tracked position changes?
                 if (inst.mTrackPosition)
                 {
                     --inst.mTrackPosition;
                 }
+                // Now emit the event
+                EmitVehiclePosition(vehicle_id);
             }
             // Update the tracked value
             _Func->GetVehiclePosition(vehicle_id, &inst.mLastPosition.x,
@@ -1046,12 +1049,13 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
             // Trigger the event specific to this change
             if (inst.mTrackRotation != 0)
             {
-                EmitVehicleRotation(vehicle_id);
                 // Should we decrease the tracked rotation changes?
                 if (inst.mTrackRotation)
                 {
                     --inst.mTrackRotation;
                 }
+                // Now emit the event
+                EmitVehicleRotation(vehicle_id);
             }
             // Obtain the current rotation of this instance
             _Func->GetVehicleRotation(vehicle_id, &inst.mLastRotation.x, &inst.mLastRotation.y,
