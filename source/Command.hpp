@@ -504,13 +504,17 @@ protected:
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Clear the command listeners from all controllers.
+     * Terminate the all controllers by releasing their command listeners and callbacks.
     */
-    static void ClearAll()
+    static void Terminate()
     {
         for (auto & ctr : s_Controllers)
         {
+            // Clear the command listeners
             ctr->Clear();
+            // Release the script callbacks, if any
+            ctr->m_OnFail.ReleaseGently();
+            ctr->m_OnAuth.ReleaseGently();
         }
     }
 

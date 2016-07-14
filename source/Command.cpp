@@ -1193,7 +1193,7 @@ void Register_Command(HSQUIRRELVM vm)
 */
 void TerminateCommands()
 {
-    Cmd::Controller::ClearAll();
+    Cmd::Controller::Terminate();
 }
 
 } // Namespace:: SqMod
