@@ -695,7 +695,7 @@ bool Controller::Parse(Context & ctx)
                     // Get the object from the stack and add it to the argument list along with it's type
                     ctx.mArgv.emplace_back(CMDARG_INTEGER, Var< Object >(DefaultVM::Get(), -1).value);
                     // We've identified the correct value type
-                    identified = false;
+                    identified = true;
                 }
             }
             // Attempt to treat the value as an floating point number if possible
@@ -719,7 +719,7 @@ bool Controller::Parse(Context & ctx)
                     // Get the object from the stack and add it to the argument list along with it's type
                     ctx.mArgv.emplace_back(CMDARG_FLOAT, Var< Object >(DefaultVM::Get(), -1).value);
                     // We've identified the correct value type
-                    identified = false;
+                    identified = true;
                 }
 
             }
@@ -728,13 +728,16 @@ bool Controller::Parse(Context & ctx)
             {
                 // Allocate memory for enough data to form a boolean value
                 CharT lc[6];
+                // Don't modify the original string or buffer pointer
+                CStr bptr = lc;
+                CSStr sptr = str;
                 // Fill the temporary buffer with data from the internal buffer
-                std::snprintf(lc, 6, "%.5s", str);
-                // Convert all characters to lowercase
-                for (Uint32 i = 0; i < 5; ++i)
+                for (; sptr < end; ++sptr, ++bptr)
                 {
-                    lc[i] = std::tolower(lc[i]);
+                    *bptr = std::tolower(*sptr);
                 }
+                // Terminate the copied string portion
+                *bptr = '\0';
                 // Remember the current stack size
                 const StackGuard sg;
                 // Is this a boolean true value?
@@ -959,7 +962,7 @@ void Listener::ProcSpec(CSStr str)
             else if (*str != ',')
             {
                 // Ignore non-alphabetic characters
-                while (*str != 0 &&  !isalpha(*str))
+                while (*str != '\0' && !std::isalpha(*str))
                 {
                     ++str;
                 }
