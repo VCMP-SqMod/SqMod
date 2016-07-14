@@ -552,7 +552,7 @@ void Core::EmitPlayerPrivateMessage(Int32 player_id, Int32 target_player_id, CCS
     PlayerInst & _player = m_Players.at(player_id);
     PlayerInst & _receiver = m_Players.at(target_player_id);
     Emit(_player.mOnMessage,_receiver.mObj,  message);
-    Emit(mOnPlayerMessage, _player.mObj, _receiver.mObj, message);
+    Emit(mOnPlayerPrivateMessage, _player.mObj, _receiver.mObj, message);
 }
 
 // ------------------------------------------------------------------------------------------------
