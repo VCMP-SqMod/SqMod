@@ -580,7 +580,7 @@ public:
     {
         std::sort(m_Commands.begin(), m_Commands.end(),
             [](Commands::const_reference a, Commands::const_reference b) -> bool {
-                return (b.mName < a.mName);
+                return (a.mName < b.mName);
             });
     }
 
