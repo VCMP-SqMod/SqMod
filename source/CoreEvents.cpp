@@ -713,7 +713,7 @@ void Core::EmitPlayerPosition(Int32 player_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
     Emit(_player.mOnPosition, _player.mTrackPositionHeader, _player.mTrackPositionPayload);
-    Emit(mOnPlayerPosition, _player.mObj);
+    Emit(mOnPlayerPosition, _player.mObj, _player.mTrackPositionHeader, _player.mTrackPositionPayload);
 }
 
 // ------------------------------------------------------------------------------------------------
