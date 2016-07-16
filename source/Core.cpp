@@ -90,22 +90,22 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Implements RAII to make sure that entity containers area cleaned up at all costs.
 */
-template < typename T > class ContainerCleaner
+class ContainerCleaner
 {
     // --------------------------------------------------------------------------------------------
-    const EntityType m_Type; // The type of entity container to clear.
+    EntityType m_Type; // The type of entity container to clear.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    ContainerCleaner(T & container, EntityType type, bool shutdown)
+    template < typename T > ContainerCleaner(T & container, EntityType type, bool destroy)
         : m_Type(type)
     {
         for (auto & ent : container)
         {
-            ent.Destroy(shutdown);
+            ent.Destroy(destroy, SQMOD_DESTROY_CLEANUP, NullObject());
         }
     }
 
@@ -141,6 +141,7 @@ Core::Core()
     , m_IncomingNameCapacity(0)
     , m_Debugging(false)
     , m_Executed(false)
+    , m_Shutdown(false)
 {
     /* ... */
 }
@@ -173,16 +174,18 @@ bool Core::Initialize()
         switch (ini_ret)
         {
             case SI_FAIL:
+            {
                 OutputError("Failed to load the configuration file. Probably invalid");
-            break;
+            } break;
             case SI_NOMEM:
+            {
                 OutputError("Run out of memory while loading the configuration file");
-            break;
+            } break;
             case SI_FILE:
+            {
                 OutputError("Failed to load the configuration file. %s", std::strerror(errno));
-            break;
-            default:
-                OutputError("Failed to load the configuration file for some unforeseen reason");
+            } break;
+            default: OutputError("Failed to load the configuration file for some unforeseen reason");
         }
         // Failed to load the configuration file
         return false;
@@ -438,6 +441,8 @@ bool Core::Execute()
 // ------------------------------------------------------------------------------------------------
 void Core::Terminate(bool shutdown)
 {
+    m_Shutdown = shutdown;
+    // Is there a virtual machine present?
     if (m_VM)
     {
         LogDbg("Signaling outside plug-ins to release their resources");
@@ -446,13 +451,13 @@ void Core::Terminate(bool shutdown)
     }
     LogDbg("Clearing the entity containers");
     // Release all entity resources by clearing the containers
-    const ContainerCleaner< Players > cc_players(m_Players, ENT_PLAYER, shutdown);
-    const ContainerCleaner< Vehicles > cc_vehicles(m_Vehicles, ENT_VEHICLE, shutdown);
-    const ContainerCleaner< Objects > cc_objects(m_Objects, ENT_OBJECT, shutdown);
-    const ContainerCleaner< Pickups > cc_pickups(m_Pickups, ENT_PICKUP, shutdown);
-    const ContainerCleaner< Checkpoints > cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT, shutdown);
-    const ContainerCleaner< Blips > cc_blips(m_Blips, ENT_BLIP, shutdown);
-    const ContainerCleaner< Keybinds > cc_keybinds(m_Keybinds, ENT_KEYBIND, shutdown);
+    const ContainerCleaner cc_players(m_Players, ENT_PLAYER, !shutdown);
+    const ContainerCleaner cc_vehicles(m_Vehicles, ENT_VEHICLE, !shutdown);
+    const ContainerCleaner cc_objects(m_Objects, ENT_OBJECT, !shutdown);
+    const ContainerCleaner cc_pickups(m_Pickups, ENT_PICKUP, !shutdown);
+    const ContainerCleaner cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT, !shutdown);
+    const ContainerCleaner cc_blips(m_Blips, ENT_BLIP, !shutdown);
+    const ContainerCleaner cc_keybinds(m_Keybinds, ENT_KEYBIND, !shutdown);
     LogDbg("Terminating routines an commands");
     // Release all resources from routines
     TerminateRoutines();
@@ -724,12 +729,12 @@ void Core::BindEvent(Int32 id, Object & env, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::BlipInst::Destroy(bool shutdown)
+void Core::BlipInst::Destroy(bool destroy, Int32 header, Object & payload)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitBlipDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        Core::Get().EmitBlipDestroyed(mID, header, payload);
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -739,8 +744,12 @@ void Core::BlipInst::Destroy(bool shutdown)
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
+    // Prevent further use of the manager instance
+    mInst = nullptr;
+    // Release the script object, if any
+    mObj.Release();
     // Are we supposed to clean up this entity? (only at reload)
-    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -748,18 +757,18 @@ void Core::BlipInst::Destroy(bool shutdown)
         _Func->DestroyCoordBlip(mID);
     }
     // Reset the instance to it's initial state
-    ResetInst(*this);
+    Core::ResetInst(*this);
     // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::CheckpointInst::Destroy(bool shutdown)
+void Core::CheckpointInst::Destroy(bool destroy, Int32 header, Object & payload)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitCheckpointDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        Core::Get().EmitCheckpointDestroyed(mID, header, payload);
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -769,8 +778,12 @@ void Core::CheckpointInst::Destroy(bool shutdown)
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
+    // Prevent further use of the manager instance
+    mInst = nullptr;
+    // Release the script object, if any
+    mObj.Release();
     // Are we supposed to clean up this entity? (only at reload)
-    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -778,18 +791,18 @@ void Core::CheckpointInst::Destroy(bool shutdown)
         _Func->DeleteCheckPoint(mID);
     }
     // Reset the instance to it's initial state
-    ResetInst(*this);
+    Core::ResetInst(*this);
     // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::KeybindInst::Destroy(bool shutdown)
+void Core::KeybindInst::Destroy(bool destroy, Int32 header, Object & payload)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitKeybindDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        Core::Get().EmitKeybindDestroyed(mID, header, payload);
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -799,8 +812,12 @@ void Core::KeybindInst::Destroy(bool shutdown)
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
+    // Prevent further use of the manager instance
+    mInst = nullptr;
+    // Release the script object, if any
+    mObj.Release();
     // Are we supposed to clean up this entity? (only at reload)
-    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -808,18 +825,18 @@ void Core::KeybindInst::Destroy(bool shutdown)
         _Func->RemoveKeyBind(mID);
     }
     // Reset the instance to it's initial state
-    ResetInst(*this);
+    Core::ResetInst(*this);
     // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::ObjectInst::Destroy(bool shutdown)
+void Core::ObjectInst::Destroy(bool destroy, Int32 header, Object & payload)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitObjectDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        Core::Get().EmitObjectDestroyed(mID, header, payload);
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -829,8 +846,12 @@ void Core::ObjectInst::Destroy(bool shutdown)
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
+    // Prevent further use of the manager instance
+    mInst = nullptr;
+    // Release the script object, if any
+    mObj.Release();
     // Are we supposed to clean up this entity? (only at reload)
-    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -838,18 +859,18 @@ void Core::ObjectInst::Destroy(bool shutdown)
         _Func->DeleteObject(mID);
     }
     // Reset the instance to it's initial state
-    ResetInst(*this);
+    Core::ResetInst(*this);
     // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PickupInst::Destroy(bool shutdown)
+void Core::PickupInst::Destroy(bool destroy, Int32 header, Object & payload)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitPickupDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        Core::Get().EmitPickupDestroyed(mID, header, payload);
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -859,8 +880,12 @@ void Core::PickupInst::Destroy(bool shutdown)
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
+    // Prevent further use of the manager instance
+    mInst = nullptr;
+    // Release the script object, if any
+    mObj.Release();
     // Are we supposed to clean up this entity? (only at reload)
-    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -868,18 +893,18 @@ void Core::PickupInst::Destroy(bool shutdown)
         _Func->DeletePickup(mID);
     }
     // Reset the instance to it's initial state
-    ResetInst(*this);
+    Core::ResetInst(*this);
     // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PlayerInst::Destroy(bool /*shutdown*/)
+void Core::PlayerInst::Destroy(bool /*destroy*/, Int32 header, Object & payload)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitPlayerDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        Core::Get().EmitPlayerDestroyed(mID, header, payload);
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -891,19 +916,23 @@ void Core::PlayerInst::Destroy(bool /*shutdown*/)
         // Release the used memory buffer
         mInst->m_Buffer.ResetAll();
     }
+    // Prevent further use of the manager instance
+    mInst = nullptr;
+    // Release the script object, if any
+    mObj.Release();
     // Reset the instance to it's initial state
-    ResetInst(*this);
+    Core::ResetInst(*this);
     // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::VehicleInst::Destroy(bool shutdown)
+void Core::VehicleInst::Destroy(bool destroy, Int32 header, Object & payload)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitVehicleDestroyed(mID, SQMOD_DESTROY_CLEANUP, NullObject());
+        Core::Get().EmitVehicleDestroyed(mID, header, payload);
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -913,8 +942,12 @@ void Core::VehicleInst::Destroy(bool shutdown)
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
+    // Prevent further use of the manager instance
+    mInst = nullptr;
+    // Release the script object, if any
+    mObj.Release();
     // Are we supposed to clean up this entity? (only at reload)
-    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -922,7 +955,7 @@ void Core::VehicleInst::Destroy(bool shutdown)
         _Func->DeleteVehicle(mID);
     }
     // Reset the instance to it's initial state
-    ResetInst(*this);
+    Core::ResetInst(*this);
     // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }

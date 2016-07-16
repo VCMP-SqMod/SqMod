@@ -16,11 +16,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Forward declarations.
-*/
-template < typename T > class ContainerCleaner;
-
-/* ------------------------------------------------------------------------------------------------
  * Circular locks employed by the central core.
 */
 enum CoreCircularLocks
@@ -34,9 +29,6 @@ enum CoreCircularLocks
 */
 class Core
 {
-    // --------------------------------------------------------------------------------------------
-    template < typename T > friend class ContainerCleaner;
-
 private:
 
     // --------------------------------------------------------------------------------------------
@@ -94,14 +86,14 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy();
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool shutdown = false);
+        void Destroy(bool destroy, Int32 header, Object & payload);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -145,14 +137,14 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy();
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool shutdown = false);
+        void Destroy(bool destroy, Int32 header, Object & payload);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -189,14 +181,14 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy();
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool shutdown = false);
+        void Destroy(bool destroy, Int32 header, Object & payload);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -239,14 +231,14 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy();
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool shutdown = false);
+        void Destroy(bool destroy, Int32 header, Object & payload);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -283,14 +275,14 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy();
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool shutdown = false);
+        void Destroy(bool destroy, Int32 header, Object & payload);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -328,14 +320,14 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy();
+                Destroy(false, SQMOD_DESTROY_CLEANUP, NullObject());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool shutdown = false);
+        void Destroy(bool destroy, Int32 header, Object & payload);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -448,14 +440,14 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy();
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool shutdown = false);
+        void Destroy(bool destroy, Int32 header, Object & payload);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -540,6 +532,7 @@ private:
     // --------------------------------------------------------------------------------------------
     bool                            m_Debugging; // Enable debugging features, if any.
     bool                            m_Executed; // Whether the scripts were executed.
+    bool                            m_Shutdown; // Whether the server currently shutting down.
 
 public:
 
@@ -601,6 +594,14 @@ public:
     bool IsExecuted() const
     {
         return m_Executed;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the server is currently in the process of shutting down.
+    */
+    bool ShuttingDown() const
+    {
+        return m_Shutdown;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -807,46 +808,12 @@ public:
     const Players & GetPlayers() const { return m_Players; }
     const Vehicles & GetVehicles() const { return m_Vehicles; }
 
-protected:
-
     /* --------------------------------------------------------------------------------------------
      * Container cleaner.
     */
-    void ClearContainer(EntityType type)
-    {
-        switch (type)
-        {
-            case ENT_BLIP:
-            {
-                m_Blips.clear();
-            } break;
-            case ENT_CHECKPOINT:
-            {
-                m_Checkpoints.clear();
-            } break;
-            case ENT_KEYBIND:
-            {
-                m_Keybinds.clear();
-            } break;
-            case ENT_OBJECT:
-            {
-                m_Objects.clear();
-            } break;
-            case ENT_PICKUP:
-            {
-                m_Pickups.clear();
-            } break;
-            case ENT_PLAYER:
-            {
-                m_Players.clear();
-            } break;
-            case ENT_VEHICLE:
-            {
-                m_Vehicles.clear();
-            } break;
-            default: STHROWF("Cannot clear unknown entity type container");
-        }
-    }
+    void ClearContainer(EntityType type);
+
+protected:
 
     /* --------------------------------------------------------------------------------------------
      * Instance cleaners.

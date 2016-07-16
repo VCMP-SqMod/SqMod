@@ -396,43 +396,11 @@ void Core::DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload)
     }
     // Retrieve the specified entity instance
     BlipInst & inst = m_Blips[id];
-    // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to deallocate!
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
     }
-    // Prevent further attempts to delete this entity
-    const BitGuardU16 bg(inst.mFlags, static_cast< Uint16 >(ENF_LOCKED));
-    // Let the script callbacks know this entity should no longer be used
-    try
-    {
-        EmitBlipDestroyed(id, header, payload);
-    }
-    catch (...)
-    {
-        // The error was probably dealt with already
-    }
-    // Is there a manager instance associated with this entity?
-    if (inst.mInst)
-    {
-        // Prevent further use of this entity
-        inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        inst.mInst->m_Data.Release();
-    }
-    // Should we delete this entity from the server as well?
-    if (destroy || (inst.mFlags & ENF_OWNED))
-    {
-        _Func->DestroyCoordBlip(inst.mID);
-    }
-    // Reset the entity instance
-    ResetInst(inst);
-    // Release associated script callbacks
-    ResetFunc(inst);
-    // Prevent further use of the manager instance
-    inst.mInst = nullptr;
-    // Release the script object, if any
-    inst.mObj.Release();
 }
 
 // --------------------------------------------------------------------------------------------
@@ -445,43 +413,11 @@ void Core::DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payl
     }
     // Retrieve the specified entity instance
     CheckpointInst & inst = m_Checkpoints[id];
-    // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to deallocate!
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
     }
-    // Prevent further attempts to delete this entity
-    const BitGuardU16 bg(inst.mFlags, static_cast< Uint16 >(ENF_LOCKED));
-    // Let the script callbacks know this entity should no longer be used
-    try
-    {
-        EmitCheckpointDestroyed(id, header, payload);
-    }
-    catch (...)
-    {
-        // The error was probably dealt with already
-    }
-    // Is there a manager instance associated with this entity?
-    if (inst.mInst)
-    {
-        // Prevent further use of this entity
-        inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        inst.mInst->m_Data.Release();
-    }
-    // Should we delete this entity from the server as well?
-    if (destroy || (inst.mFlags & ENF_OWNED))
-    {
-        _Func->DeleteCheckPoint(inst.mID);
-    }
-    // Reset the entity instance
-    ResetInst(inst);
-    // Release associated script callbacks
-    ResetFunc(inst);
-    // Prevent further use of the manager instance
-    inst.mInst = nullptr;
-    // Release the script object, if any
-    inst.mObj.Release();
 }
 
 // --------------------------------------------------------------------------------------------
@@ -494,43 +430,11 @@ void Core::DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload
     }
     // Retrieve the specified entity instance
     KeybindInst & inst = m_Keybinds[id];
-    // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to deallocate!
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
     }
-    // Prevent further attempts to delete this entity
-    const BitGuardU16 bg(inst.mFlags, static_cast< Uint16 >(ENF_LOCKED));
-    // Let the script callbacks know this entity should no longer be used
-    try
-    {
-        EmitBlipDestroyed(id, header, payload);
-    }
-    catch (...)
-    {
-        // The error was dealt with already
-    }
-    // Is there a manager instance associated with this entity?
-    if (inst.mInst)
-    {
-        // Prevent further use of this entity
-        inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        inst.mInst->m_Data.Release();
-    }
-    // Should we delete this entity from the server as well?
-    if (destroy || (inst.mFlags & ENF_OWNED))
-    {
-        _Func->RemoveKeyBind(inst.mID);
-    }
-    // Reset the entity instance
-    ResetInst(inst);
-    // Release associated script callbacks
-    ResetFunc(inst);
-    // Prevent further use of the manager instance
-    inst.mInst = nullptr;
-    // Release the script object, if any
-    inst.mObj.Release();
 }
 
 // --------------------------------------------------------------------------------------------
@@ -543,43 +447,11 @@ void Core::DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload)
     }
     // Retrieve the specified entity instance
     ObjectInst & inst = m_Objects[id];
-    // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to deallocate!
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
     }
-    // Prevent further attempts to delete this entity
-    const BitGuardU16 bg(inst.mFlags, static_cast< Uint16 >(ENF_LOCKED));
-    // Let the script callbacks know this entity should no longer be used
-    try
-    {
-        EmitObjectDestroyed(id, header, payload);
-    }
-    catch (...)
-    {
-        // The error was probably dealt with already
-    }
-    // Is there a manager instance associated with this entity?
-    if (inst.mInst)
-    {
-        // Prevent further use of this entity
-        inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        inst.mInst->m_Data.Release();
-    }
-    // Should we delete this entity from the server as well?
-    if (destroy || (inst.mFlags & ENF_OWNED))
-    {
-        _Func->DeleteObject(inst.mID);
-    }
-    // Reset the entity instance
-    ResetInst(inst);
-    // Release associated script callbacks
-    ResetFunc(inst);
-    // Prevent further use of the manager instance
-    inst.mInst = nullptr;
-    // Release the script object, if any
-    inst.mObj.Release();
 }
 
 // --------------------------------------------------------------------------------------------
@@ -592,43 +464,11 @@ void Core::DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload)
     }
     // Retrieve the specified entity instance
     PickupInst & inst = m_Pickups[id];
-    // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to deallocate!
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
     }
-    // Prevent further attempts to delete this entity
-    const BitGuardU16 bg(inst.mFlags, static_cast< Uint16 >(ENF_LOCKED));
-    // Let the script callbacks know this entity should no longer be used
-    try
-    {
-        EmitPickupDestroyed(id, header, payload);
-    }
-    catch (...)
-    {
-        // The error was probably dealt with already
-    }
-    // Is there a manager instance associated with this entity?
-    if (inst.mInst)
-    {
-        // Prevent further use of this entity
-        inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        inst.mInst->m_Data.Release();
-    }
-    // Should we delete this entity from the server as well?
-    if (destroy || (inst.mFlags & ENF_OWNED))
-    {
-        _Func->DeletePickup(inst.mID);
-    }
-    // Reset the entity instance
-    ResetInst(inst);
-    // Release associated script callbacks
-    ResetFunc(inst);
-    // Prevent further use of the manager instance
-    inst.mInst = nullptr;
-    // Release the script object, if any
-    inst.mObj.Release();
 }
 
 // --------------------------------------------------------------------------------------------
@@ -641,43 +481,11 @@ void Core::DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload
     }
     // Retrieve the specified entity instance
     VehicleInst & inst = m_Vehicles[id];
-    // Make sure that the instance is even allocated
-    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to deallocate!
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
     }
-    // Prevent further attempts to delete this entity
-    const BitGuardU16 bg(inst.mFlags, static_cast< Uint16 >(ENF_LOCKED));
-    // Let the script callbacks know this entity should no longer be used
-    try
-    {
-        EmitVehicleDestroyed(id, header, payload);
-    }
-    catch (...)
-    {
-        // The error was probably dealt with already
-    }
-    // Is there a manager instance associated with this entity?
-    if (inst.mInst)
-    {
-        // Prevent further use of this entity
-        inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        inst.mInst->m_Data.Release();
-    }
-    // Should we delete this entity from the server as well?
-    if (destroy || (inst.mFlags & ENF_OWNED))
-    {
-        _Func->DeleteVehicle(inst.mID);
-    }
-    // Reset the entity instance
-    ResetInst(inst);
-    // Release associated script callbacks
-    ResetFunc(inst);
-    // Prevent further use of the manager instance
-    inst.mInst = nullptr;
-    // Release the script object, if any
-    inst.mObj.Release();
 }
 
 // --------------------------------------------------------------------------------------------
@@ -914,7 +722,7 @@ bool Core::DelVehicle(Int32 id, Int32 header, Object & payload)
     return true;
 }
 
-// --------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
 {
     // Make sure that the specified entity identifier is valid
@@ -952,6 +760,7 @@ void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
     EmitPlayerCreated(id, header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
 {
     // Make sure that the specified entity identifier is valid
@@ -961,40 +770,11 @@ void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
     }
     // Retrieve the specified entity instance
     PlayerInst & inst = m_Players[id];
-    // Make sure that the instance is even allocated and we're allowed to deallocate it
-    if (INVALID_ENTITY(inst.mID) || (inst.mFlags & ENF_LOCKED))
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
     {
-        return; // Nothing to deallocate!
+        inst.Destroy(false, header, payload); // Now attempt to destroy the entity from the server
     }
-    // Prevent further attempts to delete this entity
-    const BitGuardU16 bg(inst.mFlags, static_cast< Uint16 >(ENF_LOCKED));
-    // Let the script callbacks know this entity should no longer be used
-    try
-    {
-        EmitPlayerDestroyed(id, header, payload);
-    }
-    catch (...)
-    {
-        // The error was probably dealt with already
-    }
-    // Is there a manager instance associated with this entity?
-    if (inst.mInst)
-    {
-        // Prevent further use of this entity
-        inst.mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        inst.mInst->m_Data.Release();
-        // Release the used memory buffer
-        inst.mInst->m_Buffer.ResetAll();
-    }
-    // Reset the entity instance
-    ResetInst(inst);
-    // Release associated script callbacks
-    ResetFunc(inst);
-    // Prevent further use of the manager instance
-    inst.mInst = nullptr;
-    // Release the script object, if any
-    inst.mObj.Release();
 }
 
 } // Namespace:: SqMod
