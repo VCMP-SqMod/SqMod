@@ -9,16 +9,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Bind specific functions to certain server events.
-*/
-void BindCallbacks();
-
-/* ------------------------------------------------------------------------------------------------
- * Undo changes made with BindCallbacks().
-*/
-void UnbindCallbacks();
-
-/* ------------------------------------------------------------------------------------------------
  * Register the module API under the specified virtual machine.
 */
 void RegisterAPI(HSQUIRRELVM vm);
@@ -155,20 +145,6 @@ static uint8_t OnServerInitialise()
 static void OnServerShutdown(void)
 {
     // The server may still send callbacks
-    UnbindCallbacks();
-}
-
-// ------------------------------------------------------------------------------------------------
-void BindCallbacks()
-{
-    _Clbk->OnServerInitialise       = OnServerInitialise;
-    _Clbk->OnServerShutdown         = OnServerShutdown;
-    _Clbk->OnPluginCommand          = OnPluginCommand;
-}
-
-// ------------------------------------------------------------------------------------------------
-void UnbindCallbacks()
-{
     _Clbk->OnServerInitialise       = nullptr;
     _Clbk->OnServerShutdown         = nullptr;
     _Clbk->OnPluginCommand          = nullptr;
@@ -243,8 +219,10 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * functions, PluginCall
     _Info->apiMinorVersion = PLUGIN_API_MINOR;
     // Assign the plug-in name
     std::snprintf(_Info->name, sizeof(_Info->name), "%s", SQJSON_HOST_NAME);
-    // Bind callbacks
-    BindCallbacks();
+    // Bind to the server callbacks
+    _Clbk->OnServerInitialise       = OnServerInitialise;
+    _Clbk->OnServerShutdown         = OnServerShutdown;
+    _Clbk->OnPluginCommand          = OnPluginCommand;
     // Notify that the plug-in was successfully loaded
     OutputMessage("Successfully loaded %s", SQJSON_NAME);
     // Dummy spacing

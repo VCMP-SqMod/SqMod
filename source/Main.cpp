@@ -61,16 +61,6 @@ void DoReload()
     }
 }
 
-/* ------------------------------------------------------------------------------------------------
- * Bind all server callbacks.
-*/
-void BindCallbacks();
-
-/* ------------------------------------------------------------------------------------------------
- * Unbind all server callbacks.
-*/
-void UnbindCallbacks();
-
 // --------------------------------------------------------------------------------------------
 #define SQMOD_CATCH_EVENT_EXCEPTION(ev) /*
 */ catch (const Sqrat::Exception & e) /*
@@ -138,7 +128,50 @@ static void OnServerShutdown(void)
     // See if a reload was requested (quite useless here but why not)
     SQMOD_RELOAD_CHECK(g_Reload)
     // The server still triggers callbacks and we deallocated everything!
-    UnbindCallbacks();
+    _Clbk->OnServerInitialise           = nullptr;
+    _Clbk->OnServerShutdown             = nullptr;
+    _Clbk->OnServerFrame                = nullptr;
+    _Clbk->OnPluginCommand              = nullptr;
+    _Clbk->OnIncomingConnection         = nullptr;
+    _Clbk->OnClientScriptData           = nullptr;
+    _Clbk->OnPlayerConnect              = nullptr;
+    _Clbk->OnPlayerDisconnect           = nullptr;
+    _Clbk->OnPlayerRequestClass         = nullptr;
+    _Clbk->OnPlayerRequestSpawn         = nullptr;
+    _Clbk->OnPlayerSpawn                = nullptr;
+    _Clbk->OnPlayerDeath                = nullptr;
+    _Clbk->OnPlayerUpdate               = nullptr;
+    _Clbk->OnPlayerRequestEnterVehicle  = nullptr;
+    _Clbk->OnPlayerEnterVehicle         = nullptr;
+    _Clbk->OnPlayerExitVehicle          = nullptr;
+    _Clbk->OnPlayerNameChange           = nullptr;
+    _Clbk->OnPlayerStateChange          = nullptr;
+    _Clbk->OnPlayerActionChange         = nullptr;
+    _Clbk->OnPlayerOnFireChange         = nullptr;
+    _Clbk->OnPlayerCrouchChange         = nullptr;
+    _Clbk->OnPlayerGameKeysChange       = nullptr;
+    _Clbk->OnPlayerBeginTyping          = nullptr;
+    _Clbk->OnPlayerEndTyping            = nullptr;
+    _Clbk->OnPlayerAwayChange           = nullptr;
+    _Clbk->OnPlayerMessage              = nullptr;
+    _Clbk->OnPlayerCommand              = nullptr;
+    _Clbk->OnPlayerPrivateMessage       = nullptr;
+    _Clbk->OnPlayerKeyBindDown          = nullptr;
+    _Clbk->OnPlayerKeyBindUp            = nullptr;
+    _Clbk->OnPlayerSpectate             = nullptr;
+    _Clbk->OnPlayerCrashReport          = nullptr;
+    _Clbk->OnVehicleUpdate              = nullptr;
+    _Clbk->OnVehicleExplode             = nullptr;
+    _Clbk->OnVehicleRespawn             = nullptr;
+    _Clbk->OnObjectShot                 = nullptr;
+    _Clbk->OnObjectTouched              = nullptr;
+    _Clbk->OnPickupPickAttempt          = nullptr;
+    _Clbk->OnPickupPicked               = nullptr;
+    _Clbk->OnPickupRespawn              = nullptr;
+    _Clbk->OnCheckpointEntered          = nullptr;
+    _Clbk->OnCheckpointExited           = nullptr;
+    _Clbk->OnEntityPoolChange           = nullptr;
+    _Clbk->OnServerPerformanceReport    = nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -805,9 +838,44 @@ static void OnServerPerformanceReport(size_t /*entry_count*/, CCStr * /*descript
     // Ignored for now...
 }
 
-// ------------------------------------------------------------------------------------------------
-void BindCallbacks()
+} // Namespace:: SqMod
+
+/* ------------------------------------------------------------------------------------------------
+ * Plugiun initialization procedure.
+*/
+SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
 {
+    using namespace SqMod;
+    // Output plug-in header
+    puts("");
+    OutputMessage("--------------------------------------------------------------------");
+    OutputMessage("Plug-in: %s", SQMOD_NAME);
+    OutputMessage("Author: %s", SQMOD_AUTHOR);
+    OutputMessage("Legal: %s", SQMOD_COPYRIGHT);
+    OutputMessage("--------------------------------------------------------------------");
+    puts("");
+    // Store server proxies
+    _Func = funcs;
+    _Clbk = calls;
+    _Info = info;
+    // Assign plug-in version
+    _Info->pluginVersion = SQMOD_VERSION;
+    _Info->apiMajorVersion = PLUGIN_API_MAJOR;
+    _Info->apiMinorVersion = PLUGIN_API_MINOR;
+    // Assign the plug-in name
+    std::snprintf(_Info->name, sizeof(_Info->name), "%s", SQMOD_HOST_NAME);
+    // Attempt to initialize the logger before anything else
+    Logger::Get().Initialize(nullptr);
+    // Attempt to initialize the plug-in core
+    if (!Core::Get().Initialize())
+    {
+        LogFtl("Unable to initialize the plug-in central core");
+        // Attempt to terminate
+        Core::Get().Terminate(false);
+        // Stop here!
+        return SQMOD_FAILURE;
+    }
+    // Bind to the server callbacks
     _Clbk->OnServerInitialise           = OnServerInitialise;
     _Clbk->OnServerShutdown             = OnServerShutdown;
     _Clbk->OnServerFrame                = OnServerFrame;
@@ -852,96 +920,6 @@ void BindCallbacks()
     _Clbk->OnCheckpointExited           = OnCheckpointExited;
     _Clbk->OnEntityPoolChange           = OnEntityPoolChange;
     _Clbk->OnServerPerformanceReport    = OnServerPerformanceReport;
-}
-
-// ------------------------------------------------------------------------------------------------
-void UnbindCallbacks()
-{
-    _Clbk->OnServerInitialise           = nullptr;
-    _Clbk->OnServerShutdown             = nullptr;
-    _Clbk->OnServerFrame                = nullptr;
-    _Clbk->OnPluginCommand              = nullptr;
-    _Clbk->OnIncomingConnection         = nullptr;
-    _Clbk->OnClientScriptData           = nullptr;
-    _Clbk->OnPlayerConnect              = nullptr;
-    _Clbk->OnPlayerDisconnect           = nullptr;
-    _Clbk->OnPlayerRequestClass         = nullptr;
-    _Clbk->OnPlayerRequestSpawn         = nullptr;
-    _Clbk->OnPlayerSpawn                = nullptr;
-    _Clbk->OnPlayerDeath                = nullptr;
-    _Clbk->OnPlayerUpdate               = nullptr;
-    _Clbk->OnPlayerRequestEnterVehicle  = nullptr;
-    _Clbk->OnPlayerEnterVehicle         = nullptr;
-    _Clbk->OnPlayerExitVehicle          = nullptr;
-    _Clbk->OnPlayerNameChange           = nullptr;
-    _Clbk->OnPlayerStateChange          = nullptr;
-    _Clbk->OnPlayerActionChange         = nullptr;
-    _Clbk->OnPlayerOnFireChange         = nullptr;
-    _Clbk->OnPlayerCrouchChange         = nullptr;
-    _Clbk->OnPlayerGameKeysChange       = nullptr;
-    _Clbk->OnPlayerBeginTyping          = nullptr;
-    _Clbk->OnPlayerEndTyping            = nullptr;
-    _Clbk->OnPlayerAwayChange           = nullptr;
-    _Clbk->OnPlayerMessage              = nullptr;
-    _Clbk->OnPlayerCommand              = nullptr;
-    _Clbk->OnPlayerPrivateMessage       = nullptr;
-    _Clbk->OnPlayerKeyBindDown          = nullptr;
-    _Clbk->OnPlayerKeyBindUp            = nullptr;
-    _Clbk->OnPlayerSpectate             = nullptr;
-    _Clbk->OnPlayerCrashReport          = nullptr;
-    _Clbk->OnVehicleUpdate              = nullptr;
-    _Clbk->OnVehicleExplode             = nullptr;
-    _Clbk->OnVehicleRespawn             = nullptr;
-    _Clbk->OnObjectShot                 = nullptr;
-    _Clbk->OnObjectTouched              = nullptr;
-    _Clbk->OnPickupPickAttempt          = nullptr;
-    _Clbk->OnPickupPicked               = nullptr;
-    _Clbk->OnPickupRespawn              = nullptr;
-    _Clbk->OnCheckpointEntered          = nullptr;
-    _Clbk->OnCheckpointExited           = nullptr;
-    _Clbk->OnEntityPoolChange           = nullptr;
-    _Clbk->OnServerPerformanceReport    = nullptr;
-}
-
-} // Namespace:: SqMod
-
-/* ------------------------------------------------------------------------------------------------
- * Plugiun initialization procedure.
-*/
-SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
-{
-    using namespace SqMod;
-    // Output plug-in header
-    puts("");
-    OutputMessage("--------------------------------------------------------------------");
-    OutputMessage("Plug-in: %s", SQMOD_NAME);
-    OutputMessage("Author: %s", SQMOD_AUTHOR);
-    OutputMessage("Legal: %s", SQMOD_COPYRIGHT);
-    OutputMessage("--------------------------------------------------------------------");
-    puts("");
-    // Store server proxies
-    _Func = funcs;
-    _Clbk = calls;
-    _Info = info;
-    // Assign plug-in version
-    _Info->pluginVersion = SQMOD_VERSION;
-    _Info->apiMajorVersion = PLUGIN_API_MAJOR;
-    _Info->apiMinorVersion = PLUGIN_API_MINOR;
-    // Assign the plug-in name
-    std::snprintf(_Info->name, sizeof(_Info->name), "%s", SQMOD_HOST_NAME);
-    // Attempt to initialize the logger before anything else
-    Logger::Get().Initialize(nullptr);
-    // Attempt to initialize the plug-in core
-    if (!Core::Get().Initialize())
-    {
-        LogFtl("Unable to initialize the plug-in central core");
-        // Attempt to terminate
-        Core::Get().Terminate(false);
-        // Stop here!
-        return SQMOD_FAILURE;
-    }
-    // Bind to server callbacks
-    BindCallbacks();
     // Attempt to initialize the plug-in exports
     InitExports();
     // Dummy spacing
