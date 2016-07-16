@@ -87,6 +87,37 @@ public:
     }
 };
 
+/* ------------------------------------------------------------------------------------------------
+ * Implements RAII to make sure that entity containers area cleaned up at all costs.
+*/
+template < typename T > class ContainerCleaner
+{
+    // --------------------------------------------------------------------------------------------
+    const EntityType m_Type; // The type of entity container to clear.
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    ContainerCleaner(T & container, EntityType type)
+        : m_Type(type)
+    {
+        for (auto & ent : container)
+        {
+            ent.Destroy();
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~ContainerCleaner()
+    {
+        Core::Get().ClearContainer(m_Type);
+    }
+};
+
 // ------------------------------------------------------------------------------------------------
 Core Core::s_Inst;
 
@@ -413,14 +444,16 @@ void Core::Terminate()
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(0xDEADC0DE, "");
     }
+    LogDbg("Clearing the entity containers");
     // Release all entity resources by clearing the containers
-    m_Players.clear();
-    m_Vehicles.clear();
-    m_Objects.clear();
-    m_Pickups.clear();
-    m_Checkpoints.clear();
-    m_Blips.clear();
-    m_Keybinds.clear();
+    ContainerCleaner< Players > cc_players(m_Players, ENT_PLAYER);
+    ContainerCleaner< Vehicles > cc_vehicles(m_Vehicles, ENT_VEHICLE);
+    ContainerCleaner< Objects > cc_objects(m_Objects, ENT_OBJECT);
+    ContainerCleaner< Pickups > cc_pickups(m_Pickups, ENT_PICKUP);
+    ContainerCleaner< Checkpoints > cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT);
+    ContainerCleaner< Blips > cc_blips(m_Blips, ENT_BLIP);
+    ContainerCleaner< Keybinds > cc_keybinds(m_Keybinds, ENT_KEYBIND);
+    LogDbg("Terminating routines an commands");
     // Release all resources from routines
     TerminateRoutines();
     // Release all resources from command managers
@@ -435,6 +468,7 @@ void Core::Terminate()
     // Is there a VM to close?
     if (m_VM)
     {
+        LogDbg("Closing the virtual machine");
         // Release all script callbacks
         ResetFunc();
         // Release the script instances
@@ -451,6 +485,8 @@ void Core::Terminate()
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(0xDEADBEAF, "");
     }
+
+    LogDbg("Squirrel plugin was successfully terminated");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -688,7 +724,7 @@ void Core::BindEvent(Int32 id, Object & env, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::BlipInst::~BlipInst()
+void Core::BlipInst::Destroy()
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -711,12 +747,14 @@ Core::BlipInst::~BlipInst()
         // Now attempt to destroy this entity from the server
         _Func->DestroyCoordBlip(mID);
     }
-    // Don't release the callbacks abruptly in destructor
+    // Reset the instance to it's initial state
+    ResetInst(*this);
+    // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::CheckpointInst::~CheckpointInst()
+void Core::CheckpointInst::Destroy()
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -739,12 +777,14 @@ Core::CheckpointInst::~CheckpointInst()
         // Now attempt to destroy this entity from the server
         _Func->DeleteCheckPoint(mID);
     }
-    // Don't release the callbacks abruptly in destructor
+    // Reset the instance to it's initial state
+    ResetInst(*this);
+    // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::KeybindInst::~KeybindInst()
+void Core::KeybindInst::Destroy()
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -767,12 +807,14 @@ Core::KeybindInst::~KeybindInst()
         // Now attempt to destroy this entity from the server
         _Func->RemoveKeyBind(mID);
     }
-    // Don't release the callbacks abruptly in destructor
+    // Reset the instance to it's initial state
+    ResetInst(*this);
+    // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::ObjectInst::~ObjectInst()
+void Core::ObjectInst::Destroy()
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -795,12 +837,14 @@ Core::ObjectInst::~ObjectInst()
         // Now attempt to destroy this entity from the server
         _Func->DeleteObject(mID);
     }
-    // Don't release the callbacks abruptly in destructor
+    // Reset the instance to it's initial state
+    ResetInst(*this);
+    // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::PickupInst::~PickupInst()
+void Core::PickupInst::Destroy()
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -823,12 +867,14 @@ Core::PickupInst::~PickupInst()
         // Now attempt to destroy this entity from the server
         _Func->DeletePickup(mID);
     }
-    // Don't release the callbacks abruptly in destructor
+    // Reset the instance to it's initial state
+    ResetInst(*this);
+    // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::PlayerInst::~PlayerInst()
+void Core::PlayerInst::Destroy()
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -845,12 +891,14 @@ Core::PlayerInst::~PlayerInst()
         // Release the used memory buffer
         mInst->m_Buffer.ResetAll();
     }
-    // Don't release the callbacks abruptly in destructor
+    // Reset the instance to it's initial state
+    ResetInst(*this);
+    // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::VehicleInst::~VehicleInst()
+void Core::VehicleInst::Destroy()
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -873,7 +921,9 @@ Core::VehicleInst::~VehicleInst()
         // Now attempt to destroy this entity from the server
         _Func->DeleteVehicle(mID);
     }
-    // Don't release the callbacks abruptly in destructor
+    // Reset the instance to it's initial state
+    ResetInst(*this);
+    // Don't release the callbacks abruptly
     Core::ResetFunc(*this);
 }
 

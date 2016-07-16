@@ -16,6 +16,11 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Forward declarations.
+*/
+template < typename T > class ContainerCleaner;
+
+/* ------------------------------------------------------------------------------------------------
  * Circular locks employed by the central core.
 */
 enum CoreCircularLocks
@@ -29,6 +34,9 @@ enum CoreCircularLocks
 */
 class Core
 {
+    // --------------------------------------------------------------------------------------------
+    template < typename T > friend class ContainerCleaner;
+
 private:
 
     // --------------------------------------------------------------------------------------------
@@ -71,10 +79,29 @@ protected:
     */
     struct BlipInst
     {
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
         BlipInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
-        { /* ... */ }
+        {
+            Core::Get().ResetInst(*this);
+        }
 
-        ~BlipInst();
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~BlipInst()
+        {
+            if (VALID_ENTITY(mID))
+            {
+                Destroy();
+            }
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Destroy the entity instance from the server, if necessary.
+        */
+        void Destroy();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
@@ -103,10 +130,29 @@ protected:
     */
     struct CheckpointInst
     {
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
         CheckpointInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
-        { /* ... */ }
+        {
+            Core::Get().ResetInst(*this);
+        }
 
-        ~CheckpointInst();
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~CheckpointInst()
+        {
+            if (VALID_ENTITY(mID))
+            {
+                Destroy();
+            }
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Destroy the entity instance from the server, if necessary.
+        */
+        void Destroy();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
@@ -127,10 +173,29 @@ protected:
     */
     struct KeybindInst
     {
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
         KeybindInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
-        { /* ... */ }
+        {
+            Core::Get().ResetInst(*this);
+        }
 
-        ~KeybindInst();
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~KeybindInst()
+        {
+            if (VALID_ENTITY(mID))
+            {
+                Destroy();
+            }
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Destroy the entity instance from the server, if necessary.
+        */
+        void Destroy();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
@@ -158,10 +223,29 @@ protected:
     */
     struct ObjectInst
     {
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
         ObjectInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
-        { /* ... */ }
+        {
+            Core::Get().ResetInst(*this);
+        }
 
-        ~ObjectInst();
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~ObjectInst()
+        {
+            if (VALID_ENTITY(mID))
+            {
+                Destroy();
+            }
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Destroy the entity instance from the server, if necessary.
+        */
+        void Destroy();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
@@ -183,10 +267,29 @@ protected:
     */
     struct PickupInst
     {
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
         PickupInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
-        { /* ... */ }
+        {
+            Core::Get().ResetInst(*this);
+        }
 
-        ~PickupInst();
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~PickupInst()
+        {
+            if (VALID_ENTITY(mID))
+            {
+                Destroy();
+            }
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Destroy the entity instance from the server, if necessary.
+        */
+        void Destroy();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
@@ -209,10 +312,29 @@ protected:
     */
     struct PlayerInst
     {
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
         PlayerInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
-        { /* ... */ }
+        {
+            Core::Get().ResetInst(*this);
+        }
 
-        ~PlayerInst();
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~PlayerInst()
+        {
+            if (VALID_ENTITY(mID))
+            {
+                Destroy();
+            }
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Destroy the entity instance from the server, if necessary.
+        */
+        void Destroy();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
@@ -310,10 +432,29 @@ protected:
     */
     struct VehicleInst
     {
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
         VehicleInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
-        { /* ... */ }
+        {
+            Core::Get().ResetInst(*this);
+        }
 
-        ~VehicleInst();
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~VehicleInst()
+        {
+            if (VALID_ENTITY(mID))
+            {
+                Destroy();
+            }
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Destroy the entity instance from the server, if necessary.
+        */
+        void Destroy();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID;
@@ -666,6 +807,24 @@ public:
     const Vehicles & GetVehicles() const { return m_Vehicles; }
 
 protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Container cleaner.
+    */
+    void ClearContainer(EntityType type)
+    {
+        switch (type)
+        {
+            case ENT_BLIP:          m_Blips.clear(); break;
+            case ENT_CHECKPOINT:    m_Blips.clear(); break;
+            case ENT_KEYBIND:       m_Blips.clear(); break;
+            case ENT_OBJECT:        m_Blips.clear(); break;
+            case ENT_PICKUP:        m_Blips.clear(); break;
+            case ENT_PLAYER:        m_Blips.clear(); break;
+            case ENT_VEHICLE:       m_Blips.clear(); break;
+            default: STHROWF("Cannot clear unknown entity type container");
+        }
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Instance cleaners.

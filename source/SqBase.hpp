@@ -394,6 +394,21 @@ enum EntityFlags
     ENF_LOCKED      = (2 << 1)
 };
 
+/* ------------------------------------------------------------------------------------------------
+ * Used to identify entity types.
+*/
+enum EntityType
+{
+    ENT_UNKNOWN = 0,
+    ENT_BLIP,
+    ENT_CHECKPOINT,
+    ENT_KEYBIND,
+    ENT_OBJECT,
+    ENT_PICKUP,
+    ENT_PLAYER,
+    ENT_VEHICLE
+};
+
 } // Namespace:: SqMod
 
 /* ------------------------------------------------------------------------------------------------
