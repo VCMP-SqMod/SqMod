@@ -446,13 +446,13 @@ void Core::Terminate()
     }
     LogDbg("Clearing the entity containers");
     // Release all entity resources by clearing the containers
-    ContainerCleaner< Players > cc_players(m_Players, ENT_PLAYER);
-    ContainerCleaner< Vehicles > cc_vehicles(m_Vehicles, ENT_VEHICLE);
-    ContainerCleaner< Objects > cc_objects(m_Objects, ENT_OBJECT);
-    ContainerCleaner< Pickups > cc_pickups(m_Pickups, ENT_PICKUP);
-    ContainerCleaner< Checkpoints > cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT);
-    ContainerCleaner< Blips > cc_blips(m_Blips, ENT_BLIP);
-    ContainerCleaner< Keybinds > cc_keybinds(m_Keybinds, ENT_KEYBIND);
+    const ContainerCleaner< Players > cc_players(m_Players, ENT_PLAYER);
+    const ContainerCleaner< Vehicles > cc_vehicles(m_Vehicles, ENT_VEHICLE);
+    const ContainerCleaner< Objects > cc_objects(m_Objects, ENT_OBJECT);
+    const ContainerCleaner< Pickups > cc_pickups(m_Pickups, ENT_PICKUP);
+    const ContainerCleaner< Checkpoints > cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT);
+    const ContainerCleaner< Blips > cc_blips(m_Blips, ENT_BLIP);
+    const ContainerCleaner< Keybinds > cc_keybinds(m_Keybinds, ENT_KEYBIND);
     LogDbg("Terminating routines an commands");
     // Release all resources from routines
     TerminateRoutines();

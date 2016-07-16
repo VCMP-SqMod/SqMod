@@ -104,14 +104,14 @@ protected:
         void Destroy();
 
         // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CBlip *         mInst;
-        Object          mObj;
+        Int32           mID; // The unique number that identifies this entity on the server.
+        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        CBlip *         mInst; // Pointer to the actual instance used to interact this entity.
+        Object          mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
-        Int32           mWorld;
-        Int32           mScale;
+        Int32           mWorld; // The identifier of the world in which this blip was created.
+        Int32           mScale; // The scale of the blip.
 
         // ----------------------------------------------------------------------------------------
         Int32           mSprID;
@@ -155,10 +155,11 @@ protected:
         void Destroy();
 
         // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CCheckpoint *   mInst;
-        Object          mObj;
+        Int32           mID; // The unique number that identifies this entity on the server.
+        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        CCheckpoint *   mInst; // Pointer to the actual instance used to interact this entity.
+        Object          mObj; // Script object of the instance used to interact this entity.
+
         // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
         Function        mOnCustom;
@@ -169,7 +170,7 @@ protected:
     };
 
     /* --------------------------------------------------------------------------------------------
-     * Helper structure used to identify a keybind entity instance on the server.
+     * Helper structure used to identify a key-bind entity instance on the server.
     */
     struct KeybindInst
     {
@@ -198,16 +199,16 @@ protected:
         void Destroy();
 
         // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CKeybind *      mInst;
-        Object          mObj;
+        Int32           mID; // The unique number that identifies this entity on the server.
+        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        CKeybind *      mInst; // Pointer to the actual instance used to interact this entity.
+        Object          mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
-        Int32           mFirst;
-        Int32           mSecond;
-        Int32           mThird;
-        Int32           mRelease;
+        Int32           mFirst; // Key-code of the first button from the triggering combination.
+        Int32           mSecond; // Key-code of the second button from the triggering combination.
+        Int32           mThird; // Key-code of the third button from the triggering combination.
+        Int32           mRelease; // Whether the key-bind reacts to button press or release.
 
         // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
@@ -248,10 +249,10 @@ protected:
         void Destroy();
 
         // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CObject *       mInst;
-        Object          mObj;
+        Int32           mID; // The unique number that identifies this entity on the server.
+        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        CObject *       mInst; // Pointer to the actual instance used to interact this entity.
+        Object          mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
@@ -292,10 +293,10 @@ protected:
         void Destroy();
 
         // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CPickup *       mInst;
-        Object          mObj;
+        Int32           mID; // The unique number that identifies this entity on the server.
+        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        CPickup *       mInst; // Pointer to the actual instance used to interact this entity.
+        Object          mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
@@ -337,28 +338,28 @@ protected:
         void Destroy();
 
         // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CPlayer *       mInst;
-        Object          mObj;
+        Int32           mID; // The unique number that identifies this entity on the server.
+        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        CPlayer *       mInst; // Pointer to the actual instance used to interact this entity.
+        Object          mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
-        SQInteger       mTrackPosition;
-        SQInteger       mTrackHeading;
+        SQInteger       mTrackPosition; // The number of times to track position changes.
+        SQInteger       mTrackHeading; // The number of times to track heading changes.
 
         // ----------------------------------------------------------------------------------------
-        Int32           mTrackPositionHeader;
-        Object          mTrackPositionPayload;
+        Int32           mTrackPositionHeader; // Header to send when triggering position callback.
+        Object          mTrackPositionPayload; // Payload to send when triggering position callback.
 
         // ----------------------------------------------------------------------------------------
-        Int32           mLastWeapon;
-        Float32         mLastHealth;
-        Float32         mLastArmour;
-        Float32         mLastHeading;
-        Vector3         mLastPosition;
+        Int32           mLastWeapon; // Last known weapon of the player entity.
+        Float32         mLastHealth; // Last known health of the player entity.
+        Float32         mLastArmour; // Last known armor of the player entity.
+        Float32         mLastHeading; // Last known heading of the player entity.
+        Vector3         mLastPosition; // Last known position of the player entity.
 
         // ----------------------------------------------------------------------------------------
-        Int32           mAuthority;
+        Int32           mAuthority; // The authority level of the managed player.
 
         // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
@@ -457,21 +458,21 @@ protected:
         void Destroy();
 
         // ----------------------------------------------------------------------------------------
-        Int32           mID;
-        Uint16          mFlags;
-        CVehicle *      mInst;
-        Object          mObj;
+        Int32           mID; // The unique number that identifies this entity on the server.
+        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        CVehicle *      mInst; // Pointer to the actual instance used to interact this entity.
+        Object          mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
-        SQInteger       mTrackPosition;
-        SQInteger       mTrackRotation;
+        SQInteger       mTrackPosition; // The number of times to track position changes.
+        SQInteger       mTrackRotation; // The number of times to track rotation changes.
 
         // ----------------------------------------------------------------------------------------
-        Int32           mLastPrimaryColour;
-        Int32           mLastSecondaryColour;
-        Float32         mLastHealth;
-        Vector3         mLastPosition;
-        Quaternion      mLastRotation;
+        Int32           mLastPrimaryColour; // Last known secondary-color of the player entity.
+        Int32           mLastSecondaryColour; // Last known primary-color of the player entity.
+        Float32         mLastHealth; // Last known health of the player entity.
+        Vector3         mLastPosition; // Last known position of the player entity.
+        Quaternion      mLastRotation; // Last known rotation of the player entity.
 
         // ----------------------------------------------------------------------------------------
         Function        mOnDestroyed;
@@ -494,19 +495,19 @@ protected:
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef std::vector< BlipInst >             Blips;
-    typedef std::vector< CheckpointInst >       Checkpoints;
-    typedef std::vector< KeybindInst >          Keybinds;
-    typedef std::vector< ObjectInst >           Objects;
-    typedef std::vector< PickupInst >           Pickups;
-    typedef std::vector< PlayerInst >           Players;
-    typedef std::vector< VehicleInst >          Vehicles;
+    typedef std::vector< BlipInst >         Blips; // Blips entity instances container.
+    typedef std::vector< CheckpointInst >   Checkpoints; // Checkpoints entity instances container.
+    typedef std::vector< KeybindInst >      Keybinds; // Key-binds entity instances container.
+    typedef std::vector< ObjectInst >       Objects; // Objects entity instances container.
+    typedef std::vector< PickupInst >       Pickups; // Pickups entity instances container.
+    typedef std::vector< PlayerInst >       Players; // Players entity instances container.
+    typedef std::vector< VehicleInst >      Vehicles; // Vehicles entity instances container.
 
     // --------------------------------------------------------------------------------------------
-    typedef std::vector< ScriptSrc >                Scripts;
+    typedef std::vector< ScriptSrc >                Scripts; // List of loaded scripts.
 
     // --------------------------------------------------------------------------------------------
-    typedef std::unordered_map< String, String >    Options;
+    typedef std::unordered_map< String, String >    Options; // List of custom options.
 
 private:
 
@@ -519,7 +520,7 @@ private:
     // --------------------------------------------------------------------------------------------
     Blips                           m_Blips; // Blips pool.
     Checkpoints                     m_Checkpoints; // Checkpoints pool.
-    Keybinds                        m_Keybinds; // Keybinds pool.
+    Keybinds                        m_Keybinds; // Key-binds pool.
     Objects                         m_Objects; // Objects pool.
     Pickups                         m_Pickups; // Pickups pool.
     Players                         m_Players; // Players pool.
