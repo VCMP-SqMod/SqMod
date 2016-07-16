@@ -101,7 +101,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy();
+        void Destroy(bool shutdown = false);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -152,7 +152,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy();
+        void Destroy(bool shutdown = false);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -196,7 +196,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy();
+        void Destroy(bool shutdown = false);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -246,7 +246,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy();
+        void Destroy(bool shutdown = false);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -290,7 +290,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy();
+        void Destroy(bool shutdown = false);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -335,7 +335,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy();
+        void Destroy(bool shutdown = false);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -455,7 +455,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy();
+        void Destroy(bool shutdown = false);
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
@@ -564,7 +564,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Terminate the plug-in core.
     */
-    void Terminate();
+    void Terminate(bool shutdown = false);
 
     /* --------------------------------------------------------------------------------------------
      * Reload the plug-in core.

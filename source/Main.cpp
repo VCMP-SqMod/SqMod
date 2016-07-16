@@ -132,7 +132,7 @@ static void OnServerShutdown(void)
         // Tell the script that the server is shutting down
         Core::Get().EmitServerShutdown();
         // Deallocate and release everything obtained at startup
-        Core::Get().Terminate();
+        Core::Get().Terminate(true);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnServerShutdown)
     // See if a reload was requested (quite useless here but why not)
@@ -936,7 +936,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     {
         LogFtl("Unable to initialize the plug-in central core");
         // Attempt to terminate
-        Core::Get().Terminate();
+        Core::Get().Terminate(false);
         // Stop here!
         return SQMOD_FAILURE;
     }

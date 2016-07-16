@@ -100,12 +100,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    ContainerCleaner(T & container, EntityType type)
+    ContainerCleaner(T & container, EntityType type, bool shutdown)
         : m_Type(type)
     {
         for (auto & ent : container)
         {
-            ent.Destroy();
+            ent.Destroy(shutdown);
         }
     }
 
@@ -150,7 +150,7 @@ Core::~Core()
 {
     if (m_VM)
     {
-        Terminate();
+        Terminate(true);
     }
 }
 
@@ -436,7 +436,7 @@ bool Core::Execute()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::Terminate()
+void Core::Terminate(bool shutdown)
 {
     if (m_VM)
     {
@@ -446,13 +446,13 @@ void Core::Terminate()
     }
     LogDbg("Clearing the entity containers");
     // Release all entity resources by clearing the containers
-    const ContainerCleaner< Players > cc_players(m_Players, ENT_PLAYER);
-    const ContainerCleaner< Vehicles > cc_vehicles(m_Vehicles, ENT_VEHICLE);
-    const ContainerCleaner< Objects > cc_objects(m_Objects, ENT_OBJECT);
-    const ContainerCleaner< Pickups > cc_pickups(m_Pickups, ENT_PICKUP);
-    const ContainerCleaner< Checkpoints > cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT);
-    const ContainerCleaner< Blips > cc_blips(m_Blips, ENT_BLIP);
-    const ContainerCleaner< Keybinds > cc_keybinds(m_Keybinds, ENT_KEYBIND);
+    const ContainerCleaner< Players > cc_players(m_Players, ENT_PLAYER, shutdown);
+    const ContainerCleaner< Vehicles > cc_vehicles(m_Vehicles, ENT_VEHICLE, shutdown);
+    const ContainerCleaner< Objects > cc_objects(m_Objects, ENT_OBJECT, shutdown);
+    const ContainerCleaner< Pickups > cc_pickups(m_Pickups, ENT_PICKUP, shutdown);
+    const ContainerCleaner< Checkpoints > cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT, shutdown);
+    const ContainerCleaner< Blips > cc_blips(m_Blips, ENT_BLIP, shutdown);
+    const ContainerCleaner< Keybinds > cc_keybinds(m_Keybinds, ENT_KEYBIND, shutdown);
     LogDbg("Terminating routines an commands");
     // Release all resources from routines
     TerminateRoutines();
@@ -509,7 +509,7 @@ bool Core::Reload()
         return false; // Request denied!
     }
     // Terminate the current VM and release resources
-    Terminate();
+    Terminate(false);
     // Reset the reload header after termination
     m_ReloadHeader = -1;
     // Attempt to initialize the central core and load resources
@@ -724,7 +724,7 @@ void Core::BindEvent(Int32 id, Object & env, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::BlipInst::Destroy()
+void Core::BlipInst::Destroy(bool shutdown)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -739,8 +739,8 @@ void Core::BlipInst::Destroy()
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
-    // Are we supposed to clean up this entity?
-    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    // Are we supposed to clean up this entity? (only at reload)
+    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -754,7 +754,7 @@ void Core::BlipInst::Destroy()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::CheckpointInst::Destroy()
+void Core::CheckpointInst::Destroy(bool shutdown)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -769,8 +769,8 @@ void Core::CheckpointInst::Destroy()
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
-    // Are we supposed to clean up this entity?
-    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    // Are we supposed to clean up this entity? (only at reload)
+    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -784,7 +784,7 @@ void Core::CheckpointInst::Destroy()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::KeybindInst::Destroy()
+void Core::KeybindInst::Destroy(bool shutdown)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -799,8 +799,8 @@ void Core::KeybindInst::Destroy()
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
-    // Are we supposed to clean up this entity?
-    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    // Are we supposed to clean up this entity? (only at reload)
+    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -814,7 +814,7 @@ void Core::KeybindInst::Destroy()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::ObjectInst::Destroy()
+void Core::ObjectInst::Destroy(bool shutdown)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -829,8 +829,8 @@ void Core::ObjectInst::Destroy()
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
-    // Are we supposed to clean up this entity?
-    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    // Are we supposed to clean up this entity? (only at reload)
+    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -844,7 +844,7 @@ void Core::ObjectInst::Destroy()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PickupInst::Destroy()
+void Core::PickupInst::Destroy(bool shutdown)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -859,8 +859,8 @@ void Core::PickupInst::Destroy()
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
-    // Are we supposed to clean up this entity?
-    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    // Are we supposed to clean up this entity? (only at reload)
+    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
@@ -874,7 +874,7 @@ void Core::PickupInst::Destroy()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PlayerInst::Destroy()
+void Core::PlayerInst::Destroy(bool /*shutdown*/)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -898,7 +898,7 @@ void Core::PlayerInst::Destroy()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::VehicleInst::Destroy()
+void Core::VehicleInst::Destroy(bool shutdown)
 {
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
@@ -913,8 +913,8 @@ void Core::VehicleInst::Destroy()
         // Release user data to avoid dangling or circular references
         mInst->m_Data.Release();
     }
-    // Are we supposed to clean up this entity?
-    if (VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
+    // Are we supposed to clean up this entity? (only at reload)
+    if (!shutdown && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
         const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
