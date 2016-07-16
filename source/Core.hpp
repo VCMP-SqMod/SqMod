@@ -816,13 +816,34 @@ protected:
     {
         switch (type)
         {
-            case ENT_BLIP:          m_Blips.clear(); break;
-            case ENT_CHECKPOINT:    m_Blips.clear(); break;
-            case ENT_KEYBIND:       m_Blips.clear(); break;
-            case ENT_OBJECT:        m_Blips.clear(); break;
-            case ENT_PICKUP:        m_Blips.clear(); break;
-            case ENT_PLAYER:        m_Blips.clear(); break;
-            case ENT_VEHICLE:       m_Blips.clear(); break;
+            case ENT_BLIP:
+            {
+                m_Blips.clear();
+            } break;
+            case ENT_CHECKPOINT:
+            {
+                m_Checkpoints.clear();
+            } break;
+            case ENT_KEYBIND:
+            {
+                m_Keybinds.clear();
+            } break;
+            case ENT_OBJECT:
+            {
+                m_Objects.clear();
+            } break;
+            case ENT_PICKUP:
+            {
+                m_Pickups.clear();
+            } break;
+            case ENT_PLAYER:
+            {
+                m_Players.clear();
+            } break;
+            case ENT_VEHICLE:
+            {
+                m_Vehicles.clear();
+            } break;
             default: STHROWF("Cannot clear unknown entity type container");
         }
     }
