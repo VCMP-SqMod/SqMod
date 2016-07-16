@@ -1800,7 +1800,7 @@ public:
         // Retrieve the argument flags
         const Uint8 f = m_ArgSpec[arg];
         // Perform the requested check
-        return  (f == CMDARG_ANY) || ((f & flag) != 0x0);
+        return  (f == CMDARG_ANY) || ((f & flag) != 0x0) || ((f & CMDARG_GREEDY) && (flag & CMDARG_STRING));
     }
 
     /* --------------------------------------------------------------------------------------------
