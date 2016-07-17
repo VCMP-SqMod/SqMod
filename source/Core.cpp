@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
 #include "Logger.hpp"
+#include "SqMod.h"
 
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
@@ -350,7 +351,7 @@ bool Core::Execute()
 
     LogDbg("Signaling outside plug-ins to register their API");
     // Tell modules to do their monkey business
-    _Func->SendPluginCommand(0xDEADBABE, "");
+    _Func->SendPluginCommand(SQMOD_LOAD_CMD, "");
 
     LogDbg("Attempting to compile the specified scripts");
     // Compile scripts first so that the constants can take effect
@@ -447,7 +448,7 @@ void Core::Terminate(bool shutdown)
     {
         LogDbg("Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(0xDEADC0DE, "");
+        _Func->SendPluginCommand(SQMOD_TERMINATE_CMD, "");
     }
     LogDbg("Clearing the entity containers");
     // Release all entity resources by clearing the containers
@@ -488,7 +489,7 @@ void Core::Terminate(bool shutdown)
 
         LogDbg("Signaling outside plug-ins to release the virtual machine");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(0xDEADBEAF, "");
+        _Func->SendPluginCommand(SQMOD_RELEASED_CMD, "");
     }
 
     LogDbg("Squirrel plugin was successfully terminated");

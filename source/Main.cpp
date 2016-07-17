@@ -91,7 +91,7 @@ static uint8_t OnServerInitialise(void)
     try
     {
         // Signal outside plug-ins to do fetch our proxies
-        _Func->SendPluginCommand(0xDABBAD00, "%d", SQMOD_API_VER);
+        _Func->SendPluginCommand(SQMOD_INITIALIZE_CMD, "%d", SQMOD_API_VER);
         // Attempt to load the module core
         if (Core::Get().Execute())
         {
