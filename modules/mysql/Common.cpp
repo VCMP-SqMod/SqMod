@@ -18,11 +18,11 @@ void SqDateToMySQLTime(Object & obj, MYSQL_TIME & t)
     uint8_t month = 0, day = 0;
     {
         // Obtain the initial stack size
-        const StackGuard sg(_SqVM);
+        const StackGuard sg;
         // Push the specified object onto the stack
-        Var< Object >::push(_SqVM, obj);
+        Var< Object >::push(DefaultVM::Get(), obj);
         // Attempt to get the values inside the specified object
-        if (SQ_FAILED(SqMod_GetDate(_SqVM, -1, &year, &month, &day)))
+        if (SQ_FAILED(SqMod_GetDate(DefaultVM::Get(), -1, &year, &month, &day)))
         {
             STHROWF("Invalid date specified");
         }
@@ -47,11 +47,11 @@ void SqTimeToMySQLTime(Object & obj, MYSQL_TIME & t)
     uint16_t milli = 0;
     {
         // Obtain the initial stack size
-        const StackGuard sg(_SqVM);
+        const StackGuard sg;
         // Push the specified object onto the stack
-        Var< Object >::push(_SqVM, obj);
+        Var< Object >::push(DefaultVM::Get(), obj);
         // Attempt to get the values inside the specified object
-        if (SQ_FAILED(SqMod_GetTime(_SqVM, -1, &hour, &minute, &second, &milli)))
+        if (SQ_FAILED(SqMod_GetTime(DefaultVM::Get(), -1, &hour, &minute, &second, &milli)))
         {
             STHROWF("Invalid time specified");
         }
@@ -73,11 +73,11 @@ void SqDatetimeToMySQLTime(Object & obj, MYSQL_TIME & t)
     uint8_t month = 0, day = 0,  hour = 0, minute = 0, second = 0;
     {
         // Obtain the initial stack size
-        const StackGuard sg(_SqVM);
+        const StackGuard sg;
         // Push the specified object onto the stack
-        Var< Object >::push(_SqVM, obj);
+        Var< Object >::push(DefaultVM::Get(), obj);
         // Attempt to get the values inside the specified object
-        if (SQ_FAILED(SqMod_GetDatetime(_SqVM, -1, &year, &month, &day, &hour, &minute, &second, &milli)))
+        if (SQ_FAILED(SqMod_GetDatetime(DefaultVM::Get(), -1, &year, &month, &day, &hour, &minute, &second, &milli)))
         {
             STHROWF("Invalid date and time specified");
         }

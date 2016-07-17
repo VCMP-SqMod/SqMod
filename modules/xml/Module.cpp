@@ -14,153 +14,21 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Register the module API under the specified virtual machine.
+ * Register the module API under the obtained virtual machine.
 */
-void RegisterAPI(HSQUIRRELVM vm);
-
-/* ------------------------------------------------------------------------------------------------
- * Initialize the plug-in by obtaining the API provided by the host plug-in.
-*/
-void OnSquirrelInitialize()
+static bool RegisterAPI()
 {
-    // Attempt to import the plug-in API exported by the host plug-in
-    _SqMod = sq_api_import(_Func);
-    // Did we failed to obtain the plug-in exports?
-    if (!_SqMod)
+    // Make sure there's a valid virtual machine before proceeding
+    if (!DefaultVM::Get())
     {
-        OutputError("Failed to attach [%s] on host plug-in.", SQXML_NAME);
+        OutputError("%s: Cannot register API without a valid virtual machine", SQXML_NAME);
+        // Registration failed
+        return false;
     }
-    else
-    {
-        // Expand the Squirrel plug-in API into global functions
-        sqmod_api_expand(_SqMod);
-        // Obtain the Squirrel API
-        _SqAPI = SqMod_GetSquirrelAPI();
-        // Expand the Squirrel API into global functions
-        sq_api_expand(_SqAPI);
-    }
-}
 
-/* ------------------------------------------------------------------------------------------------
- * Load the module on the virtual machine provided by the host module.
-*/
-void OnSquirrelLoad()
-{
-    // Make sure that we have a valid plug-in API
-    if (!_SqMod)
-    {
-        return; // Unable to proceed!
-    }
-    // Obtain the Squirrel API and VM
-    _SqVM = SqMod_GetSquirrelVM();
-    // Make sure that a valid virtual machine exists
-    if (!_SqVM)
-    {
-        return; // Unable to proceed!
-    }
-    // Set this as the default database
-    DefaultVM::Set(_SqVM);
-    // Prevent common null objects from using dead virtual machines
-    NullArray() = Array();
-    NullTable() = Table();
-    NullObject() = Object();
-    NullFunction() = Function();
-    // Register the module API
-    RegisterAPI(_SqVM);
-    // Notify about the current status
-    OutputMessage("Registered: %s", SQXML_NAME);
-}
+    Table xmlns;
 
-/* ------------------------------------------------------------------------------------------------
- * The virtual machine is about to be terminated and script resources should be released.
-*/
-void OnSquirrelTerminate()
-{
-    OutputMessage("Terminating: %s", SQXML_NAME);
-    // Release null objects just in case
-    NullObject().Release();
-    NullTable().Release();
-    NullArray().Release();
-    NullFunction().ReleaseGently();
-}
-
-/* ------------------------------------------------------------------------------------------------
- * The virtual machined was closed and all memory associated with it was released.
-*/
-void OnSquirrelReleased()
-{
-    // Release the current virtual machine, if any
-    DefaultVM::Set(nullptr);
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Validate the module API to make sure we don't run into issues.
-*/
-bool CheckAPIVer(CCStr ver)
-{
-    // Obtain the numeric representation of the API version
-    const LongI vernum = std::strtol(ver, nullptr, 10);
-    // Check against version mismatch
-    if (vernum == SQMOD_API_VER)
-    {
-        return true;
-    }
-    // Log the incident
-    OutputError("API version mismatch on %s", SQXML_NAME);
-    OutputMessage("=> Requested: %ld Have: %ld", vernum, SQMOD_API_VER);
-    // Invoker should not attempt to communicate through the module API
-    return false;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * React to command sent by other plug-ins.
-*/
-static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
-{
-    switch(command_identifier)
-    {
-        case SQMOD_INITIALIZE_CMD:
-            if (CheckAPIVer(message))
-            {
-                OnSquirrelInitialize();
-            }
-        break;
-        case SQMOD_LOAD_CMD:
-            OnSquirrelLoad();
-        break;
-        case SQMOD_TERMINATE_CMD:
-            OnSquirrelTerminate();
-        break;
-        case SQMOD_RELEASED_CMD:
-            OnSquirrelReleased();
-        break;
-        default: break;
-    }
-    return 1;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * The server was initialized and this plug-in was loaded successfully.
-*/
-static uint8_t OnServerInitialise()
-{
-    return 1;
-}
-
-static void OnServerShutdown(void)
-{
-    // The server may still send callbacks
-    _Clbk->OnServerInitialise       = nullptr;
-    _Clbk->OnServerShutdown         = nullptr;
-    _Clbk->OnPluginCommand          = nullptr;
-}
-
-// ------------------------------------------------------------------------------------------------
-void RegisterAPI(HSQUIRRELVM vm)
-{
-    Table xmlns(vm);
-
-    xmlns.Bind(_SC("ParseResult"), Class< ParseResult >(vm, _SC("SqXmlParseResult"))
+    xmlns.Bind(_SC("ParseResult"), Class< ParseResult >(xmlns.GetVM(), _SC("SqXmlParseResult"))
         // Constructors
         .Ctor()
         .Ctor< const ParseResult & >()
@@ -180,7 +48,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("Check"), &ParseResult::Check)
     );
 
-    xmlns.Bind(_SC("Attribute"), Class< Attribute >(vm, _SC("SqXmlAttribute"))
+    xmlns.Bind(_SC("Attribute"), Class< Attribute >(xmlns.GetVM(), _SC("SqXmlAttribute"))
         // Constructors
         .Ctor()
         .Ctor< const Attribute & >()
@@ -225,7 +93,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("SetBool"), &Attribute::ApplyBool)
     );
 
-    xmlns.Bind(_SC("Text"), Class< Text >(vm, _SC("SqXmlText"))
+    xmlns.Bind(_SC("Text"), Class< Text >(xmlns.GetVM(), _SC("SqXmlText"))
         // Constructors
         .Ctor()
         .Ctor< const Text & >()
@@ -265,7 +133,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("SetBool"), &Text::ApplyBool)
     );
 
-    xmlns.Bind(_SC("Node"), Class< Node >(vm, _SC("SqXmlNode"))
+    xmlns.Bind(_SC("Node"), Class< Node >(xmlns.GetVM(), _SC("SqXmlNode"))
         // Constructors
         .Ctor()
         .Ctor< const Node & >()
@@ -341,7 +209,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Func(_SC("FindElemByPath"), &Node::FindElemByPath)
     );
 
-    xmlns.Bind(_SC("Document"), Class< Document, NoCopy< Document > >(vm, _SC("SqXmlDocument"))
+    xmlns.Bind(_SC("Document"), Class< Document, NoCopy< Document > >(xmlns.GetVM(), _SC("SqXmlDocument"))
         // Constructors
         .Ctor()
         // Core Meta-methods
@@ -366,9 +234,9 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Overload< void (Document::*)(CSStr, CSStr, Uint32, Int32) >(_SC("SaveFile"), &Document::SaveFile)
     );
 
-    RootTable(vm).Bind(_SC("SqXml"), xmlns);
+    RootTable().Bind(_SC("SqXml"), xmlns);
 
-    ConstTable(vm).Enum(_SC("SqXmlNodeType"), Enumeration(vm)
+    ConstTable().Enum(_SC("SqXmlNodeType"), Enumeration()
         .Const(_SC("Null"),                     static_cast< Int32 >(node_null))
         .Const(_SC("Document"),                 static_cast< Int32 >(node_document))
         .Const(_SC("Element"),                  static_cast< Int32 >(node_element))
@@ -380,7 +248,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Const(_SC("Doctype"),                  static_cast< Int32 >(node_doctype))
     );
 
-    ConstTable(vm).Enum(_SC("SqXmlParse"), Enumeration(vm)
+    ConstTable().Enum(_SC("SqXmlParse"), Enumeration()
         .Const(_SC("Minimal"),                  static_cast< Int32 >(parse_minimal))
         .Const(_SC("Default"),                  static_cast< Int32 >(parse_default))
         .Const(_SC("Full"),                     static_cast< Int32 >(parse_full))
@@ -400,7 +268,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Const(_SC("EmbedPCData"),              static_cast< Int32 >(parse_embed_pcdata))
     );
 
-    ConstTable(vm).Enum(_SC("SqXmlEncoding"), Enumeration(vm)
+    ConstTable().Enum(_SC("SqXmlEncoding"), Enumeration()
         .Const(_SC("Auto"),                     static_cast< Int32 >(encoding_auto))
         .Const(_SC("Utf8"),                     static_cast< Int32 >(encoding_utf8))
         .Const(_SC("Utf16LE"),                  static_cast< Int32 >(encoding_utf16_le))
@@ -413,7 +281,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Const(_SC("Latin1"),                   static_cast< Int32 >(encoding_latin1))
     );
 
-    ConstTable(vm).Enum(_SC("SqXmlFormat"), Enumeration(vm)
+    ConstTable().Enum(_SC("SqXmlFormat"), Enumeration()
         .Const(_SC("Indent"),                   static_cast< Int32 >(format_indent))
         .Const(_SC("WriteBOM"),                 static_cast< Int32 >(format_write_bom))
         .Const(_SC("Raw"),                      static_cast< Int32 >(format_raw))
@@ -424,7 +292,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Const(_SC("Default"),                  static_cast< Int32 >(format_default))
     );
 
-    ConstTable(vm).Enum(_SC("SqXmlParseStatus"), Enumeration(vm)
+    ConstTable().Enum(_SC("SqXmlParseStatus"), Enumeration()
         .Const(_SC("Ok"),                       static_cast< Int32 >(status_ok))
         .Const(_SC("FileNotFound"),             static_cast< Int32 >(status_file_not_found))
         .Const(_SC("IOError"),                  static_cast< Int32 >(status_io_error))
@@ -444,13 +312,137 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Const(_SC("NoDocumentElement"),        static_cast< Int32 >(status_no_document_element))
     );
 
-    ConstTable(vm).Enum(_SC("SqXmlXpathValueType"), Enumeration(vm)
+    ConstTable().Enum(_SC("SqXmlXpathValueType"), Enumeration()
         .Const(_SC("None"),                     static_cast< Int32 >(xpath_type_none))
         .Const(_SC("NodeSet"),                  static_cast< Int32 >(xpath_type_node_set))
         .Const(_SC("Number"),                   static_cast< Int32 >(xpath_type_number))
         .Const(_SC("String"),                   static_cast< Int32 >(xpath_type_string))
         .Const(_SC("Boolean"),                  static_cast< Int32 >(xpath_type_boolean))
     );
+
+    // Registration was successful
+    return true;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Load the module on the virtual machine provided by the host module.
+*/
+static bool OnSquirrelLoad()
+{
+    // Make sure that we have a valid module API
+    if (!SqMod_GetSquirrelVM)
+    {
+        OutputError("%s: Cannot obtain the Squirrel virtual machine without the module API", SQXML_NAME);
+        // Unable to proceed!
+        return false;
+    }
+    // Obtain the Squirrel virtual machine from the host plug-in
+    DefaultVM::Set(SqMod_GetSquirrelVM());
+    // Make sure that a valid virtual machine exists
+    if (!DefaultVM::Get())
+    {
+        OutputError("%s: Squirrel virtual machine obtained from the host plug-in is invalid", SQXML_NAME);
+        // Unable to proceed!
+        return false;
+    }
+    // Prevent common null objects from using dead virtual machines
+    NullArray() = Array();
+    NullTable() = Table();
+    NullObject() = Object();
+    NullFunction() = Function();
+    // Register the module API
+    if (RegisterAPI())
+    {
+        OutputMessage("Registered: %s", SQXML_NAME);
+    }
+    else
+    {
+        return false;
+    }
+    // At this point, the module was successfully loaded
+    return true;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The virtual machine is about to be terminated and script resources should be released.
+*/
+static void OnSquirrelTerminate()
+{
+    OutputMessage("Terminating: %s", SQXML_NAME);
+    // Release null objects just in case
+    NullObject().Release();
+    NullTable().Release();
+    NullArray().Release();
+    NullFunction().ReleaseGently();
+    // Release script resources...
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The virtual machined was closed and all memory associated with it was released.
+*/
+static void OnSquirrelReleased()
+{
+    // Release the current virtual machine, if any
+    DefaultVM::Set(nullptr);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * React to command sent by other plug-ins.
+*/
+static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
+{
+    switch(command_identifier)
+    {
+        case SQMOD_INITIALIZE_CMD:
+        {
+            if (CheckModuleAPIVer(message, SQXML_NAME))
+            {
+                try
+                {
+                    ImportModuleAPI(_Func, SQXML_NAME);
+                }
+                catch (const Sqrat::Exception & e)
+                {
+                    OutputError("%s", e.what());
+                    // Failed to initialize
+                    return 0;
+                }
+            }
+        } break;
+        case SQMOD_LOAD_CMD:
+        {
+            return OnSquirrelLoad();
+        } break;
+        case SQMOD_TERMINATE_CMD:
+        {
+            OnSquirrelTerminate();
+        } break;
+        case SQMOD_RELEASED_CMD:
+        {
+            OnSquirrelReleased();
+        } break;
+        default: break;
+    }
+    return 1;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The server was initialized and this plug-in was loaded successfully.
+*/
+static uint8_t OnServerInitialise()
+{
+    return 1; // Initialization was successful
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The server is about to shutdown gracefully.
+*/
+static void OnServerShutdown(void)
+{
+    // The server may still send callbacks
+    _Clbk->OnServerInitialise       = nullptr;
+    _Clbk->OnServerShutdown         = nullptr;
+    _Clbk->OnPluginCommand          = nullptr;
 }
 
 } // Namespace:: SqMod
@@ -467,20 +459,9 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * functions, PluginCall
     OutputMessage("Legal: %s", SQXML_COPYRIGHT);
     OutputMessage("--------------------------------------------------------------------");
     puts("");
-    // Attempt to find the host plug-in ID
-    const int host_plugin_id = functions->FindPlugin(SQMOD_HOST_NAME);
-    // See if our plug-in was loaded after the host plug-in
-    if (host_plugin_id < 0)
+    // Make sure that the module was loaded after the host plug-in
+    if (!CheckModuleOrder(functions, info->pluginId, SQXML_NAME))
     {
-        OutputError("%s could find the host plug-in", SQXML_NAME);
-        // Don't load!
-        return SQMOD_FAILURE;
-    }
-    // Should never reach this point but just in case
-    else if (static_cast< Uint32 >(host_plugin_id) > info->pluginId)
-    {
-        OutputError("%s loaded after the host plug-in", SQXML_NAME);
-        // Don't load!
         return SQMOD_FAILURE;
     }
     // Store server proxies

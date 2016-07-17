@@ -33,18 +33,6 @@ extern PluginFuncs*         _Func;
 extern PluginCallbacks*     _Clbk;
 extern PluginInfo*          _Info;
 
-// ------------------------------------------------------------------------------------------------
-#ifdef SQMOD_PLUGIN_API
-
-    /* --------------------------------------------------------------------------------------------
-     * Proxies to comunicate with the Squirrel plug-in.
-    */
-    extern HSQAPI           _SqAPI;
-    extern HSQEXPORTS       _SqMod;
-    extern HSQUIRRELVM      _SqVM;
-
-#endif // SQMOD_PLUGIN_API
-
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the temporary buffer.
 */
@@ -1541,6 +1529,26 @@ Int64 PopStackSLong(HSQUIRRELVM vm, SQInteger idx);
  * Attempt to pop the value at the specified index on the stack as an unsigned long integer.
 */
 Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx);
+
+// ------------------------------------------------------------------------------------------------
+#ifdef SQMOD_PLUGIN_API
+
+/* ------------------------------------------------------------------------------------------------
+ * Validate the module API to make sure we don't run into issues.
+*/
+bool CheckModuleAPIVer(CCStr ver, CCStr mod);
+
+/* ------------------------------------------------------------------------------------------------
+ * Make sure that the module was loaded after the host plug-in.
+*/
+bool CheckModuleOrder(PluginFuncs * vcapi, Uint32 mod_id, CCStr mod);
+
+/* ------------------------------------------------------------------------------------------------
+ * Used by the modules to import the API from the host plug-in.
+*/
+void ImportModuleAPI(PluginFuncs * vcapi, CCStr mod);
+
+#endif // SQMOD_PLUGIN_API
 
 } // Namespace:: SqMod
 

@@ -62,204 +62,206 @@ extern "C" {
     #define SQMOD_API_VER           1
 
     //primitive functions
-    typedef HSQAPI          (*SqEx_GetSquirrelAPI) (void);
-    typedef HSQUIRRELVM     (*SqEx_GetSquirrelVM) (void);
+    typedef HSQUIRRELVM     (*SqModAPI_GetSquirrelVM) (void);
     //logging utilities
-    typedef void            (*SqEx_LogMessage) (const SQChar * fmt, ...);
+    typedef void            (*SqModAPI_LogMessage) (const SQChar * fmt, ...);
     //script loading
-    typedef SQRESULT        (*SqEx_LoadScript) (const SQChar * filepath, SQBool delay);
+    typedef SQRESULT        (*SqModAPI_LoadScript) (const SQChar * filepath, SQBool delay);
     //numeric utilities
-    typedef SQRESULT        (*SqEx_GetSLongValue) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
-    typedef SQRESULT        (*SqEx_PushSLongObject) (HSQUIRRELVM vm, SqInt64 num);
-    typedef SQRESULT        (*SqEx_GetULongValue) (HSQUIRRELVM vm, SQInteger idx, SqUint64 * num);
-    typedef SQRESULT        (*SqEx_PushULongObject) (HSQUIRRELVM vm, SqUint64 num);
+    typedef SQRESULT        (*SqModAPI_GetSLongValue) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
+    typedef SQRESULT        (*SqModAPI_PushSLongObject) (HSQUIRRELVM vm, SqInt64 num);
+    typedef SQRESULT        (*SqModAPI_GetULongValue) (HSQUIRRELVM vm, SQInteger idx, SqUint64 * num);
+    typedef SQRESULT        (*SqModAPI_PushULongObject) (HSQUIRRELVM vm, SqUint64 num);
     //time utilities
-    typedef SqInt64         (*SqEx_GetCurrentSysTime) (void);
-    typedef SqInt64         (*SqEx_GetEpochTimeMicro) (void);
-    typedef SqInt64         (*SqEx_GetEpochTimeMilli) (void);
-    typedef SQBool          (*SqEx_ValidDate) (uint16_t year, uint8_t month, uint8_t day);
-    typedef SQBool          (*SqEx_IsLeapYear) (uint16_t year);
-    typedef uint16_t        (*SqEx_DaysInYear) (uint16_t year);
-    typedef uint8_t         (*SqEx_DaysInMonth) (uint16_t year, uint8_t month);
-    typedef uint16_t        (*SqEx_DayOfYear) (uint16_t year, uint8_t month, uint8_t day);
-    typedef SqInt64         (*SqEx_DateRangeToSeconds) (uint16_t lyear, uint8_t lmonth, uint8_t lday, uint16_t ryear, uint8_t rmonth, uint8_t rday);
-    typedef SQRESULT        (*SqEx_GetTimestamp) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
-    typedef SQRESULT        (*SqEx_PushTimestamp) (HSQUIRRELVM vm, SqInt64 num);
-    typedef SQRESULT        (*SqEx_GetDate) (HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day);
-    typedef SQRESULT        (*SqEx_PushDate) (HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day);
-    typedef SQRESULT        (*SqEx_GetTime) (HSQUIRRELVM vm, SQInteger idx, uint8_t * hour, uint8_t * minute, uint8_t * second, uint16_t * millisecond);
-    typedef SQRESULT        (*SqEx_PushTime) (HSQUIRRELVM vm, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond);
-    typedef SQRESULT        (*SqEx_GetDatetime) (HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day, uint8_t * hour, uint8_t * minute, uint8_t * second, uint16_t * millisecond);
-    typedef SQRESULT        (*SqEx_PushDatetime) (HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond);
+    typedef SqInt64         (*SqModAPI_GetCurrentSysTime) (void);
+    typedef SqInt64         (*SqModAPI_GetEpochTimeMicro) (void);
+    typedef SqInt64         (*SqModAPI_GetEpochTimeMilli) (void);
+    typedef SQBool          (*SqModAPI_ValidDate) (uint16_t year, uint8_t month, uint8_t day);
+    typedef SQBool          (*SqModAPI_IsLeapYear) (uint16_t year);
+    typedef uint16_t        (*SqModAPI_DaysInYear) (uint16_t year);
+    typedef uint8_t         (*SqModAPI_DaysInMonth) (uint16_t year, uint8_t month);
+    typedef uint16_t        (*SqModAPI_DayOfYear) (uint16_t year, uint8_t month, uint8_t day);
+    typedef SqInt64         (*SqModAPI_DateRangeToSeconds) (uint16_t lyear, uint8_t lmonth, uint8_t lday, uint16_t ryear, uint8_t rmonth, uint8_t rday);
+    typedef SQRESULT        (*SqModAPI_GetTimestamp) (HSQUIRRELVM vm, SQInteger idx, SqInt64 * num);
+    typedef SQRESULT        (*SqModAPI_PushTimestamp) (HSQUIRRELVM vm, SqInt64 num);
+    typedef SQRESULT        (*SqModAPI_GetDate) (HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day);
+    typedef SQRESULT        (*SqModAPI_PushDate) (HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day);
+    typedef SQRESULT        (*SqModAPI_GetTime) (HSQUIRRELVM vm, SQInteger idx, uint8_t * hour, uint8_t * minute, uint8_t * second, uint16_t * millisecond);
+    typedef SQRESULT        (*SqModAPI_PushTime) (HSQUIRRELVM vm, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond);
+    typedef SQRESULT        (*SqModAPI_GetDatetime) (HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day, uint8_t * hour, uint8_t * minute, uint8_t * second, uint16_t * millisecond);
+    typedef SQRESULT        (*SqModAPI_PushDatetime) (HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond);
     //stack utilities
-    typedef SQInteger       (*SqEx_PopStackInteger) (HSQUIRRELVM vm, SQInteger idx);
-    typedef SQFloat         (*SqEx_PopStackFloat) (HSQUIRRELVM vm, SQInteger idx);
-    typedef SqInt64         (*SqEx_PopStackSLong) (HSQUIRRELVM vm, SQInteger idx);
-    typedef SqUint64        (*SqEx_PopStackULong) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SQInteger       (*SqModAPI_PopStackInteger) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SQFloat         (*SqModAPI_PopStackFloat) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SqInt64         (*SqModAPI_PopStackSLong) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SqUint64        (*SqModAPI_PopStackULong) (HSQUIRRELVM vm, SQInteger idx);
     //buffer utilities
-    typedef SQRESULT        (*SqEx_PushBuffer) (HSQUIRRELVM vm, SQInteger size, SQInteger cursor);
-    typedef SQRESULT        (*SqEx_PushBufferData) (HSQUIRRELVM vm, const char * data, SQInteger size, SQInteger cursor);
-    typedef SQRESULT        (*SqEx_GetBufferInfo) (HSQUIRRELVM vm, SQInteger idx, const char ** ptr, SQInteger * size, SQInteger * cursor);
-    typedef const char *    (*SqEx_GetBufferData) (HSQUIRRELVM vm, SQInteger idx);
-    typedef SQInteger       (*SqEx_GetBufferSize) (HSQUIRRELVM vm, SQInteger idx);
-    typedef SQInteger       (*SqEx_GetBufferCursor) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SQRESULT        (*SqModAPI_PushBuffer) (HSQUIRRELVM vm, SQInteger size, SQInteger cursor);
+    typedef SQRESULT        (*SqModAPI_PushBufferData) (HSQUIRRELVM vm, const char * data, SQInteger size, SQInteger cursor);
+    typedef SQRESULT        (*SqModAPI_GetBufferInfo) (HSQUIRRELVM vm, SQInteger idx, const char ** ptr, SQInteger * size, SQInteger * cursor);
+    typedef const char *    (*SqModAPI_GetBufferData) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SQInteger       (*SqModAPI_GetBufferSize) (HSQUIRRELVM vm, SQInteger idx);
+    typedef SQInteger       (*SqModAPI_GetBufferCursor) (HSQUIRRELVM vm, SQInteger idx);
 
     /* --------------------------------------------------------------------------------------------
      * Allows modules to interface with the plug-in API without linking of any sorts
     */
     typedef struct
     {
-        unsigned int                        StructSize;
         //primitive functions
-        SqEx_GetSquirrelAPI                 GetSquirrelAPI;
-        SqEx_GetSquirrelVM                  GetSquirrelVM;
+        SqModAPI_GetSquirrelVM                      GetSquirrelVM;
         //logging utilities
-        SqEx_LogMessage                     LogDbg;
-        SqEx_LogMessage                     LogUsr;
-        SqEx_LogMessage                     LogScs;
-        SqEx_LogMessage                     LogInf;
-        SqEx_LogMessage                     LogWrn;
-        SqEx_LogMessage                     LogErr;
-        SqEx_LogMessage                     LogFtl;
-        SqEx_LogMessage                     LogSDbg;
-        SqEx_LogMessage                     LogSUsr;
-        SqEx_LogMessage                     LogSScs;
-        SqEx_LogMessage                     LogSInf;
-        SqEx_LogMessage                     LogSWrn;
-        SqEx_LogMessage                     LogSErr;
-        SqEx_LogMessage                     LogSFtl;
+        SqModAPI_LogMessage                         LogDbg;
+        SqModAPI_LogMessage                         LogUsr;
+        SqModAPI_LogMessage                         LogScs;
+        SqModAPI_LogMessage                         LogInf;
+        SqModAPI_LogMessage                         LogWrn;
+        SqModAPI_LogMessage                         LogErr;
+        SqModAPI_LogMessage                         LogFtl;
+        SqModAPI_LogMessage                         LogSDbg;
+        SqModAPI_LogMessage                         LogSUsr;
+        SqModAPI_LogMessage                         LogSScs;
+        SqModAPI_LogMessage                         LogSInf;
+        SqModAPI_LogMessage                         LogSWrn;
+        SqModAPI_LogMessage                         LogSErr;
+        SqModAPI_LogMessage                         LogSFtl;
         //script loading
-        SqEx_LoadScript                     LoadScript;
+        SqModAPI_LoadScript                         LoadScript;
         //numeric utilities
-        SqEx_GetSLongValue                  GetSLongValue;
-        SqEx_PushSLongObject                PushSLongObject;
-        SqEx_GetULongValue                  GetULongValue;
-        SqEx_PushULongObject                PushULongObject;
+        SqModAPI_GetSLongValue                      GetSLongValue;
+        SqModAPI_PushSLongObject                    PushSLongObject;
+        SqModAPI_GetULongValue                      GetULongValue;
+        SqModAPI_PushULongObject                    PushULongObject;
         //time utilities
-        SqEx_GetCurrentSysTime              GetCurrentSysTime;
-        SqEx_GetEpochTimeMicro              GetEpochTimeMicro;
-        SqEx_GetEpochTimeMilli              GetEpochTimeMilli;
-        SqEx_ValidDate                      ValidDate;
-        SqEx_IsLeapYear                     IsLeapYear;
-        SqEx_DaysInYear                     DaysInYear;
-        SqEx_DaysInMonth                    DaysInMonth;
-        SqEx_DayOfYear                      DayOfYear;
-        SqEx_DateRangeToSeconds             DateRangeToSeconds;
-        SqEx_GetTimestamp                   GetTimestamp;
-        SqEx_PushTimestamp                  PushTimestamp;
-        SqEx_GetDate                        GetDate;
-        SqEx_PushDate                       PushDate;
-        SqEx_GetTime                        GetTime;
-        SqEx_PushTime                       PushTime;
-        SqEx_GetDatetime                    GetDatetime;
-        SqEx_PushDatetime                   PushDatetime;
+        SqModAPI_GetCurrentSysTime                  GetCurrentSysTime;
+        SqModAPI_GetEpochTimeMicro                  GetEpochTimeMicro;
+        SqModAPI_GetEpochTimeMilli                  GetEpochTimeMilli;
+        SqModAPI_ValidDate                          ValidDate;
+        SqModAPI_IsLeapYear                         IsLeapYear;
+        SqModAPI_DaysInYear                         DaysInYear;
+        SqModAPI_DaysInMonth                        DaysInMonth;
+        SqModAPI_DayOfYear                          DayOfYear;
+        SqModAPI_DateRangeToSeconds                 DateRangeToSeconds;
+        SqModAPI_GetTimestamp                       GetTimestamp;
+        SqModAPI_PushTimestamp                      PushTimestamp;
+        SqModAPI_GetDate                            GetDate;
+        SqModAPI_PushDate                           PushDate;
+        SqModAPI_GetTime                            GetTime;
+        SqModAPI_PushTime                           PushTime;
+        SqModAPI_GetDatetime                        GetDatetime;
+        SqModAPI_PushDatetime                       PushDatetime;
         //stack utilities
-        SqEx_PopStackInteger                PopStackInteger;
-        SqEx_PopStackFloat                  PopStackFloat;
-        SqEx_PopStackSLong                  PopStackSLong;
-        SqEx_PopStackULong                  PopStackULong;
+        SqModAPI_PopStackInteger                    PopStackInteger;
+        SqModAPI_PopStackFloat                      PopStackFloat;
+        SqModAPI_PopStackSLong                      PopStackSLong;
+        SqModAPI_PopStackULong                      PopStackULong;
         //buffer utilities
-        SqEx_PushBuffer                     PushBuffer;
-        SqEx_PushBufferData                 PushBufferData;
-        SqEx_GetBufferInfo                  GetBufferInfo;
-        SqEx_GetBufferData                  GetBufferData;
-        SqEx_GetBufferSize                  GetBufferSize;
-        SqEx_GetBufferCursor                GetBufferCursor;
-    } sq_exports, SQEXPORTS, *HSQEXPORTS;
+        SqModAPI_PushBuffer                         PushBuffer;
+        SqModAPI_PushBufferData                     PushBufferData;
+        SqModAPI_GetBufferInfo                      GetBufferInfo;
+        SqModAPI_GetBufferData                      GetBufferData;
+        SqModAPI_GetBufferSize                      GetBufferSize;
+        SqModAPI_GetBufferCursor                    GetBufferCursor;
+    } sq_modapi, SQMODAPI, *HSQMODAPI;
 
 #ifdef SQMOD_PLUGIN_API
 
     //primitive functions
-    extern SqEx_GetSquirrelAPI                  SqMod_GetSquirrelAPI;
-    extern SqEx_GetSquirrelVM                   SqMod_GetSquirrelVM;
+    extern SqModAPI_GetSquirrelVM                   SqMod_GetSquirrelVM;
 
     //logging utilities
-    extern SqEx_LogMessage                      SqMod_LogDbg;
-    extern SqEx_LogMessage                      SqMod_LogUsr;
-    extern SqEx_LogMessage                      SqMod_LogScs;
-    extern SqEx_LogMessage                      SqMod_LogInf;
-    extern SqEx_LogMessage                      SqMod_LogWrn;
-    extern SqEx_LogMessage                      SqMod_LogErr;
-    extern SqEx_LogMessage                      SqMod_LogFtl;
-    extern SqEx_LogMessage                      SqMod_LogSDbg;
-    extern SqEx_LogMessage                      SqMod_LogSUsr;
-    extern SqEx_LogMessage                      SqMod_LogSScs;
-    extern SqEx_LogMessage                      SqMod_LogSInf;
-    extern SqEx_LogMessage                      SqMod_LogSWrn;
-    extern SqEx_LogMessage                      SqMod_LogSErr;
-    extern SqEx_LogMessage                      SqMod_LogSFtl;
+    extern SqModAPI_LogMessage                      SqMod_LogDbg;
+    extern SqModAPI_LogMessage                      SqMod_LogUsr;
+    extern SqModAPI_LogMessage                      SqMod_LogScs;
+    extern SqModAPI_LogMessage                      SqMod_LogInf;
+    extern SqModAPI_LogMessage                      SqMod_LogWrn;
+    extern SqModAPI_LogMessage                      SqMod_LogErr;
+    extern SqModAPI_LogMessage                      SqMod_LogFtl;
+    extern SqModAPI_LogMessage                      SqMod_LogSDbg;
+    extern SqModAPI_LogMessage                      SqMod_LogSUsr;
+    extern SqModAPI_LogMessage                      SqMod_LogSScs;
+    extern SqModAPI_LogMessage                      SqMod_LogSInf;
+    extern SqModAPI_LogMessage                      SqMod_LogSWrn;
+    extern SqModAPI_LogMessage                      SqMod_LogSErr;
+    extern SqModAPI_LogMessage                      SqMod_LogSFtl;
 
     //script loading
-    extern SqEx_LoadScript                      SqMod_LoadScript;
+    extern SqModAPI_LoadScript                      SqMod_LoadScript;
 
     //numeric utilities
-    extern SqEx_GetSLongValue                   SqMod_GetSLongValue;
-    extern SqEx_PushSLongObject                 SqMod_PushSLongObject;
-    extern SqEx_GetULongValue                   SqMod_GetULongValue;
-    extern SqEx_PushULongObject                 SqMod_PushULongObject;
+    extern SqModAPI_GetSLongValue                   SqMod_GetSLongValue;
+    extern SqModAPI_PushSLongObject                 SqMod_PushSLongObject;
+    extern SqModAPI_GetULongValue                   SqMod_GetULongValue;
+    extern SqModAPI_PushULongObject                 SqMod_PushULongObject;
 
     //time utilities
-    extern SqEx_GetCurrentSysTime               SqMod_GetCurrentSysTime;
-    extern SqEx_GetEpochTimeMicro               SqMod_GetEpochTimeMicro;
-    extern SqEx_GetEpochTimeMilli               SqMod_GetEpochTimeMilli;
-    extern SqEx_ValidDate                       SqMod_ValidDate;
-    extern SqEx_IsLeapYear                      SqMod_IsLeapYear;
-    extern SqEx_DaysInYear                      SqMod_DaysInYear;
-    extern SqEx_DaysInMonth                     SqMod_DaysInMonth;
-    extern SqEx_DayOfYear                       SqMod_DayOfYear;
-    extern SqEx_DateRangeToSeconds              SqMod_DateRangeToSeconds;
-    extern SqEx_GetTimestamp                    SqMod_GetTimestamp;
-    extern SqEx_PushTimestamp                   SqMod_PushTimestamp;
-    extern SqEx_GetDate                         SqMod_GetDate;
-    extern SqEx_PushDate                        SqMod_PushDate;
-    extern SqEx_GetTime                         SqMod_GetTime;
-    extern SqEx_PushTime                        SqMod_PushTime;
-    extern SqEx_GetDatetime                     SqMod_GetDatetime;
-    extern SqEx_PushDatetime                    SqMod_PushDatetime;
+    extern SqModAPI_GetCurrentSysTime               SqMod_GetCurrentSysTime;
+    extern SqModAPI_GetEpochTimeMicro               SqMod_GetEpochTimeMicro;
+    extern SqModAPI_GetEpochTimeMilli               SqMod_GetEpochTimeMilli;
+    extern SqModAPI_ValidDate                       SqMod_ValidDate;
+    extern SqModAPI_IsLeapYear                      SqMod_IsLeapYear;
+    extern SqModAPI_DaysInYear                      SqMod_DaysInYear;
+    extern SqModAPI_DaysInMonth                     SqMod_DaysInMonth;
+    extern SqModAPI_DayOfYear                       SqMod_DayOfYear;
+    extern SqModAPI_DateRangeToSeconds              SqMod_DateRangeToSeconds;
+    extern SqModAPI_GetTimestamp                    SqMod_GetTimestamp;
+    extern SqModAPI_PushTimestamp                   SqMod_PushTimestamp;
+    extern SqModAPI_GetDate                         SqMod_GetDate;
+    extern SqModAPI_PushDate                        SqMod_PushDate;
+    extern SqModAPI_GetTime                         SqMod_GetTime;
+    extern SqModAPI_PushTime                        SqMod_PushTime;
+    extern SqModAPI_GetDatetime                     SqMod_GetDatetime;
+    extern SqModAPI_PushDatetime                    SqMod_PushDatetime;
 
     //stack utilities
-    extern SqEx_PopStackInteger                 SqMod_PopStackInteger;
-    extern SqEx_PopStackFloat                   SqMod_PopStackFloat;
-    extern SqEx_PopStackSLong                   SqMod_PopStackSLong;
-    extern SqEx_PopStackULong                   SqMod_PopStackULong;
+    extern SqModAPI_PopStackInteger                 SqMod_PopStackInteger;
+    extern SqModAPI_PopStackFloat                   SqMod_PopStackFloat;
+    extern SqModAPI_PopStackSLong                   SqMod_PopStackSLong;
+    extern SqModAPI_PopStackULong                   SqMod_PopStackULong;
 
     //buffer utilities
-    extern SqEx_PushBuffer                      SqMod_PushBuffer;
-    extern SqEx_PushBufferData                  SqMod_PushBufferData;
-    extern SqEx_GetBufferInfo                   SqMod_GetBufferInfo;
-    extern SqEx_GetBufferData                   SqMod_GetBufferData;
-    extern SqEx_GetBufferSize                   SqMod_GetBufferSize;
-    extern SqEx_GetBufferCursor                 SqMod_GetBufferCursor;
+    extern SqModAPI_PushBuffer                      SqMod_PushBuffer;
+    extern SqModAPI_PushBufferData                  SqMod_PushBufferData;
+    extern SqModAPI_GetBufferInfo                   SqMod_GetBufferInfo;
+    extern SqModAPI_GetBufferData                   SqMod_GetBufferData;
+    extern SqModAPI_GetBufferSize                   SqMod_GetBufferSize;
+    extern SqModAPI_GetBufferCursor                 SqMod_GetBufferCursor;
 
 #endif // SQMOD_PLUGIN_API
 
     /* --------------------------------------------------------------------------------------------
-     * Import the functions from the main squirrel plug-in.
+     * The structure exported by the host plug-in to import the module and squirrel API.
     */
-    SQUIRREL_API HSQEXPORTS sq_api_import(PluginFuncs * vcapi);
+    typedef struct
+    {
+        unsigned int StructSize;
+        //base functions
+        int32_t (*PopulateModuleAPI) (HSQMODAPI api, size_t size);
+        int32_t (*PopulateSquirrelAPI) (HSQLIBAPI api, size_t size);
+    } sq_modexports, SQMODEXPORTS, *HSQMODEXPORTS;
 
     /* --------------------------------------------------------------------------------------------
      * Assign the functions from the specified API structure into the global functions.
     */
-    SQUIRREL_API SQRESULT sq_api_expand(HSQAPI sqapi);
+    SQUIRREL_API uint8_t sqmod_api_expand(HSQMODAPI sqmodapi);
 
     /* --------------------------------------------------------------------------------------------
      * Assign the functions from the specified API structure into the global functions.
     */
-    SQUIRREL_API SQRESULT sqmod_api_expand(HSQEXPORTS sqmodapi);
-
-    /* --------------------------------------------------------------------------------------------
-     * Undo changes done by sq_api_expand.
-    */
-    SQUIRREL_API void sq_api_collapse();
+    SQUIRREL_API uint8_t sqlib_api_expand(HSQLIBAPI sqlibapi);
 
     /* --------------------------------------------------------------------------------------------
      * Undo changes done by sqmod_api_expand.
     */
     SQUIRREL_API void sqmod_api_collapse();
 
+    /* --------------------------------------------------------------------------------------------
+     * Undo changes done by sq_api_expand.
+    */
+    SQUIRREL_API void sqlib_api_collapse();
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif
 
-#endif /*_SQ_API_H_*/
+#endif /*_SQ_MOD_H_*/

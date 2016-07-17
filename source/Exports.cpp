@@ -25,16 +25,6 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static SQAPI       g_SqAPI;
-static SQEXPORTS   g_SqExports;
-
-// ------------------------------------------------------------------------------------------------
-static HSQAPI GetSquirrelAPI()
-{
-    return &g_SqAPI;
-}
-
-// ------------------------------------------------------------------------------------------------
 static HSQUIRRELVM GetSquirrelVM()
 {
     return Core::Get().GetVM();
@@ -48,7 +38,7 @@ static SQRESULT SqEx_LoadScript(const SQChar * filepath, SQBool delay)
     {
         return SQ_OK; // The script as added or already existed
     }
-    // The path was invalied or was unable to pool the script
+    // The path was invalid or was unable to pool the script
     return SQ_ERROR;
 }
 
@@ -220,7 +210,7 @@ static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
     {
         return SQ_ERROR; // Nowhere to save
     }
-    // Is this an instance that we can treat as a Timestamp type?
+    // Is this an instance that we can treat as a Time-stamp type?
     else if (sq_gettype(vm, idx) == OT_INSTANCE)
     {
         // Attempt to obtain the time-stamp and it's value from the stack
@@ -413,7 +403,7 @@ SQRESULT SqEx_PushTime(HSQUIRRELVM vm, uint8_t hour, uint8_t minute, uint8_t sec
 SQRESULT SqEx_GetDatetime(HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day,
                             uint8_t * hour, uint8_t * minute, uint8_t * second, uint16_t * millisecond)
 {
-    // Is this an instance that we can treat as a Datetime type?
+    // Is this an instance that we can treat as a Date-time type?
     if (sq_gettype(vm, idx) == OT_INSTANCE)
     {
         // Attempt to obtain the time-stamp and it's value from the stack
@@ -644,258 +634,293 @@ SQInteger SqEx_GetBufferCursor(HSQUIRRELVM vm, SQInteger idx)
 }
 
 // ------------------------------------------------------------------------------------------------
-void InitExports()
+static int32_t SqExport_PopulateModuleAPI(HSQMODAPI api, size_t size)
 {
-    static HSQEXPORTS sqexports = &g_SqExports;
+    if (!api)
+    {
+        return 0; // Nothing to populate!
+    }
+    else if (size != sizeof(SQMODAPI))
+    {
+        return -1; // Incompatible API!
+    }
 
-    // Assign the functions that should be exported
-    g_SqExports.StructSize              = sizeof(SQEXPORTS);
-    g_SqExports.GetSquirrelAPI          = GetSquirrelAPI;
-    g_SqExports.GetSquirrelVM           = GetSquirrelVM;
+    //primitive functions
+    api->GetSquirrelVM              = GetSquirrelVM;
 
     //logging utilities
-    g_SqExports.LogDbg                  = LogDbg;
-    g_SqExports.LogUsr                  = LogUsr;
-    g_SqExports.LogScs                  = LogScs;
-    g_SqExports.LogInf                  = LogInf;
-    g_SqExports.LogWrn                  = LogWrn;
-    g_SqExports.LogErr                  = LogErr;
-    g_SqExports.LogFtl                  = LogFtl;
-    g_SqExports.LogSDbg                 = LogSDbg;
-    g_SqExports.LogSUsr                 = LogSUsr;
-    g_SqExports.LogSScs                 = LogSScs;
-    g_SqExports.LogSInf                 = LogSInf;
-    g_SqExports.LogSWrn                 = LogSWrn;
-    g_SqExports.LogSErr                 = LogSErr;
-    g_SqExports.LogSFtl                 = LogSFtl;
+    api->LogDbg                     = LogDbg;
+    api->LogUsr                     = LogUsr;
+    api->LogScs                     = LogScs;
+    api->LogInf                     = LogInf;
+    api->LogWrn                     = LogWrn;
+    api->LogErr                     = LogErr;
+    api->LogFtl                     = LogFtl;
+    api->LogSDbg                    = LogSDbg;
+    api->LogSUsr                    = LogSUsr;
+    api->LogSScs                    = LogSScs;
+    api->LogSInf                    = LogSInf;
+    api->LogSWrn                    = LogSWrn;
+    api->LogSErr                    = LogSErr;
+    api->LogSFtl                    = LogSFtl;
 
     //script loading
-    g_SqExports.LoadScript              = SqEx_LoadScript;
+    api->LoadScript                 = SqEx_LoadScript;
 
     //numeric utilities
-    g_SqExports.GetSLongValue           = SqEx_GetSLongValue;
-    g_SqExports.PushSLongObject         = SqEx_PushSLongObject;
-    g_SqExports.GetULongValue           = SqEx_GetULongValue;
-    g_SqExports.PushULongObject         = SqEx_PushULongObject;
+    api->GetSLongValue              = SqEx_GetSLongValue;
+    api->PushSLongObject            = SqEx_PushSLongObject;
+    api->GetULongValue              = SqEx_GetULongValue;
+    api->PushULongObject            = SqEx_PushULongObject;
 
     //time utilities
-    g_SqExports.GetCurrentSysTime       = Chrono::GetCurrentSysTime;
-    g_SqExports.GetEpochTimeMicro       = Chrono::GetEpochTimeMicro;
-    g_SqExports.GetEpochTimeMilli       = Chrono::GetEpochTimeMilli;
-    g_SqExports.ValidDate               = SqEx_ValidDate;
-    g_SqExports.IsLeapYear              = SqEx_IsLeapYear;
-    g_SqExports.DaysInYear              = Chrono::DaysInYear;
-    g_SqExports.DaysInMonth             = Chrono::DaysInMonth;
-    g_SqExports.DayOfYear               = Chrono::DayOfYear;
-    g_SqExports.DateRangeToSeconds      = Chrono::DateRangeToSeconds;
-    g_SqExports.GetTimestamp            = SqEx_GetTimestamp;
-    g_SqExports.PushTimestamp           = SqEx_PushTimestamp;
-    g_SqExports.GetDate                 = SqEx_GetDate;
-    g_SqExports.PushDate                = SqEx_PushDate;
-    g_SqExports.GetTime                 = SqEx_GetTime;
-    g_SqExports.PushTime                = SqEx_PushTime;
-    g_SqExports.GetDatetime             = SqEx_GetDatetime;
-    g_SqExports.PushDatetime            = SqEx_PushDatetime;
+    api->GetCurrentSysTime          = Chrono::GetCurrentSysTime;
+    api->GetEpochTimeMicro          = Chrono::GetEpochTimeMicro;
+    api->GetEpochTimeMilli          = Chrono::GetEpochTimeMilli;
+    api->ValidDate                  = SqEx_ValidDate;
+    api->IsLeapYear                 = SqEx_IsLeapYear;
+    api->DaysInYear                 = Chrono::DaysInYear;
+    api->DaysInMonth                = Chrono::DaysInMonth;
+    api->DayOfYear                  = Chrono::DayOfYear;
+    api->DateRangeToSeconds         = Chrono::DateRangeToSeconds;
+    api->GetTimestamp               = SqEx_GetTimestamp;
+    api->PushTimestamp              = SqEx_PushTimestamp;
+    api->GetDate                    = SqEx_GetDate;
+    api->PushDate                   = SqEx_PushDate;
+    api->GetTime                    = SqEx_GetTime;
+    api->PushTime                   = SqEx_PushTime;
+    api->GetDatetime                = SqEx_GetDatetime;
+    api->PushDatetime               = SqEx_PushDatetime;
 
     //stack utilities
-    g_SqExports.PopStackInteger         = PopStackInteger;
-    g_SqExports.PopStackFloat           = PopStackFloat;
-    g_SqExports.PopStackSLong           = PopStackSLong;
-    g_SqExports.PopStackULong           = PopStackULong;
+    api->PopStackInteger            = PopStackInteger;
+    api->PopStackFloat              = PopStackFloat;
+    api->PopStackSLong              = PopStackSLong;
+    api->PopStackULong              = PopStackULong;
 
     //buffer utilities
-    g_SqExports.PushBuffer              = SqEx_PushBuffer;
-    g_SqExports.PushBufferData          = SqEx_PushBufferData;
-    g_SqExports.GetBufferInfo           = SqEx_GetBufferInfo;
-    g_SqExports.GetBufferData           = SqEx_GetBufferData;
-    g_SqExports.GetBufferSize           = SqEx_GetBufferSize;
-    g_SqExports.GetBufferCursor         = SqEx_GetBufferCursor;
+    api->PushBuffer                 = SqEx_PushBuffer;
+    api->PushBufferData             = SqEx_PushBufferData;
+    api->GetBufferInfo              = SqEx_GetBufferInfo;
+    api->GetBufferData              = SqEx_GetBufferData;
+    api->GetBufferSize              = SqEx_GetBufferSize;
+    api->GetBufferCursor            = SqEx_GetBufferCursor;
 
-    // Export them to the server
-    _Func->ExportFunctions(_Info->pluginId,
-                            const_cast< const void ** >(reinterpret_cast< void ** >(&sqexports)),
-                            sizeof(SQEXPORTS));
+    return 1; // Successfully populated!
+}
+
+// ------------------------------------------------------------------------------------------------
+static int32_t SqExport_PopulateSquirrelAPI(HSQLIBAPI api, size_t size)
+{
+    if (!api)
+    {
+        return 0; // Nothing to populate!
+    }
+    else if (size != sizeof(SQLIBAPI))
+    {
+        return -1; // Incompatible API!
+    }
 
     //vm
-    g_SqAPI.open                        = sq_open;
-    g_SqAPI.newthread                   = sq_newthread;
-    g_SqAPI.seterrorhandler             = sq_seterrorhandler;
-    g_SqAPI.close                       = sq_close;
-    g_SqAPI.setforeignptr               = sq_setforeignptr;
-    g_SqAPI.getforeignptr               = sq_getforeignptr;
-    g_SqAPI.setsharedforeignptr         = sq_setsharedforeignptr;
-    g_SqAPI.getsharedforeignptr         = sq_getsharedforeignptr;
-    g_SqAPI.setvmreleasehook            = sq_setvmreleasehook;
-    g_SqAPI.getvmreleasehook            = sq_getvmreleasehook;
-    g_SqAPI.setsharedreleasehook        = sq_setsharedreleasehook;
-    g_SqAPI.getsharedreleasehook        = sq_getsharedreleasehook;
-    g_SqAPI.setprintfunc                = sq_setprintfunc;
-    g_SqAPI.getprintfunc                = sq_getprintfunc;
-    g_SqAPI.geterrorfunc                = sq_geterrorfunc;
-    g_SqAPI.suspendvm                   = sq_suspendvm;
-    g_SqAPI.wakeupvm                    = sq_wakeupvm;
-    g_SqAPI.getvmstate                  = sq_getvmstate;
-    g_SqAPI.getversion                  = sq_getversion;
+    api->open                           = sq_open;
+    api->newthread                      = sq_newthread;
+    api->seterrorhandler                = sq_seterrorhandler;
+    api->close                          = sq_close;
+    api->setforeignptr                  = sq_setforeignptr;
+    api->getforeignptr                  = sq_getforeignptr;
+    api->setsharedforeignptr            = sq_setsharedforeignptr;
+    api->getsharedforeignptr            = sq_getsharedforeignptr;
+    api->setvmreleasehook               = sq_setvmreleasehook;
+    api->getvmreleasehook               = sq_getvmreleasehook;
+    api->setsharedreleasehook           = sq_setsharedreleasehook;
+    api->getsharedreleasehook           = sq_getsharedreleasehook;
+    api->setprintfunc                   = sq_setprintfunc;
+    api->getprintfunc                   = sq_getprintfunc;
+    api->geterrorfunc                   = sq_geterrorfunc;
+    api->suspendvm                      = sq_suspendvm;
+    api->wakeupvm                       = sq_wakeupvm;
+    api->getvmstate                     = sq_getvmstate;
+    api->getversion                     = sq_getversion;
 
     //compiler
-    g_SqAPI.compile                     = sq_compile;
-    g_SqAPI.compilebuffer               = sq_compilebuffer;
-    g_SqAPI.enabledebuginfo             = sq_enabledebuginfo;
-    g_SqAPI.notifyallexceptions         = sq_notifyallexceptions;
-    g_SqAPI.setcompilererrorhandler     = sq_setcompilererrorhandler;
+    api->compile                        = sq_compile;
+    api->compilebuffer                  = sq_compilebuffer;
+    api->enabledebuginfo                = sq_enabledebuginfo;
+    api->notifyallexceptions            = sq_notifyallexceptions;
+    api->setcompilererrorhandler        = sq_setcompilererrorhandler;
 
     //stack operations
-    g_SqAPI.push                        = sq_push;
-    g_SqAPI.pop                         = sq_pop;
-    g_SqAPI.poptop                      = sq_poptop;
-    g_SqAPI.remove                      = sq_remove;
-    g_SqAPI.gettop                      = sq_gettop;
-    g_SqAPI.settop                      = sq_settop;
-    g_SqAPI.reservestack                = sq_reservestack;
-    g_SqAPI.cmp                         = sq_cmp;
-    g_SqAPI.move                        = sq_move;
+    api->push                           = sq_push;
+    api->pop                            = sq_pop;
+    api->poptop                         = sq_poptop;
+    api->remove                         = sq_remove;
+    api->gettop                         = sq_gettop;
+    api->settop                         = sq_settop;
+    api->reservestack                   = sq_reservestack;
+    api->cmp                            = sq_cmp;
+    api->move                           = sq_move;
 
     //object creation handling
-    g_SqAPI.newuserdata                 = sq_newuserdata;
-    g_SqAPI.newtable                    = sq_newtable;
-    g_SqAPI.newtableex                  = sq_newtableex;
-    g_SqAPI.newarray                    = sq_newarray;
-    g_SqAPI.newclosure                  = sq_newclosure;
-    g_SqAPI.setparamscheck              = sq_setparamscheck;
-    g_SqAPI.bindenv                     = sq_bindenv;
-    g_SqAPI.setclosureroot              = sq_setclosureroot;
-    g_SqAPI.getclosureroot              = sq_getclosureroot;
-    g_SqAPI.pushstring                  = sq_pushstring;
-    g_SqAPI.pushfloat                   = sq_pushfloat;
-    g_SqAPI.pushinteger                 = sq_pushinteger;
-    g_SqAPI.pushbool                    = sq_pushbool;
-    g_SqAPI.pushuserpointer             = sq_pushuserpointer;
-    g_SqAPI.pushnull                    = sq_pushnull;
-    g_SqAPI.pushthread                  = sq_pushthread;
-    g_SqAPI.gettype                     = sq_gettype;
-    g_SqAPI.typeof_                     = sq_typeof;
-    g_SqAPI.getsize                     = sq_getsize;
-    g_SqAPI.gethash                     = sq_gethash;
-    g_SqAPI.getbase                     = sq_getbase;
-    g_SqAPI.instanceof                  = sq_instanceof;
-    g_SqAPI.tostring                    = sq_tostring;
-    g_SqAPI.tobool                      = sq_tobool;
-    g_SqAPI.getstringandsize            = sq_getstringandsize;
-    g_SqAPI.getstring                   = sq_getstring;
-    g_SqAPI.getinteger                  = sq_getinteger;
-    g_SqAPI.getfloat                    = sq_getfloat;
-    g_SqAPI.getbool                     = sq_getbool;
-    g_SqAPI.getthread                   = sq_getthread;
-    g_SqAPI.getuserpointer              = sq_getuserpointer;
-    g_SqAPI.getuserdata                 = sq_getuserdata;
-    g_SqAPI.settypetag                  = sq_settypetag;
-    g_SqAPI.gettypetag                  = sq_gettypetag;
-    g_SqAPI.setreleasehook              = sq_setreleasehook;
-    g_SqAPI.getreleasehook              = sq_getreleasehook;
-    g_SqAPI.getscratchpad               = sq_getscratchpad;
-    g_SqAPI.getfunctioninfo             = sq_getfunctioninfo;
-    g_SqAPI.getclosureinfo              = sq_getclosureinfo;
-    g_SqAPI.getclosurename              = sq_getclosurename;
-    g_SqAPI.setnativeclosurename        = sq_setnativeclosurename;
-    g_SqAPI.setinstanceup               = sq_setinstanceup;
-    g_SqAPI.getinstanceup               = sq_getinstanceup;
-    g_SqAPI.setclassudsize              = sq_setclassudsize;
-    g_SqAPI.newclass                    = sq_newclass;
-    g_SqAPI.createinstance              = sq_createinstance;
-    g_SqAPI.setattributes               = sq_setattributes;
-    g_SqAPI.getattributes               = sq_getattributes;
-    g_SqAPI.getclass                    = sq_getclass;
-    g_SqAPI.weakref                     = sq_weakref;
-    g_SqAPI.getdefaultdelegate          = sq_getdefaultdelegate;
-    g_SqAPI.getmemberhandle             = sq_getmemberhandle;
-    g_SqAPI.getbyhandle                 = sq_getbyhandle;
-    g_SqAPI.setbyhandle                 = sq_setbyhandle;
+    api->newuserdata                    = sq_newuserdata;
+    api->newtable                       = sq_newtable;
+    api->newtableex                     = sq_newtableex;
+    api->newarray                       = sq_newarray;
+    api->newclosure                     = sq_newclosure;
+    api->setparamscheck                 = sq_setparamscheck;
+    api->bindenv                        = sq_bindenv;
+    api->setclosureroot                 = sq_setclosureroot;
+    api->getclosureroot                 = sq_getclosureroot;
+    api->pushstring                     = sq_pushstring;
+    api->pushfloat                      = sq_pushfloat;
+    api->pushinteger                    = sq_pushinteger;
+    api->pushbool                       = sq_pushbool;
+    api->pushuserpointer                = sq_pushuserpointer;
+    api->pushnull                       = sq_pushnull;
+    api->pushthread                     = sq_pushthread;
+    api->gettype                        = sq_gettype;
+    api->typeof_                        = sq_typeof;
+    api->getsize                        = sq_getsize;
+    api->gethash                        = sq_gethash;
+    api->getbase                        = sq_getbase;
+    api->instanceof                     = sq_instanceof;
+    api->tostring                       = sq_tostring;
+    api->tobool                         = sq_tobool;
+    api->getstringandsize               = sq_getstringandsize;
+    api->getstring                      = sq_getstring;
+    api->getinteger                     = sq_getinteger;
+    api->getfloat                       = sq_getfloat;
+    api->getbool                        = sq_getbool;
+    api->getthread                      = sq_getthread;
+    api->getuserpointer                 = sq_getuserpointer;
+    api->getuserdata                    = sq_getuserdata;
+    api->settypetag                     = sq_settypetag;
+    api->gettypetag                     = sq_gettypetag;
+    api->setreleasehook                 = sq_setreleasehook;
+    api->getreleasehook                 = sq_getreleasehook;
+    api->getscratchpad                  = sq_getscratchpad;
+    api->getfunctioninfo                = sq_getfunctioninfo;
+    api->getclosureinfo                 = sq_getclosureinfo;
+    api->getclosurename                 = sq_getclosurename;
+    api->setnativeclosurename           = sq_setnativeclosurename;
+    api->setinstanceup                  = sq_setinstanceup;
+    api->getinstanceup                  = sq_getinstanceup;
+    api->setclassudsize                 = sq_setclassudsize;
+    api->newclass                       = sq_newclass;
+    api->createinstance                 = sq_createinstance;
+    api->setattributes                  = sq_setattributes;
+    api->getattributes                  = sq_getattributes;
+    api->getclass                       = sq_getclass;
+    api->weakref                        = sq_weakref;
+    api->getdefaultdelegate             = sq_getdefaultdelegate;
+    api->getmemberhandle                = sq_getmemberhandle;
+    api->getbyhandle                    = sq_getbyhandle;
+    api->setbyhandle                    = sq_setbyhandle;
 
     //object manipulation
-    g_SqAPI.pushroottable               = sq_pushroottable;
-    g_SqAPI.pushregistrytable           = sq_pushregistrytable;
-    g_SqAPI.pushconsttable              = sq_pushconsttable;
-    g_SqAPI.setroottable                = sq_setroottable;
-    g_SqAPI.setconsttable               = sq_setconsttable;
-    g_SqAPI.newslot                     = sq_newslot;
-    g_SqAPI.deleteslot                  = sq_deleteslot;
-    g_SqAPI.set                         = sq_set;
-    g_SqAPI.get                         = sq_get;
-    g_SqAPI.rawget                      = sq_rawget;
-    g_SqAPI.rawset                      = sq_rawset;
-    g_SqAPI.rawdeleteslot               = sq_rawdeleteslot;
-    g_SqAPI.newmember                   = sq_newmember;
-    g_SqAPI.rawnewmember                = sq_rawnewmember;
-    g_SqAPI.arrayappend                 = sq_arrayappend;
-    g_SqAPI.arraypop                    = sq_arraypop;
-    g_SqAPI.arrayresize                 = sq_arrayresize;
-    g_SqAPI.arrayreverse                = sq_arrayreverse;
-    g_SqAPI.arrayremove                 = sq_arrayremove;
-    g_SqAPI.arrayinsert                 = sq_arrayinsert;
-    g_SqAPI.setdelegate                 = sq_setdelegate;
-    g_SqAPI.getdelegate                 = sq_getdelegate;
-    g_SqAPI.clone                       = sq_clone;
-    g_SqAPI.setfreevariable             = sq_setfreevariable;
-    g_SqAPI.next                        = sq_next;
-    g_SqAPI.getweakrefval               = sq_getweakrefval;
-    g_SqAPI.clear                       = sq_clear;
+    api->pushroottable                  = sq_pushroottable;
+    api->pushregistrytable              = sq_pushregistrytable;
+    api->pushconsttable                 = sq_pushconsttable;
+    api->setroottable                   = sq_setroottable;
+    api->setconsttable                  = sq_setconsttable;
+    api->newslot                        = sq_newslot;
+    api->deleteslot                     = sq_deleteslot;
+    api->set                            = sq_set;
+    api->get                            = sq_get;
+    api->rawget                         = sq_rawget;
+    api->rawset                         = sq_rawset;
+    api->rawdeleteslot                  = sq_rawdeleteslot;
+    api->newmember                      = sq_newmember;
+    api->rawnewmember                   = sq_rawnewmember;
+    api->arrayappend                    = sq_arrayappend;
+    api->arraypop                       = sq_arraypop;
+    api->arrayresize                    = sq_arrayresize;
+    api->arrayreverse                   = sq_arrayreverse;
+    api->arrayremove                    = sq_arrayremove;
+    api->arrayinsert                    = sq_arrayinsert;
+    api->setdelegate                    = sq_setdelegate;
+    api->getdelegate                    = sq_getdelegate;
+    api->clone                          = sq_clone;
+    api->setfreevariable                = sq_setfreevariable;
+    api->next                           = sq_next;
+    api->getweakrefval                  = sq_getweakrefval;
+    api->clear                          = sq_clear;
 
     //calls
-    g_SqAPI.call                        = sq_call;
-    g_SqAPI.resume                      = sq_resume;
-    g_SqAPI.getlocal                    = sq_getlocal;
-    g_SqAPI.getcallee                   = sq_getcallee;
-    g_SqAPI.getfreevariable             = sq_getfreevariable;
-    g_SqAPI.throwerror                  = sq_throwerror;
-    g_SqAPI.throwobject                 = sq_throwobject;
-    g_SqAPI.reseterror                  = sq_reseterror;
-    g_SqAPI.getlasterror                = sq_getlasterror;
+    api->call                           = sq_call;
+    api->resume                         = sq_resume;
+    api->getlocal                       = sq_getlocal;
+    api->getcallee                      = sq_getcallee;
+    api->getfreevariable                = sq_getfreevariable;
+    api->throwerror                     = sq_throwerror;
+    api->throwobject                    = sq_throwobject;
+    api->reseterror                     = sq_reseterror;
+    api->getlasterror                   = sq_getlasterror;
 
     //raw object handling
-    g_SqAPI.getstackobj                 = sq_getstackobj;
-    g_SqAPI.pushobject                  = sq_pushobject;
-    g_SqAPI.addref                      = sq_addref;
-    g_SqAPI.release                     = sq_release;
-    g_SqAPI.getrefcount                 = sq_getrefcount;
-    g_SqAPI.resetobject                 = sq_resetobject;
-    g_SqAPI.objtostring                 = sq_objtostring;
-    g_SqAPI.objtobool                   = sq_objtobool;
-    g_SqAPI.objtointeger                = sq_objtointeger;
-    g_SqAPI.objtofloat                  = sq_objtofloat;
-    g_SqAPI.objtouserpointer            = sq_objtouserpointer;
-    g_SqAPI.getobjtypetag               = sq_getobjtypetag;
-    g_SqAPI.getvmrefcount               = sq_getvmrefcount;
+    api->getstackobj                    = sq_getstackobj;
+    api->pushobject                     = sq_pushobject;
+    api->addref                         = sq_addref;
+    api->release                        = sq_release;
+    api->getrefcount                    = sq_getrefcount;
+    api->resetobject                    = sq_resetobject;
+    api->objtostring                    = sq_objtostring;
+    api->objtobool                      = sq_objtobool;
+    api->objtointeger                   = sq_objtointeger;
+    api->objtofloat                     = sq_objtofloat;
+    api->objtouserpointer               = sq_objtouserpointer;
+    api->getobjtypetag                  = sq_getobjtypetag;
+    api->getvmrefcount                  = sq_getvmrefcount;
 
     //GC
-    g_SqAPI.collectgarbage              = sq_collectgarbage;
-    g_SqAPI.resurrectunreachable        = sq_resurrectunreachable;
+    api->collectgarbage                 = sq_collectgarbage;
+    api->resurrectunreachable           = sq_resurrectunreachable;
 
     //serialization
-    g_SqAPI.writeclosure                = sq_writeclosure;
-    g_SqAPI.readclosure                 = sq_readclosure;
+    api->writeclosure                   = sq_writeclosure;
+    api->readclosure                    = sq_readclosure;
 
     //mem allocation
-    g_SqAPI.malloc                      = sq_malloc;
-    g_SqAPI.realloc                     = sq_realloc;
-    g_SqAPI.free                        = sq_free;
+    api->malloc                         = sq_malloc;
+    api->realloc                        = sq_realloc;
+    api->free                           = sq_free;
 
     //debug
-    g_SqAPI.stackinfos                  = sq_stackinfos;
-    g_SqAPI.setdebughook                = sq_setdebughook;
-    g_SqAPI.setnativedebughook          = sq_setnativedebughook;
+    api->stackinfos                     = sq_stackinfos;
+    api->setdebughook                   = sq_setdebughook;
+    api->setnativedebughook             = sq_setnativedebughook;
 
     //compiler helpers
-    g_SqAPI.loadfile                    = sqstd_loadfile;
-    g_SqAPI.dofile                      = sqstd_dofile;
-    g_SqAPI.writeclosuretofile          = sqstd_writeclosuretofile;
+    api->loadfile                       = sqstd_loadfile;
+    api->dofile                         = sqstd_dofile;
+    api->writeclosuretofile             = sqstd_writeclosuretofile;
 
     //blob
-    g_SqAPI.createblob                  = sqstd_createblob;
-    g_SqAPI.getblob                     = sqstd_getblob;
-    g_SqAPI.getblobsize                 = sqstd_getblobsize;
+    api->createblob                     = sqstd_createblob;
+    api->getblob                        = sqstd_getblob;
+    api->getblobsize                    = sqstd_getblobsize;
 
     //string
-    g_SqAPI.format                      = sqstd_format;
+    api->format                         = sqstd_format;
+
+    return 1; // Successfully populated!
+}
+
+// ------------------------------------------------------------------------------------------------
+static const SQMODEXPORTS g_SqModExports{
+    sizeof(SQMODEXPORTS),
+    SqExport_PopulateModuleAPI,
+    SqExport_PopulateSquirrelAPI
+};
+
+// ------------------------------------------------------------------------------------------------
+void InitExports()
+{
+    // The server needs a pointer to a pointer, and a persistent one
+    static const SQMODEXPORTS * sqmodexports = &g_SqModExports;
+
+    // Tell the server about the pointer to the exports structure
+    _Func->ExportFunctions(_Info->pluginId, reinterpret_cast< const void ** >(&sqmodexports),
+                            sizeof(HSQMODEXPORTS));
 }
 
 } // Namespace:: SqMod

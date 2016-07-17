@@ -29,15 +29,6 @@ PluginFuncs*        _Func = nullptr;
 PluginCallbacks*    _Clbk = nullptr;
 PluginInfo*         _Info = nullptr;
 
-// ------------------------------------------------------------------------------------------------
-#ifdef SQMOD_PLUGIN_API
-
-    HSQAPI          _SqAPI = nullptr;
-    HSQEXPORTS      _SqMod = nullptr;
-    HSQUIRRELVM     _SqVM = nullptr;
-
-#endif // SQMOD_PLUGIN_API
-
 /* ------------------------------------------------------------------------------------------------
  * Common buffers to reduce memory allocations. To be immediately copied upon return!
 */
@@ -1382,5 +1373,137 @@ Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx)
     return 0;
 #endif // SQMOD_PLUGIN_API
 }
+
+// ------------------------------------------------------------------------------------------------
+#ifdef SQMOD_PLUGIN_API
+
+// ------------------------------------------------------------------------------------------------
+bool CheckModuleAPIVer(CCStr ver, CCStr mod)
+{
+    // Obtain the numeric representation of the API version
+    const LongI vernum = std::strtol(ver, nullptr, 10);
+    // Check against version mismatch
+    if (vernum == SQMOD_API_VER)
+    {
+        return true;
+    }
+    // Log the incident
+    OutputError("API version mismatch on %s", mod);
+    OutputMessage("=> Requested: %ld Have: %ld", vernum, SQMOD_API_VER);
+    // Invoker should not attempt to communicate through the module API
+    return false;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CheckModuleOrder(PluginFuncs * vcapi, Uint32 mod_id, CCStr mod)
+{
+    // Make sure a valid server API was provided
+    if (!vcapi)
+    {
+        OutputError("Invalid pointer to server API structure");
+        // Validation failed!
+        return false;
+    }
+    // Attempt to find the host plug-in identifier
+    const int plugin_id = vcapi->FindPlugin(SQMOD_HOST_NAME);
+    // See if our module was loaded after the host plug-in
+    if (plugin_id < 0)
+    {
+        OutputError("%s: could find the host plug-in", mod);
+        // Validation failed!
+        return false;
+    }
+    // Should never reach this point but just in case
+    else if (static_cast< Uint32 >(plugin_id) > mod_id)
+    {
+        OutputError("%s: loaded after the host plug-in", mod);
+        // Validation failed!
+        return false;
+    }
+    // Loaded in the correct order
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+void ImportModuleAPI(PluginFuncs * vcapi, CCStr mod)
+{
+    // Make sure a valid server API was provided
+    if (!vcapi)
+    {
+        STHROWF("%s: Invalid pointer to server API structure", mod);
+    }
+
+    size_t exports_struct_size;
+
+    // Attempt to find the host plug-in identifier
+    int plugin_id = vcapi->FindPlugin(SQMOD_HOST_NAME);
+    // Validate the obtained plug-in identifier
+    if (plugin_id < 0)
+    {
+        STHROWF("%s: Unable to obtain the host plug-in identifier", mod);
+    }
+
+    // Attempt to retrieve the host plug-in exports
+    const void ** raw_plugin_exports = vcapi->GetPluginExports(plugin_id, &exports_struct_size);
+    // See if the size of the exports structure matches
+    if (exports_struct_size <= 0)
+    {
+        STHROWF("%s: Incompatible host plug-in exports structure", mod);
+    }
+    // See if we have any exports from the host plug-in
+    else if (raw_plugin_exports == nullptr)
+    {
+        STHROWF("%s: Unable to obtain pointer host plug-in exports", mod);
+    }
+
+    // Obtain pointer to the exports structure
+    const SQMODEXPORTS * plugin_exports = *reinterpret_cast< const SQMODEXPORTS ** >(raw_plugin_exports);
+    // See if we have a valid pointer to the exports structure
+    if (plugin_exports == nullptr)
+    {
+        STHROWF("%s: Invalid pointer to host plug-in exports structure", mod);
+    }
+    else if (plugin_exports->PopulateModuleAPI == nullptr || plugin_exports->PopulateSquirrelAPI == nullptr)
+    {
+        STHROWF("%s: Invalid pointer to host plug-in import functions", mod);
+    }
+
+    // Prepare a structure to obtain the module API
+    SQMODAPI sqmodapi;
+    // Attempt to populate the structure
+    switch (plugin_exports->PopulateModuleAPI(&sqmodapi, sizeof(SQMODAPI)))
+    {
+        case -1:    STHROWF("%s: Incompatible module API structure", mod);
+        case 0:     STHROWF("%s: Invalid pointer to module API structure", mod);
+    }
+
+    // Prepare a structure to obtain the squirrel API
+    SQLIBAPI sqlibapi;
+    // Attempt to populate the structure
+    switch (plugin_exports->PopulateSquirrelAPI(&sqlibapi, sizeof(SQLIBAPI)))
+    {
+        case -1:    STHROWF("%s: Incompatible squirrel API structure", mod);
+        case 0:     STHROWF("%s: Invalid pointer to squirrel API structure", mod);
+    }
+
+    // Attempt to expand the obtained API
+    if (!sqmod_api_expand(&sqmodapi))
+    {
+        // Collapse the API first
+        sqmod_api_collapse();
+        // Now it's safe to throw the exception
+        STHROWF("%s: Unable to expand module API structure", mod);
+    }
+    else if (!sqlib_api_expand(&sqlibapi))
+    {
+        // Collapse the API first
+        sqmod_api_collapse();
+        sqlib_api_collapse();
+        // Now it's safe to throw the exception
+        STHROWF("%s: Unable to expand module API structure", mod);
+    }
+}
+
+#endif // SQMOD_PLUGIN_API
 
 } // Namespace:: SqMod

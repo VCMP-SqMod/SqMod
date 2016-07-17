@@ -23,9 +23,9 @@ Object JArray::ToString() const
     // Remember the current stack size
     const StackGuard sg;
     // Transform the string into a script object
-    sq_pushstring(_SqVM, csg.mPtr ? csg.mPtr : _SC(""), -1);
+    sq_pushstring(DefaultVM::Get(), csg.mPtr ? csg.mPtr : _SC(""), -1);
     // Return the created script object
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ================================================================================================

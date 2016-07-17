@@ -440,24 +440,24 @@ Int32 Session::CmdNick(CSStr nick)
 Object Session::GetNextTry() const
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Attempt to push a time-stamp instance on the stack
-    SqMod_PushTimestamp(_SqVM, m_NextTry);
+    SqMod_PushTimestamp(DefaultVM::Get(), m_NextTry);
     // Obtain the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Session::SetNextTry(Object & tm)
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push the specified object onto the stack
-    Var< Object >::push(_SqVM, tm);
+    Var< Object >::push(DefaultVM::Get(), tm);
     // The resulted times-tamp value
     Int64 microseconds = 0;
     // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(SqMod_GetTimestamp(_SqVM, -1, &microseconds)))
+    if (SQ_FAILED(SqMod_GetTimestamp(DefaultVM::Get(), -1, &microseconds)))
     {
         STHROWF("Invalid time-stamp specified");
     }
@@ -469,19 +469,19 @@ void Session::SetNextTry(Object & tm)
 Object Session::GetSessionTime() const
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Attempt to push a time-stamp instance on the stack
     if (m_SessionTime)
     {
-        SqMod_PushTimestamp(_SqVM, SqMod_GetEpochTimeMicro() - m_SessionTime);
+        SqMod_PushTimestamp(DefaultVM::Get(), SqMod_GetEpochTimeMicro() - m_SessionTime);
     }
     // This session was not connected yet
     else
     {
-        SqMod_PushTimestamp(_SqVM, 0);
+        SqMod_PushTimestamp(DefaultVM::Get(), 0);
     }
     // Obtain the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -682,7 +682,7 @@ void Session::ForwardEvent(Function & listener, CCStr event, CCStr origin, CCStr
         origin = _SC("");
     }
     // Each event must have an array of parameters (empty or not)
-    Array parameters(_SqVM, count);
+    Array parameters(DefaultVM::Get(), count);
     // Are the any parameters?
     if (params && count > 0)
     {
@@ -726,7 +726,7 @@ void Session::ForwardEvent(Function & listener, Uint32 event,
         origin = _SC("");
     }
     // Each event must have an array of parameters (empty or not)
-    Array parameters(_SqVM, count);
+    Array parameters(DefaultVM::Get(), count);
     // Are the any parameters?
     if (params && count > 0)
     {
@@ -1179,6 +1179,106 @@ SQInteger Session::CmdNoticeF(HSQUIRRELVM vm)
     sq_pushinteger(vm, code);
     // We have a value on the stack
     return 1;
+}
+
+/* -----------------------------------------------------------------------------------------------
+ * Helper function used to avoid having to include the session header.
+*/
+void SessionProcess()
+{
+    Session::Process();
+}
+
+/* -----------------------------------------------------------------------------------------------
+ * Helper function used to avoid having to include the session header.
+*/
+void SessionTerminate()
+{
+    Session::Terminate();
+}
+
+// ================================================================================================
+void Register_Session(Table & ircns)
+{
+    ircns.Bind(_SC("Session"), Class< Session, NoCopy< Session > >(ircns.GetVM(), _SC("SqIrcSession"))
+        // Constructors
+        .Ctor()
+        // Core Meta-methods
+        .Func(_SC("_cmp"), &Session::Cmp)
+        .SquirrelFunc(_SC("_typename"), &Session::Typename)
+        .Func(_SC("_tostring"), &Session::ToString)
+        // Properties
+        .Prop(_SC("Valid"), &Session::IsValid)
+        .Prop(_SC("Connected"), &Session::IsConnected)
+        .Prop(_SC("Tag"), &Session::GetTag, &Session::SetTag)
+        .Prop(_SC("Data"), &Session::GetData, &Session::SetData)
+        .Prop(_SC("Server"), &Session::GetServer, &Session::SetServer)
+        .Prop(_SC("Password"), &Session::GetPassword, &Session::SetPassword)
+        .Prop(_SC("Nick"), &Session::GetNick, &Session::SetNick)
+        .Prop(_SC("User"), &Session::GetUser, &Session::SetUser)
+        .Prop(_SC("Name"), &Session::GetName, &Session::SetName)
+        .Prop(_SC("Port"), &Session::GetPort, &Session::SetPort)
+        .Prop(_SC("PoolTime"), &Session::GetPoolTime, &Session::SetPoolTime)
+        .Prop(_SC("LastCode"), &Session::GetLastCode)
+        .Prop(_SC("Tries"), &Session::GetTries, &Session::SetTries)
+        .Prop(_SC("Wait"), &Session::GetWait, &Session::SetWait)
+        .Prop(_SC("LeftTries"), &Session::GetLeftTries, &Session::SetLeftTries)
+        .Prop(_SC("NextTry"), &Session::GetNextTry, &Session::SetNextTry)
+        .Prop(_SC("SessionTime"), &Session::GetSessionTime)
+        .Prop(_SC("Reconnecting"), &Session::GetReconnect)
+        .Prop(_SC("IPv6"), &Session::GetIPv6)
+        .Prop(_SC("CtcpVersion"), (void (Session::*)(void))(nullptr), &Session::SetCtcpVersion)
+        .Prop(_SC("ErrNo"), &Session::GetErrNo)
+        .Prop(_SC("ErrStr"), &Session::GetErrStr)
+        // Member Methods
+        .Func(_SC("Bind"), &Session::BindEvent)
+        .Func(_SC("GetEvent"), &Session::GetEvent)
+        .Func(_SC("Disconnect"), &Session::Disconnect)
+        .Func(_SC("CmdPart"), &Session::CmdPart)
+        .Func(_SC("CmdInvite"), &Session::CmdInvite)
+        .Func(_SC("CmdNames"), &Session::CmdNames)
+        .Func(_SC("CmdMsg"), &Session::CmdMsg)
+        .Func(_SC("CmdMe"), &Session::CmdMe)
+        .Func(_SC("CmdNotice"), &Session::CmdNotice)
+        .Func(_SC("CmdCtcpRequest"), &Session::CmdCtcpRequest)
+        .Func(_SC("CmdCtcpReply"), &Session::CmdCtcpReply)
+        .Func(_SC("CmdNick"), &Session::CmdNick)
+        .Func(_SC("CmdWhois"), &Session::CmdWhois)
+        .Func(_SC("SendRaw"), &Session::SendRaw)
+        .Func(_SC("DestroyDcc"), &Session::DestroyDcc)
+        .Func(_SC("SetCtcpVersion"), &Session::SetCtcpVersion)
+        .Func(_SC("SetOption"), &Session::SetOption)
+        .Func(_SC("ResetOption"), &Session::ResetOption)
+        // Member Overloads
+        .Overload< Int32 (Session::*)(void) >(_SC("Connect"), &Session::Connect)
+        .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr) >(_SC("Connect"), &Session::Connect)
+        .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr, CSStr) >(_SC("Connect"), &Session::Connect)
+        .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr, CSStr, CSStr) >(_SC("Connect"), &Session::Connect)
+        .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr, CSStr, CSStr, CSStr) >(_SC("Connect"), &Session::Connect)
+        .Overload< Int32 (Session::*)(void) >(_SC("Connect6"), &Session::Connect6)
+        .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr) >(_SC("Connect6"), &Session::Connect6)
+        .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr, CSStr) >(_SC("Connect6"), &Session::Connect6)
+        .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr, CSStr, CSStr) >(_SC("Connect6"), &Session::Connect6)
+        .Overload< Int32 (Session::*)(CSStr, Uint32, CSStr, CSStr, CSStr, CSStr) >(_SC("Connect6"), &Session::Connect6)
+        .Overload< Int32 (Session::*)(CSStr) >(_SC("CmdJoin"), &Session::CmdJoin)
+        .Overload< Int32 (Session::*)(CSStr, CSStr) >(_SC("CmdJoin"), &Session::CmdJoin)
+        .Overload< Int32 (Session::*)(void) >(_SC("CmdList"), &Session::CmdList)
+        .Overload< Int32 (Session::*)(CSStr) >(_SC("CmdList"), &Session::CmdList)
+        .Overload< Int32 (Session::*)(CSStr) >(_SC("CmdTopic"), &Session::CmdTopic)
+        .Overload< Int32 (Session::*)(CSStr, CSStr) >(_SC("CmdTopic"), &Session::CmdTopic)
+        .Overload< Int32 (Session::*)(CSStr) >(_SC("CmdChannelMode"), &Session::CmdChannelMode)
+        .Overload< Int32 (Session::*)(CSStr, CSStr) >(_SC("CmdChannelMode"), &Session::CmdChannelMode)
+        .Overload< Int32 (Session::*)(void) >(_SC("CmdUserMode"), &Session::CmdUserMode)
+        .Overload< Int32 (Session::*)(CSStr) >(_SC("CmdUserMode"), &Session::CmdUserMode)
+        .Overload< Int32 (Session::*)(CSStr, CSStr) >(_SC("CmdKick"), &Session::CmdKick)
+        .Overload< Int32 (Session::*)(CSStr, CSStr, CSStr) >(_SC("CmdKick"), &Session::CmdKick)
+        .Overload< Int32 (Session::*)(void) >(_SC("CmdQuit"), &Session::CmdQuit)
+        .Overload< Int32 (Session::*)(CSStr) >(_SC("CmdQuit"), &Session::CmdQuit)
+        // Squirrel Methods
+        .SquirrelFunc(_SC("CmdMsgF"), &Session::CmdMsgF)
+        .SquirrelFunc(_SC("CmdMeF"), &Session::CmdMeF)
+        .SquirrelFunc(_SC("CmdNoticeF"), &Session::CmdNoticeF)
+    );
 }
 
 } // Namespace:: SqMod

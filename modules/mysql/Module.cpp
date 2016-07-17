@@ -8,68 +8,81 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-/* ------------------------------------------------------------------------------------------------
- * Register the module API under the specified virtual machine.
-*/
-void RegisterAPI(HSQUIRRELVM vm);
+// ------------------------------------------------------------------------------------------------
+extern void Register_Account(Table & sqlns);
+extern void Register_Connection(Table & sqlns);
+extern void Register_ResultSet(Table & sqlns);
+extern void Register_Statement(Table & sqlns);
 
 /* ------------------------------------------------------------------------------------------------
- * Initialize the plug-in by obtaining the API provided by the host plug-in.
+ * Register the module API under the obtained virtual machine.
 */
-void OnSquirrelInitialize()
+static bool RegisterAPI()
 {
-    // Attempt to import the plug-in API exported by the host plug-in
-    _SqMod = sq_api_import(_Func);
-    // Did we failed to obtain the plug-in exports?
-    if (!_SqMod)
+    // Make sure there's a valid virtual machine before proceeding
+    if (!DefaultVM::Get())
     {
-        OutputError("Failed to attach [%s] on host plug-in.", SQMYSQL_NAME);
+        OutputError("%s: Cannot register API without a valid virtual machine", SQMYSQL_NAME);
+        // Registration failed
+        return false;
     }
-    else
-    {
-        // Expand the Squirrel plug-in API into global functions
-        sqmod_api_expand(_SqMod);
-        // Obtain the Squirrel API
-        _SqAPI = SqMod_GetSquirrelAPI();
-        // Expand the Squirrel API into global functions
-        sq_api_expand(_SqAPI);
-    }
+
+    Table sqlns;
+
+    Register_Account(sqlns);
+    Register_Connection(sqlns);
+    Register_ResultSet(sqlns);
+    Register_Statement(sqlns);
+
+    RootTable().Bind(_SC("SqMySQL"), sqlns);
+
+    // Registration was successful
+    return true;
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Load the module on the virtual machine provided by the host module.
 */
-void OnSquirrelLoad()
+static bool OnSquirrelLoad()
 {
-    // Make sure that we have a valid plug-in API
-    if (!_SqMod)
+    // Make sure that we have a valid module API
+    if (!SqMod_GetSquirrelVM)
     {
-        return; // Unable to proceed.
+        OutputError("%s: Cannot obtain the Squirrel virtual machine without the module API", SQMYSQL_NAME);
+        // Unable to proceed!
+        return false;
     }
-    // Obtain the Squirrel API and VM
-    _SqVM = SqMod_GetSquirrelVM();
+    // Obtain the Squirrel virtual machine from the host plug-in
+    DefaultVM::Set(SqMod_GetSquirrelVM());
     // Make sure that a valid virtual machine exists
-    if (!_SqVM)
+    if (!DefaultVM::Get())
     {
-        return; // Unable to proceed.
+        OutputError("%s: Squirrel virtual machine obtained from the host plug-in is invalid", SQMYSQL_NAME);
+        // Unable to proceed!
+        return false;
     }
-    // Set this as the default database
-    DefaultVM::Set(_SqVM);
     // Prevent common null objects from using dead virtual machines
     NullArray() = Array();
     NullTable() = Table();
     NullObject() = Object();
     NullFunction() = Function();
     // Register the module API
-    RegisterAPI(_SqVM);
-    // Notify about the current status
-    OutputMessage("Registered: %s", SQMYSQL_NAME);
+    if (RegisterAPI())
+    {
+        OutputMessage("Registered: %s", SQMYSQL_NAME);
+    }
+    else
+    {
+        return false;
+    }
+    // At this point, the module was successfully loaded
+    return true;
 }
 
 /* ------------------------------------------------------------------------------------------------
  * The virtual machine is about to be terminated and script resources should be released.
 */
-void OnSquirrelTerminate()
+static void OnSquirrelTerminate()
 {
     OutputMessage("Terminating: %s", SQMYSQL_NAME);
     // Release null objects just in case
@@ -77,34 +90,16 @@ void OnSquirrelTerminate()
     NullTable().Release();
     NullArray().Release();
     NullFunction().ReleaseGently();
+    // Release script resources...
 }
 
 /* ------------------------------------------------------------------------------------------------
  * The virtual machined was closed and all memory associated with it was released.
 */
-void OnSquirrelReleased()
+static void OnSquirrelReleased()
 {
     // Release the current virtual machine, if any
     DefaultVM::Set(nullptr);
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Validate the module API to make sure we don't run into issues.
-*/
-bool CheckAPIVer(CCStr ver)
-{
-    // Obtain the numeric representation of the API version
-    const LongI vernum = std::strtol(ver, nullptr, 10);
-    // Check against version mismatch
-    if (vernum == SQMOD_API_VER)
-    {
-        return true;
-    }
-    // Log the incident
-    OutputError("API version mismatch on %s", SQMYSQL_NAME);
-    OutputMessage("=> Requested: %ld Have: %ld", vernum, SQMOD_API_VER);
-    // Invoker should not attempt to communicate through the module API
-    return false;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -115,20 +110,33 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
     switch(command_identifier)
     {
         case SQMOD_INITIALIZE_CMD:
-            if (CheckAPIVer(message))
+        {
+            if (CheckModuleAPIVer(message, SQMYSQL_NAME))
             {
-                OnSquirrelInitialize();
+                try
+                {
+                    ImportModuleAPI(_Func, SQMYSQL_NAME);
+                }
+                catch (const Sqrat::Exception & e)
+                {
+                    OutputError("%s", e.what());
+                    // Failed to initialize
+                    return 0;
+                }
             }
-        break;
+        } break;
         case SQMOD_LOAD_CMD:
-            OnSquirrelLoad();
-        break;
+        {
+            return OnSquirrelLoad();
+        } break;
         case SQMOD_TERMINATE_CMD:
+        {
             OnSquirrelTerminate();
-        break;
+        } break;
         case SQMOD_RELEASED_CMD:
+        {
             OnSquirrelReleased();
-        break;
+        } break;
         default: break;
     }
     return 1;
@@ -139,34 +147,18 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
 */
 static uint8_t OnServerInitialise()
 {
-    return 1;
+    return 1; // Initialization was successful
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * The server is about to shutdown gracefully.
+*/
 static void OnServerShutdown(void)
 {
     // The server may still send callbacks
     _Clbk->OnServerInitialise       = nullptr;
     _Clbk->OnServerShutdown         = nullptr;
     _Clbk->OnPluginCommand          = nullptr;
-}
-
-// ------------------------------------------------------------------------------------------------
-extern void Register_Account(Table & sqlns);
-extern void Register_Connection(Table & sqlns);
-extern void Register_ResultSet(Table & sqlns);
-extern void Register_Statement(Table & sqlns);
-
-// ------------------------------------------------------------------------------------------------
-void RegisterAPI(HSQUIRRELVM vm)
-{
-    Table sqlns(vm);
-
-    Register_Account(sqlns);
-    Register_Connection(sqlns);
-    Register_ResultSet(sqlns);
-    Register_Statement(sqlns);
-
-    RootTable(vm).Bind(_SC("SqMySQL"), sqlns);
 }
 
 } // Namespace:: SqMod
@@ -183,20 +175,9 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * functions, PluginCall
     OutputMessage("Legal: %s", SQMYSQL_COPYRIGHT);
     OutputMessage("--------------------------------------------------------------------");
     std::puts("");
-    // Attempt to find the host plug-in ID
-    const int host_plugin_id = functions->FindPlugin(SQMOD_HOST_NAME);
-    // See if our plug-in was loaded after the host plug-in
-    if (host_plugin_id < 0)
+    // Make sure that the module was loaded after the host plug-in
+    if (!CheckModuleOrder(functions, info->pluginId, SQMYSQL_NAME))
     {
-        OutputError("%s could find the host plug-in", SQMYSQL_NAME);
-        // Don't load!
-        return SQMOD_FAILURE;
-    }
-    // Should never reach this point but just in case
-    else if (static_cast< Uint32 >(host_plugin_id) > info->pluginId)
-    {
-        OutputError("%s loaded after the host plug-in", SQMYSQL_NAME);
-        // Don't load!
         return SQMOD_FAILURE;
     }
     // Store server proxies

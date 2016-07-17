@@ -434,6 +434,7 @@
 		</Unit>
 		<Unit filename="../modules/irc/Common.cpp" />
 		<Unit filename="../modules/irc/Common.hpp" />
+		<Unit filename="../modules/irc/Constants.cpp" />
 		<Unit filename="../modules/irc/Module.cpp" />
 		<Unit filename="../modules/irc/Session.cpp" />
 		<Unit filename="../modules/irc/Session.hpp" />

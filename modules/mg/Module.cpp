@@ -11,153 +11,21 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Register the module API under the specified virtual machine.
+ * Register the module API under the obtained virtual machine.
 */
-void RegisterAPI(HSQUIRRELVM vm);
-
-/* ------------------------------------------------------------------------------------------------
- * Initialize the plug-in by obtaining the API provided by the host plug-in.
-*/
-void OnSquirrelInitialize()
+static bool RegisterAPI()
 {
-    // Attempt to import the plug-in API exported by the host plug-in
-    _SqMod = sq_api_import(_Func);
-    // Did we failed to obtain the plug-in exports?
-    if (!_SqMod)
+    // Make sure there's a valid virtual machine before proceeding
+    if (!DefaultVM::Get())
     {
-        OutputError("Failed to attach [%s] on host plug-in.", SQMG_NAME);
+        OutputError("%s: Cannot register API without a valid virtual machine", SQMG_NAME);
+        // Registration failed
+        return false;
     }
-    else
-    {
-        // Expand the Squirrel plug-in API into global functions
-        sqmod_api_expand(_SqMod);
-        // Obtain the Squirrel API
-        _SqAPI = SqMod_GetSquirrelAPI();
-        // Expand the Squirrel API into global functions
-        sq_api_expand(_SqAPI);
-    }
-}
 
-/* ------------------------------------------------------------------------------------------------
- * Load the module on the virtual machine provided by the host module.
-*/
-void OnSquirrelLoad()
-{
-    // Make sure that we have a valid plug-in API
-    if (!_SqMod)
-    {
-        return; // Unable to proceed.
-    }
-    // Obtain the Squirrel API and VM
-    _SqVM = SqMod_GetSquirrelVM();
-    // Make sure that a valid virtual machine exists
-    if (!_SqVM)
-    {
-        return; // Unable to proceed.
-    }
-    // Set this as the default database
-    DefaultVM::Set(_SqVM);
-    // Prevent common null objects from using dead virtual machines
-    NullArray() = Array();
-    NullTable() = Table();
-    NullObject() = Object();
-    NullFunction() = Function();
-    // Register the module API
-    RegisterAPI(_SqVM);
-    // Notify about the current status
-    OutputMessage("Registered: %s", SQMG_NAME);
-}
+    Table mgns;
 
-/* ------------------------------------------------------------------------------------------------
- * The virtual machine is about to be terminated and script resources should be released.
-*/
-void OnSquirrelTerminate()
-{
-    OutputMessage("Terminating: %s", SQMG_NAME);
-    // Release null objects just in case
-    NullObject().Release();
-    NullTable().Release();
-    NullArray().Release();
-    NullFunction().ReleaseGently();
-}
-
-/* ------------------------------------------------------------------------------------------------
- * The virtual machined was closed and all memory associated with it was released.
-*/
-void OnSquirrelReleased()
-{
-    // Release the current virtual machine, if any
-    DefaultVM::Set(nullptr);
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Validate the module API to make sure we don't run into issues.
-*/
-bool CheckAPIVer(CCStr ver)
-{
-    // Obtain the numeric representation of the API version
-    const LongI vernum = std::strtol(ver, nullptr, 10);
-    // Check against version mismatch
-    if (vernum == SQMOD_API_VER)
-    {
-        return true;
-    }
-    // Log the incident
-    OutputError("API version mismatch on %s", SQMG_NAME);
-    OutputMessage("=> Requested: %ld Have: %ld", vernum, SQMOD_API_VER);
-    // Invoker should not attempt to communicate through the module API
-    return false;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * React to command sent by other plug-ins.
-*/
-static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
-{
-    switch(command_identifier)
-    {
-        case SQMOD_INITIALIZE_CMD:
-            if (CheckAPIVer(message))
-            {
-                OnSquirrelInitialize();
-            }
-        break;
-        case SQMOD_LOAD_CMD:
-            OnSquirrelLoad();
-        break;
-        case SQMOD_TERMINATE_CMD:
-            OnSquirrelTerminate();
-        break;
-        case SQMOD_RELEASED_CMD:
-            OnSquirrelReleased();
-        break;
-        default: break;
-    }
-    return 1;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * The server was initialized and this plug-in was loaded successfully.
-*/
-static uint8_t OnServerInitialise()
-{
-    return 1;
-}
-
-static void OnServerShutdown(void)
-{
-    // The server may still send callbacks
-    _Clbk->OnServerInitialise       = nullptr;
-    _Clbk->OnServerShutdown         = nullptr;
-    _Clbk->OnPluginCommand          = nullptr;
-}
-
-// ------------------------------------------------------------------------------------------------
-void RegisterAPI(HSQUIRRELVM vm)
-{
-    Table mgns(vm);
-
-    mgns.Bind(_SC("Manager"), Class< Manager >(vm, _SC("SqMgManager"))
+    mgns.Bind(_SC("Manager"), Class< Manager >(mgns,GetVM(), _SC("SqMgManager"))
         // Constructors
         .Ctor()
         .Ctor< const Manager & >()
@@ -176,7 +44,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Overload< Connection (Manager::*)(CSStr, Uint32) const >(_SC("Connect"), &Manager::Connect)
     );
 
-    mgns.Bind(_SC("Connection"), Class< Connection >(vm, _SC("SqMgConnection"))
+    mgns.Bind(_SC("Connection"), Class< Connection >(mgns,GetVM(), _SC("SqMgConnection"))
         // Constructors
         .Ctor()
         .Ctor< const Connection & >()
@@ -190,9 +58,9 @@ void RegisterAPI(HSQUIRRELVM vm)
         //.Func(_SC("Check"), &Connection::Check)
     );
 
-    RootTable(vm).Bind(_SC("SqMg"), mgns);
+    RootTable().Bind(_SC("SqMg"), mgns);
 
-    ConstTable(vm).Enum(_SC("EMgF"), Enumeration(vm)
+    ConstTable().Enum(_SC("EMgF"), Enumeration()
         .Const(_SC("LISTENING"),                MG_F_LISTENING)
         .Const(_SC("UDP"),                      MG_F_UDP)
         .Const(_SC("RESOLVING"),                MG_F_RESOLVING)
@@ -213,7 +81,7 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Const(_SC("USER_6"),                   MG_F_USER_6)
     );
 
-    ConstTable(vm).Enum(_SC("MgEv"), Enumeration(vm)
+    ConstTable().Enum(_SC("MgEv"), Enumeration()
         .Const(_SC("UNKNOWN"),                              static_cast< Int32 >(MGEV_UNKNOWN))
         .Const(_SC("POLL"),                                 static_cast< Int32 >(MGCE_POLL))
         .Const(_SC("ACCEPT"),                               static_cast< Int32 >(MGCE_ACCEPT))
@@ -259,7 +127,131 @@ void RegisterAPI(HSQUIRRELVM vm)
         .Const(_SC("COAP_ACK"),                             static_cast< Int32 >(MGCE_COAP_ACK))
         .Const(_SC("COAP_RST"),                             static_cast< Int32 >(MGCE_COAP_RST))
         .Const(_SC("MAX"),                                  static_cast< Int32 >(MGCE_MAX))
-    );              
+    );
+
+    // Registration was successful
+    return true;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Load the module on the virtual machine provided by the host module.
+*/
+static bool OnSquirrelLoad()
+{
+    // Make sure that we have a valid module API
+    if (!SqMod_GetSquirrelVM)
+    {
+        OutputError("%s: Cannot obtain the Squirrel virtual machine without the module API", SQMG_NAME);
+        // Unable to proceed!
+        return false;
+    }
+    // Obtain the Squirrel virtual machine from the host plug-in
+    DefaultVM::Set(SqMod_GetSquirrelVM());
+    // Make sure that a valid virtual machine exists
+    if (!DefaultVM::Get())
+    {
+        OutputError("%s: Squirrel virtual machine obtained from the host plug-in is invalid", SQMG_NAME);
+        // Unable to proceed!
+        return false;
+    }
+    // Prevent common null objects from using dead virtual machines
+    NullArray() = Array();
+    NullTable() = Table();
+    NullObject() = Object();
+    NullFunction() = Function();
+    // Register the module API
+    if (RegisterAPI())
+    {
+        OutputMessage("Registered: %s", SQMG_NAME);
+    }
+    else
+    {
+        return false;
+    }
+    // At this point, the module was successfully loaded
+    return true;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The virtual machine is about to be terminated and script resources should be released.
+*/
+static void OnSquirrelTerminate()
+{
+    OutputMessage("Terminating: %s", SQMG_NAME);
+    // Release null objects just in case
+    NullObject().Release();
+    NullTable().Release();
+    NullArray().Release();
+    NullFunction().ReleaseGently();
+    // Release script resources...
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The virtual machined was closed and all memory associated with it was released.
+*/
+static void OnSquirrelReleased()
+{
+    // Release the current virtual machine, if any
+    DefaultVM::Set(nullptr);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * React to command sent by other plug-ins.
+*/
+static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
+{
+    switch(command_identifier)
+    {
+        case SQMOD_INITIALIZE_CMD:
+        {
+            if (CheckModuleAPIVer(message, SQMG_NAME))
+            {
+                try
+                {
+                    ImportModuleAPI(_Func, SQMG_NAME);
+                }
+                catch (const Sqrat::Exception & e)
+                {
+                    OutputError("%s", e.what());
+                    // Failed to initialize
+                    return 0;
+                }
+            }
+        } break;
+        case SQMOD_LOAD_CMD:
+        {
+            return OnSquirrelLoad();
+        } break;
+        case SQMOD_TERMINATE_CMD:
+        {
+            OnSquirrelTerminate();
+        } break;
+        case SQMOD_RELEASED_CMD:
+        {
+            OnSquirrelReleased();
+        } break;
+        default: break;
+    }
+    return 1;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The server was initialized and this plug-in was loaded successfully.
+*/
+static uint8_t OnServerInitialise()
+{
+    return 1; // Initialization was successful
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The server is about to shutdown gracefully.
+*/
+static void OnServerShutdown(void)
+{
+    // The server may still send callbacks
+    _Clbk->OnServerInitialise       = nullptr;
+    _Clbk->OnServerShutdown         = nullptr;
+    _Clbk->OnPluginCommand          = nullptr;
 }
 
 } // Namespace:: SqMod
@@ -276,20 +268,9 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * functions, PluginCall
     OutputMessage("Legal: %s", SQMG_COPYRIGHT);
     OutputMessage("--------------------------------------------------------------------");
     std::puts("");
-    // Attempt to find the host plug-in ID
-    const int host_plugin_id = functions->FindPlugin(SQMOD_HOST_NAME);
-    // See if our plug-in was loaded after the host plug-in
-    if (host_plugin_id < 0)
+    // Make sure that the module was loaded after the host plug-in
+    if (!CheckModuleOrder(functions, info->pluginId, SQMG_NAME))
     {
-        OutputError("%s could find the host plug-in", SQMG_NAME);
-        // Don't load!
-        return SQMOD_FAILURE;
-    }
-    // Should never reach this point but just in case
-    else if (static_cast< Uint32 >(host_plugin_id) > info->pluginId)
-    {
-        OutputError("%s loaded after the host plug-in", SQMG_NAME);
-        // Don't load!
         return SQMOD_FAILURE;
     }
     // Store server proxies

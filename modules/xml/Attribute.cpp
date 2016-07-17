@@ -16,53 +16,53 @@ SQInteger Attribute::Typename(HSQUIRRELVM vm)
 Object Attribute::AsLong(Object & def) const
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push the specified object onto the stack
-    Var< Object >::push(_SqVM, def);
+    Var< Object >::push(DefaultVM::Get(), def);
     // The resulted long integer value
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(SqMod_GetSLongValue(_SqVM, -1, &longint)))
+    if (SQ_FAILED(SqMod_GetSLongValue(DefaultVM::Get(), -1, &longint)))
     {
         STHROWF("Invalid long integer specified");
     }
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushSLongObject(_SqVM, m_Attr.as_llong(longint));
+    SqMod_PushSLongObject(DefaultVM::Get(), m_Attr.as_llong(longint));
     // Obtain the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
 Object Attribute::AsUlong(Object & def) const
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push the specified object onto the stack
-    Var< Object >::push(_SqVM, def);
+    Var< Object >::push(DefaultVM::Get(), def);
     // The resulted long integer value
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(SqMod_GetULongValue(_SqVM, -1, &longint)))
+    if (SQ_FAILED(SqMod_GetULongValue(DefaultVM::Get(), -1, &longint)))
     {
         STHROWF("Invalid long integer specified");
     }
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushULongObject(_SqVM, m_Attr.as_ullong(longint));
+    SqMod_PushULongObject(DefaultVM::Get(), m_Attr.as_ullong(longint));
     // Obtain the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Attribute::ApplyLong(Object & value)
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push the specified object onto the stack
-    Var< Object & >::push(_SqVM, value);
+    Var< Object & >::push(DefaultVM::Get(), value);
     // The resulted long integer value
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(SqMod_GetSLongValue(_SqVM, -1, &longint)))
+    if (SQ_FAILED(SqMod_GetSLongValue(DefaultVM::Get(), -1, &longint)))
     {
         STHROWF("Invalid long integer specified");
     }
@@ -74,13 +74,13 @@ bool Attribute::ApplyLong(Object & value)
 bool Attribute::ApplyUlong(Object & value)
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push the specified object onto the stack
-    Var< Object & >::push(_SqVM, value);
+    Var< Object & >::push(DefaultVM::Get(), value);
     // The resulted long integer value
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(SqMod_GetULongValue(_SqVM, -1, &longint)))
+    if (SQ_FAILED(SqMod_GetULongValue(DefaultVM::Get(), -1, &longint)))
     {
         STHROWF("Invalid long integer specified");
     }
@@ -92,24 +92,24 @@ bool Attribute::ApplyUlong(Object & value)
 Object Attribute::GetLong() const
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushSLongObject(_SqVM, m_Attr.as_llong());
+    SqMod_PushSLongObject(DefaultVM::Get(), m_Attr.as_llong());
     // Obtain the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Attribute::SetLong(Object & value)
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push the specified object onto the stack
-    Var< Object & >::push(_SqVM, value);
+    Var< Object & >::push(DefaultVM::Get(), value);
     // The resulted long integer value
     Int64 longint = 0;
     // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(SqMod_GetSLongValue(_SqVM, -1, &longint)))
+    if (SQ_FAILED(SqMod_GetSLongValue(DefaultVM::Get(), -1, &longint)))
     {
         STHROWF("Invalid long integer specified");
     }
@@ -121,24 +121,24 @@ void Attribute::SetLong(Object & value)
 Object Attribute::GetUlong() const
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushULongObject(_SqVM, m_Attr.as_ullong());
+    SqMod_PushULongObject(DefaultVM::Get(), m_Attr.as_ullong());
     // Obtain the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
 void Attribute::SetUlong(Object & value)
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push the specified object onto the stack
-    Var< Object & >::push(_SqVM, value);
+    Var< Object & >::push(DefaultVM::Get(), value);
     // The resulted long integer value
     Uint64 longint = 0;
     // Attempt to get the numeric value inside the specified object
-    if (SQ_FAILED(SqMod_GetULongValue(_SqVM, -1, &longint)))
+    if (SQ_FAILED(SqMod_GetULongValue(DefaultVM::Get(), -1, &longint)))
     {
         STHROWF("Invalid long integer specified");
     }

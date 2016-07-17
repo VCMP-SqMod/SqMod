@@ -82,22 +82,22 @@ Int32 ReleaseMemory(Int32 bytes)
 Object GetMemoryUsage()
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushSLongObject(_SqVM, sqlite3_memory_used());
+    SqMod_PushSLongObject(DefaultVM::Get(), sqlite3_memory_used());
     // Obtain the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
 Object GetMemoryHighwaterMark(bool reset)
 {
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushSLongObject(_SqVM, sqlite3_memory_highwater(reset));
+    SqMod_PushSLongObject(DefaultVM::Get(), sqlite3_memory_highwater(reset));
     // Obtain the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------

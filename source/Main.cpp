@@ -257,7 +257,6 @@ static void OnPlayerDisconnect(int32_t player_id, vcmpDisconnectReason reason)
     // Attempt to forward the event
     try
     {
-        printf("Disconnecting... %d\n", player_id);
         Core::Get().DisconnectPlayer(player_id, reason, NullObject());
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerDisconnect)

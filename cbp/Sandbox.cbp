@@ -91,11 +91,11 @@
 					<Add option="-m32" />
 					<Add option="-g" />
 					<Add option="-D_DEBUG" />
-					<Add directory="../config/mingw32" />
+					<Add directory="../config/gcc32" />
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
-					<Add directory="../lib/mingw32-d" />
+					<Add directory="../lib/gcc32-d" />
 				</Linker>
 			</Target>
 			<Target title="Linux32 Release Executable">
@@ -109,12 +109,12 @@
 					<Add option="-O3" />
 					<Add option="-m32" />
 					<Add option="-DNDEBUG" />
-					<Add directory="../config/mingw32" />
+					<Add directory="../config/gcc32" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m32" />
-					<Add directory="../lib/mingw32" />
+					<Add directory="../lib/gcc32" />
 				</Linker>
 			</Target>
 			<Target title="Linux64 Debug Executable">
@@ -128,11 +128,11 @@
 					<Add option="-m64" />
 					<Add option="-g" />
 					<Add option="-D_DEBUG" />
-					<Add directory="../config/mingw32" />
+					<Add directory="../config/gcc64" />
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
-					<Add directory="../lib/mingw32-d" />
+					<Add directory="../lib/gcc64-d" />
 				</Linker>
 			</Target>
 			<Target title="Linux64 Release Executable">
@@ -146,12 +146,12 @@
 					<Add option="-O3" />
 					<Add option="-m64" />
 					<Add option="-DNDEBUG" />
-					<Add directory="../config/mingw32" />
+					<Add directory="../config/gcc64" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
-					<Add directory="../lib/mingw32" />
+					<Add directory="../lib/gcc64" />
 				</Linker>
 			</Target>
 		</Build>

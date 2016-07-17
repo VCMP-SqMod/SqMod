@@ -43,7 +43,7 @@ void SqThrowLast(HSQUIRRELVM vm, CSStr msg)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object SqFromJSON(HSQUIRRELVM vm, json_t * jval)
+Object SqFromJSON(HSQUIRRELVM /*vm*/, json_t * jval)
 {
     switch (json_typeof(jval))
     {

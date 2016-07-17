@@ -8,7 +8,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQInteger GetNick(HSQUIRRELVM vm)
+static SQInteger SqGetNick(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
     StackStrF val(vm, 2);
@@ -26,7 +26,7 @@ SQInteger GetNick(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger GetHost(HSQUIRRELVM vm)
+static SQInteger SqGetHost(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
     StackStrF val(vm, 2);
@@ -44,7 +44,7 @@ SQInteger GetHost(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger StripColorFromMIRC(HSQUIRRELVM vm)
+static SQInteger SqStripColorFromMIRC(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
     StackStrF val(vm, 2);
@@ -69,7 +69,7 @@ SQInteger StripColorFromMIRC(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger ConvertColorFromMIRC(HSQUIRRELVM vm)
+static SQInteger SqConvertColorFromMIRC(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
     StackStrF val(vm, 2);
@@ -94,7 +94,7 @@ SQInteger ConvertColorFromMIRC(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger ConvertColorToMIRC(HSQUIRRELVM vm)
+static SQInteger SqConvertColorToMIRC(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
     StackStrF val(vm, 2);
@@ -116,6 +116,17 @@ SQInteger ConvertColorToMIRC(HSQUIRRELVM vm)
     std::free(str);
     // Specify that this function returned a value
     return 1;
+}
+
+// ================================================================================================
+void Register_Common(Table & ircns)
+{
+    ircns.Func(_SC("GetErrStr"), &irc_strerror);
+    ircns.SquirrelFunc(_SC("GetNick"), &SqGetNick);
+    ircns.SquirrelFunc(_SC("GetHost"), &SqGetHost);
+    ircns.SquirrelFunc(_SC("StripColorFromMIRC"), &SqStripColorFromMIRC);
+    ircns.SquirrelFunc(_SC("ConvertColorFromMIRC"), &SqConvertColorFromMIRC);
+    ircns.SquirrelFunc(_SC("ConvertColorToMIRC"), &SqConvertColorToMIRC);
 }
 
 } // Namespace:: SqMod

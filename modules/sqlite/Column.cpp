@@ -430,12 +430,12 @@ Object Column::GetString() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push the column text on the stack
-    sq_pushstring(_SqVM, reinterpret_cast< CSStr >(sqlite3_column_text(m_Handle->mPtr, m_Index)),
+    sq_pushstring(DefaultVM::Get(), reinterpret_cast< CSStr >(sqlite3_column_text(m_Handle->mPtr, m_Index)),
                             sqlite3_column_bytes(m_Handle->mPtr, m_Index));
     // Get the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -470,7 +470,7 @@ Object Column::GetBuffer() const
         STHROWF("Unable to allocate buffer of at least (%d) bytes", size);
     }
     // Get the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -478,11 +478,11 @@ Object Column::GetBlob() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Obtain the size of the data
     const Int32 sz = sqlite3_column_bytes(m_Handle->mPtr, m_Index);
     // Allocate a blob of the same size
-    SQUserPointer p = sqstd_createblob(_SqVM, sz);
+    SQUserPointer p = sqstd_createblob(DefaultVM::Get(), sz);
     // Obtain a pointer to the data
     const void * b = sqlite3_column_blob(m_Handle->mPtr, m_Index);
     // Could the memory blob be allocated?
@@ -494,9 +494,9 @@ Object Column::GetBlob() const
     else if (!b)
     {
         // Pop the memory blob from the stack
-        sq_pop(_SqVM, 1);
+        sq_pop(DefaultVM::Get(), 1);
         // Push a null value instead
-        sq_pushnull(_SqVM);
+        sq_pushnull(DefaultVM::Get());
     }
     // Copy the data into the memory blob
     else
@@ -504,7 +504,7 @@ Object Column::GetBlob() const
         std::memcpy(p, b, sz);
     }
     // Get the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ================================================================================================

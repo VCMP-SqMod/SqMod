@@ -314,11 +314,11 @@ Object EntryDataList::GetLong() const
             STHROWF("Unsupported conversion from (%s) to (uint64)", AsTypeStr(m_Elem->entry_data.type));
     }
     // Obtain the initial stack size
-    const StackGuard sg(_SqVM);
+    const StackGuard sg;
     // Push a long integer instance with the requested value on the stack
-    SqMod_PushULongObject(_SqVM, longint);
+    SqMod_PushULongObject(DefaultVM::Get(), longint);
     // Get the object from the stack and return it
-    return Var< Object >(_SqVM, -1).value;
+    return Var< Object >(DefaultVM::Get(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
