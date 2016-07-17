@@ -613,6 +613,74 @@ public:
         mFunc.Execute(inst.mObj);
         ++mCount; // Only successful forwards are counted!
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed function.
+    */
+    operator Function ()
+    {
+        return mFunc;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed function.
+    */
+    operator Function & ()
+    {
+        return mFunc;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed function.
+    */
+    operator const Function & () const
+    {
+        return mFunc;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the count value.
+    */
+    operator Uint32 () const
+    {
+        return mCount;
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Functor to count the the received elements.
+*/
+template < typename T > struct CountElemFunc
+{
+public:
+
+    // --------------------------------------------------------------------------------------------
+    Uint32      mCount; // The number of elements received by this functor.
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CountElemFunc()
+        : mCount(0)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Function call operator.
+    */
+    void operator () (const typename InstSpec< T >::Instance & /*inst*/)
+    {
+        ++mCount;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the count value.
+    */
+    operator Uint32 () const
+    {
+        return mCount;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -632,6 +700,7 @@ public:
     typedef AppendElemFunc< T >     AppendElem;
     typedef RecvElemFunc< T >       RecvElem;
     typedef ForwardElemFunc< T >    ForwardElem;
+    typedef CountElemFunc< T >      CountElem;
 
 public:
 
@@ -901,6 +970,80 @@ public:
                         std::reference_wrapper< ForwardElem >(fwd), tag, !neg);
         // Return the forward count
         return fwd.mCount;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Count all active entities of this type.
+    */
+    static inline Uint32 CountActive()
+    {
+        // Create a new element counter
+        CountElem cnt;
+        // Process each entity in the pool
+        Collect(Inst::CBegin(), Inst::CEnd(), ValidInst(),
+                        std::reference_wrapper< CountElem >(cnt));
+        // Return the count
+        return cnt;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Count all entities of this type where the tag matches or not the specified one.
+    */
+    static inline Uint32 CountWhereTagEquals(bool neg, CSStr tag)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element counter
+        CountElem cnt;
+        // Process each entity in the pool
+        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< CountElem >(cnt), tag, !neg);
+        // Return the count
+        return cnt;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Count all entities of this type where the tag begins with the specified string.
+    */
+    static inline Uint32 CountWhereTagBegins(bool neg, CSStr tag)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element counter
+        CountElem cnt;
+        // Process each entity in the pool
+        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< CountElem >(cnt), tag, strlen(tag), !neg);
+        // Return the count
+        return cnt;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Count all entities of this type where the tag ends or not with the specified string.
+    */
+    static inline Uint32 CountWhereTagEnds(bool neg, CSStr tag)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element counter
+        CountElem cnt;
+        // Process each entity in the pool
+        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< CountElem >(cnt), tag, strlen(tag), !neg);
+        // Return the count
+        return cnt;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Count all entities of this type where the tag contains the specified string.
+    */
+    static inline Uint32 CountWhereTagContains(bool neg, CSStr tag)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element counter
+        CountElem cnt;
+        // Process each entity in the pool
+        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< CountElem >(cnt), tag, !neg);
+        // Return the count
+        return cnt;
     }
 };
 

@@ -334,12 +334,76 @@ static inline Uint32 Player_EachWhereNameContains(bool neg, CSStr name, Object &
     return fwd.mCount;
 }
 
+/* --------------------------------------------------------------------------------------------
+ * Count all entities of this type where the name matches or not the specified one.
+*/
+static inline Uint32 Player_CountWhereNameEquals(bool neg, CSStr name)
+{
+    SQMOD_VALID_NAME_STR(name)
+    // Create a new element counter
+    CountElemFunc< CPlayer > cnt;
+    // Process each entity in the pool
+    EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, !neg);
+    // Return the count
+    return cnt;
+}
+
+/* --------------------------------------------------------------------------------------------
+ * Count all entities of this type where the name begins with the specified string.
+*/
+static inline Uint32 Player_CountWhereNameBegins(bool neg, CSStr name)
+{
+    SQMOD_VALID_NAME_STR(name)
+    // Create a new element counter
+    CountElemFunc< CPlayer > cnt;
+    // Process each entity in the pool
+    EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, strlen(name), !neg);
+    // Return the count
+    return cnt;
+}
+
+/* --------------------------------------------------------------------------------------------
+ * Count all entities of this type where the name ends or not with the specified string.
+*/
+static inline Uint32 Player_CountWhereNameEnds(bool neg, CSStr name)
+{
+    SQMOD_VALID_NAME_STR(name)
+    // Create a new element counter
+    CountElemFunc< CPlayer > cnt;
+    // Process each entity in the pool
+    EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, strlen(name), !neg);
+    // Return the count
+    return cnt;
+}
+
+/* --------------------------------------------------------------------------------------------
+ * Count all entities of this type where the name contains the specified string.
+*/
+static inline Uint32 Player_CountWhereNameContains(bool neg, CSStr name)
+{
+    SQMOD_VALID_NAME_STR(name)
+    // Create a new element counter
+    CountElemFunc< CPlayer > cnt;
+    // Process each entity in the pool
+    EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, !neg);
+    // Return the count
+    return cnt;
+}
+
 // ================================================================================================
 void Register(HSQUIRRELVM vm)
 {
-    Table cns(vm);
+    Table collect_ns(vm);
 
-    cns.Bind(_SC("Blip"), Table(vm)
+    collect_ns.Bind(_SC("Blip"), Table(vm)
         .Func(_SC("Active"), &Entity< CBlip >::AllActive)
         .Func(_SC("TagEquals"), &Entity< CBlip >::AllWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CBlip >::AllWhereTagBegins)
@@ -347,7 +411,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CBlip >::AllWhereTagContains)
     );
 
-    cns.Bind(_SC("Checkpoint"), Table(vm)
+    collect_ns.Bind(_SC("Checkpoint"), Table(vm)
         .Func(_SC("Active"), &Entity< CCheckpoint >::AllActive)
         .Func(_SC("TagEquals"), &Entity< CCheckpoint >::AllWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CCheckpoint >::AllWhereTagBegins)
@@ -355,7 +419,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CCheckpoint >::AllWhereTagContains)
     );
 
-    cns.Bind(_SC("Keybind"), Table(vm)
+    collect_ns.Bind(_SC("Keybind"), Table(vm)
         .Func(_SC("Active"), &Entity< CKeybind >::AllActive)
         .Func(_SC("TagEquals"), &Entity< CKeybind >::AllWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CKeybind >::AllWhereTagBegins)
@@ -363,7 +427,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CKeybind >::AllWhereTagContains)
     );
 
-    cns.Bind(_SC("Object"), Table(vm)
+    collect_ns.Bind(_SC("Object"), Table(vm)
         .Func(_SC("Active"), &Entity< CObject >::AllActive)
         .Func(_SC("TagEquals"), &Entity< CObject >::AllWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CObject >::AllWhereTagBegins)
@@ -371,7 +435,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CObject >::AllWhereTagContains)
     );
 
-    cns.Bind(_SC("Pickup"), Table(vm)
+    collect_ns.Bind(_SC("Pickup"), Table(vm)
         .Func(_SC("Active"), &Entity< CPickup >::AllActive)
         .Func(_SC("TagEquals"), &Entity< CPickup >::AllWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CPickup >::AllWhereTagBegins)
@@ -379,7 +443,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CPickup >::AllWhereTagContains)
     );
 
-    cns.Bind(_SC("Player"), Table(vm)
+    collect_ns.Bind(_SC("Player"), Table(vm)
         .Func(_SC("Active"), &Entity< CPlayer >::AllActive)
         .Func(_SC("TagEquals"), &Entity< CPlayer >::AllWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CPlayer >::AllWhereTagBegins)
@@ -391,7 +455,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("NameContains"), &Player_AllWhereNameContains)
     );
 
-    cns.Bind(_SC("Vehicle"), Table(vm)
+    collect_ns.Bind(_SC("Vehicle"), Table(vm)
         .Func(_SC("Active"), &Entity< CVehicle >::AllActive)
         .Func(_SC("TagEquals"), &Entity< CVehicle >::AllWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CVehicle >::AllWhereTagBegins)
@@ -399,11 +463,11 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CVehicle >::AllWhereTagContains)
     );
 
-    RootTable(vm).Bind(_SC("SqCollect"), cns);
+    RootTable(vm).Bind(_SC("SqCollect"), collect_ns);
 
-    Table fns(vm);
+    Table find_ns(vm);
 
-    fns.Bind(_SC("Blip"), Table(vm)
+    find_ns.Bind(_SC("Blip"), Table(vm)
         .Func(_SC("WithID"), &Entity< CBlip >::FindByID)
         .Func(_SC("TagEquals"), &Entity< CBlip >::FirstWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CBlip >::FirstWhereTagBegins)
@@ -412,7 +476,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("WithSprID"), &Blip_FindBySprID)
     );
 
-    fns.Bind(_SC("Checkpoint"), Table(vm)
+    find_ns.Bind(_SC("Checkpoint"), Table(vm)
         .Func(_SC("WithID"), &Entity< CCheckpoint >::FindByID)
         .Func(_SC("TagEquals"), &Entity< CCheckpoint >::FirstWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CCheckpoint >::FirstWhereTagBegins)
@@ -420,7 +484,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CCheckpoint >::FirstWhereTagContains)
     );
 
-    fns.Bind(_SC("Keybind"), Table(vm)
+    find_ns.Bind(_SC("Keybind"), Table(vm)
         .Func(_SC("WithID"), &Entity< CKeybind >::FindByID)
         .Func(_SC("TagEquals"), &Entity< CKeybind >::FirstWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CKeybind >::FirstWhereTagBegins)
@@ -428,7 +492,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CKeybind >::FirstWhereTagContains)
     );
 
-    fns.Bind(_SC("Object"), Table(vm)
+    find_ns.Bind(_SC("Object"), Table(vm)
         .Func(_SC("WithID"), &Entity< CObject >::FindByID)
         .Func(_SC("TagEquals"), &Entity< CObject >::FirstWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CObject >::FirstWhereTagBegins)
@@ -436,7 +500,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CObject >::FirstWhereTagContains)
     );
 
-    fns.Bind(_SC("Pickup"), Table(vm)
+    find_ns.Bind(_SC("Pickup"), Table(vm)
         .Func(_SC("WithID"), &Entity< CPickup >::FindByID)
         .Func(_SC("TagEquals"), &Entity< CPickup >::FirstWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CPickup >::FirstWhereTagBegins)
@@ -444,7 +508,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CPickup >::FirstWhereTagContains)
     );
 
-    fns.Bind(_SC("Player"), Table(vm)
+    find_ns.Bind(_SC("Player"), Table(vm)
         .Func(_SC("WithID"), &Entity< CPlayer >::FindByID)
         .Func(_SC("TagEquals"), &Entity< CPlayer >::FirstWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CPlayer >::FirstWhereTagBegins)
@@ -456,7 +520,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("NameContains"), &Player_FirstWhereNameContains)
     );
 
-    fns.Bind(_SC("Vehicle"), Table(vm)
+    find_ns.Bind(_SC("Vehicle"), Table(vm)
         .Func(_SC("WithID"), &Entity< CVehicle >::FindByID)
         .Func(_SC("TagEquals"), &Entity< CVehicle >::FirstWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CVehicle >::FirstWhereTagBegins)
@@ -464,11 +528,11 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CVehicle >::FirstWhereTagContains)
     );
 
-    RootTable(vm).Bind(_SC("SqFind"), fns);
+    RootTable(vm).Bind(_SC("SqFind"), find_ns);
 
-    Table ens(vm);
+    Table each_ns(vm);
 
-    ens.Bind(_SC("Blip"), Table(vm)
+    each_ns.Bind(_SC("Blip"), Table(vm)
         .Func(_SC("Active"), &Entity< CBlip >::EachActive)
         .Func(_SC("TagEquals"), &Entity< CBlip >::EachWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CBlip >::EachWhereTagBegins)
@@ -476,7 +540,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CBlip >::EachWhereTagContains)
     );
 
-    ens.Bind(_SC("Checkpoint"), Table(vm)
+    each_ns.Bind(_SC("Checkpoint"), Table(vm)
         .Func(_SC("Active"), &Entity< CCheckpoint >::EachActive)
         .Func(_SC("TagEquals"), &Entity< CCheckpoint >::EachWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CCheckpoint >::EachWhereTagBegins)
@@ -484,7 +548,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CCheckpoint >::EachWhereTagContains)
     );
 
-    ens.Bind(_SC("Keybind"), Table(vm)
+    each_ns.Bind(_SC("Keybind"), Table(vm)
         .Func(_SC("Active"), &Entity< CKeybind >::EachActive)
         .Func(_SC("TagEquals"), &Entity< CKeybind >::EachWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CKeybind >::EachWhereTagBegins)
@@ -492,7 +556,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CKeybind >::EachWhereTagContains)
     );
 
-    ens.Bind(_SC("Object"), Table(vm)
+    each_ns.Bind(_SC("Object"), Table(vm)
         .Func(_SC("Active"), &Entity< CObject >::EachActive)
         .Func(_SC("TagEquals"), &Entity< CObject >::EachWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CObject >::EachWhereTagBegins)
@@ -500,7 +564,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CObject >::EachWhereTagContains)
     );
 
-    ens.Bind(_SC("Pickup"), Table(vm)
+    each_ns.Bind(_SC("Pickup"), Table(vm)
         .Func(_SC("Active"), &Entity< CPickup >::EachActive)
         .Func(_SC("TagEquals"), &Entity< CPickup >::EachWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CPickup >::EachWhereTagBegins)
@@ -508,7 +572,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CPickup >::EachWhereTagContains)
     );
 
-    ens.Bind(_SC("Player"), Table(vm)
+    each_ns.Bind(_SC("Player"), Table(vm)
         .Func(_SC("Active"), &Entity< CPlayer >::EachActive)
         .Func(_SC("TagEquals"), &Entity< CPlayer >::EachWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CPlayer >::EachWhereTagBegins)
@@ -520,7 +584,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("NameContains"), &Player_EachWhereNameContains)
     );
 
-    ens.Bind(_SC("Vehicle"), Table(vm)
+    each_ns.Bind(_SC("Vehicle"), Table(vm)
         .Func(_SC("Active"), &Entity< CVehicle >::EachActive)
         .Func(_SC("TagEquals"), &Entity< CVehicle >::EachWhereTagEquals)
         .Func(_SC("TagBegins"), &Entity< CVehicle >::EachWhereTagBegins)
@@ -528,7 +592,71 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagContains"), &Entity< CVehicle >::EachWhereTagContains)
     );
 
-    RootTable(vm).Bind(_SC("SqForeach"), ens);
+    RootTable(vm).Bind(_SC("SqForeach"), each_ns);
+
+    Table count_ns(vm);
+
+    count_ns.Bind(_SC("Blip"), Table(vm)
+        .Func(_SC("Active"), &Entity< CBlip >::CountActive)
+        .Func(_SC("TagEquals"), &Entity< CBlip >::CountWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CBlip >::CountWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CBlip >::CountWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CBlip >::CountWhereTagContains)
+    );
+
+    count_ns.Bind(_SC("Checkpoint"), Table(vm)
+        .Func(_SC("Active"), &Entity< CCheckpoint >::CountActive)
+        .Func(_SC("TagEquals"), &Entity< CCheckpoint >::CountWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CCheckpoint >::CountWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CCheckpoint >::CountWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CCheckpoint >::CountWhereTagContains)
+    );
+
+    count_ns.Bind(_SC("Keybind"), Table(vm)
+        .Func(_SC("Active"), &Entity< CKeybind >::CountActive)
+        .Func(_SC("TagEquals"), &Entity< CKeybind >::CountWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CKeybind >::CountWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CKeybind >::CountWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CKeybind >::CountWhereTagContains)
+    );
+
+    count_ns.Bind(_SC("Object"), Table(vm)
+        .Func(_SC("Active"), &Entity< CObject >::CountActive)
+        .Func(_SC("TagEquals"), &Entity< CObject >::CountWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CObject >::CountWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CObject >::CountWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CObject >::CountWhereTagContains)
+    );
+
+    count_ns.Bind(_SC("Pickup"), Table(vm)
+        .Func(_SC("Active"), &Entity< CPickup >::CountActive)
+        .Func(_SC("TagEquals"), &Entity< CPickup >::CountWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CPickup >::CountWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CPickup >::CountWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CPickup >::CountWhereTagContains)
+    );
+
+    count_ns.Bind(_SC("Player"), Table(vm)
+        .Func(_SC("Active"), &Entity< CPlayer >::CountActive)
+        .Func(_SC("TagEquals"), &Entity< CPlayer >::CountWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CPlayer >::CountWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CPlayer >::CountWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CPlayer >::CountWhereTagContains)
+        .Func(_SC("NameEquals"), &Player_CountWhereNameEquals)
+        .Func(_SC("NameBegins"), &Player_CountWhereNameBegins)
+        .Func(_SC("NameEnds"), &Player_CountWhereNameEnds)
+        .Func(_SC("NameContains"), &Player_CountWhereNameContains)
+    );
+
+    count_ns.Bind(_SC("Vehicle"), Table(vm)
+        .Func(_SC("Active"), &Entity< CVehicle >::CountActive)
+        .Func(_SC("TagEquals"), &Entity< CVehicle >::CountWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CVehicle >::CountWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CVehicle >::CountWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CVehicle >::CountWhereTagContains)
+    );
+
+    RootTable(vm).Bind(_SC("SqCount"), count_ns);
 }
 
 } // Namespace:: Algo
