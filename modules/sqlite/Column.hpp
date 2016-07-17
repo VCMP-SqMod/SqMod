@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Tsed to manage and interact with statement columns.
+ * Used to manage and interact with statement columns.
 */
 class Column
 {
@@ -240,7 +240,7 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this statement is valid.
+     * See whether the column is valid.
     */
     bool IsValid() const
     {
@@ -248,7 +248,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Return the number of active references to this statement handle.
+     * Return the number of active references to the associated statement handle.
     */
     Uint32 GetRefCount() const
     {
