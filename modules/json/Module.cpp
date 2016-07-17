@@ -27,16 +27,16 @@ static bool RegisterAPI()
         return false;
     }
 
-    Table jns;
+    Table jns(DefaultVM::Get());
 
     Register_Common(jns);
     Register_JArray(jns);
     Register_JObject(jns);
     Register_JValue(jns);
 
-    RootTable().Bind(_SC("SqJSON"), jns);
+    RootTable(DefaultVM::Get()).Bind(_SC("SqJSON"), jns);
 
-    Sqrat::ConstTable()
+    Sqrat::ConstTable(DefaultVM::Get())
         .Const(_SC("JSON_OBJECT"),  JSON_OBJECT)
         .Const(_SC("JSON_ARRAY"),   JSON_ARRAY)
         .Const(_SC("JSON_STRING"),  JSON_STRING)

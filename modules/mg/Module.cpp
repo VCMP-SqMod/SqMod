@@ -23,9 +23,9 @@ static bool RegisterAPI()
         return false;
     }
 
-    Table mgns;
+    Table mgns(DefaultVM::Get());
 
-    mgns.Bind(_SC("Manager"), Class< Manager >(mgns,GetVM(), _SC("SqMgManager"))
+    mgns.Bind(_SC("Manager"), Class< Manager >(DefaultVM::Get(), _SC("SqMgManager"))
         // Constructors
         .Ctor()
         .Ctor< const Manager & >()
@@ -44,7 +44,7 @@ static bool RegisterAPI()
         .Overload< Connection (Manager::*)(CSStr, Uint32) const >(_SC("Connect"), &Manager::Connect)
     );
 
-    mgns.Bind(_SC("Connection"), Class< Connection >(mgns,GetVM(), _SC("SqMgConnection"))
+    mgns.Bind(_SC("Connection"), Class< Connection >(DefaultVM::Get(), _SC("SqMgConnection"))
         // Constructors
         .Ctor()
         .Ctor< const Connection & >()
@@ -58,9 +58,9 @@ static bool RegisterAPI()
         //.Func(_SC("Check"), &Connection::Check)
     );
 
-    RootTable().Bind(_SC("SqMg"), mgns);
+    RootTable(DefaultVM::Get()).Bind(_SC("SqMg"), mgns);
 
-    ConstTable().Enum(_SC("EMgF"), Enumeration()
+    ConstTable(DefaultVM::Get()).Enum(_SC("EMgF"), Enumeration(DefaultVM::Get())
         .Const(_SC("LISTENING"),                MG_F_LISTENING)
         .Const(_SC("UDP"),                      MG_F_UDP)
         .Const(_SC("RESOLVING"),                MG_F_RESOLVING)
@@ -81,7 +81,7 @@ static bool RegisterAPI()
         .Const(_SC("USER_6"),                   MG_F_USER_6)
     );
 
-    ConstTable().Enum(_SC("MgEv"), Enumeration()
+    ConstTable(DefaultVM::Get()).Enum(_SC("MgEv"), Enumeration(DefaultVM::Get())
         .Const(_SC("UNKNOWN"),                              static_cast< Int32 >(MGEV_UNKNOWN))
         .Const(_SC("POLL"),                                 static_cast< Int32 >(MGCE_POLL))
         .Const(_SC("ACCEPT"),                               static_cast< Int32 >(MGCE_ACCEPT))

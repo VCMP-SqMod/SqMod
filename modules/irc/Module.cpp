@@ -35,13 +35,13 @@ static bool RegisterAPI()
         return false;
     }
 
-    Table ircns;
+    Table ircns(DefaultVM::Get());
 
     Register_Common(ircns);
     Register_Session(ircns);
     Register_Constants(ircns);
 
-    RootTable().Bind(_SC("SqIRC"), ircns);
+    RootTable(DefaultVM::Get()).Bind(_SC("SqIRC"), ircns);
 
     // Registration was successful
     return true;

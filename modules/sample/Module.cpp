@@ -21,7 +21,8 @@ static bool RegisterAPI()
         return false;
     }
 
-    RootTable().Bind(_SC("SampleType"), Class< SampleType >(DefaultVM::Get(), _SC("SampleType"))
+    RootTable(DefaultVM::Get()).Bind(_SC("SampleType"),
+        Class< SampleType >(DefaultVM::Get(), _SC("SampleType"))
         .Ctor()
         .Ctor< int >()
         .Var(_SC("MyNum"), &SampleType::mMyNum)
@@ -29,7 +30,7 @@ static bool RegisterAPI()
         .Func(_SC("SampleMethod"), &SampleType::SampleMethod)
     );
 
-    RootTable().Func(_SC("SampleFunction"), &SampleFunction);
+    RootTable(DefaultVM::Get()).Func(_SC("SampleFunction"), &SampleFunction);
 
     // Registration was successful
     return true;

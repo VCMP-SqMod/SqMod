@@ -30,7 +30,7 @@ static bool RegisterAPI()
         return false;
     }
 
-    Table sqlns;
+    Table sqlns(DefaultVM::Get());
 
     Register_Constants(sqlns);
     Register_Common(sqlns);
@@ -40,7 +40,7 @@ static bool RegisterAPI()
     Register_Column(sqlns);
     Register_Transaction(sqlns);
 
-    RootTable().Bind(_SC("SQLite"), sqlns);
+    RootTable(DefaultVM::Get()).Bind(_SC("SQLite"), sqlns);
 
     // Registration was successful
     return true;

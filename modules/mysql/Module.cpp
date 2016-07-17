@@ -27,14 +27,14 @@ static bool RegisterAPI()
         return false;
     }
 
-    Table sqlns;
+    Table sqlns(DefaultVM::Get());
 
     Register_Account(sqlns);
     Register_Connection(sqlns);
     Register_ResultSet(sqlns);
     Register_Statement(sqlns);
 
-    RootTable().Bind(_SC("SqMySQL"), sqlns);
+    RootTable(DefaultVM::Get()).Bind(_SC("SqMySQL"), sqlns);
 
     // Registration was successful
     return true;

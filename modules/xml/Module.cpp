@@ -26,9 +26,9 @@ static bool RegisterAPI()
         return false;
     }
 
-    Table xmlns;
+    Table xmlns(DefaultVM::Get());
 
-    xmlns.Bind(_SC("ParseResult"), Class< ParseResult >(xmlns.GetVM(), _SC("SqXmlParseResult"))
+    xmlns.Bind(_SC("ParseResult"), Class< ParseResult >(DefaultVM::Get(), _SC("SqXmlParseResult"))
         // Constructors
         .Ctor()
         .Ctor< const ParseResult & >()
@@ -48,7 +48,7 @@ static bool RegisterAPI()
         .Func(_SC("Check"), &ParseResult::Check)
     );
 
-    xmlns.Bind(_SC("Attribute"), Class< Attribute >(xmlns.GetVM(), _SC("SqXmlAttribute"))
+    xmlns.Bind(_SC("Attribute"), Class< Attribute >(DefaultVM::Get(), _SC("SqXmlAttribute"))
         // Constructors
         .Ctor()
         .Ctor< const Attribute & >()
@@ -93,7 +93,7 @@ static bool RegisterAPI()
         .Func(_SC("SetBool"), &Attribute::ApplyBool)
     );
 
-    xmlns.Bind(_SC("Text"), Class< Text >(xmlns.GetVM(), _SC("SqXmlText"))
+    xmlns.Bind(_SC("Text"), Class< Text >(DefaultVM::Get(), _SC("SqXmlText"))
         // Constructors
         .Ctor()
         .Ctor< const Text & >()
@@ -133,7 +133,7 @@ static bool RegisterAPI()
         .Func(_SC("SetBool"), &Text::ApplyBool)
     );
 
-    xmlns.Bind(_SC("Node"), Class< Node >(xmlns.GetVM(), _SC("SqXmlNode"))
+    xmlns.Bind(_SC("Node"), Class< Node >(DefaultVM::Get(), _SC("SqXmlNode"))
         // Constructors
         .Ctor()
         .Ctor< const Node & >()
@@ -209,7 +209,7 @@ static bool RegisterAPI()
         .Func(_SC("FindElemByPath"), &Node::FindElemByPath)
     );
 
-    xmlns.Bind(_SC("Document"), Class< Document, NoCopy< Document > >(xmlns.GetVM(), _SC("SqXmlDocument"))
+    xmlns.Bind(_SC("Document"), Class< Document, NoCopy< Document > >(DefaultVM::Get(), _SC("SqXmlDocument"))
         // Constructors
         .Ctor()
         // Core Meta-methods
@@ -234,9 +234,9 @@ static bool RegisterAPI()
         .Overload< void (Document::*)(CSStr, CSStr, Uint32, Int32) >(_SC("SaveFile"), &Document::SaveFile)
     );
 
-    RootTable().Bind(_SC("SqXml"), xmlns);
+    RootTable(DefaultVM::Get()).Bind(_SC("SqXml"), xmlns);
 
-    ConstTable().Enum(_SC("SqXmlNodeType"), Enumeration()
+    ConstTable(DefaultVM::Get()).Enum(_SC("SqXmlNodeType"), Enumeration(DefaultVM::Get())
         .Const(_SC("Null"),                     static_cast< Int32 >(node_null))
         .Const(_SC("Document"),                 static_cast< Int32 >(node_document))
         .Const(_SC("Element"),                  static_cast< Int32 >(node_element))
@@ -248,7 +248,7 @@ static bool RegisterAPI()
         .Const(_SC("Doctype"),                  static_cast< Int32 >(node_doctype))
     );
 
-    ConstTable().Enum(_SC("SqXmlParse"), Enumeration()
+    ConstTable(DefaultVM::Get()).Enum(_SC("SqXmlParse"), Enumeration(DefaultVM::Get())
         .Const(_SC("Minimal"),                  static_cast< Int32 >(parse_minimal))
         .Const(_SC("Default"),                  static_cast< Int32 >(parse_default))
         .Const(_SC("Full"),                     static_cast< Int32 >(parse_full))
@@ -268,7 +268,7 @@ static bool RegisterAPI()
         .Const(_SC("EmbedPCData"),              static_cast< Int32 >(parse_embed_pcdata))
     );
 
-    ConstTable().Enum(_SC("SqXmlEncoding"), Enumeration()
+    ConstTable(DefaultVM::Get()).Enum(_SC("SqXmlEncoding"), Enumeration(DefaultVM::Get())
         .Const(_SC("Auto"),                     static_cast< Int32 >(encoding_auto))
         .Const(_SC("Utf8"),                     static_cast< Int32 >(encoding_utf8))
         .Const(_SC("Utf16LE"),                  static_cast< Int32 >(encoding_utf16_le))
@@ -281,7 +281,7 @@ static bool RegisterAPI()
         .Const(_SC("Latin1"),                   static_cast< Int32 >(encoding_latin1))
     );
 
-    ConstTable().Enum(_SC("SqXmlFormat"), Enumeration()
+    ConstTable(DefaultVM::Get()).Enum(_SC("SqXmlFormat"), Enumeration(DefaultVM::Get())
         .Const(_SC("Indent"),                   static_cast< Int32 >(format_indent))
         .Const(_SC("WriteBOM"),                 static_cast< Int32 >(format_write_bom))
         .Const(_SC("Raw"),                      static_cast< Int32 >(format_raw))
@@ -292,7 +292,7 @@ static bool RegisterAPI()
         .Const(_SC("Default"),                  static_cast< Int32 >(format_default))
     );
 
-    ConstTable().Enum(_SC("SqXmlParseStatus"), Enumeration()
+    ConstTable(DefaultVM::Get()).Enum(_SC("SqXmlParseStatus"), Enumeration(DefaultVM::Get())
         .Const(_SC("Ok"),                       static_cast< Int32 >(status_ok))
         .Const(_SC("FileNotFound"),             static_cast< Int32 >(status_file_not_found))
         .Const(_SC("IOError"),                  static_cast< Int32 >(status_io_error))
@@ -312,7 +312,7 @@ static bool RegisterAPI()
         .Const(_SC("NoDocumentElement"),        static_cast< Int32 >(status_no_document_element))
     );
 
-    ConstTable().Enum(_SC("SqXmlXpathValueType"), Enumeration()
+    ConstTable(DefaultVM::Get()).Enum(_SC("SqXmlXpathValueType"), Enumeration(DefaultVM::Get())
         .Const(_SC("None"),                     static_cast< Int32 >(xpath_type_none))
         .Const(_SC("NodeSet"),                  static_cast< Int32 >(xpath_type_node_set))
         .Const(_SC("Number"),                   static_cast< Int32 >(xpath_type_number))
