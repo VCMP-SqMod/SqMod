@@ -175,6 +175,7 @@ Int32 GetWeaponID(CCStr name)
             else return SQMOD_UNKNOWN;
         // [N]ightstick
         case 'n': return SQMOD_WEAPON_NIGHTSTICK;
+        case 'i': return SQMOD_WEAPON_INGRAM;
         // [P]ump-Action Shotgun
         // [P]ython
         case 'p':
