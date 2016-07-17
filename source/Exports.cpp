@@ -31,7 +31,7 @@ static HSQUIRRELVM GetSquirrelVM()
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQRESULT SqEx_LoadScript(const SQChar * filepath, SQBool delay)
+static SQRESULT SqModImpl_LoadScript(const SQChar * filepath, SQBool delay)
 {
     // Attempt to add the specified script to the load queue
     if (Core::Get().LoadScript(filepath, delay))
@@ -43,7 +43,7 @@ static SQRESULT SqEx_LoadScript(const SQChar * filepath, SQBool delay)
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQRESULT SqEx_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
+static SQRESULT SqModImpl_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 {
     // Validate the specified number pointer and value type
     if (!num)
@@ -100,7 +100,7 @@ static SQRESULT SqEx_GetSLongValue(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQRESULT SqEx_PushSLongObject(HSQUIRRELVM vm, Int64 num)
+static SQRESULT SqModImpl_PushSLongObject(HSQUIRRELVM vm, Int64 num)
 {
     // Attempt to push the requested instance
     try
@@ -117,7 +117,7 @@ static SQRESULT SqEx_PushSLongObject(HSQUIRRELVM vm, Int64 num)
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQRESULT SqEx_GetULongValue(HSQUIRRELVM vm, SQInteger idx, Uint64 * num)
+static SQRESULT SqModImpl_GetULongValue(HSQUIRRELVM vm, SQInteger idx, Uint64 * num)
 {
     // Validate the specified number pointer and value type
     if (!num)
@@ -174,7 +174,7 @@ static SQRESULT SqEx_GetULongValue(HSQUIRRELVM vm, SQInteger idx, Uint64 * num)
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQRESULT SqEx_PushULongObject(HSQUIRRELVM vm, Uint64 num)
+static SQRESULT SqModImpl_PushULongObject(HSQUIRRELVM vm, Uint64 num)
 {
     // Attempt to push the requested instance
     try
@@ -191,19 +191,19 @@ static SQRESULT SqEx_PushULongObject(HSQUIRRELVM vm, Uint64 num)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQBool SqEx_ValidDate(uint16_t year, uint8_t month, uint8_t day)
+SQBool SqModImpl_ValidDate(uint16_t year, uint8_t month, uint8_t day)
 {
     return Chrono::ValidDate(year, month, day);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQBool SqEx_IsLeapYear(uint16_t year)
+SQBool SqModImpl_IsLeapYear(uint16_t year)
 {
     return Chrono::IsLeapYear(year);
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
+static SQRESULT SqModImpl_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 {
     // Validate the specified number pointer and value type
     if (!num)
@@ -260,7 +260,7 @@ static SQRESULT SqEx_GetTimestamp(HSQUIRRELVM vm, SQInteger idx, Int64 * num)
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQRESULT SqEx_PushTimestamp(HSQUIRRELVM vm, Int64 num)
+static SQRESULT SqModImpl_PushTimestamp(HSQUIRRELVM vm, Int64 num)
 {
     // Attempt to push the requested instance
     try
@@ -277,7 +277,7 @@ static SQRESULT SqEx_PushTimestamp(HSQUIRRELVM vm, Int64 num)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_GetDate(HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day)
+SQRESULT SqModImpl_GetDate(HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day)
 {
     // Is this an instance that we can treat as a Date type?
     if (sq_gettype(vm, idx) == OT_INSTANCE)
@@ -318,7 +318,7 @@ SQRESULT SqEx_GetDate(HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * 
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_PushDate(HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day)
+SQRESULT SqModImpl_PushDate(HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day)
 {
     // Attempt to push the requested instance
     try
@@ -335,7 +335,7 @@ SQRESULT SqEx_PushDate(HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_GetTime(HSQUIRRELVM vm, SQInteger idx, uint8_t * hour, uint8_t * minute,
+SQRESULT SqModImpl_GetTime(HSQUIRRELVM vm, SQInteger idx, uint8_t * hour, uint8_t * minute,
                         uint8_t * second, uint16_t * millisecond)
 {
     // Is this an instance that we can treat as a Time type?
@@ -382,7 +382,7 @@ SQRESULT SqEx_GetTime(HSQUIRRELVM vm, SQInteger idx, uint8_t * hour, uint8_t * m
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_PushTime(HSQUIRRELVM vm, uint8_t hour, uint8_t minute, uint8_t second,
+SQRESULT SqModImpl_PushTime(HSQUIRRELVM vm, uint8_t hour, uint8_t minute, uint8_t second,
                         uint16_t millisecond)
 {
     // Attempt to push the requested instance
@@ -400,7 +400,7 @@ SQRESULT SqEx_PushTime(HSQUIRRELVM vm, uint8_t hour, uint8_t minute, uint8_t sec
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_GetDatetime(HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day,
+SQRESULT SqModImpl_GetDatetime(HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_t * month, uint8_t * day,
                             uint8_t * hour, uint8_t * minute, uint8_t * second, uint16_t * millisecond)
 {
     // Is this an instance that we can treat as a Date-time type?
@@ -462,7 +462,7 @@ SQRESULT SqEx_GetDatetime(HSQUIRRELVM vm, SQInteger idx, uint16_t * year, uint8_
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_PushDatetime(HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day,
+SQRESULT SqModImpl_PushDatetime(HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t day,
                             uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond)
 {
     // Attempt to push the requested instance
@@ -480,7 +480,7 @@ SQRESULT SqEx_PushDatetime(HSQUIRRELVM vm, uint16_t year, uint8_t month, uint8_t
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_PushBuffer(HSQUIRRELVM vm, SQInteger size, SQInteger cursor)
+SQRESULT SqModImpl_PushBuffer(HSQUIRRELVM vm, SQInteger size, SQInteger cursor)
 {
     // Attempt to push the requested instance
     try
@@ -497,7 +497,7 @@ SQRESULT SqEx_PushBuffer(HSQUIRRELVM vm, SQInteger size, SQInteger cursor)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_PushBufferData(HSQUIRRELVM vm, const char * data, SQInteger size, SQInteger cursor)
+SQRESULT SqModImpl_PushBufferData(HSQUIRRELVM vm, const char * data, SQInteger size, SQInteger cursor)
 {
     // Attempt to push the requested instance
     try
@@ -514,7 +514,7 @@ SQRESULT SqEx_PushBufferData(HSQUIRRELVM vm, const char * data, SQInteger size, 
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqEx_GetBufferInfo(HSQUIRRELVM vm, SQInteger idx, const char ** ptr, SQInteger * size, SQInteger * cursor)
+SQRESULT SqModImpl_GetBufferInfo(HSQUIRRELVM vm, SQInteger idx, const char ** ptr, SQInteger * size, SQInteger * cursor)
 {
     // Attempt to obtain the requested information
     try
@@ -568,7 +568,7 @@ SQRESULT SqEx_GetBufferInfo(HSQUIRRELVM vm, SQInteger idx, const char ** ptr, SQ
 }
 
 // ------------------------------------------------------------------------------------------------
-const char * SqEx_GetBufferData(HSQUIRRELVM vm, SQInteger idx)
+const char * SqModImpl_GetBufferData(HSQUIRRELVM vm, SQInteger idx)
 {
     // Attempt to obtain the requested information
     try
@@ -590,7 +590,7 @@ const char * SqEx_GetBufferData(HSQUIRRELVM vm, SQInteger idx)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger SqEx_GetBufferSize(HSQUIRRELVM vm, SQInteger idx)
+SQInteger SqModImpl_GetBufferSize(HSQUIRRELVM vm, SQInteger idx)
 {
     // Attempt to obtain the requested information
     try
@@ -612,7 +612,7 @@ SQInteger SqEx_GetBufferSize(HSQUIRRELVM vm, SQInteger idx)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger SqEx_GetBufferCursor(HSQUIRRELVM vm, SQInteger idx)
+SQInteger SqModImpl_GetBufferCursor(HSQUIRRELVM vm, SQInteger idx)
 {
     // Attempt to obtain the requested information
     try
@@ -665,32 +665,32 @@ static int32_t SqExport_PopulateModuleAPI(HSQMODAPI api, size_t size)
     api->LogSFtl                    = LogSFtl;
 
     //script loading
-    api->LoadScript                 = SqEx_LoadScript;
+    api->LoadScript                 = SqModImpl_LoadScript;
 
     //numeric utilities
-    api->GetSLongValue              = SqEx_GetSLongValue;
-    api->PushSLongObject            = SqEx_PushSLongObject;
-    api->GetULongValue              = SqEx_GetULongValue;
-    api->PushULongObject            = SqEx_PushULongObject;
+    api->GetSLongValue              = SqModImpl_GetSLongValue;
+    api->PushSLongObject            = SqModImpl_PushSLongObject;
+    api->GetULongValue              = SqModImpl_GetULongValue;
+    api->PushULongObject            = SqModImpl_PushULongObject;
 
     //time utilities
     api->GetCurrentSysTime          = Chrono::GetCurrentSysTime;
     api->GetEpochTimeMicro          = Chrono::GetEpochTimeMicro;
     api->GetEpochTimeMilli          = Chrono::GetEpochTimeMilli;
-    api->ValidDate                  = SqEx_ValidDate;
-    api->IsLeapYear                 = SqEx_IsLeapYear;
+    api->ValidDate                  = SqModImpl_ValidDate;
+    api->IsLeapYear                 = SqModImpl_IsLeapYear;
     api->DaysInYear                 = Chrono::DaysInYear;
     api->DaysInMonth                = Chrono::DaysInMonth;
     api->DayOfYear                  = Chrono::DayOfYear;
     api->DateRangeToSeconds         = Chrono::DateRangeToSeconds;
-    api->GetTimestamp               = SqEx_GetTimestamp;
-    api->PushTimestamp              = SqEx_PushTimestamp;
-    api->GetDate                    = SqEx_GetDate;
-    api->PushDate                   = SqEx_PushDate;
-    api->GetTime                    = SqEx_GetTime;
-    api->PushTime                   = SqEx_PushTime;
-    api->GetDatetime                = SqEx_GetDatetime;
-    api->PushDatetime               = SqEx_PushDatetime;
+    api->GetTimestamp               = SqModImpl_GetTimestamp;
+    api->PushTimestamp              = SqModImpl_PushTimestamp;
+    api->GetDate                    = SqModImpl_GetDate;
+    api->PushDate                   = SqModImpl_PushDate;
+    api->GetTime                    = SqModImpl_GetTime;
+    api->PushTime                   = SqModImpl_PushTime;
+    api->GetDatetime                = SqModImpl_GetDatetime;
+    api->PushDatetime               = SqModImpl_PushDatetime;
 
     //stack utilities
     api->PopStackInteger            = PopStackInteger;
@@ -699,12 +699,12 @@ static int32_t SqExport_PopulateModuleAPI(HSQMODAPI api, size_t size)
     api->PopStackULong              = PopStackULong;
 
     //buffer utilities
-    api->PushBuffer                 = SqEx_PushBuffer;
-    api->PushBufferData             = SqEx_PushBufferData;
-    api->GetBufferInfo              = SqEx_GetBufferInfo;
-    api->GetBufferData              = SqEx_GetBufferData;
-    api->GetBufferSize              = SqEx_GetBufferSize;
-    api->GetBufferCursor            = SqEx_GetBufferCursor;
+    api->PushBuffer                 = SqModImpl_PushBuffer;
+    api->PushBufferData             = SqModImpl_PushBufferData;
+    api->GetBufferInfo              = SqModImpl_GetBufferInfo;
+    api->GetBufferData              = SqModImpl_GetBufferData;
+    api->GetBufferSize              = SqModImpl_GetBufferSize;
+    api->GetBufferCursor            = SqModImpl_GetBufferCursor;
 
     return 1; // Successfully populated!
 }
