@@ -551,6 +551,8 @@ void Register_Vector2i(HSQUIRRELVM vm)
         // Static Members
         .SetStaticValue(_SC("Delim"), &Vector2i::Delim)
         // Member Variables
+        .Var(_SC("x"), &Vector2i::x)
+        .Var(_SC("y"), &Vector2i::y)
         .Var(_SC("X"), &Vector2i::x)
         .Var(_SC("Y"), &Vector2i::y)
         // Properties

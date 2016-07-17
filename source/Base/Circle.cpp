@@ -509,6 +509,8 @@ void Register_Circle(HSQUIRRELVM vm)
         // Static Members
         .SetStaticValue(_SC("Delim"), &Circle::Delim)
         // Member Variables
+        .Var(_SC("pos"), &Circle::pos)
+        .Var(_SC("rad"), &Circle::rad)
         .Var(_SC("Pos"), &Circle::pos)
         .Var(_SC("Rad"), &Circle::rad)
         // Properties

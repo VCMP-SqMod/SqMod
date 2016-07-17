@@ -510,6 +510,10 @@ void Register_Quaternion(HSQUIRRELVM vm)
         // Static Members
         .SetStaticValue(_SC("Delim"), &Quaternion::Delim)
         // Member Variables
+        .Var(_SC("x"), &Quaternion::x)
+        .Var(_SC("y"), &Quaternion::y)
+        .Var(_SC("z"), &Quaternion::z)
+        .Var(_SC("w"), &Quaternion::w)
         .Var(_SC("X"), &Quaternion::x)
         .Var(_SC("Y"), &Quaternion::y)
         .Var(_SC("Z"), &Quaternion::z)

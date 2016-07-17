@@ -453,6 +453,8 @@ void Register_AABB(HSQUIRRELVM vm)
         // Static Members
         .SetStaticValue(_SC("Delim"), &AABB::Delim)
         // Member Variables
+        .Var(_SC("min"), &AABB::min)
+        .Var(_SC("max"), &AABB::max)
         .Var(_SC("Min"), &AABB::min)
         .Var(_SC("Max"), &AABB::max)
         // Properties

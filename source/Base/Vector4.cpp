@@ -511,6 +511,10 @@ void Register_Vector4(HSQUIRRELVM vm)
         .Var(_SC("y"), &Vector4::y)
         .Var(_SC("z"), &Vector4::z)
         .Var(_SC("w"), &Vector4::w)
+        .Var(_SC("X"), &Vector4::x)
+        .Var(_SC("Y"), &Vector4::y)
+        .Var(_SC("Z"), &Vector4::z)
+        .Var(_SC("W"), &Vector4::w)
         // Properties
         .Prop(_SC("Abs"), &Vector4::Abs)
         // Core Meta-methods

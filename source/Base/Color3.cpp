@@ -653,6 +653,9 @@ void Register_Color3(HSQUIRRELVM vm)
         // Static Members
         .SetStaticValue(_SC("Delim"), &Color3::Delim)
         // Member Variables
+        .Var(_SC("r"), &Color3::r)
+        .Var(_SC("g"), &Color3::g)
+        .Var(_SC("b"), &Color3::b)
         .Var(_SC("R"), &Color3::r)
         .Var(_SC("G"), &Color3::g)
         .Var(_SC("B"), &Color3::b)

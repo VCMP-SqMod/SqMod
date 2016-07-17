@@ -510,6 +510,8 @@ void Register_Sphere(HSQUIRRELVM vm)
         // Static Members
         .SetStaticValue(_SC("Delim"), &Sphere::Delim)
         // Member Variables
+        .Var(_SC("pos"), &Sphere::pos)
+        .Var(_SC("rad"), &Sphere::rad)
         .Var(_SC("Pos"), &Sphere::pos)
         .Var(_SC("Rad"), &Sphere::rad)
         // Properties

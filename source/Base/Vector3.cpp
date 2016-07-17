@@ -459,6 +459,9 @@ void Register_Vector3(HSQUIRRELVM vm)
         // Static Members
         .SetStaticValue(_SC("Delim"), &Vector3::Delim)
         // Member Variables
+        .Var(_SC("x"), &Vector3::x)
+        .Var(_SC("y"), &Vector3::y)
+        .Var(_SC("z"), &Vector3::z)
         .Var(_SC("X"), &Vector3::x)
         .Var(_SC("Y"), &Vector3::y)
         .Var(_SC("Z"), &Vector3::z)
