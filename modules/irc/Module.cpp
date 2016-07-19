@@ -25,23 +25,23 @@ extern void Register_Constants(Table & ircns);
 /* ------------------------------------------------------------------------------------------------
  * Register the module API under the obtained virtual machine.
 */
-static bool RegisterAPI()
+static bool RegisterAPI(HSQUIRRELVM vm)
 {
     // Make sure there's a valid virtual machine before proceeding
-    if (!DefaultVM::Get())
+    if (!vm)
     {
         OutputError("%s: Cannot register API without a valid virtual machine", SQIRC_NAME);
         // Registration failed
         return false;
     }
 
-    Table ircns(DefaultVM::Get());
+    Table ircns(vm);
 
     Register_Common(ircns);
     Register_Session(ircns);
     Register_Constants(ircns);
 
-    RootTable(DefaultVM::Get()).Bind(_SC("SqIRC"), ircns);
+    RootTable(vm).Bind(_SC("SqIRC"), ircns);
 
     // Registration was successful
     return true;
@@ -74,7 +74,7 @@ static bool OnSquirrelLoad()
     NullObject() = Object();
     NullFunction() = Function();
     // Register the module API
-    if (RegisterAPI())
+    if (RegisterAPI(DefaultVM::Get()))
     {
         OutputMessage("Registered: %s", SQIRC_NAME);
     }

@@ -20,17 +20,17 @@ extern void Register_Transaction(Table & sqlns);
 /* ------------------------------------------------------------------------------------------------
  * Register the module API under the obtained virtual machine.
 */
-static bool RegisterAPI()
+static bool RegisterAPI(HSQUIRRELVM vm)
 {
     // Make sure there's a valid virtual machine before proceeding
-    if (!DefaultVM::Get())
+    if (!vm)
     {
         OutputError("%s: Cannot register API without a valid virtual machine", SQSQLITE_NAME);
         // Registration failed
         return false;
     }
 
-    Table sqlns(DefaultVM::Get());
+    Table sqlns(vm);
 
     Register_Constants(sqlns);
     Register_Common(sqlns);
@@ -40,7 +40,7 @@ static bool RegisterAPI()
     Register_Column(sqlns);
     Register_Transaction(sqlns);
 
-    RootTable(DefaultVM::Get()).Bind(_SC("SQLite"), sqlns);
+    RootTable(vm).Bind(_SC("SQLite"), sqlns);
 
     // Registration was successful
     return true;
@@ -73,7 +73,7 @@ static bool OnSquirrelLoad()
     NullObject() = Object();
     NullFunction() = Function();
     // Register the module API
-    if (RegisterAPI())
+    if (RegisterAPI(DefaultVM::Get()))
     {
         OutputMessage("Registered: %s", SQSQLITE_NAME);
     }

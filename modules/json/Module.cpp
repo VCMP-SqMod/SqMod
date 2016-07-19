@@ -17,26 +17,26 @@ extern void Register_JValue(Table & jns);
 /* ------------------------------------------------------------------------------------------------
  * Register the module API under the obtained virtual machine.
 */
-static bool RegisterAPI()
+static bool RegisterAPI(HSQUIRRELVM vm)
 {
     // Make sure there's a valid virtual machine before proceeding
-    if (!DefaultVM::Get())
+    if (!vm)
     {
         OutputError("%s: Cannot register API without a valid virtual machine", SQJSON_NAME);
         // Registration failed
         return false;
     }
 
-    Table jns(DefaultVM::Get());
+    Table jns(vm);
 
     Register_Common(jns);
     Register_JArray(jns);
     Register_JObject(jns);
     Register_JValue(jns);
 
-    RootTable(DefaultVM::Get()).Bind(_SC("SqJSON"), jns);
+    RootTable(vm).Bind(_SC("SqJSON"), jns);
 
-    Sqrat::ConstTable(DefaultVM::Get())
+    Sqrat::ConstTable(vm)
         .Const(_SC("JSON_OBJECT"),  JSON_OBJECT)
         .Const(_SC("JSON_ARRAY"),   JSON_ARRAY)
         .Const(_SC("JSON_STRING"),  JSON_STRING)
@@ -77,7 +77,7 @@ static bool OnSquirrelLoad()
     NullObject() = Object();
     NullFunction() = Function();
     // Register the module API
-    if (RegisterAPI())
+    if (RegisterAPI(DefaultVM::Get()))
     {
         OutputMessage("Registered: %s", SQJSON_NAME);
     }

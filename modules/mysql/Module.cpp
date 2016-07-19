@@ -17,24 +17,24 @@ extern void Register_Statement(Table & sqlns);
 /* ------------------------------------------------------------------------------------------------
  * Register the module API under the obtained virtual machine.
 */
-static bool RegisterAPI()
+static bool RegisterAPI(HSQUIRRELVM vm)
 {
     // Make sure there's a valid virtual machine before proceeding
-    if (!DefaultVM::Get())
+    if (!vm)
     {
         OutputError("%s: Cannot register API without a valid virtual machine", SQMYSQL_NAME);
         // Registration failed
         return false;
     }
 
-    Table sqlns(DefaultVM::Get());
+    Table sqlns(vm);
 
     Register_Account(sqlns);
     Register_Connection(sqlns);
     Register_ResultSet(sqlns);
     Register_Statement(sqlns);
 
-    RootTable(DefaultVM::Get()).Bind(_SC("SqMySQL"), sqlns);
+    RootTable(vm).Bind(_SC("SqMySQL"), sqlns);
 
     // Registration was successful
     return true;
@@ -67,7 +67,7 @@ static bool OnSquirrelLoad()
     NullObject() = Object();
     NullFunction() = Function();
     // Register the module API
-    if (RegisterAPI())
+    if (RegisterAPI(DefaultVM::Get()))
     {
         OutputMessage("Registered: %s", SQMYSQL_NAME);
     }

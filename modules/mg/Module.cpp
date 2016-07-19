@@ -13,19 +13,19 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Register the module API under the obtained virtual machine.
 */
-static bool RegisterAPI()
+static bool RegisterAPI(HSQUIRRELVM vm)
 {
     // Make sure there's a valid virtual machine before proceeding
-    if (!DefaultVM::Get())
+    if (!vm)
     {
         OutputError("%s: Cannot register API without a valid virtual machine", SQMG_NAME);
         // Registration failed
         return false;
     }
 
-    Table mgns(DefaultVM::Get());
+    Table mgns(vm);
 
-    mgns.Bind(_SC("Manager"), Class< Manager >(DefaultVM::Get(), _SC("SqMgManager"))
+    mgns.Bind(_SC("Manager"), Class< Manager >(vm, _SC("SqMgManager"))
         // Constructors
         .Ctor()
         .Ctor< const Manager & >()
@@ -44,7 +44,7 @@ static bool RegisterAPI()
         .Overload< Connection (Manager::*)(CSStr, Uint32) const >(_SC("Connect"), &Manager::Connect)
     );
 
-    mgns.Bind(_SC("Connection"), Class< Connection >(DefaultVM::Get(), _SC("SqMgConnection"))
+    mgns.Bind(_SC("Connection"), Class< Connection >(vm, _SC("SqMgConnection"))
         // Constructors
         .Ctor()
         .Ctor< const Connection & >()
@@ -58,9 +58,9 @@ static bool RegisterAPI()
         //.Func(_SC("Check"), &Connection::Check)
     );
 
-    RootTable(DefaultVM::Get()).Bind(_SC("SqMg"), mgns);
+    RootTable(vm).Bind(_SC("SqMg"), mgns);
 
-    ConstTable(DefaultVM::Get()).Enum(_SC("EMgF"), Enumeration(DefaultVM::Get())
+    ConstTable(vm).Enum(_SC("EMgF"), Enumeration(vm)
         .Const(_SC("LISTENING"),                MG_F_LISTENING)
         .Const(_SC("UDP"),                      MG_F_UDP)
         .Const(_SC("RESOLVING"),                MG_F_RESOLVING)
@@ -81,7 +81,7 @@ static bool RegisterAPI()
         .Const(_SC("USER_6"),                   MG_F_USER_6)
     );
 
-    ConstTable(DefaultVM::Get()).Enum(_SC("MgEv"), Enumeration(DefaultVM::Get())
+    ConstTable(vm).Enum(_SC("MgEv"), Enumeration(vm)
         .Const(_SC("UNKNOWN"),                              static_cast< Int32 >(MGEV_UNKNOWN))
         .Const(_SC("POLL"),                                 static_cast< Int32 >(MGCE_POLL))
         .Const(_SC("ACCEPT"),                               static_cast< Int32 >(MGCE_ACCEPT))
@@ -160,7 +160,7 @@ static bool OnSquirrelLoad()
     NullObject() = Object();
     NullFunction() = Function();
     // Register the module API
-    if (RegisterAPI())
+    if (RegisterAPI(DefaultVM::Get()))
     {
         OutputMessage("Registered: %s", SQMG_NAME);
     }

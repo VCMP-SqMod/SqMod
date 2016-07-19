@@ -11,18 +11,18 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Register the module API under the obtained virtual machine.
 */
-static bool RegisterAPI()
+static bool RegisterAPI(HSQUIRRELVM vm)
 {
     // Make sure there's a valid virtual machine before proceeding
-    if (!DefaultVM::Get())
+    if (!vm)
     {
         OutputError("%s: Cannot register API without a valid virtual machine", SQSAMPLE_NAME);
         // Registration failed
         return false;
     }
 
-    RootTable(DefaultVM::Get()).Bind(_SC("SampleType"),
-        Class< SampleType >(DefaultVM::Get(), _SC("SampleType"))
+    RootTable(vm).Bind(_SC("SampleType"),
+        Class< SampleType >(vm, _SC("SampleType"))
         .Ctor()
         .Ctor< int >()
         .Var(_SC("MyNum"), &SampleType::mMyNum)
@@ -30,7 +30,7 @@ static bool RegisterAPI()
         .Func(_SC("SampleMethod"), &SampleType::SampleMethod)
     );
 
-    RootTable(DefaultVM::Get()).Func(_SC("SampleFunction"), &SampleFunction);
+    RootTable(vm).Func(_SC("SampleFunction"), &SampleFunction);
 
     // Registration was successful
     return true;
@@ -63,7 +63,7 @@ static bool OnSquirrelLoad()
     NullObject() = Object();
     NullFunction() = Function();
     // Register the module API
-    if (RegisterAPI())
+    if (RegisterAPI(DefaultVM::Get()))
     {
         OutputMessage("Registered: %s", SQSAMPLE_NAME);
     }
