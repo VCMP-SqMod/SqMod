@@ -186,7 +186,7 @@ void ResHnd::ValidateField(Uint32 idx, CCStr file, Int32 line) const
     // Is the handle valid?
     if (mPtr == nullptr)
     {
-        STHROWF("Invalid MySQL result-set reference =>[%s:%d]", file, line);
+        STHROWF("Invalid MySQL result-set =>[%s:%d]", file, line);
     }
     else if (idx >= mFieldCount)
     {
@@ -199,7 +199,7 @@ void ResHnd::ValidateField(Uint32 idx) const
     // Is the handle valid?
     if (mPtr == nullptr)
     {
-        STHROWF("Invalid MySQL result-set reference");
+        STHROWF("Invalid MySQL result-set");
     }
     else if (idx >= mFieldCount)
     {
@@ -207,6 +207,25 @@ void ResHnd::ValidateField(Uint32 idx) const
     }
 }
 #endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+Uint32 ResHnd::GetFieldIndex(CSStr name)
+{
+    // Validate the handle
+    if (!mPtr)
+    {
+        STHROWF("Invalid MySQL result-set");
+    }
+    // Attempt to find the specified field
+    const IndexMap::iterator itr = mIndexes.find(name);
+    // Was there a field with the specified name?
+    if (itr != mIndexes.end())
+    {
+        return itr->second;
+    }
+    // No such field exists (expecting the invoker to validate the result)
+    return std::numeric_limits< Uint32 >::max();
+}
 
 // ------------------------------------------------------------------------------------------------
 void ResHnd::Create(const ConnRef & conn)

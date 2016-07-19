@@ -106,157 +106,6 @@ void ResultSet::ValidateField(Int32 idx) const
 }
 #endif // _DEBUG
 
-// ------------------------------------------------------------------------------------------------
-SQInteger ResultSet::GetInt8(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Int8 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return DbConvTo< Int8 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger ResultSet::GetUint8(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Uint8 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return DbConvTo< Uint8 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger ResultSet::GetInt16(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Int16 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return DbConvTo< Int16 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger ResultSet::GetUint16(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Uint16 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return DbConvTo< Uint16 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger ResultSet::GetInt32(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Int32 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return DbConvTo< Int32 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger ResultSet::GetUint32(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Uint32 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return DbConvTo< Uint32 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
-}
-
-// ------------------------------------------------------------------------------------------------
-Int64 ResultSet::GetInt64(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Int64 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return DbConvTo< Int64 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint64 ResultSet::GetUint64(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Uint64 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return DbConvTo< Uint64 >::From(m_Handle->mRow[idx], m_Handle->mLengths[idx], m_Handle->mFields[idx].type);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQFloat ResultSet::GetFloat32(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Float32 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return std::strtof(m_Handle->mRow[idx], nullptr);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQFloat ResultSet::GetFloat64(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< Float64 >::From(m_Handle->mBinds[idx].mInt64);
-    }
-    // Retrieve the value directly from the row
-    return std::strtod(m_Handle->mRow[idx], nullptr);
-}
-
-// ------------------------------------------------------------------------------------------------
-bool ResultSet::GetBoolean(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Should we retrieve the value from the bind wrapper?
-    if (m_Handle->mStatement)
-    {
-        return ConvTo< bool >::From(m_Handle->mBinds[idx].mUint64);
-    }
-    // Retrieve the value directly from the row
-    return ConvTo< bool >::From(std::strtol(m_Handle->mRow[idx], nullptr, 10));
-}
-
-// ------------------------------------------------------------------------------------------------
-CSStr ResultSet::GetString(Uint32 idx) const
-{
-    SQMOD_VALIDATE_FIELD(*this, idx);
-    // Retrieve the value directly from the row
-    return m_Handle->mRow[idx];
-}
-
 // ================================================================================================
 void Register_ResultSet(Table & sqlns)
 {
@@ -275,8 +124,16 @@ void Register_ResultSet(Table & sqlns)
         .Prop(_SC("RowCount"), &ResultSet::RowCount)
         // Member Methods
         .Func(_SC("Next"), &ResultSet::Next)
+        .Func(_SC("Step"), &ResultSet::Next)
         .Func(_SC("SetRowIndex"), &ResultSet::SetRowIndex)
         .Func(_SC("SetLongRowIndex"), &ResultSet::SetLongRowIndex)
+        .Func(_SC("Get"), &ResultSet::GetField)
+        .Func(_SC("GetField"), &ResultSet::GetField)
+        .Func(_SC("GetBool"), &ResultSet::GetBoolean)
+        .Func(_SC("GetBoolean"), &ResultSet::GetBoolean)
+        .Func(_SC("GetChar"), &ResultSet::GetChar)
+        .Func(_SC("GetInteger"), &ResultSet::GetInteger)
+        .Func(_SC("GetFloat"), &ResultSet::GetFloat)
         .Func(_SC("GetInt8"), &ResultSet::GetInt8)
         .Func(_SC("GetUint8"), &ResultSet::GetUint8)
         .Func(_SC("GetInt16"), &ResultSet::GetInt16)
@@ -287,9 +144,9 @@ void Register_ResultSet(Table & sqlns)
         .Func(_SC("GetUint64"), &ResultSet::GetUint64)
         .Func(_SC("GetFloat32"), &ResultSet::GetFloat32)
         .Func(_SC("GetFloat64"), &ResultSet::GetFloat64)
-        .Func(_SC("GetBool"), &ResultSet::GetBoolean)
-        .Func(_SC("GetBoolean"), &ResultSet::GetBoolean)
         .Func(_SC("GetString"), &ResultSet::GetString)
+        .Func(_SC("GetBuffer"), &ResultSet::GetBuffer)
+        .Func(_SC("GetBlob"), &ResultSet::GetBlob)
     );
 }
 

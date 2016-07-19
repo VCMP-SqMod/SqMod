@@ -193,6 +193,19 @@ public:
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
+     * Check whether a specific field index is within range.
+    */
+    bool CheckFieldIndex(Uint32 idx) const
+    {
+        return (idx < mFieldCount);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the field index associated with the specified name.
+    */
+    Uint32 GetFieldIndex(CSStr name);
+
+    /* --------------------------------------------------------------------------------------------
      * Create the result-set from a Connection.
     */
     void Create(const ConnRef & conn);

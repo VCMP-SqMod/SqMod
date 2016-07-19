@@ -326,7 +326,7 @@ static inline T ConvertToUInt(CSStr value, Ulong length, enum_field_types type, 
 // ------------------------------------------------------------------------------------------------
 Int8 DbConvTo< Int8 >::From(CSStr value, Ulong length, enum_field_types type, CSStr tn)
 {
-    return ConvertToUInt< Int8 >(value, length, type, tn);
+    return ConvertToSInt< Int8 >(value, length, type, tn);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -338,7 +338,7 @@ Uint8 DbConvTo< Uint8 >::From(CSStr value, Ulong length, enum_field_types type, 
 // ------------------------------------------------------------------------------------------------
 Int16 DbConvTo< Int16 >::From(CSStr value, Ulong length, enum_field_types type, CSStr tn)
 {
-    return ConvertToUInt< Int16 >(value, length, type, tn);
+    return ConvertToSInt< Int16 >(value, length, type, tn);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -350,7 +350,7 @@ Uint16 DbConvTo< Uint16 >::From(CSStr value, Ulong length, enum_field_types type
 // ------------------------------------------------------------------------------------------------
 Int32 DbConvTo< Int32 >::From(CSStr value, Ulong length, enum_field_types type, CSStr tn)
 {
-    return ConvertToUInt< Int32 >(value, length, type, tn);
+    return ConvertToSInt< Int32 >(value, length, type, tn);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -362,7 +362,7 @@ Uint32 DbConvTo< Uint32 >::From(CSStr value, Ulong length, enum_field_types type
 // ------------------------------------------------------------------------------------------------
 Int64 DbConvTo< Int64 >::From(CSStr value, Ulong length, enum_field_types type, CSStr tn)
 {
-    return ConvertToUInt< Int64 >(value, length, type, tn);
+    return ConvertToSInt< Int64 >(value, length, type, tn);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -390,16 +390,16 @@ Float32 DbConvTo< Float32 >::From(CSStr value, Ulong length, enum_field_types ty
         case MYSQL_TYPE_SHORT:
         case MYSQL_TYPE_INT24:
         case MYSQL_TYPE_LONG:           return ConvTo< Float32 >::From(std::strtol(value, nullptr, 10));
-        case MYSQL_TYPE_LONGLONG:
+        case MYSQL_TYPE_LONGLONG:       return ConvTo< Float32 >::From(std::strtoll(value, nullptr, 10));
         case MYSQL_TYPE_ENUM:
-        case MYSQL_TYPE_SET:            return ConvTo< Float32 >::From(std::strtoll(value, nullptr, 10));
+        case MYSQL_TYPE_SET:
         case MYSQL_TYPE_VARCHAR:
         case MYSQL_TYPE_VAR_STRING:
         case MYSQL_TYPE_STRING:
         case MYSQL_TYPE_FLOAT:          return std::strtof(value, nullptr);
-        case MYSQL_TYPE_DOUBLE:
+        case MYSQL_TYPE_DOUBLE:         return ConvTo< Float32 >::From(std::strtod(value, nullptr));
         case MYSQL_TYPE_DECIMAL:
-        case MYSQL_TYPE_NEWDECIMAL:     return ConvTo< Float32 >::From(std::strtod(value, nullptr));
+        case MYSQL_TYPE_NEWDECIMAL:     return std::strtof(value, nullptr);
         case MYSQL_TYPE_DATE:
         case MYSQL_TYPE_NEWDATE:        return ConvTo< Float32 >::From(MySQLDateStrToSeconds(value));
         case MYSQL_TYPE_TIME:           return ConvTo< Float32 >::From(MySQLTimeStrToSeconds(value));
@@ -421,7 +421,54 @@ Float32 DbConvTo< Float32 >::From(CSStr value, Ulong length, enum_field_types ty
 // ------------------------------------------------------------------------------------------------
 Float64 DbConvTo< Float64 >::From(CSStr value, Ulong length, enum_field_types type, CSStr tn)
 {
-    return 0.0;
+    // Is there even a value to attempt to extract?
+    if (!value || *value == '\0')
+    {
+        return 0;
+    }
+    // Identify the type of value that must be converted and try to at least approximate something
+    switch(type)
+    {
+        case MYSQL_TYPE_NULL:
+        case MYSQL_TYPE_GEOMETRY:       return static_cast< Float64 >(0);
+        case MYSQL_TYPE_BIT:
+        case MYSQL_TYPE_YEAR:
+        case MYSQL_TYPE_TINY:
+        case MYSQL_TYPE_SHORT:
+        case MYSQL_TYPE_INT24:
+        case MYSQL_TYPE_LONG:           return ConvTo< Float64 >::From(std::strtol(value, nullptr, 10));
+        case MYSQL_TYPE_LONGLONG:       return ConvTo< Float64 >::From(std::strtoll(value, nullptr, 10));
+        case MYSQL_TYPE_ENUM:
+        case MYSQL_TYPE_SET:
+        case MYSQL_TYPE_VARCHAR:
+        case MYSQL_TYPE_VAR_STRING:
+        case MYSQL_TYPE_STRING:
+        case MYSQL_TYPE_FLOAT:
+        case MYSQL_TYPE_DOUBLE:
+        case MYSQL_TYPE_DECIMAL:
+        case MYSQL_TYPE_NEWDECIMAL:     return std::strtod(value, nullptr);
+        case MYSQL_TYPE_DATE:
+        case MYSQL_TYPE_NEWDATE:        return ConvTo< Float64 >::From(MySQLDateStrToSeconds(value));
+        case MYSQL_TYPE_TIME:           return ConvTo< Float64 >::From(MySQLTimeStrToSeconds(value));
+        case MYSQL_TYPE_TIMESTAMP:      return ConvTo< Float64 >::From(MySQLTimestampStrToSeconds(value));
+        case MYSQL_TYPE_DATETIME:       return ConvTo< Float64 >::From(MySQLDatetimeStrToSeconds(value));
+        case MYSQL_TYPE_TINY_BLOB:
+        case MYSQL_TYPE_MEDIUM_BLOB:
+        case MYSQL_TYPE_LONG_BLOB:
+        case MYSQL_TYPE_BLOB:           return MemToNum< Float64 >(reinterpret_cast< const Uint8 * >(value), length);
+        default:
+        {
+            STHROWF("Unknown conversion from (%s) to (%s)", SqMySQLTypenameC(type), tn);
+        } break;
+    }
+    // Should not reach this point!
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool DbConvTo< bool >::From(CSStr value, Ulong length, enum_field_types type, CSStr tn)
+{
+    return ConvertToSInt< Int64 >(value, length, type, tn) > 0;
 }
 
 } // Namespace:: SqMod

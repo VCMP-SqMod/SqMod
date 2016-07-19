@@ -11,6 +11,7 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 extern void Register_Account(Table & sqlns);
 extern void Register_Connection(Table & sqlns);
+extern void Register_Field(Table & sqlns);
 extern void Register_ResultSet(Table & sqlns);
 extern void Register_Statement(Table & sqlns);
 
@@ -31,6 +32,7 @@ static bool RegisterAPI(HSQUIRRELVM vm)
 
     Register_Account(sqlns);
     Register_Connection(sqlns);
+    Register_Field(sqlns);
     Register_ResultSet(sqlns);
     Register_Statement(sqlns);
 

@@ -3,6 +3,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Handle/ResultSet.hpp"
+#include "Field.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -214,64 +215,148 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a signed 8 bit integer from a field.
+     * Retrieve the field with the specified name or index.
     */
-    SQInteger GetInt8(Uint32 idx) const;
+    Field GetField(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field);
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve an unsigned 8 bit integer from a field.
+     * Retrieve the value inside the specified field as a boolean value.
     */
-    SQInteger GetUint8(Uint32 idx) const;
+    bool GetBoolean(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetBoolean();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a signed 16 bit integer from a field.
+     * Retrieve the value inside the specified field as a character.
     */
-    SQInteger GetInt16(Uint32 idx) const;
+    SQChar GetChar(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetChar();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve an unsigned 16 bit integer from a field.
+     * Retrieve the value inside the specified field as a native script integer.
     */
-    SQInteger GetUint16(Uint32 idx) const;
+    SQInteger GetInteger(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetInteger();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a signed 32 bit integer from a field.
+     * Retrieve the value inside the specified field as a native script floating point.
     */
-    SQInteger GetInt32(Uint32 idx) const;
+    SQFloat GetFloat(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetFloat();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve an unsigned 32 bit integer from a field.
+     * Retrieve the value inside the specified field as a signed 8 bit integer value.
     */
-    SQInteger GetUint32(Uint32 idx) const;
+    SQInteger GetInt8(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetInt8();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a signed 64 bit integer from a field.
+     * Retrieve the value inside the specified field as an unsigned 8 bit integer value.
     */
-    Int64 GetInt64(Uint32 idx) const;
+    SQInteger GetUint8(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetUint8();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve an unsigned 64 bit integer from a field.
+     * Retrieve the value inside the specified field as a signed 16 bit integer value.
     */
-    Uint64 GetUint64(Uint32 idx) const;
+    SQInteger GetInt16(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetInt16();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a 32 bit floating point from a field.
+     * Retrieve the value inside the specified field as an unsigned 16 bit integer value.
     */
-    SQFloat GetFloat32(Uint32 idx) const;
+    SQInteger GetUint16(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetUint16();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a 64 bit floating point from a field.
+     * Retrieve the value inside the specified field as a signed 32 bit integer value.
     */
-    SQFloat GetFloat64(Uint32 idx) const;
+    SQInteger GetInt32(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetInt32();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a boolean from a field.
+     * Retrieve the value inside the specified field as an unsigned 32 bit integer value.
     */
-    bool GetBoolean(Uint32 idx) const;
+    SQInteger GetUint32(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetUint32();
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a string from a field.
+     * Retrieve the value inside the specified field as a signed 64 bit integer value.
     */
-    CSStr GetString(Uint32 idx) const;
+    Object GetInt64(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetInt64();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the specified field as an unsigned 64 bit integer value.
+    */
+    Object GetUint64(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetUint64();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the specified field as a 32 bit floating point value.
+    */
+    SQFloat GetFloat32(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetFloat32();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the specified field as a 64 bit floating point value.
+    */
+    SQFloat GetFloat64(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetFloat64();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the specified field as a string value.
+    */
+    Object GetString(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetString();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the specified field as a memory buffer.
+    */
+    Object GetBuffer(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetBuffer();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value inside the specified field as a memory blob.
+    */
+    Object GetBlob(const Object & field) const
+    {
+        return Field(SQMOD_GET_CREATED(*this), field).GetBlob();
+    }
 };
 
 } // Namespace:: SqMod

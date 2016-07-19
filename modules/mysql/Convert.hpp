@@ -113,6 +113,14 @@ template<> struct DbConvTo< Float64 >
     static Float64 From(CSStr value, Ulong length, enum_field_types type, CSStr tn = _SC("Float64"));
 };
 
+/* ------------------------------------------------------------------------------------------------
+ * Specialization for boolean value.
+*/
+template<> struct DbConvTo< bool >
+{
+    static bool From(CSStr value, Ulong length, enum_field_types type, CSStr tn = _SC("Boolean"));
+};
+
 } // Namespace:: SqMod
 
 #endif // _SQMYSQL_CONVERT_HPP_
