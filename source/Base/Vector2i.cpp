@@ -55,12 +55,14 @@ Vector2i & Vector2i::operator = (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator = (CSStr values)
 {
-    Set(Vector2i::Get(values, Delim));
+    SetVector2i(Vector2i::Get(values, Delim));
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator = (const Vector2 & v)
 {
     x = ConvTo< Value >::From(v.x);
@@ -76,6 +78,7 @@ Vector2i & Vector2i::operator += (const Vector2i & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator -= (const Vector2i & v)
 {
     x -= v.x;
@@ -83,6 +86,7 @@ Vector2i & Vector2i::operator -= (const Vector2i & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator *= (const Vector2i & v)
 {
     x *= v.x;
@@ -90,6 +94,7 @@ Vector2i & Vector2i::operator *= (const Vector2i & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator /= (const Vector2i & v)
 {
     x /= v.x;
@@ -97,6 +102,7 @@ Vector2i & Vector2i::operator /= (const Vector2i & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator %= (const Vector2i & v)
 {
     x %= v.x;
@@ -104,6 +110,7 @@ Vector2i & Vector2i::operator %= (const Vector2i & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator &= (const Vector2i & v)
 {
     x &= v.x;
@@ -111,6 +118,7 @@ Vector2i & Vector2i::operator &= (const Vector2i & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator |= (const Vector2i & v)
 {
     x |= v.x;
@@ -118,6 +126,7 @@ Vector2i & Vector2i::operator |= (const Vector2i & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator ^= (const Vector2i & v)
 {
     x ^= v.x;
@@ -125,6 +134,7 @@ Vector2i & Vector2i::operator ^= (const Vector2i & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator <<= (const Vector2i & v)
 {
     x <<= v.x;
@@ -132,6 +142,7 @@ Vector2i & Vector2i::operator <<= (const Vector2i & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator >>= (const Vector2i & v)
 {
     x >>= v.x;
@@ -147,6 +158,7 @@ Vector2i & Vector2i::operator += (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator -= (Value s)
 {
     x -= s;
@@ -154,6 +166,7 @@ Vector2i & Vector2i::operator -= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator *= (Value s)
 {
     x *= s;
@@ -161,6 +174,7 @@ Vector2i & Vector2i::operator *= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator /= (Value s)
 {
     x /= s;
@@ -168,6 +182,7 @@ Vector2i & Vector2i::operator /= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator %= (Value s)
 {
     x %= s;
@@ -175,6 +190,7 @@ Vector2i & Vector2i::operator %= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator &= (Value s)
 {
     x &= s;
@@ -182,6 +198,7 @@ Vector2i & Vector2i::operator &= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator |= (Value s)
 {
     x |= s;
@@ -189,6 +206,7 @@ Vector2i & Vector2i::operator |= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator ^= (Value s)
 {
     x += s;
@@ -196,6 +214,7 @@ Vector2i & Vector2i::operator ^= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator <<= (Value s)
 {
     x <<= s;
@@ -203,6 +222,7 @@ Vector2i & Vector2i::operator <<= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator >>= (Value s)
 {
     x >>= s;
@@ -218,6 +238,7 @@ Vector2i & Vector2i::operator ++ ()
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator -- ()
 {
     --x;
@@ -234,6 +255,7 @@ Vector2i Vector2i::operator ++ (int)
     return state;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator -- (int)
 {
     Vector2i state(*this);
@@ -248,46 +270,55 @@ Vector2i Vector2i::operator + (const Vector2i & v) const
     return Vector2i(x + v.x, y + v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator - (const Vector2i & v) const
 {
     return Vector2i(x - v.x, y - v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator * (const Vector2i & v) const
 {
     return Vector2i(x * v.x, y * v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator / (const Vector2i & v) const
 {
     return Vector2i(x / v.x, y / v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator % (const Vector2i & v) const
 {
     return Vector2i(x % v.x, y % v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator & (const Vector2i & v) const
 {
     return Vector2i(x & v.x, y & v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator | (const Vector2i & v) const
 {
     return Vector2i(x | v.x, y | v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator ^ (const Vector2i & v) const
 {
     return Vector2i(x ^ v.x, y ^ v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator << (const Vector2i & v) const
 {
     return Vector2i(x << v.x, y << v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator >> (const Vector2i & v) const
 {
     return Vector2i(x >> v.x, y >> v.y);
@@ -299,46 +330,55 @@ Vector2i Vector2i::operator + (Value s) const
     return Vector2i(x + s, y + s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator - (Value s) const
 {
     return Vector2i(x - s, y - s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator * (Value s) const
 {
     return Vector2i(x * s, y * s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator / (Value s) const
 {
     return Vector2i(x / s, y / s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator % (Value s) const
 {
     return Vector2i(x % s, y % s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator & (Value s) const
 {
     return Vector2i(x & s, y & s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator | (Value s) const
 {
     return Vector2i(x | s, y | s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator ^ (Value s) const
 {
     return Vector2i(x ^ s, y ^ s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator << (Value s) const
 {
     return Vector2i(x < s, y < s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator >> (Value s) const
 {
     return Vector2i(x >> s, y >> s);
@@ -350,6 +390,7 @@ Vector2i Vector2i::operator + () const
     return Vector2i(std::abs(x), std::abs(y));
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator - () const
 {
     return Vector2i(-x, -y);
@@ -367,26 +408,31 @@ bool Vector2i::operator == (const Vector2i & v) const
     return (x == v.x) && (y == v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2i::operator != (const Vector2i & v) const
 {
     return (x != v.x) && (y != v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2i::operator < (const Vector2i & v) const
 {
     return (x < v.x) && (y < v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2i::operator > (const Vector2i & v) const
 {
     return (x > v.x) && (y > v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2i::operator <= (const Vector2i & v) const
 {
     return (x <= v.x) && (y <= v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2i::operator >= (const Vector2i & v) const
 {
         return (x >= v.x) && (y >= v.y);
@@ -416,35 +462,37 @@ CSStr Vector2i::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2i::Set(Value ns)
+void Vector2i::SetScalar(Value ns)
 {
     x = ns;
     y = ns;
 }
 
-void Vector2i::Set(Value nx, Value ny)
+// ------------------------------------------------------------------------------------------------
+void Vector2i::SetVector2i(const Vector2i & v)
+{
+    x = v.x;
+    y = v.y;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector2i::SetVector2iEx(Value nx, Value ny)
 {
     x = nx;
     y = ny;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2i::Set(const Vector2i & v)
-{
-    x = v.x;
-    y = v.y;
-}
-
-void Vector2i::Set(const Vector2 & v)
+void Vector2i::SetVector2(const Vector2 & v)
 {
     x = ConvTo< Value >::From(v.x);
     y = ConvTo< Value >::From(v.y);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2i::Set(CSStr values, SQChar delim)
+void Vector2i::SetStr(CSStr values, SQChar delim)
 {
-    Set(Vector2i::Get(values, delim));
+    SetVector2i(Vector2i::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -454,6 +502,7 @@ void Vector2i::Generate()
     y = GetRandomInt32();
 }
 
+// ------------------------------------------------------------------------------------------------
 void Vector2i::Generate(Value min, Value max)
 {
     if (max < min)
@@ -465,6 +514,7 @@ void Vector2i::Generate(Value min, Value max)
     y = GetRandomInt32(min, max);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Vector2i::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (xmax < xmin || ymax < ymin)
@@ -517,24 +567,27 @@ const Vector2i & GetVector2i()
     return vec;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector2i & GetVector2i(Int32 sv)
 {
     static Vector2i vec;
-    vec.Set(sv);
+    vec.SetScalar(sv);
     return vec;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector2i & GetVector2i(Int32 xv, Int32 yv)
 {
     static Vector2i vec;
-    vec.Set(xv, yv);
+    vec.SetVector2iEx(xv, yv);
     return vec;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector2i & GetVector2i(const Vector2i & o)
 {
     static Vector2i vec;
-    vec.Set(o);
+    vec.SetVector2i(o);
     return vec;
 }
 
@@ -553,8 +606,6 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Var(_SC("y"), &Vector2i::y)
         .Var(_SC("X"), &Vector2i::x)
         .Var(_SC("Y"), &Vector2i::y)
-        // Properties
-        .Prop(_SC("Abs"), &Vector2i::Abs)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Vector2i::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector2i::Typename)
@@ -566,18 +617,19 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_div"), &Vector2i::operator /)
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_modulo"), &Vector2i::operator %)
         .Func< Vector2i (Vector2i::*)(void) const >(_SC("_unm"), &Vector2i::operator -)
-        // Setters
-        .Overload< void (Vector2i::*)(Val) >(_SC("Set"), &Vector2i::Set)
-        .Overload< void (Vector2i::*)(Val, Val) >(_SC("Set"), &Vector2i::Set)
-        .Overload< void (Vector2i::*)(const Vector2i &) >(_SC("SetVec2i"), &Vector2i::Set)
-        .Overload< void (Vector2i::*)(const Vector2 &) >(_SC("SetVec2"), &Vector2i::Set)
-        .Overload< void (Vector2i::*)(CSStr, SQChar) >(_SC("SetStr"), &Vector2i::Set)
-        // Random Generators
+        // Properties
+        .Prop(_SC("Abs"), &Vector2i::Abs)
+        // Member Methods
+        .Func(_SC("SetScalar"), &Vector2i::SetScalar)
+        .Func(_SC("SetVector2i"), &Vector2i::SetVector2i)
+        .Func(_SC("SetVector2iEx"), &Vector2i::SetVector2iEx)
+        .Func(_SC("SetVector2"), &Vector2i::SetVector2)
+        .Func(_SC("SetStr"), &Vector2i::SetStr)
+        .Func(_SC("Clear"), &Vector2i::Clear)
+        // Member Overloads
         .Overload< void (Vector2i::*)(void) >(_SC("Generate"), &Vector2i::Generate)
         .Overload< void (Vector2i::*)(Val, Val) >(_SC("Generate"), &Vector2i::Generate)
         .Overload< void (Vector2i::*)(Val, Val, Val, Val) >(_SC("Generate"), &Vector2i::Generate)
-        // Utility Methods
-        .Func(_SC("Clear"), &Vector2i::Clear)
         // Static Overloads
         .StaticOverload< const Vector2i & (*)(CSStr) >(_SC("FromStr"), &Vector2i::Get)
         .StaticOverload< const Vector2i & (*)(CSStr, SQChar) >(_SC("FromStr"), &Vector2i::Get)
@@ -595,7 +647,6 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Func< Vector2i & (Vector2i::*)(const Vector2i &) >(_SC("opXorAssign"), &Vector2i::operator ^=)
         .Func< Vector2i & (Vector2i::*)(const Vector2i &) >(_SC("opShlAssign"), &Vector2i::operator <<=)
         .Func< Vector2i & (Vector2i::*)(const Vector2i &) >(_SC("opShrAssign"), &Vector2i::operator >>=)
-
         .Func< Vector2i & (Vector2i::*)(Vector2i::Value) >(_SC("opAddAssignS"), &Vector2i::operator +=)
         .Func< Vector2i & (Vector2i::*)(Vector2i::Value) >(_SC("opSubAssignS"), &Vector2i::operator -=)
         .Func< Vector2i & (Vector2i::*)(Vector2i::Value) >(_SC("opMulAssignS"), &Vector2i::operator *=)
@@ -606,12 +657,10 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Func< Vector2i & (Vector2i::*)(Vector2i::Value) >(_SC("opXorAssignS"), &Vector2i::operator ^=)
         .Func< Vector2i & (Vector2i::*)(Vector2i::Value) >(_SC("opShlAssignS"), &Vector2i::operator <<=)
         .Func< Vector2i & (Vector2i::*)(Vector2i::Value) >(_SC("opShrAssignS"), &Vector2i::operator >>=)
-
         .Func< Vector2i & (Vector2i::*)(void) >(_SC("opPreInc"), &Vector2i::operator ++)
         .Func< Vector2i & (Vector2i::*)(void) >(_SC("opPreDec"), &Vector2i::operator --)
         .Func< Vector2i (Vector2i::*)(int) >(_SC("opPostInc"), &Vector2i::operator ++)
         .Func< Vector2i (Vector2i::*)(int) >(_SC("opPostDec"), &Vector2i::operator --)
-
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("opAdd"), &Vector2i::operator +)
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("opSub"), &Vector2i::operator -)
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("opMul"), &Vector2i::operator *)
@@ -622,7 +671,6 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("opShl"), &Vector2i::operator ^)
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("opShl"), &Vector2i::operator <<)
         .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("opShr"), &Vector2i::operator >>)
-
         .Func< Vector2i (Vector2i::*)(Vector2i::Value) const >(_SC("opAddS"), &Vector2i::operator +)
         .Func< Vector2i (Vector2i::*)(Vector2i::Value) const >(_SC("opSubS"), &Vector2i::operator -)
         .Func< Vector2i (Vector2i::*)(Vector2i::Value) const >(_SC("opMulS"), &Vector2i::operator *)
@@ -633,11 +681,9 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Func< Vector2i (Vector2i::*)(Vector2i::Value) const >(_SC("opShlS"), &Vector2i::operator ^)
         .Func< Vector2i (Vector2i::*)(Vector2i::Value) const >(_SC("opShlS"), &Vector2i::operator <<)
         .Func< Vector2i (Vector2i::*)(Vector2i::Value) const >(_SC("opShrS"), &Vector2i::operator >>)
-
         .Func< Vector2i (Vector2i::*)(void) const >(_SC("opUnPlus"), &Vector2i::operator +)
         .Func< Vector2i (Vector2i::*)(void) const >(_SC("opUnMinus"), &Vector2i::operator -)
         .Func< Vector2i (Vector2i::*)(void) const >(_SC("opCom"), &Vector2i::operator ~)
-
         .Func< bool (Vector2i::*)(const Vector2i &) const >(_SC("opEqual"), &Vector2i::operator ==)
         .Func< bool (Vector2i::*)(const Vector2i &) const >(_SC("opNotEqual"), &Vector2i::operator !=)
         .Func< bool (Vector2i::*)(const Vector2i &) const >(_SC("opLessThan"), &Vector2i::operator <)
