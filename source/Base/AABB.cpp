@@ -65,6 +65,7 @@ AABB & AABB::operator = (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator = (const Vector3 & v)
 {
     min.Set(-v);
@@ -72,6 +73,7 @@ AABB & AABB::operator = (const Vector3 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator = (const Vector4 & v)
 {
     min.Set(-v);
@@ -87,6 +89,7 @@ AABB & AABB::operator += (const AABB & b)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator -= (const AABB & b)
 {
     min -= b.min;
@@ -94,6 +97,7 @@ AABB & AABB::operator -= (const AABB & b)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator *= (const AABB & b)
 {
     min *= b.min;
@@ -101,6 +105,7 @@ AABB & AABB::operator *= (const AABB & b)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator /= (const AABB & b)
 {
     min /= b.min;
@@ -108,6 +113,7 @@ AABB & AABB::operator /= (const AABB & b)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator %= (const AABB & b)
 {
     min %= b.min;
@@ -123,6 +129,7 @@ AABB & AABB::operator += (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator -= (Value s)
 {
     min -= s;
@@ -130,6 +137,7 @@ AABB & AABB::operator -= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator *= (Value s)
 {
     min *= s;
@@ -137,6 +145,7 @@ AABB & AABB::operator *= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator /= (Value s)
 {
     min /= s;
@@ -144,6 +153,7 @@ AABB & AABB::operator /= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator %= (Value s)
 {
     min %= s;
@@ -159,6 +169,7 @@ AABB & AABB::operator ++ ()
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator -- ()
 {
     --min;
@@ -175,6 +186,7 @@ AABB AABB::operator ++ (int)
     return state;
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator -- (int)
 {
     AABB state(*this);
@@ -189,21 +201,25 @@ AABB AABB::operator + (const AABB & b) const
     return AABB(min + b.min, max + b.max);
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator - (const AABB & b) const
 {
     return AABB(min - b.min, max - b.max);
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator * (const AABB & b) const
 {
     return AABB(min * b.min, max * b.max);
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator / (const AABB & b) const
 {
     return AABB(min / b.min, max / b.max);
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator % (const AABB & b) const
 {
     return AABB(min % b.min, max % b.max);
@@ -215,21 +231,25 @@ AABB AABB::operator + (Value s) const
     return AABB(min + s, max + s);
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator - (Value s) const
 {
     return AABB(min - s, max - s);
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator * (Value s) const
 {
     return AABB(min * s, max * s);
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator / (Value s) const
 {
     return AABB(min / s, max / s);
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator % (Value s) const
 {
     return AABB(min % s, max % s);
@@ -241,6 +261,7 @@ AABB AABB::operator + () const
     return AABB(min.Abs(), max.Abs());
 }
 
+// ------------------------------------------------------------------------------------------------
 AABB AABB::operator - () const
 {
     return AABB(-min, -max);
@@ -252,26 +273,31 @@ bool AABB::operator == (const AABB & b) const
     return (min == b.min) && (max == b.max);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool AABB::operator != (const AABB & b) const
 {
     return (min != b.min) && (max != b.max);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool AABB::operator < (const AABB & b) const
 {
     return (min < b.min) && (max < b.max);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool AABB::operator > (const AABB & b) const
 {
     return (min > b.min) && (max > b.max);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool AABB::operator <= (const AABB & b) const
 {
     return (min <= b.min) && (max <= b.max);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool AABB::operator >= (const AABB & b) const
 {
     return (min >= b.min) && (max >= b.max);
@@ -307,12 +333,14 @@ void AABB::Set(Value ns)
     max = std::fabs(ns);
 }
 
+// ------------------------------------------------------------------------------------------------
 void AABB::Set(Value nx, Value ny, Value nz)
 {
     min.Set(-nx, -ny, -nz);
     max.Set(std::fabs(nx), std::fabs(ny), std::fabs(nz));
 }
 
+// ------------------------------------------------------------------------------------------------
 void AABB::Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
 {
     min.Set(xmin, ymin, zmin);
@@ -320,33 +348,35 @@ void AABB::Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetBox(const AABB & b)
+void AABB::SetAABB(const AABB & b)
 {
     min = b.min;
     max = b.max;
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetVec3(const Vector3 & v)
+void AABB::SetVector3(const Vector3 & v)
 {
     min = -v;
     max = v.Abs();
 }
 
-void AABB::SetVec3(const Vector3 & nmin, const Vector3 & nmax)
+// ------------------------------------------------------------------------------------------------
+void AABB::SetVector3(const Vector3 & nmin, const Vector3 & nmax)
 {
     min = nmin;
     max = nmax;
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetVec4(const Vector4 & v)
+void AABB::SetVector4(const Vector4 & v)
 {
     min = -v;
     max = v.Abs();
 }
 
-void AABB::SetVec4(const Vector4 & nmin, const Vector4 & nmax)
+// ------------------------------------------------------------------------------------------------
+void AABB::SetVector4(const Vector4 & nmin, const Vector4 & nmax)
 {
     min = nmin;
     max = nmax;
@@ -355,7 +385,7 @@ void AABB::SetVec4(const Vector4 & nmin, const Vector4 & nmax)
 // ------------------------------------------------------------------------------------------------
 void AABB::SetStr(CSStr values, SQChar delim)
 {
-    SetBox(AABB::Get(values, delim));
+    SetAABB(AABB::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -403,6 +433,7 @@ const AABB & GetAABB()
     return box;
 }
 
+// ------------------------------------------------------------------------------------------------
 const AABB & GetAABB(Float32 sv)
 {
     static AABB box;
@@ -410,6 +441,7 @@ const AABB & GetAABB(Float32 sv)
     return box;
 }
 
+// ------------------------------------------------------------------------------------------------
 const AABB & GetAABB(Float32 xv, Float32 yv, Float32 zv)
 {
     static AABB box;
@@ -417,6 +449,7 @@ const AABB & GetAABB(Float32 xv, Float32 yv, Float32 zv)
     return box;
 }
 
+// ------------------------------------------------------------------------------------------------
 const AABB & GetAABB(Float32 xmin, Float32 ymin, Float32 zmin, Float32 xmax, Float32 ymax, Float32 zmax)
 {
     static AABB box;
@@ -424,17 +457,19 @@ const AABB & GetAABB(Float32 xmin, Float32 ymin, Float32 zmin, Float32 xmax, Flo
     return box;
 }
 
+// ------------------------------------------------------------------------------------------------
 const AABB & GetAABB(const Vector3 & vmin, const Vector3 & vmax)
 {
     static AABB box;
-    box.SetVec3(vmin, vmax);
+    box.SetVector3(vmin, vmax);
     return box;
 }
 
+// ------------------------------------------------------------------------------------------------
 const AABB & GetAABB(const AABB & o)
 {
     static AABB box;
-    box.SetBox(o);
+    box.SetAABB(o);
     return box;
 }
 
@@ -455,8 +490,6 @@ void Register_AABB(HSQUIRRELVM vm)
         .Var(_SC("max"), &AABB::max)
         .Var(_SC("Min"), &AABB::min)
         .Var(_SC("Max"), &AABB::max)
-        // Properties
-        .Prop(_SC("Abs"), &AABB::Abs)
         // Core Meta-methods
         .Func(_SC("_tostring"), &AABB::ToString)
         .SquirrelFunc(_SC("_typename"), &AABB::Typename)
@@ -468,18 +501,20 @@ void Register_AABB(HSQUIRRELVM vm)
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("_div"), &AABB::operator /)
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("_modulo"), &AABB::operator %)
         .Func< AABB (AABB::*)(void) const >(_SC("_unm"), &AABB::operator -)
-        // Setters
+        // Properties
+        .Prop(_SC("Abs"), &AABB::Abs)
+        // Member Methods
+        .Func(_SC("SetAABB"), &AABB::SetAABB)
+        .Func(_SC("SetStr"), &AABB::SetStr)
+        .Func(_SC("Clear"), &AABB::Clear)
+        // Member Overloads
         .Overload< void (AABB::*)(Val) >(_SC("Set"), &AABB::Set)
         .Overload< void (AABB::*)(Val, Val, Val) >(_SC("Set"), &AABB::Set)
         .Overload< void (AABB::*)(Val, Val, Val, Val, Val, Val) >(_SC("Set"), &AABB::Set)
-        .Overload< void (AABB::*)(const Vector3 &) >(_SC("SetVec3"), &AABB::SetVec3)
-        .Overload< void (AABB::*)(const Vector3 &, const Vector3 &) >(_SC("SetVec3"), &AABB::SetVec3)
-        .Overload< void (AABB::*)(const Vector4 &) >(_SC("SetVec4"), &AABB::SetVec4)
-        .Overload< void (AABB::*)(const Vector4 &, const Vector4 &) >(_SC("SetVec4"), &AABB::SetVec4)
-        // Utility Methods
-        .Func(_SC("Clear"), &AABB::Clear)
-        .Func(_SC("SetBox"), &AABB::SetBox)
-        .Func(_SC("SetStr"), &AABB::SetStr)
+        .Overload< void (AABB::*)(const Vector3 &) >(_SC("SetVector3"), &AABB::SetVector3)
+        .Overload< void (AABB::*)(const Vector3 &, const Vector3 &) >(_SC("SetVector3"), &AABB::SetVector3)
+        .Overload< void (AABB::*)(const Vector4 &) >(_SC("SetVector4"), &AABB::SetVector4)
+        .Overload< void (AABB::*)(const Vector4 &, const Vector4 &) >(_SC("SetVector4"), &AABB::SetVector4)
         // Static Overloads
         .StaticOverload< const AABB & (*)(CSStr) >(_SC("FromStr"), &AABB::Get)
         .StaticOverload< const AABB & (*)(CSStr, SQChar) >(_SC("FromStr"), &AABB::Get)

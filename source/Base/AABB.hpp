@@ -297,31 +297,31 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Set the same box from another instance of this type.
     */
-    void SetBox(const AABB & b);
+    void SetAABB(const AABB & b);
 
     /* --------------------------------------------------------------------------------------------
      * Set an equally sized and imperfectly shaped box from a single three-dimensional vector
      * representing a single three-dimensional point.
     */
-    void SetVec3(const Vector3 & v);
+    void SetVector3(const Vector3 & v);
 
     /* --------------------------------------------------------------------------------------------
      * Set an unequally sized and imperfectly shaped box from two three-dimensional vectors
      * representing two three-dimensional points.
     */
-    void SetVec3(const Vector3 & nmin, const Vector3 & nmax);
+    void SetVector3(const Vector3 & nmin, const Vector3 & nmax);
 
     /* --------------------------------------------------------------------------------------------
      * Set an equally sized and imperfectly shaped box from a single four-dimensional vector
      * representing a single three-dimensional point.
     */
-    void SetVec4(const Vector4 & v);
+    void SetVector4(const Vector4 & v);
 
     /* --------------------------------------------------------------------------------------------
      * Set an unequally sized and imperfectly shaped box from two four-dimensional vectors
      * representing two three-dimensional points.
     */
-    void SetVec4(const Vector4 & nmin, const Vector4 & nmax);
+    void SetVector4(const Vector4 & nmin, const Vector4 & nmax);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
