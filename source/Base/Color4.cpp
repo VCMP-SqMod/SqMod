@@ -535,23 +535,6 @@ void Color4::SetScalar(Value ns)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetColor3Ex(Value nr, Value ng, Value nb)
-{
-    r = nr;
-    g = ng;
-    b = nb;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Color4::SetColor4Ex(Value nr, Value ng, Value nb, Value na)
-{
-    r = nr;
-    g = ng;
-    b = nb;
-    a = na;
-}
-
-// ------------------------------------------------------------------------------------------------
 void Color4::SetColor3(const Color3 & c)
 {
     r = c.r;
@@ -561,12 +544,29 @@ void Color4::SetColor3(const Color3 & c)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Color4::SetColor3Ex(Value nr, Value ng, Value nb)
+{
+    r = nr;
+    g = ng;
+    b = nb;
+}
+
+// ------------------------------------------------------------------------------------------------
 void Color4::SetColor4(const Color4 & c)
 {
     r = c.r;
     g = c.g;
     b = c.b;
     a = c.a;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Color4::SetColor4Ex(Value nr, Value ng, Value nb, Value na)
+{
+    r = nr;
+    g = ng;
+    b = nb;
+    a = na;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -793,10 +793,10 @@ void Register_Color4(HSQUIRRELVM vm)
         .Prop(_SC("ARGB"), &Color4::GetARGB, &Color4::SetARGB)
         // Member Methods
         .Func(_SC("SetScalar"), &Color4::SetScalar)
-        .Func(_SC("SetColor3Ex"), &Color4::SetColor3Ex)
-        .Func(_SC("SetColor4Ex"), &Color4::SetColor4Ex)
         .Func(_SC("SetColor3"), &Color4::SetColor3)
+        .Func(_SC("SetColor3Ex"), &Color4::SetColor3Ex)
         .Func(_SC("SetColor4"), &Color4::SetColor4)
+        .Func(_SC("SetColor4Ex"), &Color4::SetColor4Ex)
         .Func(_SC("SetStr"), &Color4::SetStr)
         .Func(_SC("SetName"), &Color4::SetName)
         .Func(_SC("Clear"), &Color4::Clear)
