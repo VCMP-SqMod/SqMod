@@ -385,24 +385,24 @@ struct Color3
     void SetScalar(Value ns);
 
     /* --------------------------------------------------------------------------------------------
-     * Set all components to the specified values.
-    */
-    void SetColor3Ex(Value nr, Value ng, Value nb);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set all components to the specified values.
-    */
-    void SetColor4Ex(Value nr, Value ng, Value nb, Value na);
-
-    /* --------------------------------------------------------------------------------------------
      * Copy the values from another instance of this type.
     */
     void SetColor3(const Color3 & c);
 
     /* --------------------------------------------------------------------------------------------
+     * Set all components to the specified values.
+    */
+    void SetColor3Ex(Value nr, Value ng, Value nb);
+
+    /* --------------------------------------------------------------------------------------------
      * Copy the values from an opaque color.
     */
     void SetColor4(const Color4 & c);
+
+    /* --------------------------------------------------------------------------------------------
+     * Set all components to the specified values.
+    */
+    void SetColor4Ex(Value nr, Value ng, Value nb, Value na);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.

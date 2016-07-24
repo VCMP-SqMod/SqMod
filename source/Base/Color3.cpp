@@ -509,22 +509,6 @@ void Color3::SetScalar(Value ns)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::SetColor3Ex(Value nr, Value ng, Value nb)
-{
-    r = nr;
-    g = ng;
-    b = nb;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Color3::SetColor4Ex(Value nr, Value ng, Value nb, Value /*na*/)
-{
-    r = nr;
-    g = ng;
-    b = nb;
-}
-
-// ------------------------------------------------------------------------------------------------
 void Color3::SetColor3(const Color3 & c)
 {
     r = c.r;
@@ -533,11 +517,27 @@ void Color3::SetColor3(const Color3 & c)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Color3::SetColor3Ex(Value nr, Value ng, Value nb)
+{
+    r = nr;
+    g = ng;
+    b = nb;
+}
+
+// ------------------------------------------------------------------------------------------------
 void Color3::SetColor4(const Color4 & c)
 {
     r = c.r;
     g = c.g;
     b = c.b;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Color3::SetColor4Ex(Value nr, Value ng, Value nb, Value /*na*/)
+{
+    r = nr;
+    g = ng;
+    b = nb;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -746,10 +746,10 @@ void Register_Color3(HSQUIRRELVM vm)
         .Prop(_SC("ARGB"), &Color3::GetARGB, &Color3::SetARGB)
         // Member Methods
         .Func(_SC("SetScalar"), &Color3::SetScalar)
-        .Func(_SC("SetColor3Ex"), &Color3::SetColor3Ex)
-        .Func(_SC("SetColor4Ex"), &Color3::SetColor4Ex)
         .Func(_SC("SetColor3"), &Color3::SetColor3)
+        .Func(_SC("SetColor3Ex"), &Color3::SetColor3Ex)
         .Func(_SC("SetColor4"), &Color3::SetColor4)
+        .Func(_SC("SetColor4Ex"), &Color3::SetColor4Ex)
         .Func(_SC("SetStr"), &Color3::SetStr)
         .Func(_SC("SetName"), &Color3::SetName)
         .Func(_SC("Clear"), &Color3::Clear)
