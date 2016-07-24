@@ -267,27 +267,27 @@ struct Vector2
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
     */
-    void Set(Value ns);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set all components to the specified values.
-    */
-    void Set(Value nx, Value ny);
+    void SetScalar(Value ns);
 
     /* --------------------------------------------------------------------------------------------
      * Copy the values from another instance of this type.
     */
-    void Set(const Vector2 & v);
+    void SetVector2(const Vector2 & v);
+
+    /* --------------------------------------------------------------------------------------------
+     * Set all components to the specified values.
+    */
+    void SetVector2Ex(Value nx, Value ny);
 
     /* --------------------------------------------------------------------------------------------
      * Copy the values from an integral two-dimensional vector.
     */
-    void Set(const Vector2i & v);
+    void SetVector2i(const Vector2i & v);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void Set(CSStr values, SQChar delim);
+    void SetStr(CSStr values, SQChar delim);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.

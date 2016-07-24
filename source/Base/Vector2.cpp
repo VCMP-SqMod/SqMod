@@ -55,12 +55,14 @@ Vector2 & Vector2::operator = (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator = (CSStr values)
 {
-    Set(Vector2::Get(values, Delim));
+    SetVector2(Vector2::Get(values, Delim));
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator = (const Vector2i & v)
 {
     x = ConvTo< Value >::From(v.x);
@@ -76,6 +78,7 @@ Vector2 & Vector2::operator += (const Vector2 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator -= (const Vector2 & v)
 {
     x -= v.x;
@@ -83,6 +86,7 @@ Vector2 & Vector2::operator -= (const Vector2 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator *= (const Vector2 & v)
 {
     x *= v.x;
@@ -90,6 +94,7 @@ Vector2 & Vector2::operator *= (const Vector2 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator /= (const Vector2 & v)
 {
     x /= v.x;
@@ -97,6 +102,7 @@ Vector2 & Vector2::operator /= (const Vector2 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator %= (const Vector2 & v)
 {
     x = std::fmod(x, v.x);
@@ -112,6 +118,7 @@ Vector2 & Vector2::operator += (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator -= (Value s)
 {
     x -= s;
@@ -119,6 +126,7 @@ Vector2 & Vector2::operator -= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator *= (Value s)
 {
     x *= s;
@@ -126,6 +134,7 @@ Vector2 & Vector2::operator *= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator /= (Value s)
 {
     x /= s;
@@ -133,6 +142,7 @@ Vector2 & Vector2::operator /= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator %= (Value s)
 {
     x = std::fmod(x, s);
@@ -148,6 +158,7 @@ Vector2 & Vector2::operator ++ ()
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator -- ()
 {
     --x;
@@ -164,6 +175,7 @@ Vector2 Vector2::operator ++ (int)
     return state;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator -- (int)
 {
     Vector2 state(*this);
@@ -178,21 +190,25 @@ Vector2 Vector2::operator + (const Vector2 & v) const
     return Vector2(x + v.x, y + v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator - (const Vector2 & v) const
 {
     return Vector2(x - v.x, y - v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator * (const Vector2 & v) const
 {
     return Vector2(x * v.x, y * v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator / (const Vector2 & v) const
 {
     return Vector2(x / v.x, y / v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator % (const Vector2 & v) const
 {
     return Vector2(std::fmod(x, v.x), std::fmod(y, v.y));
@@ -204,21 +220,25 @@ Vector2 Vector2::operator + (Value s) const
     return Vector2(x + s, y + s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator - (Value s) const
 {
     return Vector2(x - s, y - s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator * (Value s) const
 {
     return Vector2(x * s, y * s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator / (Value s) const
 {
     return Vector2(x / s, y / s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator % (Value s) const
 {
     return Vector2(std::fmod(x, s), std::fmod(y, s));
@@ -230,6 +250,7 @@ Vector2 Vector2::operator + () const
     return Vector2(std::fabs(x), std::fabs(y));
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator - () const
 {
     return Vector2(-x, -y);
@@ -241,26 +262,31 @@ bool Vector2::operator == (const Vector2 & v) const
     return EpsEq(x, v.x) && EpsEq(y, v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2::operator != (const Vector2 & v) const
 {
     return !EpsEq(x, v.x) && !EpsEq(y, v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2::operator < (const Vector2 & v) const
 {
     return EpsLt(x, v.x) && EpsLt(y, v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2::operator > (const Vector2 & v) const
 {
     return EpsGt(x, v.x) && EpsGt(y, v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2::operator <= (const Vector2 & v) const
 {
     return EpsLtEq(x, v.x) && EpsLtEq(y, v.y);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector2::operator >= (const Vector2 & v) const
 {
     return EpsGtEq(x, v.x) && EpsGtEq(y, v.y);
@@ -290,35 +316,37 @@ CSStr Vector2::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2::Set(Value ns)
+void Vector2::SetScalar(Value ns)
 {
     x = ns;
     y = ns;
 }
 
-void Vector2::Set(Value nx, Value ny)
+// ------------------------------------------------------------------------------------------------
+void Vector2::SetVector2(const Vector2 & v)
+{
+    x = v.x;
+    y = v.y;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector2::SetVector2Ex(Value nx, Value ny)
 {
     x = nx;
     y = ny;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2::Set(const Vector2 & v)
-{
-    x = v.x;
-    y = v.y;
-}
-
-void Vector2::Set(const Vector2i & v)
+void Vector2::SetVector2i(const Vector2i & v)
 {
     x = ConvTo< Value >::From(v.x);
     y = ConvTo< Value >::From(v.y);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2::Set(CSStr values, SQChar delim)
+void Vector2::SetStr(CSStr values, SQChar delim)
 {
-    Set(Vector2::Get(values, delim));
+    SetVector2(Vector2::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -328,6 +356,7 @@ void Vector2::Generate()
     y = GetRandomFloat32();
 }
 
+// ------------------------------------------------------------------------------------------------
 void Vector2::Generate(Value min, Value max)
 {
     if (EpsLt(max, min))
@@ -339,6 +368,7 @@ void Vector2::Generate(Value min, Value max)
     y = GetRandomFloat32(min, max);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Vector2::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin))
@@ -391,24 +421,27 @@ const Vector2 & GetVector2()
     return vec;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector2 & GetVector2(Float32 sv)
 {
     static Vector2 vec;
-    vec.Set(sv);
+    vec.SetScalar(sv);
     return vec;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector2 & GetVector2(Float32 xv, Float32 yv)
 {
     static Vector2 vec;
-    vec.Set(xv, yv);
+    vec.SetVector2Ex(xv, yv);
     return vec;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector2 & GetVector2(const Vector2 & o)
 {
     static Vector2 vec;
-    vec.Set(o);
+    vec.SetVector2(o);
     return vec;
 }
 
@@ -427,8 +460,6 @@ void Register_Vector2(HSQUIRRELVM vm)
         .Var(_SC("y"), &Vector2::y)
         .Var(_SC("X"), &Vector2::x)
         .Var(_SC("Y"), &Vector2::y)
-        // Properties
-        .Prop(_SC("Abs"), &Vector2::Abs)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Vector2::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector2::Typename)
@@ -440,18 +471,19 @@ void Register_Vector2(HSQUIRRELVM vm)
         .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("_div"), &Vector2::operator /)
         .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("_modulo"), &Vector2::operator %)
         .Func< Vector2 (Vector2::*)(void) const >(_SC("_unm"), &Vector2::operator -)
-        // Setters
-        .Overload< void (Vector2::*)(Val) >(_SC("Set"), &Vector2::Set)
-        .Overload< void (Vector2::*)(Val, Val) >(_SC("Set"), &Vector2::Set)
-        .Overload< void (Vector2::*)(const Vector2 &) >(_SC("SetVec2"), &Vector2::Set)
-        .Overload< void (Vector2::*)(const Vector2i &) >(_SC("SetVec2i"), &Vector2::Set)
-        .Overload< void (Vector2::*)(CSStr, SQChar) >(_SC("SetStr"), &Vector2::Set)
-        // Random Generators
+        // Properties
+        .Prop(_SC("Abs"), &Vector2::Abs)
+        // Member Methods
+        .Func(_SC("SetScalar"), &Vector2::SetScalar)
+        .Func(_SC("SetVector2"), &Vector2::SetVector2)
+        .Func(_SC("SetVector2Ex"), &Vector2::SetVector2Ex)
+        .Func(_SC("SetVector2i"), &Vector2::SetVector2i)
+        .Func(_SC("SetStr"), &Vector2::SetStr)
+        .Func(_SC("Clear"), &Vector2::Clear)
+        // Member Overloads
         .Overload< void (Vector2::*)(void) >(_SC("Generate"), &Vector2::Generate)
         .Overload< void (Vector2::*)(Val, Val) >(_SC("Generate"), &Vector2::Generate)
         .Overload< void (Vector2::*)(Val, Val, Val, Val) >(_SC("Generate"), &Vector2::Generate)
-        // Utility Methods
-        .Func(_SC("Clear"), &Vector2::Clear)
         // Static Overloads
         .StaticOverload< const Vector2 & (*)(CSStr) >(_SC("FromStr"), &Vector2::Get)
         .StaticOverload< const Vector2 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Vector2::Get)
@@ -464,33 +496,27 @@ void Register_Vector2(HSQUIRRELVM vm)
         .Func< Vector2 & (Vector2::*)(const Vector2 &) >(_SC("opMulAssign"), &Vector2::operator *=)
         .Func< Vector2 & (Vector2::*)(const Vector2 &) >(_SC("opDivAssign"), &Vector2::operator /=)
         .Func< Vector2 & (Vector2::*)(const Vector2 &) >(_SC("opModAssign"), &Vector2::operator %=)
-
         .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opAddAssignS"), &Vector2::operator +=)
         .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opSubAssignS"), &Vector2::operator -=)
         .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opMulAssignS"), &Vector2::operator *=)
         .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opDivAssignS"), &Vector2::operator /=)
         .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opModAssignS"), &Vector2::operator %=)
-
         .Func< Vector2 & (Vector2::*)(void) >(_SC("opPreInc"), &Vector2::operator ++)
         .Func< Vector2 & (Vector2::*)(void) >(_SC("opPreDec"), &Vector2::operator --)
         .Func< Vector2 (Vector2::*)(int) >(_SC("opPostInc"), &Vector2::operator ++)
         .Func< Vector2 (Vector2::*)(int) >(_SC("opPostDec"), &Vector2::operator --)
-
         .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opAdd"), &Vector2::operator +)
         .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opSub"), &Vector2::operator -)
         .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opMul"), &Vector2::operator *)
         .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opDiv"), &Vector2::operator /)
         .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opMod"), &Vector2::operator %)
-
         .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opAddS"), &Vector2::operator +)
         .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opSubS"), &Vector2::operator -)
         .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opMulS"), &Vector2::operator *)
         .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opDivS"), &Vector2::operator /)
         .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opModS"), &Vector2::operator %)
-
         .Func< Vector2 (Vector2::*)(void) const >(_SC("opUnPlus"), &Vector2::operator +)
         .Func< Vector2 (Vector2::*)(void) const >(_SC("opUnMinus"), &Vector2::operator -)
-
         .Func< bool (Vector2::*)(const Vector2 &) const >(_SC("opEqual"), &Vector2::operator ==)
         .Func< bool (Vector2::*)(const Vector2 &) const >(_SC("opNotEqual"), &Vector2::operator !=)
         .Func< bool (Vector2::*)(const Vector2 &) const >(_SC("opLessThan"), &Vector2::operator <)
