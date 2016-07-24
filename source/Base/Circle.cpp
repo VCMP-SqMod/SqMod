@@ -402,13 +402,13 @@ void Circle::SetValues(const Vector2 & np, Value nr)
 // ------------------------------------------------------------------------------------------------
 void Circle::SetPositionEx(Value nx, Value ny)
 {
-    pos.Set(nx, ny);
+    pos.SetVector2Ex(nx, ny);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Circle::SetValuesEx(Value nx, Value ny, Value nr)
 {
-    pos.Set(nx, ny);
+    pos.SetVector2Ex(nx, ny);
     rad = nr;
 }
 
