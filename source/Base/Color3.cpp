@@ -48,6 +48,13 @@ Color3::Color3(Value rv, Value gv, Value bv)
 }
 
 // ------------------------------------------------------------------------------------------------
+Color3::Color3(Value rv, Value gv, Value bv, Value /*av*/)
+    : r(rv), g(gv), b(bv)
+{
+    /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator = (Value s)
 {
     r = s;
@@ -56,12 +63,14 @@ Color3 & Color3::operator = (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator = (CSStr name)
 {
-    Set(GetColor(name));
+    SetColor3(GetColor(name));
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator = (const Color4 & c)
 {
     r = c.r;
@@ -79,6 +88,7 @@ Color3 & Color3::operator += (const Color3 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator -= (const Color3 & c)
 {
     r -= c.r;
@@ -87,6 +97,7 @@ Color3 & Color3::operator -= (const Color3 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator *= (const Color3 & c)
 {
     r *= c.r;
@@ -95,6 +106,7 @@ Color3 & Color3::operator *= (const Color3 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator /= (const Color3 & c)
 {
     r /= c.r;
@@ -103,6 +115,7 @@ Color3 & Color3::operator /= (const Color3 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator %= (const Color3 & c)
 {
     r %= c.r;
@@ -111,6 +124,7 @@ Color3 & Color3::operator %= (const Color3 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator &= (const Color3 & c)
 {
     r &= c.r;
@@ -119,6 +133,7 @@ Color3 & Color3::operator &= (const Color3 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator |= (const Color3 & c)
 {
     r |= c.r;
@@ -127,6 +142,7 @@ Color3 & Color3::operator |= (const Color3 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator ^= (const Color3 & c)
 {
     r ^= c.r;
@@ -135,6 +151,7 @@ Color3 & Color3::operator ^= (const Color3 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator <<= (const Color3 & c)
 {
     r <<= c.r;
@@ -143,6 +160,7 @@ Color3 & Color3::operator <<= (const Color3 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator >>= (const Color3 & c)
 {
     r >>= c.r;
@@ -160,6 +178,7 @@ Color3 & Color3::operator += (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator -= (Value s)
 {
     r -= s;
@@ -168,6 +187,7 @@ Color3 & Color3::operator -= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator *= (Value s)
 {
     r *= s;
@@ -176,6 +196,7 @@ Color3 & Color3::operator *= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator /= (Value s)
 {
     r /= s;
@@ -184,6 +205,7 @@ Color3 & Color3::operator /= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator %= (Value s)
 {
     r %= s;
@@ -192,6 +214,7 @@ Color3 & Color3::operator %= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator &= (Value s)
 {
     r &= s;
@@ -200,6 +223,7 @@ Color3 & Color3::operator &= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator |= (Value s)
 {
     r |= s;
@@ -208,6 +232,7 @@ Color3 & Color3::operator |= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator ^= (Value s)
 {
     r ^= s;
@@ -216,6 +241,7 @@ Color3 & Color3::operator ^= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator <<= (Value s)
 {
     r <<= s;
@@ -224,6 +250,7 @@ Color3 & Color3::operator <<= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator >>= (Value s)
 {
     r >>= s;
@@ -241,6 +268,7 @@ Color3 & Color3::operator ++ ()
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 & Color3::operator -- ()
 {
     --r;
@@ -259,6 +287,7 @@ Color3 Color3::operator ++ (int)
     return state;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator -- (int)
 {
     Color3 state(*this);
@@ -274,46 +303,55 @@ Color3 Color3::operator + (const Color3 & c) const
     return Color3(r + c.r, g + c.g, b + c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator - (const Color3 & c) const
 {
     return Color3(r - c.r, g - c.g, b - c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator * (const Color3 & c) const
 {
     return Color3(r * c.r, g * c.g, b * c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator / (const Color3 & c) const
 {
     return Color3(r / c.r, g / c.g, b / c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator % (const Color3 & c) const
 {
     return Color3(r % c.r, g % c.g, b % c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator & (const Color3 & c) const
 {
     return Color3(r & c.r, g & c.g, b & c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator | (const Color3 & c) const
 {
     return Color3(r | c.r, g | c.g, b | c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator ^ (const Color3 & c) const
 {
     return Color3(r ^ c.r, g ^ c.g, b ^ c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator << (const Color3 & c) const
 {
     return Color3(r << c.r, g << c.g, b << c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator >> (const Color3 & c) const
 {
     return Color3(r >> c.r, g >> c.g, b >> c.b);
@@ -325,46 +363,55 @@ Color3 Color3::operator + (Value s) const
     return Color3(r + s, g + s, b + s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator - (Value s) const
 {
     return Color3(r - s, g - s, b - s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator * (Value s) const
 {
     return Color3(r * s, g * s, b * s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator / (Value s) const
 {
     return Color3(r / s, g / s, b / s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator % (Value s) const
 {
     return Color3(r % s, g % s, b % s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator & (Value s) const
 {
     return Color3(r & s, g & s, b & s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator | (Value s) const
 {
     return Color3(r | s, g | s, b | s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator ^ (Value s) const
 {
     return Color3(r ^ s, g ^ s, b ^ s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator << (Value s) const
 {
     return Color3(r << s, g << s, b << s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator >> (Value s) const
 {
     return Color3(r >> s, g >> s, b >> s);
@@ -376,6 +423,7 @@ Color3 Color3::operator + () const
     return Color3(r, g, b);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color3 Color3::operator - () const
 {
     return Color3(0, 0, 0);
@@ -393,26 +441,31 @@ bool Color3::operator == (const Color3 & c) const
     return (r == c.r) && (g == c.g) && (b == c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color3::operator != (const Color3 & c) const
 {
     return (r != c.r) && (g != c.g) && (b != c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color3::operator < (const Color3 & c) const
 {
     return (r < c.r) && (g < c.g) && (b < c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color3::operator > (const Color3 & c) const
 {
     return (r > c.r) && (g > c.g) && (b > c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color3::operator <= (const Color3 & c) const
 {
     return (r <= c.r) && (g <= c.g) && (b <= c.b);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color3::operator >= (const Color3 & c) const
 {
     return (r >= c.r) && (g >= c.g) && (b >= c.b);
@@ -448,14 +501,15 @@ CSStr Color3::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Set(Value ns)
+void Color3::SetScalar(Value ns)
 {
     r = ns;
     g = ns;
     b = ns;
 }
 
-void Color3::Set(Value nr, Value ng, Value nb)
+// ------------------------------------------------------------------------------------------------
+void Color3::SetColor3Ex(Value nr, Value ng, Value nb)
 {
     r = nr;
     g = ng;
@@ -463,14 +517,15 @@ void Color3::Set(Value nr, Value ng, Value nb)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Set(const Color3 & c)
+void Color3::SetColor4Ex(Value nr, Value ng, Value nb, Value /*na*/)
 {
-    r = c.r;
-    g = c.g;
-    b = c.b;
+    r = nr;
+    g = ng;
+    b = nb;
 }
 
-void Color3::Set(const Color4 & c)
+// ------------------------------------------------------------------------------------------------
+void Color3::SetColor3(const Color3 & c)
 {
     r = c.r;
     g = c.g;
@@ -478,15 +533,23 @@ void Color3::Set(const Color4 & c)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Set(CSStr str, SQChar delim)
+void Color3::SetColor4(const Color4 & c)
 {
-    Set(Color3::Get(str, delim));
+    r = c.r;
+    g = c.g;
+    b = c.b;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::SetCol(CSStr name)
+void Color3::SetStr(CSStr str, SQChar delim)
 {
-    Set(GetColor(name));
+    SetColor3(Color3::Get(str, delim));
+}
+
+// ------------------------------------------------------------------------------------------------
+void Color3::SetName(CSStr name)
+{
+    SetColor3(GetColor(name));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -495,6 +558,7 @@ Uint32 Color3::GetRGB() const
     return Uint32(r << 16 | g << 8 | b);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color3::SetRGB(Uint32 p)
 {
     r = static_cast< Value >((p >> 16) & 0xFF);
@@ -508,6 +572,7 @@ Uint32 Color3::GetRGBA() const
     return Uint32(r << 24 | g << 16 | b << 8 | 0x00);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color3::SetRGBA(Uint32 p)
 {
     r = static_cast< Value >((p >> 24) & 0xFF);
@@ -521,6 +586,7 @@ Uint32 Color3::GetARGB() const
     return Uint32(0x00 << 24 | r << 16 | g << 8 | b);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color3::SetARGB(Uint32 p)
 {
     r = static_cast< Value >((p >> 16) & 0xFF);
@@ -536,6 +602,7 @@ void Color3::Generate()
     b = GetRandomUint8();
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color3::Generate(Value min, Value max)
 {
     if (max < min)
@@ -548,6 +615,7 @@ void Color3::Generate(Value min, Value max)
     b = GetRandomUint8(min, max);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin)
@@ -563,7 +631,7 @@ void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin
 // ------------------------------------------------------------------------------------------------
 void Color3::Random()
 {
-    Set(GetRandomColor());
+    SetColor3(GetRandomColor());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -619,24 +687,27 @@ const Color3 & GetColor3()
     return col;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Color3 & GetColor3(Uint8 sv)
 {
     static Color3 col;
-    col.Set(sv);
+    col.SetScalar(sv);
     return col;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Color3 & GetColor3(Uint8 rv, Uint8 gv, Uint8 bv)
 {
     static Color3 col;
-    col.Set(rv, gv, bv);
+    col.SetColor3Ex(rv, gv, bv);
     return col;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Color3 & GetColor3(const Color3 & o)
 {
     static Color3 col;
-    col.Set(o);
+    col.SetColor3(o);
     return col;
 }
 
@@ -650,6 +721,7 @@ void Register_Color3(HSQUIRRELVM vm)
         .Ctor()
         .Ctor< Val >()
         .Ctor< Val, Val, Val >()
+        .Ctor< Val, Val, Val, Val >()
         // Member Variables
         .Var(_SC("r"), &Color3::r)
         .Var(_SC("g"), &Color3::g)
@@ -657,11 +729,6 @@ void Register_Color3(HSQUIRRELVM vm)
         .Var(_SC("R"), &Color3::r)
         .Var(_SC("G"), &Color3::g)
         .Var(_SC("B"), &Color3::b)
-        // Properties
-        .Prop(_SC("RGB"), &Color3::GetRGB, &Color3::SetRGB)
-        .Prop(_SC("RGBA"), &Color3::GetRGBA, &Color3::SetRGBA)
-        .Prop(_SC("ARGB"), &Color3::GetARGB, &Color3::SetARGB)
-        .Prop(_SC("Str"), &Color3::SetCol)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Color3::ToString)
         .SquirrelFunc(_SC("_typename"), &Color3::Typename)
@@ -673,20 +740,25 @@ void Register_Color3(HSQUIRRELVM vm)
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_div"), &Color3::operator /)
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_modulo"), &Color3::operator %)
         .Func< Color3 (Color3::*)(void) const >(_SC("_unm"), &Color3::operator -)
-        // Setters
-        .Overload< void (Color3::*)(Val) >(_SC("Set"), &Color3::Set)
-        .Overload< void (Color3::*)(Val, Val, Val) >(_SC("Set"), &Color3::Set)
-        .Overload< void (Color3::*)(const Color3 &) >(_SC("SetCol3"), &Color3::Set)
-        .Overload< void (Color3::*)(const Color4 &) >(_SC("SetCol4"), &Color3::Set)
-        .Overload< void (Color3::*)(CSStr, SQChar) >(_SC("SetStr"), &Color3::Set)
-        // Random Generators
-        .Overload< void (Color3::*)(void) >(_SC("Generate"), &Color3::Generate)
-        .Overload< void (Color3::*)(Val, Val) >(_SC("Generate"), &Color3::Generate)
-        .Overload< void (Color3::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Color3::Generate)
-        // Utility Methods
+        // Properties
+        .Prop(_SC("RGB"), &Color3::GetRGB, &Color3::SetRGB)
+        .Prop(_SC("RGBA"), &Color3::GetRGBA, &Color3::SetRGBA)
+        .Prop(_SC("ARGB"), &Color3::GetARGB, &Color3::SetARGB)
+        // Member Methods
+        .Func(_SC("SetScalar"), &Color3::SetScalar)
+        .Func(_SC("SetColor3Ex"), &Color3::SetColor3Ex)
+        .Func(_SC("SetColor4Ex"), &Color3::SetColor4Ex)
+        .Func(_SC("SetColor3"), &Color3::SetColor3)
+        .Func(_SC("SetColor4"), &Color3::SetColor4)
+        .Func(_SC("SetStr"), &Color3::SetStr)
+        .Func(_SC("SetName"), &Color3::SetName)
         .Func(_SC("Clear"), &Color3::Clear)
         .Func(_SC("Random"), &Color3::Random)
         .Func(_SC("Inverse"), &Color3::Inverse)
+        // Member Overloads
+        .Overload< void (Color3::*)(void) >(_SC("Generate"), &Color3::Generate)
+        .Overload< void (Color3::*)(Val, Val) >(_SC("Generate"), &Color3::Generate)
+        .Overload< void (Color3::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Color3::Generate)
         // Static Overloads
         .StaticOverload< const Color3 & (*)(CSStr) >(_SC("FromStr"), &Color3::Get)
         .StaticOverload< const Color3 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Color3::Get)
@@ -704,7 +776,6 @@ void Register_Color3(HSQUIRRELVM vm)
         .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opXorAssign"), &Color3::operator ^=)
         .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opShlAssign"), &Color3::operator <<=)
         .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opShrAssign"), &Color3::operator >>=)
-
         .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opAddAssignS"), &Color3::operator +=)
         .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opSubAssignS"), &Color3::operator -=)
         .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opMulAssignS"), &Color3::operator *=)
@@ -715,12 +786,10 @@ void Register_Color3(HSQUIRRELVM vm)
         .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opXorAssignS"), &Color3::operator ^=)
         .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opShlAssignS"), &Color3::operator <<=)
         .Func< Color3 & (Color3::*)(Color3::Value) >(_SC("opShrAssignS"), &Color3::operator >>=)
-
         .Func< Color3 & (Color3::*)(void) >(_SC("opPreInc"), &Color3::operator ++)
         .Func< Color3 & (Color3::*)(void) >(_SC("opPreDec"), &Color3::operator --)
         .Func< Color3 (Color3::*)(int) >(_SC("opPostInc"), &Color3::operator ++)
         .Func< Color3 (Color3::*)(int) >(_SC("opPostDec"), &Color3::operator --)
-
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opAdd"), &Color3::operator +)
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opSub"), &Color3::operator -)
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opMul"), &Color3::operator *)
@@ -731,7 +800,6 @@ void Register_Color3(HSQUIRRELVM vm)
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opShl"), &Color3::operator ^)
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opShl"), &Color3::operator <<)
         .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("opShr"), &Color3::operator >>)
-
         .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opAddS"), &Color3::operator +)
         .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opSubS"), &Color3::operator -)
         .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opMulS"), &Color3::operator *)
@@ -742,11 +810,9 @@ void Register_Color3(HSQUIRRELVM vm)
         .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opShlS"), &Color3::operator ^)
         .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opShlS"), &Color3::operator <<)
         .Func< Color3 (Color3::*)(Color3::Value) const >(_SC("opShrS"), &Color3::operator >>)
-
         .Func< Color3 (Color3::*)(void) const >(_SC("opUnPlus"), &Color3::operator +)
         .Func< Color3 (Color3::*)(void) const >(_SC("opUnMinus"), &Color3::operator -)
         .Func< Color3 (Color3::*)(void) const >(_SC("opCom"), &Color3::operator ~)
-
         .Func< bool (Color3::*)(const Color3 &) const >(_SC("opEqual"), &Color3::operator ==)
         .Func< bool (Color3::*)(const Color3 &) const >(_SC("opNotEqual"), &Color3::operator !=)
         .Func< bool (Color3::*)(const Color3 &) const >(_SC("opLessThan"), &Color3::operator <)
