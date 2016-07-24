@@ -387,9 +387,10 @@ void Circle::SetCircle(const Circle & nc)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::SetPosition(const Vector2 & np)
+void Circle::SetCircleEx(Value nx, Value ny, Value nr)
 {
-    pos = np;
+    pos.SetVector2Ex(nx, ny);
+    rad = nr;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -400,16 +401,15 @@ void Circle::SetValues(const Vector2 & np, Value nr)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::SetPositionEx(Value nx, Value ny)
+void Circle::SetPosition(const Vector2 & np)
 {
-    pos.SetVector2Ex(nx, ny);
+    pos = np;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::SetValuesEx(Value nx, Value ny, Value nr)
+void Circle::SetPositionEx(Value nx, Value ny)
 {
     pos.SetVector2Ex(nx, ny);
-    rad = nr;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -527,7 +527,7 @@ const Circle & GetCircle(const Vector2 & pv, Float32 rv)
 const Circle & GetCircle(Float32 xv, Float32 yv, Float32 rv)
 {
     static Circle circle;
-    circle.SetValuesEx(xv, yv, rv);
+    circle.SetCircleEx(xv, yv, rv);
     return circle;
 }
 
@@ -571,12 +571,12 @@ void Register_Circle(HSQUIRRELVM vm)
         // Member Methods
         .Func(_SC("SetRadius"), &Circle::SetRadius)
         .Func(_SC("SetCircle"), &Circle::SetCircle)
+        .Func(_SC("SetCircleEx"), &Circle::SetCircleEx)
+        .Func(_SC("SetValues"), &Circle::SetValues)
         .Func(_SC("SetPos"), &Circle::SetPosition)
         .Func(_SC("SetPosition"), &Circle::SetPosition)
-        .Func(_SC("SetValues"), &Circle::SetValues)
         .Func(_SC("SetPosEx"), &Circle::SetPositionEx)
         .Func(_SC("SetPositionEx"), &Circle::SetPositionEx)
-        .Func(_SC("SetValuesEx"), &Circle::SetValuesEx)
         .Func(_SC("SetStr"), &Circle::SetStr)
         .Func(_SC("Clear"), &Circle::Clear)
         // Member Overloads

@@ -327,9 +327,9 @@ struct Circle
     void SetCircle(const Circle & nc);
 
     /* --------------------------------------------------------------------------------------------
-     * Set the position from the specified position.
+     * Set the specified position and radius.
     */
-    void SetPosition(const Vector2 & np);
+    void SetCircleEx(Value nx, Value ny, Value nr);
 
     /* --------------------------------------------------------------------------------------------
      * Set the specified position and radius.
@@ -339,12 +339,12 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Set the specified position.
     */
-    void SetPositionEx(Value nx, Value ny);
+    void SetPosition(const Vector2 & np);
 
     /* --------------------------------------------------------------------------------------------
-     * Set the specified position and radius.
+     * Set the specified position.
     */
-    void SetValuesEx(Value nx, Value ny, Value nr);
+    void SetPositionEx(Value nx, Value ny);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
