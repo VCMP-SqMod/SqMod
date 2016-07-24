@@ -506,8 +506,6 @@ void Register_Circle(HSQUIRRELVM vm)
         .Ctor< Val >()
         .Ctor< const Vector2 &, Val >()
         .Ctor< Val, Val, Val >()
-        // Static Members
-        .SetStaticValue(_SC("Delim"), &Circle::Delim)
         // Member Variables
         .Var(_SC("pos"), &Circle::pos)
         .Var(_SC("rad"), &Circle::rad)
@@ -539,6 +537,9 @@ void Register_Circle(HSQUIRRELVM vm)
         // Static Overloads
         .StaticOverload< const Circle & (*)(CSStr) >(_SC("FromStr"), &Circle::Get)
         .StaticOverload< const Circle & (*)(CSStr, SQChar) >(_SC("FromStr"), &Circle::Get)
+        // Static Functions
+        .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Circle >)
+        .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Circle >)
         // Operator Exposure
         .Func< Circle & (Circle::*)(const Circle &) >(_SC("opAddAssign"), &Circle::operator +=)
         .Func< Circle & (Circle::*)(const Circle &) >(_SC("opSubAssign"), &Circle::operator -=)

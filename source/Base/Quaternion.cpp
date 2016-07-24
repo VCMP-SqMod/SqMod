@@ -507,8 +507,6 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Ctor< Val >()
         .Ctor< Val, Val, Val >()
         .Ctor< Val, Val, Val, Val >()
-        // Static Members
-        .SetStaticValue(_SC("Delim"), &Quaternion::Delim)
         // Member Variables
         .Var(_SC("x"), &Quaternion::x)
         .Var(_SC("y"), &Quaternion::y)
@@ -548,6 +546,9 @@ void Register_Quaternion(HSQUIRRELVM vm)
         // Static Overloads
         .StaticOverload< const Quaternion & (*)(CSStr) >(_SC("FromStr"), &Quaternion::Get)
         .StaticOverload< const Quaternion & (*)(CSStr, SQChar) >(_SC("FromStr"), &Quaternion::Get)
+        // Static Functions
+        .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Quaternion >)
+        .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Quaternion >)
         // Operator Exposure
         .Func< Quaternion & (Quaternion::*)(const Quaternion &) >(_SC("opAddAssign"), &Quaternion::operator +=)
         .Func< Quaternion & (Quaternion::*)(const Quaternion &) >(_SC("opSubAssign"), &Quaternion::operator -=)

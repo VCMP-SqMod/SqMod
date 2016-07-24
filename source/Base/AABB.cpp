@@ -450,8 +450,6 @@ void Register_AABB(HSQUIRRELVM vm)
         .Ctor< Val, Val, Val >()
         .Ctor< Val, Val, Val, Val, Val, Val >()
         .Ctor< const Vector3 &, const Vector3 & >()
-        // Static Members
-        .SetStaticValue(_SC("Delim"), &AABB::Delim)
         // Member Variables
         .Var(_SC("min"), &AABB::min)
         .Var(_SC("max"), &AABB::max)
@@ -485,6 +483,9 @@ void Register_AABB(HSQUIRRELVM vm)
         // Static Overloads
         .StaticOverload< const AABB & (*)(CSStr) >(_SC("FromStr"), &AABB::Get)
         .StaticOverload< const AABB & (*)(CSStr, SQChar) >(_SC("FromStr"), &AABB::Get)
+        // Static Functions
+        .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< AABB >)
+        .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< AABB >)
         // Operator Exposure
         .Func< AABB & (AABB::*)(const AABB &) >(_SC("opAddAssign"), &AABB::operator +=)
         .Func< AABB & (AABB::*)(const AABB &) >(_SC("opSubAssign"), &AABB::operator -=)

@@ -650,8 +650,6 @@ void Register_Color3(HSQUIRRELVM vm)
         .Ctor()
         .Ctor< Val >()
         .Ctor< Val, Val, Val >()
-        // Static Members
-        .SetStaticValue(_SC("Delim"), &Color3::Delim)
         // Member Variables
         .Var(_SC("r"), &Color3::r)
         .Var(_SC("g"), &Color3::g)
@@ -692,6 +690,9 @@ void Register_Color3(HSQUIRRELVM vm)
         // Static Overloads
         .StaticOverload< const Color3 & (*)(CSStr) >(_SC("FromStr"), &Color3::Get)
         .StaticOverload< const Color3 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Color3::Get)
+        // Static Functions
+        .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Color3 >)
+        .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Color3 >)
         // Operator Exposure
         .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opAddAssign"), &Color3::operator +=)
         .Func< Color3 & (Color3::*)(const Color3 &) >(_SC("opSubAssign"), &Color3::operator -=)

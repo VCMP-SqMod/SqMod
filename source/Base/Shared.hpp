@@ -280,6 +280,22 @@ public:
     }
 };
 
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the string delimiter of a base type.
+*/
+template < typename T > inline SQInteger SqGetDelimiter()
+{
+    return T::Delim;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Modify the string delimiter of a base type.
+*/
+template < typename T > inline void SqSetDelimiter(SQInteger c)
+{
+    T::Delim = ConvTo< SQChar >::From(c);
+}
+
 } // Namespace:: SqMod
 
 #endif // _BASE_SHARED_HPP_

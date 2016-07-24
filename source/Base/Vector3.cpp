@@ -456,8 +456,6 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Ctor()
         .Ctor< Val >()
         .Ctor< Val, Val, Val >()
-        // Static Members
-        .SetStaticValue(_SC("Delim"), &Vector3::Delim)
         // Member Variables
         .Var(_SC("x"), &Vector3::x)
         .Var(_SC("y"), &Vector3::y)
@@ -494,6 +492,9 @@ void Register_Vector3(HSQUIRRELVM vm)
         // Static Overloads
         .StaticOverload< const Vector3 & (*)(CSStr) >(_SC("FromStr"), &Vector3::Get)
         .StaticOverload< const Vector3 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Vector3::Get)
+        // Static Functions
+        .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Vector3 >)
+        .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector3 >)
         // Operator Exposure
         .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opAddAssign"), &Vector3::operator +=)
         .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opSubAssign"), &Vector3::operator -=)

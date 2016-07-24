@@ -507,8 +507,6 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Ctor< Val >()
         .Ctor< const Vector3 &, Val >()
         .Ctor< Val, Val, Val, Val >()
-        // Static Members
-        .SetStaticValue(_SC("Delim"), &Sphere::Delim)
         // Member Variables
         .Var(_SC("pos"), &Sphere::pos)
         .Var(_SC("rad"), &Sphere::rad)
@@ -540,6 +538,9 @@ void Register_Sphere(HSQUIRRELVM vm)
         // Static Overloads
         .StaticOverload< const Sphere & (*)(CSStr) >(_SC("FromStr"), &Sphere::Get)
         .StaticOverload< const Sphere & (*)(CSStr, SQChar) >(_SC("FromStr"), &Sphere::Get)
+        // Static Functions
+        .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Sphere >)
+        .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Sphere >)
         // Operator Exposure
         .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opAddAssign"), &Sphere::operator +=)
         .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opSubAssign"), &Sphere::operator -=)
