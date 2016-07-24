@@ -60,6 +60,7 @@ Sphere & Sphere::operator = (Value r)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator = (const Vector3 & p)
 {
     pos = p;
@@ -74,6 +75,7 @@ Sphere & Sphere::operator += (const Sphere & s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator -= (const Sphere & s)
 {
     pos -= s.pos;
@@ -81,6 +83,7 @@ Sphere & Sphere::operator -= (const Sphere & s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator *= (const Sphere & s)
 {
     pos *= s.pos;
@@ -88,6 +91,7 @@ Sphere & Sphere::operator *= (const Sphere & s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator /= (const Sphere & s)
 {
     pos /= s.pos;
@@ -95,6 +99,7 @@ Sphere & Sphere::operator /= (const Sphere & s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator %= (const Sphere & s)
 {
     pos %= s.pos;
@@ -110,24 +115,28 @@ Sphere & Sphere::operator += (Value r)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator -= (Value r)
 {
     rad -= r;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator *= (Value r)
 {
     rad *= r;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator /= (Value r)
 {
     rad /= r;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator %= (Value r)
 {
     rad = std::fmod(rad, r);
@@ -141,24 +150,28 @@ Sphere & Sphere::operator += (const Vector3 & p)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator -= (const Vector3 & p)
 {
     pos -= p;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator *= (const Vector3 & p)
 {
     pos *= p;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator /= (const Vector3 & p)
 {
     pos /= p;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator %= (const Vector3 & p)
 {
     pos %= p;
@@ -173,6 +186,7 @@ Sphere & Sphere::operator ++ ()
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator -- ()
 {
     --pos;
@@ -189,6 +203,7 @@ Sphere Sphere::operator ++ (int)
     return state;
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator -- (int)
 {
     Sphere state(*this);
@@ -203,21 +218,25 @@ Sphere Sphere::operator + (const Sphere & s) const
     return Sphere(pos + s.pos, rad + s.rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator - (const Sphere & s) const
 {
     return Sphere(pos - s.pos, rad - s.rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator * (const Sphere & s) const
 {
     return Sphere(pos * s.pos, rad * s.rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator / (const Sphere & s) const
 {
     return Sphere(pos / s.pos, rad / s.rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator % (const Sphere & s) const
 {
     return Sphere(pos % s.pos, std::fmod(rad, s.rad));
@@ -229,21 +248,25 @@ Sphere Sphere::operator + (Value r) const
     return Sphere(rad + r);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator - (Value r) const
 {
     return Sphere(rad - r);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator * (Value r) const
 {
     return Sphere(rad * r);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator / (Value r) const
 {
     return Sphere(rad / r);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator % (Value r) const
 {
     return Sphere(std::fmod(rad, r));
@@ -255,21 +278,25 @@ Sphere Sphere::operator + (const Vector3 & p) const
     return Sphere(pos + p, rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator - (const Vector3 & p) const
 {
     return Sphere(pos - p, rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator * (const Vector3 & p) const
 {
     return Sphere(pos * p, rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator / (const Vector3 & p) const
 {
     return Sphere(pos / p, rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator % (const Vector3 & p) const
 {
     return Sphere(pos % p, rad);
@@ -281,6 +308,7 @@ Sphere Sphere::operator + () const
     return Sphere(pos.Abs(), std::fabs(rad));
 }
 
+// ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator - () const
 {
     return Sphere(-pos, -rad);
@@ -292,26 +320,31 @@ bool Sphere::operator == (const Sphere & s) const
     return EpsEq(rad, s.rad) && (pos == s.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Sphere::operator != (const Sphere & s) const
 {
     return !EpsEq(rad, s.rad) && (pos != s.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Sphere::operator < (const Sphere & s) const
 {
     return EpsLt(rad, s.rad) && (pos < s.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Sphere::operator > (const Sphere & s) const
 {
     return EpsGt(rad, s.rad) && (pos > s.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Sphere::operator <= (const Sphere & s) const
 {
     return EpsLtEq(rad, s.rad) && (pos <= s.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Sphere::operator >= (const Sphere & s) const
 {
     return EpsGtEq(rad, s.rad) && (pos >= s.pos);
@@ -341,44 +374,48 @@ CSStr Sphere::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Set(Value nr)
+void Sphere::SetRadius(Value nr)
 {
     rad = nr;
 }
 
-void Sphere::Set(const Sphere & ns)
+// ------------------------------------------------------------------------------------------------
+void Sphere::SetSphere(const Sphere & ns)
 {
     pos = ns.pos;
     rad = ns.rad;
 }
 
-void Sphere::Set(const Vector3 & np)
+// ------------------------------------------------------------------------------------------------
+void Sphere::SetSphereEx(Value nx, Value ny, Value nz, Value nr)
 {
-    pos = np;
+    pos.SetVector3Ex(nx, ny, nz);
+    rad = nr;
 }
 
-void Sphere::Set(const Vector3 & np, Value nr)
+// ------------------------------------------------------------------------------------------------
+void Sphere::SetValues(const Vector3 & np, Value nr)
 {
     pos = np;
     rad = nr;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Set(Value nx, Value ny, Value nz)
+void Sphere::SetPosition(const Vector3 & np)
 {
-    pos.Set(nx, ny, nz);
-}
-
-void Sphere::Set(Value nx, Value ny, Value nz, Value nr)
-{
-    pos.Set(nx, ny, nz);
-    rad = nr;
+    pos = np;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Set(CSStr values, SQChar delim)
+void Sphere::SetPositionEx(Value nx, Value ny, Value nz)
 {
-    Set(Sphere::Get(values, delim));
+    pos.SetVector3Ex(nx, ny, nz);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Sphere::SetStr(CSStr values, SQChar delim)
+{
+    SetSphere(Sphere::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -388,6 +425,7 @@ void Sphere::Generate()
     rad = GetRandomFloat32();
 }
 
+// ------------------------------------------------------------------------------------------------
 void Sphere::Generate(Value min, Value max, bool r)
 {
     if (EpsLt(max, min))
@@ -404,6 +442,7 @@ void Sphere::Generate(Value min, Value max, bool r)
     }
 }
 
+// ------------------------------------------------------------------------------------------------
 void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin))
@@ -414,6 +453,7 @@ void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin
     pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(rmax, rmin))
@@ -468,31 +508,35 @@ const Sphere & GetSphere()
     return sphere;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Sphere & GetSphere(Float32 rv)
 {
     static Sphere sphere;
-    sphere.Set(rv);
+    sphere.SetRadius(rv);
     return sphere;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Sphere & GetSphere(const Vector3 & pv, Float32 rv)
 {
     static Sphere sphere;
-    sphere.Set(pv, rv);
+    sphere.SetValues(pv, rv);
     return sphere;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Sphere & GetSphere(Float32 xv, Float32 yv, Float32 zv, Float32 rv)
 {
     static Sphere sphere;
-    sphere.Set(xv, yv, zv, rv);
+    sphere.SetSphereEx(xv, yv, zv, rv);
     return sphere;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Sphere & GetSphere(const Sphere & o)
 {
     static Sphere sphere;
-    sphere.Set(o);
+    sphere.SetSphere(o);
     return sphere;
 }
 
@@ -512,8 +556,6 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Var(_SC("rad"), &Sphere::rad)
         .Var(_SC("Pos"), &Sphere::pos)
         .Var(_SC("Rad"), &Sphere::rad)
-        // Properties
-        .Prop(_SC("Abs"), &Sphere::Abs)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Sphere::ToString)
         .SquirrelFunc(_SC("_typename"), &Sphere::Typename)
@@ -525,16 +567,22 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_div"), &Sphere::operator /)
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_modulo"), &Sphere::operator %)
         .Func< Sphere (Sphere::*)(void) const >(_SC("_unm"), &Sphere::operator -)
-        // Setters
-        .Overload< void (Sphere::*)(const Sphere &) >(_SC("Set"), &Sphere::Set)
-        .Overload< void (Sphere::*)(const Vector3 &, Val) >(_SC("Set"), &Sphere::Set)
-        .Overload< void (Sphere::*)(Val, Val, Val, Val) >(_SC("Set"), &Sphere::Set)
-        .Overload< void (Sphere::*)(Val) >(_SC("SetRad"), &Sphere::Set)
-        .Overload< void (Sphere::*)(const Vector3 &) >(_SC("SetVec3"), &Sphere::Set)
-        .Overload< void (Sphere::*)(Val, Val, Val) >(_SC("SetVec3"), &Sphere::Set)
-        .Overload< void (Sphere::*)(CSStr, SQChar) >(_SC("SetStr"), &Sphere::Set)
-        // Utility Methods
+        // Properties
+        .Prop(_SC("Abs"), &Sphere::Abs)
+        // Member Methods
+        .Func(_SC("SetRadius"), &Sphere::SetRadius)
+        .Func(_SC("SetSphere"), &Sphere::SetSphere)
+        .Func(_SC("SetSphereEx"), &Sphere::SetSphereEx)
+        .Func(_SC("SetValues"), &Sphere::SetValues)
+        .Func(_SC("SetPosition"), &Sphere::SetPosition)
+        .Func(_SC("SetPositionEx"), &Sphere::SetPositionEx)
+        .Func(_SC("SetStr"), &Sphere::SetStr)
         .Func(_SC("Clear"), &Sphere::Clear)
+        // Member Overloads
+        .Overload< void (Sphere::*)(void) >(_SC("Generate"), &Sphere::Generate)
+        .Overload< void (Sphere::*)(Val, Val, bool) >(_SC("Generate"), &Sphere::Generate)
+        .Overload< void (Sphere::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Sphere::Generate)
+        .Overload< void (Sphere::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Sphere::Generate)
         // Static Overloads
         .StaticOverload< const Sphere & (*)(CSStr) >(_SC("FromStr"), &Sphere::Get)
         .StaticOverload< const Sphere & (*)(CSStr, SQChar) >(_SC("FromStr"), &Sphere::Get)
@@ -547,45 +595,37 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opMulAssign"), &Sphere::operator *=)
         .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opDivAssign"), &Sphere::operator /=)
         .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opModAssign"), &Sphere::operator %=)
-
         .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opAddAssignR"), &Sphere::operator +=)
         .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opSubAssignR"), &Sphere::operator -=)
         .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opMulAssignR"), &Sphere::operator *=)
         .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opDivAssignR"), &Sphere::operator /=)
         .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opModAssignR"), &Sphere::operator %=)
-
         .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opAddAssignP"), &Sphere::operator +=)
         .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opSubAssignP"), &Sphere::operator -=)
         .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opMulAssignP"), &Sphere::operator *=)
         .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opDivAssignP"), &Sphere::operator /=)
         .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opModAssignP"), &Sphere::operator %=)
-
         .Func< Sphere & (Sphere::*)(void) >(_SC("opPreInc"), &Sphere::operator ++)
         .Func< Sphere & (Sphere::*)(void) >(_SC("opPreDec"), &Sphere::operator --)
         .Func< Sphere (Sphere::*)(int) >(_SC("opPostInc"), &Sphere::operator ++)
         .Func< Sphere (Sphere::*)(int) >(_SC("opPostDec"), &Sphere::operator --)
-
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opAdd"), &Sphere::operator +)
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opSub"), &Sphere::operator -)
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opMul"), &Sphere::operator *)
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opDiv"), &Sphere::operator /)
         .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opMod"), &Sphere::operator %)
-
         .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opAddR"), &Sphere::operator +)
         .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opSubR"), &Sphere::operator -)
         .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opMulR"), &Sphere::operator *)
         .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opDivR"), &Sphere::operator /)
         .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opModR"), &Sphere::operator %)
-
         .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opAddP"), &Sphere::operator +)
         .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opSubP"), &Sphere::operator -)
         .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opMulP"), &Sphere::operator *)
         .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opDivP"), &Sphere::operator /)
         .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opModP"), &Sphere::operator %)
-
         .Func< Sphere (Sphere::*)(void) const >(_SC("opUnPlus"), &Sphere::operator +)
         .Func< Sphere (Sphere::*)(void) const >(_SC("opUnMinus"), &Sphere::operator -)
-
         .Func< bool (Sphere::*)(const Sphere &) const >(_SC("opEqual"), &Sphere::operator ==)
         .Func< bool (Sphere::*)(const Sphere &) const >(_SC("opNotEqual"), &Sphere::operator !=)
         .Func< bool (Sphere::*)(const Sphere &) const >(_SC("opLessThan"), &Sphere::operator <)

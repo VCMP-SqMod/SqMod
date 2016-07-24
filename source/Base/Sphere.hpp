@@ -319,37 +319,37 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Set the specified radius.
     */
-    void Set(Value nr);
+    void SetRadius(Value nr);
 
     /* --------------------------------------------------------------------------------------------
      *  Copy the sphere from another instance of this type.
     */
-    void Set(const Sphere & ns);
+    void SetSphere(const Sphere & ns);
+
+    /* --------------------------------------------------------------------------------------------
+     * Set the specified position and radius.
+    */
+    void SetSphereEx(Value nx, Value ny, Value nz, Value nr);
+
+    /* --------------------------------------------------------------------------------------------
+     * Set the specified position and radius.
+    */
+    void SetValues(const Vector3 & np, Value nr);
 
     /* --------------------------------------------------------------------------------------------
      * Set the position from the specified position.
     */
-    void Set(const Vector3 & np);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the specified position and radius.
-    */
-    void Set(const Vector3 & np, Value nr);
+    void SetPosition(const Vector3 & np);
 
     /* --------------------------------------------------------------------------------------------
      * Set the specified position.
     */
-    void Set(Value nx, Value ny, Value nz);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the specified position and radius.
-    */
-    void Set(Value nx, Value ny, Value nz, Value nr);
+    void SetPositionEx(Value nx, Value ny, Value nz);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void Set(CSStr values, SQChar delim);
+    void SetStr(CSStr values, SQChar delim);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized and positioned sphere.
