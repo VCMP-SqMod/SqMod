@@ -880,7 +880,7 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
                 inst.mScale = scale;
                 inst.mSprID = sprid;
                 inst.mColor.SetRGBA(color);
-                inst.mPosition.Set(x, y, z);
+                inst.mPosition.SetVector3Ex(x, y, z);
                 // Now we can try to allocate the instance after we have all the information
                 AllocBlip(entity_id, false, SQMOD_CREATE_POOL, NullObject());
             }

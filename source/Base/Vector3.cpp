@@ -57,6 +57,7 @@ Vector3 & Vector3::operator = (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator = (const Vector4 & v)
 {
     x = v.x;
@@ -65,6 +66,7 @@ Vector3 & Vector3::operator = (const Vector4 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator = (const Quaternion & q)
 {
     x = q.x;
@@ -82,6 +84,7 @@ Vector3 & Vector3::operator += (const Vector3 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator -= (const Vector3 & v)
 {
     x -= v.x;
@@ -90,6 +93,7 @@ Vector3 & Vector3::operator -= (const Vector3 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator *= (const Vector3 & v)
 {
     x *= v.x;
@@ -98,6 +102,7 @@ Vector3 & Vector3::operator *= (const Vector3 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator /= (const Vector3 & v)
 {
     x /= v.x;
@@ -106,6 +111,7 @@ Vector3 & Vector3::operator /= (const Vector3 & v)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator %= (const Vector3 & v)
 {
     x = std::fmod(x, v.x);
@@ -123,6 +129,7 @@ Vector3 & Vector3::operator += (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator -= (Value s)
 {
     x -= s;
@@ -131,6 +138,7 @@ Vector3 & Vector3::operator -= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator *= (Value s)
 {
     x *= s;
@@ -139,6 +147,7 @@ Vector3 & Vector3::operator *= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator /= (Value s)
 {
     x /= s;
@@ -147,6 +156,7 @@ Vector3 & Vector3::operator /= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator %= (Value s)
 {
     x = std::fmod(x, s);
@@ -164,6 +174,7 @@ Vector3 & Vector3::operator ++ ()
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator -- ()
 {
     --x;
@@ -182,6 +193,7 @@ Vector3 Vector3::operator ++ (int)
     return state;
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator -- (int)
 {
     Vector3 state(*this);
@@ -197,21 +209,25 @@ Vector3 Vector3::operator + (const Vector3 & v) const
     return Vector3(x + v.x, y + v.y, z + v.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator - (const Vector3 & v) const
 {
     return Vector3(x - v.x, y - v.y, z - v.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator * (const Vector3 & v) const
 {
     return Vector3(x * v.x, y * v.y, z * v.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator / (const Vector3 & v) const
 {
     return Vector3(x / v.x, y / v.y, z / v.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator % (const Vector3 & v) const
 {
     return Vector3(std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z));
@@ -223,21 +239,25 @@ Vector3 Vector3::operator + (Value s) const
     return Vector3(x + s, y + s, z + s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator - (Value s) const
 {
     return Vector3(x - s, y - s, z - s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator * (Value s) const
 {
     return Vector3(x * s, y * s, z * s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator / (Value s) const
 {
     return Vector3(x / s, y / s, z / s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator % (Value s) const
 {
     return Vector3(std::fmod(x, s), std::fmod(y, s), std::fmod(z, s));
@@ -249,6 +269,7 @@ Vector3 Vector3::operator + () const
     return Vector3(std::fabs(x), std::fabs(y), std::fabs(z));
 }
 
+// ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator - () const
 {
     return Vector3(-x, -y, -z);
@@ -260,26 +281,31 @@ bool Vector3::operator == (const Vector3 & v) const
     return EpsEq(x, v.x) && EpsEq(y, v.y) && EpsEq(z, v.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector3::operator != (const Vector3 & v) const
 {
     return !EpsEq(x, v.x) && !EpsEq(y, v.y) && !EpsEq(z, v.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector3::operator < (const Vector3 & v) const
 {
     return EpsLt(x, v.x) && EpsLt(y, v.y) && EpsLt(z, v.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector3::operator > (const Vector3 & v) const
 {
     return EpsGt(x, v.x) && EpsGt(y, v.y) && EpsGt(z, v.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector3::operator <= (const Vector3 & v) const
 {
     return EpsLtEq(x, v.x) && EpsLtEq(y, v.y) && EpsLtEq(z, v.z);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Vector3::operator >= (const Vector3 & v) const
 {
     return EpsGtEq(x, v.x) && EpsGtEq(y, v.y) && EpsGtEq(z, v.z);
@@ -309,14 +335,23 @@ CSStr Vector3::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Set(Value ns)
+void Vector3::SetScalar(Value ns)
 {
     x = ns;
     y = ns;
     z = ns;
 }
 
-void Vector3::Set(Value nx, Value ny, Value nz)
+// ------------------------------------------------------------------------------------------------
+void Vector3::SetVector3(const Vector3 & v)
+{
+    x = v.x;
+    y = v.y;
+    z = v.z;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector3::SetVector3Ex(Value nx, Value ny, Value nz)
 {
     x = nx;
     y = ny;
@@ -324,21 +359,23 @@ void Vector3::Set(Value nx, Value ny, Value nz)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Set(const Vector3 & v)
+void Vector3::SetVector4(const Vector4 & v)
 {
     x = v.x;
     y = v.y;
     z = v.z;
 }
 
-void Vector3::Set(const Vector4 & v)
+// ------------------------------------------------------------------------------------------------
+void Vector3::SetVector4Ex(Value nx, Value ny, Value nz, Value /*nw*/)
 {
-    x = v.x;
-    y = v.y;
-    z = v.z;
+    x = nx;
+    y = ny;
+    z = nz;
 }
 
-void Vector3::Set(const Quaternion & q)
+// ------------------------------------------------------------------------------------------------
+void Vector3::SetQuaternion(const Quaternion & q)
 {
     x = q.x;
     y = q.y;
@@ -346,9 +383,17 @@ void Vector3::Set(const Quaternion & q)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Set(CSStr values, SQChar delim)
+void Vector3::SetQuaternionEx(Value nx, Value ny, Value nz, Value /*nw*/)
 {
-    Set(Vector3::Get(values, delim));
+    x = nx;
+    y = ny;
+    z = nz;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector3::SetStr(CSStr values, SQChar delim)
+{
+    SetVector3(Vector3::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -359,6 +404,7 @@ void Vector3::Generate()
     z = GetRandomFloat32();
 }
 
+// ------------------------------------------------------------------------------------------------
 void Vector3::Generate(Value min, Value max)
 {
     if (EpsLt(max, min))
@@ -371,6 +417,7 @@ void Vector3::Generate(Value min, Value max)
     z = GetRandomFloat32(min, max);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin))
@@ -425,24 +472,27 @@ const Vector3 & GetVector3()
     return vec;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & GetVector3(Float32 sv)
 {
     static Vector3 vec;
-    vec.Set(sv);
+    vec.SetScalar(sv);
     return vec;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & GetVector3(Float32 xv, Float32 yv, Float32 zv)
 {
     static Vector3 vec;
-    vec.Set(xv, yv, zv);
+    vec.SetVector3Ex(xv, yv, zv);
     return vec;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Vector3 & GetVector3(const Vector3 & o)
 {
     static Vector3 vec;
-    vec.Set(o);
+    vec.SetVector3(o);
     return vec;
 }
 
@@ -463,8 +513,6 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Var(_SC("X"), &Vector3::x)
         .Var(_SC("Y"), &Vector3::y)
         .Var(_SC("Z"), &Vector3::z)
-        // Properties
-        .Prop(_SC("Abs"), &Vector3::Abs)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Vector3::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector3::Typename)
@@ -476,19 +524,22 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_div"), &Vector3::operator /)
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_modulo"), &Vector3::operator %)
         .Func< Vector3 (Vector3::*)(void) const >(_SC("_unm"), &Vector3::operator -)
-        // Setters
-        .Overload< void (Vector3::*)(Val) >(_SC("Set"), &Vector3::Set)
-        .Overload< void (Vector3::*)(Val, Val, Val) >(_SC("Set"), &Vector3::Set)
-        .Overload< void (Vector3::*)(const Vector3 &) >(_SC("SetVec3"), &Vector3::Set)
-        .Overload< void (Vector3::*)(const Vector4 &) >(_SC("SetVec4"), &Vector3::Set)
-        .Overload< void (Vector3::*)(const Quaternion &) >(_SC("SetQuat"), &Vector3::Set)
-        .Overload< void (Vector3::*)(CSStr, SQChar) >(_SC("SetStr"), &Vector3::Set)
-        // Random Generators
+        // Properties
+        .Prop(_SC("Abs"), &Vector3::Abs)
+        // Member Methods
+        .Func(_SC("SetScalar"), &Vector3::SetScalar)
+        .Func(_SC("SetVector3"), &Vector3::SetVector3)
+        .Func(_SC("SetVector3Ex"), &Vector3::SetVector3Ex)
+        .Func(_SC("SetVector4"), &Vector3::SetVector4)
+        .Func(_SC("SetVector4Ex"), &Vector3::SetVector4Ex)
+        .Func(_SC("SetQuaternion"), &Vector3::SetQuaternion)
+        .Func(_SC("SetQuaternionEx"), &Vector3::SetQuaternionEx)
+        .Func(_SC("SetStr"), &Vector3::SetStr)
+        .Func(_SC("Clear"), &Vector3::Clear)
+        // Member Overloads
         .Overload< void (Vector3::*)(void) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Vector3::Generate)
-        // Utility Methods
-        .Func(_SC("Clear"), &Vector3::Clear)
         // Static Overloads
         .StaticOverload< const Vector3 & (*)(CSStr) >(_SC("FromStr"), &Vector3::Get)
         .StaticOverload< const Vector3 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Vector3::Get)
@@ -501,33 +552,27 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opMulAssign"), &Vector3::operator *=)
         .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opDivAssign"), &Vector3::operator /=)
         .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opModAssign"), &Vector3::operator %=)
-
         .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opAddAssignS"), &Vector3::operator +=)
         .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opSubAssignS"), &Vector3::operator -=)
         .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opMulAssignS"), &Vector3::operator *=)
         .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opDivAssignS"), &Vector3::operator /=)
         .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opModAssignS"), &Vector3::operator %=)
-
         .Func< Vector3 & (Vector3::*)(void) >(_SC("opPreInc"), &Vector3::operator ++)
         .Func< Vector3 & (Vector3::*)(void) >(_SC("opPreDec"), &Vector3::operator --)
         .Func< Vector3 (Vector3::*)(int) >(_SC("opPostInc"), &Vector3::operator ++)
         .Func< Vector3 (Vector3::*)(int) >(_SC("opPostDec"), &Vector3::operator --)
-
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opAdd"), &Vector3::operator +)
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opSub"), &Vector3::operator -)
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opMul"), &Vector3::operator *)
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opDiv"), &Vector3::operator /)
         .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opMod"), &Vector3::operator %)
-
         .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opAddS"), &Vector3::operator +)
         .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opSubS"), &Vector3::operator -)
         .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opMulS"), &Vector3::operator *)
         .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opDivS"), &Vector3::operator /)
         .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opModS"), &Vector3::operator %)
-
         .Func< Vector3 (Vector3::*)(void) const >(_SC("opUnPlus"), &Vector3::operator +)
         .Func< Vector3 (Vector3::*)(void) const >(_SC("opUnMinus"), &Vector3::operator -)
-
         .Func< bool (Vector3::*)(const Vector3 &) const >(_SC("opEqual"), &Vector3::operator ==)
         .Func< bool (Vector3::*)(const Vector3 &) const >(_SC("opNotEqual"), &Vector3::operator !=)
         .Func< bool (Vector3::*)(const Vector3 &) const >(_SC("opLessThan"), &Vector3::operator <)

@@ -60,24 +60,24 @@ AABB::AABB(const Vector3 & vmin, const Vector3 & vmax)
 // ------------------------------------------------------------------------------------------------
 AABB & AABB::operator = (Value s)
 {
-    min.Set(-s);
-    max.Set(std::fabs(s));
+    min.SetScalar(-s);
+    max.SetScalar(std::fabs(s));
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB & AABB::operator = (const Vector3 & v)
 {
-    min.Set(-v);
-    max.Set(v.Abs());
+    min.SetVector3(-v);
+    max.SetVector3(v.Abs());
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB & AABB::operator = (const Vector4 & v)
 {
-    min.Set(-v);
-    max.Set(v.Abs());
+    min.SetVector4(-v);
+    max.SetVector4(v.Abs());
     return *this;
 }
 
@@ -336,15 +336,15 @@ void AABB::Set(Value ns)
 // ------------------------------------------------------------------------------------------------
 void AABB::Set(Value nx, Value ny, Value nz)
 {
-    min.Set(-nx, -ny, -nz);
-    max.Set(std::fabs(nx), std::fabs(ny), std::fabs(nz));
+    min.SetVector3Ex(-nx, -ny, -nz);
+    max.SetVector3Ex(std::fabs(nx), std::fabs(ny), std::fabs(nz));
 }
 
 // ------------------------------------------------------------------------------------------------
 void AABB::Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
 {
-    min.Set(xmin, ymin, zmin);
-    max.Set(xmax, ymax, zmax);
+    min.SetVector3Ex(xmin, ymin, zmin);
+    max.SetVector3Ex(xmax, ymax, zmax);
 }
 
 // ------------------------------------------------------------------------------------------------

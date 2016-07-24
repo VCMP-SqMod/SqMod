@@ -31,7 +31,7 @@ void Core::ImportBlips()
             m_Blips[i].mWorld = world;
             m_Blips[i].mScale = scale;
             m_Blips[i].mSprID = sprid;
-            m_Blips[i].mPosition.Set(x, y, z);
+            m_Blips[i].mPosition.SetVector3Ex(x, y, z);
             m_Blips[i].mColor.SetRGBA(color);
             // Attempt to allocate the instance
             AllocBlip(i, false, SQMOD_CREATE_IMPORT, NullObject());
