@@ -64,12 +64,14 @@ Color4 & Color4::operator = (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator = (CSStr name)
 {
-    Set(GetColor(name));
+    SetColor3(GetColor(name));
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator = (const Color3 & c)
 {
     r = c.r;
@@ -88,6 +90,7 @@ Color4 & Color4::operator += (const Color4 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator -= (const Color4 & c)
 {
     r -= c.r;
@@ -97,6 +100,7 @@ Color4 & Color4::operator -= (const Color4 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator *= (const Color4 & c)
 {
     r *= c.r;
@@ -106,6 +110,7 @@ Color4 & Color4::operator *= (const Color4 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator /= (const Color4 & c)
 {
     r /= c.r;
@@ -115,6 +120,7 @@ Color4 & Color4::operator /= (const Color4 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator %= (const Color4 & c)
 {
     r %= c.r;
@@ -124,6 +130,7 @@ Color4 & Color4::operator %= (const Color4 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator &= (const Color4 & c)
 {
     r &= c.r;
@@ -133,6 +140,7 @@ Color4 & Color4::operator &= (const Color4 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator |= (const Color4 & c)
 {
     r |= c.r;
@@ -142,6 +150,7 @@ Color4 & Color4::operator |= (const Color4 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator ^= (const Color4 & c)
 {
     r ^= c.r;
@@ -151,6 +160,7 @@ Color4 & Color4::operator ^= (const Color4 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator <<= (const Color4 & c)
 {
     r <<= c.r;
@@ -160,6 +170,7 @@ Color4 & Color4::operator <<= (const Color4 & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator >>= (const Color4 & c)
 {
     r >>= c.r;
@@ -179,6 +190,7 @@ Color4 & Color4::operator += (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator -= (Value s)
 {
     r -= s;
@@ -188,6 +200,7 @@ Color4 & Color4::operator -= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator *= (Value s)
 {
     r *= s;
@@ -197,6 +210,7 @@ Color4 & Color4::operator *= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator /= (Value s)
 {
     r /= s;
@@ -206,6 +220,7 @@ Color4 & Color4::operator /= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator %= (Value s)
 {
     r %= s;
@@ -215,6 +230,7 @@ Color4 & Color4::operator %= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator &= (Value s)
 {
     r &= s;
@@ -224,6 +240,7 @@ Color4 & Color4::operator &= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator |= (Value s)
 {
     r |= s;
@@ -233,6 +250,7 @@ Color4 & Color4::operator |= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator ^= (Value s)
 {
     r ^= s;
@@ -242,6 +260,7 @@ Color4 & Color4::operator ^= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator <<= (Value s)
 {
     r <<= s;
@@ -251,6 +270,7 @@ Color4 & Color4::operator <<= (Value s)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator >>= (Value s)
 {
     r >>= s;
@@ -270,6 +290,7 @@ Color4 & Color4::operator ++ ()
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator -- ()
 {
     --r;
@@ -290,6 +311,7 @@ Color4 Color4::operator ++ (int)
     return state;
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator -- (int)
 {
     Color4 state(*this);
@@ -306,46 +328,55 @@ Color4 Color4::operator + (const Color4 & c) const
     return Color4(r + c.r, g + c.g, b + c.b, a + c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator - (const Color4 & c) const
 {
     return Color4(r - c.r, g - c.g, b - c.b, a - c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator * (const Color4 & c) const
 {
     return Color4(r * c.r, g * c.g, b * c.b, a * c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator / (const Color4 & c) const
 {
     return Color4(r / c.r, g / c.g, b / c.b, a / c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator % (const Color4 & c) const
 {
     return Color4(r % c.r, g % c.g, b % c.b, a % c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator & (const Color4 & c) const
 {
     return Color4(r & c.r, g & c.g, b & c.b, a & c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator | (const Color4 & c) const
 {
     return Color4(r | c.r, g | c.g, b | c.b, a | c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator ^ (const Color4 & c) const
 {
     return Color4(r ^ c.r, g ^ c.g, b ^ c.b, a ^ c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator << (const Color4 & c) const
 {
     return Color4(r << c.r, g << c.g, b << c.b, a << c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator >> (const Color4 & c) const
 {
     return Color4(r >> c.r, g >> c.g, b >> c.b, a >> c.a);
@@ -357,46 +388,55 @@ Color4 Color4::operator + (Value s) const
     return Color4(r + s, g + s, b + s, a + s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator - (Value s) const
 {
     return Color4(r - s, g - s, b - s, a - s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator * (Value s) const
 {
     return Color4(r * s, g * s, b * s, a * s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator / (Value s) const
 {
     return Color4(r / s, g / s, b / s, a / s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator % (Value s) const
 {
     return Color4(r % s, g % s, b % s, a % s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator & (Value s) const
 {
     return Color4(r & s, g & s, b & s, a & s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator | (Value s) const
 {
     return Color4(r | s, g | s, b | s, a | s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator ^ (Value s) const
 {
     return Color4(r ^ s, g ^ s, b ^ s, a ^ s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator << (Value s) const
 {
     return Color4(r << s, g << s, b << s, a << s);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator >> (Value s) const
 {
     return Color4(r >> s, g >> s, b >> s, a >> s);
@@ -408,6 +448,7 @@ Color4 Color4::operator + () const
     return Color4(r, g, b, a);
 }
 
+// ------------------------------------------------------------------------------------------------
 Color4 Color4::operator - () const
 {
     return Color4(0, 0, 0, 0);
@@ -425,26 +466,31 @@ bool Color4::operator == (const Color4 & c) const
     return (r == c.r) && (g == c.g) && (b == c.b) && (a == c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color4::operator != (const Color4 & c) const
 {
     return (r != c.r) && (g != c.g) && (b != c.b) && (a != c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color4::operator < (const Color4 & c) const
 {
     return (r < c.r) && (g < c.g) && (b < c.b) && (a < c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color4::operator > (const Color4 & c) const
 {
     return (r > c.r) && (g > c.g) && (b > c.b) && (a > c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color4::operator <= (const Color4 & c) const
 {
     return (r <= c.r) && (g <= c.g) && (b <= c.b) && (a <= c.a);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Color4::operator >= (const Color4 & c) const
 {
     return (r >= c.r) && (g >= c.g) && (b >= c.b) && (a >= c.a);
@@ -480,7 +526,7 @@ CSStr Color4::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Set(Value ns)
+void Color4::SetScalar(Value ns)
 {
     r = ns;
     g = ns;
@@ -488,14 +534,16 @@ void Color4::Set(Value ns)
     a = ns;
 }
 
-void Color4::Set(Value nr, Value ng, Value nb)
+// ------------------------------------------------------------------------------------------------
+void Color4::SetColor3Ex(Value nr, Value ng, Value nb)
 {
     r = nr;
     g = ng;
     b = nb;
 }
 
-void Color4::Set(Value nr, Value ng, Value nb, Value na)
+// ------------------------------------------------------------------------------------------------
+void Color4::SetColor4Ex(Value nr, Value ng, Value nb, Value na)
 {
     r = nr;
     g = ng;
@@ -504,15 +552,7 @@ void Color4::Set(Value nr, Value ng, Value nb, Value na)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Set(const Color4 & c)
-{
-    r = c.r;
-    g = c.g;
-    b = c.b;
-    a = c.a;
-}
-
-void Color4::Set(const Color3 & c)
+void Color4::SetColor3(const Color3 & c)
 {
     r = c.r;
     g = c.g;
@@ -521,15 +561,24 @@ void Color4::Set(const Color3 & c)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::Set(CSStr str, SQChar delim)
+void Color4::SetColor4(const Color4 & c)
 {
-    Set(Color4::Get(str, delim));
+    r = c.r;
+    g = c.g;
+    b = c.b;
+    a = c.a;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetCol(CSStr name)
+void Color4::SetStr(CSStr str, SQChar delim)
 {
-    Set(GetColor(name));
+    SetColor4(Color4::Get(str, delim));
+}
+
+// ------------------------------------------------------------------------------------------------
+void Color4::SetName(CSStr name)
+{
+    SetColor3(GetColor(name));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -538,6 +587,7 @@ Uint32 Color4::GetRGB() const
     return Uint32(r << 16 | g << 8 | b);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color4::SetRGB(Uint32 p)
 {
     r = static_cast< Value >((p >> 16) & 0xFF);
@@ -551,6 +601,7 @@ Uint32 Color4::GetRGBA() const
     return Uint32(r << 24 | g << 16 | b << 8 | a);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color4::SetRGBA(Uint32 p)
 {
     r = static_cast< Value >((p >> 24) & 0xFF);
@@ -565,6 +616,7 @@ Uint32 Color4::GetARGB() const
     return Uint32(a << 24 | r << 16 | g << 8 | b);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color4::SetARGB(Uint32 p)
 {
     a = static_cast< Value >((p >> 24) & 0xFF);
@@ -582,6 +634,7 @@ void Color4::Generate()
     a = GetRandomUint8();
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color4::Generate(Value min, Value max)
 {
     if (max < min)
@@ -595,6 +648,7 @@ void Color4::Generate(Value min, Value max)
     a = GetRandomUint8(min, max);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Color4::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax, Value amin, Value amax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin || amax < amin)
@@ -611,7 +665,7 @@ void Color4::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin
 // ------------------------------------------------------------------------------------------------
 void Color4::Random()
 {
-    Set(GetRandomColor());
+    SetColor3(GetRandomColor());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -670,31 +724,35 @@ const Color4 & GetColor4()
     return col;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Color4 & GetColor4(Uint8 sv)
 {
     static Color4 col;
-    col.Set(sv);
+    col.SetScalar(sv);
     return col;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Color4 & GetColor4(Uint8 rv, Uint8 gv, Uint8 bv)
 {
     static Color4 col;
-    col.Set(rv, gv, bv);
+    col.SetColor3Ex(rv, gv, bv);
     return col;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Color4 & GetColor4(Uint8 rv, Uint8 gv, Uint8 bv, Uint8 av)
 {
     static Color4 col;
-    col.Set(rv, gv, bv, av);
+    col.SetColor4Ex(rv, gv, bv, av);
     return col;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Color4 & GetColor4(const Color4 & o)
 {
     static Color4 col;
-    col.Set(o);
+    col.SetColor4(o);
     return col;
 }
 
@@ -718,11 +776,6 @@ void Register_Color4(HSQUIRRELVM vm)
         .Var(_SC("G"), &Color4::g)
         .Var(_SC("B"), &Color4::b)
         .Var(_SC("A"), &Color4::a)
-        // Properties
-        .Prop(_SC("RGB"), &Color4::GetRGB, &Color4::SetRGB)
-        .Prop(_SC("RGBA"), &Color4::GetRGBA, &Color4::SetRGBA)
-        .Prop(_SC("ARGB"), &Color4::GetARGB, &Color4::SetARGB)
-        .Prop(_SC("Str"), &Color4::SetCol)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Color4::ToString)
         .SquirrelFunc(_SC("_typename"), &Color4::Typename)
@@ -734,21 +787,25 @@ void Register_Color4(HSQUIRRELVM vm)
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("_div"), &Color4::operator /)
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("_modulo"), &Color4::operator %)
         .Func< Color4 (Color4::*)(void) const >(_SC("_unm"), &Color4::operator -)
-        // Setters
-        .Overload< void (Color4::*)(Val) >(_SC("Set"), &Color4::Set)
-        .Overload< void (Color4::*)(Val, Val, Val) >(_SC("Set"), &Color4::Set)
-        .Overload< void (Color4::*)(Val, Val, Val, Val) >(_SC("Set"), &Color4::Set)
-        .Overload< void (Color4::*)(const Color4 &) >(_SC("SetCol4"), &Color4::Set)
-        .Overload< void (Color4::*)(const Color3 &) >(_SC("SetCol3"), &Color4::Set)
-        .Overload< void (Color4::*)(CSStr, SQChar) >(_SC("SetStr"), &Color4::Set)
-        // Random Generators
-        .Overload< void (Color4::*)(void) >(_SC("Generate"), &Color4::Generate)
-        .Overload< void (Color4::*)(Val, Val) >(_SC("Generate"), &Color4::Generate)
-        .Overload< void (Color4::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Color4::Generate)
-        // Utility Methods
+        // Properties
+        .Prop(_SC("RGB"), &Color4::GetRGB, &Color4::SetRGB)
+        .Prop(_SC("RGBA"), &Color4::GetRGBA, &Color4::SetRGBA)
+        .Prop(_SC("ARGB"), &Color4::GetARGB, &Color4::SetARGB)
+        // Member Methods
+        .Func(_SC("SetScalar"), &Color4::SetScalar)
+        .Func(_SC("SetColor3Ex"), &Color4::SetColor3Ex)
+        .Func(_SC("SetColor4Ex"), &Color4::SetColor4Ex)
+        .Func(_SC("SetColor3"), &Color4::SetColor3)
+        .Func(_SC("SetColor4"), &Color4::SetColor4)
+        .Func(_SC("SetStr"), &Color4::SetStr)
+        .Func(_SC("SetName"), &Color4::SetName)
         .Func(_SC("Clear"), &Color4::Clear)
         .Func(_SC("Random"), &Color4::Random)
         .Func(_SC("Inverse"), &Color4::Inverse)
+        // Member Overloads
+        .Overload< void (Color4::*)(void) >(_SC("Generate"), &Color4::Generate)
+        .Overload< void (Color4::*)(Val, Val) >(_SC("Generate"), &Color4::Generate)
+        .Overload< void (Color4::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Color4::Generate)
         // Static Overloads
         .StaticOverload< const Color4 & (*)(CSStr) >(_SC("FromStr"), &Color4::Get)
         .StaticOverload< const Color4 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Color4::Get)
@@ -766,7 +823,6 @@ void Register_Color4(HSQUIRRELVM vm)
         .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opXorAssign"), &Color4::operator ^=)
         .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opShlAssign"), &Color4::operator <<=)
         .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opShrAssign"), &Color4::operator >>=)
-
         .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opAddAssignS"), &Color4::operator +=)
         .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opSubAssignS"), &Color4::operator -=)
         .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opMulAssignS"), &Color4::operator *=)
@@ -777,12 +833,10 @@ void Register_Color4(HSQUIRRELVM vm)
         .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opXorAssignS"), &Color4::operator ^=)
         .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opShlAssignS"), &Color4::operator <<=)
         .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opShrAssignS"), &Color4::operator >>=)
-
         .Func< Color4 & (Color4::*)(void) >(_SC("opPreInc"), &Color4::operator ++)
         .Func< Color4 & (Color4::*)(void) >(_SC("opPreDec"), &Color4::operator --)
         .Func< Color4 (Color4::*)(int) >(_SC("opPostInc"), &Color4::operator ++)
         .Func< Color4 (Color4::*)(int) >(_SC("opPostDec"), &Color4::operator --)
-
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opAdd"), &Color4::operator +)
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opSub"), &Color4::operator -)
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opMul"), &Color4::operator *)
@@ -793,7 +847,6 @@ void Register_Color4(HSQUIRRELVM vm)
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opShl"), &Color4::operator ^)
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opShl"), &Color4::operator <<)
         .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opShr"), &Color4::operator >>)
-
         .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opAddS"), &Color4::operator +)
         .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opSubS"), &Color4::operator -)
         .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opMulS"), &Color4::operator *)
@@ -804,11 +857,9 @@ void Register_Color4(HSQUIRRELVM vm)
         .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opShlS"), &Color4::operator ^)
         .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opShlS"), &Color4::operator <<)
         .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opShrS"), &Color4::operator >>)
-
         .Func< Color4 (Color4::*)(void) const >(_SC("opUnPlus"), &Color4::operator +)
         .Func< Color4 (Color4::*)(void) const >(_SC("opUnMinus"), &Color4::operator -)
         .Func< Color4 (Color4::*)(void) const >(_SC("opCom"), &Color4::operator ~)
-
         .Func< bool (Color4::*)(const Color4 &) const >(_SC("opEqual"), &Color4::operator ==)
         .Func< bool (Color4::*)(const Color4 &) const >(_SC("opNotEqual"), &Color4::operator !=)
         .Func< bool (Color4::*)(const Color4 &) const >(_SC("opLessThan"), &Color4::operator <)

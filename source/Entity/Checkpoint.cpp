@@ -180,7 +180,7 @@ const Color4 & CCheckpoint::GetColor() const
     // Query the server for the color values
     _Func->GetCheckPointColour(m_ID, &s_ColorR, &s_ColorG, &s_ColorB, &s_ColorA);
     // Convert and assign the retrieved values
-    s_Color4.Set(s_ColorR, s_ColorG, s_ColorB, s_ColorA);
+    s_Color4.SetColor4Ex(s_ColorR, s_ColorG, s_ColorB, s_ColorA);
     // Return the requested information
     return s_Color4;
 }

@@ -382,37 +382,37 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
     */
-    void Set(Value ns);
+    void SetScalar(Value ns);
 
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified values.
     */
-    void Set(Value nr, Value ng, Value nb);
+    void SetColor3Ex(Value nr, Value ng, Value nb);
 
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified values.
     */
-    void Set(Value nr, Value ng, Value nb, Value na);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy the values from another instance of this type.
-    */
-    void Set(const Color4 & c);
+    void SetColor4Ex(Value nr, Value ng, Value nb, Value na);
 
     /* --------------------------------------------------------------------------------------------
      * Copy the values from an opaque color.
     */
-    void Set(const Color3 & c);
+    void SetColor3(const Color3 & c);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy the values from another instance of this type.
+    */
+    void SetColor4(const Color4 & c);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void Set(CSStr name, SQChar delim);
+    void SetStr(CSStr name, SQChar delim);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values from the identified color.
     */
-    void SetCol(CSStr name);
+    void SetName(CSStr name);
 
     /* --------------------------------------------------------------------------------------------
      * Get the component values packed inside an integer value.
