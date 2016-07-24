@@ -60,6 +60,7 @@ Circle & Circle::operator = (Value r)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator = (const Vector2 & p)
 {
     pos = p;
@@ -74,6 +75,7 @@ Circle & Circle::operator += (const Circle & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator -= (const Circle & c)
 {
     pos -= c.pos;
@@ -81,6 +83,7 @@ Circle & Circle::operator -= (const Circle & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator *= (const Circle & c)
 {
     pos *= c.pos;
@@ -88,6 +91,7 @@ Circle & Circle::operator *= (const Circle & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator /= (const Circle & c)
 {
     pos /= c.pos;
@@ -95,6 +99,7 @@ Circle & Circle::operator /= (const Circle & c)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator %= (const Circle & c)
 {
     pos %= c.pos;
@@ -110,24 +115,28 @@ Circle & Circle::operator += (Value r)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator -= (Value r)
 {
     rad -= r;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator *= (Value r)
 {
     rad *= r;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator /= (Value r)
 {
     rad /= r;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator %= (Value r)
 {
     rad = std::fmod(rad, r);
@@ -141,24 +150,28 @@ Circle & Circle::operator += (const Vector2 & p)
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator -= (const Vector2 & p)
 {
     pos -= p;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator *= (const Vector2 & p)
 {
     pos *= p;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator /= (const Vector2 & p)
 {
     pos /= p;
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator %= (const Vector2 & p)
 {
     pos %= p;
@@ -173,6 +186,7 @@ Circle & Circle::operator ++ ()
     return *this;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle & Circle::operator -- ()
 {
     --pos;
@@ -189,6 +203,7 @@ Circle Circle::operator ++ (int)
     return state;
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator -- (int)
 {
     Circle state(*this);
@@ -203,21 +218,25 @@ Circle Circle::operator + (const Circle & c) const
     return Circle(pos + c.pos, rad + c.rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator - (const Circle & c) const
 {
     return Circle(pos - c.pos, rad - c.rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator * (const Circle & c) const
 {
     return Circle(pos * c.pos, rad * c.rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator / (const Circle & c) const
 {
     return Circle(pos / c.pos, rad / c.rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator % (const Circle & c) const
 {
     return Circle(pos % c.pos, std::fmod(rad, c.rad));
@@ -229,21 +248,25 @@ Circle Circle::operator + (Value r) const
     return Circle(rad + r);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator - (Value r) const
 {
     return Circle(rad - r);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator * (Value r) const
 {
     return Circle(rad * r);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator / (Value r) const
 {
     return Circle(rad / r);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator % (Value r) const
 {
     return Circle(std::fmod(rad, r));
@@ -255,21 +278,25 @@ Circle Circle::operator + (const Vector2 & p) const
     return Circle(pos + p, rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator - (const Vector2 & p) const
 {
     return Circle(pos - p, rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator * (const Vector2 & p) const
 {
     return Circle(pos * p, rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator / (const Vector2 & p) const
 {
     return Circle(pos / p, rad);
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator % (const Vector2 & p) const
 {
     return Circle(pos % p, rad);
@@ -281,6 +308,7 @@ Circle Circle::operator + () const
     return Circle(pos.Abs(), std::fabs(rad));
 }
 
+// ------------------------------------------------------------------------------------------------
 Circle Circle::operator - () const
 {
     return Circle(-pos, -rad);
@@ -292,26 +320,31 @@ bool Circle::operator == (const Circle & c) const
     return EpsEq(rad, c.rad) && (pos == c.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Circle::operator != (const Circle & c) const
 {
     return !EpsEq(rad, c.rad) && (pos != c.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Circle::operator < (const Circle & c) const
 {
     return EpsLt(rad, c.rad) && (pos < c.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Circle::operator > (const Circle & c) const
 {
     return EpsGt(rad, c.rad) && (pos > c.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Circle::operator <= (const Circle & c) const
 {
     return EpsLtEq(rad, c.rad) && (pos <= c.pos);
 }
 
+// ------------------------------------------------------------------------------------------------
 bool Circle::operator >= (const Circle & c) const
 {
     return EpsGtEq(rad, c.rad) && (pos >= c.pos);
@@ -341,44 +374,48 @@ CSStr Circle::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Set(Value nr)
+void Circle::SetRadius(Value nr)
 {
     rad = nr;
 }
 
-void Circle::Set(const Circle & nc)
+// ------------------------------------------------------------------------------------------------
+void Circle::SetCircle(const Circle & nc)
 {
     pos = nc.pos;
     rad = nc.rad;
 }
 
-void Circle::Set(const Vector2 & np)
+// ------------------------------------------------------------------------------------------------
+void Circle::SetPosition(const Vector2 & np)
 {
     pos = np;
 }
 
-void Circle::Set(const Vector2 & np, Value nr)
+// ------------------------------------------------------------------------------------------------
+void Circle::SetValues(const Vector2 & np, Value nr)
 {
     pos = np;
     rad = nr;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Set(Value nx, Value ny)
+void Circle::SetPositionEx(Value nx, Value ny)
 {
     pos.Set(nx, ny);
 }
 
-void Circle::Set(Value nx, Value ny, Value nr)
+// ------------------------------------------------------------------------------------------------
+void Circle::SetValuesEx(Value nx, Value ny, Value nr)
 {
     pos.Set(nx, ny);
     rad = nr;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Set(CSStr values, SQChar delim)
+void Circle::SetStr(CSStr values, SQChar delim)
 {
-    Set(Circle::Get(values, delim));
+    SetCircle(Circle::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -388,6 +425,7 @@ void Circle::Generate()
     rad = GetRandomFloat32();
 }
 
+// ------------------------------------------------------------------------------------------------
 void Circle::Generate(Value min, Value max, bool r)
 {
     if (EpsLt(max, min))
@@ -404,6 +442,7 @@ void Circle::Generate(Value min, Value max, bool r)
     }
 }
 
+// ------------------------------------------------------------------------------------------------
 void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin))
@@ -414,6 +453,7 @@ void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
     pos.Generate(xmin, xmax, ymin, ymax);
 }
 
+// ------------------------------------------------------------------------------------------------
 void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(rmax, rmin))
@@ -467,31 +507,35 @@ const Circle & GetCircle()
     return circle;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Circle & GetCircle(Float32 rv)
 {
     static Circle circle;
-    circle.Set(rv);
+    circle.SetRadius(rv);
     return circle;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Circle & GetCircle(const Vector2 & pv, Float32 rv)
 {
     static Circle circle;
-    circle.Set(pv, rv);
+    circle.SetValues(pv, rv);
     return circle;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Circle & GetCircle(Float32 xv, Float32 yv, Float32 rv)
 {
     static Circle circle;
-    circle.Set(xv, yv, rv);
+    circle.SetValuesEx(xv, yv, rv);
     return circle;
 }
 
+// ------------------------------------------------------------------------------------------------
 const Circle & GetCircle(const Circle & o)
 {
     static Circle circle;
-    circle.Set(o);
+    circle.SetCircle(o);
     return circle;
 }
 
@@ -511,8 +555,6 @@ void Register_Circle(HSQUIRRELVM vm)
         .Var(_SC("rad"), &Circle::rad)
         .Var(_SC("Pos"), &Circle::pos)
         .Var(_SC("Rad"), &Circle::rad)
-        // Properties
-        .Prop(_SC("Abs"), &Circle::Abs)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Circle::ToString)
         .SquirrelFunc(_SC("_typename"), &Circle::Typename)
@@ -524,16 +566,24 @@ void Register_Circle(HSQUIRRELVM vm)
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("_div"), &Circle::operator /)
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("_modulo"), &Circle::operator %)
         .Func< Circle (Circle::*)(void) const >(_SC("_unm"), &Circle::operator -)
-        // Setters
-        .Overload< void (Circle::*)(const Circle &) >(_SC("Set"), &Circle::Set)
-        .Overload< void (Circle::*)(const Vector2 &, Val) >(_SC("Set"), &Circle::Set)
-        .Overload< void (Circle::*)(Val, Val, Val) >(_SC("Set"), &Circle::Set)
-        .Overload< void (Circle::*)(Val) >(_SC("SetRad"), &Circle::Set)
-        .Overload< void (Circle::*)(const Vector2 &) >(_SC("SetVec2"), &Circle::Set)
-        .Overload< void (Circle::*)(Val, Val) >(_SC("SetVec2"), &Circle::Set)
-        .Overload< void (Circle::*)(CSStr, SQChar) >(_SC("SetStr"), &Circle::Set)
-        // Utility Methods
+        // Properties
+        .Prop(_SC("Abs"), &Circle::Abs)
+        // Member Methods
+        .Func(_SC("SetRadius"), &Circle::SetRadius)
+        .Func(_SC("SetCircle"), &Circle::SetCircle)
+        .Func(_SC("SetPos"), &Circle::SetPosition)
+        .Func(_SC("SetPosition"), &Circle::SetPosition)
+        .Func(_SC("SetValues"), &Circle::SetValues)
+        .Func(_SC("SetPosEx"), &Circle::SetPositionEx)
+        .Func(_SC("SetPositionEx"), &Circle::SetPositionEx)
+        .Func(_SC("SetValuesEx"), &Circle::SetValuesEx)
+        .Func(_SC("SetStr"), &Circle::SetStr)
         .Func(_SC("Clear"), &Circle::Clear)
+        // Member Overloads
+        .Overload< void (Circle::*)(void) >(_SC("Generate"), &Circle::Generate)
+        .Overload< void (Circle::*)(Val, Val, bool) >(_SC("Generate"), &Circle::Generate)
+        .Overload< void (Circle::*)(Val, Val, Val, Val) >(_SC("Generate"), &Circle::Generate)
+        .Overload< void (Circle::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Circle::Generate)
         // Static Overloads
         .StaticOverload< const Circle & (*)(CSStr) >(_SC("FromStr"), &Circle::Get)
         .StaticOverload< const Circle & (*)(CSStr, SQChar) >(_SC("FromStr"), &Circle::Get)
@@ -546,45 +596,37 @@ void Register_Circle(HSQUIRRELVM vm)
         .Func< Circle & (Circle::*)(const Circle &) >(_SC("opMulAssign"), &Circle::operator *=)
         .Func< Circle & (Circle::*)(const Circle &) >(_SC("opDivAssign"), &Circle::operator /=)
         .Func< Circle & (Circle::*)(const Circle &) >(_SC("opModAssign"), &Circle::operator %=)
-
         .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opAddAssignR"), &Circle::operator +=)
         .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opSubAssignR"), &Circle::operator -=)
         .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opMulAssignR"), &Circle::operator *=)
         .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opDivAssignR"), &Circle::operator /=)
         .Func< Circle & (Circle::*)(Circle::Value) >(_SC("opModAssignR"), &Circle::operator %=)
-
         .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opAddAssignP"), &Circle::operator +=)
         .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opSubAssignP"), &Circle::operator -=)
         .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opMulAssignP"), &Circle::operator *=)
         .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opDivAssignP"), &Circle::operator /=)
         .Func< Circle & (Circle::*)(const Vector2 &) >(_SC("opModAssignP"), &Circle::operator %=)
-
         .Func< Circle & (Circle::*)(void) >(_SC("opPreInc"), &Circle::operator ++)
         .Func< Circle & (Circle::*)(void) >(_SC("opPreDec"), &Circle::operator --)
         .Func< Circle (Circle::*)(int) >(_SC("opPostInc"), &Circle::operator ++)
         .Func< Circle (Circle::*)(int) >(_SC("opPostDec"), &Circle::operator --)
-
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("opAdd"), &Circle::operator +)
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("opSub"), &Circle::operator -)
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("opMul"), &Circle::operator *)
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("opDiv"), &Circle::operator /)
         .Func< Circle (Circle::*)(const Circle &) const >(_SC("opMod"), &Circle::operator %)
-
         .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opAddR"), &Circle::operator +)
         .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opSubR"), &Circle::operator -)
         .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opMulR"), &Circle::operator *)
         .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opDivR"), &Circle::operator /)
         .Func< Circle (Circle::*)(Circle::Value) const >(_SC("opModR"), &Circle::operator %)
-
         .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opAddP"), &Circle::operator +)
         .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opSubP"), &Circle::operator -)
         .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opMulP"), &Circle::operator *)
         .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opDivP"), &Circle::operator /)
         .Func< Circle (Circle::*)(const Vector2 &) const >(_SC("opModP"), &Circle::operator %)
-
         .Func< Circle (Circle::*)(void) const >(_SC("opUnPlus"), &Circle::operator +)
         .Func< Circle (Circle::*)(void) const >(_SC("opUnMinus"), &Circle::operator -)
-
         .Func< bool (Circle::*)(const Circle &) const >(_SC("opEqual"), &Circle::operator ==)
         .Func< bool (Circle::*)(const Circle &) const >(_SC("opNotEqual"), &Circle::operator !=)
         .Func< bool (Circle::*)(const Circle &) const >(_SC("opLessThan"), &Circle::operator <)

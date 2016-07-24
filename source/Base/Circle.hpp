@@ -319,37 +319,37 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Set the specified radius.
     */
-    void Set(Value nr);
+    void SetRadius(Value nr);
 
     /* --------------------------------------------------------------------------------------------
      * Copy the circle from another instance of this type.
     */
-    void Set(const Circle & nc);
+    void SetCircle(const Circle & nc);
 
     /* --------------------------------------------------------------------------------------------
      * Set the position from the specified position.
     */
-    void Set(const Vector2 & np);
+    void SetPosition(const Vector2 & np);
 
     /* --------------------------------------------------------------------------------------------
      * Set the specified position and radius.
     */
-    void Set(const Vector2 & np, Value nr);
+    void SetValues(const Vector2 & np, Value nr);
 
     /* --------------------------------------------------------------------------------------------
      * Set the specified position.
     */
-    void Set(Value nx, Value ny);
+    void SetPositionEx(Value nx, Value ny);
 
     /* --------------------------------------------------------------------------------------------
      * Set the specified position and radius.
     */
-    void Set(Value nx, Value ny, Value nr);
+    void SetValuesEx(Value nx, Value ny, Value nr);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void Set(CSStr values, SQChar delim);
+    void SetStr(CSStr values, SQChar delim);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized and positioned circle.
