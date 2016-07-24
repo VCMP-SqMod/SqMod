@@ -320,42 +320,42 @@ void AABB::Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(const AABB & b)
+void AABB::SetBox(const AABB & b)
 {
     min = b.min;
     max = b.max;
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(const Vector3 & v)
+void AABB::SetVec3(const Vector3 & v)
 {
     min = -v;
     max = v.Abs();
 }
 
-void AABB::Set(const Vector3 & nmin, const Vector3 & nmax)
+void AABB::SetVec3(const Vector3 & nmin, const Vector3 & nmax)
 {
     min = nmin;
     max = nmax;
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(const Vector4 & v)
+void AABB::SetVec4(const Vector4 & v)
 {
     min = -v;
     max = v.Abs();
 }
 
-void AABB::Set(const Vector4 & nmin, const Vector4 & nmax)
+void AABB::SetVec4(const Vector4 & nmin, const Vector4 & nmax)
 {
     min = nmin;
     max = nmax;
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(CSStr values, SQChar delim)
+void AABB::SetStr(CSStr values, SQChar delim)
 {
-    Set(AABB::Get(values, delim));
+    SetBox(AABB::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -427,14 +427,14 @@ const AABB & GetAABB(Float32 xmin, Float32 ymin, Float32 zmin, Float32 xmax, Flo
 const AABB & GetAABB(const Vector3 & vmin, const Vector3 & vmax)
 {
     static AABB box;
-    box.Set(vmin, vmax);
+    box.SetVec3(vmin, vmax);
     return box;
 }
 
 const AABB & GetAABB(const AABB & o)
 {
     static AABB box;
-    box.Set(o);
+    box.SetBox(o);
     return box;
 }
 
@@ -472,14 +472,14 @@ void Register_AABB(HSQUIRRELVM vm)
         .Overload< void (AABB::*)(Val) >(_SC("Set"), &AABB::Set)
         .Overload< void (AABB::*)(Val, Val, Val) >(_SC("Set"), &AABB::Set)
         .Overload< void (AABB::*)(Val, Val, Val, Val, Val, Val) >(_SC("Set"), &AABB::Set)
-        .Overload< void (AABB::*)(const AABB &) >(_SC("SetBox"), &AABB::Set)
-        .Overload< void (AABB::*)(const Vector3 &) >(_SC("SetVec3"), &AABB::Set)
-        .Overload< void (AABB::*)(const Vector3 &, const Vector3 &) >(_SC("SetVec3"), &AABB::Set)
-        .Overload< void (AABB::*)(const Vector4 &) >(_SC("SetVec4"), &AABB::Set)
-        .Overload< void (AABB::*)(const Vector4 &, const Vector4 &) >(_SC("SetVec4"), &AABB::Set)
-        .Overload< void (AABB::*)(CSStr, SQChar) >(_SC("SetStr"), &AABB::Set)
+        .Overload< void (AABB::*)(const Vector3 &) >(_SC("SetVec3"), &AABB::SetVec3)
+        .Overload< void (AABB::*)(const Vector3 &, const Vector3 &) >(_SC("SetVec3"), &AABB::SetVec3)
+        .Overload< void (AABB::*)(const Vector4 &) >(_SC("SetVec4"), &AABB::SetVec4)
+        .Overload< void (AABB::*)(const Vector4 &, const Vector4 &) >(_SC("SetVec4"), &AABB::SetVec4)
         // Utility Methods
         .Func(_SC("Clear"), &AABB::Clear)
+        .Func(_SC("SetBox"), &AABB::SetBox)
+        .Func(_SC("SetStr"), &AABB::SetStr)
         // Static Overloads
         .StaticOverload< const AABB & (*)(CSStr) >(_SC("FromStr"), &AABB::Get)
         .StaticOverload< const AABB & (*)(CSStr, SQChar) >(_SC("FromStr"), &AABB::Get)
@@ -492,32 +492,27 @@ void Register_AABB(HSQUIRRELVM vm)
         .Func< AABB & (AABB::*)(const AABB &) >(_SC("opMulAssign"), &AABB::operator *=)
         .Func< AABB & (AABB::*)(const AABB &) >(_SC("opDivAssign"), &AABB::operator /=)
         .Func< AABB & (AABB::*)(const AABB &) >(_SC("opModAssign"), &AABB::operator %=)
-
         .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opAddAssignS"), &AABB::operator +=)
         .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opSubAssignS"), &AABB::operator -=)
         .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opMulAssignS"), &AABB::operator *=)
         .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opDivAssignS"), &AABB::operator /=)
         .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opModAssignS"), &AABB::operator %=)
-
         .Func< AABB & (AABB::*)(void) >(_SC("opPreInc"), &AABB::operator ++)
         .Func< AABB & (AABB::*)(void) >(_SC("opPreDec"), &AABB::operator --)
         .Func< AABB (AABB::*)(int) >(_SC("opPostInc"), &AABB::operator ++)
         .Func< AABB (AABB::*)(int) >(_SC("opPostDec"), &AABB::operator --)
-
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("opAdd"), &AABB::operator +)
-        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opAddS"), &AABB::operator +)
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("opSub"), &AABB::operator -)
-        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opSubS"), &AABB::operator -)
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("opMul"), &AABB::operator *)
-        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opMulS"), &AABB::operator *)
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("opDiv"), &AABB::operator /)
-        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opDivS"), &AABB::operator /)
         .Func< AABB (AABB::*)(const AABB &) const >(_SC("opMod"), &AABB::operator %)
+        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opAddS"), &AABB::operator +)
+        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opSubS"), &AABB::operator -)
+        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opMulS"), &AABB::operator *)
+        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opDivS"), &AABB::operator /)
         .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opModS"), &AABB::operator %)
-
         .Func< AABB (AABB::*)(void) const >(_SC("opUnPlus"), &AABB::operator +)
         .Func< AABB (AABB::*)(void) const >(_SC("opUnMinus"), &AABB::operator -)
-
         .Func< bool (AABB::*)(const AABB &) const >(_SC("opEqual"), &AABB::operator ==)
         .Func< bool (AABB::*)(const AABB &) const >(_SC("opNotEqual"), &AABB::operator !=)
         .Func< bool (AABB::*)(const AABB &) const >(_SC("opLessThan"), &AABB::operator <)

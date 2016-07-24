@@ -297,36 +297,36 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Set the same box from another instance of this type.
     */
-    void Set(const AABB & b);
+    void SetBox(const AABB & b);
 
     /* --------------------------------------------------------------------------------------------
      * Set an equally sized and imperfectly shaped box from a single three-dimensional vector
      * representing a single three-dimensional point.
     */
-    void Set(const Vector3 & v);
+    void SetVec3(const Vector3 & v);
 
     /* --------------------------------------------------------------------------------------------
      * Set an unequally sized and imperfectly shaped box from two three-dimensional vectors
      * representing two three-dimensional points.
     */
-    void Set(const Vector3 & nmin, const Vector3 & nmax);
+    void SetVec3(const Vector3 & nmin, const Vector3 & nmax);
 
     /* --------------------------------------------------------------------------------------------
      * Set an equally sized and imperfectly shaped box from a single four-dimensional vector
      * representing a single three-dimensional point.
     */
-    void Set(const Vector4 & v);
+    void SetVec4(const Vector4 & v);
 
     /* --------------------------------------------------------------------------------------------
      * Set an unequally sized and imperfectly shaped box from two four-dimensional vectors
      * representing two three-dimensional points.
     */
-    void Set(const Vector4 & nmin, const Vector4 & nmax);
+    void SetVec4(const Vector4 & nmin, const Vector4 & nmax);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void Set(CSStr values, SQChar delim);
+    void SetStr(CSStr values, SQChar delim);
 
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.
