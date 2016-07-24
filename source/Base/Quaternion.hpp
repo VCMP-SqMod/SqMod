@@ -272,37 +272,37 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
     */
-    void Set(Value ns);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set all components to the specified values.
-    */
-    void Set(Value nx, Value ny, Value nz);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set all components to the specified values.
-    */
-    void Set(Value nx, Value ny, Value nz, Value nw);
+    void SetScalar(Value ns);
 
     /* --------------------------------------------------------------------------------------------
      * Copy the values from another instance of this type.
     */
-    void Set(const Quaternion & q);
+    void SetQuaternion(const Quaternion & q);
+
+    /* --------------------------------------------------------------------------------------------
+     * Set all components to the specified values.
+    */
+    void SetQuaternionEx(Value nx, Value ny, Value nz, Value nw);
 
     /* --------------------------------------------------------------------------------------------
      * Copy the values from a three-dimensional vector as euler rotation.
     */
-    void Set(const Vector3 & v);
+    void SetVector3(const Vector3 & v);
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy the values from a three-dimensional vector as euler rotation.
+    */
+    void SetVector3Ex(Value nx, Value ny, Value nz);
 
     /* --------------------------------------------------------------------------------------------
      * Copy the values from a four-dimensional vector.
     */
-    void Set(const Vector4 & v);
+    void SetVector4(const Vector4 & v);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void Set(CSStr values, SQChar delim);
+    void SetStr(CSStr values, SQChar delim);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
