@@ -158,6 +158,11 @@ public:
     void BindEvent(Int32 evid, Object & env, Function & func) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Emit a custom event for the managed entity
+    */
+    void CustomEvent(Int32 header, Object & payload) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the first key code of the managed keybind entity.
     */
     Int32 GetFirst() const;

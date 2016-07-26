@@ -117,6 +117,15 @@ void CKeybind::BindEvent(Int32 evid, Object & env, Function & func) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CKeybind::CustomEvent(Int32 header, Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perfrom the requested action
+    Core::Get().EmitKeybindCustom(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CKeybind::GetFirst() const
 {
     // Validate the managed identifier
@@ -203,6 +212,7 @@ void Register_CKeybind(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CKeybind::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CKeybind::BindEvent)
+        .Func(_SC("CustomEvent"), &CKeybind::CustomEvent)
         // Core Overloads
         .Overload< bool (CKeybind::*)(void) >(_SC("Destroy"), &CKeybind::Destroy)
         .Overload< bool (CKeybind::*)(Int32) >(_SC("Destroy"), &CKeybind::Destroy)

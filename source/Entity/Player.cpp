@@ -143,6 +143,15 @@ void CPlayer::BindEvent(Int32 evid, Object & env, Function & func) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CPlayer::CustomEvent(Int32 header, Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perfrom the requested action
+    Core::Get().EmitPlayerCustom(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CPlayer::IsConnected() const
 {
     return _Func->IsPlayerConnected(m_ID);
@@ -2195,6 +2204,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CPlayer::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CPlayer::BindEvent)
+        .Func(_SC("CustomEvent"), &CPlayer::CustomEvent)
         // Properties
         .Prop(_SC("Connected"), &CPlayer::IsConnected)
         .Prop(_SC("Admin"), &CPlayer::GetAdmin, &CPlayer::SetAdmin)

@@ -130,6 +130,15 @@ void CCheckpoint::BindEvent(Int32 evid, Object & env, Function & func) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CCheckpoint::CustomEvent(Int32 header, Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perfrom the requested action
+    Core::Get().EmitCheckpointCustom(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CCheckpoint::IsStreamedFor(CPlayer & player) const
 {
     // Is the specified player even valid?
@@ -497,6 +506,7 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CCheckpoint::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CCheckpoint::BindEvent)
+        .Func(_SC("CustomEvent"), &CCheckpoint::CustomEvent)
         // Core Overloads
         .Overload< bool (CCheckpoint::*)(void) >(_SC("Destroy"), &CCheckpoint::Destroy)
         .Overload< bool (CCheckpoint::*)(Int32) >(_SC("Destroy"), &CCheckpoint::Destroy)

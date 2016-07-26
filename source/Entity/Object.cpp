@@ -130,6 +130,15 @@ void CObject::BindEvent(Int32 evid, Object & env, Function & func) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CObject::CustomEvent(Int32 header, Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perfrom the requested action
+    Core::Get().EmitObjectCustom(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CObject::IsStreamedFor(CPlayer & player) const
 {
     // Is the specified player even valid?
@@ -832,6 +841,7 @@ void Register_CObject(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CObject::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CObject::BindEvent)
+        .Func(_SC("CustomEvent"), &CObject::CustomEvent)
         // Core Overloads
         .Overload< bool (CObject::*)(void) >(_SC("Destroy"), &CObject::Destroy)
         .Overload< bool (CObject::*)(Int32) >(_SC("Destroy"), &CObject::Destroy)

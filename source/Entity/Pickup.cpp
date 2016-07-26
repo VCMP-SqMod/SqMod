@@ -122,6 +122,15 @@ void CPickup::BindEvent(Int32 evid, Object & env, Function & func) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CPickup::CustomEvent(Int32 header, Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perfrom the requested action
+    Core::Get().EmitPickupCustom(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CPickup::IsStreamedFor(CPlayer & player) const
 {
     // Is the specified player even valid?
@@ -385,6 +394,7 @@ void Register_CPickup(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CPickup::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CPickup::BindEvent)
+        .Func(_SC("CustomEvent"), &CPickup::CustomEvent)
         // Core Overloads
         .Overload< bool (CPickup::*)(void) >(_SC("Destroy"), &CPickup::Destroy)
         .Overload< bool (CPickup::*)(Int32) >(_SC("Destroy"), &CPickup::Destroy)

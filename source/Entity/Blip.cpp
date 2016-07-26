@@ -117,6 +117,15 @@ void CBlip::BindEvent(Int32 evid, Object & env, Function & func) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CBlip::CustomEvent(Int32 header, Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perfrom the requested action
+    Core::Get().EmitBlipCustom(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CBlip::GetWorld() const
 {
     // Validate the managed identifier
@@ -304,6 +313,7 @@ void Register_CBlip(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CBlip::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CBlip::BindEvent)
+        .Func(_SC("CustomEvent"), &CBlip::CustomEvent)
         // Core Overloads
         .Overload< bool (CBlip::*)(void) >(_SC("Destroy"), &CBlip::Destroy)
         .Overload< bool (CBlip::*)(Int32) >(_SC("Destroy"), &CBlip::Destroy)

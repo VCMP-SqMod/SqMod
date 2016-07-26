@@ -158,6 +158,11 @@ public:
     void BindEvent(Int32 evid, Object & env, Function & func) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Emit a custom event for the managed entity
+    */
+    void CustomEvent(Int32 header, Object & payload) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the referenced blip entity exists.
     */
     Int32 GetWorld() const;

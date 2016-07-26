@@ -126,6 +126,15 @@ void CVehicle::BindEvent(Int32 evid, Object & env, Function & func) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CVehicle::CustomEvent(Int32 header, Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perfrom the requested action
+    Core::Get().EmitVehicleCustom(m_ID, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CVehicle::IsStreamedFor(CPlayer & player) const
 {
     // Is the specified player even valid?
@@ -1652,6 +1661,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CVehicle::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CVehicle::BindEvent)
+        .Func(_SC("CustomEvent"), &CVehicle::CustomEvent)
         // Core Overloads
         .Overload< bool (CVehicle::*)(void) >(_SC("Destroy"), &CVehicle::Destroy)
         .Overload< bool (CVehicle::*)(Int32) >(_SC("Destroy"), &CVehicle::Destroy)
