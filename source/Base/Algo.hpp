@@ -16,6 +16,143 @@
 namespace SqMod {
 namespace Algo {
 
+// ------------------------------------------------------------------------------------------------
+#ifdef _WIN32
+   #define sqmod_stricmp(a,b) stricmp(a,b)
+   #define sqmod_strnicmp(a,b,n) strnicmp(a,b,n)
+#else
+   #define sqmod_stricmp(a,b) strcasecmp(a,b)
+   #define sqmod_strnicmp(a,b,n) strncasecmp(a,b,n)
+#endif
+
+/* ------------------------------------------------------------------------------------------------
+ * Returns a pointer to the first occurrence of 'needle' in 'haystack'.
+*/
+inline CSStr sqmod_stristr(CSStr haystack, CSStr needle)
+{
+    for (const SQChar chr = std::tolower(*needle); *haystack != '\0'; ++haystack)
+    {
+        if (static_cast< SQChar >(std::tolower(*haystack)) != chr)
+        {
+            continue;
+        }
+
+        for (CSStr itr = haystack, str = needle;; ++itr, ++str)
+        {
+            if (*str == '\0')
+            {
+                return haystack;
+            }
+            else if (*itr == '\0')
+            {
+                return nullptr;
+            }
+            else if (std::tolower(*itr) != std::tolower(*str))
+            {
+                break;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Find the specified string in another string.
+*/
+inline bool FindStr(CSStr str1, CSStr str2, bool cs)
+{
+    if (!str1 || !str2 || (*str1 == '\0' && *str2 == '\0'))
+    {
+        return false;
+    }
+    else if (cs)
+    {
+        return (strstr(str1, str2) != nullptr);
+    }
+
+    return (sqmod_stristr(str1, str2) != nullptr);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Compare the specified strings.
+*/
+inline Int32 CompareStr(CSStr lhs, CSStr rhs, bool cs)
+{
+    if (!lhs)
+    {
+        if (!rhs)
+        {
+            return 0;
+        }
+
+        return -1;
+    }
+
+    if (!rhs)
+    {
+        return 1;
+    }
+
+    return cs ? strcmp(lhs, rhs) : sqmod_stricmp(lhs, rhs);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Compare a portion from the specified strings.
+*/
+inline Int32 CompareStr(CSStr lhs, CSStr rhs, Uint32 len, bool cs)
+{
+    if (!lhs)
+    {
+        if (!rhs)
+        {
+            return 0;
+        }
+
+        return -1;
+    }
+
+    if (!rhs)
+    {
+        return 1;
+    }
+
+    return cs ? strncmp(lhs, rhs, len) : sqmod_strnicmp(lhs, rhs, len);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Compare a portion from the specified strings starting from a certain position.
+*/
+inline Int32 CompareStr(CSStr lhs, CSStr rhs, Uint32 pos, Uint32 len, bool cs)
+{
+    if (!lhs)
+    {
+        if (!rhs)
+        {
+            return 0;
+        }
+
+        return -1;
+    }
+
+    if (!rhs)
+    {
+        return 1;
+    }
+
+    while (pos)
+    {
+        if (*lhs == '\0')
+        {
+            return -1;
+        }
+
+        ++lhs, --pos;
+    }
+
+    return cs ? strncmp(lhs, rhs, len) : sqmod_strnicmp(lhs, rhs, len);
+}
+
 /* ------------------------------------------------------------------------------------------------
  * Collect all elements within the specified range that the inspector deems worthy.
 */
@@ -37,11 +174,11 @@ void Collect(Iterator first, Iterator last, Inspector inspect, Collector collect
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachEquals(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, bool neg)
+                        CSStr str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
-        if (inspect(*first) && (retrieve(*first).compare(str) == 0) == neg)
+        if (inspect(*first) && (CompareStr(retrieve(*first).c_str(), str, cs) == 0) == neg)
         {
             collect(*first);
         }
@@ -55,7 +192,7 @@ void EachEquals(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachBegins(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len, bool neg)
+                        CSStr str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -68,7 +205,7 @@ void EachBegins(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((s.compare(0, len, str) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, len, cs) == 0) == neg)
             {
                 collect(*first);
             }
@@ -87,7 +224,7 @@ void EachBegins(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachEnds(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len, bool neg)
+                        CSStr str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -100,7 +237,7 @@ void EachEnds(Iterator first, Iterator last,
         // Compare the tag
         if (s.size() >= len)
         {
-            if ((s.compare(s.size() - len, len, str) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), len, cs) == 0) == neg)
             {
                 collect(*first);
             }
@@ -119,11 +256,11 @@ void EachEnds(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachContains(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, bool neg)
+                        CSStr str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
-        if (inspect(*first) && (retrieve(*first).find(str) != String::npos) == neg)
+        if (inspect(*first) && FindStr(retrieve(*first).c_str(), str, cs) == neg)
         {
             collect(*first);
         }
@@ -136,11 +273,11 @@ void EachContains(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
 void FirstEquals(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, bool neg)
+                        CSStr str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
-        if (inspect(*first) && (retrieve(*first).compare(str) == 0) == neg)
+        if (inspect(*first) && (CompareStr(retrieve(*first).c_str(), str, cs) == 0) == neg)
         {
             receive(*first);
             break;
@@ -155,7 +292,7 @@ void FirstEquals(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
 void FirstBegins(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, std::size_t len, bool neg)
+                        CSStr str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -168,7 +305,7 @@ void FirstBegins(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((s.compare(0, len, str) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, len, cs) == 0) == neg)
             {
                 receive(*first);
                 break;
@@ -189,7 +326,7 @@ void FirstBegins(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
 void FirstEnds(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, std::size_t len, bool neg)
+                        CSStr str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -202,7 +339,7 @@ void FirstEnds(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((s.compare(s.size() - len, len, str) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), len, cs) == 0) == neg)
             {
                 receive(*first);
                 break;
@@ -223,11 +360,11 @@ void FirstEnds(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
 void FirstContains(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, bool neg)
+                        CSStr str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
-        if (inspect(*first) && (retrieve(*first).find(str) != String::npos) == neg)
+        if (inspect(*first) && FindStr(retrieve(*first).c_str(), str, cs) == neg)
         {
             receive(*first);
             break;
@@ -777,7 +914,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Collect all entities of this type where the tag matches or not the specified one.
     */
-    static inline Array AllWhereTagEquals(bool neg, CSStr tag)
+    static inline Array AllWhereTagEquals(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -785,7 +922,7 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg);
+        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg, cs);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
@@ -793,7 +930,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Collect all entities of this type where the tag begins or not with the specified string.
     */
-    static inline Array AllWhereTagBegins(bool neg, CSStr tag)
+    static inline Array AllWhereTagBegins(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -801,7 +938,7 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), !neg);
+        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), !neg, cs);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
@@ -809,7 +946,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Collect all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Array AllWhereTagEnds(bool neg, CSStr tag)
+    static inline Array AllWhereTagEnds(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -817,7 +954,7 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), !neg);
+        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), !neg, cs);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
@@ -825,7 +962,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Collect all entities of this type where the tag contains or not the specified string.
     */
-    static inline Array AllWhereTagContains(bool neg, CSStr tag)
+    static inline Array AllWhereTagContains(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -833,7 +970,7 @@ public:
         // Allocate an empty array on the stack
         sq_newarray(DefaultVM::Get(), 0);
         // Process each entity in the pool
-        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg);
+        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg, cs);
         // Return the array at the top of the stack
         return Var< Array >(DefaultVM::Get(), -1).value;
     }
@@ -841,14 +978,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag matches or not the specified one.
     */
-    static inline Object FirstWhereTagEquals(bool neg, CSStr tag)
+    static inline Object FirstWhereTagEquals(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
         FirstEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< RecvElem >(recv), tag, !neg);
+                        std::reference_wrapper< RecvElem >(recv), tag, !neg, cs);
         // Return the received element, if any
         return recv.mObj;
     }
@@ -856,14 +993,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag begins or not with the specified string.
     */
-    static inline Object FirstWhereTagBegins(bool neg, CSStr tag)
+    static inline Object FirstWhereTagBegins(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
         FirstBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< RecvElem >(recv), tag, strlen(tag), !neg);
+                        std::reference_wrapper< RecvElem >(recv), tag, strlen(tag), !neg, cs);
         // Return the received element, if any
         return recv.mObj;
     }
@@ -871,14 +1008,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag ends or not with the specified string.
     */
-    static inline Object FirstWhereTagEnds(bool neg, CSStr tag)
+    static inline Object FirstWhereTagEnds(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
         FirstEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< RecvElem >(recv), tag, strlen(tag), !neg);
+                        std::reference_wrapper< RecvElem >(recv), tag, strlen(tag), !neg, cs);
         // Return the received element, if any
         return recv.mObj;
     }
@@ -886,14 +1023,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag contains or not the specified string.
     */
-    static inline Object FirstWhereTagContains(bool neg, CSStr tag)
+    static inline Object FirstWhereTagContains(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
         RecvElem recv;
         // Process each entity in the pool
         FirstContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< RecvElem >(recv), tag, !neg);
+                        std::reference_wrapper< RecvElem >(recv), tag, !neg, cs);
         // Return the received element, if any
         return recv.mObj;
     }
@@ -915,14 +1052,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag matches or not the specified one.
     */
-    static inline Uint32 EachWhereTagEquals(bool neg, CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagEquals(bool neg, bool cs, CSStr tag, Object & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
         EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< ForwardElem >(fwd), tag, !neg);
+                        std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
     }
@@ -930,14 +1067,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag begins with the specified string.
     */
-    static inline Uint32 EachWhereTagBegins(bool neg, CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagBegins(bool neg, bool cs, CSStr tag, Object & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
         EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg);
+                        std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg, cs);
         // Return the forward count
         return fwd.mCount;
     }
@@ -945,14 +1082,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Uint32 EachWhereTagEnds(bool neg, CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagEnds(bool neg, bool cs, CSStr tag, Object & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
         EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg);
+                        std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg, cs);
         // Return the forward count
         return fwd.mCount;
     }
@@ -960,14 +1097,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag contains the specified string.
     */
-    static inline Uint32 EachWhereTagContains(bool neg, CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagContains(bool neg, bool cs, CSStr tag, Object & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
         EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< ForwardElem >(fwd), tag, !neg);
+                        std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
     }
@@ -989,14 +1126,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag matches or not the specified one.
     */
-    static inline Uint32 CountWhereTagEquals(bool neg, CSStr tag)
+    static inline Uint32 CountWhereTagEquals(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter
         CountElem cnt;
         // Process each entity in the pool
         EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< CountElem >(cnt), tag, !neg);
+                        std::reference_wrapper< CountElem >(cnt), tag, !neg, cs);
         // Return the count
         return cnt;
     }
@@ -1004,14 +1141,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag begins with the specified string.
     */
-    static inline Uint32 CountWhereTagBegins(bool neg, CSStr tag)
+    static inline Uint32 CountWhereTagBegins(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter
         CountElem cnt;
         // Process each entity in the pool
         EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< CountElem >(cnt), tag, strlen(tag), !neg);
+                        std::reference_wrapper< CountElem >(cnt), tag, strlen(tag), !neg, cs);
         // Return the count
         return cnt;
     }
@@ -1019,14 +1156,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Uint32 CountWhereTagEnds(bool neg, CSStr tag)
+    static inline Uint32 CountWhereTagEnds(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter
         CountElem cnt;
         // Process each entity in the pool
         EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< CountElem >(cnt), tag, strlen(tag), !neg);
+                        std::reference_wrapper< CountElem >(cnt), tag, strlen(tag), !neg, cs);
         // Return the count
         return cnt;
     }
@@ -1034,14 +1171,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag contains the specified string.
     */
-    static inline Uint32 CountWhereTagContains(bool neg, CSStr tag)
+    static inline Uint32 CountWhereTagContains(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter
         CountElem cnt;
         // Process each entity in the pool
         EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< CountElem >(cnt), tag, !neg);
+                        std::reference_wrapper< CountElem >(cnt), tag, !neg, cs);
         // Return the count
         return cnt;
     }

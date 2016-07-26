@@ -137,7 +137,7 @@ static const Object & Blip_FindBySprID(Int32 sprid)
 /* ------------------------------------------------------------------------------------------------
  * Collect all players where the name matches or not the specified one.
 */
-static inline Array Player_AllWhereNameEquals(bool neg, CSStr name)
+static inline Array Player_AllWhereNameEquals(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Remember the current stack size
@@ -147,7 +147,7 @@ static inline Array Player_AllWhereNameEquals(bool neg, CSStr name)
     // Process each entity in the pool
     EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                ValidInstFunc< CPlayer >(), PlayerName(),
-               AppendElemFunc< CPlayer >(), name, !neg);
+               AppendElemFunc< CPlayer >(), name, !neg, cs);
     // Return the array at the top of the stack
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
@@ -155,7 +155,7 @@ static inline Array Player_AllWhereNameEquals(bool neg, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Collect all players where the name begins or not with the specified string.
 */
-static inline Array Player_AllWhereNameBegins(bool neg, CSStr name)
+static inline Array Player_AllWhereNameBegins(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Remember the current stack size
@@ -165,7 +165,7 @@ static inline Array Player_AllWhereNameBegins(bool neg, CSStr name)
     // Process each entity in the pool
     EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                AppendElemFunc< CPlayer >(), name, strlen(name), !neg);
+                AppendElemFunc< CPlayer >(), name, strlen(name), !neg, cs);
     // Return the array at the top of the stack
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
@@ -173,7 +173,7 @@ static inline Array Player_AllWhereNameBegins(bool neg, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Collect all players where the name ends or not with the specified string.
 */
-static inline Array Player_AllWhereNameEnds(bool neg, CSStr name)
+static inline Array Player_AllWhereNameEnds(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Remember the current stack size
@@ -183,7 +183,7 @@ static inline Array Player_AllWhereNameEnds(bool neg, CSStr name)
     // Process each entity in the pool
     EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                AppendElemFunc< CPlayer >(), name, strlen(name), !neg);
+                AppendElemFunc< CPlayer >(), name, strlen(name), !neg, cs);
     // Return the array at the top of the stack
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
@@ -191,7 +191,7 @@ static inline Array Player_AllWhereNameEnds(bool neg, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Collect all players where the name contains or not the specified string.
 */
-static inline Array Player_AllWhereNameContains(bool neg, CSStr name)
+static inline Array Player_AllWhereNameContains(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Remember the current stack size
@@ -201,7 +201,7 @@ static inline Array Player_AllWhereNameContains(bool neg, CSStr name)
     // Process each entity in the pool
     EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                AppendElemFunc< CPlayer >(), name, !neg);
+                AppendElemFunc< CPlayer >(), name, !neg, cs);
     // Return the array at the top of the stack
     return Var< Array >(DefaultVM::Get(), -1).value;
 }
@@ -209,7 +209,7 @@ static inline Array Player_AllWhereNameContains(bool neg, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name matches or not the specified one.
 */
-static inline Object Player_FirstWhereNameEquals(bool neg, CSStr name)
+static inline Object Player_FirstWhereNameEquals(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -217,7 +217,7 @@ static inline Object Player_FirstWhereNameEquals(bool neg, CSStr name)
     // Process each entity in the pool
     FirstEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, !neg);
+                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, !neg, cs);
     // Return the received element, if any
     return recv.mObj;
 }
@@ -225,7 +225,7 @@ static inline Object Player_FirstWhereNameEquals(bool neg, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name begins or not with the specified string.
 */
-static inline Object Player_FirstWhereNameBegins(bool neg, CSStr name)
+static inline Object Player_FirstWhereNameBegins(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -233,7 +233,7 @@ static inline Object Player_FirstWhereNameBegins(bool neg, CSStr name)
     // Process each entity in the pool
     FirstBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, strlen(name), !neg);
+                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, strlen(name), !neg, cs);
     // Return the received element, if any
     return recv.mObj;
 }
@@ -241,7 +241,7 @@ static inline Object Player_FirstWhereNameBegins(bool neg, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name ends or not with the specified string.
 */
-static inline Object Player_FirstWhereNameEnds(bool neg, CSStr name)
+static inline Object Player_FirstWhereNameEnds(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -249,7 +249,7 @@ static inline Object Player_FirstWhereNameEnds(bool neg, CSStr name)
     // Process each entity in the pool
     FirstEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, strlen(name), !neg);
+                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, strlen(name), !neg, cs);
     // Return the received element, if any
     return recv.mObj;
 }
@@ -257,7 +257,7 @@ static inline Object Player_FirstWhereNameEnds(bool neg, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name contains or not the specified string.
 */
-static inline Object Player_FirstWhereNameContains(bool neg, CSStr name)
+static inline Object Player_FirstWhereNameContains(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -265,7 +265,7 @@ static inline Object Player_FirstWhereNameContains(bool neg, CSStr name)
     // Process each entity in the pool
     FirstContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, !neg);
+                std::reference_wrapper< RecvElemFunc< CPlayer > >(recv), name, !neg, cs);
     // Return the received element, if any
     return recv.mObj;
 }
@@ -273,7 +273,7 @@ static inline Object Player_FirstWhereNameContains(bool neg, CSStr name)
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches or not the specified one.
 */
-static inline Uint32 Player_EachWhereNameEquals(bool neg, CSStr name, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameEquals(bool neg, bool cs, CSStr name, Object & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -281,7 +281,7 @@ static inline Uint32 Player_EachWhereNameEquals(bool neg, CSStr name, Object & e
     // Process each entity in the pool
     EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg);
+                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg, cs);
     // Return the forward count
     return fwd.mCount;
 }
@@ -289,7 +289,7 @@ static inline Uint32 Player_EachWhereNameEquals(bool neg, CSStr name, Object & e
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name begins with the specified string.
 */
-static inline Uint32 Player_EachWhereNameBegins(bool neg, CSStr name, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameBegins(bool neg, bool cs, CSStr name, Object & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -297,7 +297,7 @@ static inline Uint32 Player_EachWhereNameBegins(bool neg, CSStr name, Object & e
     // Process each entity in the pool
     EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, strlen(name), !neg);
+                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, strlen(name), !neg, cs);
     // Return the forward count
     return fwd.mCount;
 }
@@ -305,7 +305,7 @@ static inline Uint32 Player_EachWhereNameBegins(bool neg, CSStr name, Object & e
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name ends or not with the specified string.
 */
-static inline Uint32 Player_EachWhereNameEnds(bool neg, CSStr name, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameEnds(bool neg, bool cs, CSStr name, Object & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -313,7 +313,7 @@ static inline Uint32 Player_EachWhereNameEnds(bool neg, CSStr name, Object & env
     // Process each entity in the pool
     EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, strlen(name), !neg);
+                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, strlen(name), !neg, cs);
     // Return the forward count
     return fwd.mCount;
 }
@@ -321,7 +321,7 @@ static inline Uint32 Player_EachWhereNameEnds(bool neg, CSStr name, Object & env
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name contains the specified string.
 */
-static inline Uint32 Player_EachWhereNameContains(bool neg, CSStr name, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameContains(bool neg, bool cs, CSStr name, Object & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -329,7 +329,7 @@ static inline Uint32 Player_EachWhereNameContains(bool neg, CSStr name, Object &
     // Process each entity in the pool
     EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg);
+                std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg, cs);
     // Return the forward count
     return fwd.mCount;
 }
@@ -337,7 +337,7 @@ static inline Uint32 Player_EachWhereNameContains(bool neg, CSStr name, Object &
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name matches or not the specified one.
 */
-static inline Uint32 Player_CountWhereNameEquals(bool neg, CSStr name)
+static inline Uint32 Player_CountWhereNameEquals(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter
@@ -345,7 +345,7 @@ static inline Uint32 Player_CountWhereNameEquals(bool neg, CSStr name)
     // Process each entity in the pool
     EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, !neg);
+                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, !neg, cs);
     // Return the count
     return cnt;
 }
@@ -353,7 +353,7 @@ static inline Uint32 Player_CountWhereNameEquals(bool neg, CSStr name)
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name begins with the specified string.
 */
-static inline Uint32 Player_CountWhereNameBegins(bool neg, CSStr name)
+static inline Uint32 Player_CountWhereNameBegins(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter
@@ -361,7 +361,7 @@ static inline Uint32 Player_CountWhereNameBegins(bool neg, CSStr name)
     // Process each entity in the pool
     EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, strlen(name), !neg);
+                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, strlen(name), !neg, cs);
     // Return the count
     return cnt;
 }
@@ -369,7 +369,7 @@ static inline Uint32 Player_CountWhereNameBegins(bool neg, CSStr name)
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name ends or not with the specified string.
 */
-static inline Uint32 Player_CountWhereNameEnds(bool neg, CSStr name)
+static inline Uint32 Player_CountWhereNameEnds(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter
@@ -377,7 +377,7 @@ static inline Uint32 Player_CountWhereNameEnds(bool neg, CSStr name)
     // Process each entity in the pool
     EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, strlen(name), !neg);
+                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, strlen(name), !neg, cs);
     // Return the count
     return cnt;
 }
@@ -385,7 +385,7 @@ static inline Uint32 Player_CountWhereNameEnds(bool neg, CSStr name)
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name contains the specified string.
 */
-static inline Uint32 Player_CountWhereNameContains(bool neg, CSStr name)
+static inline Uint32 Player_CountWhereNameContains(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter
@@ -393,7 +393,7 @@ static inline Uint32 Player_CountWhereNameContains(bool neg, CSStr name)
     // Process each entity in the pool
     EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
-                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, !neg);
+                std::reference_wrapper< CountElemFunc< CPlayer > >(cnt), name, !neg, cs);
     // Return the count
     return cnt;
 }
