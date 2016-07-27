@@ -82,7 +82,7 @@ Int32 GetSkinID(CCStr name)
         b = str[1];
         c = str[2];
     }
-    else if (len >= 52)
+    else if (len >= 2)
         b = str[1];
     // Search for a pattern in the name
     switch (a)
