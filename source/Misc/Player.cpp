@@ -77,12 +77,12 @@ Int32 GetSkinID(CCStr name)
     // Get the most significant characters used to identify a skin
     CharT a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
-    if (str.length() >= 3)
+    if (len >= 3)
     {
         b = str[1];
         c = str[2];
     }
-    else if (str.length() >= 2)
+    else if (len >= 52)
         b = str[1];
     // Search for a pattern in the name
     switch (a)
@@ -109,7 +109,7 @@ Int32 GetSkinID(CCStr name)
         // [B]usiness man (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)
         case 'b':
             // [Be]ach [g]uy (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)/(#7|G)/(#8|H)
-            if (b == 'e' && (c == 'g' || (len > 4 && str[5] == 'g')))
+            if (b == 'e' && (c == 'g' || (len > 5 && str[5] == 'g')))
             {
                 switch (d)
                 {
@@ -132,7 +132,7 @@ Int32 GetSkinID(CCStr name)
                 }
             }
             // [Be]ach [l]ady (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)/(#7|G)
-            else if (b == 'e' && (c == 'l' || (len > 4 && str[5] == 'l')))
+            else if (b == 'e' && (c == 'l' || (len > 5 && str[5] == 'l')))
             {
                 switch (d)
                 {
@@ -160,14 +160,14 @@ Int32 GetSkinID(CCStr name)
             else if (b == 'u' && (c && (c == 'm' || c == 'g' || c == 'l')))
             {
                 // [Bum] [g]uy (#1|A)/(#2|B)/(#3|C)
-                if (c == 'g' || (len > 2 && str[3] == 'g'))
+                if (c == 'g' || (len > 3 && str[3] == 'g'))
                 {
                     if (d == '1' || d == 'a') return SQMOD_SKIN_BUM_GUY_A;
                     else if (d == '2' || d == 'b') return SQMOD_SKIN_BUM_GUY_B;
                     else if (d == '3' || d == 'c') return SQMOD_SKIN_BUM_GUY_C;
                 }
                 // [Bum] [l]ady (#1|A)/(#2|B)/(#2|C)/(#3|D)/(#4|E)
-                else if (c == 'l' || (len > 2 && str[3] == 'l'))
+                else if (c == 'l' || (len > 3 && str[3] == 'l'))
                 {
                     if (d == '1' || d == 'a') return SQMOD_SKIN_BUM_LADY_A;
                     else if (d == '2' || d == 'b') return SQMOD_SKIN_BUM_LADY_B;
@@ -177,7 +177,7 @@ Int32 GetSkinID(CCStr name)
                 }
             }
             // [Bus]iness [m]an (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)
-            else if (b == 'u' && (c == 's' || (len > 8 && str[9] == 'm')))
+            else if (b == 'u' && (c == 's' || (len > 9 && str[9] == 'm')))
             {
                 switch (d)
                 {
@@ -220,10 +220,10 @@ Int32 GetSkinID(CCStr name)
                 // [Che][f]
                 if (c && (c == 'e' || d == 'f')) return SQMOD_SKIN_CHEF;
                 // [Chu]rch [g]uy
-                else if (c && ((c == 'u' && len > 5 && str[6] == 'g') || (c == 'g')))
+                else if (c && ((c == 'u' && len > 6 && str[6] == 'g') || (c == 'g')))
                     return SQMOD_SKIN_CHURCH_GUY;
                 // [Chu]rch [l]ady
-                else if (c && ((c == 'u' && len > 5 && str[6] == 'l') || (c == 'l')))
+                else if (c && ((c == 'u' && len > 6 && str[6] == 'l') || (c == 'l')))
                     return SQMOD_SKIN_CHURCH_LADY;
             }
             // [Cl]ub [l]ady
@@ -235,13 +235,13 @@ Int32 GetSkinID(CCStr name)
             else if (b == 'o')
             {
                 // [Col]umbian [g]uy (#1|A)/(#2|B)
-                if (c && ((c == 'l' && len > 8 && str[9] == 'g') || (c == 'g')))
+                if (c && ((c == 'l' && len > 9 && str[9] == 'g') || (c == 'g')))
                 {
                     if (d == '1' || d == 'a') return SQMOD_SKIN_COLUMBIAN_GUY_A;
                     else if (d == '2' || d == 'b') return SQMOD_SKIN_COLUMBIAN_GUY_B;
                 }
                 // [Con]struction [w]orker (#1|A)/(#2|B)
-                else if (c && (c == 'n' || (len > 11 && str[12] == 'g')))
+                else if (c && (c == 'n' || (len > 12 && str[12] == 'g')))
                 {
                     if (d == '1' || d == 'a') return SQMOD_SKIN_CONSTRUCTION_WORKER_A;
                     else if (d == '2' || d == 'b') return SQMOD_SKIN_CONSTRUCTION_WORKER_B;
@@ -329,7 +329,7 @@ Int32 GetSkinID(CCStr name)
                 }
             }
             // [Go]lf [g]uy (#1|A)/(#2|B)/(#3|C)
-            else if (b == 'o' && ((c == 'g') || (len > 3 && str[4] == 'g')))
+            else if (b == 'o' && ((c == 'g') || (len > 4 && str[4] == 'g')))
             {
                 switch (d)
                 {
@@ -342,7 +342,7 @@ Int32 GetSkinID(CCStr name)
                 }
             }
             // [Go]lf [l]ady
-            else if (b == 'o' && ((c == 'l') || (len > 3 && str[4] == 'l')))
+            else if (b == 'o' && ((c == 'l') || (len > 4 && str[4] == 'l')))
                 return SQMOD_SKIN_GOLF_LADY;
             // [Gr]anny (#1|A)/(#2|B)
             else if (b == 'r')
@@ -351,10 +351,10 @@ Int32 GetSkinID(CCStr name)
                 else if (d == '2' || d == 'b') return SQMOD_SKIN_GRANNY_B;
             }
             // [Gy]m [g]uy
-            else if (b && (b == 'g' || (b == 'y' && len > 2 && str[3] == 'g')))
+            else if (b && (b == 'g' || (b == 'y' && len > 3 && str[3] == 'g')))
                 return SQMOD_SKIN_GYM_GUY;
             // [Gy]m [l]ady
-            else if (b && (b == 'l' || (b == 'y' && len > 2 && str[3] == 'l')))
+            else if (b && (b == 'l' || (b == 'y' && len > 3 && str[3] == 'l')))
                 return SQMOD_SKIN_GYM_LADY;
         // [H]atian (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)
         // [H]ilary, [H]ilary (Robber), [H]ood lady
@@ -391,7 +391,7 @@ Int32 GetSkinID(CCStr name)
         // [L]ove Fist (#1|A)/(#2|B)/(#3|C)/(#3|D)
         case 'l':
             //[Lan]ce ([C]o[p])
-            if ((b == 'a') && (c == 'n') && ((len > 4 && str[5] == 'c') || d == 'p'))
+            if ((b == 'a') && (c == 'n') && ((len > 5 && str[5] == 'c') || d == 'p'))
                 return SQMOD_SKIN_LANCE_COP;
             else if (b && (b == 'c' ||  (b == 'a' && (c == 'n'))))
                 return SQMOD_SKIN_LANCE_COP;
@@ -436,10 +436,10 @@ Int32 GetSkinID(CCStr name)
             else if (b == 'h')
             {
                 // [Ph]il ([O]ne ar[m])
-                if (b == 'o' || (c == 'o') || (len > 3 && str[4] == 'o') || d == 'm')
+                if (b == 'o' || (c == 'o') || (len > 4 && str[4] == 'o') || d == 'm')
                     return SQMOD_SKIN_PHIL_ONE_ARM;
                 // [Ph]il ([R]obbe[r])
-                else if (c && (c == 'r' || d == 'r' || (len > 3 && str[4] == 'r')))
+                else if (c && (c == 'r' || d == 'r' || (len > 4 && str[4] == 'r')))
                     return SQMOD_SKIN_PHIL_ROBBER;
                 // [Phi]l
                 else if (c == 'i') return SQMOD_SKIN_PHIL;
@@ -532,10 +532,10 @@ Int32 GetSkinID(CCStr name)
                 }
             }
             // [Sk]ate [g]uy
-            else if (b == 'k' && ((c == 'g') || (len > 4 && str[5] == 'g')))
+            else if (b == 'k' && ((c == 'g') || (len > 5 && str[5] == 'g')))
                 return SQMOD_SKIN_SKATE_GUY;
             // [Sk]ate [l]ady
-            else if (b == 'k' && ((c == 'l') || (len > 4 && str[5] == 'l')))
+            else if (b == 'k' && ((c == 'l') || (len > 5 && str[5] == 'l')))
                 return SQMOD_SKIN_SKATE_LADY;
             // [So]nny
             // [So]nny guy (#1|A)/(#2|B)/(#3|C)
@@ -564,7 +564,7 @@ Int32 GetSkinID(CCStr name)
                 }
             }
             // [Sp]andE[x] (#1|A)/(#2|B)
-            else if (b == 'p' && ((c == 'x') || (len > 5 && str[6] == 'x')))
+            else if (b == 'p' && ((c == 'x') || (len > 6 && str[6] == 'x')))
             {
                 switch (d)
                 {
@@ -575,10 +575,10 @@ Int32 GetSkinID(CCStr name)
                 }
             }
             // [Sp]anish [g]uy
-            else if (b == 'p' && ((c == 'g') || (len > 6 && str[7] == 'g')))
+            else if (b == 'p' && ((c == 'g') || (len > 7 && str[7] == 'g')))
                 return SQMOD_SKIN_SPANISH_GUY;
             // [Sp]anish [l]ady (#1|A)/(#2|B)/(#3|C)/(#4|D)
-            else if (b == 'p' && ((c == 'l') || (len > 6 && str[7] == 'l')))
+            else if (b == 'p' && ((c == 'l') || (len > 7 && str[7] == 'l')))
             {
                 switch (d)
                 {
