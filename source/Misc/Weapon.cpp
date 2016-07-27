@@ -14,7 +14,7 @@ static String CS_Weapon_Names[] = {
 "Nightstick",                "Knife",                     "Baseball Bat",              "Hammer",
 "Meat Cleaver",              "Machete",                   "Katana",                    "Chainsaw",
 "Grenade",                   "Remote Detonation Grenade", "Tear Gas",                  "Molotov Cocktails",
-"Rocket",                    "Colt .45",                  "Python",                    "Pump-Action Shotgun",
+"Missile",                   "Colt .45",                  "Python",                    "Pump-Action Shotgun",
 "SPAS-12 Shotgun",           "Stubby Shotgun",            "TEC-9",                     "Uzi",
 "Silenced Ingram",           "MP5",                       "M4",                        "Ruger",
 "Sniper Rifle",              "Laserscope Sniper Rifle",   "Rocket Launcher",           "Flamethrower",
@@ -154,6 +154,7 @@ Int32 GetWeaponID(CCStr name)
         // [M]achete
         // [M]eat Cleaver
         // [M]inigun
+        // [M]issile
         // [M]olotov Cocktails
         // [M]P5
         case 'm':
@@ -165,8 +166,10 @@ Int32 GetWeaponID(CCStr name)
             else if (b == 'a') return SQMOD_WEAPON_MACHETE;
             // [Me]at Cleaver
             else if (b == 'e') return SQMOD_WEAPON_MEATCLEAVER;
-            // [Mi]nigun
-            else if (b == 'i') return SQMOD_WEAPON_MINIGUN;
+            // [Min]igu[n]
+            else if (b == 'i' && (c == 'n' || d == 'n')) return SQMOD_WEAPON_MINIGUN;
+            // [Mis]sil[e]
+            else if (b == 'i' && (c == 's' || d == 's' || d == 'e')) return SQMOD_WEAPON_ROCKET;
             // [Mo]lotov Cocktails
             else if (b == 'o') return SQMOD_WEAPON_MOLOTOV;
             // [MP]5
@@ -186,14 +189,11 @@ Int32 GetWeaponID(CCStr name)
             // Default to unknwon
             else return SQMOD_UNKNOWN;
         // [R]emote Detonation Grenade
-        // [R]ocket
         // [R]ocket Launcher
         // [R]uger
         case 'r':
             // [Re]mote Detonation Grenade
             if (b == 'e') return SQMOD_WEAPON_REMOTE;
-            // [Ro]cke[t]
-            else if (b == 'o' && d == 't') return SQMOD_WEAPON_ROCKET;
             // [Ro]cket [L]aunche[r]
             else if (b == 'o' && (d == 'r' || d == 'l' || (len > 5 && str[6] == 'l'))) return SQMOD_WEAPON_ROCKETLAUNCHER;
             // [Ru]ger
