@@ -193,6 +193,11 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Returns an array with all the field names available in the managed result set.
+    */
+    Array FieldNames() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Returns the current position of the row cursor for the last Next().
     */
     Object RowIndex() const
