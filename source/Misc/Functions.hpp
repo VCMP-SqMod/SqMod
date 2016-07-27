@@ -454,6 +454,16 @@ void ForceAllSelect();
 */
 bool CheckEntityExists(Int32 type, Int32 index);
 
+/* ------------------------------------------------------------------------------------------------
+ * See if a certain point is within a known district on the bas game map.
+*/
+CSStr GetDistrictName(const Vector2 & point);
+
+/* ------------------------------------------------------------------------------------------------
+ * See if a certain point is within a known district on the bas game map.
+*/
+CSStr GetDistrictNameEx(SQFloat x, SQFloat y);
+
 } // Namespace:: SqMod
 
 #endif // _MISC_FUNCTIONS_HPP_

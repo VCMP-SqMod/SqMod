@@ -10,6 +10,17 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
+/* ------------------------------------------------------------------------------------------------
+ * Helper structure used to represent the boundaries of a certain district.
+*/
+struct District
+{
+    // District boundaries.
+    Float32 mMinX, mMinY, mMaxX, mMaxY;
+    // District name
+    CSStr mName;
+};
+
 // ------------------------------------------------------------------------------------------------
 static ServerSettings   g_SvSettings;
 static PluginInfo       g_PluginInfo;
@@ -18,6 +29,22 @@ static PluginInfo       g_PluginInfo;
 static SQChar g_SvNameBuff[SQMOD_SVNAMELENGTH] = {0};
 static SQChar g_PasswdBuff[SQMOD_PASSWDLENGTH] = {0};
 static SQChar g_GmNameBuff[SQMOD_GMNAMELENGTH] = {0};
+
+// ------------------------------------------------------------------------------------------------
+static const District g_Districts[] = {
+    {-1613.03f,     413.218f,   -213.73f,   1677.32f,   _SC("Downtown Vice City")},
+    {163.656f,      -351.153f,  1246.03f,   1398.85f,   _SC("Vice Point")},
+    {-103.97f,      -930.526f,  1246.03f,   -351.153f,  _SC("Washington Beach")},
+    {-253.206f,     -1805.37f,  1254.9f,    -930.526f,  _SC("Ocean Beach")},
+    {-1888.21f,     -1779.61f,  -1208.21f,  230.39f,    _SC("Escobar International Airport")},
+    {-748.206f,     -818.266f,  -104.505f,  -241.467f,  _SC("Starfish Island")},
+    {-213.73f,      797.605f,   163.656f,   1243.47f,   _SC("Prawn Island")},
+    {-213.73f,      -241.429f,  163.656f,   797.605f,   _SC("Leaf Links")},
+    {-1396.76f,     -42.9113f,  -1208.21f,  230.39f,    _SC("Junkyard")},
+    {-1208.21f,     -1779.61f,  -253.206f,  -898.738f,  _SC("Viceport")},
+    {-1208.21f,     -898.738f,  -748.206f,  -241.467f,  _SC("Little Havana")},
+    {-1208.21f,     -241.467f,  -578.289f,  412.66f,    _SC("Little Haiti")}
+};
 
 // ------------------------------------------------------------------------------------------------
 static String CS_Keycode_Names[] = {"", /* index 0 is not used */
@@ -771,6 +798,30 @@ void ForceAllSelect()
 bool CheckEntityExists(Int32 type, Int32 index)
 {
     return _Func->CheckEntityExists(static_cast< vcmpEntityPool >(type), index);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr GetDistrictName(const Vector2 & point)
+{
+    return GetDistrictNameEx(point.x, point.y);
+}
+
+// ------------------------------------------------------------------------------------------------
+CSStr GetDistrictNameEx(SQFloat x, SQFloat y)
+{
+    // Attempt to see if the specified point is within one of the known districts
+    for (Uint32 n = 0; n < (sizeof(g_Districts) / sizeof(District)); ++n)
+    {
+        // Grab the district
+        const District & d = g_Districts[n];
+        // Check for point intersection taking into account floating point comparison issues
+        if (EpsGt(x, d.mMinX) && EpsGt(y, d.mMinY) && EpsLt(x, d.mMaxX) && EpsLt(y, d.mMaxY))
+        {
+            return d.mName; // The specified point is within the bounds of this district
+        }
+    }
+    // Not a particular district!
+    return _SC("Vice City");
 }
 
 } // Namespace:: SqMod
