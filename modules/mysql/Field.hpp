@@ -94,7 +94,7 @@ protected:
 public:
 
     // --------------------------------------------------------------------------------------------
-    static const Uint32 INVALID_INDEX;
+    static const Uint32 INVALID_INDEX; // Value that represents an invalid index.
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null).
@@ -258,9 +258,9 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the referenced database statement.
+     * Retrieve the referenced database result-set.
     */
-    Object GetStatement() const;
+    Object GetResultSet() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the referenced database connection.
@@ -268,7 +268,7 @@ public:
     Object GetConnection() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Release the reference to the referenced database statement and field index.
+     * Release the reference to the referenced database result-set and field index.
     */
     void Release()
     {

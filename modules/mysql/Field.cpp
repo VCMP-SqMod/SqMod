@@ -218,7 +218,7 @@ void Field::SetIndex(const Object & field)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Field::GetStatement() const
+Object Field::GetResultSet() const
 {
     return Object();
 }
@@ -505,7 +505,7 @@ void Register_Field(Table & sqlns)
         .Prop(_SC("IsValid"), &Field::IsValid)
         .Prop(_SC("References"), &Field::GetRefCount)
         .Prop(_SC("Index"), &Field::GetIndex)
-        .Prop(_SC("Statement"), &Field::GetStatement)
+        .Prop(_SC("ResultSet"), &Field::GetResultSet)
         .Prop(_SC("Connection"), &Field::GetConnection)
         .Prop(_SC("Bool"), &Field::GetBoolean)
         .Prop(_SC("Boolean"), &Field::GetBoolean)
