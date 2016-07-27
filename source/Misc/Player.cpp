@@ -57,7 +57,9 @@ CCStr GetSkinName(Uint32 id)
 void SetSkinName(Uint32 id, CCStr name)
 {
     if (id <= 159)
+    {
         CS_Skin_Names[id].assign(name);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -71,19 +73,23 @@ Int32 GetSkinID(CCStr name)
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     // See if we still have a valid name after the cleanup
     if(str.empty())
+    {
         return SQMOD_UNKNOWN;
+    }
     // Grab the actual length of the string
-    Uint32 len = static_cast< Uint32 >(str.length());
+    const Uint32 len = static_cast< Uint32 >(str.length());
     // Get the most significant characters used to identify a skin
     CharT a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
-    if (len >= 3)
+    if (len > 2)
     {
         b = str[1];
         c = str[2];
     }
-    else if (len >= 2)
+    else if (len > 1)
+    {
         b = str[1];
+    }
     // Search for a pattern in the name
     switch (a)
     {
