@@ -178,6 +178,14 @@ public:
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
+     * Check whether a specific param index is within range.
+    */
+    bool CheckParamIndex(Uint32 idx) const
+    {
+        return (idx < mParams);
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Create the actual statement.
     */
     void Create(const ConnRef & conn, CSStr query);
