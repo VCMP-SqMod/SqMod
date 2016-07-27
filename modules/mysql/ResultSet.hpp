@@ -195,7 +195,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns an array with all the field names available in the managed result set.
     */
-    Array FieldNames() const;
+    Array GetFieldNames() const;
 
     /* --------------------------------------------------------------------------------------------
      * Returns an array with wrapper instances for all the field available in the managed result set.

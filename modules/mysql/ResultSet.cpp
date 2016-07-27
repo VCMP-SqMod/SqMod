@@ -157,7 +157,7 @@ void ResultSet::ValidateField(Int32 idx) const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-Array ResultSet::FieldNames() const
+Array ResultSet::GetFieldNames() const
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Grab the number of available fields
@@ -251,7 +251,7 @@ void Register_ResultSet(Table & sqlns)
         .Func(_SC("_tostring"), &ResultSet::ToString)
         // Properties
         .Prop(_SC("IsValid"), &ResultSet::IsValid)
-        .Prop(_SC("FieldNames"), &ResultSet::FieldNames)
+        .Prop(_SC("FieldNames"), &ResultSet::GetFieldNames)
         .Prop(_SC("FieldsArray"), &ResultSet::GetFieldsArray)
         .Prop(_SC("FieldsTable"), &ResultSet::GetFieldsTable)
         .Prop(_SC("RowIndex"), &ResultSet::RowIndex)
