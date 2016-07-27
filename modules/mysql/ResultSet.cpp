@@ -19,6 +19,7 @@ SQInteger ResultSet::Typename(HSQUIRRELVM vm)
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
 void ResultSet::Validate(CCStr file, Int32 line) const
 {
+    // Do we have a valid result-set handle?
     if (!m_Handle)
     {
         SqThrowF("Invalid MySQL result-set reference =>[%s:%d]", file, line);
@@ -27,6 +28,7 @@ void ResultSet::Validate(CCStr file, Int32 line) const
 #else
 void ResultSet::Validate() const
 {
+    // Do we have a valid result-set handle?
     if (!m_Handle)
     {
         SqThrowF("Invalid MySQL result-set reference");
@@ -38,6 +40,7 @@ void ResultSet::Validate() const
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
 void ResultSet::ValidateCreated(CCStr file, Int32 line) const
 {
+    // Do we have a valid result-set handle?
     if (!m_Handle)
     {
         SqThrowF("Invalid MySQL result-set reference =>[%s:%d]", file, line);
@@ -50,6 +53,7 @@ void ResultSet::ValidateCreated(CCStr file, Int32 line) const
 #else
 void ResultSet::ValidateCreated() const
 {
+    // Do we have a valid result-set handle?
     if (!m_Handle)
     {
         SqThrowF("Invalid MySQL result-set reference");
@@ -57,6 +61,37 @@ void ResultSet::ValidateCreated() const
     else if (m_Handle->mPtr == nullptr)
     {
         SqThrowF("Invalid MySQL result-set");
+    }
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void ResultSet::ValidateStepped(CCStr file, Int32 line) const
+{
+    // Do we have a valid result-set handle?
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid MySQL result-set reference =>[%s:%d]", file, line);
+    }
+    // Do we have a valid row available?
+    else if (m_Handle->mRow == nullptr)
+    {
+        SqThrowF("No row available in MySQL result-set =>[%s:%d]", file, line);
+    }
+}
+#else
+void ResultSet::ValidateStepped() const
+{
+    // Do we have a valid result-set handle?
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid MySQL result-set reference");
+    }
+    // Do we have a valid row available?
+    else if (m_Handle->mRow == nullptr)
+    {
+        SqThrowF("No row available in MySQL result-set");
     }
 }
 #endif // _DEBUG
@@ -87,6 +122,21 @@ const ResRef & ResultSet::GetCreated(CCStr file, Int32 line) const
 const ResRef & ResultSet::GetCreated() const
 {
     ValidateCreated();
+    return m_Handle;
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+const ResRef & ResultSet::GetStepped(CCStr file, Int32 line) const
+{
+    ValidateStepped(file, line);
+    return m_Handle;
+}
+#else
+const ResRef & ResultSet::GetStepped() const
+{
+    ValidateStepped();
     return m_Handle;
 }
 #endif // _DEBUG

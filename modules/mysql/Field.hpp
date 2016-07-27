@@ -42,6 +42,15 @@ protected:
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
+     * Validate the associated result-set handle, field index and row, and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateStepped(CCStr file, Int32 line) const;
+#else
+    void ValidateStepped() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
      * Validate the associated result-set handle and field index, and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
@@ -57,6 +66,15 @@ protected:
     const ResRef & GetCreated(CCStr file, Int32 line) const;
 #else
     const ResRef & GetCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the associated result-set handle field index and row, and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const ResRef & GetStepped(CCStr file, Int32 line) const;
+#else
+    const ResRef & GetStepped() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------

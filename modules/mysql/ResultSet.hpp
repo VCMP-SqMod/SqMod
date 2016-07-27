@@ -39,6 +39,15 @@ protected:
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and row, and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void ValidateStepped(CCStr file, Int32 line) const;
+#else
+    void ValidateStepped() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
@@ -54,6 +63,15 @@ protected:
     const ResRef & GetCreated(CCStr file, Int32 line) const;
 #else
     const ResRef & GetCreated() const;
+#endif // _DEBUG
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed statement handle and row, and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const ResRef & GetStepped(CCStr file, Int32 line) const;
+#else
+    const ResRef & GetStepped() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -219,7 +237,7 @@ public:
     */
     Field GetField(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field);
+        return Field(SQMOD_GET_STEPPED(*this), field);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -227,7 +245,7 @@ public:
     */
     bool GetBoolean(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetBoolean();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetBoolean();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -235,7 +253,7 @@ public:
     */
     SQChar GetChar(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetChar();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetChar();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -243,7 +261,7 @@ public:
     */
     SQInteger GetInteger(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetInteger();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetInteger();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -251,7 +269,7 @@ public:
     */
     SQFloat GetFloat(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetFloat();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetFloat();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -259,7 +277,7 @@ public:
     */
     SQInteger GetInt8(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetInt8();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetInt8();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -267,7 +285,7 @@ public:
     */
     SQInteger GetUint8(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetUint8();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetUint8();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -275,7 +293,7 @@ public:
     */
     SQInteger GetInt16(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetInt16();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetInt16();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -283,7 +301,7 @@ public:
     */
     SQInteger GetUint16(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetUint16();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetUint16();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -291,7 +309,7 @@ public:
     */
     SQInteger GetInt32(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetInt32();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetInt32();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -299,7 +317,7 @@ public:
     */
     SQInteger GetUint32(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetUint32();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetUint32();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -307,7 +325,7 @@ public:
     */
     Object GetInt64(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetInt64();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetInt64();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -315,7 +333,7 @@ public:
     */
     Object GetUint64(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetUint64();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetUint64();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -323,7 +341,7 @@ public:
     */
     SQFloat GetFloat32(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetFloat32();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetFloat32();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -331,7 +349,7 @@ public:
     */
     SQFloat GetFloat64(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetFloat64();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetFloat64();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -339,7 +357,7 @@ public:
     */
     Object GetString(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetString();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetString();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -347,7 +365,7 @@ public:
     */
     Object GetBuffer(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetBuffer();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetBuffer();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -355,7 +373,7 @@ public:
     */
     Object GetBlob(const Object & field) const
     {
-        return Field(SQMOD_GET_CREATED(*this), field).GetBlob();
+        return Field(SQMOD_GET_STEPPED(*this), field).GetBlob();
     }
 };
 

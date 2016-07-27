@@ -90,6 +90,41 @@ void Field::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void Field::ValidateStepped(CCStr file, Int32 line) const
+{
+    // Do we have a valid result-set handle?
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid MySQL result-set reference =>[%s:%d]", file, line);
+    }
+    // Do we have a valid row available?
+    else if (m_Handle->mRow == nullptr)
+    {
+        SqThrowF("No row available in MySQL result-set =>[%s:%d]", file, line);
+    }
+    // Are we pointing to a valid index?
+    m_Handle->ValidateField(m_Index, file, line);
+}
+#else
+void Field::ValidateStepped() const
+{
+    // Do we have a valid result-set handle?
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid MySQL result-set reference");
+    }
+    // Do we have a valid row available?
+    else if (m_Handle->mRow == nullptr)
+    {
+        SqThrowF("No row available in MySQL result-set");
+    }
+    // Are we pointing to a valid index?
+    m_Handle->ValidateField(m_Index);
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
 const ResRef & Field::GetValid(CCStr file, Int32 line) const
 {
     Validate(file, line);
@@ -114,6 +149,21 @@ const ResRef & Field::GetCreated(CCStr file, Int32 line) const
 const ResRef & Field::GetCreated() const
 {
     ValidateCreated();
+    return m_Handle;
+}
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+const ResRef & Field::GetStepped(CCStr file, Int32 line) const
+{
+    ValidateStepped(file, line);
+    return m_Handle;
+}
+#else
+const ResRef & Field::GetStepped() const
+{
+    ValidateStepped();
     return m_Handle;
 }
 #endif // _DEBUG
@@ -232,7 +282,7 @@ Object Field::GetConnection() const
 // ------------------------------------------------------------------------------------------------
 bool Field::GetBoolean() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -247,7 +297,7 @@ bool Field::GetBoolean() const
 // ------------------------------------------------------------------------------------------------
 SQChar Field::GetChar() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -262,7 +312,7 @@ SQChar Field::GetChar() const
 // ------------------------------------------------------------------------------------------------
 SQInteger Field::GetInteger() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -281,7 +331,7 @@ SQInteger Field::GetInteger() const
 // ------------------------------------------------------------------------------------------------
 SQFloat Field::GetFloat() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -300,7 +350,7 @@ SQFloat Field::GetFloat() const
 // ------------------------------------------------------------------------------------------------
 SQInteger Field::GetInt8() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -315,7 +365,7 @@ SQInteger Field::GetInt8() const
 // ------------------------------------------------------------------------------------------------
 SQInteger Field::GetUint8() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -330,7 +380,7 @@ SQInteger Field::GetUint8() const
 // ------------------------------------------------------------------------------------------------
 SQInteger Field::GetInt16() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -345,7 +395,7 @@ SQInteger Field::GetInt16() const
 // ------------------------------------------------------------------------------------------------
 SQInteger Field::GetUint16() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -360,7 +410,7 @@ SQInteger Field::GetUint16() const
 // ------------------------------------------------------------------------------------------------
 SQInteger Field::GetInt32() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -375,7 +425,7 @@ SQInteger Field::GetInt32() const
 // ------------------------------------------------------------------------------------------------
 SQInteger Field::GetUint32() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -390,7 +440,7 @@ SQInteger Field::GetUint32() const
 // ------------------------------------------------------------------------------------------------
 Object Field::GetInt64() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Obtain the initial stack size
     const StackGuard sg;
     // Should we retrieve the value from the bind wrapper?
@@ -414,7 +464,7 @@ Object Field::GetInt64() const
 // ------------------------------------------------------------------------------------------------
 Object Field::GetUint64() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Obtain the initial stack size
     const StackGuard sg;
     // Should we retrieve the value from the bind wrapper?
@@ -438,7 +488,7 @@ Object Field::GetUint64() const
 // ------------------------------------------------------------------------------------------------
 SQFloat Field::GetFloat32() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -453,7 +503,7 @@ SQFloat Field::GetFloat32() const
 // ------------------------------------------------------------------------------------------------
 SQFloat Field::GetFloat64() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
@@ -468,7 +518,7 @@ SQFloat Field::GetFloat64() const
 // ------------------------------------------------------------------------------------------------
 Object Field::GetString() const
 {
-    SQMOD_VALIDATE_CREATED(*this);
+    SQMOD_VALIDATE_STEPPED(*this);
     // Obtain the initial stack size
     const StackGuard sg;
     // Retrieve the value directly from the row and push it on the stack
