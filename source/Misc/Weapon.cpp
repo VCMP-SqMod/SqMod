@@ -60,16 +60,16 @@ Int32 GetWeaponID(CCStr name)
         return SQMOD_UNKNOWN;
     }
     // Grab the actual length of the string
-    Uint32 len = static_cast< Uint32 >(str.length());
+    const Uint32 len = static_cast< Uint32 >(str.length());
     // Get the most significant characters used to identify a weapon
     CharT a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
-    if(len >= 3)
+    if(len > 2)
     {
         c = str[2];
         b = str[1];
     }
-    else if(len >= 2)
+    else if(len > 1)
     {
         b = str[1];
     }
