@@ -64,12 +64,12 @@ Int32 GetWeaponID(CCStr name)
     // Get the most significant characters used to identify a weapon
     CharT a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
-    if(str.length() >= 3)
+    if(len >= 3)
     {
         c = str[2];
         b = str[1];
     }
-    else if(str.length() >= 2)
+    else if(len >= 2)
     {
         b = str[1];
     }
@@ -198,7 +198,7 @@ Int32 GetWeaponID(CCStr name)
             // [Re]mote Detonation Grenade
             if (b == 'e') return SQMOD_WEAPON_REMOTE;
             // [Ro]cket [L]aunche[r]
-            else if (b == 'o' && (d == 'r' || d == 'l' || (len > 5 && str[6] == 'l'))) return SQMOD_WEAPON_ROCKETLAUNCHER;
+            else if (b == 'o' && (d == 'r' || d == 'l' || (len > 6 && str[6] == 'l'))) return SQMOD_WEAPON_ROCKETLAUNCHER;
             // [Ru]ger
             else if (b == 'u') return SQMOD_WEAPON_RUGER;
             // Default to unknwon
