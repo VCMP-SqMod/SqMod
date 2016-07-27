@@ -203,6 +203,11 @@ public:
     Array GetFieldsArray() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Returns a table with wrapper instances for all the field available in the managed result set.
+    */
+    Table GetFieldsTable() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Returns the current position of the row cursor for the last Next().
     */
     Object RowIndex() const

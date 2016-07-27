@@ -207,6 +207,36 @@ Array ResultSet::GetFieldsArray() const
     return arr;
 }
 
+// ------------------------------------------------------------------------------------------------
+Table ResultSet::GetFieldsTable() const
+{
+    SQMOD_VALIDATE_CREATED(*this);
+    // Grab the number of available fields
+    const SQInteger fcount = ConvTo< SQInteger >::From(m_Handle->mFieldCount);
+    // Grab the array with field instances
+    const ResHnd::FieldType * fields = m_Handle->mFields;
+    // Is there even something to process?
+    if (!fcount || !fields)
+    {
+        return Table();
+    }
+    // Create a field instance to insert as copy
+    Field field(m_Handle);
+    // Allocate a table to be populated with field instances
+    Table tbl;
+    // Iterate over all the available fields and insert them into the created table
+    for (SQInteger n = 0; n < fcount; ++n)
+    {
+        // Update the field index
+        field.SetIndex(ConvTo< Int32 >::From(n));
+        // Insert a copy of the field instance into the table
+        tbl.SetValue((fields[n].name == nullptr) ? ToStrF("<field_%ld>", n) : fields[n].name, field);
+    }
+    // Return the resulted table
+    return tbl;
+}
+
+
 // ================================================================================================
 void Register_ResultSet(Table & sqlns)
 {
@@ -223,6 +253,7 @@ void Register_ResultSet(Table & sqlns)
         .Prop(_SC("IsValid"), &ResultSet::IsValid)
         .Prop(_SC("FieldNames"), &ResultSet::FieldNames)
         .Prop(_SC("FieldsArray"), &ResultSet::GetFieldsArray)
+        .Prop(_SC("FieldsTable"), &ResultSet::GetFieldsTable)
         .Prop(_SC("RowIndex"), &ResultSet::RowIndex)
         .Prop(_SC("RowCount"), &ResultSet::RowCount)
         // Member Methods
