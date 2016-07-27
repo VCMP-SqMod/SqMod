@@ -410,6 +410,22 @@ public:
      * Create a new transaction on the managed connection.
     */
     Transaction GetTransaction();
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to execute the specified query.
+    */
+    static SQInteger ExecuteF(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to execute the specified query.
+    */
+    static SQInteger InsertF(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to execute the specified query.
+    */
+    static SQInteger QueryF(HSQUIRRELVM vm);
+
 };
 
 } // Namespace:: SqMod

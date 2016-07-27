@@ -141,6 +141,213 @@ Transaction Connection::GetTransaction()
     return Transaction();
 }
 
+// ------------------------------------------------------------------------------------------------
+SQInteger Connection::ExecuteF(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the query value specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing query value");
+    }
+    // The connection instance
+    Connection * conn = nullptr;
+    // Attempt to extract the argument values
+    try
+    {
+        conn = Var< Connection * >(vm, 1).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
+    }
+    // Do we have a valid connection instance?
+    if (!conn)
+    {
+        return sq_throwerror(vm, "Invalid MySQL connection instance");
+    }
+    // Validate the connection info
+    try
+    {
+        SQMOD_VALIDATE_CREATED(*conn);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
+    }
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Make sure the query string is valid
+    else if (!(val.mPtr) || *(val.mPtr) == '\0')
+    {
+        STHROWF("Invalid or empty MySQL query");
+    }
+    // Attempt to execute the specified query
+    try
+    {
+        const SQRESULT res = SqMod_PushULongObject(vm, conn->m_Handle->Execute(val.mPtr, val.mLen));
+        // Validate the result of pushing the number of database changes on the stack
+        if (SQ_FAILED(res))
+        {
+            return res; // Propagate the error!
+        }
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
+    }
+    // This function returned a value
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Connection::InsertF(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the query value specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing query value");
+    }
+    // The connection instance
+    Connection * conn = nullptr;
+    // Attempt to extract the argument values
+    try
+    {
+        conn = Var< Connection * >(vm, 1).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
+    }
+    // Do we have a valid connection instance?
+    if (!conn)
+    {
+        return sq_throwerror(vm, "Invalid MySQL connection instance");
+    }
+    // Validate the connection info
+    try
+    {
+        SQMOD_VALIDATE_CREATED(*conn);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
+    }
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Make sure the query string is valid
+    else if (!(val.mPtr) || *(val.mPtr) == '\0')
+    {
+        return sq_throwerror(vm, "Invalid or empty MySQL query");
+    }
+    // Attempt to execute the specified query
+    try
+    {
+        if (mysql_real_query(conn->m_Handle->mPtr, val.mPtr, val.mLen) != 0)
+        {
+            SQMOD_THROW_CURRENT(*(conn->m_Handle), "Unable to execute MySQL query");
+        }
+        // Return the identifier of the inserted row
+        const SQRESULT res = SqMod_PushULongObject(vm, mysql_insert_id(conn->m_Handle->mPtr));
+        // Validate the result of pushing the identifier of the inserted row
+        if (SQ_FAILED(res))
+        {
+            return res; // Propagate the error!
+        }
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
+    }
+    // This function returned a value
+    return 1;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Connection::QueryF(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the query value specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing query value");
+    }
+    // The connection instance
+    Connection * conn = nullptr;
+    // Attempt to extract the argument values
+    try
+    {
+        conn = Var< Connection * >(vm, 1).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
+    }
+    // Do we have a valid connection instance?
+    if (!conn)
+    {
+        return sq_throwerror(vm, "Invalid MySQL connection instance");
+    }
+    // Validate the connection info
+    try
+    {
+        SQMOD_VALIDATE_CREATED(*conn);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
+    }
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Make sure the query string is valid
+    else if (!(val.mPtr) || *(val.mPtr) == '\0')
+    {
+        return sq_throwerror(vm, "Invalid or empty MySQL query");
+    }
+    // Attempt to execute the specified query
+    try
+    {
+        if (mysql_real_query(conn->m_Handle->mPtr, val.mPtr, val.mLen) != 0)
+        {
+            SQMOD_THROW_CURRENT(*(conn->m_Handle), "Unable to execute MySQL query");
+        }
+        // Return a new instance with the obtained result set
+        Var< ResultSet * >::push(vm, new ResultSet(conn->m_Handle));
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        // Propagate the error
+        return sq_throwerror(vm, e.what());
+    }
+    // This function returned a value
+    return 1;
+}
+
 // ================================================================================================
 void Register_Connection(Table & sqlns)
 {
@@ -184,6 +391,10 @@ void Register_Connection(Table & sqlns)
         .Func(_SC("Query"), &Connection::Query)
         .Func(_SC("Statement"), &Connection::GetStatement)
         .Func(_SC("Transaction"), &Connection::GetTransaction)
+        // Squirrel Methods
+        .SquirrelFunc(_SC("ExecuteF"), &Connection::ExecuteF)
+        .SquirrelFunc(_SC("InsertF"), &Connection::InsertF)
+        .SquirrelFunc(_SC("QueryF"), &Connection::QueryF)
     );
 }
 
