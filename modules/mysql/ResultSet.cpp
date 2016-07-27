@@ -180,6 +180,33 @@ Array ResultSet::FieldNames() const
     return arr;
 }
 
+// ------------------------------------------------------------------------------------------------
+Array ResultSet::GetFieldsArray() const
+{
+    SQMOD_VALIDATE_CREATED(*this);
+    // Grab the number of available fields
+    const SQInteger fcount = ConvTo< SQInteger >::From(m_Handle->mFieldCount);
+    // Is there even something to process?
+    if (!fcount)
+    {
+        return Array(DefaultVM::Get(), 0);
+    }
+    // Create a field instance to insert as copy
+    Field field(m_Handle);
+    // Allocate an array with the same amount of elements as the number of fields
+    Array arr(DefaultVM::Get(), fcount);
+    // Iterate over all the available fields and insert them into the created array
+    for (SQInteger n = 0; n < fcount; ++n)
+    {
+        // Update the field index
+        field.SetIndex(ConvTo< Int32 >::From(n));
+        // Insert a copy of the field instance into the array
+        arr.SetValue(n, field);
+    }
+    // Return the resulted array
+    return arr;
+}
+
 // ================================================================================================
 void Register_ResultSet(Table & sqlns)
 {
@@ -195,6 +222,7 @@ void Register_ResultSet(Table & sqlns)
         // Properties
         .Prop(_SC("IsValid"), &ResultSet::IsValid)
         .Prop(_SC("FieldNames"), &ResultSet::FieldNames)
+        .Prop(_SC("FieldsArray"), &ResultSet::GetFieldsArray)
         .Prop(_SC("RowIndex"), &ResultSet::RowIndex)
         .Prop(_SC("RowCount"), &ResultSet::RowCount)
         // Member Methods

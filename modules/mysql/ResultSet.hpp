@@ -198,6 +198,11 @@ public:
     Array FieldNames() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Returns an array with wrapper instances for all the field available in the managed result set.
+    */
+    Array GetFieldsArray() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Returns the current position of the row cursor for the last Next().
     */
     Object RowIndex() const
