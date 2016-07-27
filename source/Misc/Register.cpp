@@ -142,7 +142,7 @@ void Register_Misc(HSQUIRRELVM vm)
     .Func(_SC("GetPlayerIdFromName"), &GetPlayerIdFromName)
     .Func(_SC("IsPlayerConnected"), &IsPlayerConnected)
     .Func(_SC("ForceAllSelect"), &ForceAllSelect)
-    .Func(_SC("CheckEntityExists"), &SetKeyCodeName)
+    .Func(_SC("CheckEntityExists"), &CheckEntityExists)
     .Func(_SC("GetDistrictName"), &GetDistrictName)
     .Func(_SC("GetDistrictNameEx"), &GetDistrictNameEx);
 
