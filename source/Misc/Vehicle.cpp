@@ -68,12 +68,12 @@ Int32 GetAutomobileID(CSStr name)
     // Get the most significant characters used to identify a vehicle
     CharT a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
-    if(str.length() >= 3)
+    if(len >= 3)
     {
         c = str[2];
         b = str[1];
     }
-    else if(str.length() >= 2)
+    else if(len >= 2)
     {
         b = str[1];
     }
@@ -202,9 +202,9 @@ Int32 GetAutomobileID(CSStr name)
                 // [Cu]ban Jetmax
                 case 'u':
                     // [Cub]an [H]erme[s]
-                    if ((len > 4 && str[5] == 'h') || (d == 's' || d == 'h')) return SQMOD_VEHICLE_CUBANHERMES;
+                    if ((len > 5 && str[5] == 'h') || (d == 's' || d == 'h')) return SQMOD_VEHICLE_CUBANHERMES;
                     // [Cub]an [J]etma[x]
-                    if ((len > 4 && str[5] == 'j') || (d == 'x' || d == 'j')) return SQMOD_VEHICLE_CUBANJETMAX;
+                    if ((len > 5 && str[5] == 'j') || (d == 'x' || d == 'j')) return SQMOD_VEHICLE_CUBANJETMAX;
                     // Default to unknwon
                     else return SQMOD_UNKNOWN;
                 // Default to unknwon
@@ -254,9 +254,9 @@ Int32 GetAutomobileID(CSStr name)
                 // [FB]I Washington
                 case 'b':
                     // [FB]I [R]anche[r]
-                    if ((len > 2 && str[3] == 'r') || d == 'r') return SQMOD_VEHICLE_FBIRANCHER;
+                    if ((len > 3 && str[3] == 'r') || d == 'r') return SQMOD_VEHICLE_FBIRANCHER;
                     // [FB]I [W]ashingto[n]
-                    else if ((len > 2 && str[3] == 'w') || (d == 'n' || d == 'w')) return SQMOD_VEHICLE_FBIWASHINGTON;
+                    else if ((len > 3 && str[3] == 'w') || (d == 'n' || d == 'w')) return SQMOD_VEHICLE_FBIWASHINGTON;
                     // Default to unknwon
                     else return SQMOD_UNKNOWN;
                 // [Fi]retruck
@@ -416,7 +416,7 @@ Int32 GetAutomobileID(CSStr name)
                     // [Po]lice
                     if (d == 'e') return SQMOD_VEHICLE_POLICE;
                     // [Po]lice Maverick
-                    else if ((len > 5 && str[6] == 'm') || (d == 'k' || d == 'm')) return SQMOD_VEHICLE_POLICEMAVERICK;
+                    else if ((len > 6 && str[6] == 'm') || (d == 'k' || d == 'm')) return SQMOD_VEHICLE_POLICEMAVERICK;
                     // [Po]ny
                     else if (c == 'n') return SQMOD_VEHICLE_PONY;
                     // Default to unknwon
@@ -504,7 +504,7 @@ Int32 GetAutomobileID(CSStr name)
                     // [Sab]r[e]
                     if (c == 'b' && d == 'e') return SQMOD_VEHICLE_SABRE;
                     // [Sab]re [T]urb[o]
-                    else if ((c == 'b' && d == 'o') || (len > 4 && str[5 ]== 't')) return SQMOD_VEHICLE_SABRETURBO;
+                    else if ((c == 'b' && d == 'o') || (len > 5 && str[5 ]== 't')) return SQMOD_VEHICLE_SABRETURBO;
                     // [Sa]n[c]he[z]
                     else if (d == 'c' || d == 'z') return SQMOD_VEHICLE_SANCHEZ;
                     // [Sa]n[d]kin[g]
@@ -533,7 +533,7 @@ Int32 GetAutomobileID(CSStr name)
                 // [Sp]eeder
                 case 'p':
                     // [Spa]nd [E]xpres[s]
-                    if (c == 'a' || ((len > 4 && str[5] == 'e') || d == 's')) return SQMOD_VEHICLE_SPANDEXPRESS;
+                    if (c == 'a' || ((len > 5 && str[5] == 'e') || d == 's')) return SQMOD_VEHICLE_SPANDEXPRESS;
                     // [Spa]rro[w]
                     else if (d == 'w' && (c == 'a' && d == 'w')) return SQMOD_VEHICLE_SPARROW;
                     // [Spe]ede[r]
