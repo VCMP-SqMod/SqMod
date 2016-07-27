@@ -700,6 +700,7 @@ enum EntityType
 #define SQMOD_WEAPON_DROWNED            43
 #define SQMOD_WEAPON_FALL               44
 #define SQMOD_WEAPON_EXPLOSION2         51
+#define SQMOD_WEAPON_HELIBLADES         60
 #define SQMOD_WEAPON_SUICIDE            70
 #define SQMOD_WEAPON_MAX                71
 

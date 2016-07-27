@@ -130,12 +130,15 @@ Int32 GetWeaponID(CCStr name)
             // Default to unknwon
             else return SQMOD_UNKNOWN;
         // [H]ammer
+        // [H]eliblades
         // [H]elicannon
         case 'h':
             // [Ha]mmer
             if (b == 'a') return SQMOD_WEAPON_HAMMER;
-            // [He]licannon
-            else if (b == 'e') return SQMOD_WEAPON_HELICANNON;
+            // [He]li[b]lade[s]
+            else if (b == 'e' && (d == 's' || d == 'b' || (len > 4 && str[4] == 'b'))) return SQMOD_WEAPON_HELIBLADES;
+            // [He]li[c]anno[n]
+            else if (b == 'e' && (d == 'c' || d == 'n' || (len > 4 && str[4] == 'c'))) return SQMOD_WEAPON_HELICANNON;
             // Default to unknwon
             else return SQMOD_UNKNOWN;
         // [K]atana

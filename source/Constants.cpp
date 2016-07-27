@@ -418,6 +418,7 @@ static const EnumElement g_WeaponEnum[] = {
     {_SC("Drowned"),          SQMOD_WEAPON_DROWNED},
     {_SC("Fall"),             SQMOD_WEAPON_FALL},
     {_SC("Explosion2"),       SQMOD_WEAPON_EXPLOSION2},
+    {_SC("HeliBlades"),       SQMOD_WEAPON_HELIBLADES},
     {_SC("Suicide"),          SQMOD_WEAPON_SUICIDE},
     {_SC("Launcher"),         SQMOD_WEAPON_ROCKETLAUNCHER},
     {_SC("Max"),              SQMOD_WEAPON_MAX}
