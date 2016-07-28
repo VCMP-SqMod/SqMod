@@ -198,8 +198,8 @@ Int32 GetWeaponID(CCStr name)
         case 'r':
             // [Re]mote Detonation Grenade
             if (b == 'e') return SQMOD_WEAPON_REMOTE;
-            // [Ro]cket [L]aunche[r]
-            else if (b == 'o' && (d == 'r' || d == 'l' || (len > 6 && str[6] == 'l'))) return SQMOD_WEAPON_ROCKETLAUNCHER;
+            // [Ro]cket Launcher
+            else if (b == 'o') return SQMOD_WEAPON_ROCKETLAUNCHER;
             // [Ru]ger
             else if (b == 'u') return SQMOD_WEAPON_RUGER;
             // Default to unknwon
