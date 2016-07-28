@@ -631,7 +631,7 @@ enum EntityType
 #define SQMOD_PLAYER_ACTION_WASTED                  55
 #define SQMOD_PLAYER_ACTION_ENTERING_VEHICLE        58
 #define SQMOD_PLAYER_ACTION_EXITING_VEHICLE         60
-#define SQMOD_PLAYER_ACTION_MAX                     61
+#define SQMOD_PLAYER_ACTION_MAX                     60
 
 /* ------------------------------------------------------------------------------------------------
  * WEATHER IDENTIFIERS
@@ -651,7 +651,7 @@ enum EntityType
 #define SQMOD_WEATHER_LIGHTCLOUDY       7
 #define SQMOD_WEATHER_OVERCASTCLOUDY    8
 #define SQMOD_WEATHER_BLACKCLOUDS       9
-#define SQMOD_WEATHER_MAX               10
+#define SQMOD_WEATHER_MAX               9
 
 
 /* ------------------------------------------------------------------------------------------------
@@ -695,14 +695,15 @@ enum EntityType
 #define SQMOD_WEAPON_HELICANNON         35
 #define SQMOD_WEAPON_CAMERA             36
 #define SQMOD_WEAPON_VEHICLE            39
+#define SQMOD_WEAPON_HELIBLADES1        40
 #define SQMOD_WEAPON_EXPLOSION1         41
 #define SQMOD_WEAPON_DRIVEBY            42
 #define SQMOD_WEAPON_DROWNED            43
 #define SQMOD_WEAPON_FALL               44
 #define SQMOD_WEAPON_EXPLOSION2         51
-#define SQMOD_WEAPON_HELIBLADES         60
+#define SQMOD_WEAPON_HELIBLADES2        60
 #define SQMOD_WEAPON_SUICIDE            70
-#define SQMOD_WEAPON_MAX                71
+#define SQMOD_WEAPON_MAX                70
 
 /* ------------------------------------------------------------------------------------------------
  * VEHICLE IDENTIFIERS
@@ -833,7 +834,7 @@ enum EntityType
 #define SQMOD_VEHICLE_POLICECHEETAH     236
 #define SQMOD_VEHICLE_FBICHEETAH        236
 #define SQMOD_VEHICLE_CHEETAH2          236
-#define SQMOD_VEHICLE_MAX               237
+#define SQMOD_VEHICLE_MAX               236
 
 /* ------------------------------------------------------------------------------------------------
  * SKIN IDENTIFIERS
@@ -997,7 +998,7 @@ enum EntityType
 #define SQMOD_SKIN_STRIPPER_B               157
 #define SQMOD_SKIN_STRIPPER_C               158
 #define SQMOD_SKIN_STORE_CLERK              159
-#define SQMOD_SKIN_MAX                      160
+#define SQMOD_SKIN_MAX                      159
 
 /* ------------------------------------------------------------------------------------------------
  * KEYBOARD CODES
@@ -1194,7 +1195,7 @@ enum EntityType
 #define SQMOD_KEYCODE_XBUTTON1              0x05
 #define SQMOD_KEYCODE_XBUTTON2              0x06
 #define SQMOD_KEYCODE_NONE                  0xFF
-#define SQMOD_KEYCODE_MAX                   0x100
+#define SQMOD_KEYCODE_MAX                   0xFF
 
 /* ------------------------------------------------------------------------------------------------
  * ASCII CHARACTER CODES
@@ -1327,6 +1328,6 @@ enum EntityType
 #define SQMOD_ASCII_CLOSING_BRACE           125
 #define SQMOD_ASCII_TILDE                   126
 #define SQMOD_ASCII_UNDEFINED               127
-#define SQMOD_ASCII_MAX                     128
+#define SQMOD_ASCII_MAX                     127
 
 #endif // _SQBASE_HPP_
