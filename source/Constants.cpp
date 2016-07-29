@@ -391,7 +391,6 @@ static const EnumElement g_WeaponEnum[] = {
     {_SC("Teargas"),          SQMOD_WEAPON_TEARGAS},
     {_SC("Molotov"),          SQMOD_WEAPON_MOLOTOV},
     {_SC("Rocket"),           SQMOD_WEAPON_ROCKET},
-    {_SC("Missile"),          SQMOD_WEAPON_ROCKET},
     {_SC("Colt45"),           SQMOD_WEAPON_COLT45},
     {_SC("Python"),           SQMOD_WEAPON_PYTHON},
     {_SC("Shotgun"),          SQMOD_WEAPON_SHOTGUN},
@@ -422,6 +421,7 @@ static const EnumElement g_WeaponEnum[] = {
     {_SC("HeliBlades2"),      SQMOD_WEAPON_HELIBLADES2},
     {_SC("Suicide"),          SQMOD_WEAPON_SUICIDE},
     {_SC("Launcher"),         SQMOD_WEAPON_ROCKETLAUNCHER},
+    {_SC("Missile"),          SQMOD_WEAPON_ROCKET},
     {_SC("Max"),              SQMOD_WEAPON_MAX}
 };
 
