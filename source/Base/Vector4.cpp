@@ -307,7 +307,7 @@ bool Vector4::operator == (const Vector4 & v) const
 // ------------------------------------------------------------------------------------------------
 bool Vector4::operator != (const Vector4 & v) const
 {
-    return !EpsEq(x, v.x) && !EpsEq(y, v.y) && !EpsEq(z, v.z) && !EpsEq(w, v.w);
+    return !EpsEq(x, v.x) || !EpsEq(y, v.y) || !EpsEq(z, v.z) || !EpsEq(w, v.w);
 }
 
 // ------------------------------------------------------------------------------------------------

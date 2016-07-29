@@ -265,7 +265,7 @@ bool Vector2::operator == (const Vector2 & v) const
 // ------------------------------------------------------------------------------------------------
 bool Vector2::operator != (const Vector2 & v) const
 {
-    return !EpsEq(x, v.x) && !EpsEq(y, v.y);
+    return !EpsEq(x, v.x) || !EpsEq(y, v.y);
 }
 
 // ------------------------------------------------------------------------------------------------

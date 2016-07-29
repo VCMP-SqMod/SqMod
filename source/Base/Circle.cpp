@@ -323,7 +323,7 @@ bool Circle::operator == (const Circle & c) const
 // ------------------------------------------------------------------------------------------------
 bool Circle::operator != (const Circle & c) const
 {
-    return !EpsEq(rad, c.rad) && (pos != c.pos);
+    return !EpsEq(rad, c.rad) || (pos != c.pos);
 }
 
 // ------------------------------------------------------------------------------------------------

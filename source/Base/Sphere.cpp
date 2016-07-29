@@ -323,7 +323,7 @@ bool Sphere::operator == (const Sphere & s) const
 // ------------------------------------------------------------------------------------------------
 bool Sphere::operator != (const Sphere & s) const
 {
-    return !EpsEq(rad, s.rad) && (pos != s.pos);
+    return !EpsEq(rad, s.rad) || (pos != s.pos);
 }
 
 // ------------------------------------------------------------------------------------------------

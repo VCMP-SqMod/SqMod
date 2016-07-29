@@ -308,7 +308,7 @@ bool Quaternion::operator == (const Quaternion & q) const
 // ------------------------------------------------------------------------------------------------
 bool Quaternion::operator != (const Quaternion & q) const
 {
-    return !EpsEq(x, q.x) && !EpsEq(y, q.y) && !EpsEq(z, q.z) && !EpsEq(w, q.w);
+    return !EpsEq(x, q.x) || !EpsEq(y, q.y) || !EpsEq(z, q.z) || !EpsEq(w, q.w);
 }
 
 // ------------------------------------------------------------------------------------------------
