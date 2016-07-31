@@ -28,7 +28,7 @@ static String CS_Weapon_Names[] = {
     /* 28 */ "Sniper Rifle",                /* 29 */ "Laserscope Sniper Rifle",
     /* 30 */ "Rocket Launcher",             /* 31 */ "Flamethrower",
     /* 32 */ "M60",                         /* 33 */ "Minigun",
-    /* 34 */ "Bomb",                        /* 35 */ "Heliannon",
+    /* 34 */ "Bomb",                        /* 35 */ "Helicanon",
     /* 36 */ "Camera",                      /* 37 */ "",
     /* 38 */ "",                            /* 39 */ "Vehicle",
     /* 40 */ "Heliblade",                   /* 41 */ "Explosion",
