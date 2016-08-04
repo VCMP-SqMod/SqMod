@@ -12,9 +12,19 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 Vector3::NIL = Vector3(0);
-const Vector3 Vector3::MIN = Vector3(std::numeric_limits< Vector3::Value >::min());
-const Vector3 Vector3::MAX = Vector3(std::numeric_limits< Vector3::Value >::max());
+#define STOVAL(v) static_cast< Vector3::Value >(v)
+
+// ------------------------------------------------------------------------------------------------
+const Vector3 Vector3::NIL(STOVAL(0.0));
+const Vector3 Vector3::MIN(std::numeric_limits< Vector3::Value >::min());
+const Vector3 Vector3::MAX(std::numeric_limits< Vector3::Value >::max());
+const Vector3 Vector3::LEFT(STOVAL(-1.0),   STOVAL(0.0),    STOVAL(0.0));
+const Vector3 Vector3::RIGHT(STOVAL(1.0),   STOVAL(0.0),    STOVAL(0.0));
+const Vector3 Vector3::UP(STOVAL(0.0),      STOVAL(1.0),    STOVAL(0.0));
+const Vector3 Vector3::DOWN(STOVAL(0.0),    STOVAL(-1.0),   STOVAL(0.0));
+const Vector3 Vector3::FORWARD(STOVAL(0.0), STOVAL(0.0),    STOVAL(1.0));
+const Vector3 Vector3::BACK(STOVAL(0.0),    STOVAL(0.0),    STOVAL(-1.0));
+const Vector3 Vector3::ONE(STOVAL(1.0),     STOVAL(1.0),    STOVAL(1.0));
 
 // ------------------------------------------------------------------------------------------------
 SQChar Vector3::Delim = ',';
@@ -506,6 +516,17 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Ctor()
         .Ctor< Val >()
         .Ctor< Val, Val, Val >()
+        // Static variables
+        .SetStaticValue(_SC("NIL"), &Vector3::NIL)
+        .SetStaticValue(_SC("MIN"), &Vector3::MIN)
+        .SetStaticValue(_SC("MAX"), &Vector3::MAX)
+        .SetStaticValue(_SC("LEFT"), &Vector3::LEFT)
+        .SetStaticValue(_SC("RIGHT"), &Vector3::RIGHT)
+        .SetStaticValue(_SC("UP"), &Vector3::UP)
+        .SetStaticValue(_SC("DOWN"), &Vector3::DOWN)
+        .SetStaticValue(_SC("FORWARD"), &Vector3::FORWARD)
+        .SetStaticValue(_SC("BACK"), &Vector3::BACK)
+        .SetStaticValue(_SC("ONE"), &Vector3::ONE)
         // Member Variables
         .Var(_SC("x"), &Vector3::x)
         .Var(_SC("y"), &Vector3::y)

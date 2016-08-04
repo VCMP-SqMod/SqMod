@@ -20,9 +20,16 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Helper instances for common values mostly used as return types or comparison.
     */
-    static const Vector3 NIL;
-    static const Vector3 MIN;
-    static const Vector3 MAX;
+    static const Vector3 NIL;       // ( 0,  0,  0)
+    static const Vector3 MIN;       // (<0, <0, <0)
+    static const Vector3 MAX;       // (>0, >0, >0)
+    static const Vector3 LEFT;      // (-1,  0,  0)
+    static const Vector3 RIGHT;     // ( 1,  0,  0)
+    static const Vector3 UP;        // ( 0,  1,  0)
+    static const Vector3 DOWN;      // ( 0, -1,  0)
+    static const Vector3 FORWARD;   // ( 0,  0,  1)
+    static const Vector3 BACK;      // ( 0,  0, -1)
+    static const Vector3 ONE;       // ( 1,  1,  1)
 
     /* --------------------------------------------------------------------------------------------
      * The delimiter character to be used when extracting values from strings.
