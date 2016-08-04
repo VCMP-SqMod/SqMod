@@ -528,6 +528,24 @@ void Vector3::Normalize()
 }
 
 // ------------------------------------------------------------------------------------------------
+Vector3::Value Vector3::DotProduct(const Vector3 & vec) const
+{
+    return ((x * vec.x) + (y * vec.y) + (z * vec.z));
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3::Value Vector3::AbsDotProduct(const Vector3 & vec) const
+{
+    return (std::abs(x * vec.x) + std::abs(y * vec.y) + std::abs(z * vec.z));
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3 Vector3::CrossProduct(const Vector3 & vec) const
+{
+    return Vector3((y * vec.z) - (z * vec.y), (z * vec.x) - (x * vec.z), (x * vec.y) - (y * vec.x));
+}
+
+// ------------------------------------------------------------------------------------------------
 Vector3::Value Vector3::GetDistanceTo(const Vector3 & vec) const
 {
     return std::sqrt(std::pow(vec.x - x, 2) + std::pow(vec.y - y, 2) + std::pow(vec.z - z, 2));
@@ -655,6 +673,9 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("SetStr"), &Vector3::SetStr)
         .Func(_SC("Clear"), &Vector3::Clear)
         .Func(_SC("Normalize"), &Vector3::Normalize)
+        .Func(_SC("Dot"), &Vector3::DotProduct)
+        .Func(_SC("AbsDot"), &Vector3::AbsDotProduct)
+        .Func(_SC("Cross"), &Vector3::CrossProduct)
         .Func(_SC("DistanceTo"), &Vector3::GetDistanceTo)
         .Func(_SC("SqDistanceTo"), &Vector3::GetSquaredDistanceTo)
         // Member Overloads

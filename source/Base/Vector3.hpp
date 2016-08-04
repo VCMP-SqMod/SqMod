@@ -375,6 +375,21 @@ struct Vector3
     void Normalize();
 
     /* --------------------------------------------------------------------------------------------
+     * Calculate dot product.
+    */
+    Value DotProduct(const Vector3 & vec) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Calculate absolute dot product.
+    */
+    Value AbsDotProduct(const Vector3 & vec) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Calculate cross product.
+    */
+    Vector3 CrossProduct(const Vector3 & vec) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Return the distance between this vector and another vector.
     */
     Value GetDistanceTo(const Vector3 & vec) const;
