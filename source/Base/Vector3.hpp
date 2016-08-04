@@ -425,6 +425,45 @@ struct Vector3
     Vector3 Rotated(const Vector3 & axis, Value angle) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Rotates the vector by a specified number of degrees around the Y axis and the specified center.
+    */
+    void RotateXZBy(Value degrees)
+    {
+        CenterRotateXZBy(degrees, NIL);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotates the vector by a specified number of degrees around the Y axis and the specified center.
+    */
+    void CenterRotateXZBy(Value degrees, const Vector3 & center);
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotates the vector by a specified number of degrees around the Z axis and the specified center.
+    */
+    void RotateXYBy(Value degrees)
+    {
+        CenterRotateXYBy(degrees, NIL);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotates the vector by a specified number of degrees around the Z axis and the specified center.
+    */
+    void CenterRotateXYBy(Value degrees, const Vector3 & center);
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotates the vector by a specified number of degrees around the X axis and the specified center.
+    */
+    void RotateYZBy(Value degrees)
+    {
+        CenterRotateYZBy(degrees, NIL);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Rotates the vector by a specified number of degrees around the X axis and the specified center.
+    */
+    void CenterRotateYZBy(Value degrees, const Vector3 & center);
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.
     */
     static const Vector3 & Get(CSStr str);

@@ -597,6 +597,42 @@ Vector3 Vector3::Rotated(const Vector3 & axis, Value angle) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void Vector3::CenterRotateXZBy(Value degrees, const Vector3 & center)
+{
+    degrees *= SQMOD_DEGTORAD;
+    const Value cs = std::cos(degrees);
+    const Value sn = std::sin(degrees);
+    x -= center.x;
+    z -= center.z;
+    x = static_cast< Value >((x * cs) - (z * sn)) + center.x;
+    z = static_cast< Value >((x * sn) + (z * cs)) + center.z;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector3::CenterRotateXYBy(Value degrees, const Vector3 & center)
+{
+    degrees *= SQMOD_DEGTORAD;
+    const Value cs = std::cos(degrees);
+    const Value sn = std::sin(degrees);
+    x -= center.x;
+    y -= center.y;
+    x = static_cast< Value >((x * cs) - (y * sn)) + center.x;
+    y = static_cast< Value >((x * sn) + (y * cs)) + center.y;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector3::CenterRotateYZBy(Value degrees, const Vector3 & center)
+{
+    degrees *= SQMOD_DEGTORAD;
+    const Value cs = std::cos(degrees);
+    const Value sn = std::sin(degrees);
+    z -= center.z;
+    y -= center.y;
+    y = static_cast< Value >((y * cs) - (z * sn)) + center.z;
+    z = static_cast< Value >((y * sn) + (z * cs)) + center.y;
+}
+
+// ------------------------------------------------------------------------------------------------
 const Vector3 & Vector3::Get(CSStr str)
 {
     return Vector3::Get(str, Vector3::Delim);
@@ -722,6 +758,12 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("Interpolate"), &Vector3::Interpolate)
         .Func(_SC("Interpolated"), &Vector3::Interpolated)
         .Func(_SC("Rotated"), &Vector3::Rotated)
+        .Func(_SC("RotateXZBy"), &Vector3::RotateXZBy)
+        .Func(_SC("CenterRotateXZBy"), &Vector3::CenterRotateXZBy)
+        .Func(_SC("RotateXYBy"), &Vector3::RotateXYBy)
+        .Func(_SC("CenterRotateXYBy"), &Vector3::CenterRotateXYBy)
+        .Func(_SC("RotateYZBy"), &Vector3::RotateYZBy)
+        .Func(_SC("CenterRotateYZBy"), &Vector3::CenterRotateYZBy)
         // Member Overloads
         .Overload< void (Vector3::*)(void) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val) >(_SC("Generate"), &Vector3::Generate)
