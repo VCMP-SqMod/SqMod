@@ -23,6 +23,7 @@ struct Quaternion
     static const Quaternion NIL;
     static const Quaternion MIN;
     static const Quaternion MAX;
+    static const Quaternion IDENTITY;
 
     /* --------------------------------------------------------------------------------------------
      * The delimiter character to be used when extracting values from strings.

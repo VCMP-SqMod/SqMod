@@ -12,9 +12,10 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-const Quaternion Quaternion::NIL = Quaternion(0);
-const Quaternion Quaternion::MIN = Quaternion(std::numeric_limits< Quaternion::Value >::min());
-const Quaternion Quaternion::MAX = Quaternion(std::numeric_limits< Quaternion::Value >::max());
+const Quaternion Quaternion::NIL(0);
+const Quaternion Quaternion::MIN(std::numeric_limits< Quaternion::Value >::min());
+const Quaternion Quaternion::MAX(std::numeric_limits< Quaternion::Value >::max());
+const Quaternion Quaternion::IDENTITY(1.0, 0.0, 0.0, 0.0);
 
 // ------------------------------------------------------------------------------------------------
 SQChar Quaternion::Delim = ',';
