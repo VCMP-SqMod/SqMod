@@ -420,6 +420,11 @@ struct Vector3
     Vector3 Interpolated(const Vector3 & vec, Value d) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Rotates the vector by a specified number of degrees around the Y axis and the specified center.
+    */
+    Vector3 Rotated(const Vector3 & axis, Value angle) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.
     */
     static const Vector3 & Get(CSStr str);

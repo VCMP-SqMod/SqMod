@@ -590,6 +590,13 @@ Vector3 Vector3::Interpolated(const Vector3 & vec, Value d) const
 }
 
 // ------------------------------------------------------------------------------------------------
+Vector3 Vector3::Rotated(const Vector3 & axis, Value angle) const
+{
+    const Vector3 o(axis * axis.DotProduct(*this));
+    return (o + ((*this - o) * std::cos(angle)) + (axis.CrossProduct(*this) * std::sin(angle)));
+}
+
+// ------------------------------------------------------------------------------------------------
 const Vector3 & Vector3::Get(CSStr str)
 {
     return Vector3::Get(str, Vector3::Delim);
@@ -714,6 +721,7 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("IsBetweenPoints"), &Vector3::IsBetweenPoints)
         .Func(_SC("Interpolate"), &Vector3::Interpolate)
         .Func(_SC("Interpolated"), &Vector3::Interpolated)
+        .Func(_SC("Rotated"), &Vector3::Rotated)
         // Member Overloads
         .Overload< void (Vector3::*)(void) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val) >(_SC("Generate"), &Vector3::Generate)
