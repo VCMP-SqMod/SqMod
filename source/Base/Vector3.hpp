@@ -340,6 +340,41 @@ struct Vector3
     Vector3 Abs() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Return whether is NaN.
+    */
+    bool IsNaN() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the length.
+    */
+    Value GetLength() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assign the length.
+    */
+    void SetLength(Value length);
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the squared length.
+    */
+    Value GetLengthSquared() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assign the squared length.
+    */
+    void SetLengthSquared(Value length);
+
+    /* --------------------------------------------------------------------------------------------
+     * Return normalized to unit length.
+    */
+    Vector3 Normalized() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Normalize to unit length.
+    */
+    void Normalize();
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.
     */
     static const Vector3 & Get(CSStr str);

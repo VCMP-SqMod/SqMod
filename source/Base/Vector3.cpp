@@ -465,6 +465,69 @@ Vector3 Vector3::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
+bool Vector3::IsNaN() const
+{
+    return std::isnan(x) || std::isnan(y) || std::isnan(z);
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3::Value Vector3::GetLength() const
+{
+    return std::sqrt((x * x) + (y * y) + (z * z));
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector3::SetLength(Value length)
+{
+    Normalize();
+    // Assign the specified length
+    *this *= length;
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3::Value Vector3::GetLengthSquared() const
+{
+    return ((x * x) + (y * y) + (z * z));
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector3::SetLengthSquared(Value length)
+{
+    Normalize();
+    // Assign the specified length
+    *this *= std::sqrt(length);
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3 Vector3::Normalized() const
+{
+    const Value len_squared = GetLengthSquared();
+
+    if (!EpsEq(len_squared, STOVAL(1.0)) && EpsLt(len_squared, STOVAL(0.0)))
+    {
+        return (*this * (STOVAL(1.0) / std::sqrt(len_squared)));
+    }
+    else
+    {
+        return *this;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector3::Normalize()
+{
+    const Value len_squared = GetLengthSquared();
+
+    if (!EpsEq(len_squared, STOVAL(1.0)) && EpsGt(len_squared, STOVAL(0.0)))
+    {
+        const Value inv_len = STOVAL(1.0) / std::sqrt(len_squared);
+        x *= inv_len;
+        y *= inv_len;
+        z *= inv_len;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 const Vector3 & Vector3::Get(CSStr str)
 {
     return Vector3::Get(str, Vector3::Delim);
@@ -565,6 +628,11 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func< Vector3 (Vector3::*)(void) const >(_SC("_unm"), &Vector3::operator -)
         // Properties
         .Prop(_SC("Abs"), &Vector3::Abs)
+        .Prop(_SC("NaN"), &Vector3::IsNaN)
+        .Prop(_SC("Length"), &Vector3::GetLength, &Vector3::SetLength)
+        .Prop(_SC("LengthSq"), &Vector3::GetLengthSquared, &Vector3::SetLengthSquared)
+        .Prop(_SC("Normalized"), &Vector3::Normalized)
+
         // Member Methods
         .Func(_SC("SetScalar"), &Vector3::SetScalar)
         .Func(_SC("SetVector3"), &Vector3::SetVector3)
@@ -575,6 +643,7 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("SetQuaternionEx"), &Vector3::SetQuaternionEx)
         .Func(_SC("SetStr"), &Vector3::SetStr)
         .Func(_SC("Clear"), &Vector3::Clear)
+        .Func(_SC("Normalize"), &Vector3::Normalize)
         // Member Overloads
         .Overload< void (Vector3::*)(void) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val) >(_SC("Generate"), &Vector3::Generate)
