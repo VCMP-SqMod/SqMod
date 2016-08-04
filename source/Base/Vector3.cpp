@@ -387,17 +387,35 @@ void Vector3::SetVector4Ex(Value nx, Value ny, Value nz, Value /*nw*/)
 // ------------------------------------------------------------------------------------------------
 void Vector3::SetQuaternion(const Quaternion & q)
 {
-    x = q.x;
-    y = q.y;
-    z = q.z;
+    SetQuaternionEx(q.x, q.y, q.z, q.w);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::SetQuaternionEx(Value nx, Value ny, Value nz, Value /*nw*/)
+void Vector3::SetQuaternionEx(Value qx, Value qy, Value qz, Value qw)
 {
-    x = nx;
-    y = ny;
-    z = nz;
+    // Quick conversion to Euler angles to give tilt to user
+    const Value sqx = (qx * qx), sqy = (qy * qy), sqz = (qz * qz), sqw = (qw * qw);
+
+    y = std::asin(STOVAL(2.0) * ((qw * qy) - (qx * qz)));
+
+    if (EpsGt((SQMOD_PI * STOVAL(0.5)) - std::abs(y), STOVAL(1e-10)))
+    {
+        z = std::atan2(STOVAL(2.0) * ((qx * qy) + (qw * qz)), sqx - sqy - sqz + sqw);
+        x = std::atan2(STOVAL(2.0) * ((qw * qx) + (qy * qz)), sqw - sqx - sqy + sqz);
+    }
+    else
+    {
+        // Compute heading from local 'down' vector
+        z = std::atan2((STOVAL(2.0) * qy * qz) - (STOVAL(2.0) * qx * qw),
+                       (STOVAL(2.0) * qx * qz) + (STOVAL(2.0) * qy * qw));
+        x = STOVAL(0.0);
+        
+        // If facing down, reverse yaw
+        if (EpsLt(y, STOVAL(0.0)))
+        {
+            z -= SQMOD_PI;
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
