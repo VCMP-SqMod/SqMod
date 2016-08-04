@@ -546,6 +546,12 @@ Vector3 Vector3::CrossProduct(const Vector3 & vec) const
 }
 
 // ------------------------------------------------------------------------------------------------
+Vector3::Value Vector3::Angle(const Vector3 & vec) const
+{
+    return std::acos(DotProduct(vec) / (GetLength() * vec.GetLength()));
+}
+
+// ------------------------------------------------------------------------------------------------
 Vector3::Value Vector3::GetDistanceTo(const Vector3 & vec) const
 {
     return std::sqrt(std::pow(vec.x - x, 2) + std::pow(vec.y - y, 2) + std::pow(vec.z - z, 2));
@@ -555,6 +561,13 @@ Vector3::Value Vector3::GetDistanceTo(const Vector3 & vec) const
 Vector3::Value Vector3::GetSquaredDistanceTo(const Vector3 & vec) const
 {
     return (std::pow(vec.x - x, 2) + std::pow(vec.y - y, 2) + std::pow(vec.z - z, 2));
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Vector3::IsBetweenPoints(const Vector3 & begin, const Vector3 & end) const
+{
+    const Value length = (end - begin).GetLengthSquared();
+    return EpsLtEq(GetSquaredDistanceTo(begin), length) && EpsLtEq(GetSquaredDistanceTo(end), length);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -676,8 +689,10 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("Dot"), &Vector3::DotProduct)
         .Func(_SC("AbsDot"), &Vector3::AbsDotProduct)
         .Func(_SC("Cross"), &Vector3::CrossProduct)
+        .Func(_SC("Angle"), &Vector3::Angle)
         .Func(_SC("DistanceTo"), &Vector3::GetDistanceTo)
         .Func(_SC("SqDistanceTo"), &Vector3::GetSquaredDistanceTo)
+        .Func(_SC("IsBetweenPoints"), &Vector3::IsBetweenPoints)
         // Member Overloads
         .Overload< void (Vector3::*)(void) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val) >(_SC("Generate"), &Vector3::Generate)

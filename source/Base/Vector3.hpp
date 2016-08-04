@@ -390,15 +390,24 @@ struct Vector3
     Vector3 CrossProduct(const Vector3 & vec) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Returns the angle between this vector and another vector in degrees.
+    */
+    Value Angle(const Vector3 & vec) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Return the distance between this vector and another vector.
     */
     Value GetDistanceTo(const Vector3 & vec) const;
-
 
     /* --------------------------------------------------------------------------------------------
      * Return the squared distance between this vector and another vector.
     */
     Value GetSquaredDistanceTo(const Vector3 & vec) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Linear interpolation with another vector.
+    */
+    bool IsBetweenPoints(const Vector3 & begin, const Vector3 & end) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.
