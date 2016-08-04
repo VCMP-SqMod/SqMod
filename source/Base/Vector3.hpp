@@ -375,6 +375,17 @@ struct Vector3
     void Normalize();
 
     /* --------------------------------------------------------------------------------------------
+     * Return the distance between this vector and another vector.
+    */
+    Value GetDistanceTo(const Vector3 & vec) const;
+
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the squared distance between this vector and another vector.
+    */
+    Value GetSquaredDistanceTo(const Vector3 & vec) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.
     */
     static const Vector3 & Get(CSStr str);

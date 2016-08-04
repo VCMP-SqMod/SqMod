@@ -528,6 +528,18 @@ void Vector3::Normalize()
 }
 
 // ------------------------------------------------------------------------------------------------
+Vector3::Value Vector3::GetDistanceTo(const Vector3 & vec) const
+{
+    return std::sqrt(std::pow(vec.x - x, 2) + std::pow(vec.y - y, 2) + std::pow(vec.z - z, 2));
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3::Value Vector3::GetSquaredDistanceTo(const Vector3 & vec) const
+{
+    return (std::pow(vec.x - x, 2) + std::pow(vec.y - y, 2) + std::pow(vec.z - z, 2));
+}
+
+// ------------------------------------------------------------------------------------------------
 const Vector3 & Vector3::Get(CSStr str)
 {
     return Vector3::Get(str, Vector3::Delim);
@@ -632,7 +644,6 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Prop(_SC("Length"), &Vector3::GetLength, &Vector3::SetLength)
         .Prop(_SC("LengthSq"), &Vector3::GetLengthSquared, &Vector3::SetLengthSquared)
         .Prop(_SC("Normalized"), &Vector3::Normalized)
-
         // Member Methods
         .Func(_SC("SetScalar"), &Vector3::SetScalar)
         .Func(_SC("SetVector3"), &Vector3::SetVector3)
@@ -644,6 +655,8 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("SetStr"), &Vector3::SetStr)
         .Func(_SC("Clear"), &Vector3::Clear)
         .Func(_SC("Normalize"), &Vector3::Normalize)
+        .Func(_SC("DistanceTo"), &Vector3::GetDistanceTo)
+        .Func(_SC("SqDistanceTo"), &Vector3::GetSquaredDistanceTo)
         // Member Overloads
         .Overload< void (Vector3::*)(void) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val) >(_SC("Generate"), &Vector3::Generate)
