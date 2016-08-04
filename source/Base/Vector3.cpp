@@ -571,6 +571,25 @@ bool Vector3::IsBetweenPoints(const Vector3 & begin, const Vector3 & end) const
 }
 
 // ------------------------------------------------------------------------------------------------
+void Vector3::Interpolate(const Vector3 & a, const Vector3 & b, Value d)
+{
+    x = STOVAL(static_cast< Float64 >(b.x) + ((a.x - b.x) * d));
+    y = STOVAL(static_cast< Float64 >(b.y) + ((a.y - b.y) * d));
+    z = STOVAL(static_cast< Float64 >(b.z) + ((a.z - b.z) * d));
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3 Vector3::Interpolated(const Vector3 & vec, Value d) const
+{
+    const Float64 inv = 1.0 - d;
+    return Vector3(
+        STOVAL((vec.x * inv) + (x * d)),
+        STOVAL((vec.y * inv) + (y * d)),
+        STOVAL((vec.z * inv) + (z * d))
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
 const Vector3 & Vector3::Get(CSStr str)
 {
     return Vector3::Get(str, Vector3::Delim);
@@ -693,6 +712,8 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("DistanceTo"), &Vector3::GetDistanceTo)
         .Func(_SC("SqDistanceTo"), &Vector3::GetSquaredDistanceTo)
         .Func(_SC("IsBetweenPoints"), &Vector3::IsBetweenPoints)
+        .Func(_SC("Interpolate"), &Vector3::Interpolate)
+        .Func(_SC("Interpolated"), &Vector3::Interpolated)
         // Member Overloads
         .Overload< void (Vector3::*)(void) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val) >(_SC("Generate"), &Vector3::Generate)

@@ -410,6 +410,16 @@ struct Vector3
     bool IsBetweenPoints(const Vector3 & begin, const Vector3 & end) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Sets this vector to the linearly interpolated vector between a and b.
+    */
+    void Interpolate(const Vector3 & a, const Vector3 & b, Value d);
+
+    /* --------------------------------------------------------------------------------------------
+     * Sets this vector to the linearly interpolated vector between a and b.
+    */
+    Vector3 Interpolated(const Vector3 & vec, Value d) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.
     */
     static const Vector3 & Get(CSStr str);
