@@ -255,36 +255,13 @@ bool Core::Initialize()
     NullObject() = Object();
     NullFunction() = Function();
     // Create the null entity instances
-    {
-        // The Blip constructor validates the ID. So we must take this route
-        CBlip * nblip = new CBlip(0);
-        nblip->m_ID = -1;
-        m_NullBlip = Object(nblip);
-        // The Checkpoint constructor validates the ID. So we must take this route
-        CCheckpoint * ncheckpoint = new CCheckpoint(0);
-        ncheckpoint->m_ID = -1;
-        m_NullCheckpoint = Object(ncheckpoint);
-        // The Keybind constructor validates the ID. So we must take this route
-        CKeybind * nkeybind = new CKeybind(0);
-        nkeybind->m_ID = -1;
-        m_NullKeybind = Object(nkeybind);
-        // The Object constructor validates the ID. So we must take this route
-        CObject * nobject = new CObject(0);
-        nobject->m_ID = -1;
-        m_NullObject = Object(nobject);
-        // The Pickup constructor validates the ID. So we must take this route
-        CPickup * npickup = new CPickup(0);
-        npickup->m_ID = -1;
-        m_NullPickup = Object(npickup);
-        // The Player constructor validates the ID. So we must take this route
-        CPlayer * nplayer = new CPlayer(0);
-        nplayer->m_ID = -1;
-        m_NullPlayer = Object(nplayer);
-        // The Vehicle constructor validates the ID. So we must take this route
-        CVehicle * nvehicle = new CVehicle(0);
-        nvehicle->m_ID = -1;
-        m_NullVehicle = Object(nvehicle);
-    }
+    m_NullBlip = Object(new CBlip(-1));
+    m_NullCheckpoint = Object(new CCheckpoint(-1));
+    m_NullKeybind = Object(new CKeybind(-1));
+    m_NullObject = Object(new CObject(-1));
+    m_NullPickup = Object(new CPickup(-1));
+    m_NullPlayer = Object(new CPlayer(-1));
+    m_NullVehicle = Object(new CVehicle(-1));
 
     LogDbg("Registering the standard libraries");
     // Push the root table on the stack
