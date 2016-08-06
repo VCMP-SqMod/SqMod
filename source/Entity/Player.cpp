@@ -1190,11 +1190,6 @@ Object & CPlayer::GetSpectator() const
 // ------------------------------------------------------------------------------------------------
 void CPlayer::SetSpectator(CPlayer & target) const
 {
-    // Is the specified player even valid?
-    if (!target.IsActive())
-    {
-        STHROWF("Invalid player argument: null");
-    }
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
