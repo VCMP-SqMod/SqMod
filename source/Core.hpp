@@ -534,6 +534,15 @@ private:
     bool                            m_Executed; // Whether the scripts were executed.
     bool                            m_Shutdown; // Whether the server currently shutting down.
 
+    // --------------------------------------------------------------------------------------------
+    Object                          m_NullBlip; // Null Blips instance.
+    Object                          m_NullCheckpoint; // Null Checkpoints instance.
+    Object                          m_NullKeybind; // Null Key-instance pool.
+    Object                          m_NullObject; // Null Objects instance.
+    Object                          m_NullPickup; // Null Pickups instance.
+    Object                          m_NullPlayer; // Null Players instance.
+    Object                          m_NullVehicle; // Null Vehicles instance.
+
 public:
 
     /* --------------------------------------------------------------------------------------------
@@ -807,6 +816,17 @@ public:
     const Pickups & GetPickups() const { return m_Pickups; }
     const Players & GetPlayers() const { return m_Players; }
     const Vehicles & GetVehicles() const { return m_Vehicles; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Null instance retrievers.
+    */
+    Object & GetNullBlip() { return m_NullBlip; }
+    Object & GetNullCheckpoint() { return m_NullCheckpoint; }
+    Object & GetNullKeybind() { return m_NullKeybind; }
+    Object & GetNullObject() { return m_NullObject; }
+    Object & GetNullPickup() { return m_NullPickup; }
+    Object & GetNullPlayer() { return m_NullPlayer; }
+    Object & GetNullVehicle() { return m_NullVehicle; }
 
     /* --------------------------------------------------------------------------------------------
      * Container cleaner.

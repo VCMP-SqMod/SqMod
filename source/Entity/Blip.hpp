@@ -96,6 +96,16 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated null entity instance.
+    */
+    static SQInteger SqGetNull(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated null entity instance.
+    */
+    static Object & GetNull();
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
     */
     Int32 GetID() const

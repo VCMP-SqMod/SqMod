@@ -22,6 +22,19 @@ SQInteger CPickup::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger CPickup::SqGetNull(HSQUIRRELVM vm)
+{
+    sq_pushobject(vm, Core::Get().GetNullPickup().GetObject());
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CPickup::GetNull()
+{
+    return Core::Get().GetNullPickup();
+}
+
+// ------------------------------------------------------------------------------------------------
 CPickup::CPickup(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_PICKUP_POOL))
     , m_Tag(ToStrF("%d", id))
@@ -427,6 +440,8 @@ void Register_CPickup(HSQUIRRELVM vm)
             (_SC("Create"), &Pickup_Create)
         .StaticOverload< Object & (*)(Int32, Int32, Int32, const Vector3 &, Int32, bool, Int32, Object &) >
             (_SC("Create"), &Pickup_Create)
+        // Raw Squirrel Methods
+        .SquirrelFunc(_SC("NullInst"), &CPickup::SqGetNull)
     );
 }
 

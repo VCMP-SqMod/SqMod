@@ -24,6 +24,19 @@ SQInteger CObject::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger CObject::SqGetNull(HSQUIRRELVM vm)
+{
+    sq_pushobject(vm, Core::Get().GetNullObject().GetObject());
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CObject::GetNull()
+{
+    return Core::Get().GetNullObject();
+}
+
+// ------------------------------------------------------------------------------------------------
 CObject::CObject(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_OBJECT_POOL))
     , m_Tag(ToStrF("%d", id)), m_Data()
@@ -927,6 +940,8 @@ void Register_CObject(HSQUIRRELVM vm)
             (_SC("Create"), &Object_Create)
         .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32, Int32, Object &) >
             (_SC("Create"), &Object_Create)
+        // Raw Squirrel Methods
+        .SquirrelFunc(_SC("NullInst"), &CObject::SqGetNull)
     );
 }
 

@@ -26,6 +26,19 @@ SQInteger CVehicle::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger CVehicle::SqGetNull(HSQUIRRELVM vm)
+{
+    sq_pushobject(vm, Core::Get().GetNullVehicle().GetObject());
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CVehicle::GetNull()
+{
+    return Core::Get().GetNullVehicle();
+}
+
+// ------------------------------------------------------------------------------------------------
 CVehicle::CVehicle(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_VEHICLE_POOL))
     , m_Tag(ToStrF("%d", id)), m_Data(), m_CircularLocks(0)
@@ -1811,7 +1824,8 @@ void Register_CVehicle(HSQUIRRELVM vm)
             (_SC("Create"), &Vehicle_Create)
         .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Float32, Int32, Int32, Int32, Object &) >
             (_SC("Create"), &Vehicle_Create)
-
+        // Raw Squirrel Methods
+        .SquirrelFunc(_SC("NullInst"), &CVehicle::SqGetNull)
     );
 }
 

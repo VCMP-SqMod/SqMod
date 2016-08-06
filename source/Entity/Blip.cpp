@@ -17,6 +17,19 @@ SQInteger CBlip::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger CBlip::SqGetNull(HSQUIRRELVM vm)
+{
+    sq_pushobject(vm, Core::Get().GetNullBlip().GetObject());
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CBlip::GetNull()
+{
+    return Core::Get().GetNullBlip();
+}
+
+// ------------------------------------------------------------------------------------------------
 CBlip::CBlip(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_BLIP_POOL))
     , m_Tag(ToStrF("%d", id))
@@ -350,6 +363,8 @@ void Register_CBlip(HSQUIRRELVM vm)
             (_SC("Create"), &Blip_Create)
         .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, Object &) >
             (_SC("Create"), &Blip_Create)
+        // Raw Squirrel Methods
+        .SquirrelFunc(_SC("NullInst"), &CBlip::SqGetNull)
     );
 }
 

@@ -30,6 +30,19 @@ SQInteger CCheckpoint::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger CCheckpoint::SqGetNull(HSQUIRRELVM vm)
+{
+    sq_pushobject(vm, Core::Get().GetNullCheckpoint().GetObject());
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CCheckpoint::GetNull()
+{
+    return Core::Get().GetNullCheckpoint();
+}
+
+// ------------------------------------------------------------------------------------------------
 CCheckpoint::CCheckpoint(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_CHECKPOINT_POOL))
     , m_Tag(ToStrF("%d", id))
@@ -546,6 +559,8 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
             (_SC("Create"), &Checkpoint_Create)
         .StaticOverload< Object & (*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, Object &) >
             (_SC("Create"), &Checkpoint_Create)
+        // Raw Squirrel Methods
+        .SquirrelFunc(_SC("NullInst"), &CCheckpoint::SqGetNull)
     );
 }
 

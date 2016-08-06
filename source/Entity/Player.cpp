@@ -38,6 +38,19 @@ SQInteger CPlayer::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::SqGetNull(HSQUIRRELVM vm)
+{
+    sq_pushobject(vm, Core::Get().GetNullPlayer().GetObject());
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CPlayer::GetNull()
+{
+    return Core::Get().GetNullPlayer();
+}
+
+// ------------------------------------------------------------------------------------------------
 CPlayer::CPlayer(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_PLAYER_POOL))
     , m_Tag(ToStrF("%d", id)), m_Data(), m_Buffer(256), m_CircularLocks(0)
@@ -2357,6 +2370,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("AnnounceEx"), &CPlayer::AnnounceEx)
         .SquirrelFunc(_SC("Text"), &CPlayer::Announce)
         .SquirrelFunc(_SC("TextEx"), &CPlayer::AnnounceEx)
+        .SquirrelFunc(_SC("NullInst"), &CPlayer::SqGetNull)
     );
 }
 

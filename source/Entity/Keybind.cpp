@@ -17,6 +17,19 @@ SQInteger CKeybind::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger CKeybind::SqGetNull(HSQUIRRELVM vm)
+{
+    sq_pushobject(vm, Core::Get().GetNullKeybind().GetObject());
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & CKeybind::GetNull()
+{
+    return Core::Get().GetNullKeybind();
+}
+
+// ------------------------------------------------------------------------------------------------
 CKeybind::CKeybind(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_KEYBIND_POOL))
     , m_Tag(ToStrF("%d", id))
@@ -233,6 +246,8 @@ void Register_CKeybind(HSQUIRRELVM vm)
             (_SC("Create"), &Keybind_Create)
         .StaticOverload< Object & (*)(bool, Int32, Int32, Int32, Int32, Object &) >
             (_SC("Create"), &Keybind_Create)
+        // Raw Squirrel Methods
+        .SquirrelFunc(_SC("NullInst"), &CKeybind::SqGetNull)
     );
 }
 
