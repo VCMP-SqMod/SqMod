@@ -260,7 +260,17 @@ void ResHnd::Create(const ConnRef & conn)
     // Associate the field names with their index
     for (Uint32 i = 0; i < mFieldCount; ++i)
     {
+        // Associate the current field name with the current index
         mIndexes[mFields[i].name] = i;
+        // Include table names if available
+        if (mFields[i].table_length > 0)
+        {
+            mIndexes[ToStrF("%s.%s", mFields[i].table, mFields[i].name)] = i;
+        }
+        else if (mFields[i].org_table_length > 0)
+        {
+            mIndexes[ToStrF("%s.%s", mFields[i].org_table, mFields[i].name)] = i;
+        }
     }
 }
 
@@ -333,6 +343,15 @@ void ResHnd::Create(const StmtRef & stmt)
     {
         // Associate the current field name with the current index
         mIndexes[mFields[i].name] = i;
+        // Include table names if available
+        if (mFields[i].table_length > 0)
+        {
+            mIndexes[ToStrF("%s.%s", mFields[i].table, mFields[i].name)] = i;
+        }
+        else if (mFields[i].org_table_length > 0)
+        {
+            mIndexes[ToStrF("%s.%s", mFields[i].org_table, mFields[i].name)] = i;
+        }
         // Configure the current bind point according to the associated field
         mBinds[i].SetOutput(mFields[i], &mMyBinds[i]);
         // Store the bind point buffer into the associated row
