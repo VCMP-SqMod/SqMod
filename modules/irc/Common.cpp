@@ -8,6 +8,28 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+void * IrcAllocMem(size_t n)
+{
+    // Does the requested size exceed the common shared buffer size?
+    if (n > GetTempBuffSize())
+    {
+        return std::malloc(n);
+    }
+    // Return the common shared buffer
+    return GetTempBuff();
+}
+
+// ------------------------------------------------------------------------------------------------
+void IrcFreeMem(void * p)
+{
+    // Only release if it's not the temporary buffer
+    if ((p < GetTempBuff()) || (p > (GetTempBuff() + GetTempBuffSize())))
+    {
+        std::free(p);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 static SQInteger SqGetNick(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
@@ -104,7 +126,7 @@ static SQInteger SqConvertColorToMIRC(HSQUIRRELVM vm)
         return val.mRes; // Propagate the error!
     }
     // Attempt to convert the colors
-    CStr str = irc_color_convert_to_mirc(val.mPtr);
+    CStr str = irc_color_convert_to_mirc(val.mPtr, IrcAllocMem);
     // Could the IRC library allocate memory?
     if (!str)
     {
@@ -113,7 +135,7 @@ static SQInteger SqConvertColorToMIRC(HSQUIRRELVM vm)
     // Push the resulted value on the stack
     sq_pushstring(vm, str, -1);
     // Free the memory allocated by the IRC library
-    std::free(str);
+    IrcFreeMem(str);
     // Specify that this function returned a value
     return 1;
 }

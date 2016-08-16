@@ -9,6 +9,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+typedef int (*SendIrcMessageFunc)(irc_session_t *, const char *, const char *);
+
+// ------------------------------------------------------------------------------------------------
 irc_callbacks_t     Session::s_Callbacks;
 
 // ------------------------------------------------------------------------------------------------
@@ -397,7 +400,7 @@ void Session::SetNick(CSStr nick)
         STHROWF("Invalid IRC nickname");
     }
     // Do we have to issue a nickname command?
-    else if (Connected())
+    else if (IsConnected())
     {
         irc_cmd_nick(m_Session, nick);
     }
@@ -657,7 +660,7 @@ Int32 Session::Connect6(CSStr server, Uint32 port, CSStr nick, CSStr passwd, CSS
 // ------------------------------------------------------------------------------------------------
 void Session::Disconnect()
 {
-    if (Connected())
+    if (IsConnected())
     {
         // Update one last time to catch remaining events
         Update();
@@ -990,7 +993,7 @@ void Session::OnDccSendReq(irc_session_t * session, CCStr nick, CCStr addr, CCSt
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
+static SQInteger FormattedIrcMessageCmd(HSQUIRRELVM vm, SendIrcMessageFunc send_func, bool colored)
 {
     // Obtain the initial stack size
     const Int32 top = sq_gettop(vm);
@@ -1004,6 +1007,7 @@ SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Missing the message value");
     }
+
     // The session instance
     Session * session = nullptr;
     // Attempt to extract the argument values
@@ -1016,21 +1020,23 @@ SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
         // Propagate the error
         return sq_throwerror(vm, e.what());
     }
+
     // Do we have a valid session instance?
     if (!session)
     {
         return sq_throwerror(vm, "Invalid session instance");
     }
     // Do we have a valid session?
-    else if (!session->m_Session)
+    else if (!session->IsValid())
     {
         return sq_throwerror(vm, "Invalid IRC session");
     }
     // Is the session connected?
-    else if (!session->Connected())
+    else if (!session->IsConnected())
     {
         return sq_throwerror(vm, "Session is not connected");
     }
+
     // Attempt to retrieve the target from the stack as a string
     StackStrF target(vm, 2, false);
     // Have we failed to retrieve the string?
@@ -1038,6 +1044,7 @@ SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
     {
         return target.mRes; // Propagate the error!
     }
+
     // Attempt to retrieve the value from the stack as a string
     StackStrF message(vm, 3);
     // Have we failed to retrieve the string?
@@ -1045,140 +1052,65 @@ SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
     {
         return message.mRes; // Propagate the error!
     }
-    // Forward the resulted string value and save the returned result code
-    const Int32 code = irc_cmd_msg(session->m_Session, target.mPtr, message.mPtr);
-    // Push the obtained code onto the stack
-    sq_pushinteger(vm, code);
+
+    // Should we format this string for colored messages?
+    if (colored)
+    {
+        // Attempt to scan the specified message for color formatting
+        char * cmsg = irc_color_convert_to_mirc(message.mPtr, IrcAllocMem);
+        // Validate the message
+        if (!cmsg)
+        {
+            return sq_throwerror(vm, "Failed to convert the message colors");
+        }
+        // Send the resulted message and push the returned result code onto the stack
+        sq_pushinteger(vm, send_func(session->GetHandle(), target.mPtr, cmsg));
+        // Free the memory used to convert the message
+        IrcFreeMem(cmsg);
+    }
+    // Forward the resulted string value and push the returned result code onto the stack
+    else
+    {
+        sq_pushinteger(vm, send_func(session->GetHandle(), target.mPtr, message.mPtr));
+    }
     // We have a value on the stack
     return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Session::CmdMsgF(HSQUIRRELVM vm)
+{
+    return FormattedIrcMessageCmd(vm, irc_cmd_msg, false);
 }
 
 // ------------------------------------------------------------------------------------------------
 SQInteger Session::CmdMeF(HSQUIRRELVM vm)
 {
-    // Obtain the initial stack size
-    const Int32 top = sq_gettop(vm);
-    // Do we have a target value?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing the message target");
-    }
-    // Do we have a message value?
-    else if (top <= 2)
-    {
-        return sq_throwerror(vm, "Missing the message value");
-    }
-    // The session instance
-    Session * session = nullptr;
-    // Attempt to extract the argument values
-    try
-    {
-        session = Var< Session * >(vm, 1).value;
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Do we have a valid session instance?
-    if (!session)
-    {
-        return sq_throwerror(vm, "Invalid session instance");
-    }
-    // Do we have a valid session?
-    else if (!session->m_Session)
-    {
-        return sq_throwerror(vm, "Invalid IRC session");
-    }
-    // Is the session connected?
-    else if (!session->Connected())
-    {
-        return sq_throwerror(vm, "Session is not connected");
-    }
-    // Attempt to retrieve the target from the stack as a string
-    StackStrF target(vm, 2, false);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(target.mRes))
-    {
-        return target.mRes; // Propagate the error!
-    }
-    // Attempt to retrieve the value from the stack as a string
-    StackStrF message(vm, 3);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(message.mRes))
-    {
-        return message.mRes; // Propagate the error!
-    }
-    // Forward the resulted string value and save the returned result code
-    const Int32 code = irc_cmd_me(session->m_Session, target.mPtr, message.mPtr);
-    // Push the obtained code onto the stack
-    sq_pushinteger(vm, code);
-    // We have a value on the stack
-    return 1;
+    return FormattedIrcMessageCmd(vm, irc_cmd_me, false);
 }
 
 // ------------------------------------------------------------------------------------------------
 SQInteger Session::CmdNoticeF(HSQUIRRELVM vm)
 {
-    // Obtain the initial stack size
-    const Int32 top = sq_gettop(vm);
-    // Do we have a target value?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing the message target");
-    }
-    // Do we have a message value?
-    else if (top <= 2)
-    {
-        return sq_throwerror(vm, "Missing the message value");
-    }
-    // The session instance
-    Session * session = nullptr;
-    // Attempt to extract the argument values
-    try
-    {
-        session = Var< Session * >(vm, 1).value;
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Do we have a valid session instance?
-    if (!session)
-    {
-        return sq_throwerror(vm, "Invalid session instance");
-    }
-    // Do we have a valid session?
-    else if (!session->m_Session)
-    {
-        return sq_throwerror(vm, "Invalid IRC session");
-    }
-    // Is the session connected?
-    else if (!session->Connected())
-    {
-        return sq_throwerror(vm, "Session is not connected");
-    }
-    // Attempt to retrieve the target from the stack as a string
-    StackStrF target(vm, 2, false);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(target.mRes))
-    {
-        return target.mRes; // Propagate the error!
-    }
-    // Attempt to retrieve the value from the stack as a string
-    StackStrF message(vm, 3);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(message.mRes))
-    {
-        return message.mRes; // Propagate the error!
-    }
-    // Forward the resulted string value and save the returned result code
-    const Int32 code = irc_cmd_notice(session->m_Session, target.mPtr, message.mPtr);
-    // Push the obtained code onto the stack
-    sq_pushinteger(vm, code);
-    // We have a value on the stack
-    return 1;
+    return FormattedIrcMessageCmd(vm, irc_cmd_notice, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Session::CmdColoredMsgF(HSQUIRRELVM vm)
+{
+    return FormattedIrcMessageCmd(vm, irc_cmd_msg, true);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Session::CmdColoredMeF(HSQUIRRELVM vm)
+{
+    return FormattedIrcMessageCmd(vm, irc_cmd_me, true);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger Session::CmdColoredNoticeF(HSQUIRRELVM vm)
+{
+    return FormattedIrcMessageCmd(vm, irc_cmd_notice, true);
 }
 
 /* -----------------------------------------------------------------------------------------------
@@ -1240,6 +1172,9 @@ void Register_Session(Table & ircns)
         .Func(_SC("CmdMsg"), &Session::CmdMsg)
         .Func(_SC("CmdMe"), &Session::CmdMe)
         .Func(_SC("CmdNotice"), &Session::CmdNotice)
+        .Func(_SC("CmdColoredMsg"), &Session::CmdColoredMsg)
+        .Func(_SC("CmdColoredMe"), &Session::CmdColoredMe)
+        .Func(_SC("CmdColoredNotice"), &Session::CmdColoredNotice)
         .Func(_SC("CmdCtcpRequest"), &Session::CmdCtcpRequest)
         .Func(_SC("CmdCtcpReply"), &Session::CmdCtcpReply)
         .Func(_SC("CmdNick"), &Session::CmdNick)
@@ -1278,6 +1213,9 @@ void Register_Session(Table & ircns)
         .SquirrelFunc(_SC("CmdMsgF"), &Session::CmdMsgF)
         .SquirrelFunc(_SC("CmdMeF"), &Session::CmdMeF)
         .SquirrelFunc(_SC("CmdNoticeF"), &Session::CmdNoticeF)
+        .SquirrelFunc(_SC("CmdColoredMsgF"), &Session::CmdColoredMsgF)
+        .SquirrelFunc(_SC("CmdColoredMeF"), &Session::CmdColoredMeF)
+        .SquirrelFunc(_SC("CmdColoredNoticeF"), &Session::CmdColoredNoticeF)
     );
 }
 

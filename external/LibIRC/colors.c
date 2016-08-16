@@ -246,7 +246,7 @@ static int libirc_colorparser_colorlookup (const char * color)
 /*
  * [code] to IRC color conversion.
  */
-char * irc_color_convert_to_mirc (const char * source)
+char * irc_color_convert_to_mirc (const char * source, void * (*memory_allocator)(size_t))
 {
 	unsigned int destlen = 0;
 	char * destline = 0, *d = 0;
@@ -262,7 +262,7 @@ char * irc_color_convert_to_mirc (const char * source)
 		if ( destlen > 0 )
 		{
 			// This is the 2nd pass; allocate memory.
-			if ( (destline = malloc (destlen)) == 0 )
+			if ( (destline = memory_allocator (destlen)) == 0 )
 				return 0;
 
 			d = destline;

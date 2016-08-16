@@ -90,14 +90,6 @@ protected:
     void IsNotConnected() const;
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this session is connected to a server or not.
-    */
-    bool Connected() const
-    {
-        return (m_Session && irc_is_connected(m_Session));
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Validate a session instance used by an event and log an error if it's invalid.
     */
     static bool ValidateEventSession(Session * ptr);
@@ -226,6 +218,14 @@ public:
      * Used by the script engine to retrieve the name from instances of this type.
     */
     static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the actual session handle.
+    */
+    irc_session_t * GetHandle() const
+    {
+        return m_Session;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * See whether this session is valid.
@@ -569,11 +569,11 @@ public:
     void Disconnect();
 
     /* --------------------------------------------------------------------------------------------
-     * See whether the session is connected to a server.
+     * See whether this session is connected to a server or not.
     */
     bool IsConnected()
     {
-        return Connected();
+        return (m_Session && irc_is_connected(m_Session));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -775,6 +775,72 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Send a message to a specific channel or privately to another nick.
+    */
+    Int32 CmdColoredMsg(CSStr nch, CSStr text)
+    {
+        // Validate the connection status
+        ValidateConnection();
+        // Attempt to scan the specified message for color formatting
+        char * cmsg = irc_color_convert_to_mirc(text, IrcAllocMem);
+        // Validate the message
+        if (!cmsg)
+        {
+            STHROWF("Failed to convert the message colors");
+        }
+        // Send the resulted message and grab the result code
+        const int ret = irc_cmd_msg(m_Session, nch, cmsg);
+        // Free the memory used to convert the message
+        IrcFreeMem(cmsg);
+        // Return the resulted code
+        return ret;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a /me message (CTCP ACTION) to a specific channel or privately to another nick.
+    */
+    Int32 CmdColoredMe(CSStr nch, CSStr text)
+    {
+        // Validate the connection status
+        ValidateConnection();
+        // Attempt to scan the specified message for color formatting
+        char * cmsg = irc_color_convert_to_mirc(text, IrcAllocMem);
+        // Validate the message
+        if (!cmsg)
+        {
+            STHROWF("Failed to convert the message colors");
+        }
+        // Send the resulted message and grab the result code
+        const int ret = irc_cmd_me(m_Session, nch, cmsg);
+        // Free the memory used to convert the message
+        IrcFreeMem(cmsg);
+        // Return the resulted code
+        return ret;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a notice to a specific channel or privately to another nick.
+    */
+    Int32 CmdColoredNotice(CSStr nch, CSStr text)
+    {
+        // Validate the connection status
+        ValidateConnection();
+        // Attempt to scan the specified message for color formatting
+        char * cmsg = irc_color_convert_to_mirc(text, IrcAllocMem);
+        // Validate the message
+        if (!cmsg)
+        {
+            STHROWF("Failed to convert the message colors");
+        }
+        // Send the resulted message and grab the result code
+        const int ret = irc_cmd_notice(m_Session, nch, cmsg);
+        // Free the memory used to convert the message
+        IrcFreeMem(cmsg);
+        // Return the resulted code
+        return ret;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Send a CTCP request to the specified user on the connected server.
     */
     Int32 CmdCtcpRequest(CSStr nick, CSStr request)
@@ -926,6 +992,21 @@ public:
      * Send a notice to a specific channel or privately to another nick.
     */
     static SQInteger CmdNoticeF(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a colored message to a specific channel or privately to another nick.
+    */
+    static SQInteger CmdColoredMsgF(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a colored /me message (CTCP ACTION) to a specific channel or privately to another nick.
+    */
+    static SQInteger CmdColoredMeF(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a colored notice to a specific channel or privately to another nick.
+    */
+    static SQInteger CmdColoredNoticeF(HSQUIRRELVM vm);
 
 protected:
 

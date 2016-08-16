@@ -1490,7 +1490,7 @@ char * irc_color_convert_from_mirc (const char * message);
  * \sa irc_color_strip_from_mirc irc_color_convert_from_mirc
  * \ingroup colors
  */
-char * irc_color_convert_to_mirc (const char * message);
+char * irc_color_convert_to_mirc (const char * message, void * (*memory_allocator)(size_t));
 
 #ifdef	__cplusplus
 }

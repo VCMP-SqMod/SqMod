@@ -59,6 +59,16 @@ enum SessionEvent
 class Session;
 
 /* ------------------------------------------------------------------------------------------------
+ * Used by IRC as proxy to allocate memory if the requested size is larger than the common buffer.
+*/
+void * IrcAllocMem(size_t n);
+
+/* ------------------------------------------------------------------------------------------------
+ * Release memory previously allocated with IrcAllocMem, only if necessary. Nasty but we'll try.
+*/
+void IrcFreeMem(void * p);
+
+/* ------------------------------------------------------------------------------------------------
  * Extract the name from the specified origin.
 */
 SQInteger GetNick(HSQUIRRELVM vm);
