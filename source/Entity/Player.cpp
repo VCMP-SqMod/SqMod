@@ -821,12 +821,22 @@ Int32 CPlayer::GetImmunity() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetImmunity(Int32 flags) const
+void CPlayer::SetImmunity(Int32 flags)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerImmunityFlags(m_ID);
+    // Avoid property unwind from a recursive call
     _Func->SetPlayerImmunityFlags(m_ID, flags);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PCL_EMIT_PLAYER_IMMUNITY))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_IMMUNITY);
+        // Now forward the event call
+        Core::Get().EmitPlayerImmunity(m_ID, current, flags);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

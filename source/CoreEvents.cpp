@@ -782,6 +782,14 @@ void Core::EmitPlayerWantedLevel(Int32 player_id, Int32 old_level, Int32 new_lev
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerImmunity(Int32 player_id, Int32 old_immunity, Int32 new_immunity)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    Emit(_player.mOnImmunity, old_immunity, new_immunity);
+    Emit(mOnPlayerImmunity, _player.mObj, old_immunity, new_immunity);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleColour(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);

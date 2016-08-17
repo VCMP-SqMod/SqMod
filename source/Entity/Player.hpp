@@ -21,6 +21,7 @@ enum PlayerCircularLocks
     PCL_EMIT_PLAYER_MONEY           = (6 << 0),
     PCL_EMIT_PLAYER_SCORE           = (7 << 0),
     PCL_EMIT_PLAYER_WANTED_LEVEL    = (8 << 0),
+    PCL_EMIT_PLAYER_IMMUNITY        = (9 << 0),
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -490,7 +491,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the immunity flags of the managed player entity.
     */
-    void SetImmunity(Int32 flags) const;
+    void SetImmunity(Int32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed player entity.

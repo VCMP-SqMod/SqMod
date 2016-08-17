@@ -429,6 +429,7 @@ protected:
         Function        mOnMoney;
         Function        mOnScore;
         Function        mOnWantedLevel;
+        Function        mOnImmunity;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -1006,6 +1007,7 @@ public:
     void EmitPlayerMoney(Int32 player_id, Int32 old_money, Int32 new_money);
     void EmitPlayerScore(Int32 player_id, Int32 old_score, Int32 new_score);
     void EmitPlayerWantedLevel(Int32 player_id, Int32 old_level, Int32 new_level);
+    void EmitPlayerImmunity(Int32 player_id, Int32 old_immunity, Int32 new_immunity);
     void EmitVehicleColour(Int32 vehicle_id, Int32 changed);
     void EmitVehicleHealth(Int32 vehicle_id, Float32 old_health, Float32 new_health);
     void EmitVehiclePosition(Int32 vehicle_id);
@@ -1150,6 +1152,7 @@ private:
     Function    mOnPlayerMoney;
     Function    mOnPlayerScore;
     Function    mOnPlayerWantedLevel;
+    Function    mOnPlayerImmunity;
     Function    mOnVehicleColour;
     Function    mOnVehicleHealth;
     Function    mOnVehiclePosition;
