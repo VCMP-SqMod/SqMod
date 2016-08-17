@@ -17,6 +17,7 @@ enum PlayerCircularLocks
     PCL_EMIT_PLAYER_ADMIN           = (2 << 0),
     PCL_EMIT_PLAYER_WORLD           = (3 << 0),
     PCL_EMIT_PLAYER_TEAM            = (4 << 0),
+    PCL_EMIT_PLAYER_SKIN            = (5 << 0),
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -376,7 +377,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the skin identifier of the managed player entity.
     */
-    void SetSkin(Int32 skin) const;
+    void SetSkin(Int32 skin);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the color of the managed player entity.

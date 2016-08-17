@@ -425,6 +425,7 @@ protected:
         Function        mOnAdmin;
         Function        mOnWorld;
         Function        mOnTeam;
+        Function        mOnSkin;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -998,6 +999,7 @@ public:
     void EmitPlayerAdmin(Int32 player_id, bool old_admin, bool new_admin);
     void EmitPlayerWorld(Int32 player_id, Int32 old_world, Int32 new_world, bool secondary);
     void EmitPlayerTeam(Int32 player_id, Int32 old_team, Int32 new_team);
+    void EmitPlayerSkin(Int32 player_id, Int32 old_skin, Int32 new_skin);
     void EmitVehicleColour(Int32 vehicle_id, Int32 changed);
     void EmitVehicleHealth(Int32 vehicle_id, Float32 old_health, Float32 new_health);
     void EmitVehiclePosition(Int32 vehicle_id);
@@ -1138,6 +1140,7 @@ private:
     Function    mOnPlayerAdmin;
     Function    mOnPlayerWorld;
     Function    mOnPlayerTeam;
+    Function    mOnPlayerSkin;
     Function    mOnVehicleColour;
     Function    mOnVehicleHealth;
     Function    mOnVehiclePosition;

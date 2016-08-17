@@ -546,14 +546,29 @@ Int32 CPlayer::GetSkin() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSkin(Int32 skin) const
+void CPlayer::SetSkin(Int32 skin)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
-    if (_Func->SetPlayerSkin(m_ID, skin) == vcmpErrorArgumentOutOfBounds)
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerSkin(m_ID);
+    // Don't even bother if it's the same value
+    if (current == skin)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
+    else if (_Func->SetPlayerSkin(m_ID, skin) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid skin identifier: %d", skin);
+    }
+    // Avoid infinite recursive event loops
+    else if (!(m_CircularLocks & PCL_EMIT_PLAYER_SKIN))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_SKIN);
+        // Now forward the event call
+        Core::Get().EmitPlayerSkin(m_ID, current, skin);
     }
 }
 
