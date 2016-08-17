@@ -20,6 +20,7 @@ enum PlayerCircularLocks
     PCL_EMIT_PLAYER_SKIN            = (5 << 0),
     PCL_EMIT_PLAYER_MONEY           = (6 << 0),
     PCL_EMIT_PLAYER_SCORE           = (7 << 0),
+    PCL_EMIT_PLAYER_WANTED_LEVEL    = (8 << 0),
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -449,7 +450,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the wanted level of the managed player entity.
     */
-    void SetWantedLevel(Int32 level) const;
+    void SetWantedLevel(Int32 level);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the connection latency of the managed player entity.

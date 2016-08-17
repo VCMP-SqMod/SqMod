@@ -233,6 +233,7 @@ void Core::ResetFunc(PlayerInst & inst)
     inst.mOnSkin.ReleaseGently();
     inst.mOnMoney.ReleaseGently();
     inst.mOnScore.ReleaseGently();
+    inst.mOnWantedLevel.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -353,6 +354,7 @@ void Core::ResetFunc()
     Core::Get().mOnPlayerSkin.ReleaseGently();
     Core::Get().mOnPlayerMoney.ReleaseGently();
     Core::Get().mOnPlayerScore.ReleaseGently();
+    Core::Get().mOnPlayerWantedLevel.ReleaseGently();
     Core::Get().mOnVehicleColour.ReleaseGently();
     Core::Get().mOnVehicleHealth.ReleaseGently();
     Core::Get().mOnVehiclePosition.ReleaseGently();
@@ -465,6 +467,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_PLAYERSKIN:            return mOnPlayerSkin;
         case EVT_PLAYERMONEY:           return mOnPlayerMoney;
         case EVT_PLAYERSCORE:           return mOnPlayerScore;
+        case EVT_PLAYERWANTEDLEVEL:     return mOnPlayerWantedLevel;
         case EVT_VEHICLECOLOUR:         return mOnVehicleColour;
         case EVT_VEHICLEHEALTH:         return mOnVehicleHealth;
         case EVT_VEHICLEPOSITION:       return mOnVehiclePosition;
@@ -627,6 +630,7 @@ Function & Core::GetPlayerEvent(Int32 id, Int32 evid)
         case EVT_PLAYERSKIN:            return inst.mOnSkin;
         case EVT_PLAYERMONEY:           return inst.mOnMoney;
         case EVT_PLAYERSCORE:           return inst.mOnScore;
+        case EVT_PLAYERWANTEDLEVEL:     return inst.mOnWantedLevel;
         default:                        return NullFunction();
     }
 }

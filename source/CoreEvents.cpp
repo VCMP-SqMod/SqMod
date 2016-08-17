@@ -774,6 +774,14 @@ void Core::EmitPlayerScore(Int32 player_id, Int32 old_score, Int32 new_score)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerWantedLevel(Int32 player_id, Int32 old_level, Int32 new_level)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    Emit(_player.mOnWantedLevel, old_level, new_level);
+    Emit(mOnPlayerWantedLevel, _player.mObj, old_level, new_level);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleColour(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);

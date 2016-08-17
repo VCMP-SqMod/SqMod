@@ -734,12 +734,27 @@ Int32 CPlayer::GetWantedLevel() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWantedLevel(Int32 level) const
+void CPlayer::SetWantedLevel(Int32 level)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerWantedLevel(m_ID);
+    // Don't even bother if it's the same value
+    if (current == level)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPlayerWantedLevel(m_ID, level);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PCL_EMIT_PLAYER_WANTED_LEVEL))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_WANTED_LEVEL);
+        // Now forward the event call
+        Core::Get().EmitPlayerWantedLevel(m_ID, current, level);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
