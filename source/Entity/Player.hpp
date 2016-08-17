@@ -271,9 +271,19 @@ public:
     void Kick() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Kick the managed player entity from the server.
+    */
+    void KickBecause(Int32 header, Object & payload) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Ban the managed player entity from the server.
     */
     void Ban() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Ban the managed player entity from the server.
+    */
+    void BanBecause(Int32 header, Object & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the key of the managed player entity.

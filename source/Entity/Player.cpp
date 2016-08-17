@@ -255,6 +255,21 @@ void CPlayer::Kick() const
 {
     // Validate the managed identifier
     Validate();
+    // Store the default header and payload
+    Core::Get().GetPlayer(m_ID).mKickBanHeader = 0;
+    Core::Get().GetPlayer(m_ID).mKickBanPayload = NullObject();
+    // Perform the requested operation
+    _Func->KickPlayer(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::KickBecause(Int32 header, Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Store the specified header and payload
+    Core::Get().GetPlayer(m_ID).mKickBanHeader = header;
+    Core::Get().GetPlayer(m_ID).mKickBanPayload = payload;
     // Perform the requested operation
     _Func->KickPlayer(m_ID);
 }
@@ -264,6 +279,21 @@ void CPlayer::Ban() const
 {
     // Validate the managed identifier
     Validate();
+    // Store the default header and payload
+    Core::Get().GetPlayer(m_ID).mKickBanHeader = 0;
+    Core::Get().GetPlayer(m_ID).mKickBanPayload = NullObject();
+    // Perform the requested operation
+    _Func->BanPlayer(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::BanBecause(Int32 header, Object & payload) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Store the specified header and payload
+    Core::Get().GetPlayer(m_ID).mKickBanHeader = header;
+    Core::Get().GetPlayer(m_ID).mKickBanPayload = payload;
     // Perform the requested operation
     _Func->BanPlayer(m_ID);
 }
@@ -2289,6 +2319,8 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("StreamedFor"), &CPlayer::IsStreamedFor)
         .Func(_SC("Kick"), &CPlayer::Kick)
         .Func(_SC("Ban"), &CPlayer::Ban)
+        .Func(_SC("KickBecause"), &CPlayer::KickBecause)
+        .Func(_SC("BanBecause"), &CPlayer::BanBecause)
         .Func(_SC("GetOption"), &CPlayer::GetOption)
         .Func(_SC("SetOption"), &CPlayer::SetOption)
         .Func(_SC("SetOptionEx"), &CPlayer::SetOptionEx)

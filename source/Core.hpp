@@ -344,6 +344,10 @@ protected:
         Object          mTrackPositionPayload; // Payload to send when triggering position callback.
 
         // ----------------------------------------------------------------------------------------
+        Int32           mKickBanHeader; // Header to send when triggering kick/ban callback.
+        Object          mKickBanPayload; // Payload to send when triggering kick/ban callback.
+
+        // ----------------------------------------------------------------------------------------
         Int32           mLastWeapon; // Last known weapon of the player entity.
         Float32         mLastHealth; // Last known health of the player entity.
         Float32         mLastArmour; // Last known armor of the player entity.

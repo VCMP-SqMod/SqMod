@@ -257,7 +257,15 @@ static void OnPlayerDisconnect(int32_t player_id, vcmpDisconnectReason reason)
     // Attempt to forward the event
     try
     {
-        Core::Get().DisconnectPlayer(player_id, reason, NullObject());
+        if (reason == vcmpDisconnectReasonKick)
+        {
+            Core::Get().DisconnectPlayer(player_id, Core::Get().GetPlayer(player_id).mKickBanHeader,
+                                                    Core::Get().GetPlayer(player_id).mKickBanPayload);
+        }
+        else
+        {
+            Core::Get().DisconnectPlayer(player_id, reason, NullObject());
+        }
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerDisconnect)
     // See if a reload was requested
