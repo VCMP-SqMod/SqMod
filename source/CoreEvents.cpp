@@ -742,6 +742,14 @@ void Core::EmitPlayerWorld(Int32 player_id, Int32 old_world, Int32 new_world, bo
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerTeam(Int32 player_id, Int32 old_team, Int32 new_team)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    Emit(_player.mOnTeam, old_team, new_team);
+    Emit(mOnPlayerTeam, _player.mObj, old_team, new_team);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleColour(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);

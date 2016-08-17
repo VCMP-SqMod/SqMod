@@ -510,14 +510,29 @@ Int32 CPlayer::GetTeam() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetTeam(Int32 team) const
+void CPlayer::SetTeam(Int32 team)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
-    if (_Func->SetPlayerTeam(m_ID, team) == vcmpErrorArgumentOutOfBounds)
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerTeam(m_ID);
+    // Don't even bother if it's the same value
+    if (current == team)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
+    else if (_Func->SetPlayerTeam(m_ID, team) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid team identifier: %d", team);
+    }
+    // Avoid infinite recursive event loops
+    else if (!(m_CircularLocks & PCL_EMIT_PLAYER_TEAM))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_TEAM);
+        // Now forward the event call
+        Core::Get().EmitPlayerTeam(m_ID, current, team);
     }
 }
 
