@@ -13,7 +13,8 @@ namespace SqMod {
 */
 enum PlayerCircularLocks
 {
-    PCL_EMIT_PLAYER_OPTION = (1 << 0)
+    PCL_EMIT_PLAYER_OPTION          = (1 << 0)
+    PCL_EMIT_PLAYER_ADMIN           = (2 << 0),
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -248,7 +249,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set whether the managed player entity has administrator privileges.
     */
-    void SetAdmin(bool toggle) const;
+    void SetAdmin(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the ip address of the managed player entity.

@@ -194,12 +194,27 @@ bool CPlayer::GetAdmin() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAdmin(bool toggle) const
+void CPlayer::SetAdmin(bool toggle)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const bool current = _Func->IsPlayerAdmin(m_ID);
+    // Don't even bother if it's the same value
+    if (current == toggle)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPlayerAdmin(m_ID, toggle);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PCL_EMIT_PLAYER_ADMIN))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_ADMIN);
+        // Now forward the event call
+        Core::Get().EmitPlayerAdmin(m_ID, current, toggle);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

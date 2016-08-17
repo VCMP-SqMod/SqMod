@@ -227,6 +227,7 @@ void Core::ResetFunc(PlayerInst & inst)
     inst.mOnHeading.ReleaseGently();
     inst.mOnPosition.ReleaseGently();
     inst.mOnOption.ReleaseGently();
+    inst.mOnAdmin.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -341,6 +342,7 @@ void Core::ResetFunc()
     Core::Get().mOnPlayerHeading.ReleaseGently();
     Core::Get().mOnPlayerPosition.ReleaseGently();
     Core::Get().mOnPlayerOption.ReleaseGently();
+    Core::Get().mOnPlayerAdmin.ReleaseGently();
     Core::Get().mOnVehicleColour.ReleaseGently();
     Core::Get().mOnVehicleHealth.ReleaseGently();
     Core::Get().mOnVehiclePosition.ReleaseGently();
@@ -447,6 +449,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_PLAYERHEADING:         return mOnPlayerHeading;
         case EVT_PLAYERPOSITION:        return mOnPlayerPosition;
         case EVT_PLAYEROPTION:          return mOnPlayerOption;
+        case EVT_PLAYERADMIN:           return mOnPlayerAdmin;
         case EVT_VEHICLECOLOUR:         return mOnVehicleColour;
         case EVT_VEHICLEHEALTH:         return mOnVehicleHealth;
         case EVT_VEHICLEPOSITION:       return mOnVehiclePosition;
@@ -603,6 +606,7 @@ Function & Core::GetPlayerEvent(Int32 id, Int32 evid)
         case EVT_PLAYERHEADING:         return inst.mOnHeading;
         case EVT_PLAYERPOSITION:        return inst.mOnPosition;
         case EVT_PLAYEROPTION:          return inst.mOnOption;
+        case EVT_PLAYERADMIN:           return inst.mOnAdmin;
         default:                        return NullFunction();
     }
 }
