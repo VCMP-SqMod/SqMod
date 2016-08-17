@@ -649,21 +649,46 @@ Int32 CPlayer::GetMoney() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetMoney(Int32 amount) const
+void CPlayer::SetMoney(Int32 amount)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerMoney(m_ID);
+    // Don't even bother if it's the same value
+    if (current == amount)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPlayerMoney(m_ID, amount);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PCL_EMIT_PLAYER_MONEY))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_MONEY);
+        // Now forward the event call
+        Core::Get().EmitPlayerMoney(m_ID, current, amount);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::GiveMoney(Int32 amount) const
+void CPlayer::GiveMoney(Int32 amount)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerMoney(m_ID);
+    // Avoid property unwind from a recursive call
     _Func->GivePlayerMoney(m_ID, amount);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PCL_EMIT_PLAYER_MONEY))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_MONEY);
+        // Now forward the event call
+        Core::Get().EmitPlayerMoney(m_ID, current, current + amount);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

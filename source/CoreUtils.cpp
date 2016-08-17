@@ -231,6 +231,7 @@ void Core::ResetFunc(PlayerInst & inst)
     inst.mOnWorld.ReleaseGently();
     inst.mOnTeam.ReleaseGently();
     inst.mOnSkin.ReleaseGently();
+    inst.mOnMoney.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -349,6 +350,7 @@ void Core::ResetFunc()
     Core::Get().mOnPlayerWorld.ReleaseGently();
     Core::Get().mOnPlayerTeam.ReleaseGently();
     Core::Get().mOnPlayerSkin.ReleaseGently();
+    Core::Get().mOnPlayerMoney.ReleaseGently();
     Core::Get().mOnVehicleColour.ReleaseGently();
     Core::Get().mOnVehicleHealth.ReleaseGently();
     Core::Get().mOnVehiclePosition.ReleaseGently();
@@ -459,6 +461,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_PLAYERWORLD:           return mOnPlayerWorld;
         case EVT_PLAYERTEAM:            return mOnPlayerTeam;
         case EVT_PLAYERSKIN:            return mOnPlayerSkin;
+        case EVT_PLAYERMONEY:           return mOnPlayerMoney;
         case EVT_VEHICLECOLOUR:         return mOnVehicleColour;
         case EVT_VEHICLEHEALTH:         return mOnVehicleHealth;
         case EVT_VEHICLEPOSITION:       return mOnVehiclePosition;
@@ -619,6 +622,7 @@ Function & Core::GetPlayerEvent(Int32 id, Int32 evid)
         case EVT_PLAYERWORLD:           return inst.mOnWorld;
         case EVT_PLAYERTEAM:            return inst.mOnTeam;
         case EVT_PLAYERSKIN:            return inst.mOnSkin;
+        case EVT_PLAYERMONEY:           return inst.mOnMoney;
         default:                        return NullFunction();
     }
 }

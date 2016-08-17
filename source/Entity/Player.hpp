@@ -18,6 +18,7 @@ enum PlayerCircularLocks
     PCL_EMIT_PLAYER_WORLD           = (3 << 0),
     PCL_EMIT_PLAYER_TEAM            = (4 << 0),
     PCL_EMIT_PLAYER_SKIN            = (5 << 0),
+    PCL_EMIT_PLAYER_MONEY           = (6 << 0),
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -422,12 +423,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the money amount of the managed player entity.
     */
-    void SetMoney(Int32 amount) const;
+    void SetMoney(Int32 amount);
 
     /* --------------------------------------------------------------------------------------------
      * Give a certain amount of money to the managed player entity.
     */
-    void GiveMoney(Int32 amount) const;
+    void GiveMoney(Int32 amount);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the score of the managed player entity.

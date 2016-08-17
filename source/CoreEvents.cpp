@@ -758,6 +758,14 @@ void Core::EmitPlayerSkin(Int32 player_id, Int32 old_skin, Int32 new_skin)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerMoney(Int32 player_id, Int32 old_money, Int32 new_money)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    Emit(_player.mOnMoney, old_money, new_money);
+    Emit(mOnPlayerMoney, _player.mObj, old_money, new_money);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleColour(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
