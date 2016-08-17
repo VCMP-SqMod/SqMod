@@ -947,21 +947,33 @@ Int32 CPlayer::GetAlpha() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAlpha(Int32 alpha) const
+void CPlayer::SetAlpha(Int32 alpha)
 {
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->SetPlayerAlpha(m_ID, alpha, 0);
+    SetAlphaEx(alpha, 0);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAlphaEx(Int32 alpha, Int32 fade) const
+void CPlayer::SetAlphaEx(Int32 alpha, Int32 fade)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerAlpha(m_ID);
+    // Don't even bother if it's the same value
+    if (current == alpha)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPlayerAlpha(m_ID, alpha, fade);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PCL_EMIT_PLAYER_ALPHA))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_ALPHA);
+        // Now forward the event call
+        Core::Get().EmitPlayerAlpha(m_ID, current, alpha, fade);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

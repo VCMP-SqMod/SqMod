@@ -13,7 +13,7 @@ namespace SqMod {
 */
 enum PlayerCircularLocks
 {
-    PCL_EMIT_PLAYER_OPTION          = (1 << 0)
+    PCL_EMIT_PLAYER_OPTION          = (1 << 0),
     PCL_EMIT_PLAYER_ADMIN           = (2 << 0),
     PCL_EMIT_PLAYER_WORLD           = (3 << 0),
     PCL_EMIT_PLAYER_TEAM            = (4 << 0),
@@ -22,6 +22,7 @@ enum PlayerCircularLocks
     PCL_EMIT_PLAYER_SCORE           = (7 << 0),
     PCL_EMIT_PLAYER_WANTED_LEVEL    = (8 << 0),
     PCL_EMIT_PLAYER_IMMUNITY        = (9 << 0),
+    PCL_EMIT_PLAYER_ALPHA           = (10 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -346,7 +347,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the secondary world of the managed player entity.
     */
-    void SetSecondaryWorld(Int32 world) const;
+    void SetSecondaryWorld(Int32 world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the unique world of the managed player entity.
@@ -551,12 +552,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the alpha of the managed player entity.
     */
-    void SetAlpha(Int32 alpha) const;
+    void SetAlpha(Int32 alpha);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the alpha of the managed player entity.
     */
-    void SetAlphaEx(Int32 alpha, Int32 fade) const;
+    void SetAlphaEx(Int32 alpha, Int32 fade);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the aim position of the managed player entity.

@@ -790,6 +790,14 @@ void Core::EmitPlayerImmunity(Int32 player_id, Int32 old_immunity, Int32 new_imm
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerAlpha(Int32 player_id, Int32 old_alpha, Int32 new_alpha, Int32 fade)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    Emit(_player.mOnAlpha, old_alpha, new_alpha, fade);
+    Emit(mOnPlayerAlpha, _player.mObj, old_alpha, new_alpha, fade);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleColour(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
