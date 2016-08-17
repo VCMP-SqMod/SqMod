@@ -766,6 +766,14 @@ void Core::EmitPlayerMoney(Int32 player_id, Int32 old_money, Int32 new_money)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerScore(Int32 player_id, Int32 old_score, Int32 new_score)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    Emit(_player.mOnScore, old_score, new_score);
+    Emit(mOnPlayerScore, _player.mObj, old_score, new_score);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleColour(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);

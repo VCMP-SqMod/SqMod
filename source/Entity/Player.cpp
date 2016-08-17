@@ -701,12 +701,27 @@ Int32 CPlayer::GetScore() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetScore(Int32 score) const
+void CPlayer::SetScore(Int32 score)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerScore(m_ID);
+    // Don't even bother if it's the same value
+    if (current == score)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPlayerScore(m_ID, score);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PCL_EMIT_PLAYER_SCORE))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_SCORE);
+        // Now forward the event call
+        Core::Get().EmitPlayerScore(m_ID, current, score);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
