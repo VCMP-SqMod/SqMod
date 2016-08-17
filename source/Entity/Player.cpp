@@ -361,47 +361,34 @@ Int32 CPlayer::GetOption(Int32 option_id) const
 // ------------------------------------------------------------------------------------------------
 void CPlayer::SetOption(Int32 option_id, bool toggle)
 {
-    // Attempt to obtain the current value of the specified option
-    const bool value = _Func->GetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id));
-    // Do we even have to modify the specified option?
-    if (value == toggle)
-    {
-        return; // Nothing to change!
-    }
-    // Attempt to modify the current value of the specified option
-    else if (_Func->SetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id),
-                                toggle) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid option identifier: %d", option_id);
-    }
-    else if (!(m_CircularLocks & PCL_EMIT_PLAYER_OPTION))
-    {
-        Core::Get().EmitPlayerOption(m_ID, option_id, value, 0, NullObject());
-    }
+    SetOptionEx(option_id, toggle, 0, NullObject());
 }
 
 // ------------------------------------------------------------------------------------------------
 void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload)
 {
-    // Attempt to obtain the current value of the specified option
-    const bool value = _Func->GetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id));
-    // Do we even have to modify the specified option?
-    if (value == toggle)
+    // Validate the managed identifier
+    Validate();
+    // Grab the current value for this property
+    const bool current = _Func->GetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id));
+    // Don't even bother if it's the same value
+    if (current == toggle)
     {
-        return; // Nothing to change!
+        return;
     }
-    // Attempt to modify the current value of the specified option
-    else if (_Func->SetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id),
-                                toggle) == vcmpErrorArgumentOutOfBounds)
+    // Avoid property unwind from a recursive call
+    else if (_Func->SetPlayerOption(m_ID,
+            static_cast< vcmpPlayerOption >(option_id), toggle) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid option identifier: %d", option_id);
     }
+    // Avoid infinite recursive event loops
     else if (!(m_CircularLocks & PCL_EMIT_PLAYER_OPTION))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_OPTION);
         // Now forward the event call
-        Core::Get().EmitPlayerOption(m_ID, option_id, value, header, payload);
+        Core::Get().EmitPlayerOption(m_ID, option_id, current, header, payload);
     }
 }
 
