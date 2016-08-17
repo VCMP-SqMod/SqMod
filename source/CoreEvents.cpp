@@ -734,6 +734,14 @@ void Core::EmitPlayerAdmin(Int32 player_id, bool old_admin, bool new_admin)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerWorld(Int32 player_id, Int32 old_world, Int32 new_world, bool secondary)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    Emit(_player.mOnWorld, old_world, new_world, secondary);
+    Emit(mOnPlayerWorld, _player.mObj, old_world, new_world, secondary);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleColour(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);

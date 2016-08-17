@@ -15,6 +15,7 @@ enum PlayerCircularLocks
 {
     PCL_EMIT_PLAYER_OPTION          = (1 << 0)
     PCL_EMIT_PLAYER_ADMIN           = (2 << 0),
+    PCL_EMIT_PLAYER_WORLD           = (3 << 0),
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -329,7 +330,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the world in which the managed player entity exists.
     */
-    void SetWorld(Int32 world) const;
+    void SetWorld(Int32 world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the secondary world of the managed player entity.

@@ -417,12 +417,27 @@ Int32 CPlayer::GetWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWorld(Int32 world) const
+void CPlayer::SetWorld(Int32 world)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerWorld(m_ID);
+    // Don't even bother if it's the same value
+    if (current == world)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPlayerWorld(m_ID, world);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PCL_EMIT_PLAYER_WORLD))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_WORLD);
+        // Now forward the event call
+        Core::Get().EmitPlayerWorld(m_ID, current, world, false);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -435,12 +450,27 @@ Int32 CPlayer::GetSecondaryWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSecondaryWorld(Int32 world) const
+void CPlayer::SetSecondaryWorld(Int32 world)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPlayerSecondaryWorld(m_ID);
+    // Don't even bother if it's the same value
+    if (current == world)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPlayerSecondaryWorld(m_ID, world);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PCL_EMIT_PLAYER_WORLD))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_WORLD);
+        // Now forward the event call
+        Core::Get().EmitPlayerWorld(m_ID, current, world, true);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
