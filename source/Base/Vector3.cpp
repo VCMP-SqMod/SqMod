@@ -554,13 +554,13 @@ Vector3::Value Vector3::Angle(const Vector3 & vec) const
 // ------------------------------------------------------------------------------------------------
 Vector3::Value Vector3::GetDistanceTo(const Vector3 & vec) const
 {
-    return std::sqrt(std::pow(vec.x - x, 2) + std::pow(vec.y - y, 2) + std::pow(vec.z - z, 2));
+    return std::sqrt(std::pow(x - vec.x, 2) + std::pow(y - vec.y, 2) + std::pow(z - vec.z, 2));
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3::Value Vector3::GetSquaredDistanceTo(const Vector3 & vec) const
 {
-    return (std::pow(vec.x - x, 2) + std::pow(vec.y - y, 2) + std::pow(vec.z - z, 2));
+    return (std::pow(x - vec.x, 2) + std::pow(y - vec.y, 2) + std::pow(z - vec.z, 2));
 }
 
 // ------------------------------------------------------------------------------------------------
