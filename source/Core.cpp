@@ -254,14 +254,6 @@ bool Core::Initialize()
     NullTable() = Table();
     NullObject() = Object();
     NullFunction() = Function();
-    // Create the null entity instances
-    m_NullBlip = Object(new CBlip(-1));
-    m_NullCheckpoint = Object(new CCheckpoint(-1));
-    m_NullKeybind = Object(new CKeybind(-1));
-    m_NullObject = Object(new CObject(-1));
-    m_NullPickup = Object(new CPickup(-1));
-    m_NullPlayer = Object(new CPlayer(-1));
-    m_NullVehicle = Object(new CVehicle(-1));
 
     LogDbg("Registering the standard libraries");
     // Push the root table on the stack
@@ -293,6 +285,15 @@ bool Core::Initialize()
     {
         return false; // Can't execute scripts without a valid API!
     }
+
+    // Create the null entity instances
+    m_NullBlip = Object(new CBlip(-1));
+    m_NullCheckpoint = Object(new CCheckpoint(-1));
+    m_NullKeybind = Object(new CKeybind(-1));
+    m_NullObject = Object(new CObject(-1));
+    m_NullPickup = Object(new CPickup(-1));
+    m_NullPlayer = Object(new CPlayer(-1));
+    m_NullVehicle = Object(new CVehicle(-1));
 
     CSimpleIniA::TNamesDepend scripts;
     // Attempt to retrieve the list of keys to make sure there's actually something to process
