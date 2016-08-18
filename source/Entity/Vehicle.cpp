@@ -312,12 +312,22 @@ Int32 CVehicle::GetImmunity() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetImmunity(Int32 flags) const
+void CVehicle::SetImmunity(Int32 flags)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetVehicleImmunityFlags(m_ID);
+    // Avoid property unwind from a recursive call
     _Func->SetVehicleImmunityFlags(m_ID, flags);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_IMMUNITY))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_IMMUNITY);
+        // Now forward the event call
+        Core::Get().EmitVehicleImmunity(m_ID, current, flags);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

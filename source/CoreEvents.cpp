@@ -847,6 +847,14 @@ void Core::EmitVehicleWorld(Int32 vehicle_id, Int32 old_world, Int32 new_world)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_immunity)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
+    Emit(_vehicle.mOnImmunity, old_immunity, new_immunity);
+    Emit(mOnVehicleImmunity, _vehicle.mObj, old_immunity, new_immunity);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitServerOption(Int32 option, bool value, Int32 header, Object & payload)
 {
     if (m_CircularLocks & CCL_EMIT_SERVER_OPTION)

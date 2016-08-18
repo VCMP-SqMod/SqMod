@@ -13,7 +13,8 @@ namespace SqMod {
 enum VehicleCircularLocks
 {
     VEHICLECL_EMIT_VEHICLE_OPTION       = (1 << 0),
-    VEHICLECL_EMIT_VEHICLE_WORLD        = (2 << 0)
+    VEHICLECL_EMIT_VEHICLE_WORLD        = (2 << 0),
+    VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (3 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -259,7 +260,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the immunity flags of the managed vehicle entity.
     */
-    void SetImmunity(Int32 flags) const;
+    void SetImmunity(Int32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * Explode the managed vehicle entity.
