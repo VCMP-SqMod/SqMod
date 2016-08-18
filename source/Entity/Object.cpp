@@ -39,7 +39,7 @@ Object & CObject::GetNull()
 // ------------------------------------------------------------------------------------------------
 CObject::CObject(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_OBJECT_POOL))
-    , m_Tag(ToStrF("%d", id)), m_Data()
+    , m_Tag(ToStrF("%d", id)), m_Data(), m_CircularLocks(0)
     , mMoveToDuration(0)
     , mMoveByDuration(0)
     , mRotateToDuration(0)
@@ -184,12 +184,27 @@ Int32 CObject::GetWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetWorld(Int32 world) const
+void CObject::SetWorld(Int32 world)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetObjectWorld(m_ID);
+    // Don't even bother if it's the same value
+    if (current == world)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetObjectWorld(m_ID, world);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_WORLD))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, OBJECTCL_EMIT_OBJECT_WORLD);
+        // Now forward the event call
+        Core::Get().EmitObjectWorld(m_ID, current, world);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -693,6 +693,14 @@ void Core::EmitCheckpointRadius(Int32 checkpoint_id, Float32 old_radius, Float32
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitObjectWorld(Int32 object_id, Int32 old_world, Int32 new_world)
+{
+    ObjectInst & _object = m_Objects.at(object_id);
+    Emit(_object.mOnWorld, old_world, new_world);
+    Emit(mOnObjectWorld, _object.mObj, old_world, new_world);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health)
 {
     PlayerInst & _player = m_Players.at(player_id);

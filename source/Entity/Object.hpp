@@ -8,6 +8,14 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Circular locks employed by the object manager.
+*/
+enum ObjectCircularLocks
+{
+    OBJECTCL_EMIT_OBJECT_WORLD  = (1 << 0)
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Manages a single object entity.
 */
 class CObject
@@ -35,6 +43,11 @@ private:
      * User data associated with this instance.
     */
     Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Prevent events from triggering themselves.
+    */
+    Uint32  m_CircularLocks;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -212,7 +225,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the world in which the managed object entity exists.
     */
-    void SetWorld(Int32 world) const;
+    void SetWorld(Int32 world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the alpha of the managed object entity.
