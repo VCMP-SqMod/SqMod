@@ -290,7 +290,7 @@ Float32 CCheckpoint::GetRadius() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetRadius(Float32 radius) const
+void CCheckpoint::SetRadius(Float32 radius)
 {
     // Validate the managed identifier
     Validate();
