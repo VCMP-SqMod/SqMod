@@ -497,6 +497,7 @@ protected:
         Function        mOnOption;
         Function        mOnWorld;
         Function        mOnImmunity;
+        Function        mOnPartStatus;
     };
 
 public:
@@ -1019,6 +1020,7 @@ public:
     void EmitVehicleOption(Int32 vehicle_id, Int32 option_id, bool value, Int32 header, Object & payload);
     void EmitVehicleWorld(Int32 vehicle_id, Int32 old_world, Int32 new_world);
     void EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_immunity);
+    void EmitVehiclePartStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status);
     void EmitServerOption(Int32 option, bool value, Int32 header, Object & payload);
     void EmitScriptReload(Int32 header, Object & payload);
     void EmitScriptLoaded();
@@ -1167,6 +1169,7 @@ private:
     Function    mOnVehicleOption;
     Function    mOnVehicleWorld;
     Function    mOnVehicleImmunity;
+    Function    mOnVehiclePartStatus;
     Function    mOnServerOption;
     Function    mOnScriptReload;
     Function    mOnScriptLoaded;

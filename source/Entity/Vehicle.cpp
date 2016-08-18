@@ -865,12 +865,27 @@ Int32 CVehicle::GetPartStatus(Int32 part) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetPartStatus(Int32 part, Int32 status) const
+void CVehicle::SetPartStatus(Int32 part, Int32 status)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
-    _Func->SetVehiclePartStatus(m_ID, part, status);
+    // Grab the current value for this property
+    const Int32 current = _Func->GetVehiclePartStatus(m_ID);
+    // Don't even bother if it's the same value
+    if (current == status)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
+    _Func->SetVehiclePartStatus(m_ID, status);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_PARTSTATUS))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_PARTSTATUS);
+        // Now forward the event call
+        Core::Get().EmitVehiclePartStatus(m_ID, current, status);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -14,7 +14,8 @@ enum VehicleCircularLocks
 {
     VEHICLECL_EMIT_VEHICLE_OPTION       = (1 << 0),
     VEHICLECL_EMIT_VEHICLE_WORLD        = (2 << 0),
-    VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (3 << 0)
+    VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (3 << 0),
+    VEHICLECL_EMIT_VEHICLE_PARTSTATUS   = (4 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -530,7 +531,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the part status of the managed vehicle entity.
     */
-    void SetPartStatus(Int32 part, Int32 status) const;
+    void SetPartStatus(Int32 part, Int32 status);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the tyre status of the managed vehicle entity.

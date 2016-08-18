@@ -855,6 +855,14 @@ void Core::EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_i
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitVehiclePartStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
+    Emit(_vehicle.mOnPartStatus, old_status, new_status);
+    Emit(mOnVehiclePartStatus, _vehicle.mObj, old_status, new_status);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitServerOption(Int32 option, bool value, Int32 header, Object & payload)
 {
     if (m_CircularLocks & CCL_EMIT_SERVER_OPTION)
