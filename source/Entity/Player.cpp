@@ -208,10 +208,10 @@ void CPlayer::SetAdmin(bool toggle)
     // Avoid property unwind from a recursive call
     _Func->SetPlayerAdmin(m_ID, toggle);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PCL_EMIT_PLAYER_ADMIN))
+    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_ADMIN))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_ADMIN);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_ADMIN);
         // Now forward the event call
         Core::Get().EmitPlayerAdmin(m_ID, current, toggle);
     }
@@ -398,10 +398,10 @@ void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & p
         STHROWF("Invalid option identifier: %d", option_id);
     }
     // Avoid infinite recursive event loops
-    else if (!(m_CircularLocks & PCL_EMIT_PLAYER_OPTION))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_OPTION))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_OPTION);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_OPTION);
         // Now forward the event call
         Core::Get().EmitPlayerOption(m_ID, option_id, current, header, payload);
     }
@@ -431,10 +431,10 @@ void CPlayer::SetWorld(Int32 world)
     // Avoid property unwind from a recursive call
     _Func->SetPlayerWorld(m_ID, world);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PCL_EMIT_PLAYER_WORLD))
+    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WORLD))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_WORLD);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_WORLD);
         // Now forward the event call
         Core::Get().EmitPlayerWorld(m_ID, current, world, false);
     }
@@ -464,10 +464,10 @@ void CPlayer::SetSecondaryWorld(Int32 world)
     // Avoid property unwind from a recursive call
     _Func->SetPlayerSecondaryWorld(m_ID, world);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PCL_EMIT_PLAYER_WORLD))
+    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WORLD))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_WORLD);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_WORLD);
         // Now forward the event call
         Core::Get().EmitPlayerWorld(m_ID, current, world, true);
     }
@@ -527,10 +527,10 @@ void CPlayer::SetTeam(Int32 team)
         STHROWF("Invalid team identifier: %d", team);
     }
     // Avoid infinite recursive event loops
-    else if (!(m_CircularLocks & PCL_EMIT_PLAYER_TEAM))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_TEAM))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_TEAM);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_TEAM);
         // Now forward the event call
         Core::Get().EmitPlayerTeam(m_ID, current, team);
     }
@@ -563,10 +563,10 @@ void CPlayer::SetSkin(Int32 skin)
         STHROWF("Invalid skin identifier: %d", skin);
     }
     // Avoid infinite recursive event loops
-    else if (!(m_CircularLocks & PCL_EMIT_PLAYER_SKIN))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_SKIN))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_SKIN);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_SKIN);
         // Now forward the event call
         Core::Get().EmitPlayerSkin(m_ID, current, skin);
     }
@@ -663,10 +663,10 @@ void CPlayer::SetMoney(Int32 amount)
     // Avoid property unwind from a recursive call
     _Func->SetPlayerMoney(m_ID, amount);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PCL_EMIT_PLAYER_MONEY))
+    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_MONEY))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_MONEY);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_MONEY);
         // Now forward the event call
         Core::Get().EmitPlayerMoney(m_ID, current, amount);
     }
@@ -682,10 +682,10 @@ void CPlayer::GiveMoney(Int32 amount)
     // Avoid property unwind from a recursive call
     _Func->GivePlayerMoney(m_ID, amount);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PCL_EMIT_PLAYER_MONEY))
+    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_MONEY))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_MONEY);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_MONEY);
         // Now forward the event call
         Core::Get().EmitPlayerMoney(m_ID, current, current + amount);
     }
@@ -715,10 +715,10 @@ void CPlayer::SetScore(Int32 score)
     // Avoid property unwind from a recursive call
     _Func->SetPlayerScore(m_ID, score);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PCL_EMIT_PLAYER_SCORE))
+    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_SCORE))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_SCORE);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_SCORE);
         // Now forward the event call
         Core::Get().EmitPlayerScore(m_ID, current, score);
     }
@@ -748,10 +748,10 @@ void CPlayer::SetWantedLevel(Int32 level)
     // Avoid property unwind from a recursive call
     _Func->SetPlayerWantedLevel(m_ID, level);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PCL_EMIT_PLAYER_WANTED_LEVEL))
+    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WANTED_LEVEL))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_WANTED_LEVEL);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_WANTED_LEVEL);
         // Now forward the event call
         Core::Get().EmitPlayerWantedLevel(m_ID, current, level);
     }
@@ -830,10 +830,10 @@ void CPlayer::SetImmunity(Int32 flags)
     // Avoid property unwind from a recursive call
     _Func->SetPlayerImmunityFlags(m_ID, flags);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PCL_EMIT_PLAYER_IMMUNITY))
+    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_IMMUNITY))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_IMMUNITY);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_IMMUNITY);
         // Now forward the event call
         Core::Get().EmitPlayerImmunity(m_ID, current, flags);
     }
@@ -967,10 +967,10 @@ void CPlayer::SetAlphaEx(Int32 alpha, Int32 fade)
     // Avoid property unwind from a recursive call
     _Func->SetPlayerAlpha(m_ID, alpha, fade);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PCL_EMIT_PLAYER_ALPHA))
+    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_ALPHA))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, PCL_EMIT_PLAYER_ALPHA);
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_ALPHA);
         // Now forward the event call
         Core::Get().EmitPlayerAlpha(m_ID, current, alpha, fade);
     }

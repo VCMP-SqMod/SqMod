@@ -13,16 +13,16 @@ namespace SqMod {
 */
 enum PlayerCircularLocks
 {
-    PCL_EMIT_PLAYER_OPTION          = (1 << 0),
-    PCL_EMIT_PLAYER_ADMIN           = (2 << 0),
-    PCL_EMIT_PLAYER_WORLD           = (3 << 0),
-    PCL_EMIT_PLAYER_TEAM            = (4 << 0),
-    PCL_EMIT_PLAYER_SKIN            = (5 << 0),
-    PCL_EMIT_PLAYER_MONEY           = (6 << 0),
-    PCL_EMIT_PLAYER_SCORE           = (7 << 0),
-    PCL_EMIT_PLAYER_WANTED_LEVEL    = (8 << 0),
-    PCL_EMIT_PLAYER_IMMUNITY        = (9 << 0),
-    PCL_EMIT_PLAYER_ALPHA           = (10 << 0)
+    PLAYERCL_EMIT_PLAYER_OPTION          = (1 << 0),
+    PLAYERCL_EMIT_PLAYER_ADMIN           = (2 << 0),
+    PLAYERCL_EMIT_PLAYER_WORLD           = (3 << 0),
+    PLAYERCL_EMIT_PLAYER_TEAM            = (4 << 0),
+    PLAYERCL_EMIT_PLAYER_SKIN            = (5 << 0),
+    PLAYERCL_EMIT_PLAYER_MONEY           = (6 << 0),
+    PLAYERCL_EMIT_PLAYER_SCORE           = (7 << 0),
+    PLAYERCL_EMIT_PLAYER_WANTED_LEVEL    = (8 << 0),
+    PLAYERCL_EMIT_PLAYER_IMMUNITY        = (9 << 0),
+    PLAYERCL_EMIT_PLAYER_ALPHA           = (10 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
