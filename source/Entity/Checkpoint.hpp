@@ -12,7 +12,8 @@ namespace SqMod {
 */
 enum CheckpointCircularLocks
 {
-    CHECKPOINTCL_EMIT_CHECKPOINT_WORLD  = (1 << 0)
+    CHECKPOINTCL_EMIT_CHECKPOINT_WORLD  = (1 << 0),
+    CHECKPOINTCL_EMIT_CHECKPOINT_RADIUS = (2 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -255,7 +256,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the radius of the managed checkpoint entity.
     */
-    void SetRadius(Float32 radius) const;
+    void SetRadius(Float32 radius);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the owner of the managed checkpoint entity.

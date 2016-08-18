@@ -133,6 +133,7 @@ void Core::ResetFunc(CheckpointInst & inst)
     inst.mOnEntered.ReleaseGently();
     inst.mOnExited.ReleaseGently();
     inst.mOnWorld.ReleaseGently();
+    inst.mOnRadius.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -349,6 +350,7 @@ void Core::ResetFunc()
     Core::Get().mOnCheckpointEntered.ReleaseGently();
     Core::Get().mOnCheckpointExited.ReleaseGently();
     Core::Get().mOnCheckpointWorld.ReleaseGently();
+    Core::Get().mOnCheckpointRadius.ReleaseGently();
     Core::Get().mOnEntityPool.ReleaseGently();
     Core::Get().mOnClientScriptData.ReleaseGently();
     Core::Get().mOnPlayerUpdate.ReleaseGently();
@@ -472,6 +474,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_CHECKPOINTENTERED:     return mOnCheckpointEntered;
         case EVT_CHECKPOINTEXITED:      return mOnCheckpointExited;
         case EVT_CHECKPOINTWORLD:       return mOnCheckpointWorld;
+        case EVT_CHECKPOINTRADIUS:      return mOnCheckpointRadius;
         case EVT_ENTITYPOOL:            return mOnEntityPool;
         case EVT_CLIENTSCRIPTDATA:      return mOnClientScriptData;
         case EVT_PLAYERUPDATE:          return mOnPlayerUpdate;
@@ -535,6 +538,7 @@ Function & Core::GetCheckpointEvent(Int32 id, Int32 evid)
         case EVT_CHECKPOINTENTERED:     return inst.mOnEntered;
         case EVT_CHECKPOINTEXITED:      return inst.mOnExited;
         case EVT_CHECKPOINTWORLD:       return inst.mOnWorld;
+        case EVT_CHECKPOINTRADIUS:      return inst.mOnRadius;
         default:                        return NullFunction();
     }
 }

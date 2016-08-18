@@ -294,8 +294,18 @@ void CCheckpoint::SetRadius(Float32 radius) const
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Float32 current = _Func->GetCheckPointRadius(m_ID);
+    // Avoid property unwind from a recursive call
     _Func->SetCheckPointRadius(m_ID, radius);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & CHECKPOINTCL_EMIT_CHECKPOINT_RADIUS))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, CHECKPOINTCL_EMIT_CHECKPOINT_RADIUS);
+        // Now forward the event call
+        Core::Get().EmitCheckpointRadius(m_ID, current, radius);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
