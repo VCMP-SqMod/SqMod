@@ -870,21 +870,21 @@ void CVehicle::SetPartStatus(Int32 part, Int32 status)
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetVehiclePartStatus(m_ID);
+    const Int32 current = _Func->GetVehiclePartStatus(m_ID, part);
     // Don't even bother if it's the same value
     if (current == status)
     {
         return;
     }
     // Avoid property unwind from a recursive call
-    _Func->SetVehiclePartStatus(m_ID, status);
+    _Func->SetVehiclePartStatus(m_ID, part, status);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_PARTSTATUS))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_PARTSTATUS);
         // Now forward the event call
-        Core::Get().EmitVehiclePartStatus(m_ID, current, status);
+        Core::Get().EmitVehiclePartStatus(m_ID, part, current, status);
     }
 }
 
@@ -894,7 +894,7 @@ Int32 CVehicle::GetTyreStatus(Int32 tyre) const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->(m_ID, tyre);
+    return _Func->GetVehicleTyreStatus(m_ID, tyre);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -903,21 +903,21 @@ void CVehicle::SetTyreStatus(Int32 tyre, Int32 status)
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetVehicleTyreStatus(m_ID);
+    const Int32 current = _Func->GetVehicleTyreStatus(m_ID, tyre);
     // Don't even bother if it's the same value
     if (current == status)
     {
         return;
     }
     // Avoid property unwind from a recursive call
-    _Func->SetVehicleTyreStatus(m_ID, status);
+    _Func->SetVehicleTyreStatus(m_ID, tyre, status);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_TYRESTATUS))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_TYRESTATUS);
         // Now forward the event call
-        Core::Get().EmitVehicleTyreStatus(m_ID, current, status);
+        Core::Get().EmitVehicleTyreStatus(m_ID, tyre, current, status);
     }
 }
 
@@ -1059,7 +1059,7 @@ void CVehicle::SetHandlingRule(Int32 rule, Float32 data)
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_HANDLINGRULE);
         // Now forward the event call
-        Core::Get().EmitVehicleHandlingRule(m_ID, current, data);
+        Core::Get().EmitVehicleHandlingRule(m_ID, rule, current, data);
     }
 }
 
@@ -1078,7 +1078,7 @@ void CVehicle::ResetHandlingRule(Int32 rule)
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_HANDLINGRULE);
         // Now forward the event call
-        Core::Get().EmitVehicleHandlingRule(m_ID, current, _Func->GetInstHandlingRule(m_ID, rule));
+        Core::Get().EmitVehicleHandlingRule(m_ID, rule, current, _Func->GetInstHandlingRule(m_ID, rule));
     }
 }
 
@@ -1914,7 +1914,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
             (_SC("AddRelativeTurnSpeed"), &CVehicle::AddRelativeTurnSpeedEx)
         .Overload< void (CVehicle::*)(void) const >
             (_SC("ResetHandling"), &CVehicle::ResetHandlings)
-        .Overload< void (CVehicle::*)(Int32) const >
+        .Overload< void (CVehicle::*)(Int32) >
             (_SC("ResetHandling"), &CVehicle::ResetHandlingRule)
         .Overload< bool (CVehicle::*)(CPlayer &) const >
             (_SC("Embark"), &CVehicle::Embark)

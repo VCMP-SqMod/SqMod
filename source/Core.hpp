@@ -1024,11 +1024,11 @@ public:
     void EmitVehicleOption(Int32 vehicle_id, Int32 option_id, bool value, Int32 header, Object & payload);
     void EmitVehicleWorld(Int32 vehicle_id, Int32 old_world, Int32 new_world);
     void EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_immunity);
-    void EmitVehiclePartStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status);
-    void EmitVehicleTyreStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status);
+    void EmitVehiclePartStatus(Int32 vehicle_id, Int32 part, Int32 old_status, Int32 new_status);
+    void EmitVehicleTyreStatus(Int32 vehicle_id, Int32 tyre, Int32 old_status, Int32 new_status);
     void EmitVehicleDamageData(Int32 vehicle_id, Uint32 old_data, Uint32 new_data);
     void EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio);
-    void EmitVehicleHandlingRule(Int32 vehicle_id, Float32 old_data, Float32 new_data);
+    void EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, Float32 old_data, Float32 new_data);
     void EmitServerOption(Int32 option, bool value, Int32 header, Object & payload);
     void EmitScriptReload(Int32 header, Object & payload);
     void EmitScriptLoaded();

@@ -855,19 +855,19 @@ void Core::EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_i
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehiclePartStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status)
+void Core::EmitVehiclePartStatus(Int32 vehicle_id, Int32 part, Int32 old_status, Int32 new_status)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnPartStatus, old_status, new_status);
-    Emit(mOnVehiclePartStatus, _vehicle.mObj, old_status, new_status);
+    Emit(_vehicle.mOnPartStatus, part, old_status, new_status);
+    Emit(mOnVehiclePartStatus, _vehicle.mObj, part, old_status, new_status);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleTyreStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status)
+void Core::EmitVehicleTyreStatus(Int32 vehicle_id, Int32 tyre, Int32 old_status, Int32 new_status)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnTyreStatus, old_status, new_status);
-    Emit(mOnVehicleTyreStatus, _vehicle.mObj, old_status, new_status);
+    Emit(_vehicle.mOnTyreStatus, tyre, old_status, new_status);
+    Emit(mOnVehicleTyreStatus, _vehicle.mObj, tyre, old_status, new_status);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -887,11 +887,11 @@ void Core::EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleHandlingRule(Int32 vehicle_id, Float32 old_data, Float32 new_data)
+void Core::EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, Float32 old_data, Float32 new_data)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnHandlingRule, old_data, new_data);
-    Emit(mOnVehicleHandlingRule, _vehicle.mObj, old_data, new_data);
+    Emit(_vehicle.mOnHandlingRule, rule, old_data, new_data);
+    Emit(mOnVehicleHandlingRule, _vehicle.mObj, rule, old_data, new_data);
 }
 
 // ------------------------------------------------------------------------------------------------
