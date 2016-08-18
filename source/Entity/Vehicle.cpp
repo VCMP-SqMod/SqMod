@@ -1045,21 +1045,41 @@ Float32 CVehicle::GetHandlingRule(Int32 rule) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetHandlingRule(Int32 rule, Float32 data) const
+void CVehicle::SetHandlingRule(Int32 rule, Float32 data)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Float32 current = _Func->GetInstHandlingRule(m_ID, rule);
+    // Avoid property unwind from a recursive call
     _Func->SetInstHandlingRule(m_ID, rule, data);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_HANDLINGRULE))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_HANDLINGRULE);
+        // Now forward the event call
+        Core::Get().EmitVehicleHandlingRule(m_ID, current, data);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::ResetHandlingRule(Int32 rule) const
+void CVehicle::ResetHandlingRule(Int32 rule)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Float32 current = _Func->GetInstHandlingRule(m_ID, rule);
+    // Avoid property unwind from a recursive call
     _Func->ResetInstHandlingRule(m_ID, rule);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_HANDLINGRULE))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_HANDLINGRULE);
+        // Now forward the event call
+        Core::Get().EmitVehicleHandlingRule(m_ID, current, _Func->GetInstHandlingRule(m_ID, rule));
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

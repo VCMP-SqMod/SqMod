@@ -18,7 +18,8 @@ enum VehicleCircularLocks
     VEHICLECL_EMIT_VEHICLE_PARTSTATUS   = (4 << 0),
     VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (5 << 0),
     VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (6 << 0),
-    VEHICLECL_EMIT_VEHICLE_RADIO        = (7 << 0)
+    VEHICLECL_EMIT_VEHICLE_RADIO        = (7 << 0),
+    VEHICLECL_EMIT_VEHICLE_HANDLINGRULE = (8 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -594,12 +595,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the handling data of the managed vehicle entity.
     */
-    void SetHandlingRule(Int32 rule, Float32 data) const;
+    void SetHandlingRule(Int32 rule, Float32 data);
 
     /* --------------------------------------------------------------------------------------------
      * Reset the specified handling rule for the managed vehicle entity.
     */
-    void ResetHandlingRule(Int32 rule) const;
+    void ResetHandlingRule(Int32 rule);
 
     /* --------------------------------------------------------------------------------------------
      * Reset all the handling rules for the managed vehicle entity.

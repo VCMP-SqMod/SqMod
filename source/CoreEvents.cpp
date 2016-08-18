@@ -885,6 +885,15 @@ void Core::EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio)
     Emit(_vehicle.mOnRadio, old_radio, new_radio);
     Emit(mOnVehicleRadio, _vehicle.mObj, old_radio, new_radio);
 }
+
+// ------------------------------------------------------------------------------------------------
+void Core::EmitVehicleHandlingRule(Int32 vehicle_id, Float32 old_data, Float32 new_data)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
+    Emit(_vehicle.mOnHandlingRule, old_data, new_data);
+    Emit(mOnVehicleHandlingRule, _vehicle.mObj, old_data, new_data);
+}
+
 // ------------------------------------------------------------------------------------------------
 void Core::EmitServerOption(Int32 option, bool value, Int32 header, Object & payload)
 {

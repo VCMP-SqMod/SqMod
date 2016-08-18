@@ -260,6 +260,7 @@ void Core::ResetFunc(VehicleInst & inst)
     inst.mOnTyreStatus.ReleaseGently();
     inst.mOnDamageData.ReleaseGently();
     inst.mOnRadio.ReleaseGently();
+    inst.mOnHandlingRule.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -376,6 +377,7 @@ void Core::ResetFunc()
     Core::Get().mOnVehicleTyreStatus.ReleaseGently();
     Core::Get().mOnVehicleDamageData.ReleaseGently();
     Core::Get().mOnVehicleRadio.ReleaseGently();
+    Core::Get().mOnVehicleHandlingRule.ReleaseGently();
     Core::Get().mOnServerOption.ReleaseGently();
     Core::Get().mOnScriptReload.ReleaseGently();
     Core::Get().mOnScriptLoaded.ReleaseGently();
@@ -497,6 +499,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_VEHICLETYRESTATUS:     return mOnVehicleTyreStatus;
         case EVT_VEHICLEDAMAGEDATA:     return mOnVehicleDamageData;
         case EVT_VEHICLERADIO:          return mOnVehicleRadio;
+        case EVT_VEHICLEHANDLINGRULE:   return mOnVehicleHandlingRule;
         case EVT_SERVEROPTION:          return mOnServerOption;
         case EVT_SCRIPTRELOAD:          return mOnScriptReload;
         case EVT_SCRIPTLOADED:          return mOnScriptLoaded;
@@ -685,6 +688,7 @@ Function & Core::GetVehicleEvent(Int32 id, Int32 evid)
         case EVT_VEHICLETYRESTATUS:     return inst.mOnTyreStatus;
         case EVT_VEHICLEDAMAGEDATA:     return inst.mOnDamageData;
         case EVT_VEHICLERADIO:          return inst.mOnRadio;
+        case EVT_VEHICLEHANDLINGRULE:   return inst.mOnHandlingRule;
         default:                        return NullFunction();
     }
 }
