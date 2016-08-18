@@ -16,7 +16,8 @@ enum VehicleCircularLocks
     VEHICLECL_EMIT_VEHICLE_WORLD        = (2 << 0),
     VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (3 << 0),
     VEHICLECL_EMIT_VEHICLE_PARTSTATUS   = (4 << 0),
-    VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (5 << 0)
+    VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (5 << 0),
+    VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (6 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -552,7 +553,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the damage data of the managed vehicle entity.
     */
-    void SetDamageData(Uint32 data) const;
+    void SetDamageData(Uint32 data);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the radio of the managed vehicle entity.

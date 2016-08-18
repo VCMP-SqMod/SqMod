@@ -931,12 +931,27 @@ Uint32 CVehicle::GetDamageData() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetDamageData(Uint32 data) const
+void CVehicle::SetDamageData(Uint32 data)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Uint32 current = _Func->GetVehicleDamageData(m_ID);
+    // Don't even bother if it's the same value
+    if (current == data)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetVehicleDamageData(m_ID, data);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_DAMAGEDATA))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_DAMAGEDATA);
+        // Now forward the event call
+        Core::Get().EmitVehicleDamageData(m_ID, current, data);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
