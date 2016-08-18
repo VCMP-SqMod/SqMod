@@ -119,6 +119,8 @@ static const EnumElement g_EventEnum[] = {
     {_SC("PickupRespawn"),              EVT_PICKUPRESPAWN},
     {_SC("CheckpointEntered"),          EVT_CHECKPOINTENTERED},
     {_SC("CheckpointExited"),           EVT_CHECKPOINTEXITED},
+    {_SC("CheckpointWorld"),            EVT_CHECKPOINTWORLD},
+    {_SC("CheckpointRadius"),           EVT_CHECKPOINTRADIUS},
     {_SC("EntityPool"),                 EVT_ENTITYPOOL},
     {_SC("ClientScriptData"),           EVT_CLIENTSCRIPTDATA},
     {_SC("PlayerUpdate"),               EVT_PLAYERUPDATE},
