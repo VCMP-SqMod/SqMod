@@ -9,13 +9,46 @@ extern bool GetReloadStatus();
 extern void SetReloadStatus(bool toggle);
 
 // ------------------------------------------------------------------------------------------------
-static void BindEvent(Int32 id, Object & env, Function & func)
+static SQInteger SqLoadScript(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the delay option specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing delay parameter");
+    }
+    // Was the script path specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing script path");
+    }
+    // Whether the script execution is delayed
+    SQBool delay = SQFalse;
+    // Attempt to generate the string value
+    StackStrF val(vm, 3);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    else if (SQ_FAILED(sq_getbool(vm, 2, &delay)))
+    {
+        return sq_throwerror(vm, "Failed to retrieve the delay parameter");
+    }
+    // Forward the call to the actual implementation
+    sq_pushbool(vm, Core::Get().LoadScript(val.mPtr, static_cast< bool >(delay)));
+    // We have an argument on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqBindEvent(Int32 id, Object & env, Function & func)
 {
     Core::Get().BindEvent(id, env, func);
 }
 
 // ------------------------------------------------------------------------------------------------
-static void CustomEvent(Int32 group, Int32 header, Object & payload)
+static void SqCustomEvent(Int32 group, Int32 header, Object & payload)
 {
     Core::Get().EmitCustomEvent(group, header, payload);
 }
@@ -250,8 +283,8 @@ void Register_Core(HSQUIRRELVM vm)
 {
     RootTable(vm)
     .Bind(_SC("SqCore"), Table(vm)
-        .Func(_SC("Bind"), &BindEvent)
-        .Func(_SC("CustomEvent"), &CustomEvent)
+        .Func(_SC("Bind"), &SqBindEvent)
+        .Func(_SC("CustomEvent"), &SqCustomEvent)
         .Func(_SC("Reload"), &SqSetReloadStatus)
         .Func(_SC("Reloading"), &SqGetReloadStatus)
         .Func(_SC("ReloadBecause"), &SqReloadBecause)
@@ -276,6 +309,7 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("DestroyObject"), &DelObject)
         .Func(_SC("DestroyPickup"), &DelPickup)
         .Func(_SC("DestroyVehicle"), &DelVehicle)
+        .SquirrelFunc(_SC("LoadScript"), &SqLoadScript)
     );
 }
 
