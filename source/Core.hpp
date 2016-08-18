@@ -996,8 +996,8 @@ public:
     void EmitPickupClaimed(Int32 pickup_id, Int32 player_id);
     void EmitPickupCollected(Int32 pickup_id, Int32 player_id);
     void EmitPickupRespawn(Int32 pickup_id);
-    void EmitCheckpointEntered(Int32 forcefield_id, Int32 player_id);
-    void EmitCheckpointExited(Int32 forcefield_id, Int32 player_id);
+    void EmitCheckpointEntered(Int32 checkpoint_id, Int32 player_id);
+    void EmitCheckpointExited(Int32 checkpoint_id, Int32 player_id);
 
     /* --------------------------------------------------------------------------------------------
      * Miscellaneous events.
