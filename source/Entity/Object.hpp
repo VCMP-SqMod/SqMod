@@ -13,7 +13,8 @@ namespace SqMod {
 enum ObjectCircularLocks
 {
     OBJECTCL_EMIT_OBJECT_WORLD  = (1 << 0),
-    OBJECTCL_EMIT_OBJECT_ALPHA  = (2 << 0)
+    OBJECTCL_EMIT_OBJECT_ALPHA  = (2 << 0),
+    OBJECTCL_EMIT_OBJECT_REPORT = (3 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -336,7 +337,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set whether the managed object entity reports gunshots.
     */
-    void SetShotReport(bool toggle) const;
+    void SetShotReport(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed object entity reports player bumps.
@@ -346,7 +347,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set whether the managed object entity reports player bumps.
     */
-    void SetTouchedReport(bool toggle) const;
+    void SetTouchedReport(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed object entity.

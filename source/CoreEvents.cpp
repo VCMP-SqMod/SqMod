@@ -709,6 +709,14 @@ void Core::EmitObjectAlpha(Int32 object_id, Int32 old_alpha, Int32 new_alpha, In
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitObjectReport(Int32 object_id, bool old_status, bool new_status, bool touched)
+{
+    ObjectInst & _object = m_Objects.at(object_id);
+    Emit(_object.mOnReport, old_status, new_status, touched);
+    Emit(mOnObjectReport, _object.mObj, old_status, new_status, touched);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health)
 {
     PlayerInst & _player = m_Players.at(player_id);

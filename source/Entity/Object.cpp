@@ -421,12 +421,27 @@ bool CObject::GetShotReport() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetShotReport(bool toggle) const
+void CObject::SetShotReport(bool toggle)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const bool current = _Func->IsObjectShotReportEnabled(m_ID);
+    // Don't even bother if it's the same value
+    if (current == toggle)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetObjectShotReportEnabled(m_ID, toggle);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_REPORT))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, OBJECTCL_EMIT_OBJECT_REPORT);
+        // Now forward the event call
+        Core::Get().EmitObjectReport(m_ID, current, toggle, false);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -439,12 +454,27 @@ bool CObject::GetTouchedReport() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetTouchedReport(bool toggle) const
+void CObject::SetTouchedReport(bool toggle)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const bool current = _Func->IsObjectTouchedReportEnabled(m_ID);
+    // Don't even bother if it's the same value
+    if (current == toggle)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetObjectTouchedReportEnabled(m_ID, toggle);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_REPORT))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, OBJECTCL_EMIT_OBJECT_REPORT);
+        // Now forward the event call
+        Core::Get().EmitObjectReport(m_ID, current, toggle, true);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

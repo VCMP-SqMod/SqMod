@@ -154,6 +154,7 @@ void Core::ResetFunc(ObjectInst & inst)
     inst.mOnTouched.ReleaseGently();
     inst.mOnWorld.ReleaseGently();
     inst.mOnAlpha.ReleaseGently();
+    inst.mOnReport.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -348,6 +349,7 @@ void Core::ResetFunc()
     Core::Get().mOnObjectTouched.ReleaseGently();
     Core::Get().mOnObjectWorld.ReleaseGently();
     Core::Get().mOnObjectAlpha.ReleaseGently();
+    Core::Get().mOnObjectReport.ReleaseGently();
     Core::Get().mOnPickupClaimed.ReleaseGently();
     Core::Get().mOnPickupCollected.ReleaseGently();
     Core::Get().mOnPickupRespawn.ReleaseGently();
@@ -474,6 +476,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_OBJECTTOUCHED:         return mOnObjectTouched;
         case EVT_OBJECTWORLD:           return mOnObjectWorld;
         case EVT_OBJECTALPHA:           return mOnObjectAlpha;
+        case EVT_OBJECTREPORT:          return mOnObjectReport;
         case EVT_PICKUPCLAIMED:         return mOnPickupClaimed;
         case EVT_PICKUPCOLLECTED:       return mOnPickupCollected;
         case EVT_PICKUPRESPAWN:         return mOnPickupRespawn;
@@ -578,6 +581,7 @@ Function & Core::GetObjectEvent(Int32 id, Int32 evid)
         case EVT_OBJECTTOUCHED:         return inst.mOnTouched;
         case EVT_OBJECTWORLD:           return inst.mOnWorld;
         case EVT_OBJECTALPHA:           return inst.mOnAlpha;
+        case EVT_OBJECTREPORT:          return inst.mOnReport;
         default:                        return NullFunction();
     }
 }
