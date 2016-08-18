@@ -500,6 +500,7 @@ protected:
         Function        mOnPartStatus;
         Function        mOnTyreStatus;
         Function        mOnDamageData;
+        Function        mOnRadio;
     };
 
 public:
@@ -1025,6 +1026,7 @@ public:
     void EmitVehiclePartStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status);
     void EmitVehicleTyreStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status);
     void EmitVehicleDamageData(Int32 vehicle_id, Uint32 old_data, Uint32 new_data);
+    void EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio);
     void EmitServerOption(Int32 option, bool value, Int32 header, Object & payload);
     void EmitScriptReload(Int32 header, Object & payload);
     void EmitScriptLoaded();
@@ -1176,6 +1178,7 @@ private:
     Function    mOnVehiclePartStatus;
     Function    mOnVehicleTyreStatus;
     Function    mOnVehicleDamageData;
+    Function    mOnVehicleRadio;
     Function    mOnServerOption;
     Function    mOnScriptReload;
     Function    mOnScriptLoaded;

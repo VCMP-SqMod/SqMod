@@ -964,12 +964,27 @@ Int32 CVehicle::GetRadio() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetRadio(Int32 radio) const
+void CVehicle::SetRadio(Int32 radio)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetVehicleRadio(m_ID);
+    // Don't even bother if it's the same value
+    if (current == radio)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetVehicleRadio(m_ID, radio);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_RADIO))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_RADIO);
+        // Now forward the event call
+        Core::Get().EmitVehicleRadio(m_ID, current, radio);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

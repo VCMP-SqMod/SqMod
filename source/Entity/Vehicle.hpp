@@ -17,7 +17,8 @@ enum VehicleCircularLocks
     VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (3 << 0),
     VEHICLECL_EMIT_VEHICLE_PARTSTATUS   = (4 << 0),
     VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (5 << 0),
-    VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (6 << 0)
+    VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (6 << 0),
+    VEHICLECL_EMIT_VEHICLE_RADIO        = (7 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -563,7 +564,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the radio of the managed vehicle entity.
     */
-    void SetRadio(Int32 radio) const;
+    void SetRadio(Int32 radio);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the turret rotation of the managed vehicle entity.

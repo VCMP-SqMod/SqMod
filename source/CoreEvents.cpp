@@ -879,6 +879,13 @@ void Core::EmitVehicleDamageData(Int32 vehicle_id, Uint32 old_data, Uint32 new_d
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
+    Emit(_vehicle.mOnRadio, old_radio, new_radio);
+    Emit(mOnVehicleRadio, _vehicle.mObj, old_radio, new_radio);
+}
+// ------------------------------------------------------------------------------------------------
 void Core::EmitServerOption(Int32 option, bool value, Int32 header, Object & payload)
 {
     if (m_CircularLocks & CCL_EMIT_SERVER_OPTION)
