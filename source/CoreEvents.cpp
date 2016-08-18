@@ -863,6 +863,14 @@ void Core::EmitVehiclePartStatus(Int32 vehicle_id, Int32 old_status, Int32 new_s
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitVehicleTyreStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
+    Emit(_vehicle.mOnTyreStatus, old_status, new_status);
+    Emit(mOnVehicleTyreStatus, _vehicle.mObj, old_status, new_status);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitServerOption(Int32 option, bool value, Int32 header, Object & payload)
 {
     if (m_CircularLocks & CCL_EMIT_SERVER_OPTION)

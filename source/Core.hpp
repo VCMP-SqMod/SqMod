@@ -498,6 +498,7 @@ protected:
         Function        mOnWorld;
         Function        mOnImmunity;
         Function        mOnPartStatus;
+        Function        mOnTyreStatus;
     };
 
 public:
@@ -1021,6 +1022,7 @@ public:
     void EmitVehicleWorld(Int32 vehicle_id, Int32 old_world, Int32 new_world);
     void EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_immunity);
     void EmitVehiclePartStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status);
+    void EmitVehicleTyreStatus(Int32 vehicle_id, Int32 old_status, Int32 new_status);
     void EmitServerOption(Int32 option, bool value, Int32 header, Object & payload);
     void EmitScriptReload(Int32 header, Object & payload);
     void EmitScriptLoaded();
@@ -1170,6 +1172,7 @@ private:
     Function    mOnVehicleWorld;
     Function    mOnVehicleImmunity;
     Function    mOnVehiclePartStatus;
+    Function    mOnVehicleTyreStatus;
     Function    mOnServerOption;
     Function    mOnScriptReload;
     Function    mOnScriptLoaded;

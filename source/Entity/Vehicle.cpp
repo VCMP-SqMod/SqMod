@@ -894,16 +894,31 @@ Int32 CVehicle::GetTyreStatus(Int32 tyre) const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetVehicleTyreStatus(m_ID, tyre);
+    return _Func->(m_ID, tyre);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetTyreStatus(Int32 tyre, Int32 status) const
+void CVehicle::SetTyreStatus(Int32 tyre, Int32 status)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
-    _Func->SetVehicleTyreStatus(m_ID, tyre, status);
+    // Grab the current value for this property
+    const Int32 current = _Func->GetVehicleTyreStatus(m_ID);
+    // Don't even bother if it's the same value
+    if (current == status)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
+    _Func->SetVehicleTyreStatus(m_ID, status);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_TYRESTATUS))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_TYRESTATUS);
+        // Now forward the event call
+        Core::Get().EmitVehicleTyreStatus(m_ID, current, status);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

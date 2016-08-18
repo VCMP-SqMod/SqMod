@@ -257,6 +257,7 @@ void Core::ResetFunc(VehicleInst & inst)
     inst.mOnWorld.ReleaseGently();
     inst.mOnImmunity.ReleaseGently();
     inst.mOnPartStatus.ReleaseGently();
+    inst.mOnTyreStatus.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -370,6 +371,7 @@ void Core::ResetFunc()
     Core::Get().mOnVehicleWorld.ReleaseGently();
     Core::Get().mOnVehicleImmunity.ReleaseGently();
     Core::Get().mOnVehiclePartStatus.ReleaseGently();
+    Core::Get().mOnVehicleTyreStatus.ReleaseGently();
     Core::Get().mOnServerOption.ReleaseGently();
     Core::Get().mOnScriptReload.ReleaseGently();
     Core::Get().mOnScriptLoaded.ReleaseGently();
@@ -488,6 +490,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_VEHICLEWORLD:          return mOnVehicleWorld;
         case EVT_VEHICLEIMMUNITY:       return mOnVehicleImmunity;
         case EVT_VEHICLEPARTSTATUS:     return mOnVehiclePartStatus;
+        case EVT_VEHICLETYRESTATUS:     return mOnVehicleTyreStatus;
         case EVT_SERVEROPTION:          return mOnServerOption;
         case EVT_SCRIPTRELOAD:          return mOnScriptReload;
         case EVT_SCRIPTLOADED:          return mOnScriptLoaded;
@@ -673,6 +676,7 @@ Function & Core::GetVehicleEvent(Int32 id, Int32 evid)
         case EVT_VEHICLEWORLD:          return inst.mOnWorld;
         case EVT_VEHICLEIMMUNITY:       return inst.mOnImmunity;
         case EVT_VEHICLEPARTSTATUS:     return inst.mOnPartStatus;
+        case EVT_VEHICLETYRESTATUS:     return inst.mOnTyreStatus;
         default:                        return NullFunction();
     }
 }
