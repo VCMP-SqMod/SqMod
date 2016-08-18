@@ -286,15 +286,6 @@ bool Core::Initialize()
         return false; // Can't execute scripts without a valid API!
     }
 
-    // Create the null entity instances
-    m_NullBlip = Object(new CBlip(-1));
-    m_NullCheckpoint = Object(new CCheckpoint(-1));
-    m_NullKeybind = Object(new CKeybind(-1));
-    m_NullObject = Object(new CObject(-1));
-    m_NullPickup = Object(new CPickup(-1));
-    m_NullPlayer = Object(new CPlayer(-1));
-    m_NullVehicle = Object(new CVehicle(-1));
-
     CSimpleIniA::TNamesDepend scripts;
     // Attempt to retrieve the list of keys to make sure there's actually something to process
     if (conf.GetAllKeys("Scripts", scripts) && scripts.size() > 0)
@@ -431,6 +422,15 @@ bool Core::Execute()
 
         LogScs("Successfully executed script: %s", s.mPath.c_str());
     }
+
+    // Create the null entity instances
+    m_NullBlip = Object(new CBlip(-1));
+    m_NullCheckpoint = Object(new CCheckpoint(-1));
+    m_NullKeybind = Object(new CKeybind(-1));
+    m_NullObject = Object(new CObject(-1));
+    m_NullPickup = Object(new CPickup(-1));
+    m_NullPlayer = Object(new CPlayer(-1));
+    m_NullVehicle = Object(new CVehicle(-1));
 
     // Notify the script callback that the scripts were loaded
     EmitScriptLoaded();
