@@ -701,6 +701,14 @@ void Core::EmitObjectWorld(Int32 object_id, Int32 old_world, Int32 new_world)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitObjectAlpha(Int32 object_id, Int32 old_alpha, Int32 new_alpha, Int32 time)
+{
+    ObjectInst & _object = m_Objects.at(object_id);
+    Emit(_object.mOnAlpha, old_alpha, new_alpha, time);
+    Emit(mOnObjectAlpha, _object.mObj, old_alpha, new_alpha, time);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health)
 {
     PlayerInst & _player = m_Players.at(player_id);

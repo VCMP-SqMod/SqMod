@@ -256,6 +256,7 @@ protected:
         Function        mOnShot;
         Function        mOnTouched;
         Function        mOnWorld;
+        Function        mOnAlpha;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -1008,6 +1009,7 @@ public:
     void EmitCheckpointWorld(Int32 checkpoint_id, Int32 old_world, Int32 new_world);
     void EmitCheckpointRadius(Int32 checkpoint_id, Float32 old_radius, Float32 new_radius);
     void EmitObjectWorld(Int32 object_id, Int32 old_world, Int32 new_world);
+    void EmitObjectAlpha(Int32 object_id, Int32 old_alpha, Int32 new_alpha, Int32 time);
     void EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health);
     void EmitPlayerArmour(Int32 player_id, Float32 old_armour, Float32 new_armour);
     void EmitPlayerWeapon(Int32 player_id, Int32 old_weapon, Int32 new_weapon);
@@ -1153,6 +1155,7 @@ private:
     Function    mOnObjectShot;
     Function    mOnObjectTouched;
     Function    mOnObjectWorld;
+    Function    mOnObjectAlpha;
     Function    mOnPickupClaimed;
     Function    mOnPickupCollected;
     Function    mOnPickupRespawn;

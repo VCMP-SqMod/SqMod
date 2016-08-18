@@ -217,21 +217,33 @@ Int32 CObject::GetAlpha() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetAlpha(Int32 alpha) const
+void CObject::SetAlpha(Int32 alpha)
 {
-    // Validate the managed identifier
-    Validate();
-    // Perform the requested operation
-    _Func->SetObjectAlpha(m_ID, alpha, 0);
+    SetAlphaEx(alpha, 0);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetAlphaEx(Int32 alpha, Uint32 time) const
+void CObject::SetAlphaEx(Int32 alpha, Uint32 time)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetObjectAlpha(m_ID);
+    // Don't even bother if it's the same value
+    if (current == alpha)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetObjectAlpha(m_ID, alpha, time);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_ALPHA))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, OBJECTCL_EMIT_OBJECT_ALPHA);
+        // Now forward the event call
+        Core::Get().EmitObjectAlpha(m_ID, current, alpha, time);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -12,7 +12,8 @@ namespace SqMod {
 */
 enum ObjectCircularLocks
 {
-    OBJECTCL_EMIT_OBJECT_WORLD  = (1 << 0)
+    OBJECTCL_EMIT_OBJECT_WORLD  = (1 << 0),
+    OBJECTCL_EMIT_OBJECT_ALPHA  = (2 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -235,12 +236,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the alpha of the managed object entity.
     */
-    void SetAlpha(Int32 alpha) const;
+    void SetAlpha(Int32 alpha);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the alpha of the managed object entity over the specified time.
     */
-    void SetAlphaEx(Int32 alpha, Uint32 time) const;
+    void SetAlphaEx(Int32 alpha, Uint32 time);
 
     /* --------------------------------------------------------------------------------------------
      * Move the managed object entity to the specified position over the specified time.
