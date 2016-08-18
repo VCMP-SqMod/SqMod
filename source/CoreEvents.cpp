@@ -677,6 +677,14 @@ void Core::EmitCheckpointExited(Int32 checkpoint_id, Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitCheckpointWorld(Int32 checkpoint_id, Int32 old_world, Int32 new_world)
+{
+    CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint_id);
+    Emit(_checkpoint.mOnWorld, old_world, new_world);
+    Emit(mOnCheckpointWorld, _checkpoint.mObj, old_world, new_world);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health)
 {
     PlayerInst & _player = m_Players.at(player_id);

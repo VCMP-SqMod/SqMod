@@ -8,6 +8,14 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Circular locks employed by the checkpoint manager.
+*/
+enum CheckpointCircularLocks
+{
+    CHECKPOINTCL_EMIT_CHECKPOINT_WORLD  = (1 << 0)
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Manages a single checkpoint entity.
 */
 class CCheckpoint
@@ -38,6 +46,11 @@ private:
      * User data associated with this instance.
     */
     Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Prevent events from triggering themselves.
+    */
+    Uint32  m_CircularLocks;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -197,7 +210,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the world in which the managed checkpoint entity exists.
     */
-    void SetWorld(Int32 world) const;
+    void SetWorld(Int32 world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the color of the managed checkpoint entity.

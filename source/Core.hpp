@@ -159,6 +159,7 @@ protected:
         // ----------------------------------------------------------------------------------------
         Function        mOnEntered;
         Function        mOnExited;
+        Function        mOnWorld;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -1002,6 +1003,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Miscellaneous events.
     */
+    void EmitCheckpointWorld(Int32 checkpoint_id, Int32 old_world, Int32 new_world);
     void EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health);
     void EmitPlayerArmour(Int32 player_id, Float32 old_armour, Float32 new_armour);
     void EmitPlayerWeapon(Int32 player_id, Int32 old_weapon, Int32 new_weapon);
@@ -1151,6 +1153,7 @@ private:
     Function    mOnPickupRespawn;
     Function    mOnCheckpointEntered;
     Function    mOnCheckpointExited;
+    Function    mOnCheckpointWorld;
     Function    mOnEntityPool;
     Function    mOnClientScriptData;
     Function    mOnPlayerUpdate;

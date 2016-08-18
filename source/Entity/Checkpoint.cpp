@@ -45,7 +45,7 @@ Object & CCheckpoint::GetNull()
 // ------------------------------------------------------------------------------------------------
 CCheckpoint::CCheckpoint(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_CHECKPOINT_POOL))
-    , m_Tag(ToStrF("%d", id))
+    , m_Tag(ToStrF("%d", id)), m_Data(), m_CircularLocks(0)
 {
     /* ... */
 }
@@ -184,12 +184,27 @@ Int32 CCheckpoint::GetWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetWorld(Int32 world) const
+void CCheckpoint::SetWorld(Int32 world)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetCheckPointWorld(m_ID);
+    // Don't even bother if it's the same value
+    if (current == world)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetCheckPointWorld(m_ID, world);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & CHECKPOINTCL_EMIT_CHECKPOINT_WORLD))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, CHECKPOINTCL_EMIT_CHECKPOINT_WORLD);
+        // Now forward the event call
+        Core::Get().EmitCheckpointWorld(m_ID, current, world);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

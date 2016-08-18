@@ -132,6 +132,7 @@ void Core::ResetFunc(CheckpointInst & inst)
     inst.mOnCustom.ReleaseGently();
     inst.mOnEntered.ReleaseGently();
     inst.mOnExited.ReleaseGently();
+    inst.mOnWorld.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -347,6 +348,7 @@ void Core::ResetFunc()
     Core::Get().mOnPickupRespawn.ReleaseGently();
     Core::Get().mOnCheckpointEntered.ReleaseGently();
     Core::Get().mOnCheckpointExited.ReleaseGently();
+    Core::Get().mOnCheckpointWorld.ReleaseGently();
     Core::Get().mOnEntityPool.ReleaseGently();
     Core::Get().mOnClientScriptData.ReleaseGently();
     Core::Get().mOnPlayerUpdate.ReleaseGently();
@@ -469,6 +471,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_PICKUPRESPAWN:         return mOnPickupRespawn;
         case EVT_CHECKPOINTENTERED:     return mOnCheckpointEntered;
         case EVT_CHECKPOINTEXITED:      return mOnCheckpointExited;
+        case EVT_CHECKPOINTWORLD:       return mOnCheckpointWorld;
         case EVT_ENTITYPOOL:            return mOnEntityPool;
         case EVT_CLIENTSCRIPTDATA:      return mOnClientScriptData;
         case EVT_PLAYERUPDATE:          return mOnPlayerUpdate;
@@ -531,6 +534,7 @@ Function & Core::GetCheckpointEvent(Int32 id, Int32 evid)
         case EVT_CHECKPOINTCUSTOM:      return inst.mOnCustom;
         case EVT_CHECKPOINTENTERED:     return inst.mOnEntered;
         case EVT_CHECKPOINTEXITED:      return inst.mOnExited;
+        case EVT_CHECKPOINTWORLD:       return inst.mOnWorld;
         default:                        return NullFunction();
     }
 }
