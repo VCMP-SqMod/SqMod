@@ -495,6 +495,7 @@ protected:
         Function        mOnPosition;
         Function        mOnRotation;
         Function        mOnOption;
+        Function        mOnWorld;
     };
 
 public:
@@ -1015,6 +1016,7 @@ public:
     void EmitVehiclePosition(Int32 vehicle_id);
     void EmitVehicleRotation(Int32 vehicle_id);
     void EmitVehicleOption(Int32 vehicle_id, Int32 option_id, bool value, Int32 header, Object & payload);
+    void EmitVehicleWorld(Int32 vehicle_id, Int32 old_world, Int32 new_world);
     void EmitServerOption(Int32 option, bool value, Int32 header, Object & payload);
     void EmitScriptReload(Int32 header, Object & payload);
     void EmitScriptLoaded();
@@ -1161,6 +1163,7 @@ private:
     Function    mOnVehiclePosition;
     Function    mOnVehicleRotation;
     Function    mOnVehicleOption;
+    Function    mOnVehicleWorld;
     Function    mOnServerOption;
     Function    mOnScriptReload;
     Function    mOnScriptLoaded;

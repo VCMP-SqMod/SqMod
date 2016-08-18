@@ -12,7 +12,8 @@ namespace SqMod {
 */
 enum VehicleCircularLocks
 {
-    VCL_EMIT_VEHICLE_OPTION = (1 << 0)
+    VEHICLECL_EMIT_VEHICLE_OPTION       = (1 << 0),
+    VEHICLECL_EMIT_VEHICLE_WORLD        = (2 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -228,7 +229,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the world in which the managed vehicle entity exists.
     */
-    void SetWorld(Int32 world) const;
+    void SetWorld(Int32 world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle model of the managed vehicle entity.

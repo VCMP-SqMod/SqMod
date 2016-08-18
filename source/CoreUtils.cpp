@@ -254,6 +254,7 @@ void Core::ResetFunc(VehicleInst & inst)
     inst.mOnPosition.ReleaseGently();
     inst.mOnRotation.ReleaseGently();
     inst.mOnOption.ReleaseGently();
+    inst.mOnWorld.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -364,6 +365,7 @@ void Core::ResetFunc()
     Core::Get().mOnVehiclePosition.ReleaseGently();
     Core::Get().mOnVehicleRotation.ReleaseGently();
     Core::Get().mOnVehicleOption.ReleaseGently();
+    Core::Get().mOnVehicleWorld.ReleaseGently();
     Core::Get().mOnServerOption.ReleaseGently();
     Core::Get().mOnScriptReload.ReleaseGently();
     Core::Get().mOnScriptLoaded.ReleaseGently();
@@ -479,6 +481,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_VEHICLEPOSITION:       return mOnVehiclePosition;
         case EVT_VEHICLEROTATION:       return mOnVehicleRotation;
         case EVT_VEHICLEOPTION:         return mOnVehicleOption;
+        case EVT_VEHICLEWORLD:          return mOnVehicleWorld;
         case EVT_SERVEROPTION:          return mOnServerOption;
         case EVT_SCRIPTRELOAD:          return mOnScriptReload;
         case EVT_SCRIPTLOADED:          return mOnScriptLoaded;
@@ -661,6 +664,7 @@ Function & Core::GetVehicleEvent(Int32 id, Int32 evid)
         case EVT_VEHICLEPOSITION:       return inst.mOnPosition;
         case EVT_VEHICLEROTATION:       return inst.mOnRotation;
         case EVT_VEHICLEOPTION:         return inst.mOnOption;
+        case EVT_VEHICLEWORLD:          return inst.mOnWorld;
         default:                        return NullFunction();
     }
 }

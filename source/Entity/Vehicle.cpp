@@ -186,10 +186,10 @@ void CVehicle::SetOption(Int32 option_id, bool toggle)
     {
         STHROWF("Invalid option identifier: %d", option_id);
     }
-    else if (!(m_CircularLocks & VCL_EMIT_VEHICLE_OPTION))
+    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_OPTION))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, VCL_EMIT_VEHICLE_OPTION);
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_OPTION);
         // Now forward the event call
         Core::Get().EmitVehicleOption(m_ID, option_id, value, 0, NullObject());
     }
@@ -206,10 +206,10 @@ void CVehicle::SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & 
     {
         STHROWF("Invalid option identifier: %d", option_id);
     }
-    else if (!(m_CircularLocks & VCL_EMIT_VEHICLE_OPTION))
+    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_OPTION))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, VCL_EMIT_VEHICLE_OPTION);
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_OPTION);
         // Now forward the event call
         Core::Get().EmitVehicleOption(m_ID, option_id, value, header, payload);
     }
@@ -243,12 +243,27 @@ Int32 CVehicle::GetWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetWorld(Int32 world) const
+void CVehicle::SetWorld(Int32 world)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetVehicleWorld(m_ID);
+    // Don't even bother if it's the same value
+    if (current == world)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetVehicleWorld(m_ID, world);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_WORLD))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_WORLD);
+        // Now forward the event call
+        Core::Get().EmitVehicleWorld(m_ID, current, world);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
