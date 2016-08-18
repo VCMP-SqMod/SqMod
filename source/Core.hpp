@@ -1018,7 +1018,7 @@ public:
     void EmitPlayerHeading(Int32 player_id, Float32 old_heading, Float32 new_heading);
     void EmitPlayerPosition(Int32 player_id);
     void EmitPlayerOption(Int32 player_id, Int32 option_id, bool value, Int32 header, Object & payload);
-    void EmitPlayerAdmin(Int32 player_id, bool old_admin, bool new_admin);
+    void EmitPlayerAdmin(Int32 player_id, bool old_status, bool new_status);
     void EmitPlayerWorld(Int32 player_id, Int32 old_world, Int32 new_world, bool secondary);
     void EmitPlayerTeam(Int32 player_id, Int32 old_team, Int32 new_team);
     void EmitPlayerSkin(Int32 player_id, Int32 old_skin, Int32 new_skin);

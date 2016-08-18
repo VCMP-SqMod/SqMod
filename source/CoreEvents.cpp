@@ -766,11 +766,11 @@ void Core::EmitPlayerOption(Int32 player_id, Int32 option_id, bool value,
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerAdmin(Int32 player_id, bool old_admin, bool new_admin)
+void Core::EmitPlayerAdmin(Int32 player_id, bool old_status, bool new_status)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnAdmin, old_admin, new_admin);
-    Emit(mOnPlayerAdmin, _player.mObj, old_admin, new_admin);
+    Emit(_player.mOnAdmin, old_status, new_status);
+    Emit(mOnPlayerAdmin, _player.mObj, old_status, new_status);
 }
 
 // ------------------------------------------------------------------------------------------------
