@@ -166,6 +166,7 @@ void Core::ResetFunc(PickupInst & inst)
     inst.mOnClaimed.ReleaseGently();
     inst.mOnCollected.ReleaseGently();
     inst.mOnWorld.ReleaseGently();
+    inst.mOnAlpha.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -354,6 +355,7 @@ void Core::ResetFunc()
     Core::Get().mOnPickupClaimed.ReleaseGently();
     Core::Get().mOnPickupCollected.ReleaseGently();
     Core::Get().mOnPickupWorld.ReleaseGently();
+    Core::Get().mOnPickupAlpha.ReleaseGently();
     Core::Get().mOnPickupRespawn.ReleaseGently();
     Core::Get().mOnCheckpointEntered.ReleaseGently();
     Core::Get().mOnCheckpointExited.ReleaseGently();
@@ -482,6 +484,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_PICKUPCLAIMED:         return mOnPickupClaimed;
         case EVT_PICKUPCOLLECTED:       return mOnPickupCollected;
         case EVT_PICKUPWORLD:           return mOnPickupWorld;
+        case EVT_PICKUPALPHA:           return mOnPickupAlpha;
         case EVT_PICKUPRESPAWN:         return mOnPickupRespawn;
         case EVT_CHECKPOINTENTERED:     return mOnCheckpointEntered;
         case EVT_CHECKPOINTEXITED:      return mOnCheckpointExited;
@@ -602,6 +605,7 @@ Function & Core::GetPickupEvent(Int32 id, Int32 evid)
         case EVT_PICKUPCLAIMED:         return inst.mOnClaimed;
         case EVT_PICKUPCOLLECTED:       return inst.mOnCollected;
         case EVT_PICKUPWORLD:           return inst.mOnWorld;
+        case EVT_PICKUPWORLD:           return inst.mOnAlpha;
         default:                        return NullFunction();
     }
 }

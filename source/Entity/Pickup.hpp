@@ -12,7 +12,8 @@ namespace SqMod {
 */
 enum PickupCircularLocks
 {
-    PICKUPCL_EMIT_PICKUP_WORLD      = (1 << 0)
+    PICKUPCL_EMIT_PICKUP_WORLD      = (1 << 0),
+    PICKUPCL_EMIT_PICKUP_ALPHA      = (2 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -211,7 +212,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Mpdify the alpha of the managed pickup entity.
     */
-    void SetAlpha(Int32 alpha) const;
+    void SetAlpha(Int32 alpha);
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed pickup entity is automatic.

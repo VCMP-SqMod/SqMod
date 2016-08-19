@@ -200,12 +200,27 @@ Int32 CPickup::GetAlpha() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetAlpha(Int32 alpha) const
+void CPickup::SetAlpha(Int32 alpha)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPickupAlpha(m_ID);
+    // Don't even bother if it's the same value
+    if (current == alpha)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPickupAlpha(m_ID, alpha);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_ALPHA))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_ALPHA);
+        // Now forward the event call
+        Core::Get().EmitPickupAlpha(m_ID, current, alpha);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
