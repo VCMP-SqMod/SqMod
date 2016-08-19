@@ -712,8 +712,8 @@ void Core::EmitObjectAlpha(Int32 object_id, Int32 old_alpha, Int32 new_alpha, In
 void Core::EmitPickupWorld(Int32 pickup_id, Int32 old_world, Int32 new_world)
 {
     PickupInst & _pickup = m_Pickups.at(pickup_id);
-    Emit(_pickup.mOnRespawn, old_world, new_world);
-    Emit(mOnPickupRespawn, _pickup.mObj, old_world, new_world);
+    Emit(_pickup.mOnWorld, old_world, new_world);
+    Emit(mOnPickupWorld, _pickup.mObj, old_world, new_world);
 }
 
 // ------------------------------------------------------------------------------------------------
