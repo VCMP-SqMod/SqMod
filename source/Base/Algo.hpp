@@ -154,6 +154,14 @@ inline Int32 CompareStr(CSStr lhs, CSStr rhs, Uint32 pos, Uint32 len, bool cs)
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Compare the specified strings.
+*/
+inline bool ApplyStrFilter(CSStr name, CSStr filter, bool cs)
+{
+    return cs ? NameFilterCheck(filter, name) : NameFilterCheckInsensitive(filter, name);
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Collect all elements within the specified range that the inspector deems worthy.
 */
 template < typename Iterator, typename Inspector, typename Collector >
@@ -268,6 +276,24 @@ void EachContains(Iterator first, Iterator last,
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Collect all elements within the specified range where the string matches or not the specified
+ * filter.
+*/
+template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
+void EachMatches(Iterator first, Iterator last,
+                        Inspector inspect, Retriever retrieve, Collector collect,
+                        CSStr str, bool neg, bool cs)
+{
+    for (; first != last; ++first)
+    {
+        if (inspect(*first) && ApplyStrFilter(retrieve(*first).c_str(), str, cs) == neg)
+        {
+            collect(*first);
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Find the first element within the specified range where the string matches or not the specified one.
 */
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
@@ -365,6 +391,25 @@ void FirstContains(Iterator first, Iterator last,
     for (; first != last; ++first)
     {
         if (inspect(*first) && FindStr(retrieve(*first).c_str(), str, cs) == neg)
+        {
+            receive(*first);
+            break;
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Find the first element within the specified range where the string matches or not the specified
+ * filter.
+*/
+template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
+void FirstMatches(Iterator first, Iterator last,
+                        Inspector inspect, Retriever retrieve, Receiver receive,
+                        CSStr str, bool neg, bool cs)
+{
+    for (; first != last; ++first)
+    {
+        if (inspect(*first) && ApplyStrFilter(retrieve(*first).c_str(), str, cs) == neg)
         {
             receive(*first);
             break;
@@ -976,6 +1021,22 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Collect all entities of this type where the tag matches or not the specified filter.
+    */
+    static inline Array AllWhereTagMatches(bool neg, bool cs, CSStr tag)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Remember the current stack size
+        const StackGuard sg;
+        // Allocate an empty array on the stack
+        sq_newarray(DefaultVM::Get(), 0);
+        // Process each entity in the pool
+        EachMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg, cs);
+        // Return the array at the top of the stack
+        return Var< Array >(DefaultVM::Get(), -1).value;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag matches or not the specified one.
     */
     static inline Object FirstWhereTagEquals(bool neg, bool cs, CSStr tag)
@@ -1030,6 +1091,21 @@ public:
         RecvElem recv;
         // Process each entity in the pool
         FirstContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< RecvElem >(recv), tag, !neg, cs);
+        // Return the received element, if any
+        return recv.mObj;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the first entity of this type where the tag matches or not the specified filter.
+    */
+    static inline Object FirstWhereTagMatches(bool neg, bool cs, CSStr tag)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element receiver
+        RecvElem recv;
+        // Process each entity in the pool
+        FirstMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< RecvElem >(recv), tag, !neg, cs);
         // Return the received element, if any
         return recv.mObj;
@@ -1110,6 +1186,21 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Process all entities of this type where the tag match the specified filter.
+    */
+    static inline Uint32 EachWhereTagMatches(bool neg, bool cs, CSStr tag, Object & env, Function & func)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element forwarder
+        ForwardElem fwd(env, func);
+        // Process each entity in the pool
+        EachMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
+        // Return the forward count
+        return fwd.mCount;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Count all active entities of this type.
     */
     static inline Uint32 CountActive()
@@ -1178,6 +1269,21 @@ public:
         CountElem cnt;
         // Process each entity in the pool
         EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< CountElem >(cnt), tag, !neg, cs);
+        // Return the count
+        return cnt;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Count all entities of this type where the tag matches the specified filter.
+    */
+    static inline Uint32 CountWhereTagMatches(bool neg, bool cs, CSStr tag)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element counter
+        CountElem cnt;
+        // Process each entity in the pool
+        EachMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< CountElem >(cnt), tag, !neg, cs);
         // Return the count
         return cnt;
