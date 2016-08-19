@@ -605,7 +605,7 @@ Function & Core::GetPickupEvent(Int32 id, Int32 evid)
         case EVT_PICKUPCLAIMED:         return inst.mOnClaimed;
         case EVT_PICKUPCOLLECTED:       return inst.mOnCollected;
         case EVT_PICKUPWORLD:           return inst.mOnWorld;
-        case EVT_PICKUPWORLD:           return inst.mOnAlpha;
+        case EVT_PICKUPALPHA:           return inst.mOnAlpha;
         default:                        return NullFunction();
     }
 }
