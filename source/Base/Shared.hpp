@@ -254,12 +254,12 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor.
+     * Copy constructor. (disabled)
     */
     AutoDelete(const AutoDelete & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Move constructor.
+     * Move constructor. (disabled)
     */
     AutoDelete(AutoDelete && o) = delete;
 
@@ -275,12 +275,12 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator.
+     * Copy assignment operator. (disabled)
     */
     AutoDelete & operator = (const AutoDelete & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Move assignment operator.
+     * Move assignment operator. (disabled)
     */
     AutoDelete & operator = (AutoDelete && o) = delete;
 
@@ -332,6 +332,82 @@ public:
     const T * Get() const
     {
         return m_Inst;
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * RAII approach to make sure a value is assigned regardless of what exceptions are thrown.
+*/
+template < typename T > class AutoAssign
+{
+private:
+
+    // --------------------------------------------------------------------------------------------
+    T & m_Var; // Variable to receive the value.
+    T   m_Val; // Value to be assigned.
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    AutoAssign(T & variable, T value)
+        : m_Var(variable), m_Val(value)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    AutoAssign(T & variable, T value, T start)
+        : m_Var(variable), m_Val(value)
+    {
+        m_Var = start;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    AutoAssign(const AutoAssign & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    AutoAssign(AutoAssign && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~AutoAssign()
+    {
+        m_Var = m_Val;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    AutoAssign & operator = (const AutoAssign & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    AutoAssign & operator = (AutoAssign && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Direct value assignment.
+    */
+    template < typename U > AutoAssign & operator = (U value)
+    {
+        m_Var = value;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Direct value assignment.
+    */
+    template < typename U > void Set(U value)
+    {
+        m_Var = value;
     }
 };
 
