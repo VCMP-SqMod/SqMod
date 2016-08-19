@@ -536,6 +536,7 @@ private:
     Int32                           m_State; // Current plug-in state.
     HSQUIRRELVM                     m_VM; // Script virtual machine.
     Scripts                         m_Scripts; // Loaded scripts objects.
+    Scripts                         m_PendingScripts; // Pending scripts objects.
     Options                         m_Options; // Custom configuration options.
 
     // --------------------------------------------------------------------------------------------
@@ -734,6 +735,11 @@ public:
     }
 
 protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Script execution process.
+    */
+    static bool DoScripts(Scripts::iterator itr, Scripts::iterator end);
 
     /* --------------------------------------------------------------------------------------------
      * Script output handlers.

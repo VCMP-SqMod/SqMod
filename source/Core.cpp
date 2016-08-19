@@ -127,6 +127,7 @@ Core::Core()
     : m_State(0)
     , m_VM(nullptr)
     , m_Scripts()
+    , m_PendingScripts()
     , m_Options()
     , m_Blips()
     , m_Checkpoints()
@@ -300,7 +301,7 @@ bool Core::Initialize()
     }
 
     // See if any script could be queued for loading
-    if (m_Scripts.empty() && !conf.GetBoolValue("Squirrel", "EmptyInit", false))
+    if (m_PendingScripts.empty() && !conf.GetBoolValue("Squirrel", "EmptyInit", false))
     {
         LogErr("No scripts loaded. No reason to load the plug-in");
         // No point in loading the plug-in
@@ -344,7 +345,7 @@ bool Core::Initialize()
 bool Core::Execute()
 {
     // Are there any scripts to execute?
-    if (cLogErr(m_Scripts.empty(), "No scripts to execute. Plug-in has no purpose"))
+    if (cLogErr(m_PendingScripts.empty(), "No scripts to execute. Plug-in has no purpose"))
     {
         return false; // No reason to execute the plug-in
     }
@@ -353,74 +354,21 @@ bool Core::Execute()
     // Tell modules to do their monkey business
     _Func->SendPluginCommand(SQMOD_LOAD_CMD, "");
 
-    LogDbg("Attempting to compile the specified scripts");
-    // Compile scripts first so that the constants can take effect
-    for (auto & s : m_Scripts)
+    // Load pending scripts while we're in the bounds of the allowed recursiveness
+    for (unsigned levels = 0; (m_PendingScripts.empty() == false) && (levels < 8); ++levels)
     {
-        // Is this script already compiled?
-        if (!s.mExec.IsNull())
+        // Remember the last script from the pool
+        const Scripts::size_type last = m_Scripts.size();
+        // Push pending scripts to the back of the list
+        std::move(m_PendingScripts.begin(), m_PendingScripts.end(), std::back_inserter(m_Scripts));
+        // Clear all pending scripts, if any
+        m_PendingScripts.clear();
+        // Process all pending scripts
+        if (DoScripts(m_Scripts.begin() + last, m_Scripts.end()) == false)
         {
-            continue; // Already compiled!
+            return false; // One of the scripts failed to execute
         }
-
-        // Attempt to load and compile the script file
-        try
-        {
-            s.mExec.CompileFile(s.mPath);
-        }
-        catch (const Sqrat::Exception & e)
-        {
-            LogFtl("Unable to compile: %s", s.mPath.c_str());
-            // Failed to execute properly
-            return false;
-        }
-
-        LogDbg("Successfully compiled script: %s", s.mPath.c_str());
-
-        // Should we delay the execution of this script?
-        if (s.mDelay)
-        {
-            continue; // Execute later!
-        }
-
-        // Attempt to execute the compiled script code
-        try
-        {
-            s.mExec.Run();
-        }
-        catch (const Sqrat::Exception & e)
-        {
-            LogFtl("Unable to execute: %s", s.mPath.c_str());
-            // Failed to execute properly
-            return false;
-        }
-
-        LogScs("Successfully executed script: %s", s.mPath.c_str());
-    }
-
-    LogDbg("Attempting to execute the specified scripts");
-    // Execute scripts only after compilation successful
-    for (auto & s : m_Scripts)
-    {
-        // Was this script delayed from execution?
-        if (!s.mDelay)
-        {
-            continue; // Already executed!
-        }
-
-        // Attempt to execute the compiled script code
-        try
-        {
-            s.mExec.Run();
-        }
-        catch (const Sqrat::Exception & e)
-        {
-            LogFtl("Unable to execute: %s", s.mPath.c_str());
-            // Failed to execute properly
-            return false;
-        }
-
-        LogScs("Successfully executed script: %s", s.mPath.c_str());
+        LogDbg("Completed execution of stage (%u) scripts", levels);
     }
 
     // Create the null entity instances
@@ -496,6 +444,7 @@ void Core::Terminate(bool shutdown)
         ResetFunc();
         // Release the script instances
         m_Scripts.clear();
+        m_PendingScripts.clear(); // Just in case
         // Specify that no scripts are left executed
         m_Executed = false;
         // Assertions during close may cause double delete/close!
@@ -509,7 +458,7 @@ void Core::Terminate(bool shutdown)
         _Func->SendPluginCommand(SQMOD_RELEASED_CMD, "");
     }
 
-    LogDbg("Squirrel plugin was successfully terminated");
+    LogDbg("Squirrel plug---in was successfully terminated");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -569,6 +518,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
         // Failed to load
         return false;
     }
+
     Buffer bpath;
     // Attempt to get the real file path
     try
@@ -587,12 +537,21 @@ bool Core::LoadScript(CSStr filepath, bool delay)
         // Failed to load
         return false;
     }
+
     // Make the path into a string
     String path(bpath.Data(), bpath.Position());
+
     // See if it wasn't already loaded
     if (std::find_if(m_Scripts.cbegin(), m_Scripts.cend(), [&path](Scripts::const_reference s) {
         return (s.mPath == path);
     }) != m_Scripts.end())
+    {
+        LogWrn("Script was specified before: %s", path.c_str());
+    }
+    // Also check the pending scripts container
+    else if (std::find_if(m_PendingScripts.cbegin(), m_PendingScripts.cend(), [&path](Scripts::const_reference s) {
+        return (s.mPath == path);
+    }) != m_PendingScripts.end())
     {
         LogWrn("Script was specified before: %s", path.c_str());
     }
@@ -610,7 +569,9 @@ bool Core::LoadScript(CSStr filepath, bool delay)
         catch (const Sqrat::Exception & e)
         {
             LogFtl("Unable to compile: %s", m_Scripts.back().mPath.c_str());
-            // Failed to execute properly
+            // Remove the script container since it's invalid
+            m_Scripts.pop_back();
+            // Failed to compile properly
             return false;
         }
         // At this point the script should be completely loaded
@@ -624,6 +585,8 @@ bool Core::LoadScript(CSStr filepath, bool delay)
         catch (const Sqrat::Exception & e)
         {
             LogFtl("Unable to execute: %s", m_Scripts.back().mPath.c_str());
+            // Remove the script container since it's invalid
+            m_Scripts.pop_back();
             // Failed to execute properly
             return false;
         }
@@ -633,10 +596,11 @@ bool Core::LoadScript(CSStr filepath, bool delay)
     // We don't compile the scripts yet. We just store their path and prepare the objects
     else
     {
-        // Create a new script container and insert it into the script pool
-        m_Scripts.emplace_back(m_VM, std::move(path), delay, m_Debugging);
+        // Create a new script container and insert it into the pending script pool
+        m_PendingScripts.emplace_back(m_VM, std::move(path), delay, m_Debugging);
     }
-    // At this point the script exists in the pool
+
+    // At this point the script exists in one of the pools
     return true;
 }
 
@@ -669,6 +633,85 @@ void Core::SetIncomingName(CSStr name)
     std::strncpy(m_IncomingNameBuffer, name, m_IncomingNameCapacity);
     // Make sure that the name inside the buffer is null terminated
     m_IncomingNameBuffer[len] = '\0';
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
+{
+    Scripts::iterator itr_state = itr;
+
+    LogDbg("Attempting to compile the specified scripts");
+    // Compile scripts first so that the constants can take effect
+    for (; itr != end; ++itr)
+    {
+        // Is this script already compiled?
+        if (!(*itr).mExec.IsNull())
+        {
+            continue; // Already compiled!
+        }
+
+        // Attempt to load and compile the script file
+        try
+        {
+            (*itr).mExec.CompileFile((*itr).mPath);
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            LogFtl("Unable to compile: %s", (*itr).mPath.c_str());
+            // Failed to execute properly
+            return false;
+        }
+
+        LogDbg("Successfully compiled script: %s", (*itr).mPath.c_str());
+
+        // Should we delay the execution of this script?
+        if ((*itr).mDelay)
+        {
+            continue; // Execute later!
+        }
+
+        // Attempt to execute the compiled script code
+        try
+        {
+            (*itr).mExec.Run();
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            LogFtl("Unable to execute: %s", (*itr).mPath.c_str());
+            // Failed to execute properly
+            return false;
+        }
+
+        LogScs("Successfully executed script: %s", (*itr).mPath.c_str());
+    }
+
+    LogDbg("Attempting to execute the specified scripts");
+    // Execute scripts only after compilation successful
+    for (itr = itr_state; itr != end; ++itr)
+    {
+        // Was this script delayed from execution?
+        if (!(*itr).mDelay)
+        {
+            continue; // Already executed!
+        }
+
+        // Attempt to execute the compiled script code
+        try
+        {
+            (*itr).mExec.Run();
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            LogFtl("Unable to execute: %s", (*itr).mPath.c_str());
+            // Failed to execute properly
+            return false;
+        }
+
+        LogScs("Successfully executed script: %s", (*itr).mPath.c_str());
+    }
+
+    // At this point the scripts were loaded and executed successfully
+    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
