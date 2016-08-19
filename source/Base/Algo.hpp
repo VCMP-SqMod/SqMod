@@ -453,6 +453,14 @@ template <> struct InstSpec< CBlip >
     {
         return Core::Get().GetBlips().cend();
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference to the NULL instance.
+    */
+    static inline Object & Null()
+    {
+        return Core::Get().GetNullBlip();
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -485,6 +493,14 @@ template <> struct InstSpec< CCheckpoint >
     static inline Instances::const_iterator CEnd()
     {
         return Core::Get().GetCheckpoints().cend();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference to the NULL instance.
+    */
+    static inline Object & Null()
+    {
+        return Core::Get().GetNullCheckpoint();
     }
 };
 
@@ -519,6 +535,14 @@ template <> struct InstSpec< CKeybind >
     {
         return Core::Get().GetKeybinds().cend();
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference to the NULL instance.
+    */
+    static inline Object & Null()
+    {
+        return Core::Get().GetNullKeybind();
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -551,6 +575,14 @@ template <> struct InstSpec< CObject >
     static inline Instances::const_iterator CEnd()
     {
         return Core::Get().GetObjects().cend();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference to the NULL instance.
+    */
+    static inline Object & Null()
+    {
+        return Core::Get().GetNullObject();
     }
 };
 
@@ -585,6 +617,14 @@ template <> struct InstSpec< CPickup >
     {
         return Core::Get().GetPickups().cend();
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference to the NULL instance.
+    */
+    static inline Object & Null()
+    {
+        return Core::Get().GetNullPickup();
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -618,6 +658,14 @@ template <> struct InstSpec< CPlayer >
     {
         return Core::Get().GetPlayers().cend();
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference to the NULL instance.
+    */
+    static inline Object & Null()
+    {
+        return Core::Get().GetNullPlayer();
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -650,6 +698,14 @@ template <> struct InstSpec< CVehicle >
     static inline Instances::const_iterator CEnd()
     {
         return Core::Get().GetVehicles().cend();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference to the NULL instance.
+    */
+    static inline Object & Null()
+    {
+        return Core::Get().GetNullVehicle();
     }
 };
 
@@ -726,7 +782,7 @@ template < typename T > struct RecvElemFunc
      * Default constructor.
     */
     RecvElemFunc()
-        : mObj()
+        : mObj(InstSpec< T >::Null())
     {
         /* ... */
     }
