@@ -233,12 +233,27 @@ bool CPickup::GetAutomatic() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetAutomatic(bool toggle) const
+void CPickup::SetAutomatic(bool toggle)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const bool current = _Func->IsPickupAutomatic(m_ID);
+    // Don't even bother if it's the same value
+    if (current == toggle)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPickupIsAutomatic(m_ID, toggle);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_AUTOMATIC))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_AUTOMATIC);
+        // Now forward the event call
+        Core::Get().EmitPickupAutomatic(m_ID, current, toggle);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

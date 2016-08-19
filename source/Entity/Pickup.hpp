@@ -13,7 +13,8 @@ namespace SqMod {
 enum PickupCircularLocks
 {
     PICKUPCL_EMIT_PICKUP_WORLD      = (1 << 0),
-    PICKUPCL_EMIT_PICKUP_ALPHA      = (2 << 0)
+    PICKUPCL_EMIT_PICKUP_ALPHA      = (2 << 0),
+    PICKUPCL_EMIT_PICKUP_AUTOMATIC  = (3 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -222,7 +223,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set whether the managed pickup entity is automatic.
     */
-    void SetAutomatic(bool toggle) const;
+    void SetAutomatic(bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the automatic timer of the managed pickup entity.

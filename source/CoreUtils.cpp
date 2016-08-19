@@ -167,6 +167,7 @@ void Core::ResetFunc(PickupInst & inst)
     inst.mOnCollected.ReleaseGently();
     inst.mOnWorld.ReleaseGently();
     inst.mOnAlpha.ReleaseGently();
+    inst.mOnAutomatic.ReleaseGently();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -354,9 +355,10 @@ void Core::ResetFunc()
     Core::Get().mOnObjectReport.ReleaseGently();
     Core::Get().mOnPickupClaimed.ReleaseGently();
     Core::Get().mOnPickupCollected.ReleaseGently();
+    Core::Get().mOnPickupRespawn.ReleaseGently();
     Core::Get().mOnPickupWorld.ReleaseGently();
     Core::Get().mOnPickupAlpha.ReleaseGently();
-    Core::Get().mOnPickupRespawn.ReleaseGently();
+    Core::Get().mOnPickupAutomatic.ReleaseGently();
     Core::Get().mOnCheckpointEntered.ReleaseGently();
     Core::Get().mOnCheckpointExited.ReleaseGently();
     Core::Get().mOnCheckpointWorld.ReleaseGently();
@@ -483,9 +485,10 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_OBJECTREPORT:          return mOnObjectReport;
         case EVT_PICKUPCLAIMED:         return mOnPickupClaimed;
         case EVT_PICKUPCOLLECTED:       return mOnPickupCollected;
+        case EVT_PICKUPRESPAWN:         return mOnPickupRespawn;
         case EVT_PICKUPWORLD:           return mOnPickupWorld;
         case EVT_PICKUPALPHA:           return mOnPickupAlpha;
-        case EVT_PICKUPRESPAWN:         return mOnPickupRespawn;
+        case EVT_PICKUPAUTOMATIC:       return mOnPickupAutomatic;
         case EVT_CHECKPOINTENTERED:     return mOnCheckpointEntered;
         case EVT_CHECKPOINTEXITED:      return mOnCheckpointExited;
         case EVT_CHECKPOINTWORLD:       return mOnCheckpointWorld;
@@ -606,6 +609,7 @@ Function & Core::GetPickupEvent(Int32 id, Int32 evid)
         case EVT_PICKUPCOLLECTED:       return inst.mOnCollected;
         case EVT_PICKUPWORLD:           return inst.mOnWorld;
         case EVT_PICKUPALPHA:           return inst.mOnAlpha;
+        case EVT_PICKUPAUTOMATIC:       return inst.mOnAutomatic;
         default:                        return NullFunction();
     }
 }

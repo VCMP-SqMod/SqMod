@@ -725,6 +725,14 @@ void Core::EmitPickupAlpha(Int32 pickup_id, Int32 old_alpha, Int32 new_alpha)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPickupAutomatic(Int32 pickup_id, bool old_status, bool new_status)
+{
+    PickupInst & _pickup = m_Pickups.at(pickup_id);
+    Emit(_pickup.mOnAutomatic, old_status, new_status);
+    Emit(mOnPickupAutomatic, _pickup.mObj, old_status, new_status);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitObjectReport(Int32 object_id, bool old_status, bool new_status, bool touched)
 {
     ObjectInst & _object = m_Objects.at(object_id);
