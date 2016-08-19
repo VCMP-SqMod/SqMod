@@ -223,7 +223,6 @@ void Core::ResetFunc(PlayerInst & inst)
     inst.mOnObjectTouched.ReleaseGently();
     inst.mOnPickupClaimed.ReleaseGently();
     inst.mOnPickupCollected.ReleaseGently();
-    inst.mOnPickupCollected.ReleaseGently();
     inst.mOnCheckpointEntered.ReleaseGently();
     inst.mOnCheckpointExited.ReleaseGently();
     inst.mOnClientScriptData.ReleaseGently();
