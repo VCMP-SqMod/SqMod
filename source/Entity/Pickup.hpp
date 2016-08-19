@@ -14,7 +14,8 @@ enum PickupCircularLocks
 {
     PICKUPCL_EMIT_PICKUP_WORLD      = (1 << 0),
     PICKUPCL_EMIT_PICKUP_ALPHA      = (2 << 0),
-    PICKUPCL_EMIT_PICKUP_AUTOMATIC  = (3 << 0)
+    PICKUPCL_EMIT_PICKUP_AUTOMATIC  = (3 << 0),
+    PICKUPCL_EMIT_PICKUP_AUTOTIMER  = (4 << 0)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -233,7 +234,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Mpdify the automatic timer of the managed pickup entity.
     */
-    void SetAutoTimer(Int32 timer) const;
+    void SetAutoTimer(Int32 timer);
 
     /* --------------------------------------------------------------------------------------------
      * Refresh the managed pickup entity.

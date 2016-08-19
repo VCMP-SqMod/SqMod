@@ -266,12 +266,27 @@ Int32 CPickup::GetAutoTimer() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetAutoTimer(Int32 timer) const
+void CPickup::SetAutoTimer(Int32 timer)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPickupAutoTimer(m_ID);
+    // Don't even bother if it's the same value
+    if (current == timer)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPickupAutoTimer(m_ID, timer);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_AUTOTIMER))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_AUTOTIMER);
+        // Now forward the event call
+        Core::Get().EmitPickupAutoTimer(m_ID, current, timer);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

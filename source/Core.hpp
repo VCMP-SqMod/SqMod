@@ -306,6 +306,7 @@ protected:
         Function        mOnWorld;
         Function        mOnAlpha;
         Function        mOnAutomatic;
+        Function        mOnAutoTimer;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -1017,6 +1018,7 @@ public:
     void EmitPickupWorld(Int32 pickup_id, Int32 old_world, Int32 new_world);
     void EmitPickupAlpha(Int32 pickup_id, Int32 old_alpha, Int32 new_alpha);
     void EmitPickupAutomatic(Int32 pickup_id, bool old_status, bool new_status);
+    void EmitPickupAutoTimer(Int32 pickup_id, Int32 old_timer, Int32 new_timer);
     void EmitObjectReport(Int32 object_id, bool old_status, bool new_status, bool touched);
     void EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health);
     void EmitPlayerArmour(Int32 player_id, Float32 old_armour, Float32 new_armour);
@@ -1171,6 +1173,7 @@ private:
     Function    mOnPickupWorld;
     Function    mOnPickupAlpha;
     Function    mOnPickupAutomatic;
+    Function    mOnPickupAutoTimer;
     Function    mOnCheckpointEntered;
     Function    mOnCheckpointExited;
     Function    mOnCheckpointWorld;
