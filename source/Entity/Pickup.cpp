@@ -37,7 +37,7 @@ Object & CPickup::GetNull()
 // ------------------------------------------------------------------------------------------------
 CPickup::CPickup(Int32 id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_PICKUP_POOL))
-    , m_Tag(ToStrF("%d", id))
+    , m_Tag(ToStrF("%d", id)), m_Data(), m_CircularLocks(0)
 {
     /* ... */
 }
@@ -167,12 +167,27 @@ Int32 CPickup::GetWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetWorld(Int32 world) const
+void CPickup::SetWorld(Int32 world)
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
+    // Grab the current value for this property
+    const Int32 current = _Func->GetPickupWorld(m_ID);
+    // Don't even bother if it's the same value
+    if (current == world)
+    {
+        return;
+    }
+    // Avoid property unwind from a recursive call
     _Func->SetPickupWorld(m_ID, world);
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_WORLD))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_WORLD);
+        // Now forward the event call
+        Core::Get().EmitPickupWorld(m_ID, current, world);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

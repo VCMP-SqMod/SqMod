@@ -8,6 +8,14 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Circular locks employed by the pickup manager.
+*/
+enum PickupCircularLocks
+{
+    PICKUPCL_EMIT_PICKUP_WORLD      = (1 << 0)
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Manages a single pickup entity.
 */
 class CPickup
@@ -34,6 +42,11 @@ private:
      * User data associated with this instance.
     */
     Object  m_Data;
+
+    /* --------------------------------------------------------------------------------------------
+     * Prevent events from triggering themselves.
+    */
+    Uint32  m_CircularLocks;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -188,7 +201,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Mpdify the world in which the managed pickup entity exists.
     */
-    void SetWorld(Int32 world) const;
+    void SetWorld(Int32 world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the alpha of the managed pickup entity.
