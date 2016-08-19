@@ -208,6 +208,16 @@ const ULongInt & GetULongInt(Uint64 n);
 const ULongInt & GetULongInt(CSStr s);
 
 /* ------------------------------------------------------------------------------------------------
+ * A simple implementation of name filtering.
+*/
+bool NameFilterCheck(CSStr filter, CSStr name);
+
+/* ------------------------------------------------------------------------------------------------
+ * A simple implementation of name filtering without case sensitivity.
+*/
+bool NameFilterCheckInsensitive(CSStr filter, CSStr name);
+
+/* ------------------------------------------------------------------------------------------------
  * Obtain a randomly chosen color from a list of known colors.
 */
 const Color3 & GetRandomColor();

@@ -210,6 +210,114 @@ const ULongInt & GetULongInt(CSStr s)
 }
 
 // ------------------------------------------------------------------------------------------------
+bool NameFilterCheck(CSStr filter, CSStr name)
+{
+    // If only one of them is null then they don't match
+    if ((!filter && name) || (filter && !name))
+    {
+        return false;
+    }
+    // If they're both null or the filter is empty then there's nothing to check for
+    else if ((!filter && !name) || (*filter == '\0'))
+    {
+        return true;
+    }
+
+    SQChar ch = 0;
+    // Start comparing the strings
+    while (true)
+    {
+        // Grab the current character from filter
+        ch = *(filter++);
+        // See if the filter or name was completed
+        if (ch == '\0' || *name == '\0')
+        {
+            break; // They matched so far
+        }
+        // Are we supposed to perform a wild-card search?
+        else if (ch == '*')
+        {
+            // Grab the next character from filter
+            ch = *(filter++);
+            // Start comparing characters until the first match
+            while (*name != '\0')
+            {
+                if (*(name++) == ch)
+                {
+                    break;
+                }
+            }
+        }
+        // See if the character matches doesn't have to match
+        else if (ch != '?' && *name != ch)
+        {
+            return false; // The character had to match and failed
+        }
+        else
+        {
+            ++name;
+        }
+    }
+
+    // At this point the name satisfied the filter
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool NameFilterCheckInsensitive(CSStr filter, CSStr name)
+{
+    // If only one of them is null then they don't match
+    if ((!filter && name) || (filter && !name))
+    {
+        return false;
+    }
+    // If they're both null or the filter is empty then there's nothing to check for
+    else if ((!filter && !name) || (*filter == '\0'))
+    {
+        return true;
+    }
+
+    SQChar ch = 0;
+    // Start comparing the strings
+    while (true)
+    {
+        // Grab the current character from filter
+        ch = static_cast< SQChar >(std::tolower(*(filter++)));
+        // See if the filter or name was completed
+        if (ch == '\0' || *name == '\0')
+        {
+            break; // They matched so far
+        }
+        // Are we supposed to perform a wild-card search?
+        else if (ch == '*')
+        {
+            // Grab the next character from filter
+            ch = static_cast< SQChar >(std::tolower(*(filter++)));
+            // Start comparing characters until the first match
+            while (*name != '\0')
+            {
+                if (static_cast< SQChar >(std::tolower(*(name++))) == ch)
+                {
+                    break;
+                }
+            }
+        }
+        // See if the character matches doesn't have to match
+        else if (ch != '?' && static_cast< SQChar >(std::tolower(*name)) != ch)
+        {
+            return false; // The character had to match and failed
+        }
+        else
+        {
+            ++name;
+        }
+    }
+
+    // At this point the name satisfied the filter
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
 const Color3 & GetRandomColor()
 {
     return SQ_Color_List[GetRandomUint8(0, (sizeof(SQ_Color_List) / sizeof(Color3)) - 1)];
@@ -895,6 +1003,74 @@ static SQInteger SqPackARGB(SQInteger r, SQInteger g, SQInteger b, SQInteger a)
         ));
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqNameFilterCheck(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the filter string specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing filter string");
+    }
+    // Was the name string specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing name string");
+    }
+    // Attempt to generate the string value
+    StackStrF filter(vm, 2, false);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(filter.mRes))
+    {
+        return filter.mRes; // Propagate the error!
+    }
+    // Attempt to generate the string value
+    StackStrF name(vm, 3, true);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(name.mRes))
+    {
+        return name.mRes; // Propagate the error!
+    }
+    // Make the comparison and push the result on the stack
+    sq_pushbool(vm, NameFilterCheck(filter.mPtr, name.mPtr));
+    // Specify that we have a return value on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqNameFilterCheckInsensitive(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the filter string specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing filter string");
+    }
+    // Was the name string specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing name string");
+    }
+    // Attempt to generate the string value
+    StackStrF filter(vm, 2, false);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(filter.mRes))
+    {
+        return filter.mRes; // Propagate the error!
+    }
+    // Attempt to generate the string value
+    StackStrF name(vm, 3, true);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(name.mRes))
+    {
+        return name.mRes; // Propagate the error!
+    }
+    // Make the comparison and push the result on the stack
+    sq_pushbool(vm, NameFilterCheckInsensitive(filter.mPtr, name.mPtr));
+    // Specify that we have a return value on the stack
+    return 1;
+}
+
 // ================================================================================================
 void Register_Base(HSQUIRRELVM vm)
 {
@@ -914,7 +1090,9 @@ void Register_Base(HSQUIRRELVM vm)
     .Func(_SC("SToB"), &SToB)
     .Func(_SC("PackRGB"), &SqPackRGB)
     .Func(_SC("PackRGBA"), &SqPackRGBA)
-    .Func(_SC("PackARGB"), &SqPackARGB);
+    .Func(_SC("PackARGB"), &SqPackARGB)
+    .SquirrelFunc(_SC("NameFilterCheck"), &SqNameFilterCheck)
+    .SquirrelFunc(_SC("NameFilterCheckInsensitive"), &SqNameFilterCheckInsensitive);
 }
 
 } // Namespace:: SqMod
