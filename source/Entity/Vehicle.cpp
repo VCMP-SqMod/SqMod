@@ -889,35 +889,35 @@ void CVehicle::SetPartStatus(Int32 part, Int32 status)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CVehicle::GetTyreStatus(Int32 tyre) const
+Int32 CVehicle::GetTireStatus(Int32 tire) const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetVehicleTyreStatus(m_ID, tyre);
+    return _Func->GetVehicleTireStatus(m_ID, tire);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetTyreStatus(Int32 tyre, Int32 status)
+void CVehicle::SetTireStatus(Int32 tire, Int32 status)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetVehicleTyreStatus(m_ID, tyre);
+    const Int32 current = _Func->GetVehicleTireStatus(m_ID, tire);
     // Don't even bother if it's the same value
     if (current == status)
     {
         return;
     }
     // Avoid property unwind from a recursive call
-    _Func->SetVehicleTyreStatus(m_ID, tyre, status);
+    _Func->SetVehicleTireStatus(m_ID, tire, status);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_TYRESTATUS))
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_TIRESTATUS))
     {
         // Prevent this event from triggering while executed
-        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_TYRESTATUS);
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_TIRESTATUS);
         // Now forward the event call
-        Core::Get().EmitVehicleTyreStatus(m_ID, tyre, current, status);
+        Core::Get().EmitVehicleTireStatus(m_ID, tire, current, status);
     }
 }
 
@@ -1876,8 +1876,8 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Func(_SC("SetColors"), &CVehicle::SetColors)
         .Func(_SC("GetPartStatus"), &CVehicle::GetPartStatus)
         .Func(_SC("SetPartStatus"), &CVehicle::SetPartStatus)
-        .Func(_SC("GetTyreStatus"), &CVehicle::GetTyreStatus)
-        .Func(_SC("SetTyreStatus"), &CVehicle::SetTyreStatus)
+        .Func(_SC("GetTireStatus"), &CVehicle::GetTireStatus)
+        .Func(_SC("SetTireStatus"), &CVehicle::SetTireStatus)
         .Func(_SC("ExistsHandlingRule"), &CVehicle::ExistsHandlingRule)
         .Func(_SC("GetHandlingRule"), &CVehicle::GetHandlingRule)
         .Func(_SC("SetHandlingRule"), &CVehicle::SetHandlingRule)

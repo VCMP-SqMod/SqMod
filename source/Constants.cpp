@@ -156,7 +156,7 @@ static const EnumElement g_EventEnum[] = {
     {_SC("VehicleWorld"),               EVT_VEHICLEWORLD},
     {_SC("VehicleImmunity"),            EVT_VEHICLEIMMUNITY},
     {_SC("VehiclePartStatus"),          EVT_VEHICLEPARTSTATUS},
-    {_SC("VehicleTyreStatus"),          EVT_VEHICLETYRESTATUS},
+    {_SC("VehicleTireStatus"),          EVT_VEHICLETIRESTATUS},
     {_SC("VehicleDamageData"),          EVT_VEHICLEDAMAGEDATA},
     {_SC("VehicleRadio"),               EVT_VEHICLERADIO},
     {_SC("VehicleHandlingRule"),        EVT_VEHICLEHANDLINGRULE},

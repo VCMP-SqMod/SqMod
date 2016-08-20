@@ -935,11 +935,11 @@ void Core::EmitVehiclePartStatus(Int32 vehicle_id, Int32 part, Int32 old_status,
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleTyreStatus(Int32 vehicle_id, Int32 tyre, Int32 old_status, Int32 new_status)
+void Core::EmitVehicleTireStatus(Int32 vehicle_id, Int32 tire, Int32 old_status, Int32 new_status)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnTyreStatus, tyre, old_status, new_status);
-    Emit(mOnVehicleTyreStatus, _vehicle.mObj, tyre, old_status, new_status);
+    Emit(_vehicle.mOnTireStatus, tire, old_status, new_status);
+    Emit(mOnVehicleTireStatus, _vehicle.mObj, tire, old_status, new_status);
 }
 
 // ------------------------------------------------------------------------------------------------
