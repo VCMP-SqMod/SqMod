@@ -16,7 +16,7 @@ enum VehicleCircularLocks
     VEHICLECL_EMIT_VEHICLE_WORLD        = (2 << 0),
     VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (3 << 0),
     VEHICLECL_EMIT_VEHICLE_PARTSTATUS   = (4 << 0),
-    VEHICLECL_EMIT_VEHICLE_TIRESTATUS   = (5 << 0),
+    VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (5 << 0),
     VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (6 << 0),
     VEHICLECL_EMIT_VEHICLE_RADIO        = (7 << 0),
     VEHICLECL_EMIT_VEHICLE_HANDLINGRULE = (8 << 0)
@@ -538,14 +538,14 @@ public:
     void SetPartStatus(Int32 part, Int32 status);
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the tire status of the managed vehicle entity.
+     * Retrieve the tyre status of the managed vehicle entity.
     */
-    Int32 GetTireStatus(Int32 tire) const;
+    Int32 GetTyreStatus(Int32 tyre) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Modify the tire status of the managed vehicle entity.
+     * Modify the tyre status of the managed vehicle entity.
     */
-    void SetTireStatus(Int32 tire, Int32 status);
+    void SetTyreStatus(Int32 tyre, Int32 status);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the damage data of the managed vehicle entity.

@@ -266,7 +266,7 @@ void Core::ResetFunc(VehicleInst & inst)
     inst.mOnWorld.ReleaseGently();
     inst.mOnImmunity.ReleaseGently();
     inst.mOnPartStatus.ReleaseGently();
-    inst.mOnTireStatus.ReleaseGently();
+    inst.mOnTyreStatus.ReleaseGently();
     inst.mOnDamageData.ReleaseGently();
     inst.mOnRadio.ReleaseGently();
     inst.mOnHandlingRule.ReleaseGently();
@@ -392,7 +392,7 @@ void Core::ResetFunc()
     Core::Get().mOnVehicleWorld.ReleaseGently();
     Core::Get().mOnVehicleImmunity.ReleaseGently();
     Core::Get().mOnVehiclePartStatus.ReleaseGently();
-    Core::Get().mOnVehicleTireStatus.ReleaseGently();
+    Core::Get().mOnVehicleTyreStatus.ReleaseGently();
     Core::Get().mOnVehicleDamageData.ReleaseGently();
     Core::Get().mOnVehicleRadio.ReleaseGently();
     Core::Get().mOnVehicleHandlingRule.ReleaseGently();
@@ -523,7 +523,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_VEHICLEWORLD:          return mOnVehicleWorld;
         case EVT_VEHICLEIMMUNITY:       return mOnVehicleImmunity;
         case EVT_VEHICLEPARTSTATUS:     return mOnVehiclePartStatus;
-        case EVT_VEHICLETIRESTATUS:     return mOnVehicleTireStatus;
+        case EVT_VEHICLETYRESTATUS:     return mOnVehicleTyreStatus;
         case EVT_VEHICLEDAMAGEDATA:     return mOnVehicleDamageData;
         case EVT_VEHICLERADIO:          return mOnVehicleRadio;
         case EVT_VEHICLEHANDLINGRULE:   return mOnVehicleHandlingRule;
@@ -721,7 +721,7 @@ Function & Core::GetVehicleEvent(Int32 id, Int32 evid)
         case EVT_VEHICLEWORLD:          return inst.mOnWorld;
         case EVT_VEHICLEIMMUNITY:       return inst.mOnImmunity;
         case EVT_VEHICLEPARTSTATUS:     return inst.mOnPartStatus;
-        case EVT_VEHICLETIRESTATUS:     return inst.mOnTireStatus;
+        case EVT_VEHICLETYRESTATUS:     return inst.mOnTyreStatus;
         case EVT_VEHICLEDAMAGEDATA:     return inst.mOnDamageData;
         case EVT_VEHICLERADIO:          return inst.mOnRadio;
         case EVT_VEHICLEHANDLINGRULE:   return inst.mOnHandlingRule;
