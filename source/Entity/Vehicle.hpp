@@ -640,12 +640,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known primary color for the managed vehicle entity.
     */
-    Int32 GetLastPrimaryColour() const;
+    Int32 GetLastPrimaryColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known secondary color for the managed vehicle entity.
     */
-    Int32 GetLastSecondaryColour() const;
+    Int32 GetLastSecondaryColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known health for the managed vehicle entity.

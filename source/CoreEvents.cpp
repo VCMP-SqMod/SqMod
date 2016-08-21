@@ -870,11 +870,11 @@ void Core::EmitPlayerAlpha(Int32 player_id, Int32 old_alpha, Int32 new_alpha, In
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleColour(Int32 vehicle_id, Int32 changed)
+void Core::EmitVehicleColor(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnColour, changed);
-    Emit(mOnVehicleColour, _vehicle.mObj, changed);
+    Emit(_vehicle.mOnColor, changed);
+    Emit(mOnVehicleColor, _vehicle.mObj, changed);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1224,25 +1224,25 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
         case vcmpVehicleUpdateColour:
         {
             Int32 primary, secondary;
-            // Obtain the current colours of this instance
+            // Obtain the current colors of this instance
             _Func->GetVehicleColour(vehicle_id, &primary, &secondary);
-            // Which colours changed
+            // Which colors changed
             Int32 changed = 0;
-            // Did the primary colour changed?
-            if (primary != inst.mLastPrimaryColour)
+            // Did the primary color changed?
+            if (primary != inst.mLastPrimaryColor)
             {
                 changed |= (1<<0);
             }
-            // Did the secondary colour changed?
-            if (primary != inst.mLastSecondaryColour)
+            // Did the secondary color changed?
+            if (primary != inst.mLastSecondaryColor)
             {
                 changed |= (1<<1);
             }
             // Trigger the event specific to this change
-            EmitVehicleColour(vehicle_id, changed);
+            EmitVehicleColor(vehicle_id, changed);
             // Update the tracked value
-            inst.mLastPrimaryColour = primary;
-            inst.mLastSecondaryColour = secondary;
+            inst.mLastPrimaryColor = primary;
+            inst.mLastSecondaryColor = secondary;
         } break;
         case vcmpVehicleUpdateRotation:
         {

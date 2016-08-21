@@ -111,8 +111,8 @@ void Core::ResetInst(VehicleInst & inst)
     inst.mFlags = ENF_DEFAULT;
     inst.mTrackPosition = 0;
     inst.mTrackRotation = 0;
-    inst.mLastPrimaryColour = -1;
-    inst.mLastSecondaryColour = -1;
+    inst.mLastPrimaryColor = -1;
+    inst.mLastSecondaryColor = -1;
     inst.mLastHealth = 0.0;
     inst.mLastPosition.Clear();
     inst.mLastRotation.Clear();
@@ -258,7 +258,7 @@ void Core::ResetFunc(VehicleInst & inst)
     inst.mOnExplode.ReleaseGently();
     inst.mOnRespawn.ReleaseGently();
     inst.mOnUpdate.ReleaseGently();
-    inst.mOnColour.ReleaseGently();
+    inst.mOnColor.ReleaseGently();
     inst.mOnHealth.ReleaseGently();
     inst.mOnPosition.ReleaseGently();
     inst.mOnRotation.ReleaseGently();
@@ -384,7 +384,7 @@ void Core::ResetFunc()
     Core::Get().mOnPlayerWantedLevel.ReleaseGently();
     Core::Get().mOnPlayerImmunity.ReleaseGently();
     Core::Get().mOnPlayerAlpha.ReleaseGently();
-    Core::Get().mOnVehicleColour.ReleaseGently();
+    Core::Get().mOnVehicleColor.ReleaseGently();
     Core::Get().mOnVehicleHealth.ReleaseGently();
     Core::Get().mOnVehiclePosition.ReleaseGently();
     Core::Get().mOnVehicleRotation.ReleaseGently();
@@ -515,7 +515,7 @@ Function & Core::GetEvent(Int32 evid)
         case EVT_PLAYERWANTEDLEVEL:     return mOnPlayerWantedLevel;
         case EVT_PLAYERIMMUNITY:        return mOnPlayerImmunity;
         case EVT_PLAYERALPHA:           return mOnPlayerAlpha;
-        case EVT_VEHICLECOLOUR:         return mOnVehicleColour;
+        case EVT_VEHICLECOLOR:          return mOnVehicleColor;
         case EVT_VEHICLEHEALTH:         return mOnVehicleHealth;
         case EVT_VEHICLEPOSITION:       return mOnVehiclePosition;
         case EVT_VEHICLEROTATION:       return mOnVehicleRotation;
@@ -713,7 +713,7 @@ Function & Core::GetVehicleEvent(Int32 id, Int32 evid)
         case EVT_VEHICLEEXPLODE:        return inst.mOnExplode;
         case EVT_VEHICLERESPAWN:        return inst.mOnRespawn;
         case EVT_VEHICLEUPDATE:         return inst.mOnUpdate;
-        case EVT_VEHICLECOLOUR:         return inst.mOnColour;
+        case EVT_VEHICLECOLOR:          return inst.mOnColor;
         case EVT_VEHICLEHEALTH:         return inst.mOnHealth;
         case EVT_VEHICLEPOSITION:       return inst.mOnPosition;
         case EVT_VEHICLEROTATION:       return inst.mOnRotation;

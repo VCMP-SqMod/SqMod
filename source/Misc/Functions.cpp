@@ -442,6 +442,7 @@ Table GetWastedSettings()
     tbl.SetValue(_SC("FadeTimer"), ft);
     tbl.SetValue(_SC("FadeInSpeed"), fis);
     tbl.SetValue(_SC("FadeOutSpeed"), fos);
+    tbl.SetValue(_SC("FadeColor"), c);
     tbl.SetValue(_SC("FadeColour"), c);
     tbl.SetValue(_SC("CorpseFadeStart"), cfs);
     tbl.SetValue(_SC("CorpseFadeTime"), cft);

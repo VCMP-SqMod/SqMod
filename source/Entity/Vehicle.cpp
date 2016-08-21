@@ -1158,21 +1158,21 @@ void CVehicle::SetTrackRotation(SQInteger num) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CVehicle::GetLastPrimaryColour() const
+Int32 CVehicle::GetLastPrimaryColor() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return Core::Get().GetVehicle(m_ID).mLastPrimaryColour;
+    return Core::Get().GetVehicle(m_ID).mLastPrimaryColor;
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CVehicle::GetLastSecondaryColour() const
+Int32 CVehicle::GetLastSecondaryColor() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return Core::Get().GetVehicle(m_ID).mLastSecondaryColour;
+    return Core::Get().GetVehicle(m_ID).mLastSecondaryColor;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1813,6 +1813,8 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("Health"), &CVehicle::GetHealth, &CVehicle::SetHealth)
         .Prop(_SC("PrimaryColor"), &CVehicle::GetPrimaryColor, &CVehicle::SetPrimaryColor)
         .Prop(_SC("SecondaryColor"), &CVehicle::GetSecondaryColor, &CVehicle::SetSecondaryColor)
+        .Prop(_SC("PrimaryColour"), &CVehicle::GetPrimaryColor, &CVehicle::SetPrimaryColor)
+        .Prop(_SC("SecondaryColour"), &CVehicle::GetSecondaryColor, &CVehicle::SetSecondaryColor)
         .Prop(_SC("DamageData"), &CVehicle::GetDamageData, &CVehicle::SetDamageData)
         .Prop(_SC("Radio"), &CVehicle::GetRadio, &CVehicle::SetRadio)
         .Prop(_SC("TurretRotation"), &CVehicle::GetTurretRotation)
@@ -1822,8 +1824,10 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("VerticalTurretRotation"), &CVehicle::GetVerticalTurretRotation)
         .Prop(_SC("TrackPosition"), &CVehicle::GetTrackPosition, &CVehicle::SetTrackPosition)
         .Prop(_SC("TrackRotation"), &CVehicle::GetTrackRotation, &CVehicle::SetTrackRotation)
-        .Prop(_SC("LastPrimaryColour"), &CVehicle::GetLastPrimaryColour)
-        .Prop(_SC("LastSecondaryColour"), &CVehicle::GetLastSecondaryColour)
+        .Prop(_SC("LastPrimaryColor"), &CVehicle::GetLastPrimaryColor)
+        .Prop(_SC("LastSecondaryColor"), &CVehicle::GetLastSecondaryColor)
+        .Prop(_SC("LastPrimaryColour"), &CVehicle::GetLastPrimaryColor)
+        .Prop(_SC("LastSecondaryColour"), &CVehicle::GetLastSecondaryColor)
         .Prop(_SC("LastHealth"), &CVehicle::GetLastHealth)
         .Prop(_SC("LastPosition"), &CVehicle::GetLastPosition)
         .Prop(_SC("LastRotation"), &CVehicle::GetLastRotation)

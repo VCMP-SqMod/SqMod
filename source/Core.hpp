@@ -482,8 +482,8 @@ protected:
         SQInteger       mTrackRotation; // The number of times to track rotation changes.
 
         // ----------------------------------------------------------------------------------------
-        Int32           mLastPrimaryColour; // Last known secondary-color of the player entity.
-        Int32           mLastSecondaryColour; // Last known primary-color of the player entity.
+        Int32           mLastPrimaryColor; // Last known secondary-color of the player entity.
+        Int32           mLastSecondaryColor; // Last known primary-color of the player entity.
         Float32         mLastHealth; // Last known health of the player entity.
         Vector3         mLastPosition; // Last known position of the player entity.
         Quaternion      mLastRotation; // Last known rotation of the player entity.
@@ -499,7 +499,7 @@ protected:
         Function        mOnExplode;
         Function        mOnRespawn;
         Function        mOnUpdate;
-        Function        mOnColour;
+        Function        mOnColor;
         Function        mOnHealth;
         Function        mOnPosition;
         Function        mOnRotation;
@@ -1041,7 +1041,7 @@ public:
     void EmitPlayerWantedLevel(Int32 player_id, Int32 old_level, Int32 new_level);
     void EmitPlayerImmunity(Int32 player_id, Int32 old_immunity, Int32 new_immunity);
     void EmitPlayerAlpha(Int32 player_id, Int32 old_alpha, Int32 new_alpha, Int32 fade);
-    void EmitVehicleColour(Int32 vehicle_id, Int32 changed);
+    void EmitVehicleColor(Int32 vehicle_id, Int32 changed);
     void EmitVehicleHealth(Int32 vehicle_id, Float32 old_health, Float32 new_health);
     void EmitVehiclePosition(Int32 vehicle_id);
     void EmitVehicleRotation(Int32 vehicle_id);
@@ -1203,7 +1203,7 @@ private:
     Function    mOnPlayerWantedLevel;
     Function    mOnPlayerImmunity;
     Function    mOnPlayerAlpha;
-    Function    mOnVehicleColour;
+    Function    mOnVehicleColor;
     Function    mOnVehicleHealth;
     Function    mOnVehiclePosition;
     Function    mOnVehicleRotation;
