@@ -406,6 +406,10 @@
 			<Add option="-DSQMOD_PLUGIN_API" />
 			<Add option="-DSCRAT_USE_EXCEPTIONS" />
 			<Add option="-DSCRAT_USE_CXX11_OPTIMIZATIONS" />
+			<Add option="-DSQLITE_ENABLE_FTS3" />
+			<Add option="-DSQLITE_ENABLE_FTS4" />
+			<Add option="-DSQLITE_ENABLE_FTS5" />
+			<Add option="-DSQLITE_ENABLE_JSON1" />
 			<Add directory="../modules/sqlite" />
 			<Add directory="../shared" />
 			<Add directory="../include" />
