@@ -631,7 +631,7 @@ enum EntityType
 */
 
 /* ------------------------------------------------------------------------------------------------
- * PLUGIN OPTIONS
+ * PLUG-IN OPTIONS
 */
 
 #define SQMOD_STACK_SIZE            2048

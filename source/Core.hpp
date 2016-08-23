@@ -620,7 +620,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * See whether debugging option was enabled in the plugin.
+     * See whether debugging option was enabled in the plug-in.
     */
     bool IsDebugging() const
     {
@@ -628,7 +628,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * See whether all queued scripts were executed and the plugin fully started.
+     * See whether all queued scripts were executed and the plug-in fully started.
     */
     bool IsExecuted() const
     {

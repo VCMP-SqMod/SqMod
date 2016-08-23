@@ -96,8 +96,8 @@ static uint8_t OnServerInitialise(void)
         if (Core::Get().Execute())
         {
             Core::Get().EmitServerStartup();
-            // Add a notification to let the user know the plugin was loaded
-            LogScs("The Squirrel plugin was loaded successfully");
+            // Add a notification to let the user know the plug-in was loaded
+            LogScs("The Squirrel plug-in was loaded successfully");
         }
         else
         {

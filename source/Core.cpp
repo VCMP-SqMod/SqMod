@@ -458,7 +458,7 @@ void Core::Terminate(bool shutdown)
         _Func->SendPluginCommand(SQMOD_RELEASED_CMD, "");
     }
 
-    LogDbg("Squirrel plug---in was successfully terminated");
+    LogDbg("Squirrel plug-in was successfully terminated");
 }
 
 // ------------------------------------------------------------------------------------------------
