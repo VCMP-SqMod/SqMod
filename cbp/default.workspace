@@ -2,15 +2,10 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="SqMod">
 		<Project filename="Module.cbp" />
-		<Project filename="Sandbox.cbp" />
 		<Project filename="Squirrel.cbp" />
 		<Project filename="ModIRC.cbp" />
 		<Project filename="ModXML.cbp" />
-		<Project filename="ModJSON.cbp" />
 		<Project filename="ModSQLite.cbp" />
 		<Project filename="ModMySQL.cbp" />
-		<Project filename="ModMMDB.cbp" />
-		<Project filename="ModMongoose.cbp" />
-		<Project filename="ModSample.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
