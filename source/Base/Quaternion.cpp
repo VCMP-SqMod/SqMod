@@ -12,6 +12,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+#define STOVAL(v) static_cast< Quaternion::Value >(v)
+
+// ------------------------------------------------------------------------------------------------
 const Quaternion Quaternion::NIL(0);
 const Quaternion Quaternion::MIN(std::numeric_limits< Quaternion::Value >::min());
 const Quaternion Quaternion::MAX(std::numeric_limits< Quaternion::Value >::max());
@@ -389,18 +392,37 @@ void Quaternion::SetQuaternionEx(Value nx, Value ny, Value nz, Value nw)
 // ------------------------------------------------------------------------------------------------
 void Quaternion::SetVector3(const Vector3 & v)
 {
-    x = v.x;
-    y = v.y;
-    z = v.z;
-    w = 0.0;
+    SetVector3Ex(v.x, v.y, v.z);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Quaternion::SetVector3Ex(Value nx, Value ny, Value nz)
 {
-    x = nx;
-    y = ny;
-    z = nz;
+    Float64 angle;
+
+    angle = (nx * 0.5);
+    const Float64 sr = std::sin(angle);
+    const Float64 cr = std::cos(angle);
+
+    angle = (ny * 0.5);
+    const Float64 sp = std::sin(angle);
+    const Float64 cp = std::cos(angle);
+
+    angle = (nz * 0.5);
+    const Float64 sy = std::sin(angle);
+    const Float64 cy = std::cos(angle);
+
+    const Float64 cpcy = (cp * cy);
+    const Float64 spcy = (sp * cy);
+    const Float64 cpsy = (cp * sy);
+    const Float64 spsy = (sp * sy);
+
+    x = STOVAL(sr * cpcy - cr * spsy);
+    y = STOVAL(cr * spcy + sr * cpsy);
+    z = STOVAL(cr * cpsy - sr * spcy);
+    w = STOVAL(cr * cpcy + sr * spsy);
+
+    Normalize();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -459,6 +481,240 @@ void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value 
 Quaternion Quaternion::Abs() const
 {
     return Quaternion(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Quaternion::IsNaN() const
+{
+    return std::isnan(w) || std::isnan(x) || std::isnan(y) || std::isnan(z);
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion::Quaternion::Value Quaternion::LengthSquared() const
+{
+    return (x * x) + (y * y) + (z * z) + (w * w);
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion::Value Quaternion::DotProduct(const Quaternion & quat) const
+{
+    return (x * quat.x) + (y * quat.y) + (z * quat.z) + (w * quat.w);
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion Quaternion::Conjugate() const
+{
+    return Quaternion(-x, -y, -z, w);;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Quaternion::Normalize()
+{
+    const Value len_squared = LengthSquared();
+
+    if (!EpsEq(len_squared, STOVAL(1.0)) && EpsGt(len_squared, STOVAL(0.0)))
+    {
+        const Value inv_len = STOVAL(1.0) / std::sqrt(len_squared);
+
+        x *= inv_len;
+        y *= inv_len;
+        z *= inv_len;
+        w *= inv_len;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion Quaternion::Normalized() const
+{
+    const Value len_squared = LengthSquared();
+
+    if (!EpsEq(len_squared, STOVAL(1.0)) && EpsGt(len_squared, STOVAL(0.0)))
+    {
+        Value inv_len = 1.0f / sqrtf(len_squared);
+
+        return ((*this) * inv_len);
+    }
+    else
+    {
+        return (*this);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Quaternion::FromAngleAxis(Value angle, const Vector3 & axis)
+{
+    const Vector3 norm_axis = axis.Normalized();
+    angle *= SQMOD_DEGTORAD_2;
+    const Value sin_angle = std::sin(angle);
+    x = norm_axis.x * sin_angle;
+    y = norm_axis.y * sin_angle;
+    z = norm_axis.z * sin_angle;
+    w = std::cos(angle);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Quaternion::FromRotationTo(const Vector3 & start, const Vector3 & end)
+{
+    const Vector3 norm_start = start.Normalized();
+    const Vector3 norm_end = end.Normalized();
+    const Value d = norm_start.DotProduct(norm_end);
+
+    if (EpsGt(d, STOVAL(-1.0)))
+    {
+        const Vector3 c = norm_start.CrossProduct(norm_end);
+        const Value s = std::sqrt((STOVAL(1.0) + d) * STOVAL(2.0));
+        const Value inv_s = STOVAL(1.0) / s;
+
+        x = c.x * inv_s;
+        y = c.y * inv_s;
+        z = c.z * inv_s;
+        w = STOVAL(0.5) * s;
+    }
+    else
+    {
+        Vector3 axis = Vector3::RIGHT.CrossProduct(norm_start);
+
+        if (EpsLt(axis.GetLength(), STOVAL(0.0)))
+        {
+            FromAngleAxis(STOVAL(180), Vector3::UP.CrossProduct(norm_start));
+        }
+        else
+        {
+            FromAngleAxis(STOVAL(180), axis);
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion Quaternion::Inverse() const
+{
+    const Value len_squared = LengthSquared();
+    if (EpsEq(len_squared, STOVAL(1.0)))
+    {
+        return Conjugate();
+    }
+    else if (EpsGtEq(len_squared, STOVAL(0.0)))
+    {
+        return Conjugate() * (STOVAL(1.0) / len_squared);
+    }
+    else
+    {
+        return IDENTITY;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3 Quaternion::ToEuler() const
+{
+    const Float64 sqw = (w * w);
+    const Float64 sqx = (x * x);
+    const Float64 sqy = (y * y);
+    const Float64 sqz = (z * z);
+    const Float64 test = 2.0 * ((y * w) - (x * z));
+
+    if (EpsEq(test, 1.0))
+    {
+        return Vector3(
+            // bank = rotation about x-axis
+            STOVAL(0.0),
+            // attitude = rotation about y-axis
+            STOVAL(SQMOD_PI64 / 2.0),
+            // heading = rotation about z-axis
+            STOVAL(-2.0 * std::atan2(x, w))
+        );
+    }
+    else if (EpsEq(test, -1.0))
+    {
+        return Vector3(
+            // bank = rotation about x-axis
+            STOVAL(0.0),
+            // attitude = rotation about y-axis
+            STOVAL(SQMOD_PI64 / -2.0),
+            // heading = rotation about z-axis
+            STOVAL(2.0 * std::atan2(x, w))
+        );
+    }
+
+    return Vector3(
+        // bank = rotation about x-axis
+        STOVAL(std::atan2(2.0 * ((y * z) + (x * w)), (-sqx - sqy + sqz + sqw))),
+        // attitude = rotation about y-axis
+        STOVAL(std::asin(Clamp(test, -1.0, 1.0))),
+        // heading = rotation about z-axis
+        STOVAL(std::atan2(2.0 * ((x * y) + (z * w)), (sqx - sqy - sqz + sqw)))
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion::Value Quaternion::YawAngle() const
+{
+    return ToEuler().y;
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion::Value Quaternion::PitchAngle() const
+{
+    return ToEuler().x;
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion::Value Quaternion::RollAngle() const
+{
+    return ToEuler().z;
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion Quaternion::Slerp(Quaternion quat, Value t) const
+{
+    // Favor accuracy for native code builds
+    Value cos_angle = DotProduct(quat);
+    // Enable shortest path rotation
+    if (EpsLt(cos_angle, STOVAL(0.0)))
+    {
+        cos_angle = -cos_angle;
+        quat = -quat;
+    }
+
+    const Value angle = std::acos(cos_angle);
+    Value sin_angle = std::sin(angle);
+    Value t1, t2;
+
+    if (sin_angle > STOVAL(0.001))
+    {
+        Value inv_sin_angle = STOVAL(1.0) / sin_angle;
+        t1 = std::sin((STOVAL(1.0) - t) * angle) * inv_sin_angle;
+        t2 = std::sin(t * angle) * inv_sin_angle;
+    }
+    else
+    {
+        t1 = STOVAL(1.0) - t;
+        t2 = t;
+    }
+
+    return ((*this) * t1 + quat * t2);
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion Quaternion::Nlerp(const Quaternion & quat, Value t) const
+{
+    return NlerpEx(quat, t, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+Quaternion Quaternion::NlerpEx(const Quaternion & quat, Value t, bool shortest_path) const
+{
+    Quaternion result;
+    const Value fcos = DotProduct(quat);
+    if (EpsLt(fcos, STOVAL(0.0)) && shortest_path)
+    {
+        result = (*this) + (((-quat) - (*this)) * t);
+    }
+    else
+    {
+        result = (*this) + ((quat - (*this)) * t);
+    }
+    result.Normalize();
+    return result;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -563,6 +819,15 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Func< Quaternion (Quaternion::*)(void) const >(_SC("_unm"), &Quaternion::operator -)
         // Properties
         .Prop(_SC("Abs"), &Quaternion::Abs)
+        .Prop(_SC("NaN"), &Quaternion::IsNaN)
+        .Prop(_SC("LengthSq"), &Quaternion::LengthSquared)
+        .Prop(_SC("Conjugate"), &Quaternion::Conjugate)
+        .Prop(_SC("Normalized"), &Quaternion::Normalized)
+        .Prop(_SC("Inverse"), &Quaternion::Inverse)
+        .Prop(_SC("Euler"), &Quaternion::ToEuler, &Quaternion::SetVector3)
+        .Prop(_SC("YawAngle"), &Quaternion::YawAngle)
+        .Prop(_SC("PitchAngle"), &Quaternion::PitchAngle)
+        .Prop(_SC("RollAngle"), &Quaternion::RollAngle)
         // Member Methods
         .Func(_SC("SetScalar"), &Quaternion::SetScalar)
         .Func(_SC("SetQuaternion"), &Quaternion::SetQuaternion)
@@ -572,6 +837,13 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Func(_SC("SetVector4"), &Quaternion::SetVector4)
         .Func(_SC("SetStr"), &Quaternion::SetStr)
         .Func(_SC("Clear"), &Quaternion::Clear)
+        .Func(_SC("DotProduct"), &Quaternion::DotProduct)
+        .Func(_SC("Normalize"), &Quaternion::Normalize)
+        .Func(_SC("FromAngleAxis"), &Quaternion::FromAngleAxis)
+        .Func(_SC("FromRotationTo"), &Quaternion::FromRotationTo)
+        .Func(_SC("Slerp"), &Quaternion::Slerp)
+        .Func(_SC("Nlerp"), &Quaternion::Nlerp)
+        .Func(_SC("NlerpEx"), &Quaternion::NlerpEx)
         // Member Overloads
         .Overload< void (Quaternion::*)(void) >(_SC("Generate"), &Quaternion::Generate)
         .Overload< void (Quaternion::*)(Val, Val) >(_SC("Generate"), &Quaternion::Generate)

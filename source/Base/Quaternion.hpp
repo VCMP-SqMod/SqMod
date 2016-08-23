@@ -41,17 +41,17 @@ struct Quaternion
     Quaternion();
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Construct from scalar value.
     */
     Quaternion(Value sv);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Construct from Euler angles (in degrees.)
     */
     Quaternion(Value xv, Value yv, Value zv);
 
     /* --------------------------------------------------------------------------------------------
-     * ...
+     * Construct from individual values.
     */
     Quaternion(Value xv, Value yv, Value zv, Value wv);
 
@@ -332,6 +332,86 @@ struct Quaternion
      * Retrieve a new instance of this type with absolute component values.
     */
     Quaternion Abs() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return whether is NaN.
+    */
+    bool IsNaN() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return squared length.
+    */
+    Value LengthSquared() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Calculate dot product.
+    */
+    Value DotProduct(const Quaternion & quat) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return conjugate.
+    */
+    Quaternion Conjugate() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Normalize to unit length.
+    */
+    void Normalize();
+
+    /* --------------------------------------------------------------------------------------------
+     * Return normalized to unit length.
+    */
+    Quaternion Normalized() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Define from an angle (in degrees) and axis.
+    */
+    void FromAngleAxis(Value angle, const Vector3 & axis);
+
+    /* --------------------------------------------------------------------------------------------
+     * Define from the rotation difference between two direction vectors.
+    */
+    void FromRotationTo(const Vector3 & start, const Vector3 & end);
+
+    /* --------------------------------------------------------------------------------------------
+     * Return inverse.
+    */
+    Quaternion Inverse() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return Euler angles in degrees.
+    */
+    Vector3 ToEuler() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return yaw angle in degrees.
+    */
+    Value YawAngle() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return pitch angle in degrees.
+    */
+    Value PitchAngle() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return roll angle in degrees.
+    */
+    Value RollAngle() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Spherical interpolation with another quaternion.
+    */
+    Quaternion Slerp(Quaternion quat, Value t) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Normalized linear interpolation with another quaternion.
+    */
+    Quaternion Nlerp(const Quaternion & quat, Value t) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Normalized linear interpolation with another quaternion.
+    */
+    Quaternion NlerpEx(const Quaternion & quat, Value t, bool shortest_path) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Quaternion type from a string.
