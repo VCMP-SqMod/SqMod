@@ -379,11 +379,11 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O3" />
+					<Add option="-fPIC" />
 					<Add option="-m64" />
 					<Add option="-static-libgcc" />
 					<Add option="-static-libstdc++" />
 					<Add option="-enable-static" />
-					<Add option="-fPIC" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_SQ64" />
 					<Add directory="../config/gcc64" />
