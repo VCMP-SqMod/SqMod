@@ -40,7 +40,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit value constructor.
     */
-    LongInt(Type n)
+    explicit LongInt(Type n)
         : m_Data(n), m_Text()
     {
         /* ... */
@@ -49,12 +49,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * String encoded constructor.
     */
-    LongInt(CSStr text);
+    explicit LongInt(CSStr text);
 
     /* --------------------------------------------------------------------------------------------
-     * String encoded with fall back value constructor.
+     * String encoded with explicit base constructor.
     */
-    LongInt(CSStr text, SQInteger fall);
+    LongInt(CSStr text, Uint32 base);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
@@ -155,41 +155,241 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Adition operator.
     */
-    LongInt< Type > operator + (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator + (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data + o.m_Data);
+        return LongInt< Type >(m_Data + ConvTo< Type >::From(o.GetNum()));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Subtraction operator.
     */
-    LongInt< Type > operator - (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator - (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data - o.m_Data);
+        return LongInt< Type >(m_Data - ConvTo< Type >::From(o.GetNum()));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Multiplication operator.
     */
-    LongInt< Type > operator * (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator * (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data * o.m_Data);
+        return LongInt< Type >(m_Data * ConvTo< Type >::From(o.GetNum()));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Division operator.
     */
-    LongInt< Type > operator / (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator / (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data / o.m_Data);
+        return LongInt< Type >(m_Data / ConvTo< Type >::From(o.GetNum()));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Modulus operator.
     */
-    LongInt< Type > operator % (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator % (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data % o.m_Data);
+        return LongInt< Type >(m_Data % ConvTo< Type >::From(o.GetNum()));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data + ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data - ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data * ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data / ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data % ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data + ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data - ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data * ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data / ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data % ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (bool s) const
+    {
+        return LongInt< Type >(m_Data + static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (bool s) const
+    {
+        return LongInt< Type >(m_Data - static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (bool s) const
+    {
+        return LongInt< Type >(m_Data * static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (bool s) const
+    {
+        return LongInt< Type >(m_Data / static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (bool s) const
+    {
+        return LongInt< Type >(m_Data % static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (std::nullptr_t) const
+    {
+        return LongInt< Type >(m_Data + static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (std::nullptr_t) const
+    {
+        return LongInt< Type >(m_Data - static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (std::nullptr_t) const
+    {
+        return LongInt< Type >(m_Data * static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (std::nullptr_t) const
+    {
+        return LongInt< Type >(static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (std::nullptr_t) const
+    {
+        return LongInt< Type >(static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (CSStr str) const
+    {
+        return LongInt< Type >(m_Data + ConvTo< Type >::From(str));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (CSStr str) const
+    {
+        return LongInt< Type >(m_Data - ConvTo< Type >::From(str));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (CSStr str) const
+    {
+        return LongInt< Type >(m_Data * ConvTo< Type >::From(str));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (CSStr str) const
+    {
+        return LongInt< Type >(m_Data / ConvTo< Type >::From(str));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (CSStr str) const
+    {
+        return LongInt< Type >(m_Data % ConvTo< Type >::From(str));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -210,6 +410,109 @@ public:
             return 0;
         }
         else if (m_Data > o.m_Data)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with another one.
+    */
+    Int32 Cmp(const LongInt< Uint64 > & o) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(SQInteger s) const
+    {
+        if (m_Data == static_cast< Type >(s))
+        {
+            return 0;
+        }
+        else if (m_Data > static_cast< Type >(s))
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(SQFloat s) const
+    {
+        if (m_Data == static_cast< Type >(s))
+        {
+            return 0;
+        }
+        else if (m_Data > static_cast< Type >(s))
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
+    {
+        if (m_Data == static_cast< Type >(s))
+        {
+            return 0;
+        }
+        else if (m_Data > static_cast< Type >(s))
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(std::nullptr_t) const
+    {
+        if (m_Data == static_cast< Type >(0))
+        {
+            return 0;
+        }
+        else if (m_Data > static_cast< Type >(0))
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(CSStr str) const
+    {
+        const Type v = ConvTo< Type >::From(str);
+
+        if (m_Data == v)
+        {
+            return 0;
+        }
+        else if (m_Data > v)
         {
             return 1;
         }
@@ -367,9 +670,9 @@ public:
     LongInt(CSStr text);
 
     /* --------------------------------------------------------------------------------------------
-     * String encoded with fall back value constructor.
+     * String encoded with explicit base constructor.
     */
-    LongInt(CSStr text, SQInteger fall);
+    LongInt(CSStr text, Uint32 base);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
@@ -470,41 +773,241 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Adition operator.
     */
-    LongInt< Type > operator + (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator + (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data + o.m_Data);
+        return LongInt< Type >(m_Data + ConvTo< Type >::From(o.GetNum()));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Subtraction operator.
     */
-    LongInt< Type > operator - (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator - (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data - o.m_Data);
+        return LongInt< Type >(m_Data - ConvTo< Type >::From(o.GetNum()));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Multiplication operator.
     */
-    LongInt< Type > operator * (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator * (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data * o.m_Data);
+        return LongInt< Type >(m_Data * ConvTo< Type >::From(o.GetNum()));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Division operator.
     */
-    LongInt< Type > operator / (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator / (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data / o.m_Data);
+        return LongInt< Type >(m_Data / ConvTo< Type >::From(o.GetNum()));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Modulus operator.
     */
-    LongInt< Type > operator % (const LongInt< Type > & o) const
+    template < typename U > LongInt< Type > operator % (const LongInt< U > & o) const
     {
-        return LongInt< Type >(m_Data % o.m_Data);
+        return LongInt< Type >(m_Data % ConvTo< Type >::From(o.GetNum()));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data + ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data - ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data * ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data / ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (SQInteger s) const
+    {
+        return LongInt< Type >(m_Data % ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data + ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data - ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data * ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data / ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (SQFloat s) const
+    {
+        return LongInt< Type >(m_Data % ConvTo< Type >::From(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (bool s) const
+    {
+        return LongInt< Type >(m_Data + static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (bool s) const
+    {
+        return LongInt< Type >(m_Data - static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (bool s) const
+    {
+        return LongInt< Type >(m_Data * static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (bool s) const
+    {
+        return LongInt< Type >(m_Data / static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (bool s) const
+    {
+        return LongInt< Type >(m_Data % static_cast< Type >(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (std::nullptr_t) const
+    {
+        return LongInt< Type >(m_Data + static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (std::nullptr_t) const
+    {
+        return LongInt< Type >(m_Data - static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (std::nullptr_t) const
+    {
+        return LongInt< Type >(m_Data * static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (std::nullptr_t) const
+    {
+        return LongInt< Type >(static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (std::nullptr_t) const
+    {
+        return LongInt< Type >(static_cast< Type >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Adition operator.
+    */
+    LongInt< Type > operator + (CSStr str) const
+    {
+        return LongInt< Type >(m_Data + ConvTo< Type >::From(str));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
+    LongInt< Type > operator - (CSStr str) const
+    {
+        return LongInt< Type >(m_Data - ConvTo< Type >::From(str));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
+    LongInt< Type > operator * (CSStr str) const
+    {
+        return LongInt< Type >(m_Data * ConvTo< Type >::From(str));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
+    LongInt< Type > operator / (CSStr str) const
+    {
+        return LongInt< Type >(m_Data / ConvTo< Type >::From(str));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
+    LongInt< Type > operator % (CSStr str) const
+    {
+        return LongInt< Type >(m_Data % ConvTo< Type >::From(str));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -525,6 +1028,125 @@ public:
             return 0;
         }
         else if (m_Data > o.m_Data)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with another one.
+    */
+    Int32 Cmp(const LongInt< Int64 > & o) const
+    {
+        const Type v = ConvTo< Type >::From(o.GetNum());
+
+        if (m_Data == v)
+        {
+            return 0;
+        }
+        else if (m_Data > v)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(SQInteger s) const
+    {
+        if (m_Data == static_cast< Type >(s))
+        {
+            return 0;
+        }
+        else if (m_Data > static_cast< Type >(s))
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(SQFloat s) const
+    {
+        if (m_Data == static_cast< Type >(s))
+        {
+            return 0;
+        }
+        else if (m_Data > static_cast< Type >(s))
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
+    {
+        if (m_Data == static_cast< Type >(s))
+        {
+            return 0;
+        }
+        else if (m_Data > static_cast< Type >(s))
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(std::nullptr_t) const
+    {
+        if (m_Data == static_cast< Type >(0))
+        {
+            return 0;
+        }
+        else if (m_Data > static_cast< Type >(0))
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(CSStr str) const
+    {
+        const Type v = ConvTo< Type >::From(str);
+
+        if (m_Data == v)
+        {
+            return 0;
+        }
+        else if (m_Data > v)
         {
             return 1;
         }
@@ -639,6 +1261,25 @@ public:
         return ClampL< Type, SQChar >(m_Data);
     }
 };
+
+// ------------------------------------------------------------------------------------------------
+inline Int32 LongInt< Int64 >::Cmp(const LongInt< Uint64 > & o) const
+{
+    const Type v = ConvTo< Type >::From(o.GetNum());
+
+    if (m_Data == v)
+    {
+        return 0;
+    }
+    else if (m_Data > v)
+    {
+        return 1;
+    }
+    else
+    {
+        return -1;
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 typedef LongInt< Int64 > SLongInt;

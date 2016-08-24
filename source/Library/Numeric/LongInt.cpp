@@ -2,6 +2,7 @@
 #include "Library/Numeric/LongInt.hpp"
 #include "Library/Numeric/Random.hpp"
 #include "Base/Shared.hpp"
+#include "Base/DynArg.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdio>
@@ -20,20 +21,17 @@ SQInteger LongInt< Int64 >::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-LongInt< Int64 >::LongInt(CSStr text) : m_Data(0), m_Text()
+LongInt< Int64 >::LongInt(CSStr text)
+    : m_Data(0), m_Text()
 {
     m_Data = std::strtoll(text, nullptr, 10);
 }
 
 // ------------------------------------------------------------------------------------------------
-LongInt< Int64 >::LongInt(CSStr text, SQInteger fall) : m_Data(0), m_Text()
+LongInt< Int64 >::LongInt(CSStr text, Uint32 base)
+    : m_Data(0), m_Text()
 {
-    m_Data = std::strtoll(text, nullptr, 10);
-    // Simple, check for conversion errors
-    if (errno == ERANGE)
-    {
-        m_Data = ConvTo< Type >::From(fall);
-    }
+    m_Data = std::strtoll(text, nullptr, base);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -81,20 +79,17 @@ SQInteger LongInt< Uint64 >::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-LongInt< Uint64 >::LongInt(CSStr text) : m_Data(0), m_Text()
+LongInt< Uint64 >::LongInt(CSStr text)
+    : m_Data(0), m_Text()
 {
-    m_Data = std::strtoll(text, nullptr, 10);
+    m_Data = std::strtoull(text, nullptr, 10);
 }
 
 // ------------------------------------------------------------------------------------------------
-LongInt< Uint64 >::LongInt(CSStr text, SQInteger fall) : m_Data(0), m_Text()
+LongInt< Uint64 >::LongInt(CSStr text, Uint32 base)
+    : m_Data(0), m_Text()
 {
-    m_Data = std::strtoull(text, nullptr, 10);
-    // Simple, check for conversion errors
-    if (errno == ERANGE)
-    {
-        m_Data = ConvTo< Type >::From(fall);
-    }
+    m_Data = std::strtoull(text, nullptr, base);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -147,7 +142,7 @@ void Register_LongInt(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &SLongInt::ToString)
         .SquirrelFunc(_SC("_typename"), &SLongInt::Typename)
-        .Func(_SC("_cmp"), &SLongInt::Cmp)
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< SLongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, SLongInt, ULongInt >)
         // Core Functions
         .Func(_SC("tointeger"), &SLongInt::ToSqInteger)
         .Func(_SC("tofloat"), &SLongInt::ToSqFloat)
@@ -155,11 +150,11 @@ void Register_LongInt(HSQUIRRELVM vm)
         .Func(_SC("tobool"), &SLongInt::ToSqBool)
         .Func(_SC("tochar"), &SLongInt::ToSqChar)
         // Meta-methods
-        .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_add"), &SLongInt::operator +)
-        .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_sub"), &SLongInt::operator -)
-        .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_mul"), &SLongInt::operator *)
-        .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_div"), &SLongInt::operator /)
-        .Func< SLongInt (SLongInt::*)(const SLongInt &) const >(_SC("_modulo"), &SLongInt::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< SLongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, SLongInt, ULongInt >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< SLongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, SLongInt, ULongInt >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< SLongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, SLongInt, ULongInt >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< SLongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, SLongInt, ULongInt >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< SLongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, SLongInt, ULongInt >)
         .Func< SLongInt (SLongInt::*)(void) const >(_SC("_unm"), &SLongInt::operator -)
         // Functions
         .Func(_SC("GetStr"), &SLongInt::GetCStr)
@@ -183,7 +178,7 @@ void Register_LongInt(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &ULongInt::ToString)
         .SquirrelFunc(_SC("_typename"), &ULongInt::Typename)
-        .Func(_SC("_cmp"), &ULongInt::Cmp)
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< ULongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, ULongInt, SLongInt >)
         // Core Functions
         .Func(_SC("tointeger"), &ULongInt::ToSqInteger)
         .Func(_SC("tofloat"), &ULongInt::ToSqFloat)
@@ -191,11 +186,11 @@ void Register_LongInt(HSQUIRRELVM vm)
         .Func(_SC("tobool"), &ULongInt::ToSqBool)
         .Func(_SC("tochar"), &ULongInt::ToSqChar)
         // Meta-methods
-        .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_add"), &ULongInt::operator +)
-        .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_sub"), &ULongInt::operator -)
-        .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_mul"), &ULongInt::operator *)
-        .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_div"), &ULongInt::operator /)
-        .Func< ULongInt (ULongInt::*)(const ULongInt &) const >(_SC("_modulo"), &ULongInt::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< ULongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, ULongInt, SLongInt >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< ULongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, ULongInt, SLongInt >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< ULongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, ULongInt, SLongInt >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< ULongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, ULongInt, SLongInt >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< ULongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, ULongInt, SLongInt >)
         .Func< ULongInt (ULongInt::*)(void) const >(_SC("_unm"), &ULongInt::operator -)
         // Functions
         .Func(_SC("GetStr"), &ULongInt::GetCStr)
