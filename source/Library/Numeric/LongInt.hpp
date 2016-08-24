@@ -11,25 +11,25 @@ namespace SqMod {
 template < typename T > class LongInt;
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Specialization of the Long int class for signed integers.
 */
 template <> class LongInt< Int64 >
 {
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef Int64 Type;
+    typedef Int64 Type; // The specialized type.
 
 private:
 
     // --------------------------------------------------------------------------------------------
-    Type    m_Data;
-    SQChar  m_Text[32];
+    Type    m_Data; // The assigned value.
+    SQChar  m_Text[32]; // String representation of the value.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Default constructor.
     */
     LongInt()
         : m_Data(0), m_Text()
@@ -37,6 +37,9 @@ public:
         /* ... */
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Explicit value constructor.
+    */
     LongInt(Type n)
         : m_Data(n), m_Text()
     {
@@ -44,13 +47,17 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * String encoded constructor.
     */
     LongInt(CSStr text);
+
+    /* --------------------------------------------------------------------------------------------
+     * String encoded with fall back value constructor.
+    */
     LongInt(CSStr text, SQInteger fall);
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Copy constructor.
     */
     LongInt(const LongInt< Type > & o)
         : m_Data(o.m_Data), m_Text()
@@ -59,7 +66,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Destructor.
     */
     ~LongInt()
     {
@@ -76,7 +83,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Copy assignment operator.
     */
     LongInt< Type > & operator = (Type data)
     {
@@ -85,80 +92,108 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assignment operator.
     */
     LongInt< Type > & operator = (CSStr text);
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Equality comparison operator.
     */
     bool operator == (const LongInt< Type > & o) const
     {
         return (m_Data == o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Inequality comparison operator.
+    */
     bool operator != (const LongInt< Type > & o) const
     {
         return (m_Data != o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Less than comparison operator.
+    */
     bool operator < (const LongInt< Type > & o) const
     {
         return (m_Data < o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Greater than comparison operator.
+    */
     bool operator > (const LongInt< Type > & o) const
     {
         return (m_Data > o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Less than or equal comparison operator.
+    */
     bool operator <= (const LongInt< Type > & o) const
     {
         return (m_Data <= o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Greater than or equal comparison operator.
+    */
     bool operator >= (const LongInt< Type > & o) const
     {
         return (m_Data >= o.m_Data);
     }
 
-
     /* --------------------------------------------------------------------------------------------
-     *
+     * Implicit conversion to the specialized type.
     */
-    operator Type () const { return m_Data; }
+    operator Type () const
+    {
+        return m_Data;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Adition operator.
     */
     LongInt< Type > operator + (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data + o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
     LongInt< Type > operator - (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data - o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
     LongInt< Type > operator * (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data * o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
     LongInt< Type > operator / (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data / o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
     LongInt< Type > operator % (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data % o.m_Data);
     }
 
-
     /* --------------------------------------------------------------------------------------------
-     *
+     * Unarry minus operator.
     */
     LongInt< Type > operator - () const
     {
@@ -195,20 +230,23 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assign an integer value.
     */
     void SetNum(Type data)
     {
         m_Data = data;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve an the specialized value.
+    */
     Type GetNum() const
     {
         return m_Data;
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Retrieve an a Squirrel integer value.
     */
     SQInteger GetSNum() const
     {
@@ -216,23 +254,34 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assign a string value.
     */
     void SetStr(CSStr text)
     {
         *this = text;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a string value.
+    */
     CSStr GetCStr()
     {
         return ToString();
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Generate a random value.
     */
     void Random();
+
+    /* --------------------------------------------------------------------------------------------
+     * Generate a random value.
+    */
     void Random(Type n);
+
+    /* --------------------------------------------------------------------------------------------
+     * Generate a random value.
+    */
     void Random(Type m, Type n);
 
     /* --------------------------------------------------------------------------------------------
@@ -277,25 +326,25 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
- *
+ * Specialization of the Long int class for unsigned integers.
 */
 template <> class LongInt< Uint64 >
 {
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef Uint64 Type;
+    typedef Uint64 Type; // The specialized type.
 
 private:
 
     // --------------------------------------------------------------------------------------------
-    Type    m_Data;
-    SQChar  m_Text[32];
+    Type    m_Data; // The assigned value.
+    SQChar  m_Text[32]; // String representation of the value.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Default constructor.
     */
     LongInt()
         : m_Data(0), m_Text()
@@ -303,6 +352,9 @@ public:
         /* ... */
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Explicit value constructor.
+    */
     LongInt(Type n)
         : m_Data(n), m_Text()
     {
@@ -310,13 +362,17 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * String encoded constructor.
     */
     LongInt(CSStr text);
+
+    /* --------------------------------------------------------------------------------------------
+     * String encoded with fall back value constructor.
+    */
     LongInt(CSStr text, SQInteger fall);
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Copy constructor.
     */
     LongInt(const LongInt< Type > & o)
         : m_Data(o.m_Data), m_Text()
@@ -325,7 +381,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Destructor.
     */
     ~LongInt()
     {
@@ -333,7 +389,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Copy assignment operator.
     */
     LongInt & operator = (const LongInt< Type > & o)
     {
@@ -342,7 +398,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assignment operator.
     */
     LongInt< Type > & operator = (Type data)
     {
@@ -351,80 +407,108 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assignment operator.
     */
     LongInt< Type > & operator = (CSStr text);
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Equality comparison operator.
     */
     bool operator == (const LongInt< Type > & o) const
     {
         return (m_Data == o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Inequality comparison operator.
+    */
     bool operator != (const LongInt< Type > & o) const
     {
         return (m_Data != o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Less than comparison operator.
+    */
     bool operator < (const LongInt< Type > & o) const
     {
         return (m_Data < o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Greater than comparison operator.
+    */
     bool operator > (const LongInt< Type > & o) const
     {
         return (m_Data > o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Less than or equal comparison operator.
+    */
     bool operator <= (const LongInt< Type > & o) const
     {
         return (m_Data <= o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Greater than or equal comparison operator.
+    */
     bool operator >= (const LongInt< Type > & o) const
     {
         return (m_Data >= o.m_Data);
     }
 
-
     /* --------------------------------------------------------------------------------------------
-     *
+     * Implicit conversion to the specialized type.
     */
-    operator Type () const { return m_Data; }
+    operator Type () const
+    {
+        return m_Data;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Adition operator.
     */
     LongInt< Type > operator + (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data + o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Subtraction operator.
+    */
     LongInt< Type > operator - (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data - o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Multiplication operator.
+    */
     LongInt< Type > operator * (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data * o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Division operator.
+    */
     LongInt< Type > operator / (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data / o.m_Data);
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Modulus operator.
+    */
     LongInt< Type > operator % (const LongInt< Type > & o) const
     {
         return LongInt< Type >(m_Data % o.m_Data);
     }
 
-
     /* --------------------------------------------------------------------------------------------
-     *
+     * Unarry minus operator.
     */
     LongInt< Type > operator - () const
     {
@@ -461,20 +545,23 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assign an integer value.
     */
     void SetNum(Type data)
     {
         m_Data = data;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve an the specialized value.
+    */
     Type GetNum() const
     {
         return m_Data;
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Retrieve an a Squirrel integer value.
     */
     SQInteger GetSNum() const
     {
@@ -482,23 +569,34 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Assign a string value.
     */
     void SetStr(CSStr text)
     {
         *this = text;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a string value.
+    */
     CSStr GetCStr()
     {
         return ToString();
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Generate a random value.
     */
     void Random();
+
+    /* --------------------------------------------------------------------------------------------
+     * Generate a random value.
+    */
     void Random(Type n);
+
+    /* --------------------------------------------------------------------------------------------
+     * Generate a random value.
+    */
     void Random(Type m, Type n);
 
     /* --------------------------------------------------------------------------------------------
