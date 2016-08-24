@@ -2,6 +2,7 @@
 #include "Base/Color3.hpp"
 #include "Base/Color4.hpp"
 #include "Base/Shared.hpp"
+#include "Base/DynArg.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -732,13 +733,13 @@ void Register_Color3(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Color3::ToString)
         .SquirrelFunc(_SC("_typename"), &Color3::Typename)
-        .Func(_SC("_cmp"), &Color3::Cmp)
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Color3 >, SQFloat, SQInteger, bool, std::nullptr_t, Color3 >)
         // Meta-methods
-        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_add"), &Color3::operator +)
-        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_sub"), &Color3::operator -)
-        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_mul"), &Color3::operator *)
-        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_div"), &Color3::operator /)
-        .Func< Color3 (Color3::*)(const Color3 &) const >(_SC("_modulo"), &Color3::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Color3 >, SQFloat, SQInteger, bool, std::nullptr_t, Color3 >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Color3 >, SQFloat, SQInteger, bool, std::nullptr_t, Color3 >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< Color3 >, SQFloat, SQInteger, bool, std::nullptr_t, Color3 >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< Color3 >, SQFloat, SQInteger, bool, std::nullptr_t, Color3 >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< Color3 >, SQFloat, SQInteger, bool, std::nullptr_t, Color3 >)
         .Func< Color3 (Color3::*)(void) const >(_SC("_unm"), &Color3::operator -)
         // Properties
         .Prop(_SC("RGB"), &Color3::GetRGB, &Color3::SetRGB)
