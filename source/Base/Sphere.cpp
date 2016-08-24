@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Sphere.hpp"
 #include "Base/Shared.hpp"
+#include "Base/DynArg.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -559,13 +560,13 @@ void Register_Sphere(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Sphere::ToString)
         .SquirrelFunc(_SC("_typename"), &Sphere::Typename)
-        .Func(_SC("_cmp"), &Sphere::Cmp)
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
         // Meta-methods
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_add"), &Sphere::operator +)
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_sub"), &Sphere::operator -)
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_mul"), &Sphere::operator *)
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_div"), &Sphere::operator /)
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("_modulo"), &Sphere::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
         .Func< Sphere (Sphere::*)(void) const >(_SC("_unm"), &Sphere::operator -)
         // Properties
         .Prop(_SC("Abs"), &Sphere::Abs)

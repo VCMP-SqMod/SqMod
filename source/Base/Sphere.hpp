@@ -307,6 +307,30 @@ struct Sphere
     Int32 Cmp(const Sphere & s) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(Value s) const
+    {
+        return Cmp(Sphere(s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(Int32 s) const
+    {
+        return Cmp(Sphere(static_cast< Value >(s)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(std::nullptr_t) const
+    {
+        return Cmp(Sphere(static_cast< Value >(0)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const;
