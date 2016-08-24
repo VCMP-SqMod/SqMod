@@ -44,7 +44,7 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Construct a circle at position 0,0 using the specified radius.
     */
-    Circle(Value rv);
+    explicit Circle(Value rv);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a circle at the specified position using the specified radius.
@@ -309,15 +309,23 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Value s) const
+    Int32 Cmp(SQFloat s) const
     {
-        return Cmp(Circle(s));
+        return Cmp(Circle(static_cast< Value >(s)));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Int32 s) const
+    Int32 Cmp(SQInteger s) const
+    {
+        return Cmp(Circle(static_cast< Value >(s)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
     {
         return Cmp(Circle(static_cast< Value >(s)));
     }

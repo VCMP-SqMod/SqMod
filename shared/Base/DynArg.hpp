@@ -666,7 +666,7 @@ template < typename T > struct SqDynArgMulFn
     */
     T operator () (std::nullptr_t) const
     {
-        return (*mVar.value) * 0;
+        return (*mVar.value) * static_cast< SQInteger >(0);
     }
 };
 
@@ -733,7 +733,7 @@ template < typename T > struct SqDynArgDivFn
     */
     T operator () (std::nullptr_t) const
     {
-        return (*mVar.value) / 0;
+        return (*mVar.value) / static_cast< SQInteger >(0);
     }
 };
 
@@ -800,7 +800,7 @@ template < typename T > struct SqDynArgModFn
     */
     T operator () (std::nullptr_t) const
     {
-        return (*mVar.value) % 0;
+        return (*mVar.value) % static_cast< SQInteger >(0);
     }
 };
 

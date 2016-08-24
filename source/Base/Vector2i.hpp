@@ -42,7 +42,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
     */
-    Vector2i(Value sv);
+    explicit Vector2i(Value sv);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the specified component values.
@@ -137,7 +137,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Bitwise right shift assignment operator.
     */
-    Vector2i & operator >>= (const Vector2i & v); 
+    Vector2i & operator >>= (const Vector2i & v);
 
     /* --------------------------------------------------------------------------------------------
      * Scalar value addition assignment operator.
@@ -187,7 +187,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Scalar value bitwise right shift assignment operator.
     */
-    Vector2i & operator >>= (Value s); 
+    Vector2i & operator >>= (Value s);
 
     /* --------------------------------------------------------------------------------------------
      * Pre-increment operator.
@@ -207,7 +207,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Vector2i operator -- (int); 
+    Vector2i operator -- (int);
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.
@@ -362,7 +362,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Int32 s) const
+    Int32 Cmp(SQInteger s) const
     {
         return Cmp(Vector2i(static_cast< Value >(s)));
     }
@@ -370,7 +370,15 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Float32 s) const
+    Int32 Cmp(SQFloat s) const
+    {
+        return Cmp(Vector2i(static_cast< Value >(s)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
     {
         return Cmp(Vector2i(static_cast< Value >(s)));
     }

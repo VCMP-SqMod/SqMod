@@ -42,7 +42,7 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Construct a color with all components with the same specified color.
     */
-    Color4(Value sv);
+    explicit Color4(Value sv);
 
     /* --------------------------------------------------------------------------------------------
      * Construct with individually specified red, green and blue colors.
@@ -372,7 +372,7 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Int32 s) const
+    Int32 Cmp(SQInteger s) const
     {
         return Cmp(Color4(static_cast< Value >(s)));
     }
@@ -380,7 +380,15 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Float32 s) const
+    Int32 Cmp(SQFloat s) const
+    {
+        return Cmp(Color4(static_cast< Value >(s)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
     {
         return Cmp(Color4(static_cast< Value >(s)));
     }

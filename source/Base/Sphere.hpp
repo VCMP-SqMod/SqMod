@@ -44,7 +44,7 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Construct a sphere at position 0,0,0 using the specified radius.
     */
-    Sphere(Value rv);
+    explicit Sphere(Value rv);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a sphere at the specified position using the specified radius.
@@ -309,15 +309,23 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Value s) const
+    Int32 Cmp(SQFloat s) const
     {
-        return Cmp(Sphere(s));
+        return Cmp(Sphere(static_cast< Value >(s)));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Int32 s) const
+    Int32 Cmp(SQInteger s) const
+    {
+        return Cmp(Sphere(static_cast< Value >(s)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
     {
         return Cmp(Sphere(static_cast< Value >(s)));
     }

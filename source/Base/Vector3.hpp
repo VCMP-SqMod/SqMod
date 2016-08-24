@@ -49,7 +49,7 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
     */
-    Vector3(Value sv);
+    explicit Vector3(Value sv);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the specified component values.
@@ -264,15 +264,23 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Value s) const
+    Int32 Cmp(SQFloat s) const
     {
-        return Cmp(Vector3(s));
+        return Cmp(Vector3(static_cast< Value >(s)));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Int32 s) const
+    Int32 Cmp(SQInteger s) const
+    {
+        return Cmp(Vector3(static_cast< Value >(s)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
     {
         return Cmp(Vector3(static_cast< Value >(s)));
     }

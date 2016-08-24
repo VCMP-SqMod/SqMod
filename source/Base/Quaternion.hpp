@@ -43,7 +43,7 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Construct from scalar value.
     */
-    Quaternion(Value sv);
+    explicit Quaternion(Value sv);
 
     /* --------------------------------------------------------------------------------------------
      * Construct from Euler angles (in degrees.)
@@ -263,15 +263,23 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Value s) const
+    Int32 Cmp(SQFloat s) const
     {
-        return Cmp(Quaternion(s));
+        return Cmp(Quaternion(static_cast< Value >(s)));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Int32 s) const
+    Int32 Cmp(SQInteger s) const
+    {
+        return Cmp(Quaternion(static_cast< Value >(s)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
     {
         return Cmp(Quaternion(static_cast< Value >(s)));
     }

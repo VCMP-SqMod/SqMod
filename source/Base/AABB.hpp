@@ -42,7 +42,7 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Construct a an equally sized and perfectly shaped box from a scalar value.
     */
-    AABB(Value sv);
+    explicit AABB(Value sv);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a an equally sized but imperfectly shaped box from individual components of a
@@ -270,7 +270,7 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Value s) const
+    Int32 Cmp(SQFloat s) const
     {
         return Cmp(AABB(s, s, s, s, s, s));
     }
@@ -278,7 +278,16 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Int32 s) const
+    Int32 Cmp(SQInteger s) const
+    {
+        const Value v = static_cast< Value >(s);
+        return Cmp(AABB(v, v, v, v, v, v));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
     {
         const Value v = static_cast< Value >(s);
         return Cmp(AABB(v, v, v, v, v, v));

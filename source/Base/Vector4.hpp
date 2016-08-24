@@ -42,7 +42,7 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
     */
-    Vector4(Value sv);
+    explicit Vector4(Value sv);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the specified component values.
@@ -162,7 +162,7 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Vector4 operator -- (int); 
+    Vector4 operator -- (int);
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.
@@ -262,15 +262,23 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Value s) const
+    Int32 Cmp(SQFloat s) const
     {
-        return Cmp(Vector4(s));
+        return Cmp(Vector4(static_cast< Value >(s)));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Int32 s) const
+    Int32 Cmp(SQInteger s) const
+    {
+        return Cmp(Vector4(static_cast< Value >(s)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
     {
         return Cmp(Vector4(static_cast< Value >(s)));
     }

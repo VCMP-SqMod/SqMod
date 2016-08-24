@@ -42,7 +42,7 @@ struct Vector2
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
     */
-    Vector2(Value sv);
+    explicit Vector2(Value sv);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the specified component values.
@@ -257,15 +257,23 @@ struct Vector2
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Value s) const
+    Int32 Cmp(SQFloat s) const
     {
-        return Cmp(Vector2(s));
+        return Cmp(Vector2(static_cast< Value >(s)));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(Int32 s) const
+    Int32 Cmp(SQInteger s) const
+    {
+        return Cmp(Vector2(static_cast< Value >(s)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(bool s) const
     {
         return Cmp(Vector2(static_cast< Value >(s)));
     }
