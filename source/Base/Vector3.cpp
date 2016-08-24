@@ -3,6 +3,7 @@
 #include "Base/Vector4.hpp"
 #include "Base/Quaternion.hpp"
 #include "Base/Shared.hpp"
+#include "Base/DynArg.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -409,7 +410,7 @@ void Vector3::SetQuaternionEx(Value qx, Value qy, Value qz, Value qw)
         z = std::atan2((STOVAL(2.0) * qy * qz) - (STOVAL(2.0) * qx * qw),
                        (STOVAL(2.0) * qx * qz) + (STOVAL(2.0) * qy * qw));
         x = STOVAL(0.0);
-        
+
         // If facing down, reverse yaw
         if (EpsLt(y, STOVAL(0.0)))
         {
@@ -723,13 +724,15 @@ void Register_Vector3(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Vector3::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector3::Typename)
-        .Func(_SC("_cmp"), &Vector3::Cmp)
+        // We cannot set _cmp for c++ classes so we use this instead
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
+        //.Func(_SC("_cmp"), &Vector3::Cmp)
         // Meta-methods
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_add"), &Vector3::operator +)
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_sub"), &Vector3::operator -)
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_mul"), &Vector3::operator *)
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_div"), &Vector3::operator /)
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("_modulo"), &Vector3::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
         .Func< Vector3 (Vector3::*)(void) const >(_SC("_unm"), &Vector3::operator -)
         // Properties
         .Prop(_SC("Abs"), &Vector3::Abs)
