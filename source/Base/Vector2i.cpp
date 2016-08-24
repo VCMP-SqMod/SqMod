@@ -2,6 +2,7 @@
 #include "Base/Vector2i.hpp"
 #include "Base/Vector2.hpp"
 #include "Base/Shared.hpp"
+#include "Base/DynArg.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -609,13 +610,13 @@ void Register_Vector2i(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Vector2i::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector2i::Typename)
-        .Func(_SC("_cmp"), &Vector2i::Cmp)
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Vector2i >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2i >)
         // Meta-methods
-        .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_add"), &Vector2i::operator +)
-        .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_sub"), &Vector2i::operator -)
-        .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_mul"), &Vector2i::operator *)
-        .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_div"), &Vector2i::operator /)
-        .Func< Vector2i (Vector2i::*)(const Vector2i &) const >(_SC("_modulo"), &Vector2i::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Vector2i >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2i >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Vector2i >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2i >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< Vector2i >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2i >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< Vector2i >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2i >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< Vector2i >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2i >)
         .Func< Vector2i (Vector2i::*)(void) const >(_SC("_unm"), &Vector2i::operator -)
         // Properties
         .Prop(_SC("Abs"), &Vector2i::Abs)
