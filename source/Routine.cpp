@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Routine.hpp"
+#include "Base/DynArg.hpp"
 #include "Library/Chrono.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -985,10 +986,10 @@ void Register_Routine(HSQUIRRELVM vm)
     RootTable(vm).Bind(_SC("SqRoutine"),
         Class< Routine, NoConstructor< Routine > >(vm, _SC("SqRoutine"))
         // Meta-methods
+        .Func(_SC("_tostring"), &Routine::ToString)
         .SquirrelFunc(_SC("_typename"), &Routine::Typename)
         // We cannot set _cmp for c++ classes so we use this instead
-        .SquirrelFunc(_SC("cmp"), &SqCmpFwd< Routine, SQInteger, SQFloat, bool, CSStr, std::nullptr_t, Routine >)
-        .Func(_SC("_tostring"), &Routine::ToString)
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Routine >, SQInteger, SQFloat, bool, std::nullptr_t, Routine >)
         // Properties
         .Prop(_SC("Tag"), &Routine::GetTag, &Routine::SetTag)
         .Prop(_SC("Data"), &Routine::GetData, &Routine::SetData)
