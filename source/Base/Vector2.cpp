@@ -2,6 +2,7 @@
 #include "Base/Vector2.hpp"
 #include "Base/Vector2i.hpp"
 #include "Base/Shared.hpp"
+#include "Base/DynArg.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -463,13 +464,13 @@ void Register_Vector2(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Vector2::ToString)
         .SquirrelFunc(_SC("_typename"), &Vector2::Typename)
-        .Func(_SC("_cmp"), &Vector2::Cmp)
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Vector2 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2 >)
         // Meta-methods
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("_add"), &Vector2::operator +)
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("_sub"), &Vector2::operator -)
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("_mul"), &Vector2::operator *)
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("_div"), &Vector2::operator /)
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("_modulo"), &Vector2::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Vector2 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2 >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Vector2 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2 >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< Vector2 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2 >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< Vector2 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2 >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< Vector2 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2 >)
         .Func< Vector2 (Vector2::*)(void) const >(_SC("_unm"), &Vector2::operator -)
         // Properties
         .Prop(_SC("Abs"), &Vector2::Abs)
