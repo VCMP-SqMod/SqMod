@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Circle.hpp"
 #include "Base/Shared.hpp"
+#include "Base/DynArg.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -558,13 +559,13 @@ void Register_Circle(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Circle::ToString)
         .SquirrelFunc(_SC("_typename"), &Circle::Typename)
-        .Func(_SC("_cmp"), &Circle::Cmp)
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
         // Meta-methods
-        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_add"), &Circle::operator +)
-        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_sub"), &Circle::operator -)
-        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_mul"), &Circle::operator *)
-        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_div"), &Circle::operator /)
-        .Func< Circle (Circle::*)(const Circle &) const >(_SC("_modulo"), &Circle::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
         .Func< Circle (Circle::*)(void) const >(_SC("_unm"), &Circle::operator -)
         // Properties
         .Prop(_SC("Abs"), &Circle::Abs)
