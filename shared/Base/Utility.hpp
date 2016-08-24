@@ -1550,6 +1550,521 @@ void ImportModuleAPI(PluginFuncs * vcapi, CCStr mod);
 
 #endif // SQMOD_PLUGIN_API
 
+/* ------------------------------------------------------------------------------------------------
+ * Default class for checking if the argument on the stack matches the requested type.
+*/
+template < typename U > struct SqCmpArg
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INSTANCE);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        Var< U * > var(vm, 2);
+        // Is this instance valid?
+        if (!var.value)
+        {
+            STHROWF("No such instance");
+        }
+        // Attempt to perform the comparison
+        return val.Cmp(*var.value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < typename U > struct SqCmpArg< U * >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INSTANCE);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        Var< U * > var(vm, 2);
+        // Is this instance valid?
+        if (!var.value)
+        {
+            STHROWF("No such instance");
+        }
+        // Attempt to perform the comparison
+        return val.Cmp(var.value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < typename U > struct SqCmpArg< const U * >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INSTANCE);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        Var< const U * > var(vm, 2);
+        // Is this instance valid?
+        if (!var.value)
+        {
+            STHROWF("No such instance");
+        }
+        // Attempt to perform the comparison
+        return val.Cmp(*var.value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< std::nullptr_t >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_NULL);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM /*vm*/)
+    {
+        return val.Cmp(nullptr);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< char >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< char >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< signed char >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< signed char >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< unsigned char >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< unsigned char >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< signed short >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< signed short >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< unsigned short >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< unsigned short >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< signed int >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< signed int >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< unsigned int >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< unsigned int >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< signed long >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< signed long >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< unsigned long >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< unsigned long >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< signed long long >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< signed long long >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< unsigned long long >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_INTEGER);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< unsigned long long >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< float >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_FLOAT);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< float >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< double >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_FLOAT);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< double >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< bool >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_BOOL);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< bool >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< SQChar * >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_STRING);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< SQChar * >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< const SQChar * >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_STRING);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< const SQChar * >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< String >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_STRING);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< String >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< Table >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_TABLE);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< Table >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< Array >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        return (sq_gettype(vm, 2) == OT_ARRAY);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< Array >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< Function >
+{
+    static inline bool CanPop(HSQUIRRELVM vm)
+    {
+        const SQObjectType type = sq_gettype(vm, 2);
+        return (type == OT_CLOSURE || type == OT_NATIVECLOSURE);
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< Function >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specialization of the argument checking structure.
+*/
+template < > struct SqCmpArg< Object >
+{
+    static inline bool CanPop(HSQUIRRELVM /*vm*/)
+    {
+        return true; // Objects can use any type.
+    }
+
+    template < typename T > static inline Int32 Compare(const T & val, HSQUIRRELVM vm)
+    {
+        return val.Cmp(Var< Object >(vm, 2).value);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Common function used to compare one type of instance with a couple of other types.
+*/
+template < typename... Ts > struct SqCmpImpl;
+
+/* ------------------------------------------------------------------------------------------------
+ * Zeroth case of the comparison. No known comparison at this point.
+*/
+template < > struct SqCmpImpl< >
+{
+    template < typename T > static Int32 Fn(const T & /*val*/, HSQUIRRELVM vm)
+    {
+        const String tn1(SqTypeName(vm, 1));
+        const String tn2(SqTypeName(vm, 2));
+        return sq_throwerror(vm, ToStrF("Unknown comparison between (%s) and (%s)",
+                                        tn1.c_str(), tn2.c_str()));
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Argument pack type pealing. Attempt comparison with a specified type.
+*/
+template < typename U, typename... Ts > struct SqCmpImpl< U, Ts... >
+{
+    template < typename T > static Int32 Fn(const T & val, HSQUIRRELVM vm)
+    {
+        typedef typename std::decay< U >::type ArgType;
+        // Can the stack value be used with the current type?
+        if (SqCmpArg< ArgType >::CanPop(vm))
+        {
+            // If not an instance then don't use a try catch block
+            if (sq_gettype(vm, 2) != OT_INSTANCE)
+            {
+                return SqCmpArg< ArgType >::Compare(val, vm);
+            }
+            // Instances require a try/catch block since we can't differentiate types
+            try
+            {
+                return SqCmpArg< ArgType >::Compare(val, vm);
+            }
+            catch (const Sqrat::Exception & e)
+            {
+                // Probably the wrong type
+            }
+            catch (...)
+            {
+                // Something bad happened. At this point, we just don't want to let
+                // exceptions propagate to the virtual machine and we must end here.
+                // Either way, reaching this point is bad and we just shuved it under
+                // the rug. This is bad practice but circumstances forced me.
+                // Don't do this at home kids!
+                return -1;
+            }
+        }
+        // On to the next type
+        return SqCmpImpl< Ts... >::Fn(val, vm);
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Squirrel function that forwards the call to the actual implementation.
+*/
+template < typename T, typename U, typename... Ts > SQInteger SqCmpFwd(HSQUIRRELVM vm)
+{
+    // Make sure that there are enough parameters on the stack
+    if (sq_gettop(vm) < 2)
+    {
+        return sq_throwerror(vm, "Insufficient parameters to perform comparison");
+    }
+    // Attempt to grab a pointer to the base instance
+    Var< T * > var(vm, 1);
+    // Is this instance valid?
+    if (!var.value)
+    {
+        return sq_throwerror(vm, "No such instance to compare");
+    }
+    // Attempt to perform the comparison
+    try
+    {
+        sq_pushinteger(vm, SqCmpImpl< U, Ts... >::Fn(*var.value, vm));
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        return sq_throwerror(vm, e.what());
+    }
+    catch (...)
+    {
+        return sq_throwerror(vm, "Unknown error occurred during comparison");
+    }
+    // At this point we should have an integer on the stack
+    return 1;
+}
+
 } // Namespace:: SqMod
 
 #endif // _BASE_UTILITY_HPP_
