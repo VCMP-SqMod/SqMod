@@ -596,23 +596,6 @@ Routine::~Routine()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Routine::Cmp(const Routine & o) const
-{
-    if (m_Interval == o.m_Interval)
-    {
-        return 0;
-    }
-    else if (m_Interval > o.m_Interval)
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 CSStr Routine::ToString() const
 {
     return ToStrF(_PRINT_INT_FMT, m_Interval);
@@ -1002,8 +985,9 @@ void Register_Routine(HSQUIRRELVM vm)
     RootTable(vm).Bind(_SC("SqRoutine"),
         Class< Routine, NoConstructor< Routine > >(vm, _SC("SqRoutine"))
         // Meta-methods
-        .Func(_SC("_cmp"), &Routine::Cmp)
         .SquirrelFunc(_SC("_typename"), &Routine::Typename)
+        // We cannot set _cmp for c++ classes so we use this instead
+        .SquirrelFunc(_SC("cmp"), &SqCmpFwd< Routine, SQInteger, SQFloat, bool, CSStr, std::nullptr_t, Routine >)
         .Func(_SC("_tostring"), &Routine::ToString)
         // Properties
         .Prop(_SC("Tag"), &Routine::GetTag, &Routine::SetTag)

@@ -147,26 +147,6 @@ private:
     Routine(Object & env, Function & func, Interval interval, Iterator iterations
             , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5);
 
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    Routine(const Routine & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor. (disabled)
-    */
-    Routine(Routine && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    Routine & operator = (const Routine & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator. (disabled)
-    */
-    Routine & operator = (Routine && o) = delete;
-
 private:
 
     /* --------------------------------------------------------------------------------------------
@@ -223,14 +203,82 @@ private:
 public:
 
     /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    Routine(const Routine & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    Routine(Routine && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~Routine();
 
     /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    Routine & operator = (const Routine & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    Routine & operator = (Routine && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Routine & o) const;
+    Int32 Cmp(const Routine & o) const
+    {
+        return Cmp(static_cast< SQInteger >(o.m_Interval));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with an integer.
+    */
+    Int32 Cmp(SQInteger interval) const
+    {
+        if (m_Interval == interval) return 0;
+        else if (m_Interval > interval) return 1;
+        else return -1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with an float.
+    */
+    Int32 Cmp(SQFloat interval) const
+    {
+        return Cmp(static_cast< SQInteger >(interval));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with an string.
+    */
+    Int32 Cmp(CSStr tag) const
+    {
+        return m_Tag.compare(tag);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a boolean.
+    */
+    Int32 Cmp(bool suspended) const
+    {
+        if (m_Suspended == suspended) return 0;
+        else if (m_Suspended > suspended) return 1;
+        else return -1;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a null pointer.
+    */
+    Int32 Cmp(std::nullptr_t) const
+    {
+        if (m_Terminated == true) return 0;
+        else return 1;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
