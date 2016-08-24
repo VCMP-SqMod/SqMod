@@ -3,6 +3,7 @@
 #include "Base/Vector3.hpp"
 #include "Base/Vector4.hpp"
 #include "Base/Shared.hpp"
+#include "Base/DynArg.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -809,13 +810,13 @@ void Register_Quaternion(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &Quaternion::ToString)
         .SquirrelFunc(_SC("_typename"), &Quaternion::Typename)
-        .Func(_SC("_cmp"), &Quaternion::Cmp)
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
         // Meta-methods
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("_add"), &Quaternion::operator +)
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("_sub"), &Quaternion::operator -)
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("_mul"), &Quaternion::operator *)
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("_div"), &Quaternion::operator /)
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("_modulo"), &Quaternion::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
         .Func< Quaternion (Quaternion::*)(void) const >(_SC("_unm"), &Quaternion::operator -)
         // Properties
         .Prop(_SC("Abs"), &Quaternion::Abs)
