@@ -268,6 +268,32 @@ struct AABB
     Int32 Cmp(const AABB & b) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(Value s) const
+    {
+        return Cmp(AABB(s, s, s, s, s, s));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(Int32 s) const
+    {
+        const Value v = static_cast< Value >(s);
+        return Cmp(AABB(v, v, v, v, v, v));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to compare an instance of this type with a scalar value.
+    */
+    Int32 Cmp(std::nullptr_t) const
+    {
+        const Value v = static_cast< Value >(0);
+        return Cmp(AABB(v, v, v, v, v, v));
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const;

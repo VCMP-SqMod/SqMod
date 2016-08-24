@@ -2,6 +2,7 @@
 #include "Base/AABB.hpp"
 #include "Base/Vector4.hpp"
 #include "Base/Shared.hpp"
+#include "Base/DynArg.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -38,7 +39,8 @@ AABB::AABB(Value sv)
 
 // ------------------------------------------------------------------------------------------------
 AABB::AABB(Value xv, Value yv, Value zv)
-    : min(-xv, -yv, -zv), max(std::fabs(xv), std::fabs(yv), std::fabs(zv))
+    : min(-std::fabs(xv), -std::fabs(yv), -std::fabs(zv))
+    , max(std::fabs(xv), std::fabs(yv), std::fabs(zv))
 {
     /* ... */
 }
@@ -493,13 +495,14 @@ void Register_AABB(HSQUIRRELVM vm)
         // Core Meta-methods
         .Func(_SC("_tostring"), &AABB::ToString)
         .SquirrelFunc(_SC("_typename"), &AABB::Typename)
-        .Func(_SC("_cmp"), &AABB::Cmp)
+        // We cannot set _cmp for c++ classes so we use this instead
+        .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
         // Meta-methods
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("_add"), &AABB::operator +)
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("_sub"), &AABB::operator -)
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("_mul"), &AABB::operator *)
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("_div"), &AABB::operator /)
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("_modulo"), &AABB::operator %)
+        .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
+        .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
+        .SquirrelFunc(_SC("_mul"), &SqDynArgFwd< SqDynArgMulFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
+        .SquirrelFunc(_SC("_div"), &SqDynArgFwd< SqDynArgDivFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
+        .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
         .Func< AABB (AABB::*)(void) const >(_SC("_unm"), &AABB::operator -)
         // Properties
         .Prop(_SC("Abs"), &AABB::Abs)
