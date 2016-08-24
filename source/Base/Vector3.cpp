@@ -726,7 +726,6 @@ void Register_Vector3(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("_typename"), &Vector3::Typename)
         // We cannot set _cmp for c++ classes so we use this instead
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
-        //.Func(_SC("_cmp"), &Vector3::Cmp)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
