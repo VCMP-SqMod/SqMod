@@ -188,7 +188,7 @@
 			</Target>
 			<Target title="Win32 Debug Standalone">
 				<Option platforms="Windows;" />
-				<Option output="../bin/win32-d/mod_sample32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option output="../bin/win32-d/standalone/mod_sample32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32-d/" />
 				<Option object_output="../obj/mingw32-d/" />
 				<Option type="3" />
@@ -213,7 +213,7 @@
 			</Target>
 			<Target title="Win32 Release Standalone">
 				<Option platforms="Windows;" />
-				<Option output="../bin/win32/mod_sample32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option output="../bin/win32/standalone/mod_sample32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win32/" />
 				<Option object_output="../obj/mingw32/" />
 				<Option type="3" />
@@ -239,7 +239,7 @@
 			</Target>
 			<Target title="Win64 Debug Standalone">
 				<Option platforms="Windows;" />
-				<Option output="../bin/win64-d/mod_sample64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option output="../bin/win64-d/standalone/mod_sample64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64-d/" />
 				<Option object_output="../obj/mingw64-d/" />
 				<Option type="3" />
@@ -265,7 +265,7 @@
 			</Target>
 			<Target title="Win64 Release Standalone">
 				<Option platforms="Windows;" />
-				<Option output="../bin/win64/mod_sample64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option output="../bin/win64/standalone/mod_sample64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/win64/" />
 				<Option object_output="../obj/mingw64/" />
 				<Option type="3" />
@@ -292,7 +292,7 @@
 			</Target>
 			<Target title="Linux32 Debug Standalone">
 				<Option platforms="Unix;" />
-				<Option output="../bin/linux32-d/mod_sample32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option output="../bin/linux32-d/standalone/mod_sample32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32-d/" />
 				<Option object_output="../obj/gcc32-d/" />
 				<Option type="3" />
@@ -318,7 +318,7 @@
 			</Target>
 			<Target title="Linux32 Release Standalone">
 				<Option platforms="Unix;" />
-				<Option output="../bin/linux32/mod_sample32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option output="../bin/linux32/standalone/mod_sample32" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux32/" />
 				<Option object_output="../obj/gcc32/" />
 				<Option type="3" />
@@ -345,7 +345,7 @@
 			</Target>
 			<Target title="Linux64 Debug Standalone">
 				<Option platforms="Unix;" />
-				<Option output="../bin/linux64-d/mod_sample64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option output="../bin/linux64-d/standalone/mod_sample64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64-d/" />
 				<Option object_output="../obj/gcc64-d/" />
 				<Option type="3" />
@@ -372,7 +372,7 @@
 			</Target>
 			<Target title="Linux64 Release Standalone">
 				<Option platforms="Unix;" />
-				<Option output="../bin/linux64/mod_sample64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
+				<Option output="../bin/linux64/standalone/mod_sample64" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="../bin/linux64/" />
 				<Option object_output="../obj/gcc64/" />
 				<Option type="3" />
