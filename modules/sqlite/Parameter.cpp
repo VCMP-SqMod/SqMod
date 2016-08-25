@@ -223,10 +223,12 @@ void Parameter::SetIndex(const Object & param)
         // We don't recognize this kind of value!
         default: STHROWF("Unknown parameter index of type (%s)", SqTypeName(param.GetType()));
     }
+    // Assign the index with a failsafe to invalid on error
+    AutoAssign< Int32 > aa(m_Index, 0, idx);
     // Validate the obtained parameter index
     SQMOD_VALIDATE_PARAM(*this, idx);
-    // Assign the new index
-    m_Index = idx;
+    // Don't fall back to the invalid index anymore
+    aa.Set(idx);
 }
 
 // ------------------------------------------------------------------------------------------------
