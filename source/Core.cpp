@@ -30,6 +30,23 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
+// --------------------------------------------------------------------------------------------
+#define SQMOD_CATCH_EVENT_EXCEPTION(action) /*
+*/ catch (const Sqrat::Exception & e) /*
+*/ { /*
+*/  LogErr("Squirrel exception caught " action); /*
+*/  Logger::Get().Debug("%s", e.what()); /*
+*/ } /*
+*/ catch (const std::exception & e) /*
+*/ { /*
+*/  LogErr("Program exception caught " action " [%s]", e.what()); /*
+*/ } /*
+*/ catch (...) /*
+*/ { /*
+*/  LogErr("Unknown exception caught " action); /*
+*/ } /*
+*/
+
 // ------------------------------------------------------------------------------------------------
 extern bool RegisterAPI(HSQUIRRELVM vm);
 
@@ -379,7 +396,7 @@ bool Core::Execute()
         {
             return false; // One of the scripts failed to execute
         }
-        cLogDbg(m_Verbosity >= 1, "Completed execution of stage (%u) scripts", levels);
+        cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts", levels);
     }
 
     // Create the null entity instances
@@ -617,7 +634,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
             return false;
         }
         // At this point the script should be completely loaded
-        cLogDbg(m_Verbosity >= 2, "Successfully compiled script: %s", m_Scripts.back().mPath.c_str());
+        cLogDbg(m_Verbosity >= 3, "Successfully compiled script: %s", m_Scripts.back().mPath.c_str());
 
         // Attempt to execute the compiled script code
         try
@@ -704,7 +721,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
             return false;
         }
 
-        cLogDbg(Get().m_Verbosity >= 2, "Successfully compiled script: %s", (*itr).mPath.c_str());
+        cLogDbg(Get().m_Verbosity >= 3, "Successfully compiled script: %s", (*itr).mPath.c_str());
 
         // Should we delay the execution of this script?
         if ((*itr).mDelay)
@@ -906,7 +923,12 @@ void Core::BlipInst::Destroy(bool destroy, Int32 header, Object & payload)
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitBlipDestroyed(mID, header, payload);
+        // Don't leave exceptions to prevent us from releasing this instance
+        try
+        {
+            Core::Get().EmitBlipDestroyed(mID, header, payload);
+        }
+        SQMOD_CATCH_EVENT_EXCEPTION("while destroying blip")
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -940,7 +962,12 @@ void Core::CheckpointInst::Destroy(bool destroy, Int32 header, Object & payload)
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitCheckpointDestroyed(mID, header, payload);
+        // Don't leave exceptions to prevent us from releasing this instance
+        try
+        {
+            Core::Get().EmitCheckpointDestroyed(mID, header, payload);
+        }
+        SQMOD_CATCH_EVENT_EXCEPTION("while destroying checkpoint")
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -974,7 +1001,12 @@ void Core::KeybindInst::Destroy(bool destroy, Int32 header, Object & payload)
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitKeybindDestroyed(mID, header, payload);
+        // Don't leave exceptions to prevent us from releasing this instance
+        try
+        {
+            Core::Get().EmitKeybindDestroyed(mID, header, payload);
+        }
+        SQMOD_CATCH_EVENT_EXCEPTION("while destroying keybind")
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -1008,7 +1040,12 @@ void Core::ObjectInst::Destroy(bool destroy, Int32 header, Object & payload)
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitObjectDestroyed(mID, header, payload);
+        // Don't leave exceptions to prevent us from releasing this instance
+        try
+        {
+            Core::Get().EmitObjectDestroyed(mID, header, payload);
+        }
+        SQMOD_CATCH_EVENT_EXCEPTION("while destroying object")
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -1042,7 +1079,12 @@ void Core::PickupInst::Destroy(bool destroy, Int32 header, Object & payload)
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitPickupDestroyed(mID, header, payload);
+        // Don't leave exceptions to prevent us from releasing this instance
+        try
+        {
+            Core::Get().EmitPickupDestroyed(mID, header, payload);
+        }
+        SQMOD_CATCH_EVENT_EXCEPTION("while destroying pickup")
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -1076,7 +1118,12 @@ void Core::PlayerInst::Destroy(bool /*destroy*/, Int32 header, Object & payload)
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitPlayerDestroyed(mID, header, payload);
+        // Don't leave exceptions to prevent us from releasing this instance
+        try
+        {
+            Core::Get().EmitPlayerDestroyed(mID, header, payload);
+        }
+        SQMOD_CATCH_EVENT_EXCEPTION("while destroying player")
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
@@ -1104,7 +1151,12 @@ void Core::VehicleInst::Destroy(bool destroy, Int32 header, Object & payload)
     // Should we notify that this entity is being cleaned up?
     if (VALID_ENTITY(mID))
     {
-        Core::Get().EmitVehicleDestroyed(mID, header, payload);
+        // Don't leave exceptions to prevent us from releasing this instance
+        try
+        {
+            Core::Get().EmitVehicleDestroyed(mID, header, payload);
+        }
+        SQMOD_CATCH_EVENT_EXCEPTION("while destroying vehicle")
     }
     // Is there a manager instance associated with this entity?
     if (mInst)
