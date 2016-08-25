@@ -144,6 +144,9 @@ Core::Core()
     , m_Debugging(false)
     , m_Executed(false)
     , m_Shutdown(false)
+    , m_LockPreLoadSignal(false)
+    , m_LockPostLoadSignal(false)
+    , m_LockUnloadSignal(false)
 {
     /* ... */
 }
@@ -350,6 +353,11 @@ bool Core::Execute()
         return false; // No reason to execute the plug-in
     }
 
+    // Unlock signal containers
+    m_LockPreLoadSignal = false;
+    m_LockPostLoadSignal = false;
+    m_LockUnloadSignal = false;
+
     LogDbg("Signaling outside plug-ins to register their API");
     // Tell modules to do their monkey business
     _Func->SendPluginCommand(SQMOD_LOAD_CMD, "");
@@ -380,8 +388,26 @@ bool Core::Execute()
     m_NullPlayer = Object(new CPlayer(-1));
     m_NullVehicle = Object(new CVehicle(-1));
 
+    m_LockPreLoadSignal = true;
+    // Trigger functions that must initialize stuff before the loaded event is triggered
+    for (FuncData & fn : m_PreLoadSignal)
+    {
+        Emit(fn.first,  fn.second);
+    }
+    // Clear the functions
+    m_PreLoadSignal.clear();
+
     // Notify the script callback that the scripts were loaded
     EmitScriptLoaded();
+
+    m_LockPostLoadSignal = true;
+    // Trigger functions that must initialize stuff after the loaded event is triggered
+    for (FuncData & fn : m_PostLoadSignal)
+    {
+        Emit(fn.first, fn.second);
+    }
+    // Clear the functions
+    m_PostLoadSignal.clear();
 
     // Import already existing entities
     ImportPlayers();
@@ -403,6 +429,15 @@ void Core::Terminate(bool shutdown)
     // Is there a virtual machine present?
     if (m_VM)
     {
+        m_LockUnloadSignal = true;
+        // Trigger functions that must de-initialize stuff before the scripts are unloaded
+        for (FuncData & fn : m_UnloadSignal)
+        {
+            Emit(fn.first, fn.second, shutdown);
+        }
+        // Clear the functions
+        m_UnloadSignal.clear();
+
         LogDbg("Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(SQMOD_TERMINATE_CMD, "");
@@ -436,6 +471,10 @@ void Core::Terminate(bool shutdown)
     m_NullPickup.Release();
     m_NullPlayer.Release();
     m_NullVehicle.Release();
+    // Clear any functions added during shutdown
+    m_PreLoadSignal.clear();
+    m_PostLoadSignal.clear();
+    m_UnloadSignal.clear();
     // Is there a VM to close?
     if (m_VM)
     {
@@ -765,6 +804,75 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
 void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInteger line, SQInteger column)
 {
     LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %d\n=>Column: %d\n]", desc, src, line, column);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::BindPreLoad(Object & env, Function & func, Object & payload)
+{
+    if (m_LockPreLoadSignal)
+    {
+        STHROWF("Cannot bind functions to pre-load signal anymore");
+    }
+    else if (func.IsNull())
+    {
+        STHROWF("Cannot bind null as callback to pre-load signal");
+    }
+    // Does this function need a custom environment?
+    else if (env.IsNull())
+    {
+        m_PreLoadSignal.emplace_back(func, payload);
+    }
+    // Assign the specified environment and function
+    else
+    {
+        m_PreLoadSignal.emplace_back(Function(env.GetVM(), env, func.GetFunc()), payload);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::BindPostLoad(Object & env, Function & func, Object & payload)
+{
+    if (m_LockPostLoadSignal)
+    {
+        STHROWF("Cannot bind functions to post-load signal anymore");
+    }
+    else if (func.IsNull())
+    {
+        STHROWF("Cannot bind null as callback to post-load signal");
+    }
+    // Does this function need a custom environment?
+    else if (env.IsNull())
+    {
+        m_PostLoadSignal.emplace_back(func, payload);
+    }
+    // Assign the specified environment and function
+    else
+    {
+        m_PostLoadSignal.emplace_back(Function(env.GetVM(), env, func.GetFunc()), payload);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::BindUnload(Object & env, Function & func, Object & payload)
+{
+    if (m_LockUnloadSignal)
+    {
+        STHROWF("Cannot bind functions to unload signal anymore");
+    }
+    else if (func.IsNull())
+    {
+        STHROWF("Cannot bind null as callback to unload signal");
+    }
+    // Does this function need a custom environment?
+    else if (env.IsNull())
+    {
+        m_UnloadSignal.emplace_back(func, payload);
+    }
+    // Assign the specified environment and function
+    else
+    {
+        m_UnloadSignal.emplace_back(Function(env.GetVM(), env, func.GetFunc()), payload);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

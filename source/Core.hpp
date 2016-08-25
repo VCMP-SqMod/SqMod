@@ -526,6 +526,8 @@ public:
 
     // --------------------------------------------------------------------------------------------
     typedef std::vector< ScriptSrc >                Scripts; // List of loaded scripts.
+    typedef std::pair< Function, Object >           FuncData; // Data about a function to be called.
+    typedef std::vector< FuncData >                 Functions; // List of functions to execute.
 
     // --------------------------------------------------------------------------------------------
     typedef std::unordered_map< String, String >    Options; // List of custom options.
@@ -563,6 +565,14 @@ private:
     bool                            m_Debugging; // Enable debugging features, if any.
     bool                            m_Executed; // Whether the scripts were executed.
     bool                            m_Shutdown; // Whether the server currently shutting down.
+    bool                            m_LockPreLoadSignal; // Lock pre load signal container.
+    bool                            m_LockPostLoadSignal; // Lock post load signal container.
+    bool                            m_LockUnloadSignal; // Lock unload signal container.
+
+    // --------------------------------------------------------------------------------------------
+    Functions                       m_PreLoadSignal; // Functions to call before the loaded event.
+    Functions                       m_PostLoadSignal; // Functions to call after the loaded event.
+    Functions                       m_UnloadSignal; // Functions to call before unloading scripts.
 
     // --------------------------------------------------------------------------------------------
     Object                          m_NullBlip; // Null Blips instance.
@@ -912,6 +922,21 @@ protected:
     }
 
 public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Pre load signal binder.
+    */
+    void BindPreLoad(Object & env, Function & func, Object & payload);
+
+    /* --------------------------------------------------------------------------------------------
+     * Post load signal binder.
+    */
+    void BindPostLoad(Object & env, Function & func, Object & payload);
+
+    /* --------------------------------------------------------------------------------------------
+     * Unload signal binder.
+    */
+    void BindUnload(Object & env, Function & func, Object & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Global event binder.

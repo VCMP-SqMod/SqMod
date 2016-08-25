@@ -42,6 +42,42 @@ static SQInteger SqLoadScript(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+static void SqBindPreLoad(Object & env, Function & func)
+{
+    Core::Get().BindPreLoad(env, func, NullObject());
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqBindPostLoad(Object & env, Function & func)
+{
+    Core::Get().BindPostLoad(env, func, NullObject());
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqBindUnload(Object & env, Function & func)
+{
+    Core::Get().BindUnload(env, func, NullObject());
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqBindPreLoadEx(Object & env, Function & func, Object & payload)
+{
+    Core::Get().BindPreLoad(env, func, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqBindPostLoadEx(Object & env, Function & func, Object & payload)
+{
+    Core::Get().BindPostLoad(env, func, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqBindUnloadEx(Object & env, Function & func, Object & payload)
+{
+    Core::Get().BindUnload(env, func, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 static void SqBindEvent(Int32 id, Object & env, Function & func)
 {
     Core::Get().BindEvent(id, env, func);
@@ -284,6 +320,12 @@ void Register_Core(HSQUIRRELVM vm)
     RootTable(vm)
     .Bind(_SC("SqCore"), Table(vm)
         .Func(_SC("Bind"), &SqBindEvent)
+        .Func(_SC("BindPreLoad"), &SqBindPreLoad)
+        .Func(_SC("BindPostLoad"), &SqBindPostLoad)
+        .Func(_SC("BindUnload"), &SqBindUnload)
+        .Func(_SC("BindPreLoadEx"), &SqBindPreLoadEx)
+        .Func(_SC("BindPostLoadEx"), &SqBindPostLoadEx)
+        .Func(_SC("BindUnloadEx"), &SqBindUnloadEx)
         .Func(_SC("CustomEvent"), &SqCustomEvent)
         .Func(_SC("Reload"), &SqSetReloadStatus)
         .Func(_SC("Reloading"), &SqGetReloadStatus)
