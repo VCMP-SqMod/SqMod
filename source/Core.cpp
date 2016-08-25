@@ -147,6 +147,7 @@ Core::Core()
     , m_LockPreLoadSignal(false)
     , m_LockPostLoadSignal(false)
     , m_LockUnloadSignal(false)
+    , m_Verbosity(1)
 {
     /* ... */
 }
@@ -196,6 +197,8 @@ bool Core::Initialize()
         return false;
     }
 
+    // Configure the verbosity level
+    m_Verbosity = conf.GetLongValue("Log", "VerbosityLevel", 1);
     // Initialize the log filename
     Logger::Get().SetLogFilename(conf.GetValue("Log", "Filename", nullptr));
     // Configure the logging timestamps
@@ -217,7 +220,7 @@ bool Core::Initialize()
     Logger::Get().ToggleLogFileLevel(LOGL_ERR, conf.GetBoolValue("Log", "LogFileError", true));
     Logger::Get().ToggleLogFileLevel(LOGL_FTL, conf.GetBoolValue("Log", "LogFileFatal", true));
 
-    LogDbg("Resizing the entity containers");
+    cLogDbg(m_Verbosity >= 1, "Resizing the entity containers");
     // Make sure the entity containers have the proper size
     m_Blips.resize(SQMOD_BLIP_POOL);
     m_Checkpoints.resize(SQMOD_CHECKPOINT_POOL);
@@ -237,7 +240,7 @@ bool Core::Initialize()
         return false;
     }
 
-    LogDbg("Creating a virtual machine (%ld stack size)", stack_size);
+    cLogDbg(m_Verbosity >= 1, "Creating a virtual machine (%ld stack size)", stack_size);
     // Attempt to create the script virtual machine
     m_VM = sq_open(ConvTo< SQInteger >::From(stack_size));
     // See if the virtual machine could be created
@@ -259,7 +262,7 @@ bool Core::Initialize()
     NullObject() = Object();
     NullFunction() = Function();
 
-    LogDbg("Registering the standard libraries");
+    cLogDbg(m_Verbosity >= 1, "Registering the standard libraries");
     // Push the root table on the stack
     sq_pushroottable(m_VM);
     // Register the standard library on the pushed table
@@ -271,11 +274,11 @@ bool Core::Initialize()
     // Pop the root table from the stack
     sq_pop(m_VM, 1);
 
-    LogDbg("Setting the script output function");
+    cLogDbg(m_Verbosity >= 1, "Setting the script output function");
     // Tell the VM to use these functions to output user on error messages
     sq_setprintfunc(m_VM, PrintFunc, ErrorFunc);
 
-    LogDbg("Setting the script error handlers");
+    cLogDbg(m_Verbosity >= 1, "Setting the script error handlers");
     // Tell the VM to trigger this function on compile time errors
     sq_setcompilererrorhandler(m_VM, CompilerErrorHandler);
     // Push the runtime error handler on the stack and create a closure
@@ -283,7 +286,7 @@ bool Core::Initialize()
     // Tell the VM to trigger this function on runtime errors
     sq_seterrorhandler(m_VM);
 
-    LogDbg("Registering the plug-in API");
+    cLogDbg(m_Verbosity >= 1, "Registering the plug-in API");
     // Attempt to register the plug-in API
     if (cLogFtl(!RegisterAPI(m_VM), "Unable to register the plug-in API"))
     {
@@ -311,13 +314,13 @@ bool Core::Initialize()
         return false;
     }
 
-    LogDbg("Reading the options from the general section");
+    cLogDbg(m_Verbosity >= 1, "Reading the options from the general section");
     // Read options only after loading was successful
     CSimpleIniA::TNamesDepend options;
     // Are there any options to read?
     if (conf.GetAllKeys("Options", options) || options.size() > 0)
     {
-        LogDbg("Found (%u) options in the configuration file", options.size());
+        cLogDbg(m_Verbosity >= 1, "Found (%u) options in the configuration file", options.size());
         // Process all the specified keys under the [Options] section
         for (const auto & option : options)
         {
@@ -358,7 +361,7 @@ bool Core::Execute()
     m_LockPostLoadSignal = false;
     m_LockUnloadSignal = false;
 
-    LogDbg("Signaling outside plug-ins to register their API");
+    cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to register their API");
     // Tell modules to do their monkey business
     _Func->SendPluginCommand(SQMOD_LOAD_CMD, "");
 
@@ -376,7 +379,7 @@ bool Core::Execute()
         {
             return false; // One of the scripts failed to execute
         }
-        LogDbg("Completed execution of stage (%u) scripts", levels);
+        cLogDbg(m_Verbosity >= 1, "Completed execution of stage (%u) scripts", levels);
     }
 
     // Create the null entity instances
@@ -438,11 +441,11 @@ void Core::Terminate(bool shutdown)
         // Clear the functions
         m_UnloadSignal.clear();
 
-        LogDbg("Signaling outside plug-ins to release their resources");
+        cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(SQMOD_TERMINATE_CMD, "");
     }
-    LogDbg("Clearing the entity containers");
+    cLogDbg(m_Verbosity >= 1, "Clearing the entity containers");
     // Release all entity resources by clearing the containers
     const ContainerCleaner cc_players(m_Players, ENT_PLAYER, !shutdown);
     const ContainerCleaner cc_vehicles(m_Vehicles, ENT_VEHICLE, !shutdown);
@@ -451,7 +454,7 @@ void Core::Terminate(bool shutdown)
     const ContainerCleaner cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT, !shutdown);
     const ContainerCleaner cc_blips(m_Blips, ENT_BLIP, !shutdown);
     const ContainerCleaner cc_keybinds(m_Keybinds, ENT_KEYBIND, !shutdown);
-    LogDbg("Terminating routines an commands");
+    cLogDbg(m_Verbosity >= 1, "Terminating routines an commands");
     // Release all resources from routines
     TerminateRoutines();
     // Release all resources from command managers
@@ -478,7 +481,7 @@ void Core::Terminate(bool shutdown)
     // Is there a VM to close?
     if (m_VM)
     {
-        LogDbg("Closing the virtual machine");
+        cLogDbg(m_Verbosity >= 1, "Closing the virtual machine");
         // Release all script callbacks
         ResetFunc();
         // Release the script instances
@@ -492,12 +495,12 @@ void Core::Terminate(bool shutdown)
         // Attempt to close the VM
         sq_close(sq_vm);
 
-        LogDbg("Signaling outside plug-ins to release the virtual machine");
+        cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release the virtual machine");
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(SQMOD_RELEASED_CMD, "");
     }
 
-    LogDbg("Squirrel plug-in was successfully terminated");
+    OutputMessage("Squirrel plug-in was successfully terminated");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -614,7 +617,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
             return false;
         }
         // At this point the script should be completely loaded
-        LogDbg("Successfully compiled script: %s", m_Scripts.back().mPath.c_str());
+        cLogDbg(m_Verbosity >= 2, "Successfully compiled script: %s", m_Scripts.back().mPath.c_str());
 
         // Attempt to execute the compiled script code
         try
@@ -630,7 +633,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
             return false;
         }
         // At this point the script should be completely loaded
-        LogScs("Successfully executed script: %s", m_Scripts.back().mPath.c_str());
+        cLogScs(m_Verbosity >= 2, "Successfully executed script: %s", m_Scripts.back().mPath.c_str());
     }
     // We don't compile the scripts yet. We just store their path and prepare the objects
     else
@@ -679,7 +682,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
 {
     Scripts::iterator itr_state = itr;
 
-    LogDbg("Attempting to compile the specified scripts");
+    cLogDbg(Get().m_Verbosity >= 1, "Attempting to compile the specified scripts");
     // Compile scripts first so that the constants can take effect
     for (; itr != end; ++itr)
     {
@@ -701,7 +704,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
             return false;
         }
 
-        LogDbg("Successfully compiled script: %s", (*itr).mPath.c_str());
+        cLogDbg(Get().m_Verbosity >= 2, "Successfully compiled script: %s", (*itr).mPath.c_str());
 
         // Should we delay the execution of this script?
         if ((*itr).mDelay)
@@ -721,10 +724,10 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
             return false;
         }
 
-        LogScs("Successfully executed script: %s", (*itr).mPath.c_str());
+        cLogScs(Get().m_Verbosity >= 2, "Successfully executed script: %s", (*itr).mPath.c_str());
     }
 
-    LogDbg("Attempting to execute the specified scripts");
+    cLogDbg(Get().m_Verbosity >= 1, "Attempting to execute the specified scripts");
     // Execute scripts only after compilation successful
     for (itr = itr_state; itr != end; ++itr)
     {
@@ -746,7 +749,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
             return false;
         }
 
-        LogScs("Successfully executed script: %s", (*itr).mPath.c_str());
+        cLogScs(Get().m_Verbosity >= 2, "Successfully executed script: %s", (*itr).mPath.c_str());
     }
 
     // At this point the scripts were loaded and executed successfully

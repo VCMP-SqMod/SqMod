@@ -570,6 +570,9 @@ private:
     bool                            m_LockUnloadSignal; // Lock unload signal container.
 
     // --------------------------------------------------------------------------------------------
+    Int32                           m_Verbosity; // Restrict the amount of outputted information.
+
+    // --------------------------------------------------------------------------------------------
     Functions                       m_PreLoadSignal; // Functions to call before the loaded event.
     Functions                       m_PostLoadSignal; // Functions to call after the loaded event.
     Functions                       m_UnloadSignal; // Functions to call before unloading scripts.
