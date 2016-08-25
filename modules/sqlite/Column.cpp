@@ -241,10 +241,12 @@ void Column::SetIndex(const Object & column)
         // We don't recognize this kind of value!
         default: STHROWF("Unknown column index of type (%s)", SqTypeName(column.GetType()));
     }
+    // Assign the index with a failsafe to invalid on error
+    AutoAssign< Int32 > aa(m_Index, -1, idx);
     // Validate the obtained column index
     SQMOD_VALIDATE_COLUMN(*this, idx);
-    // Assign the new index
-    m_Index = idx;
+    // Don't fall back to the invalid index anymore
+    aa.Set(idx);
 }
 
 // ------------------------------------------------------------------------------------------------
