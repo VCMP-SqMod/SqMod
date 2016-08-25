@@ -97,11 +97,11 @@ static uint8_t OnServerInitialise(void)
         {
             Core::Get().EmitServerStartup();
             // Add a notification to let the user know the plug-in was loaded
-            LogScs("The Squirrel plug-in was loaded successfully");
+            OutputMessage("The Squirrel plug-in was loaded successfully");
         }
         else
         {
-            LogFtl("Unable to load the plug-in resources properly");
+            OutputError("Unable to load the plug-in resources properly");
             // Failed to initialize
             return SQMOD_FAILURE;
         }
