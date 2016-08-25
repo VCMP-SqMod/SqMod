@@ -88,7 +88,7 @@ Int32 StmtHnd::GetColumnIndex(CSStr name)
         for (Int32 i = 0; i < mColumns; ++i)
         {
             // Get the column name at the current index
-            CSStr name = (CSStr)sqlite3_column_name(mPtr, i);
+            CSStr name = static_cast< CSStr >(sqlite3_column_name(mPtr, i));
             // Validate the name
             if (!name)
             {
