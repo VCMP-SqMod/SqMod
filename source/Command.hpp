@@ -625,8 +625,13 @@ public:
     */
     void SetOnFail(Object & env, Function & func)
     {
+        // Are we supposed to unbind current callback?
+        if (func.IsNull())
+        {
+            m_OnFail.ReleaseGently();
+        }
         // Was there a custom environment specified?
-        if (env.IsNull())
+        else if (env.IsNull())
         {
             m_OnFail = func;
         }
@@ -649,6 +654,11 @@ public:
     */
     void SetOnAuth(Object & env, Function & func)
     {
+        // Are we supposed to unbind current callback?
+        if (func.IsNull())
+        {
+            m_OnAuth.ReleaseGently();
+        }
         // Was there a custom environment specified?
         if (env.IsNull())
         {
