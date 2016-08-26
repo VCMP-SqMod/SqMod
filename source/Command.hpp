@@ -1649,6 +1649,11 @@ public:
         {
             STHROWF("Detached commands cannot store script resources");
         }
+        // Are we supposed to unbind current callback?
+        else if (func.IsNull())
+        {
+            m_OnExec.ReleaseGently();
+        }
         // Was there a custom environment specified?
         else if (env.IsNull())
         {
@@ -1677,6 +1682,11 @@ public:
         if (m_Controller.Expired())
         {
             STHROWF("Detached commands cannot store script resources");
+        }
+        // Are we supposed to unbind current callback?
+        else if (func.IsNull())
+        {
+            m_OnAuth.ReleaseGently();
         }
         // Was there a custom environment specified?
         else if (env.IsNull())
@@ -1707,6 +1717,11 @@ public:
         {
             STHROWF("Detached listeners cannot store script resources");
         }
+        // Are we supposed to unbind current callback?
+        else if (func.IsNull())
+        {
+            m_OnPost.ReleaseGently();
+        }
         // Was there a custom environment specified?
         else if (env.IsNull())
         {
@@ -1735,6 +1750,11 @@ public:
         if (m_Controller.Expired())
         {
             STHROWF("Detached listeners cannot store script resources");
+        }
+        // Are we supposed to unbind current callback?
+        else if (func.IsNull())
+        {
+            m_OnFail.ReleaseGently();
         }
         // Was there a custom environment specified?
         else if (env.IsNull())
