@@ -37,14 +37,6 @@ namespace SqMod {
 */  LogErr("Squirrel exception caught " action); /*
 */  Logger::Get().Debug("%s", e.what()); /*
 */ } /*
-*/ catch (const std::exception & e) /*
-*/ { /*
-*/  LogErr("Program exception caught " action " [%s]", e.what()); /*
-*/ } /*
-*/ catch (...) /*
-*/ { /*
-*/  LogErr("Unknown exception caught " action); /*
-*/ } /*
 */
 
 // ------------------------------------------------------------------------------------------------
