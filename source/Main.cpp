@@ -66,7 +66,7 @@ void DoReload()
 */ catch (const Sqrat::Exception & e) /*
 */ { /*
 */  LogErr("Squirrel exception caught (" #ev ") event"); /*
-*/  Logger::Get().Debug("%s", e.what()); /*
+*/  LogInf("Message: %s", e.what()); /*
 */ } /*
 */
 
