@@ -76,9 +76,12 @@ protected:
     */
     void SetIndex(Int32 idx)
     {
+        // Assign the index with a failsafe to invalid on error
+        AutoAssign< Int32 > aa(m_Index, -1, idx);
+        // Validate the obtained parameter index
         SQMOD_VALIDATE_PARAM(*this, idx);
-        // Assign the new index
-        m_Index = idx;
+        // Don't fall back to the invalid index anymore
+        aa.Set(idx);
     }
 
     /* --------------------------------------------------------------------------------------------

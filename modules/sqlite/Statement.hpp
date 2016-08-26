@@ -860,7 +860,13 @@ public:
     */
     Table GetTable() const
     {
-        return GetTable(0, SQMOD_GET_CREATED(*this)->mColumns);
+        // Is there something to return?
+        if (SQMOD_GET_CREATED(*this)->mColumns > 0)
+        {
+            return GetTable(0, m_Handle->mColumns - 1);
+        }
+        // Fallback to empty table
+        return NullTable();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -868,7 +874,13 @@ public:
     */
     Table GetTable(Int32 min) const
     {
-        return GetTable(min, SQMOD_GET_CREATED(*this)->mColumns);
+        // Is there something to return?
+        if (SQMOD_GET_CREATED(*this)->mColumns > 0)
+        {
+            return GetTable(min, m_Handle->mColumns - 1);
+        }
+        // Fallback to empty table
+        return NullTable();
     }
 
     /* --------------------------------------------------------------------------------------------

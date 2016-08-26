@@ -337,17 +337,17 @@ Statement & Statement::SetTable(const Table & tbl)
 Array Statement::GetArray(Int32 min, Int32 max) const
 {
     SQMOD_VALIDATE_ROW(*this);
-    // Was there anything selected?
-    if (min == max)
+    // Is the specified minimum index valid?
+    if (min < 0)
     {
-        return Array(); // Nothing to retrieve
+        STHROWF("Minimum is bellow zero: %d", min);
     }
     // Is the minimum actually the minimum?
     else if (min > max)
     {
         STHROWF("Minimum is higher than maximum: %d > %d", min, max);
     }
-    // Is the minimum in range>
+    // Is the minimum in range?
     else if (!m_Handle->CheckColumn(min))
     {
         STHROWF("Minimum is out of range: %d:%d", min, m_Handle->mColumns);
@@ -361,13 +361,15 @@ Array Statement::GetArray(Int32 min, Int32 max) const
     Array arr(DefaultVM::Get(), max-min);
     // Create a column instance to retrieve the values
     Column column(m_Handle);
+    // Array element counter
+    Int32 elem = 0;
     // Process the range of selected columns
-    for (Int32 elem = 0, idx = min; idx < max; ++elem, ++idx)
+    while (min <= max)
     {
         // Update the column index
-        column.SetIndex(idx);
+        column.SetIndex(min++);
         // Retrieve the column value and bind it to the array
-        arr.SetValue(elem, column.GetValue());
+        arr.SetValue(elem++, column.GetValue());
     }
     // Return the resulted array
     return arr;
@@ -377,10 +379,10 @@ Array Statement::GetArray(Int32 min, Int32 max) const
 Table Statement::GetTable(Int32 min, Int32 max) const
 {
     SQMOD_VALIDATE_ROW(*this);
-    // Was there anything selected?
-    if (min == max)
+    // Is the specified minimum index valid?
+    if (min < 0)
     {
-        return Table(); // Nothing to retrieve
+        STHROWF("Minimum is bellow zero: %d", min);
     }
     // Is the minimum actually the minimum?
     else if (min > max)
@@ -402,17 +404,17 @@ Table Statement::GetTable(Int32 min, Int32 max) const
     // Create a column instance to retrieve the values
     Column column(m_Handle);
     // Process the range of selected columns
-    for (Int32 elem = 0, idx = min; idx < max; ++elem, ++idx)
+    while (min <= max)
     {
         // Attempt to obtain the column name
-        CSStr name = sqlite3_column_name(m_Handle->mPtr, idx);
+        CSStr name = sqlite3_column_name(m_Handle->mPtr, min);
         // Validate the obtained name
         if (!name)
         {
-            STHROWF("Unable to retrieve name of column (%d)", idx);
+            STHROWF("Unable to retrieve name of column (%d)", min);
         }
         // Update the column index
-        column.SetIndex(idx);
+        column.SetIndex(min++);
         // Retrieve the column value and bind it to the table
         tbl.SetValue(name, column.GetValue());
     }
