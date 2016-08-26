@@ -413,9 +413,8 @@ protected:
         }
         catch (const Sqrat::Exception & e)
         {
-            LogErr("Command error callback failed");
-            // Call the debugger on this error and see if it can find anything
-            Logger::Get().Debug("%s", e.what());
+            // The debugger probably took care of reporting the details
+            LogErr("Command error callback failed [%s]", e.what());
         }
     }
 

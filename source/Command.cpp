@@ -394,8 +394,6 @@ Int32 Controller::Exec(Context & ctx)
             ctx.mBuffer.Write(0, e.what(), e.Message().size());
             // Specify that the command execution failed
             failed = true;
-            // Call the debugger on this error and see if it can find anything
-            Logger::Get().Debug("%s", e.what());
         }
     }
     else
@@ -418,8 +416,6 @@ Int32 Controller::Exec(Context & ctx)
             ctx.mBuffer.Write(0, e.what(), e.Message().size());
             // Specify that the command execution failed
             failed = true;
-            // Call the debugger on this error and see if it can find anything
-            Logger::Get().Debug("%s", e.what());
         }
     }
     // Was there a runtime exception during the execution?
@@ -437,10 +433,8 @@ Int32 Controller::Exec(Context & ctx)
             }
             catch (const Sqrat::Exception & e)
             {
-                // Call the debugger on this error and see if it can find anything
-                Logger::Get().Debug("%s", e.what());
                 // Tell the script callback to deal with the error
-                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.Message());
+                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.what());
             }
         }
         // Result is invalid at this point
@@ -461,10 +455,8 @@ Int32 Controller::Exec(Context & ctx)
             }
             catch (const Sqrat::Exception & e)
             {
-                // Call the debugger on this error and see if it can find anything
-                Logger::Get().Debug("%s", e.what());
                 // Tell the script callback to deal with the error
-                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.Message());
+                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.what());
             }
         }
     }
@@ -478,10 +470,8 @@ Int32 Controller::Exec(Context & ctx)
             }
             catch (const Sqrat::Exception & e)
             {
-                // Call the debugger on this error and see if it can find anything
-                Logger::Get().Debug("%s", e.what());
                 // Tell the script callback to deal with the error
-                SqError(CMDERR_POST_PROCESSING_FAILED, _SC("Unable to complete command post processing"), e.Message());
+                SqError(CMDERR_POST_PROCESSING_FAILED, _SC("Unable to complete command post processing"), e.what());
             }
     }
     // Return the result
