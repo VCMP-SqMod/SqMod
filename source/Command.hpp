@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
 #include "Base/Buffer.hpp"
+#include "Logger.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cctype>
@@ -412,8 +413,9 @@ protected:
         }
         catch (const Sqrat::Exception & e)
         {
-            // We can only log this incident and in the future maybe also include the location
-            LogErr("Command error callback failed [%s]", e.what());
+            LogErr("Command error callback failed");
+            // Call the debugger on this error and see if it can find anything
+            Logger::Get().Debug("%s", e.what());
         }
     }
 
