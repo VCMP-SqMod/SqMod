@@ -68,14 +68,6 @@ void DoReload()
 */  LogErr("Squirrel exception caught (" #ev ") event"); /*
 */  Logger::Get().Debug("%s", e.what()); /*
 */ } /*
-*/ catch (const std::exception & e) /*
-*/ { /*
-*/  LogErr("Program exception caught (" #ev ") event [%s]", e.what()); /*
-*/ } /*
-*/ catch (...) /*
-*/ { /*
-*/  LogErr("Unknown exception caught (" #ev ") event"); /*
-*/ } /*
 */
 
 // --------------------------------------------------------------------------------------------
