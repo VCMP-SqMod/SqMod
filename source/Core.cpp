@@ -156,6 +156,7 @@ Core::Core()
     , m_LockPreLoadSignal(false)
     , m_LockPostLoadSignal(false)
     , m_LockUnloadSignal(false)
+    , m_EmptyInit(false)
     , m_Verbosity(1)
 {
     /* ... */
@@ -206,6 +207,8 @@ bool Core::Initialize()
         return false;
     }
 
+    // Configure the empty initialization
+    m_EmptyInit = conf.GetBoolValue("Squirrel", "EmptyInit", false);
     // Configure the verbosity level
     m_Verbosity = conf.GetLongValue("Log", "VerbosityLevel", 1);
     // Initialize the log filename
@@ -316,7 +319,7 @@ bool Core::Initialize()
     }
 
     // See if any script could be queued for loading
-    if (m_PendingScripts.empty() && !conf.GetBoolValue("Squirrel", "EmptyInit", false))
+    if (m_PendingScripts.empty() && !m_EmptyInit)
     {
         LogErr("No scripts loaded. No reason to load the plug-in");
         // No point in loading the plug-in
@@ -360,9 +363,18 @@ bool Core::Initialize()
 bool Core::Execute()
 {
     // Are there any scripts to execute?
-    if (cLogErr(m_PendingScripts.empty(), "No scripts to execute. Plug-in has no purpose"))
+    if (m_PendingScripts.empty())
     {
-        return false; // No reason to execute the plug-in
+        // Are we allowed to continue without any scripts?
+        if (m_EmptyInit)
+        {
+            LogWrn("No scripts to execute. Empty initialization was forced");
+            // Allow empty initialization since it was requested
+            return true;
+        }
+        LogWrn("No scripts to execute. Plug-in has no purpose");
+        // No reason to execute the plug-in
+        return false;
     }
 
     // Unlock signal containers

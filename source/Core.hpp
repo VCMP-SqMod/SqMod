@@ -568,6 +568,7 @@ private:
     bool                            m_LockPreLoadSignal; // Lock pre load signal container.
     bool                            m_LockPostLoadSignal; // Lock post load signal container.
     bool                            m_LockUnloadSignal; // Lock unload signal container.
+    bool                            m_EmptyInit; // Whether to initialize without any scripts.
 
     // --------------------------------------------------------------------------------------------
     Int32                           m_Verbosity; // Restrict the amount of outputted information.
