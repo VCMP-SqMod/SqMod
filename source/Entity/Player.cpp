@@ -344,9 +344,19 @@ void CPlayer::SetName(CSStr name) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    if (_Func->SetPlayerName(m_ID, name) == vcmpErrorInvalidName)
+    const vcmpError ret = _Func->SetPlayerName(m_ID, name);
+    // Validate the resulted status
+    if (ret == vcmpErrorNullArgument)
+    {
+        STHROWF("Cannot assign a null name to a player");
+    }
+    else if (ret == vcmpErrorInvalidName)
     {
         STHROWF("The specified name is invalid");
+    }
+    else if (ret == vcmpErrorTooLargeInput)
+    {
+        STHROWF("The specified name is too large");
     }
 }
 
