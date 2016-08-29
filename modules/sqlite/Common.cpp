@@ -115,6 +115,27 @@ CSStr EscapeString(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
+static SQInteger SqEscapeString(HSQUIRRELVM vm)
+{
+    // Was the string specified?
+    if (sq_gettop(vm) <= 1)
+    {
+        return sq_throwerror(vm, "Missing un-escaped string");
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Attempt to escape the obtained string and push it on the stack
+    sq_pushstring(vm, EscapeString(val.mPtr), -1);
+    // Specify that we have a return value
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
 CCStr EscapeStringEx(SQChar spec, CCStr str)
 {
     // Utility that allows changing the format specifier temporarily
@@ -137,6 +158,48 @@ CCStr EscapeStringEx(SQChar spec, CCStr str)
     fs[1] = 'q';
     // Return the resulted string
     return GetTempBuff();
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqEscapeStringEx(HSQUIRRELVM vm)
+{
+    const Int32 top = sq_gettop(vm);
+    // Was the escape specifier specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing escape specifier");
+    }
+    // Was the string specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing un-escaped string");
+    }
+    SQInteger spec = 'q';
+    // Attempt to extract the escape specifier
+    const SQRESULT res = sq_getinteger(vm, 2, &spec);
+    // Have we failed to retrieve the specifier?
+    if (SQ_FAILED(res))
+    {
+        return res; // Propagate the error!
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 3);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Attempt to escape the obtained string and push it on the stack
+    try
+    {
+        sq_pushstring(vm, EscapeStringEx(static_cast< SQChar >(spec), val.mPtr), -1);
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        return sq_throwerror(vm, e.what());
+    }
+    // Specify that we have a return value
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -230,12 +293,12 @@ void Register_Common(Table & sqlns)
         .Func(_SC("SetSoftHeapLimit"), &SetSoftHeapLimit)
         .Func(_SC("ReleaseMemory"), &ReleaseMemory)
         .Func(_SC("MemoryUsage"), &GetMemoryUsage)
-        .Func(_SC("EscapeString"), &EscapeString)
-        .Func(_SC("EscapeStringEx"), &EscapeStringEx)
-        .Func(_SC("Escape"), &EscapeString)
-        .Func(_SC("EscapeEx"), &EscapeStringEx)
         .Func(_SC("ArrayToQueryColumns"), &ArrayToQueryColumns)
-        .Func(_SC("TableToQueryColumns"), &TableToQueryColumns);
+        .Func(_SC("TableToQueryColumns"), &TableToQueryColumns)
+        .SquirrelFunc(_SC("EscapeString"), &SqEscapeString)
+        .SquirrelFunc(_SC("EscapeStringEx"), &SqEscapeStringEx)
+        .SquirrelFunc(_SC("Escape"), &SqEscapeString)
+        .SquirrelFunc(_SC("EscapeEx"), &SqEscapeStringEx);
 }
 
 } // Namespace:: SqMod
