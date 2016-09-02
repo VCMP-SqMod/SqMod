@@ -202,7 +202,9 @@ void Session::Destroy()
 {
     // Make sure there's even a session to release
     if (!m_Session)
+	{
         return;
+	}
     // Disconnect the session
     Disconnect();
     // Break the association with this instance (paranoia)

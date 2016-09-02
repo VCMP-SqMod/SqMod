@@ -100,14 +100,21 @@ static void OnSquirrelTerminate()
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * The virtual machined is about to be closed. Last chance to release anything manually.
+*/
+static void OnSquirrelClosing()
+{
+    // Terminate all sessions, if any
+    SessionTerminate();
+}
+
+/* ------------------------------------------------------------------------------------------------
  * The virtual machined was closed and all memory associated with it was released.
 */
 static void OnSquirrelReleased()
 {
     // Release the current virtual machine, if any
     DefaultVM::Set(nullptr);
-    // Terminate all sessions, if any
-    SessionTerminate();
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -140,6 +147,10 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
         case SQMOD_TERMINATE_CMD:
         {
             OnSquirrelTerminate();
+        } break;
+        case SQMOD_CLOSING_CMD:
+        {
+            OnSquirrelClosing();
         } break;
         case SQMOD_RELEASED_CMD:
         {

@@ -513,6 +513,10 @@ void Core::Terminate(bool shutdown)
         // Assertions during close may cause double delete/close!
         HSQUIRRELVM sq_vm = m_VM;
         m_VM = nullptr;
+
+        cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine is closing");
+        // Tell modules to do their monkey business
+        _Func->SendPluginCommand(SQMOD_CLOSING_CMD, "");
         // Attempt to close the VM
         sq_close(sq_vm);
 

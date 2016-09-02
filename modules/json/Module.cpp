@@ -103,6 +103,14 @@ static void OnSquirrelTerminate()
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * The virtual machined is about to be closed. Last chance to release anything manually.
+*/
+static void OnSquirrelClosing()
+{
+	// Nothing to release manually...
+}
+
+/* ------------------------------------------------------------------------------------------------
  * The virtual machined was closed and all memory associated with it was released.
 */
 static void OnSquirrelReleased()
@@ -141,6 +149,10 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
         case SQMOD_TERMINATE_CMD:
         {
             OnSquirrelTerminate();
+        } break;
+        case SQMOD_CLOSING_CMD:
+        {
+            OnSquirrelClosing();
         } break;
         case SQMOD_RELEASED_CMD:
         {

@@ -58,6 +58,7 @@ extern "C" {
     #define SQMOD_INITIALIZE_CMD    0xDABBAD00
     #define SQMOD_LOAD_CMD          0xDEADBABE
     #define SQMOD_TERMINATE_CMD     0xDEADC0DE
+    #define SQMOD_CLOSING_CMD       0xBAAAAAAD
     #define SQMOD_RELEASED_CMD      0xDEADBEAF
     #define SQMOD_API_VER           1
 
