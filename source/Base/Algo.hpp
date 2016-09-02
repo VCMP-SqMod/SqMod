@@ -995,7 +995,7 @@ public:
             }
         }
         // Unable to locate a player matching the specified identifier
-        return NullObject();
+        return Inst::Null();
     }
 
     /* --------------------------------------------------------------------------------------------
