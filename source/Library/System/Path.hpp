@@ -722,6 +722,11 @@ public:
     static SysPath Null();
 
     /* --------------------------------------------------------------------------------------------
+     * Returns the real path to the specified file or directory.
+    */
+    static SysPath Real(CSStr path);
+
+    /* --------------------------------------------------------------------------------------------
      * Creates a path from a parent path and a file name. The parent path is expected to reference
      * a directory.
     */

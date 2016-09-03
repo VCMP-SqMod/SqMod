@@ -1675,6 +1675,12 @@ SysPath SysPath::Null()
 }
 
 // ------------------------------------------------------------------------------------------------
+SysPath SysPath::Real(CSStr path)
+{
+    return SysPath(GetRealFilePath(path));
+}
+
+// ------------------------------------------------------------------------------------------------
 SysPath SysPath::With(const SysPath & parent, CSStr name)
 {
     return SysPath(parent, name);
@@ -1785,6 +1791,7 @@ void Register_SysPath(HSQUIRRELVM vm)
         .StaticFunc(_SC("Config"), &SysPath::Config)
         .StaticFunc(_SC("System"), &SysPath::System)
         .StaticFunc(_SC("Null"), &SysPath::Null)
+        .StaticFunc(_SC("Real"), &SysPath::Real)
         .StaticFunc(_SC("With"), &SysPath::With)
         .StaticFunc(_SC("Unix"), &SysPath::MakeUnix)
         .StaticFunc(_SC("Windows"), &SysPath::MakeWindows)
