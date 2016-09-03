@@ -502,7 +502,7 @@ void Core::Terminate(bool shutdown)
     // Is there a VM to close?
     if (m_VM)
     {
-        cLogDbg(m_Verbosity >= 1, "Closing the virtual machine");
+        cLogDbg(m_Verbosity >= 1, "Releasing any final resources and all loaded scripts");
         // Release all script callbacks
         ResetFunc();
         // Release the script instances
