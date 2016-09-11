@@ -106,6 +106,21 @@ public:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructs an Object from a Squirrel object at a certain index on the stack
+    ///
+    /// \param i Index of the Squirrel object on stack
+    /// \param v VM that the object will exist in
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Object(SQInteger i, HSQUIRRELVM v = DefaultVM::Get()) : vm(v), release(true) {
+        if (SQ_FAILED(sq_getstackobj(vm, i, &obj))) {
+            sq_resetobject(&obj);
+        } else {
+            sq_addref(vm, &obj);
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructs an Object from a C++ instance
     ///
     /// \param instance Pointer to a C++ class instance that has been bound already
