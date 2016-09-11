@@ -400,7 +400,8 @@ bool Core::Execute()
         {
             return false; // One of the scripts failed to execute
         }
-        cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts", levels);
+
+        cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts. Pending scripts %u", levels, m_PendingScripts.size());
     }
 
     // Create the null entity instances
@@ -642,7 +643,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
             return false;
         }
         // At this point the script should be completely loaded
-        cLogDbg(m_Verbosity >= 3, "Successfully compiled script: %s", m_Scripts.back().mPath.c_str());
+        cLogDbg(m_Verbosity >= 3, "Compiled script: %s", m_Scripts.back().mPath.c_str());
 
         // Attempt to execute the compiled script code
         try
@@ -658,11 +659,13 @@ bool Core::LoadScript(CSStr filepath, bool delay)
             return false;
         }
         // At this point the script should be completely loaded
-        cLogScs(m_Verbosity >= 2, "Successfully executed script: %s", m_Scripts.back().mPath.c_str());
+        cLogScs(m_Verbosity >= 2, "Executed script: %s", m_Scripts.back().mPath.c_str());
     }
     // We don't compile the scripts yet. We just store their path and prepare the objects
     else
     {
+        cLogDbg(m_Verbosity >= 2, "Pending %s script: %s", (delay ? "deferred" : "immediate"), path.c_str());
+
         // Create a new script container and insert it into the pending script pool
         m_PendingScripts.emplace_back(m_VM, std::move(path), delay, m_Debugging);
     }
@@ -729,7 +732,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
             return false;
         }
 
-        cLogDbg(Get().m_Verbosity >= 3, "Successfully compiled script: %s", (*itr).mPath.c_str());
+        cLogDbg(Get().m_Verbosity >= 3, "Compiled script: %s", (*itr).mPath.c_str());
 
         // Should we delay the execution of this script?
         if ((*itr).mDelay)
@@ -749,10 +752,10 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
             return false;
         }
 
-        cLogScs(Get().m_Verbosity >= 2, "Successfully executed script: %s", (*itr).mPath.c_str());
+        cLogScs(Get().m_Verbosity >= 2, "Executed script: %s", (*itr).mPath.c_str());
     }
 
-    cLogDbg(Get().m_Verbosity >= 1, "Attempting to execute the specified scripts");
+    cLogDbg(Get().m_Verbosity >= 1, "Attempting to execute the delayed scripts");
     // Execute scripts only after compilation successful
     for (itr = itr_state; itr != end; ++itr)
     {
@@ -774,7 +777,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
             return false;
         }
 
-        cLogScs(Get().m_Verbosity >= 2, "Successfully executed script: %s", (*itr).mPath.c_str());
+        cLogScs(Get().m_Verbosity >= 2, "Executed script: %s", (*itr).mPath.c_str());
     }
 
     // At this point the scripts were loaded and executed successfully
