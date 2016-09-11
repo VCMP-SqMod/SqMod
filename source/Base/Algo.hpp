@@ -835,7 +835,7 @@ public:
      * Base constructor.
     */
     ForwardElemFunc(Object & env, Function & func)
-        : mFunc(env.GetVM(), env, func.GetFunc()), mCount(0)
+        : mFunc(env.IsNull() ? func : Function(env.GetVM(), env, func.GetFunc())), mCount(0)
     {
         if (mFunc.IsNull())
         {
