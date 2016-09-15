@@ -886,7 +886,7 @@ static SQInteger SplitWhereCharImpl(HSQUIRRELVM vm, int(*fn)(int), bool neg)
         if ((fn(*itr) == 0) == neg)
         {
             // Are there any characters before this match?
-            if ((itr - last) > 1 && (last != '\0'))
+            if ((itr - last) > 0 && (last != '\0'))
             {
                 // Push this chunk of string on the stack
                 sq_pushstring(vm, last, itr - last);
