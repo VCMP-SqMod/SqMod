@@ -848,6 +848,97 @@ template < int (*Fn)(int), bool Neg >static SQInteger LastCharProxy(HSQUIRRELVM 
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Split the string into chunks wherever a character matches or not the specified class.
+*/
+static SQInteger SplitWhereCharImpl(HSQUIRRELVM vm, int(*fn)(int), bool neg)
+{
+    static const SQInteger top = sq_gettop(vm);
+    // Is there a value to process?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing string or value");
+    }
+
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+
+    // Create a new array on the stack
+    sq_newarray(vm, 0);
+
+    // See if we actually have something to search for
+    if (!(val.mPtr) || *(val.mPtr) == '\0')
+    {
+        return 1; // Return an empty array
+    }
+
+    // Remember the position of the last found match
+    CSStr last = val.mPtr;
+
+    // Start iterating characters and slice where a match is found
+    for (CSStr itr = val.mPtr; *itr != '\0'; ++itr)
+    {
+        // Call the predicate with the current character
+        if ((fn(*itr) == 0) == neg)
+        {
+            // Are there any characters before this match?
+            if ((itr - last) > 1 && (++last != '\0'))
+            {
+                // Push this chunk of string on the stack
+                sq_pushstring(vm, last, itr - last);
+                // Insert this element into the array on the stack
+                const SQRESULT r = sq_arrayappend(vm, -2);
+                // Did we fail to append the element?
+                if (SQ_FAILED(r))
+                {
+                    return r; // We're done here
+                }
+            }
+            // Push this character as an integer on the stack
+            sq_pushinteger(vm, *itr);
+            // Insert this element into the array on the stack
+            const SQRESULT r = sq_arrayappend(vm, -2);
+            // Did we fail to append the element?
+            if (SQ_FAILED(r))
+            {
+                return r; // We're done here
+            }
+            // Update the position of the last found match
+            last = itr;
+        }
+    }
+
+    // Push the remaining chunk, if any
+    if (*(++last) != '\0')
+    {
+        // Push this chunk of string on the stack
+        sq_pushstring(vm, last, -1);
+        // Insert this element into the array on the stack
+        const SQRESULT r = sq_arrayappend(vm, -2);
+        // Did we fail to append the element?
+        if (SQ_FAILED(r))
+        {
+            return r; // We're done here
+        }
+    }
+
+    // We have a value to return on the stack
+    return 1;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Simple forwarder to minimize templated functions with large body and reduce executable size.
+*/
+template < int (*Fn)(int), bool Neg > static SQInteger SplitWhereCharProxy(HSQUIRRELVM vm)
+{
+    return SplitWhereCharImpl(vm, Fn, Neg);
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Checks if the specified character is of the specified class.
 */
 template < int (*Fn)(int) > static bool IsCharOfType(int c)
@@ -1180,7 +1271,31 @@ void Register_String(HSQUIRRELVM vm)
     .SquirrelFunc(_SC("LastNotXdigit"), &LastCharProxy< std::isxdigit, true >)
     .SquirrelFunc(_SC("LastNotAlnum"), &LastCharProxy< std::isalnum, true >)
     .SquirrelFunc(_SC("LastNotGraph"), &LastCharProxy< std::isgraph, true >)
-    .SquirrelFunc(_SC("LastNotBlank"), &LastCharProxy< std::isblank, true >);
+    .SquirrelFunc(_SC("LastNotBlank"), &LastCharProxy< std::isblank, true >)
+    .SquirrelFunc(_SC("SplitWhereSpace"), &SplitWhereCharProxy< std::isspace, false >)
+    .SquirrelFunc(_SC("SplitWherePrint"), &SplitWhereCharProxy< std::isprint, false >)
+    .SquirrelFunc(_SC("SplitWhereCntrl"), &SplitWhereCharProxy< std::iscntrl, false >)
+    .SquirrelFunc(_SC("SplitWhereUpper"), &SplitWhereCharProxy< std::isupper, false >)
+    .SquirrelFunc(_SC("SplitWhereLower"), &SplitWhereCharProxy< std::islower, false >)
+    .SquirrelFunc(_SC("SplitWhereAlpha"), &SplitWhereCharProxy< std::isalpha, false >)
+    .SquirrelFunc(_SC("SplitWhereDigit"), &SplitWhereCharProxy< std::isdigit, false >)
+    .SquirrelFunc(_SC("SplitWherePunct"), &SplitWhereCharProxy< std::ispunct, false >)
+    .SquirrelFunc(_SC("SplitWhereXdigit"), &SplitWhereCharProxy< std::isxdigit, false >)
+    .SquirrelFunc(_SC("SplitWhereAlnum"), &SplitWhereCharProxy< std::isalnum, false >)
+    .SquirrelFunc(_SC("SplitWhereGraph"), &SplitWhereCharProxy< std::isgraph, false >)
+    .SquirrelFunc(_SC("SplitWhereBlank"), &SplitWhereCharProxy< std::isblank, false >)
+    .SquirrelFunc(_SC("SplitWhereNotSpace"), &SplitWhereCharProxy< std::isspace, true >)
+    .SquirrelFunc(_SC("SplitWhereNotPrint"), &SplitWhereCharProxy< std::isprint, true >)
+    .SquirrelFunc(_SC("SplitWhereNotCntrl"), &SplitWhereCharProxy< std::iscntrl, true >)
+    .SquirrelFunc(_SC("SplitWhereNotUpper"), &SplitWhereCharProxy< std::isupper, true >)
+    .SquirrelFunc(_SC("SplitWhereNotLower"), &SplitWhereCharProxy< std::islower, true >)
+    .SquirrelFunc(_SC("SplitWhereNotAlpha"), &SplitWhereCharProxy< std::isalpha, true >)
+    .SquirrelFunc(_SC("SplitWhereNotDigit"), &SplitWhereCharProxy< std::isdigit, true >)
+    .SquirrelFunc(_SC("SplitWhereNotPunct"), &SplitWhereCharProxy< std::ispunct, true >)
+    .SquirrelFunc(_SC("SplitWhereNotXdigit"), &SplitWhereCharProxy< std::isxdigit, true >)
+    .SquirrelFunc(_SC("SplitWhereNotAlnum"), &SplitWhereCharProxy< std::isalnum, true >)
+    .SquirrelFunc(_SC("SplitWhereNotGraph"), &SplitWhereCharProxy< std::isgraph, true >)
+    .SquirrelFunc(_SC("SplitWhereNotBlank"), &SplitWhereCharProxy< std::isblank, true >);
 
     RootTable(vm).Bind(_SC("SqStr"), strns);
     RootTable(vm).SquirrelFunc(_SC("printf"), &StdPrintF);
