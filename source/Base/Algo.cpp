@@ -321,6 +321,22 @@ static inline Uint32 Player_EachWhereNameEquals(bool neg, bool cs, CSStr name, O
 }
 
 /* --------------------------------------------------------------------------------------------
+ * Process all entities of this type where the name matches or not the specified one.
+*/
+static inline Uint32 Player_EachWhereNameEqualsData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+{
+    SQMOD_VALID_NAME_STR(name)
+    // Create a new element forwarder
+    ForwardElemDataFunc< CPlayer > fwd(data, env, func);
+    // Process each entity in the pool
+    EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, !neg, cs);
+    // Return the forward count
+    return fwd.mCount;
+}
+
+/* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name begins with the specified string.
 */
 static inline Uint32 Player_EachWhereNameBegins(bool neg, bool cs, CSStr name, Object & env, Function & func)
@@ -332,6 +348,22 @@ static inline Uint32 Player_EachWhereNameBegins(bool neg, bool cs, CSStr name, O
     EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, strlen(name), !neg, cs);
+    // Return the forward count
+    return fwd.mCount;
+}
+
+/* --------------------------------------------------------------------------------------------
+ * Process all entities of this type where the name begins with the specified string.
+*/
+static inline Uint32 Player_EachWhereNameBeginsData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+{
+    SQMOD_VALID_NAME_STR(name)
+    // Create a new element forwarder
+    ForwardElemDataFunc< CPlayer > fwd(data, env, func);
+    // Process each entity in the pool
+    EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, strlen(name), !neg, cs);
     // Return the forward count
     return fwd.mCount;
 }
@@ -353,6 +385,22 @@ static inline Uint32 Player_EachWhereNameEnds(bool neg, bool cs, CSStr name, Obj
 }
 
 /* --------------------------------------------------------------------------------------------
+ * Process all entities of this type where the name ends or not with the specified string.
+*/
+static inline Uint32 Player_EachWhereNameEndsData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+{
+    SQMOD_VALID_NAME_STR(name)
+    // Create a new element forwarder
+    ForwardElemDataFunc< CPlayer > fwd(data, env, func);
+    // Process each entity in the pool
+    EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, strlen(name), !neg, cs);
+    // Return the forward count
+    return fwd.mCount;
+}
+
+/* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name contains the specified string.
 */
 static inline Uint32 Player_EachWhereNameContains(bool neg, bool cs, CSStr name, Object & env, Function & func)
@@ -369,6 +417,22 @@ static inline Uint32 Player_EachWhereNameContains(bool neg, bool cs, CSStr name,
 }
 
 /* --------------------------------------------------------------------------------------------
+ * Process all entities of this type where the name contains the specified string.
+*/
+static inline Uint32 Player_EachWhereNameContainsData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+{
+    SQMOD_VALID_NAME_STR(name)
+    // Create a new element forwarder
+    ForwardElemDataFunc< CPlayer > fwd(data, env, func);
+    // Process each entity in the pool
+    EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, !neg, cs);
+    // Return the forward count
+    return fwd.mCount;
+}
+
+/* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches the specified filter.
 */
 static inline Uint32 Player_EachWhereNameMatches(bool neg, bool cs, CSStr name, Object & env, Function & func)
@@ -380,6 +444,22 @@ static inline Uint32 Player_EachWhereNameMatches(bool neg, bool cs, CSStr name, 
     EachMatches(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg, cs);
+    // Return the forward count
+    return fwd.mCount;
+}
+
+/* --------------------------------------------------------------------------------------------
+ * Process all entities of this type where the name matches the specified filter.
+*/
+static inline Uint32 Player_EachWhereNameMatchesData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+{
+    SQMOD_VALID_NAME_STR(name)
+    // Create a new element forwarder
+    ForwardElemDataFunc< CPlayer > fwd(data, env, func);
+    // Process each entity in the pool
+    EachMatches(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+                ValidInstFunc< CPlayer >(), PlayerName(),
+                std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, !neg, cs);
     // Return the forward count
     return fwd.mCount;
 }
@@ -615,71 +695,118 @@ void Register(HSQUIRRELVM vm)
     Table each_ns(vm);
 
     each_ns.Bind(_SC("Blip"), Table(vm)
-        .Func(_SC("Active"), &Entity< CBlip >::EachActive)
-        .Func(_SC("TagEquals"), &Entity< CBlip >::EachWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CBlip >::EachWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CBlip >::EachWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CBlip >::EachWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CBlip >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CBlip >::EachActive)
+        .Overload(_SC("TagEquals"), &Entity< CBlip >::EachWhereTagEquals)
+        .Overload(_SC("TagBegins"), &Entity< CBlip >::EachWhereTagBegins)
+        .Overload(_SC("TagEnds"), &Entity< CBlip >::EachWhereTagEnds)
+        .Overload(_SC("TagContains"), &Entity< CBlip >::EachWhereTagContains)
+        .Overload(_SC("TagMatches"), &Entity< CBlip >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CBlip >::EachActiveData)
+        .Overload(_SC("TagEquals"), &Entity< CBlip >::EachWhereTagEqualsData)
+        .Overload(_SC("TagBegins"), &Entity< CBlip >::EachWhereTagBeginsData)
+        .Overload(_SC("TagEnds"), &Entity< CBlip >::EachWhereTagEndsData)
+        .Overload(_SC("TagContains"), &Entity< CBlip >::EachWhereTagContainsData)
+        .Overload(_SC("TagMatches"), &Entity< CBlip >::EachWhereTagMatchesData)
     );
 
     each_ns.Bind(_SC("Checkpoint"), Table(vm)
-        .Func(_SC("Active"), &Entity< CCheckpoint >::EachActive)
-        .Func(_SC("TagEquals"), &Entity< CCheckpoint >::EachWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CCheckpoint >::EachWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CCheckpoint >::EachWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CCheckpoint >::EachWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CCheckpoint >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CCheckpoint >::EachActive)
+        .Overload(_SC("TagEquals"), &Entity< CCheckpoint >::EachWhereTagEquals)
+        .Overload(_SC("TagBegins"), &Entity< CCheckpoint >::EachWhereTagBegins)
+        .Overload(_SC("TagEnds"), &Entity< CCheckpoint >::EachWhereTagEnds)
+        .Overload(_SC("TagContains"), &Entity< CCheckpoint >::EachWhereTagContains)
+        .Overload(_SC("TagMatches"), &Entity< CCheckpoint >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CCheckpoint >::EachActiveData)
+        .Overload(_SC("TagEquals"), &Entity< CCheckpoint >::EachWhereTagEqualsData)
+        .Overload(_SC("TagBegins"), &Entity< CCheckpoint >::EachWhereTagBeginsData)
+        .Overload(_SC("TagEnds"), &Entity< CCheckpoint >::EachWhereTagEndsData)
+        .Overload(_SC("TagContains"), &Entity< CCheckpoint >::EachWhereTagContainsData)
+        .Overload(_SC("TagMatches"), &Entity< CCheckpoint >::EachWhereTagMatchesData)
     );
 
     each_ns.Bind(_SC("Keybind"), Table(vm)
-        .Func(_SC("Active"), &Entity< CKeybind >::EachActive)
-        .Func(_SC("TagEquals"), &Entity< CKeybind >::EachWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CKeybind >::EachWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CKeybind >::EachWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CKeybind >::EachWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CKeybind >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CKeybind >::EachActive)
+        .Overload(_SC("TagEquals"), &Entity< CKeybind >::EachWhereTagEquals)
+        .Overload(_SC("TagBegins"), &Entity< CKeybind >::EachWhereTagBegins)
+        .Overload(_SC("TagEnds"), &Entity< CKeybind >::EachWhereTagEnds)
+        .Overload(_SC("TagContains"), &Entity< CKeybind >::EachWhereTagContains)
+        .Overload(_SC("TagMatches"), &Entity< CKeybind >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CKeybind >::EachActiveData)
+        .Overload(_SC("TagEquals"), &Entity< CKeybind >::EachWhereTagEqualsData)
+        .Overload(_SC("TagBegins"), &Entity< CKeybind >::EachWhereTagBeginsData)
+        .Overload(_SC("TagEnds"), &Entity< CKeybind >::EachWhereTagEndsData)
+        .Overload(_SC("TagContains"), &Entity< CKeybind >::EachWhereTagContainsData)
+        .Overload(_SC("TagMatches"), &Entity< CKeybind >::EachWhereTagMatchesData)
     );
 
     each_ns.Bind(_SC("Object"), Table(vm)
-        .Func(_SC("Active"), &Entity< CObject >::EachActive)
-        .Func(_SC("TagEquals"), &Entity< CObject >::EachWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CObject >::EachWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CObject >::EachWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CObject >::EachWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CObject >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CObject >::EachActive)
+        .Overload(_SC("TagEquals"), &Entity< CObject >::EachWhereTagEquals)
+        .Overload(_SC("TagBegins"), &Entity< CObject >::EachWhereTagBegins)
+        .Overload(_SC("TagEnds"), &Entity< CObject >::EachWhereTagEnds)
+        .Overload(_SC("TagContains"), &Entity< CObject >::EachWhereTagContains)
+        .Overload(_SC("TagMatches"), &Entity< CObject >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CObject >::EachActiveData)
+        .Overload(_SC("TagEquals"), &Entity< CObject >::EachWhereTagEqualsData)
+        .Overload(_SC("TagBegins"), &Entity< CObject >::EachWhereTagBeginsData)
+        .Overload(_SC("TagEnds"), &Entity< CObject >::EachWhereTagEndsData)
+        .Overload(_SC("TagContains"), &Entity< CObject >::EachWhereTagContainsData)
+        .Overload(_SC("TagMatches"), &Entity< CObject >::EachWhereTagMatchesData)
     );
 
     each_ns.Bind(_SC("Pickup"), Table(vm)
-        .Func(_SC("Active"), &Entity< CPickup >::EachActive)
-        .Func(_SC("TagEquals"), &Entity< CPickup >::EachWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CPickup >::EachWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CPickup >::EachWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CPickup >::EachWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CPickup >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CPickup >::EachActive)
+        .Overload(_SC("TagEquals"), &Entity< CPickup >::EachWhereTagEquals)
+        .Overload(_SC("TagBegins"), &Entity< CPickup >::EachWhereTagBegins)
+        .Overload(_SC("TagEnds"), &Entity< CPickup >::EachWhereTagEnds)
+        .Overload(_SC("TagContains"), &Entity< CPickup >::EachWhereTagContains)
+        .Overload(_SC("TagMatches"), &Entity< CPickup >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CPickup >::EachActiveData)
+        .Overload(_SC("TagEquals"), &Entity< CPickup >::EachWhereTagEqualsData)
+        .Overload(_SC("TagBegins"), &Entity< CPickup >::EachWhereTagBeginsData)
+        .Overload(_SC("TagEnds"), &Entity< CPickup >::EachWhereTagEndsData)
+        .Overload(_SC("TagContains"), &Entity< CPickup >::EachWhereTagContainsData)
+        .Overload(_SC("TagMatches"), &Entity< CPickup >::EachWhereTagMatchesData)
     );
 
     each_ns.Bind(_SC("Player"), Table(vm)
-        .Func(_SC("Active"), &Entity< CPlayer >::EachActive)
-        .Func(_SC("TagEquals"), &Entity< CPlayer >::EachWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CPlayer >::EachWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CPlayer >::EachWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CPlayer >::EachWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CPlayer >::EachWhereTagMatches)
-        .Func(_SC("NameEquals"), &Player_EachWhereNameEquals)
-        .Func(_SC("NameBegins"), &Player_EachWhereNameBegins)
-        .Func(_SC("NameEnds"), &Player_EachWhereNameEnds)
-        .Func(_SC("NameContains"), &Player_EachWhereNameContains)
-        .Func(_SC("NameMatches"), &Player_EachWhereNameMatches)
+        .Overload(_SC("Active"), &Entity< CPlayer >::EachActive)
+        .Overload(_SC("TagEquals"), &Entity< CPlayer >::EachWhereTagEquals)
+        .Overload(_SC("TagBegins"), &Entity< CPlayer >::EachWhereTagBegins)
+        .Overload(_SC("TagEnds"), &Entity< CPlayer >::EachWhereTagEnds)
+        .Overload(_SC("TagContains"), &Entity< CPlayer >::EachWhereTagContains)
+        .Overload(_SC("TagMatches"), &Entity< CPlayer >::EachWhereTagMatches)
+        .Overload(_SC("NameEquals"), &Player_EachWhereNameEquals)
+        .Overload(_SC("NameBegins"), &Player_EachWhereNameBegins)
+        .Overload(_SC("NameEnds"), &Player_EachWhereNameEnds)
+        .Overload(_SC("NameContains"), &Player_EachWhereNameContains)
+        .Overload(_SC("NameMatches"), &Player_EachWhereNameMatches)
+        .Overload(_SC("Active"), &Entity< CPlayer >::EachActiveData)
+        .Overload(_SC("TagEquals"), &Entity< CPlayer >::EachWhereTagEqualsData)
+        .Overload(_SC("TagBegins"), &Entity< CPlayer >::EachWhereTagBeginsData)
+        .Overload(_SC("TagEnds"), &Entity< CPlayer >::EachWhereTagEndsData)
+        .Overload(_SC("TagContains"), &Entity< CPlayer >::EachWhereTagContainsData)
+        .Overload(_SC("TagMatches"), &Entity< CPlayer >::EachWhereTagMatchesData)
+        .Overload(_SC("NameEquals"), &Player_EachWhereNameEqualsData)
+        .Overload(_SC("NameBegins"), &Player_EachWhereNameBeginsData)
+        .Overload(_SC("NameEnds"), &Player_EachWhereNameEndsData)
+        .Overload(_SC("NameContains"), &Player_EachWhereNameContainsData)
+        .Overload(_SC("NameMatches"), &Player_EachWhereNameMatchesData)
     );
 
     each_ns.Bind(_SC("Vehicle"), Table(vm)
-        .Func(_SC("Active"), &Entity< CVehicle >::EachActive)
-        .Func(_SC("TagEquals"), &Entity< CVehicle >::EachWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CVehicle >::EachWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CVehicle >::EachWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CVehicle >::EachWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CVehicle >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CVehicle >::EachActive)
+        .Overload(_SC("TagEquals"), &Entity< CVehicle >::EachWhereTagEquals)
+        .Overload(_SC("TagBegins"), &Entity< CVehicle >::EachWhereTagBegins)
+        .Overload(_SC("TagEnds"), &Entity< CVehicle >::EachWhereTagEnds)
+        .Overload(_SC("TagContains"), &Entity< CVehicle >::EachWhereTagContains)
+        .Overload(_SC("TagMatches"), &Entity< CVehicle >::EachWhereTagMatches)
+        .Overload(_SC("Active"), &Entity< CVehicle >::EachActiveData)
+        .Overload(_SC("TagEquals"), &Entity< CVehicle >::EachWhereTagEqualsData)
+        .Overload(_SC("TagBegins"), &Entity< CVehicle >::EachWhereTagBeginsData)
+        .Overload(_SC("TagEnds"), &Entity< CVehicle >::EachWhereTagEndsData)
+        .Overload(_SC("TagContains"), &Entity< CVehicle >::EachWhereTagContainsData)
+        .Overload(_SC("TagMatches"), &Entity< CVehicle >::EachWhereTagMatchesData)
     );
 
     RootTable(vm).Bind(_SC("SqForeach"), each_ns);

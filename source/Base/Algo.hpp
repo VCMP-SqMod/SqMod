@@ -886,6 +886,96 @@ public:
 };
 
 /* ------------------------------------------------------------------------------------------------
+ * Functor to forward the the received element and specific payload to a callback.
+*/
+template < typename T > struct ForwardElemDataFunc
+{
+public:
+
+    // --------------------------------------------------------------------------------------------
+    Function    mFunc; // The script callback to forward the element.
+    Object      mData; // The script payload to accompany the element.
+    Uint32      mCount; // The number of elements forwarded by this functor.
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    ForwardElemDataFunc(Object & data, Object & env, Function & func)
+        : mFunc(env.IsNull() ? func : Function(env.GetVM(), env, func.GetFunc())), mData(data), mCount(0)
+    {
+        if (mFunc.IsNull())
+        {
+            STHROWF("Invalid script callback");
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Function call operator.
+    */
+    void operator () (const typename InstSpec< T >::Instance & inst)
+    {
+        mFunc.Execute(inst.mObj, mData);
+        ++mCount; // Only successful forwards are counted!
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed function.
+    */
+    operator Function ()
+    {
+        return mFunc;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed function.
+    */
+    operator Function & ()
+    {
+        return mFunc;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed function.
+    */
+    operator const Function & () const
+    {
+        return mFunc;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed payload.
+    */
+    operator Object ()
+    {
+        return mData;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed payload.
+    */
+    operator Object & ()
+    {
+        return mData;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the managed payload.
+    */
+    operator const Object & () const
+    {
+        return mData;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit cast to the count value.
+    */
+    operator Uint32 () const
+    {
+        return mCount;
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Functor to count the the received elements.
 */
 template < typename T > struct CountElemFunc
@@ -933,12 +1023,13 @@ public:
     typedef InstSpec< T > Inst; // The type of entity instance to work with.
 
     // --------------------------------------------------------------------------------------------
-    typedef ValidInstFunc< T >      ValidInst;
-    typedef InstTagFunc< T >        InstTag;
-    typedef AppendElemFunc< T >     AppendElem;
-    typedef RecvElemFunc< T >       RecvElem;
-    typedef ForwardElemFunc< T >    ForwardElem;
-    typedef CountElemFunc< T >      CountElem;
+    typedef ValidInstFunc< T >          ValidInst;
+    typedef InstTagFunc< T >            InstTag;
+    typedef AppendElemFunc< T >         AppendElem;
+    typedef RecvElemFunc< T >           RecvElem;
+    typedef ForwardElemFunc< T >        ForwardElem;
+    typedef ForwardElemDataFunc< T >    ForwardElemData;
+    typedef CountElemFunc< T >          CountElem;
 
 public:
 
@@ -1182,6 +1273,20 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Process all active entities of this type.
+    */
+    static inline Uint32 EachActiveData(Object & data, Object & env, Function & func)
+    {
+        // Create a new element forwarder
+        ForwardElemData fwd(data, env, func);
+        // Process each entity in the pool
+        Collect(Inst::CBegin(), Inst::CEnd(), ValidInst(),
+                        std::reference_wrapper< ForwardElemData >(fwd));
+        // Return the forward count
+        return fwd.mCount;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag matches or not the specified one.
     */
     static inline Uint32 EachWhereTagEquals(bool neg, bool cs, CSStr tag, Object & env, Function & func)
@@ -1192,6 +1297,21 @@ public:
         // Process each entity in the pool
         EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
+        // Return the forward count
+        return fwd.mCount;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Process all entities of this type where the tag matches or not the specified one.
+    */
+    static inline Uint32 EachWhereTagEqualsData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element forwarder
+        ForwardElemData fwd(data, env, func);
+        // Process each entity in the pool
+        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElemData >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
     }
@@ -1212,6 +1332,21 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Process all entities of this type where the tag begins with the specified string.
+    */
+    static inline Uint32 EachWhereTagBeginsData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element forwarder
+        ForwardElemData fwd(data, env, func);
+        // Process each entity in the pool
+        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElemData >(fwd), tag, strlen(tag), !neg, cs);
+        // Return the forward count
+        return fwd.mCount;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag ends or not with the specified string.
     */
     static inline Uint32 EachWhereTagEnds(bool neg, bool cs, CSStr tag, Object & env, Function & func)
@@ -1222,6 +1357,21 @@ public:
         // Process each entity in the pool
         EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg, cs);
+        // Return the forward count
+        return fwd.mCount;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Process all entities of this type where the tag ends or not with the specified string.
+    */
+    static inline Uint32 EachWhereTagEndsData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element forwarder
+        ForwardElemData fwd(data, env, func);
+        // Process each entity in the pool
+        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElemData >(fwd), tag, strlen(tag), !neg, cs);
         // Return the forward count
         return fwd.mCount;
     }
@@ -1242,6 +1392,21 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Process all entities of this type where the tag contains the specified string.
+    */
+    static inline Uint32 EachWhereTagContainsData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element forwarder
+        ForwardElemData fwd(data, env, func);
+        // Process each entity in the pool
+        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElemData >(fwd), tag, !neg, cs);
+        // Return the forward count
+        return fwd.mCount;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag match the specified filter.
     */
     static inline Uint32 EachWhereTagMatches(bool neg, bool cs, CSStr tag, Object & env, Function & func)
@@ -1252,6 +1417,21 @@ public:
         // Process each entity in the pool
         EachMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
+        // Return the forward count
+        return fwd.mCount;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Process all entities of this type where the tag match the specified filter.
+    */
+    static inline Uint32 EachWhereTagMatchesData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    {
+        SQMOD_VALID_TAG_STR(tag)
+        // Create a new element forwarder
+        ForwardElemData fwd(data, env, func);
+        // Process each entity in the pool
+        EachMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+                        std::reference_wrapper< ForwardElemData >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
     }
