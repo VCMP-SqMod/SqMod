@@ -271,7 +271,7 @@ void CPlayer::Kick() const
     // Validate the managed identifier
     Validate();
     // Store the default header and payload
-    Core::Get().GetPlayer(m_ID).mKickBanHeader = 0;
+    Core::Get().GetPlayer(m_ID).mKickBanHeader = vcmpDisconnectReasonKick;
     Core::Get().GetPlayer(m_ID).mKickBanPayload = NullObject();
     // Perform the requested operation
     _Func->KickPlayer(m_ID);
@@ -295,7 +295,7 @@ void CPlayer::Ban() const
     // Validate the managed identifier
     Validate();
     // Store the default header and payload
-    Core::Get().GetPlayer(m_ID).mKickBanHeader = 0;
+    Core::Get().GetPlayer(m_ID).mKickBanHeader = vcmpDisconnectReasonKick;
     Core::Get().GetPlayer(m_ID).mKickBanPayload = NullObject();
     // Perform the requested operation
     _Func->BanPlayer(m_ID);
