@@ -264,7 +264,8 @@ static const EnumElement g_PartReasonEnum[] = {
     {_SC("Kick"),         vcmpDisconnectReasonKick},
     {_SC("Crash"),        vcmpDisconnectReasonCrash},
     {_SC("AntiCheat"),    vcmpDisconnectReasonAntiCheat},
-    {_SC("Max"),          vcmpDisconnectReasonAntiCheat}
+    {_SC("Ban"),          vcmpDisconnectReasonAntiCheat + 1},
+    {_SC("Max"),          vcmpDisconnectReasonAntiCheat + 1}
 };
 
 // ------------------------------------------------------------------------------------------------
