@@ -1117,6 +1117,25 @@ class Listener
 public:
 
     /* --------------------------------------------------------------------------------------------
+     * Release any trace of script resources from all the listener instances.
+    */
+    static void Terminate()
+    {
+        // Go forward and release resources
+        for (Listener * node = s_Head; node != nullptr; node = node->m_Next)
+        {
+            node->m_Data.Release();
+        }
+        // Go backwards and release resources
+        for (Listener * node = s_Head; node != nullptr; node = node->m_Prev)
+        {
+            node->m_Data.Release();
+        }
+        // Kinda useless but Squirrel doesn't play nice with loose references
+        // Better safe than sorry
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
     Listener(CSStr name)
@@ -1200,6 +1219,8 @@ public:
         , m_Protected(prot)
         , m_Suspended(false)
         , m_Associate(assoc)
+        , m_Prev(nullptr)
+        , m_Next(s_Head)
     {
         // Initialize the specifiers to default values
         for (Uint8 n = 0; n < SQMOD_MAX_CMD_ARGS; ++n)
@@ -1215,6 +1236,22 @@ public:
         SetMaxArgC(max);
         // Generate information for the command
         GenerateInfo(false);
+        // We're the head element now
+        s_Head = this;
+        // Was there a previous head?
+        if (m_Next != nullptr)
+        {
+            // Steal previous element from previous head
+            m_Prev = m_Next->m_Prev;
+            // Did that head element had a previous element?
+            if (m_Prev != nullptr)
+            {
+                // Tell it we're the next element now
+                m_Prev->m_Next = this;
+            }
+            // Tell the previous head that we're the previous element now
+            m_Next->m_Prev = this;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1242,6 +1279,23 @@ public:
         m_OnAuth.ReleaseGently();
         m_OnPost.ReleaseGently();
         m_OnFail.ReleaseGently();
+        // Is there an element behind us?
+        if (m_Prev != nullptr)
+        {
+            // Tell it to point to the element ahead of us
+            m_Prev->m_Next = m_Next;
+        }
+        // Is there an element ahead of us?
+        if (m_Next != nullptr)
+        {
+            // Tell it to point to the element behind us
+            m_Next->m_Prev = m_Prev;
+        }
+        // Are we the head element in the chain?
+        if (s_Head == this)
+        {
+            s_Head = m_Next == nullptr ? m_Prev : m_Next;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1385,6 +1439,22 @@ public:
         {
             m_Name.assign(name); // Just assign the name
         }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    Object & GetData()
+    {
+        return m_Data;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(Object & data)
+    {
+        m_Data = data;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1645,13 +1715,8 @@ public:
     */
     void SetOnExec(Object & env, Function & func)
     {
-        // Make sure that we are allowed to store script resources
-        if (m_Controller.Expired())
-        {
-            STHROWF("Detached commands cannot store script resources");
-        }
         // Are we supposed to unbind current callback?
-        else if (func.IsNull())
+        if (func.IsNull())
         {
             m_OnExec.ReleaseGently();
         }
@@ -1679,13 +1744,8 @@ public:
     */
     void SetOnAuth(Object & env, Function & func)
     {
-        // Make sure that we are allowed to store script resources
-        if (m_Controller.Expired())
-        {
-            STHROWF("Detached commands cannot store script resources");
-        }
         // Are we supposed to unbind current callback?
-        else if (func.IsNull())
+        if (func.IsNull())
         {
             m_OnAuth.ReleaseGently();
         }
@@ -1713,13 +1773,8 @@ public:
     */
     void SetOnPost(Object & env, Function & func)
     {
-        // Make sure that we are allowed to store script resources
-        if (m_Controller.Expired())
-        {
-            STHROWF("Detached listeners cannot store script resources");
-        }
         // Are we supposed to unbind current callback?
-        else if (func.IsNull())
+        if (func.IsNull())
         {
             m_OnPost.ReleaseGently();
         }
@@ -1747,13 +1802,8 @@ public:
     */
     void SetOnFail(Object & env, Function & func)
     {
-        // Make sure that we are allowed to store script resources
-        if (m_Controller.Expired())
-        {
-            STHROWF("Detached listeners cannot store script resources");
-        }
         // Are we supposed to unbind current callback?
-        else if (func.IsNull())
+        if (func.IsNull())
         {
             m_OnFail.ReleaseGently();
         }
@@ -1914,6 +1964,7 @@ private:
 
     // --------------------------------------------------------------------------------------------
     String      m_Name; // Name of the command that triggers this listener.
+    Object      m_Data; // Arbitrary user data associated with this particular instance.
 
     // --------------------------------------------------------------------------------------------
     ArgSpec     m_ArgSpec; // List of argument type specifications.
@@ -1941,6 +1992,13 @@ private:
     bool        m_Protected; // Whether explicit authentication of the invoker is required.
     bool        m_Suspended; // Whether this command should block further invocations.
     bool        m_Associate; // Whether arguments are sent as table instead of array.
+
+    // --------------------------------------------------------------------------------------------
+    Listener *  m_Prev; // Previous listener in the chain.
+    Listener *  m_Next; // Next listener in the chain.
+
+    // --------------------------------------------------------------------------------------------
+    static Listener *  s_Head; // The head of the listener chain.
 };
 
 } // Namespace:: Cmd

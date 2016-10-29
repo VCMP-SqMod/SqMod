@@ -9,6 +9,9 @@ namespace Cmd {
 Controllers Controller::s_Controllers;
 
 // ------------------------------------------------------------------------------------------------
+Listener *  Listener::s_Head = nullptr;
+
+// ------------------------------------------------------------------------------------------------
 SQInteger Manager::Typename(HSQUIRRELVM vm)
 {
     static const SQChar name[] = _SC("SqCmdManager");
@@ -1090,6 +1093,7 @@ void Register(HSQUIRRELVM vm)
         .Prop(_SC("Attached"), &Listener::Attached)
         .Prop(_SC("Manager"), &Listener::GetManager)
         .Prop(_SC("Name"), &Listener::GetName, &Listener::SetName)
+        .Prop(_SC("Data"), &Listener::GetData, &Listener::SetData)
         .Prop(_SC("Spec"), &Listener::GetSpec, &Listener::SetSpec)
         .Prop(_SC("Specifier"), &Listener::GetSpec, &Listener::SetSpec)
         .Prop(_SC("Tags"), &Listener::GetArgTags, &Listener::SetArgTags)
@@ -1168,6 +1172,7 @@ void Register_Command(HSQUIRRELVM vm)
 void TerminateCommands()
 {
     Cmd::Controller::Terminate();
+    Cmd::Listener::Terminate();
 }
 
 } // Namespace:: SqMod
