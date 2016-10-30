@@ -321,6 +321,53 @@ private:
                 // Tell it we're no longer ahead of it
                 mPrev->mNext = mNext;
             }
+            mPrev = mNext = nullptr;
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Attach the slot after another slot.
+        */
+        void AttachNext(Slot * node)
+        {
+            Detach();
+            // Assign the slot ahead of us
+            mNext = node;
+            // Is there a node to attach to?
+            if (mNext != nullptr)
+            {
+                // Steal the previous slot
+                mPrev = mNext->mPrev;
+                // Was there a previous slot?
+                if (mPrev != nullptr)
+                {
+                    mPrev->mNext = this; // Tell it we're the next slot now
+                }
+                // Place ourself behind
+                mNext->mPrev = this;
+            }
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Attach the slot before another slot.
+        */
+        void AttachPrev(Slot * node)
+        {
+            Detach();
+            // Assign the slot behind us
+            mPrev = node;
+            // Is there a node to attach to?
+            if (mPrev != nullptr)
+            {
+                // Steal the next slot
+                mNext = mPrev->mNext;
+                // Was there a next slot?
+                if (mNext != nullptr)
+                {
+                    mNext->mPrev = this; // Tell it we're the previous slot now
+                }
+                // Place ourself ahead
+                mPrev->mNext = this;
+            }
         }
     };
 
@@ -492,7 +539,19 @@ public:
             return;
         }
 
-        Slot slot{env, func};
+        const Slot slot{env, func};
+        // Don't attempt to search anything if there's only one element
+        if (m_Head->mNext == nullptr)
+        {
+            // Is it already inserted?
+            if (*m_Head != slot)
+            {
+                m_Head = new Slot(env, func, m_Head);
+            }
+            // We're done here
+            return;
+        }
+
         // Walk down the chain and find an already matching node
         for (Slot * node = m_Head; node != nullptr; node = node->mNext)
         {
@@ -680,6 +739,114 @@ public:
         }
         // Return the count
         return count;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Make sure that specified slot is positioned ahead of all other slots.
+    */
+    void Head(Object & env, Function & func)
+    {
+        // Don't attempt to search anything if there's no head
+        if (m_Head == nullptr)
+        {
+            m_Head = new Slot(env, func, nullptr);
+            // We're done here
+            return;
+        }
+
+        const Slot slot{env, func};
+        // Don't attempt to search anything if there's only one element
+        if (m_Head->mNext == nullptr)
+        {
+            // Is it already inserted?
+            if (*m_Head != slot)
+            {
+                m_Head = new Slot(env, func, m_Head);
+            }
+            // We're done here
+            return;
+        }
+
+        // Grab the head node
+        Slot * node = m_Head;
+        // Walk down the chain and find a matching node
+        for (; node != nullptr; node = node->mNext)
+        {
+            if (*node == slot)
+            {
+                break; // Found it
+            }
+        }
+        // Have we found anything?
+        if (node == nullptr)
+        {
+            m_Head = new Slot(env, func, m_Head); // Lead everyone
+        }
+        // Is it the head already?
+        else if (m_Head != node)
+        {
+            node->AttachNext(m_Head);
+            // We're the head now
+            m_Head = node;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Make sure that specified slot is positioned behind of all other slots.
+    */
+    void Tail(Object & env, Function & func)
+    {
+        // Don't attempt to search anything if there's no head
+        if (m_Head == nullptr)
+        {
+            m_Head = new Slot(env, func, nullptr);
+            // We're done here
+            return;
+        }
+
+        const Slot slot{env, func};
+        // Don't attempt to search anything if there's only one element
+        if (m_Head->mNext == nullptr)
+        {
+            // Is it already inserted?
+            if (*m_Head != slot)
+            {
+                m_Head->mNext = new Slot(env, func, nullptr);
+                // Link with the head
+                m_Head->mNext->mPrev = m_Head;
+            }
+            // We're done here
+            return;
+        }
+
+        // Grab the head node
+        Slot * node = m_Head, * prev = nullptr;
+        // Walk down the chain and find a matching node
+        for (; node != nullptr; prev = node, node = node->mNext)
+        {
+            if (*node == slot)
+            {
+                break; // Found it
+            }
+        }
+        // Have we found anything?
+        if (node == nullptr)
+        {
+            // Create the slot now
+            node = new Slot(env, func, nullptr);
+        }
+        else
+        {
+            // Walk down the chain until the end
+            while (prev->mNext != nullptr)
+            {
+                prev = prev->mNext;
+            }
+            // Finally, detach the node from it's current position
+            node->Detach();
+        }
+        // Knowing 'prev' points to last element
+        node->AttachPrev(prev);
     }
 
     /* --------------------------------------------------------------------------------------------

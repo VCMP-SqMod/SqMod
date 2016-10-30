@@ -256,6 +256,8 @@ void Register_Signal(HSQUIRRELVM vm)
         .Func(_SC("EliminateFunc"), &Signal::DisconnectFunc)
         .Func(_SC("CountThis"), &Signal::CountThis)
         .Func(_SC("CountFunc"), &Signal::CountFunc)
+        .Func(_SC("Head"), &Signal::Head)
+        .Func(_SC("Tail"), &Signal::Tail)
         // Squirrel Functions
         .SquirrelFunc(_SC("Emit"), &Signal::SqEmit)
         .SquirrelFunc(_SC("Broadcast"), &Signal::SqEmit)
