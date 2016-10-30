@@ -46,6 +46,7 @@ extern bool RegisterAPI(HSQUIRRELVM vm);
 extern void InitializeRoutines();
 extern void TerminateRoutines();
 extern void TerminateCommands();
+extern void TerminateSignals();
 
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(CSStr path);
@@ -481,6 +482,8 @@ void Core::Terminate(bool shutdown)
     TerminateRoutines();
     // Release all resources from command managers
     TerminateCommands();
+    // Release all resources from signals
+    TerminateSignals();
     // In case there's a payload for reload
     m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them
