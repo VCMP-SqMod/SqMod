@@ -231,39 +231,7 @@ private:
         */
         bool operator != (const Slot & o) const
         {
-            return (mEnvHash != o.mEnvHash) && (mFuncHash != o.mFuncHash);
-        }
-
-        /* ----------------------------------------------------------------------------------------
-         * Less than comparison operator.
-        */
-        bool operator < (const Slot & o) const
-        {
-            return (mEnvHash < o.mEnvHash) && (mFuncHash < o.mFuncHash);
-        }
-
-        /* ----------------------------------------------------------------------------------------
-         * Greater than comparison operator.
-        */
-        bool operator > (const Slot & o) const
-        {
-            return (mEnvHash > o.mEnvHash) && (mFuncHash > o.mFuncHash);
-        }
-
-        /* ----------------------------------------------------------------------------------------
-         * Less than or equal comparison operator.
-        */
-        bool operator <= (const Slot & o) const
-        {
-            return (mEnvHash <= o.mEnvHash) && (mFuncHash <= o.mFuncHash);
-        }
-
-        /* ----------------------------------------------------------------------------------------
-         * Greater than or equal comparison operator.
-        */
-        bool operator >= (const Slot & o) const
-        {
-            return (mEnvHash >= o.mEnvHash) && (mFuncHash >= o.mFuncHash);
+            return (mEnvHash != o.mEnvHash) || (mFuncHash != o.mFuncHash);
         }
 
         /* ----------------------------------------------------------------------------------------
