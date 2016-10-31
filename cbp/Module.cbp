@@ -540,6 +540,8 @@
 		<Unit filename="../source/Misc/Player.cpp" />
 		<Unit filename="../source/Misc/Player.hpp" />
 		<Unit filename="../source/Misc/Register.cpp" />
+		<Unit filename="../source/Misc/Signal.cpp" />
+		<Unit filename="../source/Misc/Signal.hpp" />
 		<Unit filename="../source/Misc/Vehicle.cpp" />
 		<Unit filename="../source/Misc/Vehicle.hpp" />
 		<Unit filename="../source/Misc/Weapon.cpp" />
