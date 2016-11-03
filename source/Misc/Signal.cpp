@@ -263,6 +263,8 @@ void Register_Signal(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("Broadcast"), &Signal::SqEmit)
         .SquirrelFunc(_SC("Query"), &Signal::SqQuery)
         .SquirrelFunc(_SC("Consume"), &Signal::SqConsume)
+        .SquirrelFunc(_SC("Approve"), &Signal::SqApprove)
+        .SquirrelFunc(_SC("Request"), &Signal::SqRequest)
     );
 
     RootTable(vm)

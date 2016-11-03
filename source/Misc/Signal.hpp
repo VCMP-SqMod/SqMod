@@ -995,10 +995,12 @@ public:
         return 0;
     }
 
+protected:
+
     /* --------------------------------------------------------------------------------------------
-     * Emit the event to the connected slots and see if they consume it.
+     * Actual implementation of the consume method.
     */
-    static SQInteger SqConsume(HSQUIRRELVM vm)
+    static SQInteger SqConsumeApproveImpl(HSQUIRRELVM vm, const SQBool rval)
     {
         const Int32 top = sq_gettop(vm);
         // The signal instance
@@ -1017,8 +1019,8 @@ public:
         {
             return sq_throwerror(vm, "Invalid signal instance");
         }
-        // Whether this signal was consumed
-        SQBool consumed = SQFalse;
+        // Return value of each slot
+        SQBool ret = SQFalse;
         // Walk down the chain and trigger slots
         for (Slot * node = signal->m_Head, * next = nullptr; node != nullptr; node = next)
         {
@@ -1053,17 +1055,104 @@ public:
                 return res; // Propagate the error
             }
             // Obtain the returned value
-            sq_tobool(vm, -1, &consumed);
+            sq_tobool(vm, -1, &ret);
             // Should we proceed to the next slot or stop here?
-            if (consumed == SQTrue)
+            if (ret == rval)
             {
-                break; // This signal was consumed
+                // Forward the returned value to the invoker
+                sq_pushbool(vm, ret);
+                // The slot satisfied our criteria
+                break;
             }
         }
-        // Specify that this signal was consumed
-        sq_pushbool(vm, consumed);
         // Specify that we returned something
         return 1;
+    }
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Emit the event to the connected slots and see if they consume it.
+    */
+    static SQInteger SqConsume(HSQUIRRELVM vm)
+    {
+        return SqConsumeApproveImpl(vm, SQTrue);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Emit the event to the connected slots and see if they approve it.
+    */
+    static SQInteger SqApprove(HSQUIRRELVM vm)
+    {
+        return SqConsumeApproveImpl(vm, SQFalse);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Emit the event to the connected slots and see if they return something.
+    */
+    static SQInteger SqRequest(HSQUIRRELVM vm)
+    {
+        const Int32 top = sq_gettop(vm);
+        // The signal instance
+        Signal * signal = nullptr;
+        // Attempt to extract the signal instance
+        try
+        {
+            signal = Var< Signal * >(vm, 1).value;
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            return sq_throwerror(vm, e.what());
+        }
+        // Do we have a valid signal instance?
+        if (!signal)
+        {
+            return sq_throwerror(vm, "Invalid signal instance");
+        }
+        // Walk down the chain and trigger slots
+        for (Slot * node = signal->m_Head, * next = nullptr; node != nullptr; node = next)
+        {
+            // Grab the next node upfront
+            next = node->mNext;
+            // Remember the current stack size
+            const StackGuard sg(vm);
+            // Push the callback object
+            sq_pushobject(vm, node->mFuncRef);
+            // Is there an explicit environment?
+            if (sq_isnull(node->mEnvRef))
+            {
+                sq_pushroottable(vm);
+            }
+            else
+            {
+                sq_pushobject(vm, node->mEnvRef);
+            }
+            // Are there any parameters to forward?
+            if (top > 1)
+            {
+                for (SQInteger i = 2; i <= top; ++i)
+                {
+                    sq_push(vm, i);
+                }
+            }
+            // Make the function call and store the result
+            const SQRESULT res = sq_call(vm, top, true, ErrorHandling::IsEnabled());
+            // Validate the result
+            if (SQ_FAILED(res))
+            {
+                return res; // Propagate the error
+            }
+            // Is the returned value not null?
+            else if (sq_gettype(vm, -1) != OT_NULL)
+            {
+                // Push back the returned value
+                sq_push(vm, -1);
+                // Specify that we returned something
+                return 1;
+            }
+        }
+        // Specify that we returned nothing
+        return 0;
     }
 
 private:
