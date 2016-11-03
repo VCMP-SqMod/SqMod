@@ -26,6 +26,8 @@ void Signal::Terminate()
         s.second.mPtr->Clear();
         // Release the name
         s.second.mPtr->m_Name.clear();
+        // Release whatever is in the user data
+        s.second.mPtr->m_Data.Release();
     }
     // Finally clear the container itself
     s_Signals.clear();
@@ -36,6 +38,8 @@ void Signal::Terminate()
     {
         // Clear slots
         s->Clear();
+        // Release whatever is in the user data
+        s->m_Data.Release();
     }
     // Finally clear the container itself
     s_FreeSignals.clear();
@@ -246,6 +250,7 @@ void Register_Signal(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("_typename"), &Signal::Typename)
         .Func(_SC("_tostring"), &Signal::ToString)
         // Core Properties
+        .Prop(_SC("Data"), &Signal::GetData, &Signal::SetData)
         .Prop(_SC("Slots"), &Signal::Count)
         // Core Methods
         .Func(_SC("Clear"), &Signal::Clear)

@@ -341,13 +341,14 @@ private:
 
     // --------------------------------------------------------------------------------------------
     Slot *  m_Head; // The chain of slots bound to this signal.
+    Object  m_Data; // User data associated with this instance.
     String  m_Name; // The name that identifies this signal.
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
     Signal()
-        : m_Head(nullptr), m_Name()
+        : m_Head(nullptr), m_Data(), m_Name()
     {
         s_FreeSignals.push_back(this);
     }
@@ -374,7 +375,7 @@ private:
      * Base constructor.
     */
     Signal(String && name)
-        : m_Head(nullptr), m_Name(std::move(name))
+        : m_Head(nullptr), m_Data(), m_Name(std::move(name))
     {
         if (m_Name.empty())
         {
@@ -448,6 +449,22 @@ public:
      * Used by the script engine to retrieve the name from instances of this type.
     */
     static SQInteger Typename(HSQUIRRELVM vm);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    Object & GetData()
+    {
+        return m_Data;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(Object & data)
+    {
+        m_Data = data;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * The number of slots connected to the signal.
