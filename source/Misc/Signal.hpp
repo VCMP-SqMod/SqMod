@@ -1017,7 +1017,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Actual implementation of the consume method.
     */
-    static SQInteger SqConsumeApproveImpl(HSQUIRRELVM vm, const SQBool rval)
+    static SQInteger SqConsumeApproveImpl(HSQUIRRELVM vm, const SQBool rval, bool neg)
     {
         const Int32 top = sq_gettop(vm);
         // The signal instance
@@ -1037,7 +1037,7 @@ protected:
             return sq_throwerror(vm, "Invalid signal instance");
         }
         // Return value of each slot
-        SQBool ret = SQFalse;
+        SQBool ret = !rval;
         // Walk down the chain and trigger slots
         for (Slot * node = signal->m_Head, * next = nullptr; node != nullptr; node = next)
         {
@@ -1076,12 +1076,12 @@ protected:
             // Should we proceed to the next slot or stop here?
             if (ret == rval)
             {
-                // Forward the returned value to the invoker
-                sq_pushbool(vm, ret);
                 // The slot satisfied our criteria
                 break;
             }
         }
+        // Forward the returned value to the invoker
+        sq_pushbool(vm, neg ? !ret : ret);
         // Specify that we returned something
         return 1;
     }
@@ -1093,7 +1093,7 @@ public:
     */
     static SQInteger SqConsume(HSQUIRRELVM vm)
     {
-        return SqConsumeApproveImpl(vm, SQTrue);
+        return SqConsumeApproveImpl(vm, SQTrue, false);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1101,7 +1101,7 @@ public:
     */
     static SQInteger SqApprove(HSQUIRRELVM vm)
     {
-        return SqConsumeApproveImpl(vm, SQFalse);
+        return SqConsumeApproveImpl(vm, SQFalse, true);
     }
 
     /* --------------------------------------------------------------------------------------------
