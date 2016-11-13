@@ -51,7 +51,8 @@ Transaction::~Transaction()
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
-        STHROWF("Unable to rollback transaction [%s]", m_Handle->ErrMsg());
+        // We cannot throw exceptions in destructor
+        SqMod_LogErr("Unable to rollback transaction [%s]", m_Handle->ErrMsg());
     }
 }
 
