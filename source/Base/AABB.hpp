@@ -35,14 +35,14 @@ struct AABB
     Vector3 min, max;
 
     /* --------------------------------------------------------------------------------------------
-     * Default constructor.
+     * Construct with zero size.
     */
     AABB();
 
     /* --------------------------------------------------------------------------------------------
-     * Construct a an equally sized and perfectly shaped box from a scalar value.
+     * Construct a an equally sized and perfectly shaped box from scalar values.
     */
-    explicit AABB(Value sv);
+    explicit AABB(Value mins, Value maxs);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a an equally sized but imperfectly shaped box from individual components of a
@@ -88,19 +88,9 @@ struct AABB
     AABB & operator = (AABB && o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Scalar value assignment operator.
-    */
-    AABB & operator = (Value s);
-
-    /* --------------------------------------------------------------------------------------------
      * Three-dimensional vector assignment operator.
     */
     AABB & operator = (const Vector3 & v);
-
-    /* --------------------------------------------------------------------------------------------
-     * Four-dimensional vector assignment operator threated as a three-dimensional vector.
-    */
-    AABB & operator = (const Vector4 & v);
 
     /* --------------------------------------------------------------------------------------------
      * Addition assignment operator.
@@ -313,52 +303,6 @@ struct AABB
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * Set an equally sized and perfectly shaped box from a scalar value.
-    */
-    void Set(Value ns);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set an equally sized but imperfectly shaped box from individual components of a
-     * three-dimensional point.
-    */
-    void Set(Value nx, Value ny, Value nz);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set an unequally sized and imperfectly shaped box from individual components of two
-     * three-dimensional points.
-    */
-    void Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set the same box from another instance of this type.
-    */
-    void SetAABB(const AABB & b);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set an equally sized and imperfectly shaped box from a single three-dimensional vector
-     * representing a single three-dimensional point.
-    */
-    void SetVector3(const Vector3 & v);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set an unequally sized and imperfectly shaped box from two three-dimensional vectors
-     * representing two three-dimensional points.
-    */
-    void SetVector3(const Vector3 & nmin, const Vector3 & nmax);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set an equally sized and imperfectly shaped box from a single four-dimensional vector
-     * representing a single three-dimensional point.
-    */
-    void SetVector4(const Vector4 & v);
-
-    /* --------------------------------------------------------------------------------------------
-     * Set an unequally sized and imperfectly shaped box from two four-dimensional vectors
-     * representing two three-dimensional points.
-    */
-    void SetVector4(const Vector4 & nmin, const Vector4 & nmax);
-
-    /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
     void SetStr(CSStr values, SQChar delim);
@@ -366,16 +310,167 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.
     */
-    void Clear()
-    {
-        min.Clear();
-        max.Clear();
-    }
+    void Clear();
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve a new instance of this type with absolute component values.
+     * Define from minimum and maximum floats (all dimensions same).
     */
-    AABB Abs() const;
+    void DefineScalar(Value mins, Value maxs);
+
+    /* --------------------------------------------------------------------------------------------
+     * Define from a point.
+    */
+    void DefineVector3(const Vector3 & point);
+
+    /* --------------------------------------------------------------------------------------------
+     * Define from a point.
+    */
+    void DefineVector3Ex(Value x, Value y, Value z);
+
+    /* --------------------------------------------------------------------------------------------
+     * Define from minimum and maximum vectors.
+    */
+    void DefineAllVector3(const Vector3 & nmin, const Vector3 & nmax);
+
+    /* --------------------------------------------------------------------------------------------
+     * Define from minimum and maximum vectors.
+    */
+    void DefineAllVector3Ex(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax);
+
+    /* --------------------------------------------------------------------------------------------
+     * Define from another bounding box.
+    */
+    void DefineAABB(const AABB & box);
+
+    /* --------------------------------------------------------------------------------------------
+     * Define from a sphere.
+    */
+    void DefineSphere(const Sphere & sphere);
+
+    /* --------------------------------------------------------------------------------------------
+     * Define from a sphere.
+    */
+    void DefineSphereEx(Value x, Value y, Value z, Value r);
+
+    /* --------------------------------------------------------------------------------------------
+     * Merge a point into this bounding box.
+    */
+    void MergeVector3(const Vector3 & point);
+
+    /* --------------------------------------------------------------------------------------------
+     * Merge a point into this bounding box.
+    */
+    void MergeVector3Ex(Value x, Value y, Value z);
+
+    /* --------------------------------------------------------------------------------------------
+     * Merge another bounding box into this bounding box.
+    */
+    void MergeAABB(const AABB & box);
+
+    /* --------------------------------------------------------------------------------------------
+     * Merge another bounding box into this bounding box.
+    */
+    void MergeAABBEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax);
+
+    /* --------------------------------------------------------------------------------------------
+     * Merge a sphere into this bounding box.
+    */
+    void MergeSphere(const Sphere & sphere);
+
+    /* --------------------------------------------------------------------------------------------
+     * Merge a sphere into this bounding box.
+    */
+    void MergeSphereEx(Value x, Value y, Value z, Value r);
+
+    /* --------------------------------------------------------------------------------------------
+     * Check if the box is empty. This means that there is no space between the min and max edge.
+    */
+    bool Empty() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return true if this bounding box is defined via a previous call to Define() or Merge().
+    */
+    bool Defined() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return center.
+    */
+    Vector3 Center() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Get size/extent of the box (maximal distance of two points in the box).
+    */
+    Vector3 Size() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return half-size.
+    */
+    Vector3 HalfSize() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Get radius of the bounding sphere.
+    */
+    Value Radius() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Get the volume enclosed by the box in cubed units.
+    */
+    Value Volume() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Get the surface area of the box in squared units.
+    */
+    Value Area() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if a point is inside.
+    */
+    Int32 IsVector3Inside(const Vector3 & point) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if a point is inside.
+    */
+    Int32 IsVector3InsideEx(Value x, Value y, Value z) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if another bounding box is inside, outside or intersects.
+    */
+    Int32 IsAABBInside(const AABB & box) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if another bounding box is inside, outside or intersects.
+    */
+    Int32 IsAABBInsideEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if another bounding box is (partially) inside or outside.
+    */
+    Int32 IsAABBInsideFast(const AABB & box) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if another bounding box is (partially) inside or outside.
+    */
+    Int32 IsAABBInsideFastEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if a sphere is inside, outside or intersects.
+    */
+    Int32 IsSphereInside(const Sphere & sphere) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if a sphere is inside, outside or intersects.
+    */
+    Int32 IsSphereInsideEx(Value x, Value y, Value z, Value r) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if a sphere is (partially) inside or outside.
+    */
+    Int32 IsSphereInsideFast(const Sphere & sphere) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Test if a sphere is (partially) inside or outside.
+    */
+    Int32 IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the AABB type from a string.
@@ -386,7 +481,6 @@ struct AABB
      * Extract the values for components of the AABB type from a string.
     */
     static const AABB & Get(CSStr str, SQChar delim);
-
 };
 
 } // Namespace:: SqMod

@@ -29,6 +29,16 @@ constexpr Float32 SQMOD_RADTODEG   = 1.0f / SQMOD_DEGTORAD;
 constexpr Float64 SQMOD_RADTODEG64 = 1.0 / SQMOD_DEGTORAD64;
 
 /* ------------------------------------------------------------------------------------------------
+ * Intersection test result.
+*/
+enum Intersection
+{
+    SQMODI_OUTSIDE = 0,
+    SQMODI_INTERSECTS,
+    SQMODI_INSIDE,
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Forward declarations of the logging functions to avoid including the logger everywhere.
  * Primary logging functions.
 */
@@ -80,7 +90,7 @@ extern bool cLogSFtl(bool exp, CCStr fmt, ...);
  * Get a persistent AABB instance with the given values.
 */
 extern const AABB & GetAABB();
-extern const AABB & GetAABB(Float32 sv);
+extern const AABB & GetAABB(Float32 mins, Float32 maxs);
 extern const AABB & GetAABB(Float32 xv, Float32 yv, Float32 zv);
 extern const AABB & GetAABB(Float32 xmin, Float32 ymin, Float32 zmin, Float32 xmax, Float32 ymax, Float32 zmax);
 extern const AABB & GetAABB(const Vector3 & vmin, const Vector3 & vmax);

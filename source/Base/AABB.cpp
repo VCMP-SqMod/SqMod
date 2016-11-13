@@ -1,6 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/AABB.hpp"
-#include "Base/Vector4.hpp"
+#include "Base/Sphere.hpp"
 #include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
 
@@ -8,9 +8,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-const AABB AABB::NIL = AABB(0);
+const AABB AABB::NIL = AABB(0, 0);
 const AABB AABB::MIN = AABB(-1, -1, -1, 1, 1, 1);
-const AABB AABB::MAX = AABB(Vector3::MIN, Vector3::MAX);
+const AABB AABB::MAX = AABB(HUGE_VALF, -HUGE_VALF);
 
 // ------------------------------------------------------------------------------------------------
 SQChar AABB::Delim = ',';
@@ -25,22 +25,22 @@ SQInteger AABB::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 AABB::AABB()
-    : min(-1.0), max(1.0)
+    : min(HUGE_VALF), max(-HUGE_VALF)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(Value sv)
-    : min(-sv), max(std::fabs(sv))
+AABB::AABB(Value mins, Value maxs)
+    : min(mins), max(maxs)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB::AABB(Value xv, Value yv, Value zv)
-    : min(-std::fabs(xv), -std::fabs(yv), -std::fabs(zv))
-    , max(std::fabs(xv), std::fabs(yv), std::fabs(zv))
+    : min(xv, yv, zv)
+    , max(xv, yv, zv)
 {
     /* ... */
 }
@@ -60,26 +60,9 @@ AABB::AABB(const Vector3 & vmin, const Vector3 & vmax)
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB & AABB::operator = (Value s)
-{
-    min.SetScalar(-s);
-    max.SetScalar(std::fabs(s));
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
 AABB & AABB::operator = (const Vector3 & v)
 {
-    min.SetVector3(-v);
-    max.SetVector3(v.Abs());
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-AABB & AABB::operator = (const Vector4 & v)
-{
-    min.SetVector4(-v);
-    max.SetVector4(v.Abs());
+    DefineVector3(v);
     return *this;
 }
 
@@ -329,71 +312,430 @@ CSStr AABB::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(Value ns)
+void AABB::SetStr(CSStr values, SQChar delim)
 {
-    min = -ns;
-    max = std::fabs(ns);
+    DefineAABB(AABB::Get(values, delim));
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(Value nx, Value ny, Value nz)
+void AABB::Clear()
 {
-    min.SetVector3Ex(-nx, -ny, -nz);
-    max.SetVector3Ex(std::fabs(nx), std::fabs(ny), std::fabs(nz));
+    min.SetVector3Ex(HUGE_VALF, HUGE_VALF, HUGE_VALF);
+    max.SetVector3Ex(-HUGE_VALF, -HUGE_VALF, -HUGE_VALF);
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::Set(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
+void AABB::DefineScalar(Value mins, Value maxs)
+{
+    min.SetVector3Ex(mins, mins, mins);
+    max.SetVector3Ex(maxs, maxs, maxs);
+}
+
+// ------------------------------------------------------------------------------------------------
+void AABB::DefineVector3(const Vector3 & point)
+{
+    min = max = point;
+}
+
+// ------------------------------------------------------------------------------------------------
+void AABB::DefineVector3Ex(Value x, Value y, Value z)
+{
+    min.SetVector3Ex(x, y, z);
+    max.SetVector3Ex(x, y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void AABB::DefineAllVector3(const Vector3 & nmin, const Vector3 & nmax)
+{
+    min = nmin;
+    max = nmax;
+}
+
+// ------------------------------------------------------------------------------------------------
+void AABB::DefineAllVector3Ex(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
 {
     min.SetVector3Ex(xmin, ymin, zmin);
     max.SetVector3Ex(xmax, ymax, zmax);
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetAABB(const AABB & b)
+void AABB::DefineAABB(const AABB & box)
 {
-    min = b.min;
-    max = b.max;
+    min = box.min;
+    max = box.max;
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetVector3(const Vector3 & v)
+void AABB::DefineSphere(const Sphere & sphere)
 {
-    min = -v;
-    max = v.Abs();
+    min = sphere.pos + Vector3(-sphere.rad);
+    max = sphere.pos + Vector3(sphere.rad);
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetVector3(const Vector3 & nmin, const Vector3 & nmax)
+void AABB::DefineSphereEx(Value x, Value y, Value z, Value r)
 {
-    min = nmin;
-    max = nmax;
+    DefineSphere(Sphere(x, y, z, r));
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetVector4(const Vector4 & v)
+void AABB::MergeVector3(const Vector3 & point)
 {
-    min = -v;
-    max = v.Abs();
+    MergeVector3Ex(point.x, point.y, point.z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetVector4(const Vector4 & nmin, const Vector4 & nmax)
+void AABB::MergeVector3Ex(Value x, Value y, Value z)
 {
-    min = nmin;
-    max = nmax;
+    if (x < min.x)
+    {
+        min.x = x;
+    }
+    if (y < min.y)
+    {
+        min.y = y;
+    }
+    if (z < min.z)
+    {
+        min.z = z;
+    }
+    if (x > max.x)
+    {
+        max.x = x;
+    }
+    if (y > max.y)
+    {
+        max.y = y;
+    }
+    if (z > max.z)
+    {
+        max.z = z;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetStr(CSStr values, SQChar delim)
+void AABB::MergeAABB(const AABB & box)
 {
-    SetAABB(AABB::Get(values, delim));
+    if (box.min.x < min.x)
+    {
+        min.x = box.min.x;
+    }
+    if (box.min.y < min.y)
+    {
+        min.y = box.min.y;
+    }
+    if (box.min.z < min.z)
+    {
+        min.z = box.min.z;
+    }
+    if (box.max.x > max.x)
+    {
+        max.x = box.max.x;
+    }
+    if (box.max.y > max.y)
+    {
+        max.y = box.max.y;
+    }
+    if (box.max.z > max.z)
+    {
+        max.z = box.max.z;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB AABB::Abs() const
+void AABB::MergeAABBEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
 {
-    return AABB(min.Abs(), max.Abs());
+    if (xmin < min.x)
+    {
+        min.x = xmin;
+    }
+    if (ymin < min.y)
+    {
+        min.y = ymin;
+    }
+    if (zmin < min.z)
+    {
+        min.z = zmin;
+    }
+    if (xmax > max.x)
+    {
+        max.x = xmax;
+    }
+    if (ymax > max.y)
+    {
+        max.y = ymax;
+    }
+    if (zmax > max.z)
+    {
+        max.z = zmax;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void AABB::MergeSphere(const Sphere & sphere)
+{
+    MergeVector3(sphere.pos + Vector3(sphere.rad));
+    MergeVector3(sphere.pos + Vector3(-sphere.rad));
+}
+
+// ------------------------------------------------------------------------------------------------
+void AABB::MergeSphereEx(Value x, Value y, Value z, Value r)
+{
+    MergeSphere(Sphere(x, y, z, r));
+}
+
+// ------------------------------------------------------------------------------------------------
+bool AABB::Empty() const
+{
+    return (min == max);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool AABB::Defined() const
+{
+    return min.x != HUGE_VALF;
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3 AABB::Center() const
+{
+    return (max + min) * 0.5f;
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3 AABB::Size() const
+{
+    return max - min;
+}
+
+// ------------------------------------------------------------------------------------------------
+Vector3 AABB::HalfSize() const
+{
+    return (max - min) * 0.5f;
+}
+
+// ------------------------------------------------------------------------------------------------
+AABB::Value AABB::Radius() const
+{
+    return Size().GetLength() / Value(2);
+}
+
+// ------------------------------------------------------------------------------------------------
+AABB::Value AABB::Volume() const
+{
+    const Vector3 v = Size();
+    return static_cast< Value >(v.x * v.y * v.z);
+}
+
+// ------------------------------------------------------------------------------------------------
+AABB::Value AABB::Area() const
+{
+    const Vector3 v = Size();
+    return static_cast< Value >(Value(2) * (v.x * v.y + v.x * v.z + v.y * v.z));
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsVector3Inside(const Vector3 & point) const
+{
+    return (point.x < min.x || point.x > max.x ||
+            point.y < min.y || point.y > max.y ||
+            point.z < min.z || point.z > max.z) ? SQMODI_OUTSIDE : SQMODI_INSIDE;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsVector3InsideEx(Value x, Value y, Value z) const
+{
+    return (x < min.x || x > max.x ||
+            y < min.y || y > max.y ||
+            z < min.z || z > max.z) ? SQMODI_OUTSIDE : SQMODI_INSIDE;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsAABBInside(const AABB & box) const
+{
+    if (box.max.x < min.x || box.min.x > max.x ||
+        box.max.y < min.y || box.min.y > max.y ||
+        box.max.z < min.z || box.min.z > max.z)
+    {
+        return SQMODI_OUTSIDE;
+    }
+    else if (box.min.x < min.x || box.max.x > max.x ||
+             box.min.y < min.y || box.max.y > max.y ||
+             box.min.z < min.z || box.max.z > max.z)
+    {
+        return SQMODI_INTERSECTS;
+    }
+    else
+    {
+        return SQMODI_INSIDE;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsAABBInsideEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const
+{
+    if (xmax < min.x || xmin > max.x ||
+        ymax < min.y || ymin > max.y ||
+        zmax < min.z || zmin > max.z)
+    {
+        return SQMODI_OUTSIDE;
+    }
+    else if (xmin < min.x || xmax > max.x ||
+             ymin < min.y || ymax > max.y ||
+             zmin < min.z || zmax > max.z)
+    {
+        return SQMODI_INTERSECTS;
+    }
+    else
+    {
+        return SQMODI_INSIDE;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsAABBInsideFast(const AABB & box) const
+{
+    if (box.max.x < min.x || box.min.x > max.x ||
+        box.max.y < min.y || box.min.y > max.y ||
+        box.max.z < min.z || box.min.z > max.z)
+    {
+        return SQMODI_OUTSIDE;
+    }
+    else
+    {
+        return SQMODI_INSIDE;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsAABBInsideFastEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const
+{
+    if (xmax < min.x || xmin > max.x ||
+        ymax < min.y || ymin > max.y ||
+        zmax < min.z || zmin > max.z)
+    {
+        return SQMODI_OUTSIDE;
+    }
+    else
+    {
+        return SQMODI_INSIDE;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsSphereInside(const Sphere & sphere) const
+{
+    Value dist_squared = 0, temp;
+    const Vector3 & center = sphere.pos;
+
+    if (center.x < min.x)
+    {
+        temp = center.x - min.x;
+        dist_squared += temp * temp;
+    }
+    else if (center.x > max.x)
+    {
+        temp = center.x - max.x;
+        dist_squared += temp * temp;
+    }
+    if (center.y < min.y)
+    {
+        temp = center.y - min.y;
+        dist_squared += temp * temp;
+    }
+    else if (center.y > max.y)
+    {
+        temp = center.y - max.y;
+        dist_squared += temp * temp;
+    }
+    if (center.z < min.z)
+    {
+        temp = center.z - min.z;
+        dist_squared += temp * temp;
+    }
+    else if (center.z > max.z)
+    {
+        temp = center.z - max.z;
+        dist_squared += temp * temp;
+    }
+
+    const Value radius = sphere.rad;
+
+    if (dist_squared >= radius * radius)
+    {
+        return SQMODI_OUTSIDE;
+    }
+    else if (center.x - radius < min.x || center.x + radius > max.x || center.y - radius < min.y ||
+             center.y + radius > max.y || center.z - radius < min.z || center.z + radius > max.z)
+    {
+        return SQMODI_INTERSECTS;
+    }
+    else
+    {
+        return SQMODI_INSIDE;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsSphereInsideEx(Value x, Value y, Value z, Value r) const
+{
+    return IsSphereInside(Sphere(x, y, z, r));
+}
+
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsSphereInsideFast(const Sphere & sphere) const
+{
+    Value dist_squared = 0, temp;
+    const Vector3& center = sphere.pos;
+
+    if (center.x < min.x)
+    {
+        temp = center.x - min.x;
+        dist_squared += temp * temp;
+    }
+    else if (center.x > max.x)
+    {
+        temp = center.x - max.x;
+        dist_squared += temp * temp;
+    }
+    if (center.y < min.y)
+    {
+        temp = center.y - min.y;
+        dist_squared += temp * temp;
+    }
+    else if (center.y > max.y)
+    {
+        temp = center.y - max.y;
+        dist_squared += temp * temp;
+    }
+    if (center.z < min.z)
+    {
+        temp = center.z - min.z;
+        dist_squared += temp * temp;
+    }
+    else if (center.z > max.z)
+    {
+        temp = center.z - max.z;
+        dist_squared += temp * temp;
+    }
+
+    const Value radius = sphere.rad;
+
+    if (dist_squared >= radius * radius)
+    {
+        return SQMODI_OUTSIDE;
+    }
+    else
+    {
+        return SQMODI_INSIDE;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 AABB::IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const
+{
+    return IsSphereInsideFast(Sphere(x, y, z, r));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -436,10 +778,10 @@ const AABB & GetAABB()
 }
 
 // ------------------------------------------------------------------------------------------------
-const AABB & GetAABB(Float32 sv)
+const AABB & GetAABB(Float32 mins, Float32 maxs)
 {
     static AABB box;
-    box.Set(sv);
+    box.DefineScalar(mins, maxs);
     return box;
 }
 
@@ -447,7 +789,7 @@ const AABB & GetAABB(Float32 sv)
 const AABB & GetAABB(Float32 xv, Float32 yv, Float32 zv)
 {
     static AABB box;
-    box.Set(xv, yv, zv);
+    box.DefineVector3Ex(xv, yv, zv);
     return box;
 }
 
@@ -455,7 +797,7 @@ const AABB & GetAABB(Float32 xv, Float32 yv, Float32 zv)
 const AABB & GetAABB(Float32 xmin, Float32 ymin, Float32 zmin, Float32 xmax, Float32 ymax, Float32 zmax)
 {
     static AABB box;
-    box.Set(xmin, ymin, zmin, xmax, ymax, zmax);
+    box.DefineAllVector3Ex(xmin, ymin, zmin, xmax, ymax, zmax);
     return box;
 }
 
@@ -463,7 +805,7 @@ const AABB & GetAABB(Float32 xmin, Float32 ymin, Float32 zmin, Float32 xmax, Flo
 const AABB & GetAABB(const Vector3 & vmin, const Vector3 & vmax)
 {
     static AABB box;
-    box.SetVector3(vmin, vmax);
+    box.DefineAllVector3(vmin, vmax);
     return box;
 }
 
@@ -471,7 +813,7 @@ const AABB & GetAABB(const Vector3 & vmin, const Vector3 & vmax)
 const AABB & GetAABB(const AABB & o)
 {
     static AABB box;
-    box.SetAABB(o);
+    box.DefineAABB(o);
     return box;
 }
 
@@ -483,7 +825,7 @@ void Register_AABB(HSQUIRRELVM vm)
     RootTable(vm).Bind(_SC("AABB"), Class< AABB >(vm, _SC("AABB"))
         // Constructors
         .Ctor()
-        .Ctor< Val >()
+        .Ctor< const AABB & >()
         .Ctor< Val, Val, Val >()
         .Ctor< Val, Val, Val, Val, Val, Val >()
         .Ctor< const Vector3 &, const Vector3 & >()
@@ -505,19 +847,43 @@ void Register_AABB(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("_modulo"), &SqDynArgFwd< SqDynArgModFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
         .Func< AABB (AABB::*)(void) const >(_SC("_unm"), &AABB::operator -)
         // Properties
-        .Prop(_SC("Abs"), &AABB::Abs)
+        .Prop(_SC("Empty"), &AABB::Empty)
+        .Prop(_SC("Defined"), &AABB::Defined)
+        .Prop(_SC("Center"), &AABB::Center)
+        .Prop(_SC("Size"), &AABB::Size)
+        .Prop(_SC("Extent"), &AABB::Size)
+        .Prop(_SC("HalfSize"), &AABB::HalfSize)
+        .Prop(_SC("HalfExtent"), &AABB::HalfSize)
+        .Prop(_SC("Radius"), &AABB::Radius)
+        .Prop(_SC("Volume"), &AABB::Volume)
+        .Prop(_SC("Area"), &AABB::Area)
         // Member Methods
-        .Func(_SC("SetAABB"), &AABB::SetAABB)
         .Func(_SC("SetStr"), &AABB::SetStr)
         .Func(_SC("Clear"), &AABB::Clear)
-        // Member Overloads
-        .Overload< void (AABB::*)(Val) >(_SC("Set"), &AABB::Set)
-        .Overload< void (AABB::*)(Val, Val, Val) >(_SC("Set"), &AABB::Set)
-        .Overload< void (AABB::*)(Val, Val, Val, Val, Val, Val) >(_SC("Set"), &AABB::Set)
-        .Overload< void (AABB::*)(const Vector3 &) >(_SC("SetVector3"), &AABB::SetVector3)
-        .Overload< void (AABB::*)(const Vector3 &, const Vector3 &) >(_SC("SetVector3"), &AABB::SetVector3)
-        .Overload< void (AABB::*)(const Vector4 &) >(_SC("SetVector4"), &AABB::SetVector4)
-        .Overload< void (AABB::*)(const Vector4 &, const Vector4 &) >(_SC("SetVector4"), &AABB::SetVector4)
+        .Func(_SC("DefineScalar"), &AABB::DefineScalar)
+        .Func(_SC("DefineVector3"), &AABB::DefineVector3)
+        .Func(_SC("DefineVector3Ex"), &AABB::DefineVector3Ex)
+        .Func(_SC("DefineAllVector3"), &AABB::DefineAllVector3)
+        .Func(_SC("DefineAllVector3Ex"), &AABB::DefineAllVector3Ex)
+        .Func(_SC("DefineAABB"), &AABB::DefineAABB)
+        .Func(_SC("DefineSphere"), &AABB::DefineSphere)
+        .Func(_SC("DefineSphereEx"), &AABB::DefineSphereEx)
+        .Func(_SC("MergeVector3"), &AABB::MergeVector3)
+        .Func(_SC("MergeVector3Ex"), &AABB::MergeVector3Ex)
+        .Func(_SC("MergeAABB"), &AABB::MergeAABB)
+        .Func(_SC("MergeAABBEx"), &AABB::MergeAABBEx)
+        .Func(_SC("MergeSphere"), &AABB::MergeSphere)
+        .Func(_SC("MergeSphereEx"), &AABB::MergeSphereEx)
+        .Func(_SC("IsVector3Inside"), &AABB::IsVector3Inside)
+        .Func(_SC("IsVector3InsideEx"), &AABB::IsVector3InsideEx)
+        .Func(_SC("IsAABBInside"), &AABB::IsAABBInside)
+        .Func(_SC("IsAABBInsideEx"), &AABB::IsAABBInsideEx)
+        .Func(_SC("IsAABBInsideFast"), &AABB::IsAABBInsideFast)
+        .Func(_SC("IsAABBInsideFastEx"), &AABB::IsAABBInsideFastEx)
+        .Func(_SC("IsSphereInside"), &AABB::IsSphereInside)
+        .Func(_SC("IsSphereInsideEx"), &AABB::IsSphereInsideEx)
+        .Func(_SC("IsSphereInsideFast"), &AABB::IsSphereInsideFast)
+        .Func(_SC("IsSphereInsideFastEx"), &AABB::IsSphereInsideFastEx)
         // Static Overloads
         .StaticOverload< const AABB & (*)(CSStr) >(_SC("FromStr"), &AABB::Get)
         .StaticOverload< const AABB & (*)(CSStr, SQChar) >(_SC("FromStr"), &AABB::Get)
