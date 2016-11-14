@@ -1,9 +1,11 @@
 /* include/maxminddb_config.h.  Generated from maxminddb_config.h.in by configure.  */
 #ifndef MAXMINDDB_CONFIG_H
 #define MAXMINDDB_CONFIG_H
+/* config.h.  Generated from config.h.in by configure.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
-/* #undef HAVE_ARPA_INET_H */
+#define HAVE_ARPA_INET_H 1
 
 /* Define to 1 if you have the <assert.h> header file. */
 #define HAVE_ASSERT_H 1
@@ -12,7 +14,7 @@
 /* #undef HAVE_BOOLEAN */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-/* #undef HAVE_DLFCN_H */
+#define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #define HAVE_FCNTL_H 1
@@ -37,16 +39,16 @@
 #define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have a working `mmap' system call. */
-/* #undef HAVE_MMAP */
+#define HAVE_MMAP 1
 
 /* Define to 1 if you have the <netdb.h> header file. */
-/* #undef HAVE_NETDB_H */
+#define HAVE_NETDB_H 1
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
-/* #undef HAVE_NETINET_IN_H */
+#define HAVE_NETINET_IN_H 1
 
 /* Has an open_memstream() function */
-/* #undef HAVE_OPEN_MEMSTREAM */
+#define HAVE_OPEN_MEMSTREAM 1
 
 /* Define to 1 if you have the <stdarg.h> header file. */
 #define HAVE_STDARG_H 1
@@ -70,13 +72,13 @@
 #define HAVE_STRING_H 1
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
-/* #undef HAVE_SYS_MMAN_H */
+#define HAVE_SYS_MMAN_H 1
 
 /* Define to 1 if you have the <sys/param.h> header file. */
 #define HAVE_SYS_PARAM_H 1
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
-/* #undef HAVE_SYS_SOCKET_H */
+#define HAVE_SYS_SOCKET_H 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
@@ -95,7 +97,7 @@
 #define LT_OBJDIR ".libs/"
 
 /* Missing the unsigned __int128 type */
-#define MMDB_UINT128_IS_BYTE_ARRAY 1
+#define MMDB_UINT128_IS_BYTE_ARRAY 0
 
 /* int128 types are available with __attribute__((mode(TI))) */
 /* #undef MMDB_UINT128_USING_MODE */

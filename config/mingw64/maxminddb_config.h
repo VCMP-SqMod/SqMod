@@ -95,7 +95,7 @@
 #define LT_OBJDIR ".libs/"
 
 /* Missing the unsigned __int128 type */
-#define MMDB_UINT128_IS_BYTE_ARRAY 1
+#define MMDB_UINT128_IS_BYTE_ARRAY 0
 
 /* int128 types are available with __attribute__((mode(TI))) */
 /* #undef MMDB_UINT128_USING_MODE */

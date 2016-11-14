@@ -9,7 +9,7 @@ extern "C" {
 #define _POSIX_C_SOURCE 200112L
 #endif
 
-#include <maxminddb_config.h>
+#include "maxminddb_config.h"
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -20,13 +20,13 @@ extern "C" {
 #include <winsock2.h>
 #include <ws2tcpip.h>
 /* libmaxminddb package version from configure */
-#define PACKAGE_VERSION "1.1.4"
+#define PACKAGE_VERSION "1.2.0"
 
 typedef ADDRESS_FAMILY sa_family_t;
 
 #if defined(_MSC_VER)
 /* MSVC doesn't define signed size_t, copy it from configure */
-#define ssize_t int
+#define ssize_t SSIZE_T
 
 /* MSVC doesn't support restricted pointers */
 #define restrict
@@ -53,6 +53,11 @@ typedef ADDRESS_FAMILY sa_family_t;
 #define MMDB_DATA_TYPE_END_MARKER (13)
 #define MMDB_DATA_TYPE_BOOLEAN (14)
 #define MMDB_DATA_TYPE_FLOAT (15)
+
+#define MMDB_RECORD_TYPE_SEARCH_NODE (0)
+#define MMDB_RECORD_TYPE_EMPTY (1)
+#define MMDB_RECORD_TYPE_DATA (2)
+#define MMDB_RECORD_TYPE_INVALID (3)
 
 /* flags for open */
 #define MMDB_MODE_MMAP (1)
@@ -178,6 +183,10 @@ typedef struct MMDB_s {
 typedef struct MMDB_search_node_s {
     uint64_t left_record;
     uint64_t right_record;
+    uint8_t left_record_type;
+    uint8_t right_record_type;
+    MMDB_entry_s left_record_entry;
+    MMDB_entry_s right_record_entry;
 } MMDB_search_node_s;
 
     /* *INDENT-OFF* */
