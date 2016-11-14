@@ -789,7 +789,6 @@ void Register_Parameter(Table & sqlns)
         .Ctor()
         .Ctor< const Parameter & >()
         // Meta-methods
-        .Func(_SC("_cmp"), &Parameter::Cmp)
         .SquirrelFunc(_SC("_typename"), &Parameter::Typename)
         .Func(_SC("_tostring"), &Parameter::ToString)
         // Properties

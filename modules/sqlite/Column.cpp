@@ -518,7 +518,6 @@ void Register_Column(Table & sqlns)
         .Ctor()
         .Ctor< const Column & >()
         // Meta-methods
-        .Func(_SC("_cmp"), &Column::Cmp)
         .SquirrelFunc(_SC("_typename"), &Column::Typename)
         .Func(_SC("_tostring"), &Column::ToString)
         // Properties

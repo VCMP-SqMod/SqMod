@@ -516,7 +516,6 @@ void Register_Connection(Table & sqlns)
         .Ctor< CCStr, Int32 >()
         .Ctor< CCStr, Int32, CCStr >()
         // Meta-methods
-        .Func(_SC("_cmp"), &Connection::Cmp)
         .SquirrelFunc(_SC("_typename"), &Connection::Typename)
         .Func(_SC("_tostring"), &Connection::ToString)
         // Properties

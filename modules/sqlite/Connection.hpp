@@ -172,25 +172,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare two instances of this type.
-    */
-    Int32 Cmp(const Connection & o) const
-    {
-        if (m_Handle.Get() == o.m_Handle.Get())
-        {
-            return 0;
-        }
-        else if (m_Handle.Get() > o.m_Handle.Get())
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     const String & ToString() const

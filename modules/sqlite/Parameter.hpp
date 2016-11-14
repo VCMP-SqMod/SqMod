@@ -194,25 +194,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare two instances of this type.
-    */
-    Int32 Cmp(const Parameter & o) const
-    {
-        if (m_Index == o.m_Index)
-        {
-            return 0;
-        }
-        else if (m_Index > o.m_Index)
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const

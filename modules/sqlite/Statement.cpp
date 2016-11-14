@@ -432,7 +432,6 @@ void Register_Statement(Table & sqlns)
         .Ctor< const Statement & >()
         .Ctor< const Connection &, CCStr >()
         // Meta-methods
-        .Func(_SC("_cmp"), &Statement::Cmp)
         .SquirrelFunc(_SC("_typename"), &Statement::Typename)
         .Func(_SC("_tostring"), &Statement::ToString)
         // Properties
