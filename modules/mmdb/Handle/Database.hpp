@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Manages a reference counted INI document instance.
+ * Manages a reference counted database instance.
 */
 class DbHnd
 {

@@ -122,7 +122,7 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance references a valid INI document.
+     * See whether this instance references a valid database instance.
     */
     bool IsValid() const
     {
