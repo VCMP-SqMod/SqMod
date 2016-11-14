@@ -12,10 +12,7 @@ namespace SqMod {
 */
 class LookupResult
 {
-    // --------------------------------------------------------------------------------------------
-    friend class Database; // Only a valid database instance can construct this type.
-
-protected:
+public:
 
     // --------------------------------------------------------------------------------------------
     typedef MMDB_lookup_result_s    Type; // The managed type.
@@ -28,6 +25,8 @@ protected:
     typedef Type&                   Reference; // Reference to the managed type.
     typedef const Type&             ConstRef; // Constant reference to the managed type.
 
+protected:
+
     /* --------------------------------------------------------------------------------------------
      * Validate the managed database handle and throw an error if invalid.
     */
@@ -36,8 +35,6 @@ protected:
 #else
     void Validate() const;
 #endif // _DEBUG
-
-private:
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed database handle and throw an error if invalid.
@@ -54,6 +51,13 @@ private:
     DbRef   m_Handle; // The database from which this result comes from.
     Type    m_Result; // The managed result structure.
 
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor. (null)
+    */
+    LookupResult();
+
     /* --------------------------------------------------------------------------------------------
      * Construct and take ownership of a certain result.
     */
@@ -62,13 +66,6 @@ private:
     {
         /* ... */
     }
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor. (null)
-    */
-    LookupResult();
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
@@ -79,14 +76,6 @@ public:
      * Move constructor.
     */
     LookupResult(LookupResult &&) = default;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~LookupResult()
-    {
-        /* We let the smart reference deal with deallocations if necessary. */
-    }
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.

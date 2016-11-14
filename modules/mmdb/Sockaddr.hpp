@@ -12,7 +12,7 @@ namespace SqMod {
 */
 class SockAddr
 {
-protected:
+public:
 
     // --------------------------------------------------------------------------------------------
     typedef struct addrinfo Type; // The managed type.
@@ -25,6 +25,8 @@ protected:
     typedef Type&           Reference; // Reference to the managed type.
     typedef const Type&     ConstRef; // Constant reference to the managed type.
 
+protected:
+
     /* --------------------------------------------------------------------------------------------
      * Validate the managed sockaddr pointer and throw an error if invalid.
     */
@@ -34,8 +36,6 @@ protected:
     void Validate() const;
 #endif // _DEBUG
 
-private:
-
     /* --------------------------------------------------------------------------------------------
      * Validate the managed sockaddr pointer and throw an error if invalid.
     */
@@ -44,6 +44,7 @@ private:
 #else
     Pointer GetValid() const;
 #endif // _DEBUG
+
 private:
 
     // ---------------------------------------------------------------------------------------------

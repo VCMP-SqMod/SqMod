@@ -115,6 +115,11 @@ SQInteger LookupResult::GetValue(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Invalid lookup result instance");
     }
+    // See if there's a handle
+    else if (!lookup->m_Handle)
+    {
+        return sq_throwerror(vm, "Invalid Maxmind database reference");
+    }
     // See if there's an entry
     else if (!(lookup->m_Result.found_entry))
     {
@@ -147,7 +152,7 @@ SQInteger LookupResult::GetValue(HSQUIRRELVM vm)
     ptrlist.push_back(nullptr);
 
     MMDB_entry_data_s entry_data;
-    // Attempt to retrieve the entire entry data list at once
+    // Attempt to retrieve the specified entry data
     const int status = MMDB_aget_value(&(lookup->m_Result.entry), &entry_data, ptrlist.data());
     // Validate the status code
     if (status != MMDB_SUCCESS)

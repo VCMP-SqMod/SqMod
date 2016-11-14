@@ -2,6 +2,7 @@
 #include "Database.hpp"
 #include "SockAddr.hpp"
 #include "Metadata.hpp"
+#include "SearchNode.hpp"
 #include "LookupResult.hpp"
 #include "EntryDataList.hpp"
 
@@ -122,6 +123,24 @@ LookupResult Database::LookupSockAddr(SockAddr & addr)
     return LookupResult(m_Handle, result);
 }
 
+// ------------------------------------------------------------------------------------------------
+SearchNode Database::ReadNode(Uint32 node) const
+{
+    // Validate the database handle
+    SQMOD_VALIDATE(*this);
+    // Prepare a temporary search node
+    MMDB_search_node_s search_node;
+    // Attempt to retrieve the requested node from the database
+    const int status = MMDB_read_node(&(SQMOD_GET_VALID(*this)->mDb), node, &search_node);
+    // Validate the status code
+    if (status != MMDB_SUCCESS)
+    {
+        STHROWF("Unable to get node [%s]", MMDB_strerror(status));
+    }
+    // Return the resulted list
+    return SearchNode(m_Handle, search_node);
+}
+
 // ================================================================================================
 void Register_Database(Table & mmns)
 {
@@ -143,6 +162,7 @@ void Register_Database(Table & mmns)
         .Func(_SC("Release"), &Database::Release)
         .Func(_SC("LookupString"), &Database::LookupString)
         .Func(_SC("LookupSockAddr"), &Database::LookupSockAddr)
+        .Func(_SC("ReadNode"), &Database::ReadNode)
         // Member overloads
         .Overload< void (Database::*)(CSStr) >(_SC("Open"), &Database::Open)
         .Overload< void (Database::*)(CSStr, Uint32) >(_SC("Open"), &Database::Open)

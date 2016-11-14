@@ -12,10 +12,7 @@ namespace SqMod {
 */
 class Description
 {
-    // --------------------------------------------------------------------------------------------
-    friend class Metadata; // Only a valid meta-data instance can construct this type.
-
-protected:
+public:
 
     // --------------------------------------------------------------------------------------------
     typedef MMDB_description_s      Type; // The managed type.
@@ -28,6 +25,8 @@ protected:
     typedef Type&                   Reference; // Reference to the managed type.
     typedef const Type&             ConstRef; // Constant reference to the managed type.
 
+protected:
+
     /* --------------------------------------------------------------------------------------------
      * Validate the managed database handle and throw an error if invalid.
     */
@@ -36,8 +35,6 @@ protected:
 #else
     void Validate() const;
 #endif // _DEBUG
-
-private:
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed database handle and description pointer and throw an error if invalid.
@@ -54,15 +51,6 @@ private:
     DbRef   m_Handle; // The database associated with this meta-data description.
     Pointer m_Description; // The inspected meta-data description structure.
 
-    /* --------------------------------------------------------------------------------------------
-     * Construct and with a specific meta-data description.
-    */
-    Description(const DbRef & db, Pointer description)
-        : m_Handle(db), m_Description(description)
-    {
-        /* ... */
-    }
-
 public:
 
     /* --------------------------------------------------------------------------------------------
@@ -70,6 +58,15 @@ public:
     */
     Description()
         : m_Handle(), m_Description(nullptr)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct and with a specific meta-data description.
+    */
+    Description(const DbRef & db, Pointer description)
+        : m_Handle(db), m_Description(description)
     {
         /* ... */
     }

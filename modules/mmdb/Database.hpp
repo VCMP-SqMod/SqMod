@@ -12,6 +12,19 @@ namespace SqMod {
 */
 class Database
 {
+public:
+
+    // --------------------------------------------------------------------------------------------
+    typedef DbHnd::Type             Type; // The managed type.
+
+    // --------------------------------------------------------------------------------------------
+    typedef Type*                   Pointer; // Pointer to the managed type.
+    typedef const Type*             ConstPtr; // Constant pointer to the managed type.
+
+    // --------------------------------------------------------------------------------------------
+    typedef Type&                   Reference; // Reference to the managed type.
+    typedef const Type&             ConstRef; // Constant reference to the managed type.
+
 protected:
 
     /* --------------------------------------------------------------------------------------------
@@ -21,9 +34,7 @@ protected:
     void Validate(CCStr file, Int32 line) const;
 #else
     void Validate() const;
-#endif // _DEBUG
-
-private:
+#endif //
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed database handle and throw an error if invalid.
@@ -178,6 +189,10 @@ public:
     */
     LookupResult LookupSockAddr(SockAddr & sockaddr);
 
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a speciffic node from the managed database.
+    */
+    SearchNode ReadNode(Uint32 node) const;
 };
 
 } // Namespace:: SqMod

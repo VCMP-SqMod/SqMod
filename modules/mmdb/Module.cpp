@@ -15,6 +15,7 @@ extern void Register_EntryData(Table & mmns);
 extern void Register_EntryDataList(Table & mmns);
 extern void Register_LookupResult(Table & mmns);
 extern void Register_Metadata(Table & mmns);
+extern void Register_SearchNode(Table & mmns);
 extern void Register_SockAddr(Table & mmns);
 
 /* ------------------------------------------------------------------------------------------------
@@ -38,12 +39,59 @@ static bool RegisterAPI(HSQUIRRELVM vm)
     Register_EntryDataList(mmns);
     Register_LookupResult(mmns);
     Register_Metadata(mmns);
+    Register_SearchNode(mmns);
     Register_SockAddr(mmns);
 
     mmns.Func(_SC("StrError"), MMDB_strerror);
     mmns.Func(_SC("LibVersion"), MMDB_lib_version);
+    mmns.Func(_SC("TypeStr"), AsTypeStr);
 
     RootTable(vm).Bind(_SC("SqMMDB"), mmns);
+
+    ConstTable(vm).Enum(_SC("SqMMDataType"), Enumeration(vm)
+        .Const(_SC("Extended"),     MMDB_DATA_TYPE_EXTENDED)
+        .Const(_SC("Pointer"),      MMDB_DATA_TYPE_POINTER)
+        .Const(_SC("Utf8String"),   MMDB_DATA_TYPE_UTF8_STRING)
+        .Const(_SC("Double"),       MMDB_DATA_TYPE_DOUBLE)
+        .Const(_SC("Bytes"),        MMDB_DATA_TYPE_BYTES)
+        .Const(_SC("Uint16"),       MMDB_DATA_TYPE_UINT16)
+        .Const(_SC("Uint32"),       MMDB_DATA_TYPE_UINT32)
+        .Const(_SC("Map"),          MMDB_DATA_TYPE_MAP)
+        .Const(_SC("Int32"),        MMDB_DATA_TYPE_INT32)
+        .Const(_SC("Uint64"),       MMDB_DATA_TYPE_UINT64)
+        .Const(_SC("Uint128"),      MMDB_DATA_TYPE_UINT128)
+        .Const(_SC("Array"),        MMDB_DATA_TYPE_ARRAY)
+        .Const(_SC("Container"),    MMDB_DATA_TYPE_CONTAINER)
+        .Const(_SC("EndMarker"),    MMDB_DATA_TYPE_END_MARKER)
+        .Const(_SC("Boolean"),      MMDB_DATA_TYPE_BOOLEAN)
+        .Const(_SC("Float"),        MMDB_DATA_TYPE_FLOAT)
+    );
+
+    ConstTable(vm).Enum(_SC("SqMMRecordType"), Enumeration(vm)
+        .Const(_SC("SearchNode"),   MMDB_RECORD_TYPE_SEARCH_NODE)
+        .Const(_SC("Empty"),        MMDB_RECORD_TYPE_EMPTY)
+        .Const(_SC("Data"),         MMDB_RECORD_TYPE_DATA)
+        .Const(_SC("Invalid"),      MMDB_RECORD_TYPE_INVALID)
+    );
+
+    ConstTable(vm).Enum(_SC("SqMMErrCode"), Enumeration(vm)
+        .Const(_SC("Success"),                          MMDB_SUCCESS)
+        .Const(_SC("FileOpenError"),                    MMDB_FILE_OPEN_ERROR)
+        .Const(_SC("CorruptSearchTreeError"),           MMDB_CORRUPT_SEARCH_TREE_ERROR)
+        .Const(_SC("InvalidMetadataError"),             MMDB_INVALID_METADATA_ERROR)
+        .Const(_SC("IOError"),                          MMDB_IO_ERROR)
+        .Const(_SC("OutOfMemoryError"),                 MMDB_OUT_OF_MEMORY_ERROR)
+        .Const(_SC("UnknownDatabaseFormatError"),       MMDB_UNKNOWN_DATABASE_FORMAT_ERROR)
+        .Const(_SC("InvalidDataError"),                 MMDB_INVALID_DATA_ERROR)
+        .Const(_SC("InvalidLookupPathError"),           MMDB_INVALID_LOOKUP_PATH_ERROR)
+        .Const(_SC("LookupPathDoesNotMatchDataError"),  MMDB_LOOKUP_PATH_DOES_NOT_MATCH_DATA_ERROR)
+        .Const(_SC("InvalidNodeNumberError"),           MMDB_INVALID_NODE_NUMBER_ERROR)
+        .Const(_SC("Ipv6LookupInIpv4DatabaseError"),    MMDB_IPV6_LOOKUP_IN_IPV4_DATABASE_ERROR)
+    );
+
+    Sqrat::ConstTable(vm)
+        .Const(_SC("MMDB_MODE_MMAP"),  MMDB_MODE_MMAP)
+        .Const(_SC("MMDB_MODE_MASK"),  MMDB_MODE_MASK);
 
     // Registration was successful
     return true;

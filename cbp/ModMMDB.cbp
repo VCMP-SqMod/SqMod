@@ -442,6 +442,8 @@
 		<Unit filename="../modules/mmdb/Metadata.cpp" />
 		<Unit filename="../modules/mmdb/Metadata.hpp" />
 		<Unit filename="../modules/mmdb/Module.cpp" />
+		<Unit filename="../modules/mmdb/SearchNode.cpp" />
+		<Unit filename="../modules/mmdb/SearchNode.hpp" />
 		<Unit filename="../modules/mmdb/SockAddr.cpp" />
 		<Unit filename="../modules/mmdb/Sockaddr.hpp" />
 		<Unit filename="../shared/Base/Buffer.cpp" />

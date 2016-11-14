@@ -12,10 +12,7 @@ namespace SqMod {
 */
 class EntryData
 {
-    // --------------------------------------------------------------------------------------------
-    friend class LookupResult; // Only a valid lookup result instance can construct this type.
-
-protected:
+public:
 
     // --------------------------------------------------------------------------------------------
     typedef MMDB_entry_data_s       Type; // The managed type.
@@ -28,6 +25,8 @@ protected:
     typedef Type&                   Reference; // Reference to the managed type.
     typedef const Type&             ConstRef; // Constant reference to the managed type.
 
+protected:
+
     /* --------------------------------------------------------------------------------------------
      * Validate the managed database handle and throw an error if invalid.
     */
@@ -36,8 +35,6 @@ protected:
 #else
     void Validate() const;
 #endif // _DEBUG
-
-private:
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed database handle and throw an error if invalid.
@@ -54,6 +51,13 @@ private:
     DbRef   m_Handle; // The database from which this result comes from.
     Type    m_Entry; // The managed entry-data structure.
 
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor. (null)
+    */
+    EntryData();
+
     /* --------------------------------------------------------------------------------------------
      * Construct and take ownership of a certain entry data.
     */
@@ -62,13 +66,6 @@ private:
     {
         /* ... */
     }
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor. (null)
-    */
-    EntryData();
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.

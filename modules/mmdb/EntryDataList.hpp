@@ -12,11 +12,7 @@ namespace SqMod {
 */
 class EntryDataList
 {
-    // --------------------------------------------------------------------------------------------
-    friend class Database; // Only a valid database instance can construct this type.
-    friend class LookupResult; // Only a valid lookup result instance can construct this type.
-
-protected:
+public:
 
     // --------------------------------------------------------------------------------------------
     typedef MMDB_entry_data_list_s  Type; // The managed type.
@@ -29,6 +25,8 @@ protected:
     typedef Type&                   Reference; // Reference to the managed type.
     typedef const Type&             ConstRef; // Constant reference to the managed type.
 
+protected:
+
     /* --------------------------------------------------------------------------------------------
      * Validate the managed database handle and throw an error if invalid.
     */
@@ -37,8 +35,6 @@ protected:
 #else
     void Validate() const;
 #endif // _DEBUG
-
-private:
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed database handle and throw an error if invalid.
@@ -65,6 +61,8 @@ private:
     Pointer m_List; // The managed entry data list.
     Pointer m_Elem; // The currently processed element from the list.
 
+public:
+
     /* --------------------------------------------------------------------------------------------
      * Construct and with a specific entry list.
     */
@@ -73,8 +71,6 @@ private:
     {
         /* ... */
     }
-
-public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor. (null)
