@@ -2,7 +2,7 @@
 #define _SQMMDB_DATABASE_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Common.hpp"
+#include "Handle/Database.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -15,24 +15,29 @@ class Database
 protected:
 
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
+     * Validate the managed database handle and throw an error if invalid.
     */
-    Database(const Database &);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    Database & operator = (const Database &);
-
-    /* --------------------------------------------------------------------------------------------
-     * Validate the document reference and throw an error if invalid.
-    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    void Validate(CCStr file, Int32 line) const;
+#else
     void Validate() const;
+#endif // _DEBUG
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed database handle and throw an error if invalid.
+    */
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    const DbRef & GetValid(CCStr file, Int32 line) const;
+#else
+    const DbRef & GetValid() const;
+#endif // _DEBUG
 
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DbRef m_Db; /* The main INI document instance. */
+    DbRef m_Handle; /* The main INI document instance. */
 
 public:
 
@@ -40,7 +45,7 @@ public:
      * Default constructor.
     */
     Database()
-        : m_Db()
+        : m_Handle()
     {
         /* ... */
     }
@@ -49,39 +54,46 @@ public:
      * Base constructor.
     */
     Database(CSStr filepath)
-        : m_Db()
+        : m_Handle(new DbHnd(filepath, 0))
     {
-        Open(filepath, 0);
+        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
     Database(CSStr filepath, Uint32 flags)
-        : m_Db()
-    {
-        Open(filepath, flags);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~Database()
+        : m_Handle(new DbHnd(filepath, flags))
     {
         /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare two instances of this type.
+     * Copy constructor.
     */
-    Int32 Cmp(const Database & o) const;
+    Database(const Database & o) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    Database(Database && o) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator.
+    */
+    Database & operator = (const Database & o) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    Database & operator = (Database && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const
     {
-        return _SC("");
+        return m_Handle ? m_Handle->mDb.filename : _SC("");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -94,7 +106,7 @@ public:
     */
     bool IsValid() const
     {
-        return m_Db;
+        return m_Handle;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -102,18 +114,42 @@ public:
     */
     Uint32 GetRefCount() const
     {
-        return m_Db.Count();
+        return m_Handle.Count();
     }
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(CSStr filepath);
+    void Open(CSStr filepath)
+    {
+        Open(filepath, 0);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(CSStr filepath, Uint32 addr);
+    void Open(CSStr filepath, Uint32 flags)
+    {
+        // Make sure there isn't another database handle
+        if (!m_Handle)
+        {
+            m_Handle = DbRef(new DbHnd(filepath, flags));
+        }
+        else
+        {
+            STHROWF("Loading is disabled while database is referenced");
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the metadata associated with the managed database handle.
+    */
+    Metadata GetMetadata() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the metadata associated with the managed database handle as an entry data list.
+    */
+    Object GetMetadataAsEntryDataList() const;
 
     /* --------------------------------------------------------------------------------------------
      * Look up an IP address that is passed in as a null-terminated string.

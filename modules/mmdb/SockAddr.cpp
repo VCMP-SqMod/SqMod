@@ -7,22 +7,48 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQInteger SockAddr::Typename(HSQUIRRELVM vm)
 {
-    static const SQChar name[] = _SC("SqMMDBSockAddr");
+    static const SQChar name[] = _SC("SqMMSockAddr");
     sq_pushstring(vm, name, sizeof(name));
     return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+void SockAddr::Validate(CCStr file, Int32 line) const
+{
+    if (!m_Handle)
+    {
+        SqThrowF("Invalid sockaddr structure handle =>[%s:%d]", file, line);
+    }
+}
+#else
 void SockAddr::Validate() const
 {
-    // Is the document handle valid?
     if (!m_Handle)
-        STHROWF("Invalid sockaddr structure handle");
+    {
+        SqThrowF("Invalid sockaddr structure handle");
+    }
 }
+#endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+SockAddr::Pointer SockAddr::GetValid(CCStr file, Int32 line) const
+{
+    Validate(file, line);
+    return m_Handle;
+}
+#else
+SockAddr::Pointer SockAddr::GetValid() const
+{
+    Validate();
+    return m_Handle;
+}
+#endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
 SockAddr::SockAddr(CSStr addr)
-    : m_Handle(NULL), m_Addres(_SC(""))
+    : m_Handle(nullptr), m_Addres(_SC(""))
 {
     struct addrinfo hints;
     // Configure the hints structure
@@ -31,13 +57,15 @@ SockAddr::SockAddr(CSStr addr)
     // We set ai_socktype so that we only get one result back
     hints.ai_socktype = SOCK_STREAM;
     // Attempt to obtain information about the specified address
-    Int32 status = getaddrinfo(addr, NULL, &hints, &m_Handle);
+    Int32 status = getaddrinfo(addr, nullptr, &hints, &m_Handle);
     // Validate the success of the operation
     if (!status)
     {
         // See if we must free any handles (just in case)
         if (m_Handle)
+        {
             freeaddrinfo(m_Handle);
+        }
         // Now it's safe to throw the error
         STHROWF("Unable to query the specified address for information [%s]", gai_strerror(status));
     }
@@ -49,19 +77,26 @@ SockAddr::SockAddr(CSStr addr)
 SockAddr::~SockAddr()
 {
     if (m_Handle)
+    {
         freeaddrinfo(m_Handle);
+    }
 }
 
-// ------------------------------------------------------------------------------------------------
-Int32 SockAddr::Cmp(const SockAddr & o) const
+// ================================================================================================
+void Register_SockAddr(Table & mmns)
 {
-    if (m_Handle == o.m_Handle)
-        return 0;
-    else if (m_Handle > o.m_Handle)
-        return 1;
-    else
-        return -1;
+    mmns.Bind(_SC("SockAddr"),
+        Class< SockAddr, NoCopy< SockAddr > >(mmns.GetVM(), _SC("SqMMSockAddr"))
+        // Constructors
+        .Ctor()
+        .Ctor< CSStr >()
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SockAddr::Typename)
+        .Func(_SC("_tostring"), &SockAddr::ToString)
+        // Properties
+        .Prop(_SC("IsValid"), &SockAddr::IsValid)
+        .Prop(_SC("Address"), &SockAddr::GetAddress)
+    );
 }
-
 
 } // Namespace:: SqMod

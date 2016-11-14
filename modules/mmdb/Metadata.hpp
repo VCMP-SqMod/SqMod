@@ -1,5 +1,5 @@
-#ifndef _SQMMDB_ENTRYDATALIST_HPP_
-#define _SQMMDB_ENTRYDATALIST_HPP_
+#ifndef _SQMMDB_METADATA_HPP_
+#define _SQMMDB_METADATA_HPP_
 
 // ------------------------------------------------------------------------------------------------
 #include "Handle/Database.hpp"
@@ -10,16 +10,15 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Class that can hold and be used inspect database meta-data.
 */
-class EntryDataList
+class Metadata
 {
     // --------------------------------------------------------------------------------------------
     friend class Database; // Only a valid database instance can construct this type.
-    friend class LookupResult; // Only a valid lookup result instance can construct this type.
 
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef MMDB_entry_data_list_s  Type; // The managed type.
+    typedef MMDB_metadata_s         Type; // The managed type.
 
     // --------------------------------------------------------------------------------------------
     typedef Type*                   Pointer; // Pointer to the managed type.
@@ -49,27 +48,17 @@ private:
     Pointer GetValid() const;
 #endif // _DEBUG
 
-    /* --------------------------------------------------------------------------------------------
-     * Validate the managed database handle and throw an error if invalid.
-    */
-#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    Pointer GetValidElem(CCStr file, Int32 line) const;
-#else
-    Pointer GetValidElem() const;
-#endif // _DEBUG
-
 private:
 
     // ---------------------------------------------------------------------------------------------
     DbRef   m_Handle; // The database associated with this meta-data.
-    Pointer m_List; // The managed entry data list.
-    Pointer m_Elem; // The currently processed element from the list.
+    Pointer m_Metadata; // The inspected meta-data structure.
 
     /* --------------------------------------------------------------------------------------------
-     * Construct and with a specific entry list.
+     * Construct and with a specific meta-data.
     */
-    EntryDataList(const DbRef & db, Pointer list)
-        : m_Handle(db), m_List(list), m_Elem(list)
+    Metadata(const DbRef & db, Pointer metadata)
+        : m_Handle(db), m_Metadata(metadata)
     {
         /* ... */
     }
@@ -79,68 +68,38 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor. (null)
     */
-    EntryDataList()
-        : m_Handle(), m_List(nullptr), m_Elem(nullptr)
+    Metadata()
+        : m_Handle(), m_Metadata(nullptr)
     {
         /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
+     * Copy constructor.
     */
-    EntryDataList(const EntryDataList &) = delete;
+    Metadata(const Metadata &) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    EntryDataList(EntryDataList && o)
-        : m_Handle(o.m_Handle)
-        , m_List(o.m_List)
-        , m_Elem(o.m_Elem)
-    {
-        o.m_List = nullptr;
-        o.m_Elem = nullptr;
-    }
+    Metadata(Metadata &&) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Destructor.
+     * Copy assignment operator.
     */
-    ~EntryDataList()
-    {
-        // Do we have to free any list?
-        if (m_List)
-        {
-            MMDB_free_entry_data_list(m_List);
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    EntryDataList & operator = (const EntryDataList &) = delete;
+    Metadata & operator = (const Metadata &) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    EntryDataList & operator = (EntryDataList && o)
-    {
-        if (m_List != o.m_List)
-        {
-            m_Handle = o.m_Handle;
-            m_List = o.m_List;
-            m_Elem = o.m_Elem;
-            o.m_List = nullptr;
-            o.m_Elem = nullptr;
-        }
-        return *this;
-    }
+    Metadata & operator = (Metadata &&) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the internal result structure reference.
     */
     Pointer GetHandle()
     {
-        return m_List;
+        return m_Metadata;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -148,7 +107,7 @@ public:
     */
     ConstPtr GetHandle() const
     {
-        return m_List;
+        return m_Metadata;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -156,7 +115,7 @@ public:
     */
     CSStr ToString() const
     {
-        return m_Elem ? AsTypeStr(m_Elem->entry_data.type) : _SC("invalid");
+        return m_Metadata ? m_Metadata->database_type : _SC("");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -169,142 +128,135 @@ public:
     */
     bool IsValid() const
     {
-        return m_Handle && m_List;
+        return m_Handle && m_Metadata;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * See whether a valid element is currently processed.
+     * Retrieve the node count.
     */
-    bool HaveElement() const
+    SQInteger GetNodeCount() const
     {
-        return m_Elem;
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this)->node_count);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Used to retrieve the type of the current element as a string.
+     * Retrieve the record size.
     */
-    CSStr TypeName() const
+    SQInteger GetRecordSize() const
     {
-        return AsTypeStr(SQMOD_GET_VALID_ELEM(*this)->entry_data.type);
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this)->record_size);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Return the total entries in the list.
+     * Retrieve the IP version.
     */
-    Uint32 GetCount() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Go to the next element.
-    */
-    bool Next();
-
-    /* --------------------------------------------------------------------------------------------
-     * Advance a certain number of elements.
-    */
-    bool Advance(SQInteger n);
-
-    /* --------------------------------------------------------------------------------------------
-     * Go back to the first element in the list.
-    */
-    void Reset()
+    SQInteger GetIpVersion() const
     {
-        m_Elem = SQMOD_GET_VALID_ELEM(*this);
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this)->ip_version);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * See whether a valid element is currently processed.
+     * Retrieve the database type.
     */
-    bool HasData() const
+    CSStr GetDatabaseType() const
     {
-        return ConvTo< bool >::From(SQMOD_GET_VALID_ELEM(*this)->entry_data.has_data);
+        return SQMOD_GET_VALID(*this)->database_type;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the type identifier of the current element.
+     * Retrieve the number of language names.
     */
-    SQInteger GetType() const
+    SQInteger GetLanguageCount() const
     {
-        return ConvTo< SQInteger >::From(SQMOD_GET_VALID_ELEM(*this)->entry_data.type);
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this)->languages.count);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the offset of the current element.
+     * Retrieve the name of a certain language.
     */
-    SQInteger GetOffset() const
+    CSStr GetLanguageName(Uint32 idx) const
     {
-        return ConvTo< SQInteger >::From(SQMOD_GET_VALID_ELEM(*this)->entry_data.offset);
+        // Validate the specified index
+        if (idx > SQMOD_GET_VALID(*this)->languages.count)
+        {
+            STHROWF("The specified language index is out of range: %u > %u", idx, m_Metadata->languages.count);
+        }
+        // Return the requested name
+        return m_Metadata->languages.names[idx];
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the offset of the next element.
+     * Retrieve the major version of the binary format.
     */
-    SQInteger DataSize() const
+    SQInteger GetBinaryFormatMajorVersion() const
     {
-        return ConvTo< SQInteger >::From(SQMOD_GET_VALID_ELEM(*this)->entry_data.data_size);
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this)->binary_format_major_version);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value from the current element as a boolean.
+     * Retrieve the minor version of the binary format.
     */
-    bool GetBool() const
+    SQInteger GetBinaryFormatMinorVersion() const
     {
-        return GetEntryAsBool(SQMOD_GET_VALID_ELEM(*this)->entry_data);
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this)->binary_format_minor_version);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value from the current element as a native integer.
+     * Retrieve the build epoch.
     */
-    SQInteger GetInteger() const
+    Object GetBuildEpoch() const
     {
-        return GetEntryAsInteger(SQMOD_GET_VALID_ELEM(*this)->entry_data);
+        // Obtain the initial stack size
+        const StackGuard sg;
+        // Push a long integer instance with the requested value on the stack
+        SqMod_PushULongObject(DefaultVM::Get(), ConvTo< Uint64 >::From(SQMOD_GET_VALID(*this)->build_epoch));
+        // Obtain the object from the stack and return it
+        return Var< Object >(DefaultVM::Get(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value from the current element as a floating point.
+     * Retrieve the number of available description handles.
     */
-    SQFloat GetFloat() const
+    SQInteger GetDescriptionCount() const
     {
-        return GetEntryAsFloat(SQMOD_GET_VALID_ELEM(*this)->entry_data);
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this)->description.count);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value from the current element as a long integer.
+     * Retrieve the handle of a certain description.
     */
-    Object GetLong() const
+    Description GetDescriptionHandle(Uint32 idx) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the description of a certain description handle.
+    */
+    CSStr GetDescriptionValue(Uint32 idx) const
     {
-        return GetEntryAsLong(SQMOD_GET_VALID_ELEM(*this)->entry_data);
+        // Validate the specified index
+        if (idx > SQMOD_GET_VALID(*this)->description.count)
+        {
+            STHROWF("The specified description index is out of range: %u > %u", idx, m_Metadata->description.count);
+        }
+        // Return the requested description value
+        return m_Metadata->description.descriptions[idx]->description;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value from the current element as a string.
+     * Retrieve the language of a certain description handle.
     */
-    Object GetString() const
+    CSStr GetDescriptionLanguage(Uint32 idx) const
     {
-        return GetEntryAsString(SQMOD_GET_VALID_ELEM(*this)->entry_data);
+        // Validate the specified index
+        if (idx > SQMOD_GET_VALID(*this)->description.count)
+        {
+            STHROWF("The specified description index is out of range: %u > %u", idx, m_Metadata->description.count);
+        }
+        // Return the requested description language
+        return m_Metadata->description.descriptions[idx]->language;
     }
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the value from the current element as a stream of bytes.
-    */
-    Object GetBytes() const
-    {
-        return GetEntryAsBytes(SQMOD_GET_VALID_ELEM(*this)->entry_data);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Dumpt the contents of the list to the specified list.
-    */
-    void DumpTo(CSStr filepath) const
-    {
-        DumpTo(filepath, 0);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Dumpt the contents of the list to the specified list.
-    */
-    void DumpTo(CSStr filepath, Int32 indent) const;
 };
 
 } // Namespace:: SqMod
 
-#endif // _SQMMDB_ENTRYDATALIST_HPP_
+#endif // _SQMMDB_METADATA_HPP_

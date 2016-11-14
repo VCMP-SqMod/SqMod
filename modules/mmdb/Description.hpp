@@ -1,32 +1,35 @@
-#ifndef _SQMMDB_SOCKADDR_HPP_
-#define _SQMMDB_SOCKADDR_HPP_
+#ifndef _SQMMDB_DESCRIPTION_HPP_
+#define _SQMMDB_DESCRIPTION_HPP_
 
 // ------------------------------------------------------------------------------------------------
-#include "Common.hpp"
+#include "Handle/Database.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class that can obtain information from string addresses and be used repeatedly thereafter.
+ * Class that can hold and be used inspect meta-data descriptions.
 */
-class SockAddr
+class Description
 {
+    // --------------------------------------------------------------------------------------------
+    friend class Metadata; // Only a valid meta-data instance can construct this type.
+
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef struct addrinfo Type; // The managed type.
+    typedef MMDB_description_s      Type; // The managed type.
 
     // --------------------------------------------------------------------------------------------
-    typedef Type*           Pointer; // Pointer to the managed type.
-    typedef const Type*     ConstPtr; // Constant pointer to the managed type.
+    typedef Type*                   Pointer; // Pointer to the managed type.
+    typedef const Type*             ConstPtr; // Constant pointer to the managed type.
 
     // --------------------------------------------------------------------------------------------
-    typedef Type&           Reference; // Reference to the managed type.
-    typedef const Type&     ConstRef; // Constant reference to the managed type.
+    typedef Type&                   Reference; // Reference to the managed type.
+    typedef const Type&             ConstRef; // Constant reference to the managed type.
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the managed sockaddr pointer and throw an error if invalid.
+     * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
     void Validate(CCStr file, Int32 line) const;
@@ -37,88 +40,74 @@ protected:
 private:
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the managed sockaddr pointer and throw an error if invalid.
+     * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
     Pointer GetValid(CCStr file, Int32 line) const;
 #else
     Pointer GetValid() const;
 #endif // _DEBUG
+
 private:
 
     // ---------------------------------------------------------------------------------------------
-    Pointer m_Handle; // The managed sockaddr structure.
-    String  m_Addres; // The address that was queried for information.
+    DbRef   m_Handle; // The database associated with this meta-data description.
+    Pointer m_Description; // The inspected meta-data description structure.
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct and with a specific meta-data.
+    */
+    Description(const DbRef & db, Pointer metadata)
+        : m_Handle(db), m_Description(metadata)
+    {
+        /* ... */
+    }
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Default constructor.
+     * Default constructor. (null)
     */
-    SockAddr()
-        : m_Handle(nullptr), m_Addres(_SC(""))
+    Description()
+        : m_Handle(), m_Description(nullptr)
     {
         /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Base constructor.
+     * Copy constructor.
     */
-    SockAddr(CSStr addr);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    SockAddr(const SockAddr & o) = delete;
+    Description(const Description &) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    SockAddr(SockAddr && o)
-        : m_Handle(o.m_Handle)
-        , m_Addres(o.m_Addres)
-    {
-        o.m_Handle = nullptr;
-    }
+    Description(Description &&) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Destructor.
+     * Copy assignment operator.
     */
-    ~SockAddr();
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    SockAddr & operator = (const SockAddr & o) = delete;
+    Description & operator = (const Description &) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    SockAddr & operator = (SockAddr && o)
-    {
-        if (m_Handle != o.m_Handle)
-        {
-            m_Handle = o.m_Handle;
-            m_Addres = o.m_Addres;
-            o.m_Handle = nullptr;
-        }
-        return *this;
-    }
+    Description & operator = (Description &&) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal addrinfo structure pointer.
+     * Retrieve the internal result structure reference.
     */
     Pointer GetHandle()
     {
-        return m_Handle;
+        return m_Description;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal addrinfo structure pointer.
+     * Retrieve the internal result structure reference.
     */
-    Pointer GetHandle() const
+    ConstPtr GetHandle() const
     {
-        return m_Handle;
+        return m_Description;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -126,7 +115,7 @@ public:
     */
     CSStr ToString() const
     {
-        return m_Addres.c_str();
+        return m_Description ? m_Description->description : _SC("");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -135,22 +124,31 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance references a valid addrinfo structure.
+     * See whether this instance references a valid database and result structure.
     */
     bool IsValid() const
     {
-        return m_Handle;
+        return m_Handle && m_Description;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated string address.
+     * Retrieve the value of the managed description handle.
     */
-    CSStr GetAddress() const
+    CSStr GetDescriptionValue() const
     {
-        return m_Addres.c_str();
+        return SQMOD_GET_VALID(*this)->description;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the language of the managed description handle.
+    */
+    CSStr GetDescriptionLanguage() const
+    {
+        return SQMOD_GET_VALID(*this)->language;
+    }
+
 };
 
 } // Namespace:: SqMod
 
-#endif // _SQMMDB_SOCKADDR_HPP_
+#endif // _SQMMDB_DESCRIPTION_HPP_

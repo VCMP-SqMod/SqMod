@@ -1,5 +1,5 @@
-#ifndef _SQMMDB_LOOKUPRESULT_HPP_
-#define _SQMMDB_LOOKUPRESULT_HPP_
+#ifndef _SQMMDB_ENTRYDATA_HPP_
+#define _SQMMDB_ENTRYDATA_HPP_
 
 // ------------------------------------------------------------------------------------------------
 #include "Handle/Database.hpp"
@@ -8,17 +8,17 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class that can hold and be used to work with lookup results.
+ * Class that can hold and be used to inspect entry data values.
 */
-class LookupResult
+class EntryData
 {
     // --------------------------------------------------------------------------------------------
-    friend class Database; // Only a valid database instance can construct this type.
+    friend class LookupResult; // Only a valid lookup result instance can construct this type.
 
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef MMDB_lookup_result_s    Type; // The managed type.
+    typedef MMDB_entry_data_s       Type; // The managed type.
 
     // --------------------------------------------------------------------------------------------
     typedef Type*                   Pointer; // Pointer to the managed type.
@@ -52,13 +52,13 @@ private:
 
     // ---------------------------------------------------------------------------------------------
     DbRef   m_Handle; // The database from which this result comes from.
-    Type    m_Result; // The managed result structure.
+    Type    m_Entry; // The managed entry-data structure.
 
     /* --------------------------------------------------------------------------------------------
-     * Construct and take ownership of a certain result.
+     * Construct and take ownership of a certain entry data.
     */
-    LookupResult(const DbRef & db, Reference result)
-        : m_Handle(db), m_Result(result)
+    EntryData(const DbRef & db, Reference entry)
+        : m_Handle(db), m_Entry(entry)
     {
         /* ... */
     }
@@ -68,42 +68,34 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor. (null)
     */
-    LookupResult();
+    EntryData();
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    LookupResult(const LookupResult &) = default;
+    EntryData(const EntryData &) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    LookupResult(LookupResult &&) = default;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~LookupResult()
-    {
-        /* We let the smart reference deal with deallocations if necessary. */
-    }
+    EntryData(EntryData &&) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    LookupResult & operator = (const LookupResult &) = default;
+    EntryData & operator = (const EntryData &) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    LookupResult & operator = (LookupResult &&) = default;
+    EntryData & operator = (EntryData &&) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the internal result structure reference.
     */
     Reference GetHandle()
     {
-        return m_Result;
+        return m_Entry;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -111,7 +103,7 @@ public:
     */
     ConstRef GetHandle() const
     {
-        return m_Result;
+        return m_Entry;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -119,7 +111,7 @@ public:
     */
     CSStr ToString() const
     {
-        return FmtStr("%u", m_Result.entry.offset);
+        return AsTypeStr(m_Entry.type);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -132,42 +124,132 @@ public:
     */
     bool IsValid() const
     {
-        return m_Handle && m_Result.found_entry;
+        return m_Handle && m_Entry.has_data;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * See whether the result contains a valid entry in the associated database.
+     * Used to retrieve the type of the current element as a string.
     */
-    bool FoundEntry() const
+    CSStr TypeName() const
     {
-        // Validate the database handle
+        // Validate the handle
         SQMOD_VALIDATE(*this);
         // Return the requested information
-        return m_Result.found_entry;
+        return AsTypeStr(m_Entry.type);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the net-mask from the result structure.
+     * See whether a valid element is currently processed.
     */
-    SQInteger GetNetMask() const
+    bool HasData() const
     {
-        // Validate the database handle
+        // Validate the handle
         SQMOD_VALIDATE(*this);
         // Return the requested information
-        return static_cast< SQInteger >(m_Result.netmask);
+        return ConvTo< bool >::From(m_Entry.has_data);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the entire entry data list.
+     * Retrieve the type identifier of the current element.
     */
-    Object GetEntryDataList();
+    SQInteger GetType() const
+    {
+        // Validate the handle
+        SQMOD_VALIDATE(*this);
+        // Return the requested information
+        return ConvTo< SQInteger >::From(m_Entry.type);
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Lookup data in the associated result using the specified path.
+     * Retrieve the offset of the current element.
     */
-    static SQInteger GetValue(HSQUIRRELVM vm);
+    SQInteger GetOffset() const
+    {
+        // Validate the handle
+        SQMOD_VALIDATE(*this);
+        // Return the requested information
+        return ConvTo< SQInteger >::From(m_Entry.offset);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the offset of the next element.
+    */
+    SQInteger DataSize() const
+    {
+        // Validate the handle
+        SQMOD_VALIDATE(*this);
+        // Return the requested information
+        return ConvTo< SQInteger >::From(m_Entry.data_size);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value from the current element as a boolean.
+    */
+    bool GetBool() const
+    {
+        // Validate the handle
+        SQMOD_VALIDATE(*this);
+        // Return the requested information
+        return GetEntryAsBool(m_Entry);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value from the current element as a native integer.
+    */
+    SQInteger GetInteger() const
+    {
+        // Validate the handle
+        SQMOD_VALIDATE(*this);
+        // Return the requested information
+        return GetEntryAsInteger(m_Entry);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value from the current element as a floating point.
+    */
+    SQFloat GetFloat() const
+    {
+        // Validate the handle
+        SQMOD_VALIDATE(*this);
+        // Return the requested information
+        return GetEntryAsFloat(m_Entry);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value from the current element as a long integer.
+    */
+    Object GetLong() const
+    {
+        // Validate the handle
+        SQMOD_VALIDATE(*this);
+        // Return the requested information
+        return GetEntryAsLong(m_Entry);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value from the current element as a string.
+    */
+    Object GetString() const
+    {
+        // Validate the handle
+        SQMOD_VALIDATE(*this);
+        // Return the requested information
+        return GetEntryAsString(m_Entry);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value from the current element as a stream of bytes.
+    */
+    Object GetBytes() const
+    {
+        // Validate the handle
+        SQMOD_VALIDATE(*this);
+        // Return the requested information
+        return GetEntryAsBytes(m_Entry);
+    }
+
 };
 
 } // Namespace:: SqMod
 
-#endif // _SQMMDB_LOOKUPRESULT_HPP_
+#endif // _SQMMDB_ENTRYDATA_HPP_

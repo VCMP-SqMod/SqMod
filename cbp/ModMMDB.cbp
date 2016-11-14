@@ -106,9 +106,9 @@
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-fPIC" />
 					<Add option="-m32" />
 					<Add option="-g" />
-					<Add option="-fPIC" />
 					<Add option="-D_DEBUG" />
 					<Add directory="../config/gcc32" />
 				</Compiler>
@@ -129,8 +129,8 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-m32" />
 					<Add option="-fPIC" />
+					<Add option="-m32" />
 					<Add option="-DNDEBUG" />
 					<Add directory="../config/gcc32" />
 				</Compiler>
@@ -410,6 +410,7 @@
 		<Compiler>
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-std=c99" />
 			<Add option="-std=c++14" />
 			<Add option="-DSQMOD_PLUGIN_API" />
 			<Add option="-DSCRAT_USE_EXCEPTIONS" />
@@ -428,10 +429,18 @@
 		<Unit filename="../modules/mmdb/Common.hpp" />
 		<Unit filename="../modules/mmdb/Database.cpp" />
 		<Unit filename="../modules/mmdb/Database.hpp" />
+		<Unit filename="../modules/mmdb/Description.cpp" />
+		<Unit filename="../modules/mmdb/Description.hpp" />
+		<Unit filename="../modules/mmdb/EntryData.cpp" />
+		<Unit filename="../modules/mmdb/EntryData.hpp" />
 		<Unit filename="../modules/mmdb/EntryDataList.cpp" />
 		<Unit filename="../modules/mmdb/EntryDataList.hpp" />
+		<Unit filename="../modules/mmdb/Handle/Database.cpp" />
+		<Unit filename="../modules/mmdb/Handle/Database.hpp" />
 		<Unit filename="../modules/mmdb/LookupResult.cpp" />
 		<Unit filename="../modules/mmdb/LookupResult.hpp" />
+		<Unit filename="../modules/mmdb/Metadata.cpp" />
+		<Unit filename="../modules/mmdb/Metadata.hpp" />
 		<Unit filename="../modules/mmdb/Module.cpp" />
 		<Unit filename="../modules/mmdb/SockAddr.cpp" />
 		<Unit filename="../modules/mmdb/Sockaddr.hpp" />

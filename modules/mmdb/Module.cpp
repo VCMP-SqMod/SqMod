@@ -8,6 +8,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
+// ------------------------------------------------------------------------------------------------
+extern void Register_Database(Table & mmns);
+extern void Register_Description(Table & mmns);
+extern void Register_EntryData(Table & mmns);
+extern void Register_EntryDataList(Table & mmns);
+extern void Register_LookupResult(Table & mmns);
+extern void Register_Metadata(Table & mmns);
+extern void Register_SockAddr(Table & mmns);
+
 /* ------------------------------------------------------------------------------------------------
  * Register the module API under the obtained virtual machine.
 */
@@ -20,6 +29,21 @@ static bool RegisterAPI(HSQUIRRELVM vm)
         // Registration failed
         return false;
     }
+
+    Table mmns(vm);
+
+    Register_Database(mmns);
+    Register_Description(mmns);
+    Register_EntryData(mmns);
+    Register_EntryDataList(mmns);
+    Register_LookupResult(mmns);
+    Register_Metadata(mmns);
+    Register_SockAddr(mmns);
+
+    mmns.Func(_SC("StrError"), MMDB_strerror);
+    mmns.Func(_SC("LibVersion"), MMDB_lib_version);
+
+    RootTable(vm).Bind(_SC("SqMMDB"), mmns);
 
     // Registration was successful
     return true;

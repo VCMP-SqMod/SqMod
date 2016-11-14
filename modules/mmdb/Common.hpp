@@ -24,256 +24,73 @@ namespace SqMod {
 #define SQMMDB_VERSION_PATCH 1
 
 /* ------------------------------------------------------------------------------------------------
+ * Handle validation.
+*/
+#if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
+    #define SQMOD_VALIDATE(x)               (x).Validate(__FILE__, __LINE__)
+    #define SQMOD_GET_VALID(x)              (x).GetValid(__FILE__, __LINE__)
+    #define SQMOD_GET_VALID_ELEM(x)         (x).GetValidElem(__FILE__, __LINE__)
+#else
+    #define SQMOD_VALIDATE(x)               (x).Validate()
+    #define SQMOD_GET_VALID(x)              (x).GetValid()
+    #define SQMOD_GET_VALID_ELEM(x)         (x).GetValidElem()
+#endif // _DEBUG
+
+/* ------------------------------------------------------------------------------------------------
  * Forward declarations.
 */
 class Database;
+class Metadata;
+class Description;
 class SockAddr;
+class EntryData;
 class EntryDataList;
 class LookupResult;
 
 /* ------------------------------------------------------------------------------------------------
- * Manages a reference counted INI document instance.
+ * Forward declarations.
 */
-class DbRef
-{
-    // --------------------------------------------------------------------------------------------
-    friend class Database;
+struct DbHnd;
 
-public:
+/* ------------------------------------------------------------------------------------------------
+ * Common typedefs.
+*/
+typedef SharedPtr< DbHnd > DbRef;
 
-    // --------------------------------------------------------------------------------------------
-    typedef MMDB_s          Type; // The managed type.
+/* ------------------------------------------------------------------------------------------------
+ * Used to retrieve the string representation of the specified type identifier.
+*/
+CSStr AsTypeStr(Uint32 id);
 
-    // --------------------------------------------------------------------------------------------
-    typedef Type*           Pointer; // Pointer to the managed type.
-    typedef const Type*     ConstPtr; // Constant pointer to the managed type.
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the value from the specified entry data as a boolean.
+*/
+bool GetEntryAsBool(const MMDB_entry_data_s & ed);
 
-    // --------------------------------------------------------------------------------------------
-    typedef Type&           Reference; // Reference to the managed type.
-    typedef const Type&     ConstRef; // Constant reference to the managed type.
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the value from the specified entry data as a native integer.
+*/
+SQInteger GetEntryAsInteger(const MMDB_entry_data_s & ed);
 
-    // --------------------------------------------------------------------------------------------
-    typedef unsigned int    Counter; // Reference counter type.
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the value from the specified entry data as a floating point.
+*/
+SQFloat GetEntryAsFloat(const MMDB_entry_data_s & ed);
 
-private:
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the value from the specified entry data as a long integer.
+*/
+Object GetEntryAsLong(const MMDB_entry_data_s & ed);
 
-    // --------------------------------------------------------------------------------------------
-    Pointer     m_Ptr; // The document reader, writer and manager instance.
-    Counter*    m_Ref; // Reference count to the managed instance.
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the value from the specified entry data as a string.
+*/
+Object GetEntryAsString(const MMDB_entry_data_s & ed);
 
-    /* --------------------------------------------------------------------------------------------
-     * Creates a database structure.
-    */
-    static Pointer Create();
-
-    /* --------------------------------------------------------------------------------------------
-     * Destroyes the specified database structure.
-    */
-    static void Destroy(Pointer db);
-
-    /* --------------------------------------------------------------------------------------------
-     * Grab a strong reference to a document instance.
-    */
-    void Grab()
-    {
-        if (m_Ptr)
-            ++(*m_Ref);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Drop a strong reference to a document instance.
-    */
-    void Drop()
-    {
-        if (m_Ptr && --(*m_Ref) == 0)
-        {
-            MMDB_close(m_Ptr);
-            Destroy(m_Ptr);
-            delete m_Ref;
-            m_Ptr = NULL;
-            m_Ref = NULL;
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Base constructor.
-    */
-    DbRef(bool make)
-        : m_Ptr(make ? Create() : NULL), m_Ref(m_Ptr ? new Counter(1) : NULL)
-    {
-        /* ... */
-    }
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor (null).
-    */
-    DbRef()
-        : m_Ptr(NULL), m_Ref(NULL)
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor.
-    */
-    DbRef(const DbRef & o)
-        : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
-
-    {
-        Grab();
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor.
-    */
-    DbRef(DbRef && o)
-        : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
-
-    {
-        o.m_Ptr = NULL;
-        o.m_Ref = NULL;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~DbRef()
-    {
-        Drop();
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator.
-    */
-    DbRef & operator = (const DbRef & o)
-    {
-        if (m_Ptr != o.m_Ptr)
-        {
-            Drop();
-            m_Ptr = o.m_Ptr;
-            m_Ref = o.m_Ref;
-            Grab();
-        }
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator.
-    */
-    DbRef & operator = (DbRef && o)
-    {
-        if (m_Ptr != o.m_Ptr)
-        {
-            m_Ptr = o.m_Ptr;
-            m_Ref = o.m_Ref;
-            o.m_Ptr = NULL;
-            o.m_Ref = NULL;
-        }
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Perform an equality comparison between two document instances.
-    */
-    bool operator == (const DbRef & o) const
-    {
-        return (m_Ptr == o.m_Ptr);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Perform an inequality comparison between two document instances.
-    */
-    bool operator != (const DbRef & o) const
-    {
-        return (m_Ptr != o.m_Ptr);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to boolean for use in boolean operations.
-    */
-    operator bool () const
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the managed instance pointer.
-    */
-    operator Pointer ()
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the managed instance pointer.
-    */
-    operator ConstPtr () const
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the managed instance reference.
-    */
-    operator Reference ()
-    {
-        assert(m_Ptr);
-        return *m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the managed instance reference.
-    */
-    operator ConstRef () const
-    {
-        assert(m_Ptr);
-        return *m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Member operator for dereferencing the managed pointer.
-    */
-    Pointer operator -> () const
-    {
-        assert(m_Ptr);
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Indirection operator for obtaining a reference of the managed pointer.
-    */
-    Reference operator * () const
-    {
-        assert(m_Ptr);
-        return *m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the raw handle structure pointer.
-    */
-    Pointer DbPtr()
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the raw handle structure pointer.
-    */
-    Pointer DbPtr() const
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the number of active references to the managed instance.
-    */
-    Counter Count() const
-    {
-        return (m_Ptr && m_Ref) ? (*m_Ref) : 0;
-    }
-};
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the value from the specified entry data as a stream of bytes.
+*/
+Object GetEntryAsBytes(const MMDB_entry_data_s & ed);
 
 } // Namespace:: SqMod
 

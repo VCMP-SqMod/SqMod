@@ -7,5 +7,6 @@
 		<Project filename="ModXML.cbp" />
 		<Project filename="ModSQLite.cbp" />
 		<Project filename="ModMySQL.cbp" />
+		<Project filename="ModMMDB.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
