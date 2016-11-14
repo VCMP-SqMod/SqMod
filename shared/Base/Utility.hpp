@@ -1520,9 +1520,21 @@ struct StackStrF
     StackStrF(const StackStrF & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
+     * Copy constructor.
     */
-    StackStrF(StackStrF && o) = delete;
+    StackStrF(StackStrF && o)
+        : mPtr(o.mPtr)
+        , mLen(o.mLen)
+        , mRes(o.mRes)
+        , mObj(o.mObj)
+        , mVM(o.mVM)
+    {
+        o.mPtr = nullptr;
+        o.mLen = 0;
+        o.mRes = SQ_OK;
+        o.mVM = nullptr;
+        sq_resetobject(&o.mObj);
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
