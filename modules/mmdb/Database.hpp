@@ -8,7 +8,7 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class that can read/write and alter the contents of INI files.
+ * Class that can be used to open and query information from MaxMind database files.
 */
 class Database
 {
@@ -37,12 +37,12 @@ private:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DbRef m_Handle; /* The main INI document instance. */
+    DbRef m_Handle; // The managed database handle.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Default constructor.
+     * Default constructor. (null)
     */
     Database()
         : m_Handle()
@@ -51,7 +51,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Base constructor.
+     * Base constructor. (default flags)
     */
     Database(CSStr filepath)
         : m_Handle(new DbHnd(filepath, 0))
@@ -64,6 +64,15 @@ public:
     */
     Database(CSStr filepath, Uint32 flags)
         : m_Handle(new DbHnd(filepath, flags))
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit handle constructor.
+    */
+    Database(const DbRef & db)
+        : m_Handle(db)
     {
         /* ... */
     }
@@ -110,7 +119,15 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Return the number of active references to this document instance.
+     * Release the manages handles/pointers and become a null instance.
+    */
+    void Release()
+    {
+        m_Handle.Reset();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of active references to the managed database instance.
     */
     Uint32 GetRefCount() const
     {

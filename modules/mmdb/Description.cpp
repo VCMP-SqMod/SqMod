@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Description.hpp"
+#include "Database.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
@@ -63,8 +64,10 @@ Description::Pointer Description::GetValid() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-
-
+Database Description::GetDatabase() const
+{
+    return Database(m_Handle);
+}
 
 // ================================================================================================
 void Register_Description(Table & mmns)
@@ -79,8 +82,12 @@ void Register_Description(Table & mmns)
         .Func(_SC("_tostring"), &Description::ToString)
         // Properties
         .Prop(_SC("IsValid"), &Description::IsValid)
+        .Prop(_SC("Database"), &Description::GetDatabase)
+        .Prop(_SC("References"), &Description::GetRefCount)
         .Prop(_SC("Value"), &Description::GetDescriptionValue)
         .Prop(_SC("Language"), &Description::GetDescriptionLanguage)
+        // Member methods
+        .Func(_SC("Release"), &Description::Release)
     );
 }
 

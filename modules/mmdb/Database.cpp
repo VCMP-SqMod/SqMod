@@ -65,7 +65,7 @@ Object Database::GetMetadataAsEntryDataList() const
     // Validate the status code
     if (status != MMDB_SUCCESS)
     {
-        STHROWF("Unable to get entry data list [%s]", MMDB_strerror(status));
+        STHROWF("Unable to get meta-data entry data list [%s]", MMDB_strerror(status));
     }
     // Return the resulted list
     return Object(new EntryDataList(m_Handle, entry_data_list));
@@ -116,8 +116,7 @@ LookupResult Database::LookupSockAddr(SockAddr & addr)
     // Validate the lookup status code
     if (mmdb_error != MMDB_SUCCESS)
     {
-        STHROWF("Unable to lookup address (%s) because [%s]",
-                    addr.GetAddress(), MMDB_strerror(mmdb_error));
+        STHROWF("Unable to lookup address (%s) because [%s]", addr.GetAddress(), MMDB_strerror(mmdb_error));
     }
     // Now it's safe to return the lookup result
     return LookupResult(m_Handle, result);
@@ -140,10 +139,11 @@ void Register_Database(Table & mmns)
         .Prop(_SC("References"), &Database::GetRefCount)
         .Prop(_SC("Metadata"), &Database::GetMetadata)
         .Prop(_SC("MetadataAsEntryDataList"), &Database::GetMetadataAsEntryDataList)
-        // Member Methods
+        // Member methods
+        .Func(_SC("Release"), &Database::Release)
         .Func(_SC("LookupString"), &Database::LookupString)
         .Func(_SC("LookupSockAddr"), &Database::LookupSockAddr)
-        // Member Overloads
+        // Member overloads
         .Overload< void (Database::*)(CSStr) >(_SC("Open"), &Database::Open)
         .Overload< void (Database::*)(CSStr, Uint32) >(_SC("Open"), &Database::Open)
     );

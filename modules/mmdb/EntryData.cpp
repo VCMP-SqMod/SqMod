@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "EntryData.hpp"
+#include "Database.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
@@ -57,6 +58,19 @@ EntryData::EntryData()
     std::memset(&m_Entry, 0, sizeof(Type));
 }
 
+// ------------------------------------------------------------------------------------------------
+void EntryData::Release()
+{
+    std::memset(&m_Entry, 0, sizeof(Type));
+    m_Handle.Reset();
+}
+
+// ------------------------------------------------------------------------------------------------
+Database EntryData::GetDatabase() const
+{
+    return Database(m_Handle);
+}
+
 // ================================================================================================
 void Register_EntryData(Table & mmns)
 {
@@ -70,6 +84,8 @@ void Register_EntryData(Table & mmns)
         .Func(_SC("_tostring"), &EntryData::ToString)
         // Properties
         .Prop(_SC("IsValid"), &EntryData::IsValid)
+        .Prop(_SC("Database"), &EntryData::GetDatabase)
+        .Prop(_SC("References"), &EntryData::GetRefCount)
         .Prop(_SC("TypeName"), &EntryData::TypeName)
         .Prop(_SC("HasData"), &EntryData::HasData)
         .Prop(_SC("Type"), &EntryData::GetType)
@@ -81,6 +97,8 @@ void Register_EntryData(Table & mmns)
         .Prop(_SC("Long"), &EntryData::GetLong)
         .Prop(_SC("Bool"), &EntryData::GetBool)
         .Prop(_SC("Bytes"), &EntryData::GetBytes)
+        // Member methods
+        .Func(_SC("Release"), &EntryData::Release)
     );
 }
 

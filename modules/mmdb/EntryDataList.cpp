@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "EntryDataList.hpp"
+#include "Database.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdio>
@@ -91,6 +92,12 @@ EntryDataList::Pointer EntryDataList::GetValidElem() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
+Database EntryDataList::GetDatabase() const
+{
+    return Database(m_Handle);
+}
+
+// ------------------------------------------------------------------------------------------------
 Uint32 EntryDataList::GetCount() const
 {
     // Prepare a counter
@@ -175,6 +182,8 @@ void Register_EntryDataList(Table & mmns)
         .Func(_SC("_tostring"), &EntryDataList::ToString)
         // Properties
         .Prop(_SC("IsValid"), &EntryDataList::IsValid)
+        .Prop(_SC("Database"), &EntryDataList::GetDatabase)
+        .Prop(_SC("References"), &EntryDataList::GetRefCount)
         .Prop(_SC("HaveElement"), &EntryDataList::HaveElement)
         .Prop(_SC("TypeName"), &EntryDataList::TypeName)
         .Prop(_SC("Count"), &EntryDataList::GetCount)
@@ -189,6 +198,7 @@ void Register_EntryDataList(Table & mmns)
         .Prop(_SC("Bool"), &EntryDataList::GetBool)
         .Prop(_SC("Bytes"), &EntryDataList::GetBytes)
         // Member methods
+        .Func(_SC("Release"), &EntryDataList::Release)
         .Func(_SC("Next"), &EntryDataList::Next)
         .Func(_SC("Advance"), &EntryDataList::Advance)
         .Func(_SC("Reset"), &EntryDataList::Reset)

@@ -40,7 +40,7 @@ protected:
 private:
 
     /* --------------------------------------------------------------------------------------------
-     * Validate the managed database handle and throw an error if invalid.
+     * Validate the managed database handle and description pointer and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
     Pointer GetValid(CCStr file, Int32 line) const;
@@ -55,10 +55,10 @@ private:
     Pointer m_Description; // The inspected meta-data description structure.
 
     /* --------------------------------------------------------------------------------------------
-     * Construct and with a specific meta-data.
+     * Construct and with a specific meta-data description.
     */
-    Description(const DbRef & db, Pointer metadata)
-        : m_Handle(db), m_Description(metadata)
+    Description(const DbRef & db, Pointer description)
+        : m_Handle(db), m_Description(description)
     {
         /* ... */
     }
@@ -95,22 +95,6 @@ public:
     Description & operator = (Description &&) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    Pointer GetHandle()
-    {
-        return m_Description;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    ConstPtr GetHandle() const
-    {
-        return m_Description;
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const
@@ -124,11 +108,33 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance references a valid database and result structure.
+     * See whether this instance references a valid database and description structure.
     */
     bool IsValid() const
     {
-        return m_Handle && m_Description;
+        return m_Handle; // If there's a database handle then there's a description too
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the manages handles/pointers and become a null instance.
+    */
+    void Release()
+    {
+        m_Handle.Reset();
+        m_Description = nullptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the database associated with the managed handle/pointer.
+    */
+    Database GetDatabase() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of active references to the managed database instance.
+    */
+    Uint32 GetRefCount() const
+    {
+        return m_Handle.Count();
     }
 
     /* --------------------------------------------------------------------------------------------

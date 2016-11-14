@@ -2,6 +2,7 @@
 #include "LookupResult.hpp"
 #include "EntryData.hpp"
 #include "EntryDataList.hpp"
+#include "Database.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <vector>
@@ -58,6 +59,19 @@ LookupResult::LookupResult()
     : m_Handle(), m_Result()
 {
     std::memset(&m_Result, 0, sizeof(Type));
+}
+
+// ------------------------------------------------------------------------------------------------
+void LookupResult::Release()
+{
+    std::memset(&m_Result, 0, sizeof(Type));
+    m_Handle.Reset();
+}
+
+// ------------------------------------------------------------------------------------------------
+Database LookupResult::GetDatabase() const
+{
+    return Database(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -166,9 +180,13 @@ void Register_LookupResult(Table & mmns)
         .Func(_SC("_tostring"), &LookupResult::ToString)
         // Properties
         .Prop(_SC("IsValid"), &LookupResult::IsValid)
+        .Prop(_SC("Database"), &LookupResult::GetDatabase)
+        .Prop(_SC("References"), &LookupResult::GetRefCount)
         .Prop(_SC("FoundEntry"), &LookupResult::FoundEntry)
         .Prop(_SC("NetMask"), &LookupResult::GetNetMask)
         .Prop(_SC("EntryDataList"), &LookupResult::GetEntryDataList)
+        // Member methods
+        .Func(_SC("Release"), &LookupResult::Release)
         // Squirrel functions
         .SquirrelFunc(_SC("GetValue"), &LookupResult::GetValue)
     );

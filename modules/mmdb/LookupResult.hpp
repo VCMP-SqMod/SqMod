@@ -99,22 +99,6 @@ public:
     LookupResult & operator = (LookupResult &&) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    Reference GetHandle()
-    {
-        return m_Result;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    ConstRef GetHandle() const
-    {
-        return m_Result;
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const
@@ -133,6 +117,24 @@ public:
     bool IsValid() const
     {
         return m_Handle && m_Result.found_entry;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the manages handles/pointers and become a null instance.
+    */
+    void Release();
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the database associated with the managed handle/pointer.
+    */
+    Database GetDatabase() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of active references to the managed database instance.
+    */
+    Uint32 GetRefCount() const
+    {
+        return m_Handle.Count();
     }
 
     /* --------------------------------------------------------------------------------------------

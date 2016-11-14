@@ -46,9 +46,10 @@ class SockAddr;
 class EntryData;
 class EntryDataList;
 class LookupResult;
+class SearchNode;
 
 /* ------------------------------------------------------------------------------------------------
- * Forward declarations.
+ * Forward handle declarations.
 */
 struct DbHnd;
 

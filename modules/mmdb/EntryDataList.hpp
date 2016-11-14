@@ -136,22 +136,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    Pointer GetHandle()
-    {
-        return m_List;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    ConstPtr GetHandle() const
-    {
-        return m_List;
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const
@@ -165,11 +149,40 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance references a valid database and result structure.
+     * See whether this instance references a valid database and element pointer.
     */
     bool IsValid() const
     {
-        return m_Handle && m_List;
+        return m_Handle && m_Elem;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the manages handles/pointers and become a null instance.
+    */
+    void Release()
+    {
+        m_Handle.Reset();
+        // Do we have to free any list?
+        if (m_List)
+        {
+            MMDB_free_entry_data_list(m_List);
+        }
+        // Finally, release those as well
+        m_List = nullptr;
+        m_Elem = nullptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the database associated with the managed handle/pointer.
+    */
+    Database GetDatabase() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of active references to the managed database instance.
+    */
+    Uint32 GetRefCount() const
+    {
+        return m_Handle.Count();
     }
 
     /* --------------------------------------------------------------------------------------------

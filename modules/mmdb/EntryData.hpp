@@ -91,22 +91,6 @@ public:
     EntryData & operator = (EntryData &&) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    Reference GetHandle()
-    {
-        return m_Entry;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    ConstRef GetHandle() const
-    {
-        return m_Entry;
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const
@@ -120,11 +104,29 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance references a valid database and result structure.
+     * See whether this instance references a valid database and entry structure.
     */
     bool IsValid() const
     {
         return m_Handle && m_Entry.has_data;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the manages handles/pointers and become a null instance.
+    */
+    void Release();
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the database associated with the managed handle/pointer.
+    */
+    Database GetDatabase() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of active references to the managed database instance.
+    */
+    Uint32 GetRefCount() const
+    {
+        return m_Handle.Count();
     }
 
     /* --------------------------------------------------------------------------------------------

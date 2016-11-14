@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Metadata.hpp"
 #include "Description.hpp"
+#include "Database.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
@@ -64,6 +65,12 @@ Metadata::Pointer Metadata::GetValid() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
+Database Metadata::GetDatabase() const
+{
+    return Database(m_Handle);
+}
+
+// ------------------------------------------------------------------------------------------------
 Description Metadata::GetDescriptionHandle(Uint32 idx) const
 {
     // Validate the specified index
@@ -88,6 +95,8 @@ void Register_Metadata(Table & mmns)
         .Func(_SC("_tostring"), &Metadata::ToString)
         // Properties
         .Prop(_SC("IsValid"), &Metadata::IsValid)
+        .Prop(_SC("Database"), &Metadata::GetDatabase)
+        .Prop(_SC("References"), &Metadata::GetRefCount)
         .Prop(_SC("NodeCount"), &Metadata::GetNodeCount)
         .Prop(_SC("RecordSize"), &Metadata::GetRecordSize)
         .Prop(_SC("IpVersion"), &Metadata::GetIpVersion)
@@ -98,6 +107,7 @@ void Register_Metadata(Table & mmns)
         .Prop(_SC("BuildEpoch"), &Metadata::GetBuildEpoch)
         .Prop(_SC("DescriptionCount"), &Metadata::GetDescriptionCount)
         // Member methods
+        .Func(_SC("Release"), &Metadata::Release)
         .Func(_SC("GetLanguageName"), &Metadata::GetLanguageName)
         .Func(_SC("GetDescriptionHandle"), &Metadata::GetDescriptionHandle)
         .Func(_SC("GetDescriptionValue"), &Metadata::GetDescriptionValue)

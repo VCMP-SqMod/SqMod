@@ -95,22 +95,6 @@ public:
     Metadata & operator = (Metadata &&) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    Pointer GetHandle()
-    {
-        return m_Metadata;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the internal result structure reference.
-    */
-    ConstPtr GetHandle() const
-    {
-        return m_Metadata;
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString() const
@@ -124,11 +108,33 @@ public:
     static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
-     * See whether this instance references a valid database and result structure.
+     * See whether this instance references a valid database and meta-data pointer.
     */
     bool IsValid() const
     {
-        return m_Handle && m_Metadata;
+        return m_Handle; // If there's a database handle then there's a meta-data too
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the manages handles/pointers and become a null instance.
+    */
+    void Release()
+    {
+        m_Handle.Reset();
+        m_Metadata = nullptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the database associated with the managed handle/pointer.
+    */
+    Database GetDatabase() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Return the number of active references to the managed database instance.
+    */
+    Uint32 GetRefCount() const
+    {
+        return m_Handle.Count();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -254,7 +260,6 @@ public:
         // Return the requested description language
         return m_Metadata->description.descriptions[idx]->language;
     }
-
 };
 
 } // Namespace:: SqMod
