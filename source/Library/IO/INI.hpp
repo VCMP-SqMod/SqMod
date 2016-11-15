@@ -139,11 +139,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid INI result.
     */
     bool IsValid() const
@@ -483,11 +478,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
      * Return whether the current element is valid and can be accessed.
     */
     bool IsValid() const
@@ -686,11 +676,6 @@ public:
     {
         return _SC("");
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid INI document.

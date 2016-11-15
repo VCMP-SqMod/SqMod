@@ -8,12 +8,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQInteger IniResult::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqIniResult");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+SQMODE_DECL_TYPENAME(ResultTypename, _SC("SqIniResult"))
+SQMODE_DECL_TYPENAME(EntriesTypename, _SC("SqIniEntries"))
+SQMODE_DECL_TYPENAME(DocumentTypename, _SC("SqIniDocument"))
 
 // ------------------------------------------------------------------------------------------------
 void IniResult::Check() const
@@ -47,14 +44,6 @@ void DocumentRef::Validate() const
     {
         STHROWF("Invalid INI document reference");
     }
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Entries::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqIniEntries");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -158,14 +147,6 @@ Int32 Entries::GetOrder() const
     }
     // Return the requested information
     return m_Elem->nOrder;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Document::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqIniDocument");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -382,14 +363,15 @@ void Register_INI(HSQUIRRELVM vm)
 {
     Table inins(vm);
 
-    inins.Bind(_SC("Result"), Class< IniResult >(vm, _SC("SqIniResult"))
+    inins.Bind(_SC("Result"),
+        Class< IniResult >(vm, ResultTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< CSStr, SQInteger >()
         .Ctor< const IniResult & >()
         // Core Meta-methods
-        .Func(_SC("_cmp"), &IniResult::Cmp)
-        .SquirrelFunc(_SC("_typename"), &IniResult::Typename)
+        .SquirrelFunc(_SC("_typename"), &ResultTypename::Fn)
+        .Func(_SC("cmp"), &IniResult::Cmp)
         .Func(_SC("_tostring"), &IniResult::ToString)
         // Properties
         .Prop(_SC("Valid"), &IniResult::IsValid)
@@ -399,13 +381,14 @@ void Register_INI(HSQUIRRELVM vm)
         .Func(_SC("Check"), &IniResult::Check)
     );
 
-    inins.Bind(_SC("Entries"), Class< Entries >(vm, _SC("SqIniEntries"))
+    inins.Bind(_SC("Entries"),
+        Class< Entries >(vm, EntriesTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< const Entries & >()
         // Core Meta-methods
-        .Func(_SC("_cmp"), &Entries::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Entries::Typename)
+        .SquirrelFunc(_SC("_typename"), &EntriesTypename::Fn)
+        .Func(_SC("cmp"), &Entries::Cmp)
         .Func(_SC("_tostring"), &Entries::ToString)
         // Properties
         .Prop(_SC("Valid"), &Entries::IsValid)
@@ -426,7 +409,8 @@ void Register_INI(HSQUIRRELVM vm)
         .Func(_SC("SortByLoadOrder"), &Entries::SortByLoadOrder)
     );
 
-    inins.Bind(_SC("Document"), Class< Document, NoCopy< Document > >(vm, _SC("SqIniDocument"))
+    inins.Bind(_SC("Document"),
+        Class< Document, NoCopy< Document > >(vm, DocumentTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< bool >()
@@ -434,7 +418,7 @@ void Register_INI(HSQUIRRELVM vm)
         .Ctor< bool, bool, bool >()
         // Core Meta-methods
         .Func(_SC("_cmp"), &Document::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Document::Typename)
+        .SquirrelFunc(_SC("_typename"), &DocumentTypename::Fn)
         .Func(_SC("_tostring"), &Document::ToString)
         // Properties
         .Prop(_SC("Valid"), &Document::IsValid)
