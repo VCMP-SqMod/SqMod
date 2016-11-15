@@ -417,7 +417,7 @@ void Register_INI(HSQUIRRELVM vm)
         .Ctor< bool, bool >()
         .Ctor< bool, bool, bool >()
         // Core Meta-methods
-        .Func(_SC("_cmp"), &Document::Cmp)
+        .Func(_SC("cmp"), &Document::Cmp)
         .SquirrelFunc(_SC("_typename"), &DocumentTypename::Fn)
         .Func(_SC("_tostring"), &Document::ToString)
         // Properties
