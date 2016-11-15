@@ -136,7 +136,7 @@ void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & /*cns*/)
         // Core Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Timestamp::ToString)
-        .Func(_SC("_cmp"), &Timestamp::Cmp)
+        .Func(_SC("cmp"), &Timestamp::Cmp)
         // Meta-methods
         .Func< Timestamp (Timestamp::*)(const Timestamp &) const >(_SC("_add"), &Timestamp::operator +)
         .Func< Timestamp (Timestamp::*)(const Timestamp &) const >(_SC("_sub"), &Timestamp::operator -)

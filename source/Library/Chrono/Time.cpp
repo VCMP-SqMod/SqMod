@@ -427,7 +427,7 @@ void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
         // Core Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Time::ToString)
-        .Func(_SC("_cmp"), &Time::Cmp)
+        .Func(_SC("cmp"), &Time::Cmp)
         // Meta-methods
         .Func< Time (Time::*)(const Time &) const >(_SC("_add"), &Time::operator +)
         .Func< Time (Time::*)(const Time &) const >(_SC("_sub"), &Time::operator -)

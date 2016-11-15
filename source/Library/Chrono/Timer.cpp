@@ -77,7 +77,7 @@ void Register_ChronoTimer(HSQUIRRELVM vm, Table & /*cns*/)
         // Core Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Timer::ToString)
-        .Func(_SC("_cmp"), &Timer::Cmp)
+        .Func(_SC("cmp"), &Timer::Cmp)
         // Properties
         .Prop(_SC("Elapsed"), &Timer::GetElapsedTime)
         .Prop(_SC("ElapsedRaw"), &Timer::GetElapsedTimeRaw)

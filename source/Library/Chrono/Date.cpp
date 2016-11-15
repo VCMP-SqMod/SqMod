@@ -379,7 +379,7 @@ void Register_ChronoDate(HSQUIRRELVM vm, Table & /*cns*/)
         // Core Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Date::ToString)
-        .Func(_SC("_cmp"), &Date::Cmp)
+        .Func(_SC("cmp"), &Date::Cmp)
         // Meta-methods
         .Func< Date (Date::*)(const Date &) const >(_SC("_add"), &Date::operator +)
         .Func< Date (Date::*)(const Date &) const >(_SC("_sub"), &Date::operator -)
