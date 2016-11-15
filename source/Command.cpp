@@ -1074,7 +1074,7 @@ void Register(HSQUIRRELVM vm)
         .Ctor< CSStr, CSStr, Array &, Uint8, Uint8, SQInteger, bool, bool >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &ListenerTypename::Fn)
-        .Func(_SC("_cmp"), &Listener::Cmp)
+        .Func(_SC("cmp"), &Listener::Cmp)
         .Func(_SC("_tostring"), &Listener::ToString)
         // Member Properties
         .Prop(_SC("References"), &Listener::GetRefCount)
