@@ -63,11 +63,6 @@ public:
     CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
      * Retrieve the associated key.
     */
     CSStr GetKey() const;

@@ -10,12 +10,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQInteger AES256::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqAES256");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+SQMODE_DECL_TYPENAME(Typename, _SC("SqAES256"))
 
 // ------------------------------------------------------------------------------------------------
 AES256::AES256()
@@ -138,13 +133,13 @@ String AES256::Decrypt(CSStr data)
 // ================================================================================================
 void Register_AES(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind("SqAES256", Class< AES256 >(vm, "SqAES256")
+    RootTable(vm).Bind(Typename::Str, Class< AES256 >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< CSStr >()
         // Meta-methods
-        .Func(_SC("_cmp"), &AES256::Cmp)
-        .SquirrelFunc(_SC("_typename"), &AES256::Typename)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("cmp"), &AES256::Cmp)
         .Func(_SC("_tostring"), &AES256::ToString)
         /* Properties */
         .Prop(_SC("Key"), &AES256::GetKey)
