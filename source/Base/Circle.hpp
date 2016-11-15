@@ -344,11 +344,6 @@ struct Circle
     CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
      * Set the specified radius.
     */
     void SetRadius(Value nr);

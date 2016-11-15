@@ -11,20 +11,15 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("Circle"))
+
+// ------------------------------------------------------------------------------------------------
 const Circle Circle::NIL = Circle();
 const Circle Circle::MIN = Circle(0.0);
 const Circle Circle::MAX = Circle(std::numeric_limits< Circle::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Circle::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Circle::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("Circle");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 Circle::Circle()
@@ -545,7 +540,7 @@ void Register_Circle(HSQUIRRELVM vm)
 {
     typedef Circle::Value Val;
 
-    RootTable(vm).Bind(_SC("Circle"), Class< Circle >(vm, _SC("Circle"))
+    RootTable(vm).Bind(Typename::Str, Class< Circle >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()
@@ -557,9 +552,9 @@ void Register_Circle(HSQUIRRELVM vm)
         .Var(_SC("Pos"), &Circle::pos)
         .Var(_SC("Rad"), &Circle::rad)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &Circle::ToString)
-        .SquirrelFunc(_SC("_typename"), &Circle::Typename)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &Circle::ToString)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
