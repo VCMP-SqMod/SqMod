@@ -6,15 +6,10 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CBlip::Max = SQMOD_BLIP_POOL;
+SQMODE_DECL_TYPENAME(Typename, _SC("SqBlip"))
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CBlip::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqBlip");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+const Int32 CBlip::Max = SQMOD_BLIP_POOL;
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CBlip::SqGetNull(HSQUIRRELVM vm)
@@ -311,11 +306,11 @@ static Object & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int32
 // ================================================================================================
 void Register_CBlip(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqBlip"),
-        Class< CBlip, NoConstructor< CBlip > >(vm, _SC("SqBlip"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< CBlip, NoConstructor< CBlip > >(vm, Typename::Str)
         // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_cmp"), &CBlip::Cmp)
-        .SquirrelFunc(_SC("_typename"), &CBlip::Typename)
         .Func(_SC("_tostring"), &CBlip::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CBlip::Max)

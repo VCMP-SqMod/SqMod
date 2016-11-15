@@ -6,15 +6,10 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CKeybind::Max = SQMOD_KEYBIND_POOL;
+SQMODE_DECL_TYPENAME(Typename, _SC("SqKeybind"))
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CKeybind::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqKeybind");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+const Int32 CKeybind::Max = SQMOD_KEYBIND_POOL;
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CKeybind::SqGetNull(HSQUIRRELVM vm)
@@ -210,11 +205,11 @@ static SQInteger Keybind_UnusedSlot()
 // ================================================================================================
 void Register_CKeybind(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqKeybind"),
-        Class< CKeybind, NoConstructor< CKeybind > >(vm, _SC("SqKeybind"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< CKeybind, NoConstructor< CKeybind > >(vm, Typename::Str)
         // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_cmp"), &CKeybind::Cmp)
-        .SquirrelFunc(_SC("_typename"), &CKeybind::Typename)
         .Func(_SC("_tostring"), &CKeybind::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CKeybind::Max)

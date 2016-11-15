@@ -10,20 +10,15 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqVehicle"))
+
+// ------------------------------------------------------------------------------------------------
 Vector2      CVehicle::s_Vector2;
 Vector3      CVehicle::s_Vector3;
 Quaternion   CVehicle::s_Quaternion;
 
 // ------------------------------------------------------------------------------------------------
 const Int32 CVehicle::Max = SQMOD_VEHICLE_POOL;
-
-// ------------------------------------------------------------------------------------------------
-SQInteger CVehicle::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqVehicle");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CVehicle::SqGetNull(HSQUIRRELVM vm)
@@ -1764,11 +1759,11 @@ static Object & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, Fl
 // ================================================================================================
 void Register_CVehicle(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqVehicle"),
-        Class< CVehicle, NoConstructor< CVehicle > >(vm, _SC("SqVehicle"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< CVehicle, NoConstructor< CVehicle > >(vm, Typename::Str)
         // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_cmp"), &CVehicle::Cmp)
-        .SquirrelFunc(_SC("_typename"), &CVehicle::Typename)
         .Func(_SC("_tostring"), &CVehicle::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CVehicle::Max)

@@ -9,19 +9,14 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqObject"))
+
+// ------------------------------------------------------------------------------------------------
 Vector3      CObject::s_Vector3;
 Quaternion   CObject::s_Quaternion;
 
 // ------------------------------------------------------------------------------------------------
 const Int32 CObject::Max = SQMOD_OBJECT_POOL;
-
-// ------------------------------------------------------------------------------------------------
-SQInteger CObject::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqObject");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CObject::SqGetNull(HSQUIRRELVM vm)
@@ -889,11 +884,11 @@ static Object & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int
 // ================================================================================================
 void Register_CObject(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqObject"),
-        Class< CObject, NoConstructor< CObject > >(vm, _SC("SqObject"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< CObject, NoConstructor< CObject > >(vm, Typename::Str)
         // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_cmp"), &CObject::Cmp)
-        .SquirrelFunc(_SC("_typename"), &CObject::Typename)
         .Func(_SC("_tostring"), &CObject::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CObject::Max)

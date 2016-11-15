@@ -8,18 +8,13 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqPickup"))
+
+// ------------------------------------------------------------------------------------------------
 Vector3     CPickup::s_Vector3;
 
 // ------------------------------------------------------------------------------------------------
 const Int32 CPickup::Max = SQMOD_PICKUP_POOL;
-
-// ------------------------------------------------------------------------------------------------
-SQInteger CPickup::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqPickup");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CPickup::SqGetNull(HSQUIRRELVM vm)
@@ -452,11 +447,11 @@ static Object & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const Ve
 // ================================================================================================
 void Register_CPickup(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqPickup"),
-        Class< CPickup, NoConstructor< CPickup > >(vm, _SC("SqPickup"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< CPickup, NoConstructor< CPickup > >(vm, Typename::Str)
         // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_cmp"), &CPickup::Cmp)
-        .SquirrelFunc(_SC("_typename"), &CPickup::Typename)
         .Func(_SC("_tostring"), &CPickup::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CPickup::Max)

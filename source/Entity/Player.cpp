@@ -20,6 +20,9 @@ namespace SqMod {
 extern SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int32 & msgidx);
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqPlayer"))
+
+// ------------------------------------------------------------------------------------------------
 Color3  CPlayer::s_Color3;
 Vector3 CPlayer::s_Vector3;
 
@@ -28,14 +31,6 @@ SQChar  CPlayer::s_Buffer[SQMOD_PLAYER_TMP_BUFFER];
 
 // ------------------------------------------------------------------------------------------------
 const Int32 CPlayer::Max = SQMOD_PLAYER_POOL;
-
-// ------------------------------------------------------------------------------------------------
-SQInteger CPlayer::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqPlayer");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CPlayer::SqGetNull(HSQUIRRELVM vm)
@@ -2366,11 +2361,11 @@ static const Object & Player_FindAuto(Object & by)
 // ================================================================================================
 void Register_CPlayer(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqPlayer"),
-        Class< CPlayer, NoConstructor< CPlayer > >(vm, _SC("SqPlayer"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< CPlayer, NoConstructor< CPlayer > >(vm, Typename::Str)
         // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_cmp"), &CPlayer::Cmp)
-        .SquirrelFunc(_SC("_typename"), &CPlayer::Typename)
         .Func(_SC("_tostring"), &CPlayer::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CPlayer::Max)

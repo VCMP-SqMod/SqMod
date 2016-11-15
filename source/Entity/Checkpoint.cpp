@@ -9,6 +9,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqCheckpoint"))
+
+// ------------------------------------------------------------------------------------------------
 Color4      CCheckpoint::s_Color4;
 Vector3     CCheckpoint::s_Vector3;
 
@@ -20,14 +23,6 @@ Int32      CCheckpoint::s_ColorA;
 
 // ------------------------------------------------------------------------------------------------
 const Int32 CCheckpoint::Max = SQMOD_CHECKPOINT_POOL;
-
-// ------------------------------------------------------------------------------------------------
-SQInteger CCheckpoint::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqCheckpoint");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CCheckpoint::SqGetNull(HSQUIRRELVM vm)
@@ -529,11 +524,11 @@ static Object & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & pos,
 // ================================================================================================
 void Register_CCheckpoint(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqCheckpoint"),
-        Class< CCheckpoint, NoConstructor< CCheckpoint > >(vm, _SC("SqCheckpoint"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< CCheckpoint, NoConstructor< CCheckpoint > >(vm, Typename::Str)
         // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_cmp"), &CCheckpoint::Cmp)
-        .SquirrelFunc(_SC("_typename"), &CCheckpoint::Typename)
         .Func(_SC("_tostring"), &CCheckpoint::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CCheckpoint::Max)
