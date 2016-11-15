@@ -166,11 +166,6 @@ public:
     Object ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
      * Swaps the path with another one.
     */
     void Swap(SysPath & path);

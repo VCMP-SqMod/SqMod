@@ -34,6 +34,9 @@ namespace SqMod {
 #endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqSysPath"))
+
+// ------------------------------------------------------------------------------------------------
 Buffer GetRealFilePath(CSStr path)
 {
     // Make sure the specified path is valid
@@ -74,14 +77,6 @@ Buffer GetRealFilePath(CSStr path)
 
     // Return ownership of the buffer
     return std::move(b);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger SysPath::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqSysPath");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1719,14 +1714,14 @@ SysPath SysPath::MakeDynamic(CSStr path)
 // ================================================================================================
 void Register_SysPath(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind("SqSysPath", Class< SysPath >(vm, "SqSysPath")
+    RootTable(vm).Bind(Typename::Str, Class< SysPath >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< CSStr >()
         .Ctor< CSStr, Int32 >()
         // Meta-methods
-        .Func(_SC("_cmp"), &SysPath::Cmp)
-        .SquirrelFunc(_SC("_typename"), &SysPath::Typename)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("cmp"), &SysPath::Cmp)
         .Func(_SC("_tostring"), &SysPath::ToString)
         // Properties
         .Prop(_SC("String"), &SysPath::ToString, &SysPath::FromString)
