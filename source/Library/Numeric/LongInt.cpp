@@ -13,12 +13,8 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQInteger LongInt< Int64 >::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SLongInt");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+SQMODE_DECL_TYPENAME(TypenameS, _SC("SLongInt"))
+SQMODE_DECL_TYPENAME(TypenameU, _SC("ULongInt"))
 
 // ------------------------------------------------------------------------------------------------
 LongInt< Int64 >::LongInt(CSStr text)
@@ -68,14 +64,6 @@ void LongInt< Int64 >::Random(Type n)
 void LongInt< Int64 >::Random(Type m, Type n)
 {
     m_Data = GetRandomInt64(m, n);
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger LongInt< Uint64 >::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("ULongInt");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -131,7 +119,7 @@ void LongInt< Uint64 >::Random(Type m, Type n)
 // ================================================================================================
 void Register_LongInt(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SLongInt"), Class< SLongInt >(vm, _SC("SLongInt"))
+    RootTable(vm).Bind(TypenameS::Str, Class< SLongInt >(vm, TypenameS::Str)
         // Constructors
         .Ctor()
         .Ctor< SLongInt::Type >()
@@ -140,9 +128,9 @@ void Register_LongInt(HSQUIRRELVM vm)
         .Prop(_SC("Str"), &SLongInt::GetCStr, &SLongInt::SetStr)
         .Prop(_SC("Num"), &SLongInt::GetSNum, &SLongInt::SetNum)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &SLongInt::ToString)
-        .SquirrelFunc(_SC("_typename"), &SLongInt::Typename)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< SLongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, SLongInt, ULongInt >)
+        .SquirrelFunc(_SC("_typename"), &TypenameS::Fn)
+        .Func(_SC("_tostring"), &SLongInt::ToString)
         // Core Functions
         .Func(_SC("tointeger"), &SLongInt::ToSqInteger)
         .Func(_SC("tofloat"), &SLongInt::ToSqFloat)
@@ -167,7 +155,7 @@ void Register_LongInt(HSQUIRRELVM vm)
         .Overload< void (SLongInt::*)(SLongInt::Type, SLongInt::Type) >(_SC("Random"), &SLongInt::Random)
     );
 
-    RootTable(vm).Bind(_SC("ULongInt"), Class< ULongInt >(vm, _SC("ULongInt"))
+    RootTable(vm).Bind(TypenameU::Str, Class< ULongInt >(vm, TypenameU::Str)
         // Constructors
         .Ctor()
         .Ctor< ULongInt::Type >()
@@ -176,9 +164,9 @@ void Register_LongInt(HSQUIRRELVM vm)
         .Prop(_SC("Str"), &ULongInt::GetCStr, &ULongInt::SetStr)
         .Prop(_SC("Num"), &ULongInt::GetSNum, &ULongInt::SetNum)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &ULongInt::ToString)
-        .SquirrelFunc(_SC("_typename"), &ULongInt::Typename)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< ULongInt >, SQInteger, SQFloat, bool, std::nullptr_t, CSStr, ULongInt, SLongInt >)
+        .SquirrelFunc(_SC("_typename"), &TypenameU::Fn)
+        .Func(_SC("_tostring"), &ULongInt::ToString)
         // Core Functions
         .Func(_SC("tointeger"), &ULongInt::ToSqInteger)
         .Func(_SC("tofloat"), &ULongInt::ToSqFloat)

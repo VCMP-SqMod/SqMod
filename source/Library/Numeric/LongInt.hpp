@@ -528,11 +528,6 @@ public:
     CSStr ToString();
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
      * Assign an integer value.
     */
     void SetNum(Type data)
@@ -1160,11 +1155,6 @@ public:
      * Used by the script engine to convert an instance of this type to a string.
     */
     CSStr ToString();
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Assign an integer value.
