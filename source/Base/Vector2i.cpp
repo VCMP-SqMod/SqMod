@@ -12,20 +12,15 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("Vector2i"))
+
+// ------------------------------------------------------------------------------------------------
 const Vector2i Vector2i::NIL = Vector2i(0);
 const Vector2i Vector2i::MIN = Vector2i(std::numeric_limits< Vector2i::Value >::min());
 const Vector2i Vector2i::MAX = Vector2i(std::numeric_limits< Vector2i::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Vector2i::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Vector2i::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("Vector2i");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 Vector2i::Vector2i()
@@ -597,7 +592,7 @@ void Register_Vector2i(HSQUIRRELVM vm)
 {
     typedef Vector2i::Value Val;
 
-    RootTable(vm).Bind(_SC("Vector2i"), Class< Vector2i >(vm, _SC("Vector2i"))
+    RootTable(vm).Bind(Typename::Str, Class< Vector2i >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()
@@ -608,9 +603,9 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Var(_SC("X"), &Vector2i::x)
         .Var(_SC("Y"), &Vector2i::y)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &Vector2i::ToString)
-        .SquirrelFunc(_SC("_typename"), &Vector2i::Typename)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Vector2i >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2i >)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &Vector2i::ToString)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Vector2i >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2i >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Vector2i >, SQFloat, SQInteger, bool, std::nullptr_t, Vector2i >)
