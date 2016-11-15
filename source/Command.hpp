@@ -870,11 +870,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
      * Retrieve the associated controller reference.
     */
     const CtrRef & GetCtr() const
@@ -1334,11 +1329,6 @@ public:
     {
         return m_Name;
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of weak references to the managed controller.

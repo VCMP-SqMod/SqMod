@@ -12,20 +12,8 @@ Controllers Controller::s_Controllers;
 Listener *  Listener::s_Head = nullptr;
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Manager::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqCmdManager");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Listener::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqCmdListener");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+SQMODE_DECL_TYPENAME(ManagerTypename, _SC("SqCmdManager"))
+SQMODE_DECL_TYPENAME(ListenerTypename, _SC("SqCmdListener"))
 
 // ------------------------------------------------------------------------------------------------
 Guard::Guard(const CtrRef & ctr, Object & invoker)
@@ -1036,10 +1024,10 @@ void Register(HSQUIRRELVM vm)
     Table cmdns(vm);
 
     cmdns.Bind(_SC("Manager"),
-        Class< Manager, NoCopy< Manager > >(vm, _SC("SqCmdManager"))
+        Class< Manager, NoCopy< Manager > >(vm, ManagerTypename::Str)
         // Meta-methods
-        .Func(_SC("_cmp"), &Manager::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Manager::Typename)
+        .SquirrelFunc(_SC("_typename"), &ManagerTypename::Fn)
+        .Func(_SC("cmp"), &Manager::Cmp)
         .Func(_SC("_tostring"), &Manager::ToString)
         // Member Properties
         .Prop(_SC("Count"), &Manager::GetCount)
@@ -1074,7 +1062,7 @@ void Register(HSQUIRRELVM vm)
     );
 
     cmdns.Bind(_SC("Listener"),
-        Class< Listener, NoCopy< Listener > >(vm, _SC("SqCmdListener"))
+        Class< Listener, NoCopy< Listener > >(vm, ListenerTypename::Str)
         // Constructors
         .Ctor< CSStr >()
         .Ctor< CSStr, CSStr >()
@@ -1085,8 +1073,8 @@ void Register(HSQUIRRELVM vm)
         .Ctor< CSStr, CSStr, Array &, Uint8, Uint8, SQInteger, bool >()
         .Ctor< CSStr, CSStr, Array &, Uint8, Uint8, SQInteger, bool, bool >()
         // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &ListenerTypename::Fn)
         .Func(_SC("_cmp"), &Listener::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Listener::Typename)
         .Func(_SC("_tostring"), &Listener::ToString)
         // Member Properties
         .Prop(_SC("References"), &Listener::GetRefCount)
