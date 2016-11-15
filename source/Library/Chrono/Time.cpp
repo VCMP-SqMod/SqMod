@@ -9,15 +9,10 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQChar Time::Delimiter = ':';
+SQMODE_DECL_TYPENAME(Typename, _SC("SqTime"))
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Time::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqTime");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+SQChar Time::Delimiter = ':';
 
 // ------------------------------------------------------------------------------------------------
 Int32 Time::Compare(const Time & o) const
@@ -420,7 +415,7 @@ Timestamp Time::GetTimestamp() const
 // ================================================================================================
 void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(_SC("SqTime"), Class< Time >(vm, _SC("SqTime"))
+    RootTable(vm).Bind(Typename::Str, Class< Time >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Uint8 >()
@@ -430,8 +425,8 @@ void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
         // Static Properties
         .SetStaticValue(_SC("GlobalDelimiter"), &Time::Delimiter)
         // Core Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Time::ToString)
-        .SquirrelFunc(_SC("_typename"), &Time::Typename)
         .Func(_SC("_cmp"), &Time::Cmp)
         // Meta-methods
         .Func< Time (Time::*)(const Time &) const >(_SC("_add"), &Time::operator +)

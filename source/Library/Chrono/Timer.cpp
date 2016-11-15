@@ -7,6 +7,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqTimer"))
+
+// ------------------------------------------------------------------------------------------------
 Timer::Timer()
     : m_Timestamp(Chrono::GetCurrentSysTime())
 {
@@ -67,11 +70,12 @@ Int64 Timer::GetElapsedTimeRaw() const
 // ================================================================================================
 void Register_ChronoTimer(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(_SC("SqTimer"), Class< Timer >(vm, _SC("SqChronoTimer"))
+    RootTable(vm).Bind(Typename::Str, Class< Timer >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const Timer & >()
         // Core Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Timer::ToString)
         .Func(_SC("_cmp"), &Timer::Cmp)
         // Properties

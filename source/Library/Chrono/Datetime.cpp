@@ -9,17 +9,12 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqDatetime"))
+
+// ------------------------------------------------------------------------------------------------
 SQChar Datetime::Delimiter = ' ';
 SQChar Datetime::DateDelim = '-';
 SQChar Datetime::TimeDelim = ':';
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Datetime::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqDatetime");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 Int32 Datetime::Compare(const Datetime & o) const
@@ -753,7 +748,7 @@ Timestamp Datetime::GetTimestamp() const
 // ================================================================================================
 void Register_ChronoDatetime(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(_SC("SqDatetime"), Class< Datetime >(vm, _SC("SqDatetime"))
+    RootTable(vm).Bind(Typename::Str, Class< Datetime >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Uint16 >()
@@ -768,8 +763,8 @@ void Register_ChronoDatetime(HSQUIRRELVM vm, Table & /*cns*/)
         .SetStaticValue(_SC("GlobalDateDelim"), &Datetime::DateDelim)
         .SetStaticValue(_SC("GlobalTimeDelim"), &Datetime::TimeDelim)
         // Core Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Datetime::ToString)
-        .SquirrelFunc(_SC("_typename"), &Datetime::Typename)
         .Func(_SC("_cmp"), &Datetime::Cmp)
         // Meta-methods
         .Func< Datetime (Datetime::*)(const Datetime &) const >(_SC("_add"), &Datetime::operator +)

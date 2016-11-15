@@ -10,6 +10,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqTimestamp"))
+
+// ------------------------------------------------------------------------------------------------
 Timestamp::Timestamp(const SLongInt & t)
     : m_Timestamp(t.GetNum())
 {
@@ -126,11 +129,12 @@ static Timestamp SqGetYears(SQFloat ammount)
 // ================================================================================================
 void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(_SC("SqTimestamp"), Class< Timestamp >(vm, _SC("SqTimestamp"))
+    RootTable(vm).Bind(Typename::Str, Class< Timestamp >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const Timestamp & >()
         // Core Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Timestamp::ToString)
         .Func(_SC("_cmp"), &Timestamp::Cmp)
         // Meta-methods
