@@ -4,8 +4,6 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -117,12 +115,10 @@ Uint32 EntryDataList::GetCount() const
 // ------------------------------------------------------------------------------------------------
 bool EntryDataList::Next()
 {
-    // Validate the database handle
-    SQMOD_VALIDATE(*this);
     // Attempt to fetch the next element
-    m_Elem = m_Elem ? m_Elem->next : nullptr;
+    m_Elem = SQMOD_GET_VALID(*this) ? m_Elem->next : nullptr;
     // Return whether we have a valid element
-    return !!m_Elem;
+    return (m_Elem != nullptr);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -146,7 +142,7 @@ bool EntryDataList::Advance(SQInteger n)
 void EntryDataList::DumpTo(CSStr filepath, Int32 indent) const
 {
     // Validate the database and list handle
-    SQMOD_VALIDATE(*this);
+    Pointer ptr = SQMOD_GET_VALID(*this);
     // Validate the specified file path
     if (!filepath || *filepath == '\0')
     {
@@ -160,7 +156,7 @@ void EntryDataList::DumpTo(CSStr filepath, Int32 indent) const
         STHROWF("Unable to open file %s", filepath);
     }
     // Attempt to dump the entry data list
-    Int32 status = MMDB_dump_entry_data_list(fp, m_List, indent);
+    Int32 status = MMDB_dump_entry_data_list(fp, ptr, indent);
     // Close the file handle
     fclose(fp);
     // Validate the result of the operation

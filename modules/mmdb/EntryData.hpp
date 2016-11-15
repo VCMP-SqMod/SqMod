@@ -40,9 +40,9 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    const DbRef & GetValid(CCStr file, Int32 line) const;
+    ConstRef GetValid(CCStr file, Int32 line) const;
 #else
-    const DbRef & GetValid() const;
+    ConstRef GetValid() const;
 #endif // _DEBUG
 
 private:
@@ -142,10 +142,7 @@ public:
     */
     bool HasData() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return ConvTo< bool >::From(m_Entry.has_data);
+        return ConvTo< bool >::From(SQMOD_GET_VALID(*this).has_data);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -153,10 +150,7 @@ public:
     */
     SQInteger GetType() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return ConvTo< SQInteger >::From(m_Entry.type);
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this).type);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -164,10 +158,7 @@ public:
     */
     SQInteger GetOffset() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return ConvTo< SQInteger >::From(m_Entry.offset);
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this).offset);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -175,10 +166,7 @@ public:
     */
     SQInteger DataSize() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return ConvTo< SQInteger >::From(m_Entry.data_size);
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this).data_size);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -186,10 +174,7 @@ public:
     */
     bool GetBool() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return GetEntryAsBool(m_Entry);
+        return GetEntryAsBool(SQMOD_GET_VALID(*this));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -197,10 +182,7 @@ public:
     */
     SQInteger GetInteger() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return GetEntryAsInteger(m_Entry);
+        return GetEntryAsInteger(SQMOD_GET_VALID(*this));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -208,10 +190,7 @@ public:
     */
     SQFloat GetFloat() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return GetEntryAsFloat(m_Entry);
+        return GetEntryAsFloat(SQMOD_GET_VALID(*this));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -219,10 +198,7 @@ public:
     */
     Object GetLong() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return GetEntryAsLong(m_Entry);
+        return GetEntryAsLong(SQMOD_GET_VALID(*this));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -230,10 +206,7 @@ public:
     */
     Object GetString() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return GetEntryAsString(m_Entry);
+        return GetEntryAsString(SQMOD_GET_VALID(*this));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -241,12 +214,8 @@ public:
     */
     Object GetBytes() const
     {
-        // Validate the handle
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return GetEntryAsBytes(m_Entry);
+        return GetEntryAsBytes(SQMOD_GET_VALID(*this));
     }
-
 };
 
 } // Namespace:: SqMod

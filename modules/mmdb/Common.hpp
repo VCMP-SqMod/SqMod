@@ -30,10 +30,12 @@ namespace SqMod {
     #define SQMOD_VALIDATE(x)               (x).Validate(__FILE__, __LINE__)
     #define SQMOD_GET_VALID(x)              (x).GetValid(__FILE__, __LINE__)
     #define SQMOD_GET_VALID_ELEM(x)         (x).GetValidElem(__FILE__, __LINE__)
+    #define SQMOD_GET_VALID_DATA(x)         (x).GetValidData(__FILE__, __LINE__)
 #else
     #define SQMOD_VALIDATE(x)               (x).Validate()
     #define SQMOD_GET_VALID(x)              (x).GetValid()
     #define SQMOD_GET_VALID_ELEM(x)         (x).GetValidElem()
+    #define SQMOD_GET_VALID_DATA(x)         (x).GetValidData()
 #endif // _DEBUG
 
 /* ------------------------------------------------------------------------------------------------

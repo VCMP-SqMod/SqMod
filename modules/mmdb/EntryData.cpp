@@ -38,16 +38,28 @@ void EntryData::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const DbRef & EntryData::GetValid(CCStr file, Int32 line) const
+EntryData::ConstRef EntryData::GetValid(CCStr file, Int32 line) const
 {
     Validate(file, line);
-    return m_Handle;
+    // See if the entry has any data
+    if (!m_Entry.has_data)
+    {
+        SqThrowF("The referenced entry has no data =>[%s:%d]", file, line);
+    }
+    // Return the entry
+    return m_Entry;
 }
 #else
-const DbRef & EntryData::GetValid() const
+EntryData::ConstRef EntryData::GetValid() const
 {
     Validate();
-    return m_Handle;
+    // See if the entry has any data
+    if (!m_Entry.has_data)
+    {
+        SqThrowF("The referenced entry has no data");
+    }
+    // Return the entry
+    return m_Entry;
 }
 #endif // _DEBUG
 

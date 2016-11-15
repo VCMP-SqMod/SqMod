@@ -41,16 +41,16 @@ void SearchNode::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const DbRef & SearchNode::GetValid(CCStr file, Int32 line) const
+SearchNode::Reference SearchNode::GetValid(CCStr file, Int32 line)
 {
     Validate(file, line);
-    return m_Handle;
+    return m_Node;
 }
 #else
-const DbRef & SearchNode::GetValid() const
+SearchNode::Reference SearchNode::GetValid()
 {
     Validate();
-    return m_Handle;
+    return m_Node;
 }
 #endif // _DEBUG
 
@@ -77,12 +77,10 @@ Database SearchNode::GetDatabase() const
 // ------------------------------------------------------------------------------------------------
 Object SearchNode::GetLeftRecordEntryDataList()
 {
-    // Validate the managed handles
-    SQMOD_VALIDATE(*this);
     // Prepare a temporary entry data list pointer
     MMDB_entry_data_list_s * entry_data_list = nullptr;
     // Attempt to retrieve the entire entry data list at once
-    const int status = MMDB_get_entry_data_list(&m_Node.left_record_entry, &entry_data_list);
+    const int status = MMDB_get_entry_data_list(&(SQMOD_GET_VALID(*this).left_record_entry), &entry_data_list);
     // Validate the status code
     if (status != MMDB_SUCCESS)
     {
@@ -95,12 +93,10 @@ Object SearchNode::GetLeftRecordEntryDataList()
 // ------------------------------------------------------------------------------------------------
 Object SearchNode::GetRightRecordEntryDataList()
 {
-    // Validate the managed handles
-    SQMOD_VALIDATE(*this);
     // Prepare a temporary entry data list pointer
     MMDB_entry_data_list_s * entry_data_list = nullptr;
     // Attempt to retrieve the entire entry data list at once
-    const int status = MMDB_get_entry_data_list(&m_Node.right_record_entry, &entry_data_list);
+    const int status = MMDB_get_entry_data_list(&(SQMOD_GET_VALID(*this).right_record_entry), &entry_data_list);
     // Validate the status code
     if (status != MMDB_SUCCESS)
     {

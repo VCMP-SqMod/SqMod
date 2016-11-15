@@ -40,9 +40,9 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    const DbRef & GetValid(CCStr file, Int32 line) const;
+    Reference GetValid(CCStr file, Int32 line);
 #else
-    const DbRef & GetValid() const;
+    Reference GetValid();
 #endif // _DEBUG
 
 private:
@@ -130,14 +130,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the left record value.
     */
-    Object GetLeftRecord() const
+    Object GetLeftRecord()
     {
-        // Validate the managed handles
-        SQMOD_VALIDATE(*this);
         // Obtain the initial stack size
         const StackGuard sg;
         // Push a long integer instance with the requested value on the stack
-        SqMod_PushULongObject(DefaultVM::Get(), ConvTo< Uint64 >::From(m_Node.left_record));
+        SqMod_PushULongObject(DefaultVM::Get(), ConvTo< Uint64 >::From(SQMOD_GET_VALID(*this).left_record));
         // Obtain the object from the stack and return it
         return Var< Object >(DefaultVM::Get(), -1).value;
     }
@@ -145,14 +143,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the right record value.
     */
-    Object GetRightRecord() const
+    Object GetRightRecord()
     {
-        // Validate the managed handles
-        SQMOD_VALIDATE(*this);
         // Obtain the initial stack size
         const StackGuard sg;
         // Push a long integer instance with the requested value on the stack
-        SqMod_PushULongObject(DefaultVM::Get(), ConvTo< Uint64 >::From(m_Node.right_record));
+        SqMod_PushULongObject(DefaultVM::Get(), ConvTo< Uint64 >::From(SQMOD_GET_VALID(*this).right_record));
         // Obtain the object from the stack and return it
         return Var< Object >(DefaultVM::Get(), -1).value;
     }
@@ -160,23 +156,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the left record value type.
     */
-    SQInteger GetLeftRecordType() const
+    SQInteger GetLeftRecordType()
     {
-        // Validate the managed handles
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return static_cast< SQInteger >(m_Node.left_record_type);
+        return static_cast< SQInteger >(SQMOD_GET_VALID(*this).left_record_type);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the right record value type.
     */
-    SQInteger GetRightRecordType() const
+    SQInteger GetRightRecordType()
     {
-        // Validate the managed handles
-        SQMOD_VALIDATE(*this);
-        // Return the requested information
-        return static_cast< SQInteger >(m_Node.right_record_type);
+        return static_cast< SQInteger >(SQMOD_GET_VALID(*this).right_record_type);
     }
 
     /* --------------------------------------------------------------------------------------------
