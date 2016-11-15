@@ -12,20 +12,15 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("Color3"))
+
+// ------------------------------------------------------------------------------------------------
 const Color3 Color3::NIL = Color3();
 const Color3 Color3::MIN = Color3(std::numeric_limits< Color3::Value >::min());
 const Color3 Color3::MAX = Color3(std::numeric_limits< Color3::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Color3::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Color3::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("Color3");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 Color3::Color3()
@@ -717,7 +712,7 @@ void Register_Color3(HSQUIRRELVM vm)
 {
     typedef Color3::Value Val;
 
-    RootTable(vm).Bind(_SC("Color3"), Class< Color3 >(vm, _SC("Color3"))
+    RootTable(vm).Bind(Typename::Str, Class< Color3 >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()
@@ -731,9 +726,9 @@ void Register_Color3(HSQUIRRELVM vm)
         .Var(_SC("G"), &Color3::g)
         .Var(_SC("B"), &Color3::b)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &Color3::ToString)
-        .SquirrelFunc(_SC("_typename"), &Color3::Typename)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Color3 >, SQFloat, SQInteger, bool, std::nullptr_t, Color3 >)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &Color3::ToString)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Color3 >, SQFloat, SQInteger, bool, std::nullptr_t, Color3 >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Color3 >, SQFloat, SQInteger, bool, std::nullptr_t, Color3 >)

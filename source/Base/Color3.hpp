@@ -407,11 +407,6 @@ struct Color3
     CSStr ToString() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
     */
     void SetScalar(Value ns);
