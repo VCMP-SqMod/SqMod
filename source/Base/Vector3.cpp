@@ -16,6 +16,9 @@ namespace SqMod {
 #define STOVAL(v) static_cast< Vector3::Value >(v)
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("Vector3"))
+
+// ------------------------------------------------------------------------------------------------
 const Vector3 Vector3::NIL(STOVAL(0.0));
 const Vector3 Vector3::MIN(std::numeric_limits< Vector3::Value >::min());
 const Vector3 Vector3::MAX(std::numeric_limits< Vector3::Value >::max());
@@ -29,14 +32,6 @@ const Vector3 Vector3::ONE(STOVAL(1.0),     STOVAL(1.0),    STOVAL(1.0));
 
 // ------------------------------------------------------------------------------------------------
 SQChar Vector3::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Vector3::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("Vector3");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 Vector3::Vector3()
@@ -698,7 +693,7 @@ void Register_Vector3(HSQUIRRELVM vm)
 {
     typedef Vector3::Value Val;
 
-    RootTable(vm).Bind(_SC("Vector3"), Class< Vector3 >(vm, _SC("Vector3"))
+    RootTable(vm).Bind(Typename::Str, Class< Vector3 >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()
@@ -722,10 +717,9 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Var(_SC("Y"), &Vector3::y)
         .Var(_SC("Z"), &Vector3::z)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &Vector3::ToString)
-        .SquirrelFunc(_SC("_typename"), &Vector3::Typename)
-        // We cannot set _cmp for c++ classes so we use this instead
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &Vector3::ToString)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
