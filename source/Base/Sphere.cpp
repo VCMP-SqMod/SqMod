@@ -11,20 +11,15 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("Sphere"))
+
+// ------------------------------------------------------------------------------------------------
 const Sphere Sphere::NIL = Sphere();
 const Sphere Sphere::MIN = Sphere(0.0);
 const Sphere Sphere::MAX = Sphere(std::numeric_limits< Sphere::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Sphere::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Sphere::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("Sphere");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 Sphere::Sphere()
@@ -546,7 +541,7 @@ void Register_Sphere(HSQUIRRELVM vm)
 {
     typedef Sphere::Value Val;
 
-    RootTable(vm).Bind(_SC("Sphere"), Class< Sphere >(vm, _SC("Sphere"))
+    RootTable(vm).Bind(Typename::Str, Class< Sphere >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()
@@ -558,9 +553,9 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Var(_SC("Pos"), &Sphere::pos)
         .Var(_SC("Rad"), &Sphere::rad)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &Sphere::ToString)
-        .SquirrelFunc(_SC("_typename"), &Sphere::Typename)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &Sphere::ToString)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
