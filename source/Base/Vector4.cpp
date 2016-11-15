@@ -13,20 +13,15 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("Vector4"))
+
+// ------------------------------------------------------------------------------------------------
 const Vector4 Vector4::NIL = Vector4(0);
 const Vector4 Vector4::MIN = Vector4(std::numeric_limits< Vector4::Value >::min());
 const Vector4 Vector4::MAX = Vector4(std::numeric_limits< Vector4::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Vector4::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Vector4::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("Vector4");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 Vector4::Vector4()
@@ -543,7 +538,7 @@ void Register_Vector4(HSQUIRRELVM vm)
 {
     typedef Vector4::Value Val;
 
-    RootTable(vm).Bind(_SC("Vector4"), Class< Vector4 >(vm, _SC("Vector4"))
+    RootTable(vm).Bind(Typename::Str, Class< Vector4 >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()
@@ -559,9 +554,9 @@ void Register_Vector4(HSQUIRRELVM vm)
         .Var(_SC("Z"), &Vector4::z)
         .Var(_SC("W"), &Vector4::w)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &Vector4::ToString)
-        .SquirrelFunc(_SC("_typename"), &Vector4::Typename)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Vector4 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector4 >)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &Vector4::ToString)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Vector4 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector4 >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Vector4 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector4 >)
