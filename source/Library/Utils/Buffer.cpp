@@ -19,6 +19,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqBuffer"))
+
+// ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteInt64(const SLongInt & val)
 {
     // Validate the managed buffer reference
@@ -368,11 +371,13 @@ Vector4 SqBuffer::ReadVector4()
 // ================================================================================================
 void Register_Buffer(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqBuffer"),
-        Class< SqBuffer >(vm, _SC("SqBuffer"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< SqBuffer >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< SQInteger >()
+        // Core Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         // Properties
         .Prop(_SC("Front"), &SqBuffer::GetFront, &SqBuffer::SetFront)
         .Prop(_SC("Next"), &SqBuffer::GetNext, &SqBuffer::SetNext)
