@@ -39,23 +39,6 @@ CKeybind::~CKeybind()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CKeybind::Cmp(const CKeybind & o) const
-{
-    if (m_ID == o.m_ID)
-    {
-        return 0;
-    }
-    else if (m_ID > o.m_ID)
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CKeybind::ToString() const
 {
     return m_Tag;
@@ -209,7 +192,6 @@ void Register_CKeybind(HSQUIRRELVM vm)
         Class< CKeybind, NoConstructor< CKeybind > >(vm, Typename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        .Func(_SC("_cmp"), &CKeybind::Cmp)
         .Func(_SC("_tostring"), &CKeybind::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CKeybind::Max)

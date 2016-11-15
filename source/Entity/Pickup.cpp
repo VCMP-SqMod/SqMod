@@ -44,23 +44,6 @@ CPickup::~CPickup()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPickup::Cmp(const CPickup & o) const
-{
-    if (m_ID == o.m_ID)
-    {
-        return 0;
-    }
-    else if (m_ID > o.m_ID)
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CPickup::ToString() const
 {
     return m_Tag;
@@ -451,7 +434,6 @@ void Register_CPickup(HSQUIRRELVM vm)
         Class< CPickup, NoConstructor< CPickup > >(vm, Typename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        .Func(_SC("_cmp"), &CPickup::Cmp)
         .Func(_SC("_tostring"), &CPickup::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CPickup::Max)

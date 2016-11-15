@@ -52,23 +52,6 @@ CCheckpoint::~CCheckpoint()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CCheckpoint::Cmp(const CCheckpoint & o) const
-{
-    if (m_ID == o.m_ID)
-    {
-        return 0;
-    }
-    else if (m_ID > o.m_ID)
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CCheckpoint::ToString() const
 {
     return m_Tag;
@@ -528,7 +511,6 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         Class< CCheckpoint, NoConstructor< CCheckpoint > >(vm, Typename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        .Func(_SC("_cmp"), &CCheckpoint::Cmp)
         .Func(_SC("_tostring"), &CCheckpoint::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CCheckpoint::Max)

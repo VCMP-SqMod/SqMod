@@ -74,23 +74,6 @@ CPlayer::~CPlayer()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::Cmp(const CPlayer & o) const
-{
-    if (m_ID == o.m_ID)
-    {
-        return 0;
-    }
-    else if (m_ID > o.m_ID)
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CPlayer::ToString() const
 {
     return m_Tag;
@@ -2365,7 +2348,6 @@ void Register_CPlayer(HSQUIRRELVM vm)
         Class< CPlayer, NoConstructor< CPlayer > >(vm, Typename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        .Func(_SC("_cmp"), &CPlayer::Cmp)
         .Func(_SC("_tostring"), &CPlayer::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CPlayer::Max)

@@ -106,11 +106,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare two instances of this type.
-    */
-    Int32 Cmp(const CVehicle & o) const;
-
-    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     const String & ToString() const;

@@ -52,23 +52,6 @@ CObject::~CObject()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CObject::Cmp(const CObject & o) const
-{
-    if (m_ID == o.m_ID)
-    {
-        return 0;
-    }
-    else if (m_ID > o.m_ID)
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CObject::ToString() const
 {
     return m_Tag;
@@ -888,7 +871,6 @@ void Register_CObject(HSQUIRRELVM vm)
         Class< CObject, NoConstructor< CObject > >(vm, Typename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        .Func(_SC("_cmp"), &CObject::Cmp)
         .Func(_SC("_tostring"), &CObject::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CObject::Max)

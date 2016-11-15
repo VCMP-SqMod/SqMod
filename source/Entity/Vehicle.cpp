@@ -48,23 +48,6 @@ CVehicle::~CVehicle()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CVehicle::Cmp(const CVehicle & o) const
-{
-    if (m_ID == o.m_ID)
-    {
-        return 0;
-    }
-    else if (m_ID > o.m_ID)
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CVehicle::ToString() const
 {
     return m_Tag;
@@ -1763,7 +1746,6 @@ void Register_CVehicle(HSQUIRRELVM vm)
         Class< CVehicle, NoConstructor< CVehicle > >(vm, Typename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        .Func(_SC("_cmp"), &CVehicle::Cmp)
         .Func(_SC("_tostring"), &CVehicle::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CVehicle::Max)

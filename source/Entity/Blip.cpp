@@ -39,23 +39,6 @@ CBlip::~CBlip()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CBlip::Cmp(const CBlip & o) const
-{
-    if (m_ID == o.m_ID)
-    {
-        return 0;
-    }
-    else if (m_ID > o.m_ID)
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CBlip::ToString() const
 {
     return m_Tag;
@@ -310,7 +293,6 @@ void Register_CBlip(HSQUIRRELVM vm)
         Class< CBlip, NoConstructor< CBlip > >(vm, Typename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        .Func(_SC("_cmp"), &CBlip::Cmp)
         .Func(_SC("_tostring"), &CBlip::ToString)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CBlip::Max)
