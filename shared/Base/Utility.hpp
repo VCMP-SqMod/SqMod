@@ -34,6 +34,23 @@ extern PluginCallbacks*     _Clbk;
 extern PluginInfo*          _Info;
 
 /* ------------------------------------------------------------------------------------------------
+ * Helper to register pure typename functions for better performance.
+*/
+#define SQMODE_DECL_TYPENAME(t, s) /*
+*/ namespace { /*
+*/  struct t { /*
+*/   static const SQChar Str[]; /*
+*/   static SQInteger Fn(HSQUIRRELVM vm); /*
+*/  }; /*
+*/  const SQChar t::Str[] = s; /*
+*/  SQInteger t::Fn(HSQUIRRELVM vm) { /*
+*/   sq_pushstring(vm, Str, sizeof(Str) / sizeof(SQChar)); /*
+*/   return 1; /*
+*/  } /*
+*/ } /*
+*/
+
+/* ------------------------------------------------------------------------------------------------
  * Retrieve the temporary buffer.
 */
 SStr GetTempBuff();
