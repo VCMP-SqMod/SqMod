@@ -16,6 +16,9 @@ namespace SqMod {
 #define STOVAL(v) static_cast< Quaternion::Value >(v)
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("Quaternion"))
+
+// ------------------------------------------------------------------------------------------------
 const Quaternion Quaternion::NIL(0);
 const Quaternion Quaternion::MIN(std::numeric_limits< Quaternion::Value >::min());
 const Quaternion Quaternion::MAX(std::numeric_limits< Quaternion::Value >::max());
@@ -23,14 +26,6 @@ const Quaternion Quaternion::IDENTITY(1.0, 0.0, 0.0, 0.0);
 
 // ------------------------------------------------------------------------------------------------
 SQChar Quaternion::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Quaternion::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("Quaternion");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 Quaternion::Quaternion()
@@ -792,7 +787,7 @@ void Register_Quaternion(HSQUIRRELVM vm)
 {
     typedef Quaternion::Value Val;
 
-    RootTable(vm).Bind(_SC("Quaternion"), Class< Quaternion >(vm, _SC("Quaternion"))
+    RootTable(vm).Bind(Typename::Str, Class< Quaternion >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()
@@ -808,9 +803,9 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Var(_SC("Z"), &Quaternion::z)
         .Var(_SC("W"), &Quaternion::w)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &Quaternion::ToString)
-        .SquirrelFunc(_SC("_typename"), &Quaternion::Typename)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &Quaternion::ToString)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
