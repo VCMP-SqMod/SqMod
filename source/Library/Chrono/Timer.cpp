@@ -70,7 +70,8 @@ Int64 Timer::GetElapsedTimeRaw() const
 // ================================================================================================
 void Register_ChronoTimer(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(Typename::Str, Class< Timer >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Timer >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const Timer & >()

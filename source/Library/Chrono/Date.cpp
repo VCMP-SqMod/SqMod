@@ -368,7 +368,8 @@ Timestamp Date::GetTimestamp() const
 // ================================================================================================
 void Register_ChronoDate(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(Typename::Str, Class< Date >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Date >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Uint16 >()

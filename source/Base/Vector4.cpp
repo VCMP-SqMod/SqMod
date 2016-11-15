@@ -538,7 +538,8 @@ void Register_Vector4(HSQUIRRELVM vm)
 {
     typedef Vector4::Value Val;
 
-    RootTable(vm).Bind(Typename::Str, Class< Vector4 >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Vector4 >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()

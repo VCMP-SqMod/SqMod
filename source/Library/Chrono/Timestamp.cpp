@@ -129,7 +129,8 @@ static Timestamp SqGetYears(SQFloat ammount)
 // ================================================================================================
 void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(Typename::Str, Class< Timestamp >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Timestamp >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const Timestamp & >()

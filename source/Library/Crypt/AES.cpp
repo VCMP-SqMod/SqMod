@@ -133,14 +133,15 @@ String AES256::Decrypt(CSStr data)
 // ================================================================================================
 void Register_AES(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(Typename::Str, Class< AES256 >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< AES256 >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< CSStr >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        .Func(_SC("cmp"), &AES256::Cmp)
         .Func(_SC("_tostring"), &AES256::ToString)
+        .Func(_SC("cmp"), &AES256::Cmp)
         /* Properties */
         .Prop(_SC("Key"), &AES256::GetKey)
         /* Functions */

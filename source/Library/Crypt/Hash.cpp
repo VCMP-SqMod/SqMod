@@ -52,7 +52,8 @@ template < class T > static SQInteger HashF(HSQUIRRELVM vm)
 template < class T > static void RegisterWrapper(Table & hashns, CCStr cname)
 {
     typedef HashWrapper< T > Hash;
-    hashns.Bind(cname, Class< Hash >(hashns.GetVM(), cname)
+    hashns.Bind(cname,
+        Class< Hash >(hashns.GetVM(), cname)
         // Constructors
         .Ctor()
         // Meta-methods

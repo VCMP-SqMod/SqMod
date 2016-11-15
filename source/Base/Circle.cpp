@@ -540,7 +540,8 @@ void Register_Circle(HSQUIRRELVM vm)
 {
     typedef Circle::Value Val;
 
-    RootTable(vm).Bind(Typename::Str, Class< Circle >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Circle >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()

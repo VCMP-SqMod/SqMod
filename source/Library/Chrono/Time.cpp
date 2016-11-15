@@ -415,7 +415,8 @@ Timestamp Time::GetTimestamp() const
 // ================================================================================================
 void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(Typename::Str, Class< Time >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Time >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Uint8 >()

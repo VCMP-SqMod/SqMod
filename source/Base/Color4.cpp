@@ -757,7 +757,8 @@ void Register_Color4(HSQUIRRELVM vm)
 {
     typedef Color4::Value Val;
 
-    RootTable(vm).Bind(Typename::Str, Class< Color4 >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Color4 >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()

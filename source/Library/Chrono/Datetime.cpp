@@ -748,7 +748,8 @@ Timestamp Datetime::GetTimestamp() const
 // ================================================================================================
 void Register_ChronoDatetime(HSQUIRRELVM vm, Table & /*cns*/)
 {
-    RootTable(vm).Bind(Typename::Str, Class< Datetime >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Datetime >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Uint16 >()

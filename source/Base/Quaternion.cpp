@@ -787,7 +787,8 @@ void Register_Quaternion(HSQUIRRELVM vm)
 {
     typedef Quaternion::Value Val;
 
-    RootTable(vm).Bind(Typename::Str, Class< Quaternion >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Quaternion >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()

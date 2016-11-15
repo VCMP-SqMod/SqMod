@@ -712,7 +712,8 @@ void Register_Color3(HSQUIRRELVM vm)
 {
     typedef Color3::Value Val;
 
-    RootTable(vm).Bind(Typename::Str, Class< Color3 >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Color3 >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()

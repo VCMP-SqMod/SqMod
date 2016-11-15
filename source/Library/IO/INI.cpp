@@ -371,8 +371,8 @@ void Register_INI(HSQUIRRELVM vm)
         .Ctor< const IniResult & >()
         // Core Meta-methods
         .SquirrelFunc(_SC("_typename"), &ResultTypename::Fn)
-        .Func(_SC("cmp"), &IniResult::Cmp)
         .Func(_SC("_tostring"), &IniResult::ToString)
+        .Func(_SC("cmp"), &IniResult::Cmp)
         // Properties
         .Prop(_SC("Valid"), &IniResult::IsValid)
         .Prop(_SC("Action"), &IniResult::GetAction)
@@ -388,8 +388,8 @@ void Register_INI(HSQUIRRELVM vm)
         .Ctor< const Entries & >()
         // Core Meta-methods
         .SquirrelFunc(_SC("_typename"), &EntriesTypename::Fn)
-        .Func(_SC("cmp"), &Entries::Cmp)
         .Func(_SC("_tostring"), &Entries::ToString)
+        .Func(_SC("cmp"), &Entries::Cmp)
         // Properties
         .Prop(_SC("Valid"), &Entries::IsValid)
         .Prop(_SC("Empty"), &Entries::IsEmpty)
@@ -418,8 +418,8 @@ void Register_INI(HSQUIRRELVM vm)
         .Ctor< bool, bool, bool >()
         // Core Meta-methods
         .SquirrelFunc(_SC("_typename"), &DocumentTypename::Fn)
-        .Func(_SC("cmp"), &Document::Cmp)
         .Func(_SC("_tostring"), &Document::ToString)
+        .Func(_SC("cmp"), &Document::Cmp)
         // Properties
         .Prop(_SC("Valid"), &Document::IsValid)
         .Prop(_SC("Empty"), &Document::IsEmpty)

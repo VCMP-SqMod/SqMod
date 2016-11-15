@@ -817,7 +817,8 @@ void Register_AABB(HSQUIRRELVM vm)
 {
     typedef AABB::Value Val;
 
-    RootTable(vm).Bind(Typename::Str, Class< AABB >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< AABB >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const AABB & >()

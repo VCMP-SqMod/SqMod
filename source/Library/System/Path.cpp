@@ -1714,15 +1714,16 @@ SysPath SysPath::MakeDynamic(CSStr path)
 // ================================================================================================
 void Register_SysPath(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(Typename::Str, Class< SysPath >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< SysPath >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< CSStr >()
         .Ctor< CSStr, Int32 >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        .Func(_SC("cmp"), &SysPath::Cmp)
         .Func(_SC("_tostring"), &SysPath::ToString)
+        .Func(_SC("cmp"), &SysPath::Cmp)
         // Properties
         .Prop(_SC("String"), &SysPath::ToString, &SysPath::FromString)
         .Prop(_SC("IsAbs"), &SysPath::IsAbsolute)

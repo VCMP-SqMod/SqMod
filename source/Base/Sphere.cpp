@@ -541,7 +541,8 @@ void Register_Sphere(HSQUIRRELVM vm)
 {
     typedef Sphere::Value Val;
 
-    RootTable(vm).Bind(Typename::Str, Class< Sphere >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Sphere >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()

@@ -119,7 +119,8 @@ void LongInt< Uint64 >::Random(Type m, Type n)
 // ================================================================================================
 void Register_LongInt(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(TypenameS::Str, Class< SLongInt >(vm, TypenameS::Str)
+    RootTable(vm).Bind(TypenameS::Str,
+        Class< SLongInt >(vm, TypenameS::Str)
         // Constructors
         .Ctor()
         .Ctor< SLongInt::Type >()
@@ -155,7 +156,8 @@ void Register_LongInt(HSQUIRRELVM vm)
         .Overload< void (SLongInt::*)(SLongInt::Type, SLongInt::Type) >(_SC("Random"), &SLongInt::Random)
     );
 
-    RootTable(vm).Bind(TypenameU::Str, Class< ULongInt >(vm, TypenameU::Str)
+    RootTable(vm).Bind(TypenameU::Str,
+        Class< ULongInt >(vm, TypenameU::Str)
         // Constructors
         .Ctor()
         .Ctor< ULongInt::Type >()

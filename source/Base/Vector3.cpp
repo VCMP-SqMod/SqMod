@@ -693,7 +693,8 @@ void Register_Vector3(HSQUIRRELVM vm)
 {
     typedef Vector3::Value Val;
 
-    RootTable(vm).Bind(Typename::Str, Class< Vector3 >(vm, Typename::Str)
+    RootTable(vm).Bind(Typename::Str,
+        Class< Vector3 >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< Val >()

@@ -1027,8 +1027,8 @@ void Register(HSQUIRRELVM vm)
         Class< Manager, NoCopy< Manager > >(vm, ManagerTypename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &ManagerTypename::Fn)
-        .Func(_SC("cmp"), &Manager::Cmp)
         .Func(_SC("_tostring"), &Manager::ToString)
+        .Func(_SC("cmp"), &Manager::Cmp)
         // Member Properties
         .Prop(_SC("Count"), &Manager::GetCount)
         .Prop(_SC("References"), &Manager::GetRefCount)
@@ -1074,8 +1074,8 @@ void Register(HSQUIRRELVM vm)
         .Ctor< CSStr, CSStr, Array &, Uint8, Uint8, SQInteger, bool, bool >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &ListenerTypename::Fn)
-        .Func(_SC("cmp"), &Listener::Cmp)
         .Func(_SC("_tostring"), &Listener::ToString)
+        .Func(_SC("cmp"), &Listener::Cmp)
         // Member Properties
         .Prop(_SC("References"), &Listener::GetRefCount)
         .Prop(_SC("Attached"), &Listener::Attached)
