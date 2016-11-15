@@ -392,36 +392,12 @@ public:
     Signal & operator = (Signal && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare two instances of this type.
-    */
-    Int32 Cmp(const Signal & o) const
-    {
-        if (m_Name == o.m_Name)
-        {
-            return 0;
-        }
-        else if (m_Name > o.m_Name)
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
     const String & ToString() const
     {
         return m_Name;
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.

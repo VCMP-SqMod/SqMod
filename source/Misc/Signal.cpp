@@ -5,16 +5,11 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-Signal::SignalContainer Signal::s_Signals;
-Signal::FreeSignals     Signal::s_FreeSignals;
+SQMODE_DECL_TYPENAME(Typename, _SC("SqSignalWrapper"))
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Signal::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqSignal");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+Signal::SignalContainer Signal::s_Signals;
+Signal::FreeSignals     Signal::s_FreeSignals;
 
 // ------------------------------------------------------------------------------------------------
 void Signal::Terminate()
@@ -1017,11 +1012,10 @@ static SQInteger SqFetchSignal(HSQUIRRELVM vm)
 // ================================================================================================
 void Register_Signal(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqSignalWrapper"),
-        Class< Signal, NoConstructor< Signal > >(vm, _SC("SqSignalWrapper"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< Signal, NoConstructor< Signal > >(vm, Typename::Str)
         // Meta-methods
-        .Func(_SC("_cmp"), &Signal::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Signal::Typename)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Signal::ToString)
         // Core Properties
         .Prop(_SC("Data"), &Signal::GetData, &Signal::SetData)
