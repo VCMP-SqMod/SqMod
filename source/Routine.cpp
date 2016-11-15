@@ -10,18 +10,13 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqRoutine"))
+
+// ------------------------------------------------------------------------------------------------
 Routine::Time       Routine::s_Last = 0;
 Routine::Time       Routine::s_Prev = 0;
 Routine::Routines   Routine::s_Routines;
 Routine::Objects    Routine::s_Objects;
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Routine::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqRoutine");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 void Routine::Process()
@@ -983,13 +978,12 @@ void TerminateRoutines()
 // ================================================================================================
 void Register_Routine(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqRoutine"),
-        Class< Routine, NoConstructor< Routine > >(vm, _SC("SqRoutine"))
+    RootTable(vm).Bind(Typename::Str,
+        Class< Routine, NoConstructor< Routine > >(vm, Typename::Str)
         // Meta-methods
-        .Func(_SC("_tostring"), &Routine::ToString)
-        .SquirrelFunc(_SC("_typename"), &Routine::Typename)
-        // We cannot set _cmp for c++ classes so we use this instead
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Routine >, SQInteger, SQFloat, bool, std::nullptr_t, Routine >)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &Routine::ToString)
         // Properties
         .Prop(_SC("Tag"), &Routine::GetTag, &Routine::SetTag)
         .Prop(_SC("Data"), &Routine::GetData, &Routine::SetData)
