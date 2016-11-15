@@ -8,20 +8,15 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("AABB"))
+
+// ------------------------------------------------------------------------------------------------
 const AABB AABB::NIL = AABB(0, 0);
 const AABB AABB::MIN = AABB(-1, -1, -1, 1, 1, 1);
 const AABB AABB::MAX = AABB(HUGE_VALF, -HUGE_VALF);
 
 // ------------------------------------------------------------------------------------------------
 SQChar AABB::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-SQInteger AABB::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("AABB");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
 
 // ------------------------------------------------------------------------------------------------
 AABB::AABB()
@@ -822,7 +817,7 @@ void Register_AABB(HSQUIRRELVM vm)
 {
     typedef AABB::Value Val;
 
-    RootTable(vm).Bind(_SC("AABB"), Class< AABB >(vm, _SC("AABB"))
+    RootTable(vm).Bind(Typename::Str, Class< AABB >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const AABB & >()
@@ -835,10 +830,9 @@ void Register_AABB(HSQUIRRELVM vm)
         .Var(_SC("Min"), &AABB::min)
         .Var(_SC("Max"), &AABB::max)
         // Core Meta-methods
-        .Func(_SC("_tostring"), &AABB::ToString)
-        .SquirrelFunc(_SC("_typename"), &AABB::Typename)
-        // We cannot set _cmp for c++ classes so we use this instead
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &AABB::ToString)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
