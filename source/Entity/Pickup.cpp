@@ -3,6 +3,7 @@
 #include "Entity/Player.hpp"
 #include "Base/Vector3.hpp"
 #include "Core.hpp"
+#include "Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -494,6 +495,9 @@ void Register_CPickup(HSQUIRRELVM vm)
             (_SC("Create"), &Pickup_Create)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CPickup::SqGetNull)
+        .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CPickup, ENT_PICKUP >)
+        .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CPickup, ENT_PICKUP >)
+        .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CPickup, ENT_PICKUP >)
     );
 }
 

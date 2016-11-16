@@ -43,10 +43,15 @@ namespace SqMod {
 extern bool RegisterAPI(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
+extern void InitializeTasks();
 extern void InitializeRoutines();
+extern void TerminateTasks();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
+
+// ------------------------------------------------------------------------------------------------
+extern void CleanupTasks(Int32 id, Int32 type);
 
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(CSStr path);
@@ -353,8 +358,9 @@ bool Core::Initialize()
         }
     }
 
-    // Initialize routines
+    // Initialize routines and tasks
     InitializeRoutines();
+    InitializeTasks();
 
     // Initialization successful
     return true;
@@ -478,8 +484,9 @@ void Core::Terminate(bool shutdown)
     const ContainerCleaner cc_blips(m_Blips, ENT_BLIP, !shutdown);
     const ContainerCleaner cc_keybinds(m_Keybinds, ENT_KEYBIND, !shutdown);
     cLogDbg(m_Verbosity >= 1, "Terminating routines an commands");
-    // Release all resources from routines
+    // Release all resources from routines and tasks
     TerminateRoutines();
+    TerminateTasks();
     // Release all resources from command managers
     TerminateCommands();
     // Release all resources from signals
@@ -956,6 +963,8 @@ void Core::BlipInst::Destroy(bool destroy, Int32 header, Object & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+    // Release tasks, if any
+    CleanupTasks(mID, ENT_BLIP);
     // Are we supposed to clean up this entity? (only at reload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
@@ -995,6 +1004,8 @@ void Core::CheckpointInst::Destroy(bool destroy, Int32 header, Object & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+    // Release tasks, if any
+    CleanupTasks(mID, ENT_CHECKPOINT);
     // Are we supposed to clean up this entity? (only at reload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
@@ -1034,6 +1045,8 @@ void Core::KeybindInst::Destroy(bool destroy, Int32 header, Object & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+    // Release tasks, if any
+    CleanupTasks(mID, ENT_KEYBIND);
     // Are we supposed to clean up this entity? (only at reload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
@@ -1073,6 +1086,8 @@ void Core::ObjectInst::Destroy(bool destroy, Int32 header, Object & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+    // Release tasks, if any
+    CleanupTasks(mID, ENT_OBJECT);
     // Are we supposed to clean up this entity? (only at reload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
@@ -1112,6 +1127,8 @@ void Core::PickupInst::Destroy(bool destroy, Int32 header, Object & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+    // Release tasks, if any
+    CleanupTasks(mID, ENT_PICKUP);
     // Are we supposed to clean up this entity? (only at reload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
@@ -1153,6 +1170,8 @@ void Core::PlayerInst::Destroy(bool /*destroy*/, Int32 header, Object & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+    // Release tasks, if any
+    CleanupTasks(mID, ENT_PLAYER);
     // Reset the instance to it's initial state
     Core::ResetInst(*this);
     // Don't release the callbacks abruptly
@@ -1184,6 +1203,8 @@ void Core::VehicleInst::Destroy(bool destroy, Int32 header, Object & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+    // Release tasks, if any
+    CleanupTasks(mID, ENT_VEHICLE);
     // Are we supposed to clean up this entity? (only at reload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {

@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Keybind.hpp"
 #include "Core.hpp"
+#include "Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -240,6 +241,9 @@ void Register_CKeybind(HSQUIRRELVM vm)
             (_SC("Create"), &Keybind_Create)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CKeybind::SqGetNull)
+        .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CKeybind, ENT_KEYBIND >)
+        .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CKeybind, ENT_KEYBIND >)
+        .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CKeybind, ENT_KEYBIND >)
     );
 }
 

@@ -14,6 +14,7 @@ static bool g_Reload = false;
 
 // ------------------------------------------------------------------------------------------------
 extern void InitExports();
+extern void ProcessTasks();
 extern void ProcessRoutines();
 
 /* ------------------------------------------------------------------------------------------------
@@ -175,8 +176,9 @@ static void OnServerFrame(float elapsed_time)
         Core::Get().EmitServerFrame(elapsed_time);
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnServerFrame)
-    // Process routines, if any
+    // Process routines and tasks, if any
     ProcessRoutines();
+    ProcessTasks();
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
 }

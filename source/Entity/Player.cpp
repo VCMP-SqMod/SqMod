@@ -6,6 +6,7 @@
 #include "Base/Vector3.hpp"
 #include "Library/Utils/Buffer.hpp"
 #include "Core.hpp"
+#include "Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstring>
@@ -2529,6 +2530,9 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("Text"), &CPlayer::Announce)
         .SquirrelFunc(_SC("TextEx"), &CPlayer::AnnounceEx)
         .SquirrelFunc(_SC("NullInst"), &CPlayer::SqGetNull)
+        .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CPlayer, ENT_PLAYER >)
+        .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CPlayer, ENT_PLAYER >)
+        .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CPlayer, ENT_PLAYER >)
     );
 }
 

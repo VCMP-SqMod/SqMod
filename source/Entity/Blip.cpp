@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
 #include "Core.hpp"
+#include "Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -357,6 +358,9 @@ void Register_CBlip(HSQUIRRELVM vm)
             (_SC("Create"), &Blip_Create)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CBlip::SqGetNull)
+        .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CBlip, ENT_BLIP >)
+        .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CBlip, ENT_BLIP >)
+        .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CBlip, ENT_BLIP >)
     );
 }
 

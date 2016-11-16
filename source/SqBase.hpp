@@ -636,6 +636,7 @@ enum EntityType
 */
 
 #define SQMOD_STACK_SIZE            2048
+#define SQMOD_MAX_TASKS             1024
 #define SQMOD_MAX_ROUTINES          1024
 #define SQMOD_MAX_CMD_ARGS          12
 #define SQMOD_PLAYER_MSG_PREFIXES   16
