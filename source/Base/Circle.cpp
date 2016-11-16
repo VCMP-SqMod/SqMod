@@ -409,9 +409,9 @@ void Circle::SetPositionEx(Value nx, Value ny)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::SetStr(CSStr values, SQChar delim)
+void Circle::SetStr(SQChar delim, const StackStrF & values)
 {
-    SetCircle(Circle::Get(values, delim));
+    SetCircle(Circle::GetEx(delim, values));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -468,13 +468,13 @@ Circle Circle::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Circle & Circle::Get(CSStr str)
+const Circle & Circle::Get(const StackStrF & str)
 {
-    return Circle::Get(str, Circle::Delim);
+    return Circle::GetEx(Circle::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Circle & Circle::Get(CSStr str, SQChar delim)
+const Circle & Circle::GetEx(SQChar delim, const StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f ");
@@ -482,7 +482,7 @@ const Circle & Circle::Get(CSStr str, SQChar delim)
     // Clear previous values, if any
     circle.Clear();
     // Is the specified string empty?
-    if (!str || *str == '\0')
+    if (str.mLen <= 0)
     {
         return circle; // Return the value as is!
     }
@@ -490,7 +490,7 @@ const Circle & Circle::Get(CSStr str, SQChar delim)
     fs[4] = delim;
     fs[9] = delim;
     // Attempt to extract the component values from the specified string
-    std::sscanf(str, fs, &circle.pos.x, &circle.pos.y, &circle.rad);
+    std::sscanf(str.mPtr, fs, &circle.pos.x, &circle.pos.y, &circle.rad);
     // Return the resulted value
     return circle;
 }
@@ -574,19 +574,18 @@ void Register_Circle(HSQUIRRELVM vm)
         .Func(_SC("SetPosition"), &Circle::SetPosition)
         .Func(_SC("SetPosEx"), &Circle::SetPositionEx)
         .Func(_SC("SetPositionEx"), &Circle::SetPositionEx)
-        .Func(_SC("SetStr"), &Circle::SetStr)
+        .FmtFunc(_SC("SetStr"), &Circle::SetStr)
         .Func(_SC("Clear"), &Circle::Clear)
         // Member Overloads
         .Overload< void (Circle::*)(void) >(_SC("Generate"), &Circle::Generate)
         .Overload< void (Circle::*)(Val, Val, bool) >(_SC("Generate"), &Circle::Generate)
         .Overload< void (Circle::*)(Val, Val, Val, Val) >(_SC("Generate"), &Circle::Generate)
         .Overload< void (Circle::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Circle::Generate)
-        // Static Overloads
-        .StaticOverload< const Circle & (*)(CSStr) >(_SC("FromStr"), &Circle::Get)
-        .StaticOverload< const Circle & (*)(CSStr, SQChar) >(_SC("FromStr"), &Circle::Get)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Circle >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Circle >)
+        .StaticFmtFunc(_SC("FromStr"), &Circle::Get)
+        .StaticFmtFunc(_SC("FromStrEx"), &Circle::GetEx)
         // Operator Exposure
         .Func< Circle & (Circle::*)(const Circle &) >(_SC("opAddAssign"), &Circle::operator +=)
         .Func< Circle & (Circle::*)(const Circle &) >(_SC("opSubAssign"), &Circle::operator -=)

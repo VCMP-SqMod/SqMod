@@ -376,7 +376,7 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(CSStr values, SQChar delim);
+    void SetStr(SQChar delim, const StackStrF & values);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized and positioned circle.
@@ -415,13 +415,12 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Circle type from a string.
     */
-    static const Circle & Get(CSStr str);
+    static const Circle & Get(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Circle type from a string.
     */
-    static const Circle & Get(CSStr str, SQChar delim);
-
+    static const Circle & GetEx(SQChar delim, const StackStrF & str);
 };
 
 } // Namespace:: SqMod
