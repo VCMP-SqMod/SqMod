@@ -77,7 +77,7 @@ void CObject::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CObject & CObject::ApplyTag(StackStrF & tag)
+CObject & CObject::ApplyTag(const StackStrF & tag)
 {
     SetTag(tag);
     return *this;

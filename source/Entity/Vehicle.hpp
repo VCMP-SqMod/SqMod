@@ -149,7 +149,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    CVehicle & ApplyTag(StackStrF & tag);
+    CVehicle & ApplyTag(const StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.

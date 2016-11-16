@@ -64,7 +64,7 @@ void CBlip::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CBlip & CBlip::ApplyTag(StackStrF & tag)
+CBlip & CBlip::ApplyTag(const StackStrF & tag)
 {
     SetTag(tag);
     return *this;

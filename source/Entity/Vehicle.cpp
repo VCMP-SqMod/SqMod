@@ -73,7 +73,7 @@ void CVehicle::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CVehicle & CVehicle::ApplyTag(StackStrF & tag)
+CVehicle & CVehicle::ApplyTag(const StackStrF & tag)
 {
     SetTag(tag);
     return *this;

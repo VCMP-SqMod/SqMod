@@ -56,7 +56,7 @@ Object Signal::CreateFree()
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Signal::Create(StackStrF & name)
+Object Signal::Create(const StackStrF & name)
 {
     // Validate the signal name
     if (name.mLen <= 0)
@@ -92,7 +92,7 @@ Object Signal::Create(StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Signal::Remove(StackStrF & name)
+void Signal::Remove(const StackStrF & name)
 {
     // Validate the signal name
     if (name.mLen <= 0)
@@ -126,7 +126,7 @@ void Signal::Remove(StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Signal::Fetch(StackStrF & name)
+Object Signal::Fetch(const StackStrF & name)
 {
     // Validate the signal name
     if (name.mLen <= 0)

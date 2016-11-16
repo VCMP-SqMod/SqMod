@@ -56,7 +56,7 @@ CCStr GetWeaponName(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetWeaponName(Uint32 id, StackStrF & name)
+void SetWeaponName(Uint32 id, const StackStrF & name)
 {
     if (id <= 70)
     {
@@ -65,7 +65,7 @@ void SetWeaponName(Uint32 id, StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetWeaponID(StackStrF & name)
+Int32 GetWeaponID(const StackStrF & name)
 {
     // Clone the string into an editable version
     String str(name.mPtr, name.mLen);

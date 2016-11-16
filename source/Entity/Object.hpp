@@ -161,7 +161,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    CObject & ApplyTag(StackStrF & tag);
+    CObject & ApplyTag(const StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.

@@ -635,7 +635,7 @@ void Routine::SetData(Object & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-Routine & Routine::ApplyTag(StackStrF & tag)
+Routine & Routine::ApplyTag(const StackStrF & tag)
 {
     if (tag.mLen)
     {

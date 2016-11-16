@@ -64,7 +64,7 @@ void CKeybind::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CKeybind & CKeybind::ApplyTag(StackStrF & tag)
+CKeybind & CKeybind::ApplyTag(const StackStrF & tag)
 {
     SetTag(tag);
     return *this;

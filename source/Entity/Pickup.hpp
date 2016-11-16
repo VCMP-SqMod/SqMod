@@ -143,7 +143,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    CPickup & ApplyTag(StackStrF & tag);
+    CPickup & ApplyTag(const StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.

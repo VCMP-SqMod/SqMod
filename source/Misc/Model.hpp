@@ -15,7 +15,7 @@ CSStr GetModelName(Int32 id);
 /* ------------------------------------------------------------------------------------------------
  * Modify the name associated with a model identifier.
 */
-void SetModelName(Int32 id, StackStrF & name);
+void SetModelName(Int32 id, const StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * See whether the given model identifier is used a weapon model.

@@ -124,7 +124,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    CKeybind & ApplyTag(StackStrF & tag);
+    CKeybind & ApplyTag(const StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.

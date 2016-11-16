@@ -145,7 +145,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    CCheckpoint & ApplyTag(StackStrF & tag);
+    CCheckpoint & ApplyTag(const StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.

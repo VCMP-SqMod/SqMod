@@ -99,7 +99,7 @@ void CPlayer::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CPlayer & CPlayer::ApplyTag(StackStrF & tag)
+CPlayer & CPlayer::ApplyTag(const StackStrF & tag)
 {
     SetTag(tag);
     return *this;
@@ -331,7 +331,7 @@ CSStr CPlayer::GetName() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetName(StackStrF & name) const
+void CPlayer::SetName(const StackStrF & name) const
 {
     // Validate the managed identifier
     Validate();
@@ -1469,7 +1469,7 @@ const String & CPlayer::GetMessagePrefix(Uint32 index) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetMessagePrefix(Uint32 index, StackStrF & prefix)
+void CPlayer::SetMessagePrefix(Uint32 index, const StackStrF & prefix)
 {
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
@@ -1646,7 +1646,7 @@ void CPlayer::StreamFloat(SQFloat val)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::StreamString(StackStrF & val)
+void CPlayer::StreamString(const StackStrF & val)
 {
     // Validate the managed identifier
     Validate();
@@ -1660,7 +1660,7 @@ void CPlayer::StreamString(StackStrF & val)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::StreamRawString(StackStrF & val)
+void CPlayer::StreamRawString(const StackStrF & val)
 {
     // Validate the managed identifier
     Validate();

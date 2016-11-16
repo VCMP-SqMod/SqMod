@@ -888,7 +888,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Run a command under a specific invoker.
     */
-    Int32 Run(Object & invoker, StackStrF & command)
+    Int32 Run(Object & invoker, const StackStrF & command)
     {
         return GetValid()->Run(Guard(m_Controller, invoker), command.mPtr);
     }
@@ -920,7 +920,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Locate and retrieve a command listener by name.
     */
-    const Object & FindByName(StackStrF & name)
+    const Object & FindByName(const StackStrF & name)
     {
         // Validate the specified name
         if (name.mLen <= 0)
@@ -1229,7 +1229,7 @@ public:
             m_ArgSpec[n] = CMDARG_ANY;
         }
         // Apply the specified argument rules/specifications
-        SetSpec(const_cast< StackStrF & >(spec)); // guaranteed the value will not be modified!
+        SetSpec(spec); // guaranteed the value will not be modified!
         // Extract the specified argument tags
         SetArgTags(tags);
         // Set the specified minimum and maximum allowed arguments
@@ -1416,7 +1416,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the name that triggers this command listener instance.
     */
-    void SetName(StackStrF & name)
+    void SetName(const StackStrF & name)
     {
         // Validate the specified name
         ValidateName(name.mPtr);
@@ -1464,7 +1464,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the argument specification string.
     */
-    void SetSpec(StackStrF & spec)
+    void SetSpec(const StackStrF & spec)
     {
         // Attempt to process the specified string
         ProcSpec(spec.mPtr);
@@ -1543,7 +1543,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the help message associated with this command listener instance.
     */
-    void SetHelp(StackStrF & help)
+    void SetHelp(const StackStrF & help)
     {
         if (help.mLen > 0)
         {
@@ -1566,7 +1566,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the informational message associated with this command listener instance.
     */
-    void SetInfo(StackStrF & info)
+    void SetInfo(const StackStrF & info)
     {
         if (info.mLen > 0)
         {
@@ -1831,7 +1831,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the tag of a certain argument.
     */
-    void SetArgTag(Uint32 arg, StackStrF & name)
+    void SetArgTag(Uint32 arg, const StackStrF & name)
     {
         // Perform a range check on the specified argument index
         if (arg >= SQMOD_MAX_CMD_ARGS)

@@ -74,7 +74,7 @@ CSStr GetAutomobileName(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetAutomobileName(Uint32 id, StackStrF & name)
+void SetAutomobileName(Uint32 id, const StackStrF & name)
 {
     if (id >= 130 || id <= 236)
     {
@@ -83,7 +83,7 @@ void SetAutomobileName(Uint32 id, StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetAutomobileID(StackStrF & name)
+Int32 GetAutomobileID(const StackStrF & name)
 {
     // Clone the string into an editable version
     String str(name.mPtr, name.mLen);

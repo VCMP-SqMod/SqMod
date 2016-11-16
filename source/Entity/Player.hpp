@@ -212,7 +212,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    CPlayer & ApplyTag(StackStrF & tag);
+    CPlayer & ApplyTag(const StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
@@ -302,7 +302,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the nick name of the managed player entity.
     */
-    void SetName(StackStrF & name) const;
+    void SetName(const StackStrF & name) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current state of the managed player entity.
@@ -783,7 +783,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the message prefix at the specified index for the managed player entity.
     */
-    void SetMessagePrefix(Uint32 index, StackStrF & prefix);
+    void SetMessagePrefix(Uint32 index, const StackStrF & prefix);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked position changes for the managed player entity.
@@ -878,12 +878,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Write a string to the stream buffer.
     */
-    void StreamString(StackStrF & val);
+    void StreamString(const StackStrF & val);
 
     /* --------------------------------------------------------------------------------------------
      * Write a raw string to the stream buffer.
     */
-    void StreamRawString(StackStrF & val);
+    void StreamRawString(const StackStrF & val);
 
     /* --------------------------------------------------------------------------------------------
      * Send the data in the stream buffer to the client.

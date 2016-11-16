@@ -521,17 +521,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create a new signal with the specified name.
     */
-    static Object Create(StackStrF & name);
+    static Object Create(const StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Remove the signal with the specified name.
     */
-    static void Remove(StackStrF & name);
+    static void Remove(const StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the signal with the specified name.
     */
-    static Object Fetch(StackStrF & name);
+    static Object Fetch(const StackStrF & name);
 };
 
 } // Namespace:: SqMod

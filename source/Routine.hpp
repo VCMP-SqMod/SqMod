@@ -332,7 +332,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag and allow chaining of operations.
     */
-    Routine & ApplyTag(StackStrF & tag);
+    Routine & ApplyTag(const StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user data and allow chaining of operations.

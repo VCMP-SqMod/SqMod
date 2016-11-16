@@ -77,7 +77,7 @@ void CCheckpoint::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CCheckpoint & CCheckpoint::ApplyTag(StackStrF & tag)
+CCheckpoint & CCheckpoint::ApplyTag(const StackStrF & tag)
 {
     SetTag(tag);
     return *this;

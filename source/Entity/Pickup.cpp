@@ -69,7 +69,7 @@ void CPickup::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CPickup & CPickup::ApplyTag(StackStrF & tag)
+CPickup & CPickup::ApplyTag(const StackStrF & tag)
 {
     SetTag(tag);
     return *this;

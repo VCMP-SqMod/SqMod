@@ -15,12 +15,12 @@ CSStr GetWeaponName(Uint32 id);
 /* ------------------------------------------------------------------------------------------------
  * Modify the name associated with a weapon identifier.
 */
-void SetWeaponName(Uint32 id, StackStrF & name);
+void SetWeaponName(Uint32 id, const StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert a weapon name to a weapon identifier.
 */
-Int32 GetWeaponID(StackStrF & name);
+Int32 GetWeaponID(const StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * See whether the specified weapon identifier is valid.
