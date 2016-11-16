@@ -49,7 +49,7 @@ protected:
     // --------------------------------------------------------------------------------------------
     static Time         s_Last; // Last time point.
     static Time         s_Prev; // Previous time point.
-    static Routines     s_Routines; // Buckets of routines grouped by similar intervals.
+    static Routines     s_Routines; // List of routines to be processed.
     static Objects      s_Objects; // List of existing routines and their associated object.
 
 protected:
