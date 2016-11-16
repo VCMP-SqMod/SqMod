@@ -108,9 +108,9 @@ CSStr GetKeyCodeName(Uint8 keycode)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetKeyCodeName(Uint8 keycode, CSStr name)
+void SetKeyCodeName(Uint8 keycode, StackStrF & name)
 {
-    CS_Keycode_Names[keycode].assign(name);
+    CS_Keycode_Names[keycode].assign(name.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -162,15 +162,15 @@ Table GetPluginInfo(Int32 plugin_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 FindPlugin(CSStr name)
+Int32 FindPlugin(StackStrF & name)
 {
-    return _Func->FindPlugin(name);
+    return _Func->FindPlugin(name.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SendPluginCommand(Uint32 identifier, CSStr payload)
+void SendPluginCommand(Uint32 identifier, StackStrF & payload)
 {
-    _Func->SendPluginCommand(identifier, payload);
+    _Func->SendPluginCommand(identifier, payload.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -180,28 +180,12 @@ const ULongInt & GetTime()
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger SendLogMessage(HSQUIRRELVM vm)
+void SendLogMessage(StackStrF & msg)
 {
-    const Int32 top = sq_gettop(vm);
-    // Was the message value specified?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing message value");
-    }
-    // Attempt to generate the string value
-    StackStrF val(vm, 2);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Forward the resulted string value
-    else if (_Func->LogMessage("%s", val.mPtr) == vcmpErrorTooLargeInput)
+    if (_Func->LogMessage("%s", msg.mPtr) == vcmpErrorTooLargeInput)
     {
         STHROWF("Input is too big");
     }
-    // This function does not return a value
-    return 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -283,9 +267,9 @@ CSStr GetServerName()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetServerName(CSStr name)
+void SetServerName(StackStrF & name)
 {
-    _Func->SetServerName(name);
+    _Func->SetServerName(name.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -301,9 +285,9 @@ CSStr GetServerPassword()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetServerPassword(CSStr passwd)
+void SetServerPassword(StackStrF & passwd)
 {
-    _Func->SetServerPassword(passwd);
+    _Func->SetServerPassword(passwd.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -319,24 +303,24 @@ CSStr GetGameModeText()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetGameModeText(CSStr text)
+void SetGameModeText(StackStrF & text)
 {
-    _Func->SetGameModeText(text);
+    _Func->SetGameModeText(text.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CreateRadioStream(CSStr name, CSStr url, bool listed)
+void CreateRadioStream(bool listed, const StackStrF & name, StackStrF & url)
 {
-    if (_Func->AddRadioStream(-1, name, url, listed) == vcmpErrorArgumentOutOfBounds)
+    if (_Func->AddRadioStream(-1, name.mPtr, url.mPtr, listed) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid radio stream identifier");
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void CreateRadioStreamEx(Int32 id, CSStr name, CSStr url, bool listed)
+void CreateRadioStreamEx(Int32 id, bool listed, const StackStrF & name, StackStrF & url)
 {
-    if (_Func->AddRadioStream(id, name, url, listed) == vcmpErrorArgumentOutOfBounds)
+    if (_Func->AddRadioStream(id, name.mPtr, url.mPtr, listed) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid radio stream identifier");
     }
@@ -760,27 +744,27 @@ void SetSpawnCameraLookAtEx(Float32 x, Float32 y, Float32 z)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BanIP(CSStr addr)
+void BanIP(StackStrF & addr)
 {
-    _Func->BanIP(const_cast< SStr >(addr));
+    _Func->BanIP(const_cast< SStr >(addr.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
-bool UnbanIP(CSStr addr)
+bool UnbanIP(StackStrF & addr)
 {
-    return _Func->UnbanIP(const_cast< SStr >(addr));
+    return _Func->UnbanIP(const_cast< SStr >(addr.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsIPBanned(CSStr addr)
+bool IsIPBanned(StackStrF & addr)
 {
-    return _Func->IsIPBanned(const_cast< SStr >(addr));
+    return _Func->IsIPBanned(const_cast< SStr >(addr.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetPlayerIdFromName(CSStr name)
+Int32 GetPlayerIdFromName(StackStrF & name)
 {
-    return _Func->GetPlayerIdFromName(name);
+    return _Func->GetPlayerIdFromName(name.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
