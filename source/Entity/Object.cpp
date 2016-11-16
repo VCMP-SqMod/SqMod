@@ -64,9 +64,23 @@ const String & CObject::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetTag(CSStr tag)
+void CObject::SetTag(const StackStrF & tag)
 {
-    m_Tag.assign(tag);
+    if (tag.mLen > 0)
+    {
+        m_Tag.assign(tag.mPtr, tag.mLen);
+    }
+    else
+    {
+        m_Tag.clear();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+CObject & CObject::ApplyTag(StackStrF & tag)
+{
+    SetTag(tag);
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -888,6 +902,7 @@ void Register_CObject(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CObject::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CObject::BindEvent)
+        .FmtFunc(_SC("SetTag"), &CObject::ApplyTag)
         .Func(_SC("CustomEvent"), &CObject::CustomEvent)
         // Core Overloads
         .Overload< bool (CObject::*)(void) >(_SC("Destroy"), &CObject::Destroy)
