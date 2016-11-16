@@ -51,9 +51,23 @@ const String & CKeybind::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CKeybind::SetTag(CSStr tag)
+void CKeybind::SetTag(const StackStrF & tag)
 {
-    m_Tag.assign(tag);
+    if (tag.mLen > 0)
+    {
+        m_Tag.assign(tag.mPtr, tag.mLen);
+    }
+    else
+    {
+        m_Tag.clear();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+CKeybind & CKeybind::ApplyTag(StackStrF & tag)
+{
+    SetTag(tag);
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -202,6 +216,7 @@ void Register_CKeybind(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CKeybind::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CKeybind::BindEvent)
+        .FmtFunc(_SC("SetTag"), &CKeybind::ApplyTag)
         .Func(_SC("CustomEvent"), &CKeybind::CustomEvent)
         // Core Overloads
         .Overload< bool (CKeybind::*)(void) >(_SC("Destroy"), &CKeybind::Destroy)
