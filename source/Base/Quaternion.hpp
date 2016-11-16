@@ -330,7 +330,7 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(CSStr values, SQChar delim);
+    void SetStr(SQChar delim, const StackStrF & values);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
@@ -443,13 +443,12 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Quaternion type from a string.
     */
-    static const Quaternion & Get(CSStr str);
+    static const Quaternion & Get(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Quaternion type from a string.
     */
-    static const Quaternion & Get(CSStr str, SQChar delim);
-
+    static const Quaternion & GetEx(SQChar delim, const StackStrF & str);
 };
 
 } // Namespace:: SqMod

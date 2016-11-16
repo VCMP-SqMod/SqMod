@@ -431,9 +431,9 @@ void Quaternion::SetVector4(const Vector4 & v)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Quaternion::SetStr(CSStr values, SQChar delim)
+void Quaternion::SetStr(SQChar delim, const StackStrF & values)
 {
-    SetQuaternion(Quaternion::Get(values, delim));
+    SetQuaternion(Quaternion::GetEx(delim, values));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -714,13 +714,13 @@ Quaternion Quaternion::NlerpEx(const Quaternion & quat, Value t, bool shortest_p
 }
 
 // ------------------------------------------------------------------------------------------------
-const Quaternion & Quaternion::Get(CSStr str)
+const Quaternion & Quaternion::Get(const StackStrF & str)
 {
-    return Quaternion::Get(str, Quaternion::Delim);
+    return Quaternion::GetEx(Quaternion::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Quaternion & Quaternion::Get(CSStr str, SQChar delim)
+const Quaternion & Quaternion::GetEx(SQChar delim, const StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
@@ -728,7 +728,7 @@ const Quaternion & Quaternion::Get(CSStr str, SQChar delim)
     // Clear previous values, if any
     quat.Clear();
     // Is the specified string empty?
-    if (!str || *str == '\0')
+    if (str.mLen <= 0)
     {
         return quat; // Return the value as is!
     }
@@ -737,7 +737,7 @@ const Quaternion & Quaternion::Get(CSStr str, SQChar delim)
     fs[9] = delim;
     fs[14] = delim;
     // Attempt to extract the component values from the specified string
-    std::sscanf(str, fs, &quat.x, &quat.y, &quat.z, &quat.w);
+    std::sscanf(str.mPtr, fs, &quat.x, &quat.y, &quat.z, &quat.w);
     // Return the resulted value
     return quat;
 }
@@ -832,7 +832,7 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Func(_SC("SetVector3"), &Quaternion::SetVector3)
         .Func(_SC("SetVector3Ex"), &Quaternion::SetVector3Ex)
         .Func(_SC("SetVector4"), &Quaternion::SetVector4)
-        .Func(_SC("SetStr"), &Quaternion::SetStr)
+        .FmtFunc(_SC("SetStr"), &Quaternion::SetStr)
         .Func(_SC("Clear"), &Quaternion::Clear)
         .Func(_SC("DotProduct"), &Quaternion::DotProduct)
         .Func(_SC("Normalize"), &Quaternion::Normalize)
@@ -845,12 +845,11 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Overload< void (Quaternion::*)(void) >(_SC("Generate"), &Quaternion::Generate)
         .Overload< void (Quaternion::*)(Val, Val) >(_SC("Generate"), &Quaternion::Generate)
         .Overload< void (Quaternion::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Quaternion::Generate)
-        // Static Overloads
-        .StaticOverload< const Quaternion & (*)(CSStr) >(_SC("FromStr"), &Quaternion::Get)
-        .StaticOverload< const Quaternion & (*)(CSStr, SQChar) >(_SC("FromStr"), &Quaternion::Get)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Quaternion >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Quaternion >)
+        .StaticFmtFunc(_SC("FromStr"), &Quaternion::Get)
+        .StaticFmtFunc(_SC("FromStrEx"), &Quaternion::GetEx)
         // Operator Exposure
         .Func< Quaternion & (Quaternion::*)(const Quaternion &) >(_SC("opAddAssign"), &Quaternion::operator +=)
         .Func< Quaternion & (Quaternion::*)(const Quaternion &) >(_SC("opSubAssign"), &Quaternion::operator -=)
