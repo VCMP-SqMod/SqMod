@@ -51,9 +51,23 @@ const String & CBlip::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CBlip::SetTag(CSStr tag)
+void CBlip::SetTag(const StackStrF & tag)
 {
-    m_Tag.assign(tag);
+    if (tag.mLen > 0)
+    {
+        m_Tag.assign(tag.mPtr, tag.mLen);
+    }
+    else
+    {
+        m_Tag.clear();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+CBlip & CBlip::ApplyTag(StackStrF & tag)
+{
+    SetTag(tag);
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -303,6 +317,7 @@ void Register_CBlip(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CBlip::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CBlip::BindEvent)
+        .FmtFunc(_SC("SetTag"), &CBlip::ApplyTag)
         .Func(_SC("CustomEvent"), &CBlip::CustomEvent)
         // Core Overloads
         .Overload< bool (CBlip::*)(void) >(_SC("Destroy"), &CBlip::Destroy)
