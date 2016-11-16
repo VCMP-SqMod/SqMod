@@ -86,9 +86,23 @@ const String & CPlayer::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetTag(CSStr tag)
+void CPlayer::SetTag(const StackStrF & tag)
 {
-    m_Tag.assign(tag);
+    if (tag.mLen > 0)
+    {
+        m_Tag.assign(tag.mPtr, tag.mLen);
+    }
+    else
+    {
+        m_Tag.clear();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+CPlayer & CPlayer::ApplyTag(StackStrF & tag)
+{
+    SetTag(tag);
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -317,12 +331,12 @@ CSStr CPlayer::GetName() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetName(CSStr name) const
+void CPlayer::SetName(StackStrF & name) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    const vcmpError ret = _Func->SetPlayerName(m_ID, name);
+    const vcmpError ret = _Func->SetPlayerName(m_ID, name.mPtr);
     // Validate the resulted status
     if (ret == vcmpErrorNullArgument)
     {
@@ -1354,13 +1368,14 @@ void CPlayer::SetSpectator(CPlayer & target) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::Redirect(CSStr ip, Uint32 port, CSStr nick, CSStr server_pass, CSStr user_pass)
+void CPlayer::Redirect(const StackStrF & ip, Uint32 port, const StackStrF & nick,
+                        const StackStrF & server_pass, const StackStrF & user_pass)
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    if (_Func->RedirectPlayerToServer(m_ID, ip, port,
-                                        nick, server_pass, user_pass) == vcmpErrorNullArgument)
+    if (_Func->RedirectPlayerToServer(m_ID, ip.mPtr, port,
+                                        nick.mPtr, server_pass.mPtr, user_pass.mPtr) == vcmpErrorNullArgument)
     {
         STHROWF("Invalid arguments encountered");
     }
@@ -1454,7 +1469,7 @@ const String & CPlayer::GetMessagePrefix(Uint32 index) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetMessagePrefix(Uint32 index, CSStr prefix)
+void CPlayer::SetMessagePrefix(Uint32 index, StackStrF & prefix)
 {
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
@@ -1464,7 +1479,7 @@ void CPlayer::SetMessagePrefix(Uint32 index, CSStr prefix)
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    mMessagePrefixes[index].assign(prefix);
+    mMessagePrefixes[index].assign(prefix.mPtr, ClampMin(prefix.mLen, 0));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1631,38 +1646,26 @@ void CPlayer::StreamFloat(SQFloat val)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::StreamString(CSStr val)
+void CPlayer::StreamString(StackStrF & val)
 {
     // Validate the managed identifier
     Validate();
-    // Is the given string value even valid?
-    if (!val)
-    {
-        STHROWF("Invalid string argument: null");
-    }
     // Calculate the string length
-    Uint16 length = ConvTo< Uint16 >::From(std::strlen(val));
+    Uint16 length = ConvTo< Uint16 >::From(val.mLen);
     // Change the size endianness to big endian
     Uint16 size = ((length >> 8) & 0xFF) | ((length & 0xFF) << 8);
     // Write the size and then the string contents
     m_Buffer.Push< Uint16 >(size);
-    m_Buffer.AppendS(val, length);
+    m_Buffer.AppendS(val.mPtr, length);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::StreamRawString(CSStr val)
+void CPlayer::StreamRawString(StackStrF & val)
 {
     // Validate the managed identifier
     Validate();
-    // Is the given string value even valid?
-    if (!val)
-    {
-        STHROWF("Invalid string argument: null");
-    }
-    // Calculate the string length
-    Uint16 length = ConvTo< Uint16 >::From(std::strlen(val));
     // Write the the string contents
-    m_Buffer.AppendS(val, length);
+    m_Buffer.AppendS(val.mPtr, ClampMin(val.mLen, 0));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2368,6 +2371,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CPlayer::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CPlayer::BindEvent)
+        .FmtFunc(_SC("SetTag"), &CPlayer::ApplyTag)
         .Func(_SC("CustomEvent"), &CPlayer::CustomEvent)
         // Properties
         .Prop(_SC("Connected"), &CPlayer::IsConnected)
@@ -2447,6 +2451,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Ban"), &CPlayer::Ban)
         .Func(_SC("KickBecause"), &CPlayer::KickBecause)
         .Func(_SC("BanBecause"), &CPlayer::BanBecause)
+        .FmtFunc(_SC("SetName"), &CPlayer::SetName)
         .Func(_SC("GetOption"), &CPlayer::GetOption)
         .Func(_SC("SetOption"), &CPlayer::SetOption)
         .Func(_SC("SetOptionEx"), &CPlayer::SetOptionEx)
@@ -2473,14 +2478,14 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("PlaySound"), &CPlayer::PlaySound)
         .Func(_SC("GetMsgPrefix"), &CPlayer::GetMessagePrefix)
-        .Func(_SC("SetMsgPrefix"), &CPlayer::SetMessagePrefix)
+        .FmtFunc(_SC("SetMsgPrefix"), &CPlayer::SetMessagePrefix)
         .Func(_SC("SetTrackPosition"), &CPlayer::SetTrackPositionEx)
         .Func(_SC("StreamByte"), &CPlayer::StreamByte)
         .Func(_SC("StreamShort"), &CPlayer::StreamShort)
         .Func(_SC("StreamInt"), &CPlayer::StreamInt)
         .Func(_SC("StreamFloat"), &CPlayer::StreamFloat)
-        .Func(_SC("StreamString"), &CPlayer::StreamString)
-        .Func(_SC("StreamRawString"), &CPlayer::StreamRawString)
+        .FmtFunc(_SC("StreamString"), &CPlayer::StreamString)
+        .FmtFunc(_SC("StreamRawString"), &CPlayer::StreamRawString)
         .Func(_SC("FlushStream"), &CPlayer::FlushStream)
         .Func(_SC("SendBuffer"), &CPlayer::SendBuffer)
         // Member Overloads

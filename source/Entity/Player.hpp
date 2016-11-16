@@ -207,7 +207,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    void SetTag(CSStr tag);
+    void SetTag(const StackStrF & tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    CPlayer & ApplyTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
@@ -297,7 +302,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the nick name of the managed player entity.
     */
-    void SetName(CSStr name) const;
+    void SetName(StackStrF & name) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current state of the managed player entity.
@@ -727,7 +732,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.
     */
-    void Redirect(CSStr ip, Uint32 port, CSStr nick, CSStr server_pass, CSStr user_pass);
+    void Redirect(const StackStrF & ip, Uint32 port, const StackStrF & nick,
+                    const StackStrF & server_pass, const StackStrF & user_pass);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the authority level of the managed player entity.
@@ -777,7 +783,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the message prefix at the specified index for the managed player entity.
     */
-    void SetMessagePrefix(Uint32 index, CSStr prefix);
+    void SetMessagePrefix(Uint32 index, StackStrF & prefix);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked position changes for the managed player entity.
@@ -872,12 +878,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Write a string to the stream buffer.
     */
-    void StreamString(CSStr val);
+    void StreamString(StackStrF & val);
 
     /* --------------------------------------------------------------------------------------------
      * Write a raw string to the stream buffer.
     */
-    void StreamRawString(CSStr val);
+    void StreamRawString(StackStrF & val);
 
     /* --------------------------------------------------------------------------------------------
      * Send the data in the stream buffer to the client.
