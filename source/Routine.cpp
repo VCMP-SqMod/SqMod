@@ -604,9 +604,16 @@ const String & Routine::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Routine::SetTag(CSStr tag)
+void Routine::SetTag(const StackStrF & tag)
 {
-    m_Tag.assign(tag ? tag : _SC(""));
+    if (tag.mLen)
+    {
+        m_Tag.assign(tag.mPtr, tag.mLen);
+    }
+    else
+    {
+        m_Tag.clear();
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -628,9 +635,16 @@ void Routine::SetData(Object & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-Routine & Routine::ApplyTag(CSStr tag)
+Routine & Routine::ApplyTag(StackStrF & tag)
 {
-    m_Tag.assign(tag ? tag : _SC(""));
+    if (tag.mLen)
+    {
+        m_Tag.assign(tag.mPtr, tag.mLen);
+    }
+    else
+    {
+        m_Tag.clear();
+    }
     // Allow chaining
     return *this;
 }
@@ -994,7 +1008,7 @@ void Register_Routine(HSQUIRRELVM vm)
         .Prop(_SC("Terminated"), &Routine::GetTerminated)
         .Prop(_SC("Callback"), &Routine::GetCallback)
         // Functions
-        .Func(_SC("SetTag"), &Routine::ApplyTag)
+        .FmtFunc(_SC("SetTag"), &Routine::ApplyTag)
         .Func(_SC("SetData"), &Routine::ApplyData)
         .Func(_SC("Terminate"), &Routine::Terminate)
         .Func(_SC("Bind"), &Routine::SetCallback)

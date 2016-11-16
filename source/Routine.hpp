@@ -240,9 +240,18 @@ public:
     */
     Int32 Cmp(SQInteger interval) const
     {
-        if (m_Interval == interval) return 0;
-        else if (m_Interval > interval) return 1;
-        else return -1;
+        if (m_Interval == interval)
+        {
+            return 0;
+        }
+        else if (m_Interval > interval)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -266,9 +275,18 @@ public:
     */
     Int32 Cmp(bool suspended) const
     {
-        if (m_Suspended == suspended) return 0;
-        else if (m_Suspended > suspended) return 1;
-        else return -1;
+        if (m_Suspended == suspended)
+        {
+            return 0;
+        }
+        else if (m_Suspended > suspended)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -276,8 +294,14 @@ public:
     */
     Int32 Cmp(std::nullptr_t) const
     {
-        if (m_Terminated == true) return 0;
-        else return 1;
+        if (m_Terminated == true)
+        {
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -293,7 +317,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    void SetTag(CSStr tag);
+    void SetTag(const StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
@@ -308,7 +332,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag and allow chaining of operations.
     */
-    Routine & ApplyTag(CSStr tag);
+    Routine & ApplyTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user data and allow chaining of operations.
