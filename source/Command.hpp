@@ -888,9 +888,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Run a command under a specific invoker.
     */
-    Int32 Run(Object & invoker, CSStr command)
+    Int32 Run(Object & invoker, StackStrF & command)
     {
-        return GetValid()->Run(Guard(m_Controller, invoker), command);
+        return GetValid()->Run(Guard(m_Controller, invoker), command.mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -920,9 +920,15 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Locate and retrieve a command listener by name.
     */
-    const Object & FindByName(const String & name)
+    const Object & FindByName(StackStrF & name)
     {
-        return GetValid()->FindByName(name);
+        // Validate the specified name
+        if (name.mLen <= 0)
+        {
+            STHROWF("Invalid or empty command name");
+        }
+        // Attempt to return the requested command
+        return GetValid()->FindByName(String(name.mPtr, name.mLen));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1040,15 +1046,15 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(CSStr name)
+    Object Create(const StackStrF & name)
     {
-        return Create(name, _SC(""), NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
+        return Create(name, StackStrF(), NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(CSStr name, CSStr spec)
+    Object Create(const StackStrF & name, const StackStrF & spec)
     {
         return Create(name, spec, NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
     }
@@ -1056,7 +1062,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(CSStr name, CSStr spec, Array & tags)
+    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags)
     {
         return Create(name, spec, tags, 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
     }
@@ -1064,7 +1070,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(CSStr name, CSStr spec, Uint8 min, Uint8 max)
+    Object Create(const StackStrF & name, const StackStrF & spec, Uint8 min, Uint8 max)
     {
         return Create(name, spec, NullArray(), min, max, -1, false, false);
     }
@@ -1072,7 +1078,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max)
+    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max)
     {
         return Create(name, spec, tags, min, max, -1, false, false);
     }
@@ -1080,7 +1086,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
+    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
     {
         return Create(name, spec, tags, min, max, auth, auth >= 0, false);
     }
@@ -1088,7 +1094,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
+    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
     {
         return Create(name, spec, tags, min, max, auth, prot, false);
     }
@@ -1096,7 +1102,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc);
+    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc);
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -1133,7 +1139,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(CSStr name)
+    Listener(const StackStrF & name)
         : Listener(name, _SC(""), NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false)
     {
         /* ... */
@@ -1142,7 +1148,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(CSStr name, CSStr spec)
+    Listener(const StackStrF & name, const StackStrF & spec)
         : Listener(name, spec, NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false)
     {
         /* ... */
@@ -1151,7 +1157,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(CSStr name, CSStr spec, Array & tags)
+    Listener(const StackStrF & name, const StackStrF & spec, Array & tags)
         : Listener(name, spec, tags, 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false)
     {
         /* ... */
@@ -1160,7 +1166,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(CSStr name, CSStr spec, Uint8 min, Uint8 max)
+    Listener(const StackStrF & name, const StackStrF & spec, Uint8 min, Uint8 max)
         : Listener(name, spec, NullArray(), min, max, -1, false, false)
     {
         /* ... */
@@ -1169,7 +1175,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max)
+    Listener(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max)
         : Listener(name, spec, tags, min, max, -1, false, false)
     {
         /* ... */
@@ -1178,7 +1184,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
+    Listener(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
         : Listener(name, spec, tags, min, max, auth, auth >= 0, false)
     {
         /* ... */
@@ -1187,7 +1193,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
+    Listener(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
         : Listener(name, spec, tags, min, max, auth, prot, false)
     {
         /* ... */
@@ -1196,9 +1202,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Listener(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc)
+    Listener(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc)
         : m_Controller()
-        , m_Name(ValidateName(name))
+        , m_Name(ValidateName(name.mPtr), name.mLen)
         , m_ArgSpec()
         , m_ArgTags()
         , m_MinArgc(0)
@@ -1223,7 +1229,7 @@ public:
             m_ArgSpec[n] = CMDARG_ANY;
         }
         // Apply the specified argument rules/specifications
-        SetSpec(spec);
+        SetSpec(const_cast< StackStrF & >(spec)); // guaranteed the value will not be modified!
         // Extract the specified argument tags
         SetArgTags(tags);
         // Set the specified minimum and maximum allowed arguments
@@ -1410,10 +1416,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the name that triggers this command listener instance.
     */
-    void SetName(CSStr name)
+    void SetName(StackStrF & name)
     {
         // Validate the specified name
-        ValidateName(name);
+        ValidateName(name.mPtr);
         // Is this command already attached to a name?
         if (!m_Controller.Expired() && m_Controller.Lock()->Attached(this))
         {
@@ -1421,13 +1427,13 @@ public:
             // Detach from the current name if necessary
             ctr->Detach(this);
             // Now it's safe to assign the new name
-            m_Name.assign(name);
+            m_Name.assign(name.mPtr, name.mLen);
             // We know the new name is valid
             ctr->Attach(NullObject(), this);
         }
         else
         {
-            m_Name.assign(name); // Just assign the name
+            m_Name.assign(name.mPtr, name.mLen); // Just assign the name
         }
     }
 
@@ -1458,14 +1464,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the argument specification string.
     */
-    void SetSpec(CSStr spec)
+    void SetSpec(StackStrF & spec)
     {
         // Attempt to process the specified string
-        ProcSpec(spec);
+        ProcSpec(spec.mPtr);
         // Assign the specifier, if any
-        if (spec)
+        if (spec.mLen > 0)
         {
-            m_Spec.assign(spec);
+            m_Spec.assign(spec.mPtr, spec.mLen);
         }
         else
         {
@@ -1537,11 +1543,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the help message associated with this command listener instance.
     */
-    void SetHelp(CSStr help)
+    void SetHelp(StackStrF & help)
     {
-        if (help)
+        if (help.mLen > 0)
         {
-            m_Help.assign(help);
+            m_Help.assign(help.mPtr, help.mLen);
         }
         else
         {
@@ -1560,11 +1566,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the informational message associated with this command listener instance.
     */
-    void SetInfo(CSStr info)
+    void SetInfo(StackStrF & info)
     {
-        if (info)
+        if (info.mLen > 0)
         {
-            m_Info.assign(info);
+            m_Info.assign(info.mPtr, info.mLen);
         }
         else
         {
@@ -1825,7 +1831,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the tag of a certain argument.
     */
-    void SetArgTag(Uint32 arg, CSStr name)
+    void SetArgTag(Uint32 arg, StackStrF & name)
     {
         // Perform a range check on the specified argument index
         if (arg >= SQMOD_MAX_CMD_ARGS)
@@ -1833,9 +1839,9 @@ public:
             STHROWF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
         }
         // The string type doesn't appreciate null values
-        else if (name != nullptr)
+        else if (name.mLen > 0)
         {
-            m_ArgTags[arg].assign(name);
+            m_ArgTags[arg].assign(name.mPtr, name.mLen);
         }
         // Clear previous name in this case
         else

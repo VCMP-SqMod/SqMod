@@ -148,7 +148,7 @@ Object & Controller::Attach(Object && obj, Listener * ptr)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Manager::Create(CSStr name, CSStr spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc)
+Object Manager::Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc)
 {
     // Is there a controller to store the listener?
     if (!m_Controller)
@@ -1040,38 +1040,46 @@ void Register(HSQUIRRELVM vm)
         .Prop(_SC("Command"), &Manager::GetCommand)
         .Prop(_SC("Argument"), &Manager::GetArgument)
         // Member Methods
-        .Func(_SC("Run"), &Manager::Run)
+        .FmtFunc(_SC("Run"), &Manager::Run)
         .Func(_SC("Sort"), &Manager::Sort)
         .Func(_SC("Clear"), &Manager::Clear)
         .Func(_SC("Attach"), &Manager::Attach)
-        .Func(_SC("FindByName"), &Manager::FindByName)
+        .FmtFunc(_SC("FindByName"), &Manager::FindByName)
         .Func(_SC("BindFail"), &Manager::SetOnFail)
         .Func(_SC("BindAuth"), &Manager::SetOnAuth)
         .Func(_SC("GetArray"), &Manager::GetCommandsArray)
         .Func(_SC("GetTable"), &Manager::GetCommandsTable)
         .Func(_SC("Foreach"), &Manager::ForeachCommand)
         // Member Overloads
-        .Overload< Object (Manager::*)(CSStr) >(_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(CSStr, CSStr) >(_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(CSStr, CSStr, Array &) >(_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(CSStr, CSStr, Uint8, Uint8) >(_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(CSStr, CSStr, Array &, Uint8, Uint8) >(_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(CSStr, CSStr, Array &, Uint8, Uint8, SQInteger) >(_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(CSStr, CSStr, Array &, Uint8, Uint8, SQInteger, bool) >(_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(CSStr, CSStr, Array &, Uint8, Uint8, SQInteger, bool, bool) >(_SC("Create"), &Manager::Create)
+        .Overload< Object (Manager::*)(const StackStrF &) >
+            (_SC("Create"), &Manager::Create)
+        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &) >
+            (_SC("Create"), &Manager::Create)
+        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &) >
+            (_SC("Create"), &Manager::Create)
+        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Uint8, Uint8) >
+            (_SC("Create"), &Manager::Create)
+        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &, Uint8, Uint8) >
+            (_SC("Create"), &Manager::Create)
+        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger) >
+            (_SC("Create"), &Manager::Create)
+        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger, bool) >
+            (_SC("Create"), &Manager::Create)
+        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger, bool, bool) >
+            (_SC("Create"), &Manager::Create)
     );
 
     cmdns.Bind(_SC("Listener"),
         Class< Listener, NoCopy< Listener > >(vm, ListenerTypename::Str)
         // Constructors
-        .Ctor< CSStr >()
-        .Ctor< CSStr, CSStr >()
-        .Ctor< CSStr, CSStr, Array & >()
-        .Ctor< CSStr, CSStr, Uint8, Uint8 >()
-        .Ctor< CSStr, CSStr, Array &, Uint8, Uint8 >()
-        .Ctor< CSStr, CSStr, Array &, Uint8, Uint8, SQInteger >()
-        .Ctor< CSStr, CSStr, Array &, Uint8, Uint8, SQInteger, bool >()
-        .Ctor< CSStr, CSStr, Array &, Uint8, Uint8, SQInteger, bool, bool >()
+        .Ctor< const StackStrF & >()
+        .Ctor< const StackStrF &, const StackStrF & >()
+        .Ctor< const StackStrF &, const StackStrF &, Array & >()
+        .Ctor< const StackStrF &, const StackStrF &, Uint8, Uint8 >()
+        .Ctor< const StackStrF &, const StackStrF &, Array &, Uint8, Uint8 >()
+        .Ctor< const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger >()
+        .Ctor< const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger, bool >()
+        .Ctor< const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger, bool, bool >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &ListenerTypename::Fn)
         .Func(_SC("_tostring"), &Listener::ToString)
@@ -1100,12 +1108,16 @@ void Register(HSQUIRRELVM vm)
         // Member Methods
         .Func(_SC("Attach"), &Listener::Attach)
         .Func(_SC("Detach"), &Listener::Detach)
+        .FmtFunc(_SC("SetName"), &Listener::SetName)
+        .FmtFunc(_SC("SetSpec"), &Listener::SetSpec)
+        .FmtFunc(_SC("SetHelp"), &Listener::SetHelp)
+        .FmtFunc(_SC("SetInfo"), &Listener::SetInfo)
         .Func(_SC("BindExec"), &Listener::SetOnExec)
         .Func(_SC("BindAuth"), &Listener::SetOnAuth)
         .Func(_SC("BindPost"), &Listener::SetOnPost)
         .Func(_SC("BindFail"), &Listener::SetOnFail)
         .Func(_SC("GetArgTag"), &Listener::GetArgTag)
-        .Func(_SC("SetArgTag"), &Listener::SetArgTag)
+        .FmtFunc(_SC("SetArgTag"), &Listener::SetArgTag)
         .Func(_SC("GetArgFlags"), &Listener::GetArgFlags)
         .Func(_SC("ArgCheck"), &Listener::ArgCheck)
         .Func(_SC("AuthCheck"), &Listener::AuthCheck)
