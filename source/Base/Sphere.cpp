@@ -409,9 +409,9 @@ void Sphere::SetPositionEx(Value nx, Value ny, Value nz)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::SetStr(CSStr values, SQChar delim)
+void Sphere::SetStr(SQChar delim, const StackStrF & values)
 {
-    SetSphere(Sphere::Get(values, delim));
+    SetSphere(Sphere::GetEx(delim, values));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -468,13 +468,13 @@ Sphere Sphere::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Sphere & Sphere::Get(CSStr str)
+const Sphere & Sphere::Get(const StackStrF & str)
 {
-    return Sphere::Get(str, Sphere::Delim);
+    return Sphere::GetEx(Sphere::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Sphere & Sphere::Get(CSStr str, SQChar delim)
+const Sphere & Sphere::GetEx(SQChar delim, const StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
@@ -482,7 +482,7 @@ const Sphere & Sphere::Get(CSStr str, SQChar delim)
     // Clear previous values, if any
     sphere.Clear();
     // Is the specified string empty?
-    if (!str || *str == '\0')
+    if (str.mLen <= 0)
     {
         return sphere; // Return the value as is!
     }
@@ -491,7 +491,7 @@ const Sphere & Sphere::Get(CSStr str, SQChar delim)
     fs[9] = delim;
     fs[14] = delim;
     // Attempt to extract the component values from the specified string
-    std::sscanf(str, fs, &sphere.pos.x, &sphere.pos.y, &sphere.pos.z, &sphere.rad);
+    std::sscanf(str.mPtr, fs, &sphere.pos.x, &sphere.pos.y, &sphere.pos.z, &sphere.rad);
     // Return the resulted value
     return sphere;
 }
@@ -573,19 +573,18 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Func(_SC("SetValues"), &Sphere::SetValues)
         .Func(_SC("SetPosition"), &Sphere::SetPosition)
         .Func(_SC("SetPositionEx"), &Sphere::SetPositionEx)
-        .Func(_SC("SetStr"), &Sphere::SetStr)
+        .FmtFunc(_SC("SetStr"), &Sphere::SetStr)
         .Func(_SC("Clear"), &Sphere::Clear)
         // Member Overloads
         .Overload< void (Sphere::*)(void) >(_SC("Generate"), &Sphere::Generate)
         .Overload< void (Sphere::*)(Val, Val, bool) >(_SC("Generate"), &Sphere::Generate)
         .Overload< void (Sphere::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Sphere::Generate)
         .Overload< void (Sphere::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Sphere::Generate)
-        // Static Overloads
-        .StaticOverload< const Sphere & (*)(CSStr) >(_SC("FromStr"), &Sphere::Get)
-        .StaticOverload< const Sphere & (*)(CSStr, SQChar) >(_SC("FromStr"), &Sphere::Get)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Sphere >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Sphere >)
+        .StaticFmtFunc(_SC("FromStr"), &Sphere::Get)
+        .StaticFmtFunc(_SC("FromStrEx"), &Sphere::GetEx)
         // Operator Exposure
         .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opAddAssign"), &Sphere::operator +=)
         .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opSubAssign"), &Sphere::operator -=)
