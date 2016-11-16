@@ -41,7 +41,7 @@ void Signal::Terminate()
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Signal::Create()
+Object Signal::CreateFree()
 {
     // Remember the current stack size
     const StackGuard sg;
@@ -56,15 +56,17 @@ Object Signal::Create()
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Signal::Create(String name)
+Object Signal::Create(StackStrF & name)
 {
     // Validate the signal name
-    if (name.empty())
+    if (name.mLen <= 0)
     {
-        STHROWF("Empty signal names are not allowed");
+        return CreateFree();
     }
+    // Create a copy of the name
+    String sname(name.mPtr, name.mLen);
     // Compute the hash of the specified name
-    const std::size_t hash = std::hash< String >{}(name);
+    const std::size_t hash = std::hash< String >{}(sname);
     // See if the signal already exists
     for (const auto & e : s_Signals)
     {
@@ -76,7 +78,7 @@ Object Signal::Create(String name)
     // Remember the current stack size
     const StackGuard sg;
     // Create the signal instance
-    DeleteGuard< Signal > dg(new Signal(std::move(name)));
+    DeleteGuard< Signal > dg(new Signal(std::move(sname)));
     // Grab the signal instance pointer
     Signal * ptr = dg.Get();
     // Attempt to create the signal instance
@@ -90,15 +92,17 @@ Object Signal::Create(String name)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Signal::Remove(String name)
+void Signal::Remove(StackStrF & name)
 {
     // Validate the signal name
-    if (name.empty())
+    if (name.mLen <= 0)
     {
-        STHROWF("Empty signal names are not allowed");
+        STHROWF("Signals without names cannot be removed manually");
     }
+    // Create a copy of the name
+    String sname(name.mPtr, name.mLen);
     // Compute the hash of the specified name
-    const std::size_t hash = std::hash< String >{}(name);
+    const std::size_t hash = std::hash< String >{}(sname);
     // Iterator to the existing signal, if any
     SignalContainer::const_iterator itr = s_Signals.cbegin();
     // Search for a signal with this name
@@ -122,15 +126,17 @@ void Signal::Remove(String name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Signal::Fetch(String name)
+Object Signal::Fetch(StackStrF & name)
 {
     // Validate the signal name
-    if (name.empty())
+    if (name.mLen <= 0)
     {
-        STHROWF("Empty signal names are not allowed");
+        STHROWF("Signals without names cannot be retrieved manually");
     }
+    // Create a copy of the name
+    String sname(name.mPtr, name.mLen);
     // Compute the hash of the specified name
-    const std::size_t hash = std::hash< String >{}(name);
+    const std::size_t hash = std::hash< String >{}(sname);
     // Search for a signal with this name
     for (const auto & e : s_Signals)
     {
@@ -140,7 +146,7 @@ Object Signal::Fetch(String name)
         }
     }
     // No such signal exists
-    STHROWF("Unknown signal named (%s)", name.c_str());
+    STHROWF("Unknown signal named (%s)", sname.c_str());
     // SHOULD NOT REACH THIS POINT!
     return NullObject();
 }
@@ -919,96 +925,6 @@ SQInteger Signal::SqRequest(HSQUIRRELVM vm)
     return 0;
 }
 
-// ------------------------------------------------------------------------------------------------
-static SQInteger SqCreateSignal(HSQUIRRELVM vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Was the signal name specified?
-    if (top <= 1)
-    {
-        sq_pushobject(DefaultVM::Get(), Signal::Create());
-    }
-    else
-    {
-        // Attempt to generate the string value
-        StackStrF val(vm, 2);
-        // Have we failed to retrieve the string?
-        if (SQ_FAILED(val.mRes))
-        {
-            return val.mRes; // Propagate the error!
-        }
-        // Create the signal instance and push it on the stack
-        try
-        {
-            sq_pushobject(DefaultVM::Get(), Signal::Create(String(val.mPtr, val.mLen)));
-        }
-        catch (const Sqrat::Exception & e)
-        {
-            return sq_throwerror(vm, e.what());
-        }
-    }
-    // We have an argument on the stack
-    return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
-static SQInteger SqRemoveSignal(HSQUIRRELVM vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Was the signal name specified?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing signal name");
-    }
-    // Attempt to generate the string value
-    StackStrF val(vm, 2);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Create the signal instance and push it on the stack
-    try
-    {
-        Signal::Remove(String(val.mPtr, val.mLen));
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        return sq_throwerror(vm, e.what());
-    }
-    // We have an argument on the stack
-    return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
-static SQInteger SqFetchSignal(HSQUIRRELVM vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Was the signal name specified?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing signal name");
-    }
-    // Attempt to generate the string value
-    StackStrF val(vm, 2);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Create the signal instance and push it on the stack
-    try
-    {
-        sq_pushobject(DefaultVM::Get(), Signal::Fetch(String(val.mPtr, val.mLen)));
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        return sq_throwerror(vm, e.what());
-    }
-    // We have an argument on the stack
-    return 1;
-}
-
 // ================================================================================================
 void Register_Signal(HSQUIRRELVM vm)
 {
@@ -1041,9 +957,9 @@ void Register_Signal(HSQUIRRELVM vm)
     );
 
     RootTable(vm)
-        .SquirrelFunc(_SC("SqSignal"), &SqFetchSignal)
-        .SquirrelFunc(_SC("SqCreateSignal"), &SqCreateSignal)
-        .SquirrelFunc(_SC("SqRemoveSignal"), &SqRemoveSignal);
+        .FmtFunc(_SC("SqSignal"), &Signal::Fetch)
+        .FmtFunc(_SC("SqCreateSignal"), &Signal::Create)
+        .FmtFunc(_SC("SqRemoveSignal"), &Signal::Remove);
 }
 
 /* ------------------------------------------------------------------------------------------------

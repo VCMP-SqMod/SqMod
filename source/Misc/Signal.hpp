@@ -352,7 +352,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Signal(const CSStr name);
+    explicit Signal(const CSStr name);
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -516,22 +516,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create a free signal without a specific name.
     */
-    static Object Create();
+    static Object CreateFree();
 
     /* --------------------------------------------------------------------------------------------
      * Create a new signal with the specified name.
     */
-    static Object Create(String name);
+    static Object Create(StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Remove the signal with the specified name.
     */
-    static void Remove(String name);
+    static void Remove(StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the signal with the specified name.
     */
-    static Object Fetch(String name);
+    static Object Fetch(StackStrF & name);
 };
 
 } // Namespace:: SqMod
