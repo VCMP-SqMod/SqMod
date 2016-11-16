@@ -74,19 +74,19 @@ CSStr GetAutomobileName(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetAutomobileName(Uint32 id, CSStr name)
+void SetAutomobileName(Uint32 id, StackStrF & name)
 {
     if (id >= 130 || id <= 236)
     {
-        CS_Vehicle_Names[id-130].assign(name);
+        CS_Vehicle_Names[id-130].assign(name.mPtr);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetAutomobileID(CSStr name)
+Int32 GetAutomobileID(StackStrF & name)
 {
     // Clone the string into an editable version
-    String str(name);
+    String str(name.mPtr, name.mLen);
     // Strip non alphanumeric characters from the name
     str.erase(std::remove_if(str.begin(), str.end(), std::not1(std::ptr_fun(::isalnum))), str.end());
     // Convert the string to lowercase

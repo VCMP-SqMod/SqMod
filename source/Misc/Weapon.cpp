@@ -56,19 +56,19 @@ CCStr GetWeaponName(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetWeaponName(Uint32 id, CCStr name)
+void SetWeaponName(Uint32 id, StackStrF & name)
 {
     if (id <= 70)
     {
-        CS_Weapon_Names[id].assign(name);
+        CS_Weapon_Names[id].assign(name.mPtr);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetWeaponID(CCStr name)
+Int32 GetWeaponID(StackStrF & name)
 {
     // Clone the string into an editable version
-    String str(name);
+    String str(name.mPtr, name.mLen);
     // Strip non alphanumeric characters from the name
     str.erase(std::remove_if(str.begin(), str.end(), std::not1(std::ptr_fun(::isalnum))), str.end());
     // Convert the string to lowercase

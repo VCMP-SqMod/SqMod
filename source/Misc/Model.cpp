@@ -16,7 +16,7 @@ CSStr GetModelName(Int32 /*id*/)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetModelName(Int32 /*id*/, CSStr /*name*/)
+void SetModelName(Int32 /*id*/, StackStrF & /*name*/)
 {
     // @TODO Implement...
 }
