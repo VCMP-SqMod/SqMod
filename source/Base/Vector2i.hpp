@@ -80,11 +80,6 @@ struct Vector2i
     Vector2i & operator = (Value s);
 
     /* --------------------------------------------------------------------------------------------
-     * String assignment operator.
-    */
-    Vector2i & operator = (CSStr values);
-
-    /* --------------------------------------------------------------------------------------------
      * Real two-dimensional vector assignment.
     */
     Vector2i & operator = (const Vector2 & v);
@@ -419,7 +414,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(CSStr values, SQChar delim);
+    void SetStr(SQChar delim, const StackStrF & values);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
@@ -452,12 +447,12 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector2i type from a string.
     */
-    static const Vector2i & Get(CSStr str);
+    static const Vector2i & Get(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector2i type from a string.
     */
-    static const Vector2i & Get(CSStr str, SQChar delim);
+    static const Vector2i & GetEx(SQChar delim, const StackStrF & str);
 
 };
 

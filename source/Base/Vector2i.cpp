@@ -52,13 +52,6 @@ Vector2i & Vector2i::operator = (Value s)
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2i & Vector2i::operator = (CSStr values)
-{
-    SetVector2i(Vector2i::Get(values, Delim));
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator = (const Vector2 & v)
 {
     x = ConvTo< Value >::From(v.x);
@@ -486,9 +479,9 @@ void Vector2i::SetVector2(const Vector2 & v)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2i::SetStr(CSStr values, SQChar delim)
+void Vector2i::SetStr(SQChar delim, const StackStrF & values)
 {
-    SetVector2i(Vector2i::Get(values, delim));
+    SetVector2i(Vector2i::GetEx(delim, values));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -529,13 +522,13 @@ Vector2i Vector2i::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector2i & Vector2i::Get(CSStr str)
+const Vector2i & Vector2i::Get(const StackStrF & str)
 {
-    return Vector2i::Get(str, Vector2i::Delim);
+    return Vector2i::GetEx(Vector2i::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector2i & Vector2i::Get(CSStr str, SQChar delim)
+const Vector2i & Vector2i::GetEx(SQChar delim, const StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %d , %d ");
@@ -543,14 +536,14 @@ const Vector2i & Vector2i::Get(CSStr str, SQChar delim)
     // Clear previous values, if any
     vec.Clear();
     // Is the specified string empty?
-    if (!str || *str == '\0')
+    if (str.mLen <= 0)
     {
         return vec; // Return the value as is!
     }
     // Assign the specified delimiter
     fs[4] = delim;
     // Attempt to extract the component values from the specified string
-    std::sscanf(str, &fs[0], &vec.x, &vec.y);
+    std::sscanf(str.mPtr, &fs[0], &vec.x, &vec.y);
     // Return the resulted value
     return vec;
 }
@@ -621,18 +614,17 @@ void Register_Vector2i(HSQUIRRELVM vm)
         .Func(_SC("SetVector2i"), &Vector2i::SetVector2i)
         .Func(_SC("SetVector2iEx"), &Vector2i::SetVector2iEx)
         .Func(_SC("SetVector2"), &Vector2i::SetVector2)
-        .Func(_SC("SetStr"), &Vector2i::SetStr)
+        .FmtFunc(_SC("SetStr"), &Vector2i::SetStr)
         .Func(_SC("Clear"), &Vector2i::Clear)
         // Member Overloads
         .Overload< void (Vector2i::*)(void) >(_SC("Generate"), &Vector2i::Generate)
         .Overload< void (Vector2i::*)(Val, Val) >(_SC("Generate"), &Vector2i::Generate)
         .Overload< void (Vector2i::*)(Val, Val, Val, Val) >(_SC("Generate"), &Vector2i::Generate)
-        // Static Overloads
-        .StaticOverload< const Vector2i & (*)(CSStr) >(_SC("FromStr"), &Vector2i::Get)
-        .StaticOverload< const Vector2i & (*)(CSStr, SQChar) >(_SC("FromStr"), &Vector2i::Get)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Vector2i >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector2i >)
+        .StaticFmtFunc(_SC("FromStr"), &Vector2i::Get)
+        .StaticFmtFunc(_SC("FromStrEx"), &Vector2i::GetEx)
         // Operator Exposure
         .Func< Vector2i & (Vector2i::*)(const Vector2i &) >(_SC("opAddAssign"), &Vector2i::operator +=)
         .Func< Vector2i & (Vector2i::*)(const Vector2i &) >(_SC("opSubAssign"), &Vector2i::operator -=)

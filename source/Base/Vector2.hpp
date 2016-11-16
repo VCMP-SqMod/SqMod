@@ -314,7 +314,7 @@ struct Vector2
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(CSStr values, SQChar delim);
+    void SetStr(SQChar delim, const StackStrF & values);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
@@ -347,13 +347,12 @@ struct Vector2
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector2 type from a string.
     */
-    static const Vector2 & Get(CSStr str);
+    static const Vector2 & Get(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector2 type from a string.
     */
-    static const Vector2 & Get(CSStr str, SQChar delim);
-
+    static const Vector2 & GetEx(SQChar delim, const StackStrF & str);
 };
 
 } // Namespace:: SqMod
