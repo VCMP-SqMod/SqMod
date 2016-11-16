@@ -61,13 +61,6 @@ Color4 & Color4::operator = (Value s)
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 & Color4::operator = (CSStr name)
-{
-    SetColor3(GetColor(name));
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
 Color4 & Color4::operator = (const Color3 & c)
 {
     r = c.r;
@@ -566,13 +559,13 @@ void Color4::SetColor4Ex(Value nr, Value ng, Value nb, Value na)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetStr(CSStr str, SQChar delim)
+void Color4::SetStr(SQChar delim, const StackStrF & values)
 {
-    SetColor4(Color4::Get(str, delim));
+    SetColor4(Color4::GetEx(delim, values));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetName(CSStr name)
+void Color4::SetName(const StackStrF & name)
 {
     SetColor3(GetColor(name));
 }
@@ -674,13 +667,13 @@ void Color4::Inverse()
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color4 & Color4::Get(CSStr str)
+const Color4 & Color4::Get(const StackStrF & str)
 {
-    return Color4::Get(str, Color4::Delim);
+    return Color4::GetEx(Color4::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color4 & Color4::Get(CSStr str, SQChar delim)
+const Color4 & Color4::GetEx(SQChar delim, const StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %u , %u , %u , %u ");
@@ -691,7 +684,7 @@ const Color4 & Color4::Get(CSStr str, SQChar delim)
     // Clear previous values, if any
     col.Clear();
     // Is the specified string empty?
-    if (!str || *str == '\0')
+    if (str.mLen <= 0)
     {
         return col; // Return the value as is!
     }
@@ -702,7 +695,7 @@ const Color4 & Color4::Get(CSStr str, SQChar delim)
     // The sscanf function requires at least 32 bit integers
     Uint32 r = 0, g = 0, b = 0, a = 0;
     // Attempt to extract the component values from the specified string
-    std::sscanf(str, fs, &r, &g, &b, &a);
+    std::sscanf(str.mPtr, fs, &r, &g, &b, &a);
     // Cast the extracted integers to the value used by the Color4 type
     col.r = static_cast< Color4::Value >(Clamp(r, min, max));
     col.g = static_cast< Color4::Value >(Clamp(g, min, max));
@@ -794,8 +787,8 @@ void Register_Color4(HSQUIRRELVM vm)
         .Func(_SC("SetColor3Ex"), &Color4::SetColor3Ex)
         .Func(_SC("SetColor4"), &Color4::SetColor4)
         .Func(_SC("SetColor4Ex"), &Color4::SetColor4Ex)
-        .Func(_SC("SetStr"), &Color4::SetStr)
-        .Func(_SC("SetName"), &Color4::SetName)
+        .FmtFunc(_SC("SetStr"), &Color4::SetStr)
+        .FmtFunc(_SC("SetName"), &Color4::SetName)
         .Func(_SC("Clear"), &Color4::Clear)
         .Func(_SC("Random"), &Color4::Random)
         .Func(_SC("Inverse"), &Color4::Inverse)
@@ -803,12 +796,11 @@ void Register_Color4(HSQUIRRELVM vm)
         .Overload< void (Color4::*)(void) >(_SC("Generate"), &Color4::Generate)
         .Overload< void (Color4::*)(Val, Val) >(_SC("Generate"), &Color4::Generate)
         .Overload< void (Color4::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Color4::Generate)
-        // Static Overloads
-        .StaticOverload< const Color4 & (*)(CSStr) >(_SC("FromStr"), &Color4::Get)
-        .StaticOverload< const Color4 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Color4::Get)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Color4 >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Color4 >)
+        .StaticFmtFunc(_SC("FromStr"), &Color4::Get)
+        .StaticFmtFunc(_SC("FromStrEx"), &Color4::GetEx)
         // Operator Exposure
         .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opAddAssign"), &Color4::operator +=)
         .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opSubAssign"), &Color4::operator -=)

@@ -85,11 +85,6 @@ struct Color4
     Color4 & operator = (Value s);
 
     /* --------------------------------------------------------------------------------------------
-     * Named color assignment operator.
-    */
-    Color4 & operator = (CSStr name);
-
-    /* --------------------------------------------------------------------------------------------
      * Opaque color assignment operator.
     */
     Color4 & operator = (const Color3 & c);
@@ -434,12 +429,12 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(CSStr name, SQChar delim);
+    void SetStr(SQChar delim, const StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values from the identified color.
     */
-    void SetName(CSStr name);
+    void SetName(const StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Get the component values packed inside an integer value.
@@ -507,13 +502,12 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Color4 type from a string.
     */
-    static const Color4 & Get(CSStr str);
+    static const Color4 & Get(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Color4 type from a string.
     */
-    static const Color4 & Get(CSStr str, SQChar delim);
-
+    static const Color4 & GetEx(SQChar delim, const StackStrF & str);
 };
 
 } // Namespace:: SqMod

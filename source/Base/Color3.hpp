@@ -85,11 +85,6 @@ struct Color3
     Color3 & operator = (Value s);
 
     /* --------------------------------------------------------------------------------------------
-     * Named color assignment operator.
-    */
-    Color3 & operator = (CSStr name);
-
-    /* --------------------------------------------------------------------------------------------
      * Transparent color assignment operator.
     */
     Color3 & operator = (const Color4 & c);
@@ -434,12 +429,12 @@ struct Color3
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(CSStr str, SQChar delim);
+    void SetStr(SQChar delim, const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values from the identified color.
     */
-    void SetName(CSStr name);
+    void SetName(const StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Get the component values packed inside an integer value.
@@ -507,13 +502,12 @@ struct Color3
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Color3 type from a string.
     */
-    static const Color3 & Get(CSStr str);
+    static const Color3 & Get(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Color3 type from a string.
     */
-    static const Color3 & Get(CSStr str, SQChar delim);
-
+    static const Color3 & GetEx( SQChar delim, const StackStrF & str);
 };
 
 } // Namespace:: SqMod

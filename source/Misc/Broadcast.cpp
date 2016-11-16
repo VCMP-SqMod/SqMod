@@ -212,7 +212,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
             // Attempt to treat the value as a color name
             try
             {
-                color = (::SqMod::GetColor(str).GetRGBA() | 0xFF);
+                color = (::SqMod::GetColorStr(str).GetRGBA() | 0xFF);
             }
             catch (...)
             {
