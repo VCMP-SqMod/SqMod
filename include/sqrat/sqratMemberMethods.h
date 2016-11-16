@@ -5442,7 +5442,7 @@ public:
         }
 #endif
 
-        typedef R (C::*M)(StackStrF &);
+        typedef R (C::*M)(const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5487,7 +5487,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(StackStrF &) const;
+        typedef R (C::*M)(const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5533,7 +5533,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, StackStrF &);
+        typedef R (C::*M)(A1, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5585,7 +5585,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, StackStrF &) const;
+        typedef R (C::*M)(A1, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5638,7 +5638,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, StackStrF &);
+        typedef R (C::*M)(A1, A2, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5692,7 +5692,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, StackStrF &) const;
+        typedef R (C::*M)(A1, A2, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5747,7 +5747,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, StackStrF &);
+        typedef R (C::*M)(A1, A2, A3, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5803,7 +5803,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, StackStrF &) const;
+        typedef R (C::*M)(A1, A2, A3, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5860,7 +5860,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, StackStrF &);
+        typedef R (C::*M)(A1, A2, A3, A4, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5918,7 +5918,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, StackStrF &) const;
+        typedef R (C::*M)(A1, A2, A3, A4, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -5977,7 +5977,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, A5, StackStrF &);
+        typedef R (C::*M)(A1, A2, A3, A4, A5, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6037,7 +6037,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, A5, StackStrF &) const;
+        typedef R (C::*M)(A1, A2, A3, A4, A5, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6098,7 +6098,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &);
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6160,7 +6160,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &) const;
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6223,7 +6223,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &);
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6287,7 +6287,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const;
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6352,7 +6352,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &);
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6418,7 +6418,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const;
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6494,7 +6494,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(StackStrF &);
+        typedef R& (C::*M)(const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6539,7 +6539,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(StackStrF &) const;
+        typedef R& (C::*M)(const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6585,7 +6585,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, StackStrF &);
+        typedef R& (C::*M)(A1, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6637,7 +6637,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, StackStrF &) const;
+        typedef R& (C::*M)(A1, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6690,7 +6690,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, StackStrF &);
+        typedef R& (C::*M)(A1, A2, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6744,7 +6744,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, StackStrF &) const;
+        typedef R& (C::*M)(A1, A2, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6799,7 +6799,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, StackStrF &);
+        typedef R& (C::*M)(A1, A2, A3, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6855,7 +6855,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, StackStrF &) const;
+        typedef R& (C::*M)(A1, A2, A3, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6912,7 +6912,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, StackStrF &);
+        typedef R& (C::*M)(A1, A2, A3, A4, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -6970,7 +6970,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, StackStrF &) const;
+        typedef R& (C::*M)(A1, A2, A3, A4, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7029,7 +7029,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, A5, StackStrF &);
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7089,7 +7089,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, A5, StackStrF &) const;
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7150,7 +7150,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &);
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7212,7 +7212,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &) const;
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7275,7 +7275,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &);
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7339,7 +7339,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const;
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7404,7 +7404,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &);
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7470,7 +7470,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const;
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7546,7 +7546,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(StackStrF &);
+        typedef void (C::*M)(const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7590,7 +7590,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(StackStrF &) const;
+        typedef void (C::*M)(const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7635,7 +7635,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, StackStrF &);
+        typedef void (C::*M)(A1, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7686,7 +7686,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, StackStrF &) const;
+        typedef void (C::*M)(A1, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7738,7 +7738,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, StackStrF &);
+        typedef void (C::*M)(A1, A2, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7791,7 +7791,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, StackStrF &) const;
+        typedef void (C::*M)(A1, A2, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7845,7 +7845,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, StackStrF &);
+        typedef void (C::*M)(A1, A2, A3, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7900,7 +7900,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, StackStrF &) const;
+        typedef void (C::*M)(A1, A2, A3, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -7956,7 +7956,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, StackStrF &);
+        typedef void (C::*M)(A1, A2, A3, A4, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8013,7 +8013,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, StackStrF &) const;
+        typedef void (C::*M)(A1, A2, A3, A4, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8071,7 +8071,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, A5, StackStrF &);
+        typedef void (C::*M)(A1, A2, A3, A4, A5, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8130,7 +8130,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, A5, StackStrF &) const;
+        typedef void (C::*M)(A1, A2, A3, A4, A5, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8190,7 +8190,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &);
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8251,7 +8251,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &) const;
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8313,7 +8313,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &);
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8376,7 +8376,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const;
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8440,7 +8440,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &);
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &);
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8505,7 +8505,7 @@ public:
             return sq_throwerror(vm, _SC("wrong number of parameters"));
         }
 #endif
-        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const;
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &) const;
         M* methodPtr;
         sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
         M method = *methodPtr;
@@ -8569,190 +8569,190 @@ public:
 
 // Arg Count 0
 template <class C, class R>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(const StackStrF &)) {
     return &SqMemberFmt<C, R>::template Func0<false>;
 }
 
 template <class C, class R>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(const StackStrF &) const) {
     return &SqMemberFmt<C, R>::template Func0C<false>;
 }
 
 template <class C, class R>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(const StackStrF &)) {
     return &SqMemberFmt<C, R&>::template Func0<false>;
 }
 
 template <class C, class R>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(const StackStrF &) const) {
     return &SqMemberFmt<C, R&>::template Func0C<false>;
 }
 
 // Arg Count 1
 template <class C, class R, class A1>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, const StackStrF &)) {
     return &SqMemberFmt<C, R>::template Func1<A1, false>;
 }
 
 template <class C, class R, class A1>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, const StackStrF &) const) {
     return &SqMemberFmt<C, R>::template Func1C<A1, false>;
 }
 
 template <class C, class R, class A1>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, const StackStrF &)) {
     return &SqMemberFmt<C, R&>::template Func1<A1, false>;
 }
 
 template <class C, class R, class A1>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, const StackStrF &) const) {
     return &SqMemberFmt<C, R&>::template Func1C<A1, false>;
 }
 
 // Arg Count 2
 template <class C, class R, class A1, class A2>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, const StackStrF &)) {
     return &SqMemberFmt<C, R>::template Func2<A1, A2, false>;
 }
 
 template <class C, class R, class A1, class A2>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, const StackStrF &) const) {
     return &SqMemberFmt<C, R>::template Func2C<A1, A2, false>;
 }
 
 template <class C, class R, class A1, class A2>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, const StackStrF &)) {
     return &SqMemberFmt<C, R&>::template Func2<A1, A2, false>;
 }
 
 template <class C, class R, class A1, class A2>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, const StackStrF &) const) {
     return &SqMemberFmt<C, R&>::template Func2C<A1, A2, false>;
 }
 
 // Arg Count 3
 template <class C, class R, class A1, class A2, class A3>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, const StackStrF &)) {
     return &SqMemberFmt<C, R>::template Func3<A1, A2, A3, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, const StackStrF &) const) {
     return &SqMemberFmt<C, R>::template Func3C<A1, A2, A3, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, const StackStrF &)) {
     return &SqMemberFmt<C, R&>::template Func3<A1, A2, A3, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, const StackStrF &) const) {
     return &SqMemberFmt<C, R&>::template Func3C<A1, A2, A3, false>;
 }
 
 // Arg Count 4
 template <class C, class R, class A1, class A2, class A3, class A4>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, const StackStrF &)) {
     return &SqMemberFmt<C, R>::template Func4<A1, A2, A3, A4, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, const StackStrF &) const) {
     return &SqMemberFmt<C, R>::template Func4C<A1, A2, A3, A4, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, const StackStrF &)) {
     return &SqMemberFmt<C, R&>::template Func4<A1, A2, A3, A4, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, const StackStrF &) const) {
     return &SqMemberFmt<C, R&>::template Func4C<A1, A2, A3, A4, false>;
 }
 
 // Arg Count 5
 template <class C, class R, class A1, class A2, class A3, class A4, class A5>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, const StackStrF &)) {
     return &SqMemberFmt<C, R>::template Func5<A1, A2, A3, A4, A5, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, const StackStrF &) const) {
     return &SqMemberFmt<C, R>::template Func5C<A1, A2, A3, A4, A5, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, const StackStrF &)) {
     return &SqMemberFmt<C, R&>::template Func5<A1, A2, A3, A4, A5, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5>
-inline SQFUNCTION SqMemberFuncFmt(R&(C::* /*method*/)(A1, A2, A3, A4, A5, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R&(C::* /*method*/)(A1, A2, A3, A4, A5, const StackStrF &) const) {
     return &SqMemberFmt<C, R&>::template Func5C<A1, A2, A3, A4, A5, false>;
 }
 
 // Arg Count 6
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, const StackStrF &)) {
     return &SqMemberFmt<C, R>::template Func6<A1, A2, A3, A4, A5, A6, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, const StackStrF &) const) {
     return &SqMemberFmt<C, R>::template Func6C<A1, A2, A3, A4, A5, A6, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, const StackStrF &)) {
     return &SqMemberFmt<C, R&>::template Func6<A1, A2, A3, A4, A5, A6, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, const StackStrF &) const) {
     return &SqMemberFmt<C, R&>::template Func6C<A1, A2, A3, A4, A5, A6, false>;
 }
 
 // Arg Count 7
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &)) {
     return &SqMemberFmt<C, R>::template Func7<A1, A2, A3, A4, A5, A6, A7, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &) const) {
     return &SqMemberFmt<C, R>::template Func7C<A1, A2, A3, A4, A5, A6, A7, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &)) {
     return &SqMemberFmt<C, R&>::template Func7<A1, A2, A3, A4, A5, A6, A7, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &) const) {
     return &SqMemberFmt<C, R&>::template Func7C<A1, A2, A3, A4, A5, A6, A7, false>;
 }
 
 // Arg Count 8
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &)) {
     return &SqMemberFmt<C, R>::template Func8<A1, A2, A3, A4, A5, A6, A7, A8, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &) const) {
     return &SqMemberFmt<C, R>::template Func8C<A1, A2, A3, A4, A5, A6, A7, A8, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &)) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &)) {
     return &SqMemberFmt<C, R&>::template Func8<A1, A2, A3, A4, A5, A6, A7, A8, false>;
 }
 
 template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const) {
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &) const) {
     return &SqMemberFmt<C, R&>::template Func8C<A1, A2, A3, A4, A5, A6, A7, A8, false>;
 }
 

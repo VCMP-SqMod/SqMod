@@ -2397,7 +2397,7 @@ public:
         }
 #endif
 
-        typedef R (*M)(StackStrF &);
+        typedef R (*M)(const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2430,7 +2430,7 @@ public:
         }
 #endif
 
-        typedef R (*M)(A1, StackStrF &);
+        typedef R (*M)(A1, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2470,7 +2470,7 @@ public:
         }
 #endif
 
-        typedef R (*M)(A1, A2, StackStrF &);
+        typedef R (*M)(A1, A2, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2512,7 +2512,7 @@ public:
         }
 #endif
 
-        typedef R (*M)(A1, A2, A3, StackStrF &);
+        typedef R (*M)(A1, A2, A3, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2556,7 +2556,7 @@ public:
         }
 #endif
 
-        typedef R (*M)(A1, A2, A3, A4, StackStrF &);
+        typedef R (*M)(A1, A2, A3, A4, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2602,7 +2602,7 @@ public:
         }
 #endif
 
-        typedef R (*M)(A1, A2, A3, A4, A5, StackStrF &);
+        typedef R (*M)(A1, A2, A3, A4, A5, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2650,7 +2650,7 @@ public:
         }
 #endif
 
-        typedef R (*M)(A1, A2, A3, A4, A5, A6, StackStrF &);
+        typedef R (*M)(A1, A2, A3, A4, A5, A6, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2700,7 +2700,7 @@ public:
         }
 #endif
 
-        typedef R (*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &);
+        typedef R (*M)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2752,7 +2752,7 @@ public:
         }
 #endif
 
-        typedef R (*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &);
+        typedef R (*M)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2816,7 +2816,7 @@ public:
         }
 #endif
 
-        typedef R& (*M)(StackStrF &);
+        typedef R& (*M)(const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2849,7 +2849,7 @@ public:
         }
 #endif
 
-        typedef R& (*M)(A1, StackStrF &);
+        typedef R& (*M)(A1, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2889,7 +2889,7 @@ public:
         }
 #endif
 
-        typedef R& (*M)(A1, A2, StackStrF &);
+        typedef R& (*M)(A1, A2, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2931,7 +2931,7 @@ public:
         }
 #endif
 
-        typedef R& (*M)(A1, A2, A3, StackStrF &);
+        typedef R& (*M)(A1, A2, A3, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -2975,7 +2975,7 @@ public:
         }
 #endif
 
-        typedef R& (*M)(A1, A2, A3, A4, StackStrF &);
+        typedef R& (*M)(A1, A2, A3, A4, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3021,7 +3021,7 @@ public:
         }
 #endif
 
-        typedef R& (*M)(A1, A2, A3, A4, A5, StackStrF &);
+        typedef R& (*M)(A1, A2, A3, A4, A5, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3069,7 +3069,7 @@ public:
         }
 #endif
 
-        typedef R& (*M)(A1, A2, A3, A4, A5, A6, StackStrF &);
+        typedef R& (*M)(A1, A2, A3, A4, A5, A6, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3119,7 +3119,7 @@ public:
         }
 #endif
 
-        typedef R& (*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &);
+        typedef R& (*M)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3171,7 +3171,7 @@ public:
         }
 #endif
 
-        typedef R& (*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &);
+        typedef R& (*M)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3235,7 +3235,7 @@ public:
         }
 #endif
 
-        typedef void (*M)(StackStrF &);
+        typedef void (*M)(const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3267,7 +3267,7 @@ public:
         }
 #endif
 
-        typedef void (*M)(A1, StackStrF &);
+        typedef void (*M)(A1, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3306,7 +3306,7 @@ public:
         }
 #endif
 
-        typedef void (*M)(A1, A2, StackStrF &);
+        typedef void (*M)(A1, A2, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3347,7 +3347,7 @@ public:
         }
 #endif
 
-        typedef void (*M)(A1, A2, A3, StackStrF &);
+        typedef void (*M)(A1, A2, A3, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3390,7 +3390,7 @@ public:
         }
 #endif
 
-        typedef void (*M)(A1, A2, A3, A4, StackStrF &);
+        typedef void (*M)(A1, A2, A3, A4, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3435,7 +3435,7 @@ public:
         }
 #endif
 
-        typedef void (*M)(A1, A2, A3, A4, A5, StackStrF &);
+        typedef void (*M)(A1, A2, A3, A4, A5, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3482,7 +3482,7 @@ public:
         }
 #endif
 
-        typedef void (*M)(A1, A2, A3, A4, A5, A6, StackStrF &);
+        typedef void (*M)(A1, A2, A3, A4, A5, A6, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3531,7 +3531,7 @@ public:
         }
 #endif
 
-        typedef void (*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &);
+        typedef void (*M)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3582,7 +3582,7 @@ public:
         }
 #endif
 
-        typedef void (*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &);
+        typedef void (*M)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &);
         M* method;
         sq_getuserdata(vm, -1, (SQUserPointer*)&method, NULL);
 
@@ -3633,109 +3633,109 @@ public:
 
 // Arg Count 0
 template <class R>
-SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func0<false>;
 }
 
 // Arg Count 0
 template <class R>
-SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func0<false>;
 }
 
 // Arg Count 1
 template <class R, class A1>
-SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func1<A1, 2, false>;
 }
 
 // Arg Count 1
 template <class R, class A1>
-SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func1<A1, 2, false>;
 }
 
 // Arg Count 2
 template <class R, class A1, class A2>
-SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func2<A1, A2, 2, false>;
 }
 
 // Arg Count 2
 template <class R, class A1, class A2>
-SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func2<A1, A2, 2, false>;
 }
 
 // Arg Count 3
 template <class R, class A1, class A2, class A3>
-SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func3<A1, A2, A3, 2, false>;
 }
 
 // Arg Count 3
 template <class R, class A1, class A2, class A3>
-SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func3<A1, A2, A3, 2, false>;
 }
 
 // Arg Count 4
 template <class R, class A1, class A2, class A3, class A4>
-SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func4<A1, A2, A3, A4, 2, false>;
 }
 
 // Arg Count 4
 template <class R, class A1, class A2, class A3, class A4>
-SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func4<A1, A2, A3, A4, 2, false>;
 }
 
 // Arg Count 5
 template <class R, class A1, class A2, class A3, class A4, class A5>
-SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func5<A1, A2, A3, A4, A5, 2, false>;
 }
 
 // Arg Count 5
 template <class R, class A1, class A2, class A3, class A4, class A5>
-SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func5<A1, A2, A3, A4, A5, 2, false>;
 }
 
 // Arg Count 6
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6>
-SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func6<A1, A2, A3, A4, A5, A6, 2, false>;
 }
 
 // Arg Count 6
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6>
-SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func6<A1, A2, A3, A4, A5, A6, 2, false>;
 }
 
 // Arg Count 7
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func7<A1, A2, A3, A4, A5, A6, A7, 2, false>;
 }
 
 // Arg Count 7
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func7<A1, A2, A3, A4, A5, A6, A7, 2, false>;
 }
 
 // Arg Count 8
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func8<A1, A2, A3, A4, A5, A6, A7, A8, 2, false>;
 }
 
 // Arg Count 8
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &)) {
+SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func8<A1, A2, A3, A4, A5, A6, A7, A8, 2, false>;
 }
 
@@ -3745,97 +3745,97 @@ SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, Sta
 
 // Arg Count 1
 template <class R, class A1>
-SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func1<A1, 1, false>;
 }
 
 // Arg Count 1
 template <class R, class A1>
-SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func1<A1, 1, false>;
 }
 
 // Arg Count 2
 template <class R, class A1, class A2>
-SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func2<A1, A2, 1, false>;
 }
 
 // Arg Count 2
 template <class R, class A1, class A2>
-SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func2<A1, A2, 1, false>;
 }
 
 // Arg Count 3
 template <class R, class A1, class A2, class A3>
-SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func3<A1, A2, A3, 1, false>;
 }
 
 // Arg Count 3
 template <class R, class A1, class A2, class A3>
-SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func3<A1, A2, A3, 1, false>;
 }
 
 // Arg Count 4
 template <class R, class A1, class A2, class A3, class A4>
-SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func4<A1, A2, A3, A4, 1, false>;
 }
 
 // Arg Count 4
 template <class R, class A1, class A2, class A3, class A4>
-SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func4<A1, A2, A3, A4, 1, false>;
 }
 
 // Arg Count 5
 template <class R, class A1, class A2, class A3, class A4, class A5>
-SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func5<A1, A2, A3, A4, A5, 1, false>;
 }
 
 // Arg Count 5
 template <class R, class A1, class A2, class A3, class A4, class A5>
-SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func5<A1, A2, A3, A4, A5, 1, false>;
 }
 
 // Arg Count 6
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6>
-SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func6<A1, A2, A3, A4, A5, A6, 1, false>;
 }
 
 // Arg Count 6
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6>
-SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func6<A1, A2, A3, A4, A5, A6, 1, false>;
 }
 
 // Arg Count 7
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func7<A1, A2, A3, A4, A5, A6, A7, 1, false>;
 }
 
 // Arg Count 7
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func7<A1, A2, A3, A4, A5, A6, A7, 1, false>;
 }
 
 // Arg Count 8
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &)) {
     return &SqGlobalFmt<R>::template Func8<A1, A2, A3, A4, A5, A6, A7, A8, 1, false>;
 }
 
 // Arg Count 8
 template <class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &)) {
+SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, const StackStrF &)) {
     return &SqGlobalFmt<R&>::template Func8<A1, A2, A3, A4, A5, A6, A7, A8, 1, false>;
 }
 
