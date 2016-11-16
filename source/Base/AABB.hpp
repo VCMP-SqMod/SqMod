@@ -300,7 +300,7 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(CSStr values, SQChar delim);
+    void SetStr(SQChar delim, const StackStrF & values);
 
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.
@@ -470,12 +470,12 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the AABB type from a string.
     */
-    static const AABB & Get(CSStr str);
+    static const AABB & Get(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the AABB type from a string.
     */
-    static const AABB & Get(CSStr str, SQChar delim);
+    static const AABB & GetEx(SQChar delim, const StackStrF & str);
 };
 
 } // Namespace:: SqMod

@@ -307,9 +307,9 @@ CSStr AABB::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetStr(CSStr values, SQChar delim)
+void AABB::SetStr(SQChar delim, const StackStrF & values)
 {
-    DefineAABB(AABB::Get(values, delim));
+    DefineAABB(AABB::GetEx(delim, values));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -734,13 +734,13 @@ Int32 AABB::IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const
 }
 
 // ------------------------------------------------------------------------------------------------
-const AABB & AABB::Get(CSStr str)
+const AABB & AABB::Get(const StackStrF & str)
 {
-    return AABB::Get(str, AABB::Delim);
+    return AABB::GetEx(AABB::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const AABB & AABB::Get(CSStr str, SQChar delim)
+const AABB & AABB::GetEx(SQChar delim, const StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f , %f , %f , %f ");
@@ -748,7 +748,7 @@ const AABB & AABB::Get(CSStr str, SQChar delim)
     // Clear previous values, if any
     box.Clear();
     // Is the specified string empty?
-    if (!str || *str == '\0')
+    if (str.mLen <= 0)
     {
         return box; // Return the value as is!
     }
@@ -759,7 +759,7 @@ const AABB & AABB::Get(CSStr str, SQChar delim)
     fs[19] = delim;
     fs[24] = delim;
     // Attempt to extract the component values from the specified string
-    std::sscanf(str, fs, &box.min.x, &box.min.y, &box.min.z, &box.max.x, &box.max.y, &box.max.z);
+    std::sscanf(str.mPtr, fs, &box.min.x, &box.min.y, &box.min.z, &box.max.x, &box.max.y, &box.max.z);
     // Return the resulted value
     return box;
 }
@@ -853,7 +853,7 @@ void Register_AABB(HSQUIRRELVM vm)
         .Prop(_SC("Volume"), &AABB::Volume)
         .Prop(_SC("Area"), &AABB::Area)
         // Member Methods
-        .Func(_SC("SetStr"), &AABB::SetStr)
+        .FmtFunc(_SC("SetStr"), &AABB::SetStr)
         .Func(_SC("Clear"), &AABB::Clear)
         .Func(_SC("DefineScalar"), &AABB::DefineScalar)
         .Func(_SC("DefineVector3"), &AABB::DefineVector3)
@@ -879,12 +879,11 @@ void Register_AABB(HSQUIRRELVM vm)
         .Func(_SC("IsSphereInsideEx"), &AABB::IsSphereInsideEx)
         .Func(_SC("IsSphereInsideFast"), &AABB::IsSphereInsideFast)
         .Func(_SC("IsSphereInsideFastEx"), &AABB::IsSphereInsideFastEx)
-        // Static Overloads
-        .StaticOverload< const AABB & (*)(CSStr) >(_SC("FromStr"), &AABB::Get)
-        .StaticOverload< const AABB & (*)(CSStr, SQChar) >(_SC("FromStr"), &AABB::Get)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< AABB >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< AABB >)
+        .StaticFmtFunc(_SC("FromStr"), &AABB::Get)
+        .StaticFmtFunc(_SC("FromStrEx"), &AABB::GetEx)
         // Operator Exposure
         .Func< AABB & (AABB::*)(const AABB &) >(_SC("opAddAssign"), &AABB::operator +=)
         .Func< AABB & (AABB::*)(const AABB &) >(_SC("opSubAssign"), &AABB::operator -=)
