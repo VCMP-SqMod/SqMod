@@ -64,9 +64,23 @@ const String & CCheckpoint::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetTag(CSStr tag)
+void CCheckpoint::SetTag(const StackStrF & tag)
 {
-    m_Tag.assign(tag);
+    if (tag.mLen > 0)
+    {
+        m_Tag.assign(tag.mPtr, tag.mLen);
+    }
+    else
+    {
+        m_Tag.clear();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+CCheckpoint & CCheckpoint::ApplyTag(StackStrF & tag)
+{
+    SetTag(tag);
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -521,6 +535,7 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CCheckpoint::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CCheckpoint::BindEvent)
+        .FmtFunc(_SC("SetTag"), &CCheckpoint::ApplyTag)
         .Func(_SC("CustomEvent"), &CCheckpoint::CustomEvent)
         // Core Overloads
         .Overload< bool (CCheckpoint::*)(void) >(_SC("Destroy"), &CCheckpoint::Destroy)
