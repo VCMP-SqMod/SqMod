@@ -140,6 +140,7 @@ namespace Sqrat {
     class Object;
     class Table;
     class Function;
+    class StackStrF;
 } // Namespace:: Sqrat
 
 /* ------------------------------------------------------------------------------------------------
