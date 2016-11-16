@@ -415,9 +415,9 @@ void Vector3::SetQuaternionEx(Value qx, Value qy, Value qz, Value qw)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::SetStr(CSStr values, SQChar delim)
+void Vector3::SetStr(SQChar delim, const StackStrF & values)
 {
-    SetVector3(Vector3::Get(values, delim));
+    SetVector3(Vector3::GetEx(delim, values));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -629,13 +629,13 @@ void Vector3::CenterRotateYZBy(Value degrees, const Vector3 & center)
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & Vector3::Get(CSStr str)
+const Vector3 & Vector3::Get(const StackStrF & str)
 {
-    return Vector3::Get(str, Vector3::Delim);
+    return Vector3::GetEx(Vector3::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & Vector3::Get(CSStr str, SQChar delim)
+const Vector3 & Vector3::GetEx(SQChar delim, const StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f ");
@@ -643,7 +643,7 @@ const Vector3 & Vector3::Get(CSStr str, SQChar delim)
     // Clear previous values, if any
     vec.Clear();
     // Is the specified string empty?
-    if (!str || *str == '\0')
+    if (str.mLen <= 0)
     {
         return vec; // Return the value as is!
     }
@@ -651,7 +651,7 @@ const Vector3 & Vector3::Get(CSStr str, SQChar delim)
     fs[4] = delim;
     fs[9] = delim;
     // Attempt to extract the component values from the specified string
-    std::sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z);
+    std::sscanf(str.mPtr, &fs[0], &vec.x, &vec.y, &vec.z);
     // Return the resulted value
     return vec;
 }
@@ -742,7 +742,7 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("SetVector4Ex"), &Vector3::SetVector4Ex)
         .Func(_SC("SetQuaternion"), &Vector3::SetQuaternion)
         .Func(_SC("SetQuaternionEx"), &Vector3::SetQuaternionEx)
-        .Func(_SC("SetStr"), &Vector3::SetStr)
+        .FmtFunc(_SC("SetStr"), &Vector3::SetStr)
         .Func(_SC("Clear"), &Vector3::Clear)
         .Func(_SC("Normalize"), &Vector3::Normalize)
         .Func(_SC("Dot"), &Vector3::DotProduct)
@@ -765,12 +765,11 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Overload< void (Vector3::*)(void) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val) >(_SC("Generate"), &Vector3::Generate)
         .Overload< void (Vector3::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Vector3::Generate)
-        // Static Overloads
-        .StaticOverload< const Vector3 & (*)(CSStr) >(_SC("FromStr"), &Vector3::Get)
-        .StaticOverload< const Vector3 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Vector3::Get)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Vector3 >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector3 >)
+        .StaticFmtFunc(_SC("FromStr"), &Vector3::Get)
+        .StaticFmtFunc(_SC("FromStrEx"), &Vector3::GetEx)
         // Operator Exposure
         .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opAddAssign"), &Vector3::operator +=)
         .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opSubAssign"), &Vector3::operator -=)

@@ -416,9 +416,9 @@ void Vector4::SetQuaternionEx(Value nx, Value ny, Value nz, Value nw)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector4::SetStr(CSStr values, SQChar delim)
+void Vector4::SetStr(SQChar delim, const StackStrF & values)
 {
-    SetVector4(Vector4::Get(values, delim));
+    SetVector4(Vector4::GetEx(delim, values));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -465,13 +465,13 @@ Vector4 Vector4::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector4 & Vector4::Get(CSStr str)
+const Vector4 & Vector4::Get(const StackStrF & str)
 {
-    return Vector4::Get(str, Vector4::Delim);
+    return Vector4::GetEx(Vector4::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector4 & Vector4::Get(CSStr str, SQChar delim)
+const Vector4 & Vector4::GetEx(SQChar delim, const StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");
@@ -479,7 +479,7 @@ const Vector4 & Vector4::Get(CSStr str, SQChar delim)
     // Clear previous values, if any
     vec.Clear();
     // Is the specified string empty?
-    if (!str || *str == '\0')
+    if (str.mLen <= 0)
     {
         return vec; // Return the value as is!
     }
@@ -488,7 +488,7 @@ const Vector4 & Vector4::Get(CSStr str, SQChar delim)
     fs[9] = delim;
     fs[14] = delim;
     // Attempt to extract the component values from the specified string
-    std::sscanf(str, &fs[0], &vec.x, &vec.y, &vec.z, &vec.w);
+    std::sscanf(str.mPtr, &fs[0], &vec.x, &vec.y, &vec.z, &vec.w);
     // Return the resulted value
     return vec;
 }
@@ -575,18 +575,17 @@ void Register_Vector4(HSQUIRRELVM vm)
         .Func(_SC("SetVector3Ex"), &Vector4::SetVector3Ex)
         .Func(_SC("SetQuaternion"), &Vector4::SetQuaternion)
         .Func(_SC("SetQuaternionEx"), &Vector4::SetQuaternionEx)
-        .Func(_SC("SetStr"), &Vector4::SetStr)
+        .FmtFunc(_SC("SetStr"), &Vector4::SetStr)
         .Func(_SC("Clear"), &Vector4::Clear)
         // Member Overloads
         .Overload< void (Vector4::*)(void) >(_SC("Generate"), &Vector4::Generate)
         .Overload< void (Vector4::*)(Val, Val) >(_SC("Generate"), &Vector4::Generate)
         .Overload< void (Vector4::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Vector4::Generate)
-        // Static Overloads
-        .StaticOverload< const Vector4 & (*)(CSStr) >(_SC("FromStr"), &Vector4::Get)
-        .StaticOverload< const Vector4 & (*)(CSStr, SQChar) >(_SC("FromStr"), &Vector4::Get)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Vector4 >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector4 >)
+        .StaticFmtFunc(_SC("FromStr"), &Vector4::Get)
+        .StaticFmtFunc(_SC("FromStrEx"), &Vector4::GetEx)
         // Operator Exposure
         .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opAddAssign"), &Vector4::operator +=)
         .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opSubAssign"), &Vector4::operator -=)

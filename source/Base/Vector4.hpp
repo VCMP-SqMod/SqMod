@@ -334,7 +334,7 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(CSStr values, SQChar delim);
+    void SetStr(SQChar delim, const StackStrF & values);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
@@ -367,12 +367,12 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector4 type from a string.
     */
-    static const Vector4 & Get(CSStr str);
+    static const Vector4 & Get(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector4 type from a string.
     */
-    static const Vector4 & Get(CSStr str, SQChar delim);
+    static const Vector4 & GetEx(SQChar delim, const StackStrF & str);
 
 };
 
