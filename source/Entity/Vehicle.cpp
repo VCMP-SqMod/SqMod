@@ -60,9 +60,23 @@ const String & CVehicle::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetTag(CSStr tag)
+void CVehicle::SetTag(const StackStrF & tag)
 {
-    m_Tag.assign(tag);
+    if (tag.mLen > 0)
+    {
+        m_Tag.assign(tag.mPtr, tag.mLen);
+    }
+    else
+    {
+        m_Tag.clear();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+CVehicle & CVehicle::ApplyTag(StackStrF & tag)
+{
+    SetTag(tag);
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1756,6 +1770,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CVehicle::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CVehicle::BindEvent)
+        .FmtFunc(_SC("SetTag"), &CVehicle::ApplyTag)
         .Func(_SC("CustomEvent"), &CVehicle::CustomEvent)
         // Core Overloads
         .Overload< bool (CVehicle::*)(void) >(_SC("Destroy"), &CVehicle::Destroy)
