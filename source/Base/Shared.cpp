@@ -324,12 +324,18 @@ const Color3 & GetRandomColor()
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 GetColor(CSStr name)
+Color3 GetColor(const StackStrF & name)
+{
+    return name.mLen <= 0 ? Color3() : GetColorStr(name.mPtr);
+}
+
+// ------------------------------------------------------------------------------------------------
+Color3 GetColorStr(CSStr name)
 {
     // See if we actually have something to search for
-    if(!name || *name == 0)
+    if(!name || *name == '\0')
     {
-        STHROWF("Cannot extract values from an empty string");
+        return Color3::NIL; // Use default color
     }
     // Clone the string into an editable version
     CSStr str = StrJustAlphaNum(name);
@@ -337,7 +343,7 @@ Color3 GetColor(CSStr name)
     // See if we still have a valid name after the cleanup
     if(!str || *str == '\0')
     {
-        STHROWF("Cannot extract values from an invalid string: %s", name);
+        return Color3::NIL; // Use default color
     }
     // Calculate the name length
     const Uint32 len = std::strlen(str);

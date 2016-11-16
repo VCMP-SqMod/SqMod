@@ -211,7 +211,12 @@ const Color3 & GetRandomColor();
 /* ------------------------------------------------------------------------------------------------
  * Attempt to identify the color in the specified name and return it.
 */
-Color3 GetColor(CSStr name);
+Color3 GetColorStr(CSStr name);
+
+/* ------------------------------------------------------------------------------------------------
+ * Attempt to identify the color in the specified name and return it.
+*/
+Color3 GetColor(const StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Throw the last system error as an exception.
