@@ -56,9 +56,23 @@ const String & CPickup::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetTag(CSStr tag)
+void CPickup::SetTag(const StackStrF & tag)
 {
-    m_Tag.assign(tag);
+    if (tag.mLen > 0)
+    {
+        m_Tag.assign(tag.mPtr, tag.mLen);
+    }
+    else
+    {
+        m_Tag.clear();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+CPickup & CPickup::ApplyTag(StackStrF & tag)
+{
+    SetTag(tag);
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -444,6 +458,7 @@ void Register_CPickup(HSQUIRRELVM vm)
         .Prop(_SC("Active"), &CPickup::IsActive)
         // Core Methods
         .Func(_SC("Bind"), &CPickup::BindEvent)
+        .FmtFunc(_SC("SetTag"), &CPickup::ApplyTag)
         .Func(_SC("CustomEvent"), &CPickup::CustomEvent)
         // Core Overloads
         .Overload< bool (CPickup::*)(void) >(_SC("Destroy"), &CPickup::Destroy)
