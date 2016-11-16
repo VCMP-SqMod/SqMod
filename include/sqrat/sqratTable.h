@@ -251,6 +251,23 @@ public:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Sets a key in the Table to a specific function with formatting support
+    ///
+    /// \param name   The key in the table being assigned a value
+    /// \param method Function that is being placed in the Table
+    ///
+    /// \tparam F Type of function (only define this if you need to choose a certain template specialization or overload)
+    ///
+    /// \return The Table itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class F>
+    TableBase& FmtFunc(const SQChar* name, F method) {
+        BindFunc(name, &method, sizeof(method), SqGlobalFmtFunc(method));
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Sets a key in the Table to a specific function and allows the key to be overloaded with functions of a different amount of arguments
     ///
     /// \param name   The key in the table being assigned a value

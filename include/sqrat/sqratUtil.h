@@ -32,6 +32,7 @@
     #include <SqAPI.h>
 #else
     #include <squirrel.h>
+    #include <sqstdstring.h>
 #endif // SQMOD_PLUGIN_API
 
 #include <cassert>
@@ -1415,6 +1416,201 @@ public:
     {
         return m_RefCountRefCount ? *m_RefCountRefCount : 0;
     }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Implements RAII to restore the VM stack to it's initial size on function exit.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct StackGuard
+{
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Default constructor.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackGuard()
+        : m_VM(DefaultVM::Get()), m_Top(sq_gettop(m_VM))
+    {
+        /* ... */
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Base constructor.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackGuard(HSQUIRRELVM vm)
+        : m_VM(vm), m_Top(sq_gettop(vm))
+    {
+        /* ... */
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Copy constructor. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackGuard(const StackGuard &) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Move constructor. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackGuard(StackGuard &&) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Destructor.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ~StackGuard()
+    {
+        sq_pop(m_VM, sq_gettop(m_VM) - m_Top);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Copy assignment operator. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackGuard & operator = (const StackGuard &) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Move assignment operator. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackGuard & operator = (StackGuard &&) = delete;
+
+private:
+
+    HSQUIRRELVM m_VM; ///< The VM where the stack should be restored.
+    SQInteger   m_Top; ///< The top of the stack when this instance was created.
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper structure for retrieving a value from the stack as a string or a formatted string.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct StackStrF
+{
+    const SQChar *  mPtr; ///< Pointer to the C string that was retrieved.
+    SQInteger       mLen; ///< The string length if it could be retrieved.
+    SQRESULT        mRes; ///< The result of the retrieval attempts.
+    HSQOBJECT       mObj; ///< Strong reference to the string object.
+    HSQUIRRELVM     mVM; ///< The associated virtual machine.
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Base constructor.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt = true)
+        : mPtr(nullptr)
+        , mLen(-1)
+        , mRes(SQ_OK)
+        , mObj()
+        , mVM(vm)
+    {
+        const SQInteger top = sq_gettop(vm);
+        // Reset the converted value object
+        sq_resetobject(&mObj);
+        // Was the string or value specified?
+        if (top <= (idx - 1))
+        {
+            mRes = sq_throwerror(vm, "Missing string or value");
+        }
+        // Do we have enough values to call the format function and are we allowed to?
+        else if ((top - 1) > idx && fmt)
+        {
+            // Pointer to the generated string
+            SQChar * str = nullptr;
+            // Attempt to generate the specified string format
+            mRes = sqstd_format(vm, idx, &mLen, &str);
+            // Did the format succeeded but ended up with a null string pointer?
+            if (SQ_SUCCEEDED(mRes) && !str)
+            {
+                mRes = sq_throwerror(vm, "Unable to generate the string");
+            }
+            else
+            {
+                mPtr = const_cast< const SQChar * >(str);
+            }
+        }
+        // Is the value on the stack an actual string?
+        else if (sq_gettype(vm, idx) == OT_STRING)
+        {
+            // Obtain a reference to the string object
+            mRes = sq_getstackobj(vm, idx, &mObj);
+            // Could we retrieve the object from the stack?
+            if (SQ_SUCCEEDED(mRes))
+            {
+                // Keep a strong reference to the object
+                sq_addref(vm, &mObj);
+                // Attempt to retrieve the string value from the stack
+                mRes = sq_getstringandsize(vm, idx, &mPtr, &mLen);
+            }
+            // Did the retrieval succeeded but ended up with a null string pointer?
+            if (SQ_SUCCEEDED(mRes) && !mPtr)
+            {
+                mRes = sq_throwerror(vm, "Unable to retrieve the string");
+            }
+        }
+        // We have to try and convert it to string
+        else
+        {
+            // Attempt to convert the value from the stack to a string
+            mRes = sq_tostring(vm, idx);
+            // Could we convert the specified value to string?
+            if (SQ_SUCCEEDED(mRes))
+            {
+                // Obtain a reference to the resulted object
+                mRes = sq_getstackobj(vm, -1, &mObj);
+                // Could we retrieve the object from the stack?
+                if (SQ_SUCCEEDED(mRes))
+                {
+                    // Keep a strong reference to the object
+                    sq_addref(vm, &mObj);
+                    // Attempt to obtain the string pointer
+                    mRes = sq_getstringandsize(vm, -1, &mPtr, &mLen);
+                }
+            }
+            // Pop a value from the stack regardless of the result
+            sq_pop(vm, 1);
+            // Did the retrieval succeeded but ended up with a null string pointer?
+            if (SQ_SUCCEEDED(mRes) && !mPtr)
+            {
+                mRes = sq_throwerror(vm, "Unable to retrieve the value");
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Copy constructor. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackStrF(const StackStrF & o) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Copy constructor.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackStrF(StackStrF && o)
+        : mPtr(o.mPtr)
+        , mLen(o.mLen)
+        , mRes(o.mRes)
+        , mObj(o.mObj)
+        , mVM(o.mVM)
+    {
+        o.mPtr = nullptr;
+        o.mLen = 0;
+        o.mRes = SQ_OK;
+        o.mVM = nullptr;
+        sq_resetobject(&o.mObj);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Destructor.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ~StackStrF()
+    {
+        if (mVM && !sq_isnull(mObj))
+        {
+            sq_release(mVM, &mObj);
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Copy constructor. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackStrF & operator = (const StackStrF & o) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Move constructor. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    StackStrF & operator = (StackStrF && o) = delete;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

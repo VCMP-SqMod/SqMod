@@ -395,6 +395,23 @@ public:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a class function with formatting support
+    ///
+    /// \param name   Name of the function as it will appear in Squirrel
+    /// \param method Function to bind
+    ///
+    /// \tparam F Type of function (usually doesnt need to be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class F>
+    Class& FmtFunc(const SQChar* name, F method) {
+        BindFunc(name, &method, sizeof(method), SqMemberFuncFmt(method));
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Binds a class function with overloading enabled
     ///
     /// \param name   Name of the function as it will appear in Squirrel
@@ -433,6 +450,23 @@ public:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a global function as a class function with formatting support
+    ///
+    /// \param name   Name of the function as it will appear in Squirrel
+    /// \param method Function to bind
+    ///
+    /// \tparam F Type of function (usually doesnt need to be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class F>
+    Class& GlobalFmtFunc(const SQChar* name, F method) {
+        BindFunc(name, &method, sizeof(method), SqMemberGlobalFmtFunc(method));
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Binds a static class function
     ///
     /// \param name   Name of the function as it will appear in Squirrel
@@ -446,6 +480,23 @@ public:
     template<class F>
     Class& StaticFunc(const SQChar* name, F method) {
         BindFunc(name, &method, sizeof(method), SqGlobalFunc(method));
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a static class function with formatting support
+    ///
+    /// \param name   Name of the function as it will appear in Squirrel
+    /// \param method Function to bind
+    ///
+    /// \tparam F Type of function (usually doesnt need to be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class F>
+    Class& StaticFmtFunc(const SQChar* name, F method) {
+        BindFunc(name, &method, sizeof(method), SqGlobalFmtFunc(method));
         return *this;
     }
 

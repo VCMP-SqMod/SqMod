@@ -5428,6 +5428,3334 @@ inline SQFUNCTION SqMemberFunc(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, 
     return &SqMember<C, R&>::template Func14C<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, false>;
 }
 
+template <class C, class R>
+class SqMemberFmt {
+public:
+
+    // Arg Count 0
+    template <bool overloaded /*= false*/>
+    static SQInteger Func0(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 2) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+
+        typedef R (C::*M)(StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+
+        StackStrF fmt(vm, 2, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(fmt);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <bool overloaded /*= false*/>
+    static SQInteger Func0C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 2) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+
+        StackStrF fmt(vm, 2, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(fmt);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 1
+    template <class A1, bool overloaded /*= false*/>
+    static SQInteger Func1(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 3) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 3, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, bool overloaded /*= false*/>
+    static SQInteger Func1C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 3) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 3, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 2
+    template <class A1, class A2, bool overloaded /*= false*/>
+    static SQInteger Func2(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 4) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 4, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, bool overloaded /*= false*/>
+    static SQInteger Func2C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 4) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 4, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 3
+    template <class A1, class A2, class A3, bool overloaded /*= false*/>
+    static SQInteger Func3(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 5) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 5, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, bool overloaded /*= false*/>
+    static SQInteger Func3C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 5) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 5, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 4
+    template <class A1, class A2, class A3, class A4, bool overloaded /*= false*/>
+    static SQInteger Func4(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 6) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 6, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, bool overloaded /*= false*/>
+    static SQInteger Func4C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 6) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 6, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 5
+    template <class A1, class A2, class A3, class A4, class A5, bool overloaded /*= false*/>
+    static SQInteger Func5(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 7) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, A5, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 7, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, bool overloaded /*= false*/>
+    static SQInteger Func5C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 7) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, A5, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 7, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 6
+    template <class A1, class A2, class A3, class A4, class A5, class A6, bool overloaded /*= false*/>
+    static SQInteger Func6(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 8) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 8, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, class A6, bool overloaded /*= false*/>
+    static SQInteger Func6C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 8) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 8, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 7
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, bool overloaded /*= false*/>
+    static SQInteger Func7(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 9) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 9, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    a7.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, bool overloaded /*= false*/>
+    static SQInteger Func7C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 9) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 9, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    a7.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 8
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, bool overloaded /*= false*/>
+    static SQInteger Func8(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 10) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 10, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    a7.value,
+                    a8.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, bool overloaded /*= false*/>
+    static SQInteger Func8C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 10) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 10, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    a7.value,
+                    a8.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVar(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+};
+
+//
+// reference return specialization
+//
+
+template <class C, class R>
+class SqMemberFmt<C, R&> {
+public:
+
+    // Arg Count 0
+    template <bool overloaded /*= false*/>
+    static SQInteger Func0(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 2) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+
+        StackStrF fmt(vm, 2, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(fmt);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <bool overloaded /*= false*/>
+    static SQInteger Func0C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 2) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+
+        StackStrF fmt(vm, 2, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(fmt);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 1
+    template <class A1, bool overloaded /*= false*/>
+    static SQInteger Func1(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 3) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 3, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, bool overloaded /*= false*/>
+    static SQInteger Func1C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 3) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 3, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 2
+    template <class A1, class A2, bool overloaded /*= false*/>
+    static SQInteger Func2(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 4) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 4, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, bool overloaded /*= false*/>
+    static SQInteger Func2C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 4) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 4, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 3
+    template <class A1, class A2, class A3, bool overloaded /*= false*/>
+    static SQInteger Func3(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 5) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 5, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, bool overloaded /*= false*/>
+    static SQInteger Func3C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 5) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 5, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 4
+    template <class A1, class A2, class A3, class A4, bool overloaded /*= false*/>
+    static SQInteger Func4(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 6) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 6, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, bool overloaded /*= false*/>
+    static SQInteger Func4C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 6) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 6, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 5
+    template <class A1, class A2, class A3, class A4, class A5, bool overloaded /*= false*/>
+    static SQInteger Func5(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 7) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 7, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, bool overloaded /*= false*/>
+    static SQInteger Func5C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 7) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 7, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 6
+    template <class A1, class A2, class A3, class A4, class A5, class A6, bool overloaded /*= false*/>
+    static SQInteger Func6(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 8) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 8, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, class A6, bool overloaded /*= false*/>
+    static SQInteger Func6C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 8) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 8, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 7
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, bool overloaded /*= false*/>
+    static SQInteger Func7(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 9) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 9, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    a7.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, bool overloaded /*= false*/>
+    static SQInteger Func7C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 9) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 9, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    a7.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    // Arg Count 8
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, bool overloaded /*= false*/>
+    static SQInteger Func8(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 10) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 10, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    a7.value,
+                    a8.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, bool overloaded /*= false*/>
+    static SQInteger Func8C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 10) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef R& (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 10, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        R& ret = (ptr->*method)(
+                    a1.value,
+                    a2.value,
+                    a3.value,
+                    a4.value,
+                    a5.value,
+                    a6.value,
+                    a7.value,
+                    a8.value,
+                    fmt
+                );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        PushVarR(vm, ret);
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 1;
+    }
+};
+
+//
+// void return specialization
+//
+
+template <class C>
+class SqMemberFmt<C, void> {
+public:
+
+    // Arg Count 0
+    template <bool overloaded /*= false*/>
+    static SQInteger Func0(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 2) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+
+        StackStrF fmt(vm, 2, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(fmt);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <bool overloaded /*= false*/>
+    static SQInteger Func0C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 2) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+
+        StackStrF fmt(vm, 2, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(fmt);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    // Arg Count 1
+    template <class A1, bool overloaded /*= false*/>
+    static SQInteger Func1(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 3) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 3, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <class A1, bool overloaded /*= false*/>
+    static SQInteger Func1C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 3) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 3, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    // Arg Count 2
+    template <class A1, class A2, bool overloaded /*= false*/>
+    static SQInteger Func2(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 4) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 4, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <class A1, class A2, bool overloaded /*= false*/>
+    static SQInteger Func2C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 4) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 4, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    // Arg Count 3
+    template <class A1, class A2, class A3, bool overloaded /*= false*/>
+    static SQInteger Func3(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 5) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 5, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <class A1, class A2, class A3, bool overloaded /*= false*/>
+    static SQInteger Func3C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 5) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 5, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    // Arg Count 4
+    template <class A1, class A2, class A3, class A4, bool overloaded /*= false*/>
+    static SQInteger Func4(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 6) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 6, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <class A1, class A2, class A3, class A4, bool overloaded /*= false*/>
+    static SQInteger Func4C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 6) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 6, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    // Arg Count 5
+    template <class A1, class A2, class A3, class A4, class A5, bool overloaded /*= false*/>
+    static SQInteger Func5(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 7) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, A5, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 7, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, bool overloaded /*= false*/>
+    static SQInteger Func5C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 7) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, A5, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 7, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    // Arg Count 6
+    template <class A1, class A2, class A3, class A4, class A5, class A6, bool overloaded /*= false*/>
+    static SQInteger Func6(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 8) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 8, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, class A6, bool overloaded /*= false*/>
+    static SQInteger Func6C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 8) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 8, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    // Arg Count 7
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, bool overloaded /*= false*/>
+    static SQInteger Func7(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 9) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 9, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, bool overloaded /*= false*/>
+    static SQInteger Func7C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 9) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 9, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    // Arg Count 8
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, bool overloaded /*= false*/>
+    static SQInteger Func8(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 10) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &);
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 10, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            a8.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, bool overloaded /*= false*/>
+    static SQInteger Func8C(HSQUIRRELVM vm) {
+
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < 10) {
+            return sq_throwerror(vm, _SC("wrong number of parameters"));
+        }
+#endif
+        typedef void (C::*M)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const;
+        M* methodPtr;
+        sq_getuserdata(vm, -1, (SQUserPointer*)&methodPtr, NULL);
+        M method = *methodPtr;
+
+        C* ptr;
+        SQTRY()
+        ptr = Var<C*>(vm, 1).value;
+        SQCATCH_NOEXCEPT(vm) {
+            SQCLEAR(vm); // clear the previous error
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            assert(0); // may fail because C is not a type bound in the VM
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        StackStrF fmt(vm, 10, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        (ptr->*method)(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            a8.value,
+            fmt
+        );
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+};
+
+//
+// Formatted Member Function Resolvers
+//
+
+// Arg Count 0
+template <class C, class R>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(StackStrF &)) {
+    return &SqMemberFmt<C, R>::template Func0<false>;
+}
+
+template <class C, class R>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(StackStrF &) const) {
+    return &SqMemberFmt<C, R>::template Func0C<false>;
+}
+
+template <class C, class R>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(StackStrF &)) {
+    return &SqMemberFmt<C, R&>::template Func0<false>;
+}
+
+template <class C, class R>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(StackStrF &) const) {
+    return &SqMemberFmt<C, R&>::template Func0C<false>;
+}
+
+// Arg Count 1
+template <class C, class R, class A1>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, StackStrF &)) {
+    return &SqMemberFmt<C, R>::template Func1<A1, false>;
+}
+
+template <class C, class R, class A1>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, StackStrF &) const) {
+    return &SqMemberFmt<C, R>::template Func1C<A1, false>;
+}
+
+template <class C, class R, class A1>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, StackStrF &)) {
+    return &SqMemberFmt<C, R&>::template Func1<A1, false>;
+}
+
+template <class C, class R, class A1>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, StackStrF &) const) {
+    return &SqMemberFmt<C, R&>::template Func1C<A1, false>;
+}
+
+// Arg Count 2
+template <class C, class R, class A1, class A2>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, StackStrF &)) {
+    return &SqMemberFmt<C, R>::template Func2<A1, A2, false>;
+}
+
+template <class C, class R, class A1, class A2>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, StackStrF &) const) {
+    return &SqMemberFmt<C, R>::template Func2C<A1, A2, false>;
+}
+
+template <class C, class R, class A1, class A2>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, StackStrF &)) {
+    return &SqMemberFmt<C, R&>::template Func2<A1, A2, false>;
+}
+
+template <class C, class R, class A1, class A2>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, StackStrF &) const) {
+    return &SqMemberFmt<C, R&>::template Func2C<A1, A2, false>;
+}
+
+// Arg Count 3
+template <class C, class R, class A1, class A2, class A3>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, StackStrF &)) {
+    return &SqMemberFmt<C, R>::template Func3<A1, A2, A3, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, StackStrF &) const) {
+    return &SqMemberFmt<C, R>::template Func3C<A1, A2, A3, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, StackStrF &)) {
+    return &SqMemberFmt<C, R&>::template Func3<A1, A2, A3, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, StackStrF &) const) {
+    return &SqMemberFmt<C, R&>::template Func3C<A1, A2, A3, false>;
+}
+
+// Arg Count 4
+template <class C, class R, class A1, class A2, class A3, class A4>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, StackStrF &)) {
+    return &SqMemberFmt<C, R>::template Func4<A1, A2, A3, A4, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, StackStrF &) const) {
+    return &SqMemberFmt<C, R>::template Func4C<A1, A2, A3, A4, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, StackStrF &)) {
+    return &SqMemberFmt<C, R&>::template Func4<A1, A2, A3, A4, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, StackStrF &) const) {
+    return &SqMemberFmt<C, R&>::template Func4C<A1, A2, A3, A4, false>;
+}
+
+// Arg Count 5
+template <class C, class R, class A1, class A2, class A3, class A4, class A5>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, StackStrF &)) {
+    return &SqMemberFmt<C, R>::template Func5<A1, A2, A3, A4, A5, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, StackStrF &) const) {
+    return &SqMemberFmt<C, R>::template Func5C<A1, A2, A3, A4, A5, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, StackStrF &)) {
+    return &SqMemberFmt<C, R&>::template Func5<A1, A2, A3, A4, A5, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5>
+inline SQFUNCTION SqMemberFuncFmt(R&(C::* /*method*/)(A1, A2, A3, A4, A5, StackStrF &) const) {
+    return &SqMemberFmt<C, R&>::template Func5C<A1, A2, A3, A4, A5, false>;
+}
+
+// Arg Count 6
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &)) {
+    return &SqMemberFmt<C, R>::template Func6<A1, A2, A3, A4, A5, A6, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &) const) {
+    return &SqMemberFmt<C, R>::template Func6C<A1, A2, A3, A4, A5, A6, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &)) {
+    return &SqMemberFmt<C, R&>::template Func6<A1, A2, A3, A4, A5, A6, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, StackStrF &) const) {
+    return &SqMemberFmt<C, R&>::template Func6C<A1, A2, A3, A4, A5, A6, false>;
+}
+
+// Arg Count 7
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &)) {
+    return &SqMemberFmt<C, R>::template Func7<A1, A2, A3, A4, A5, A6, A7, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const) {
+    return &SqMemberFmt<C, R>::template Func7C<A1, A2, A3, A4, A5, A6, A7, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &)) {
+    return &SqMemberFmt<C, R&>::template Func7<A1, A2, A3, A4, A5, A6, A7, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, StackStrF &) const) {
+    return &SqMemberFmt<C, R&>::template Func7C<A1, A2, A3, A4, A5, A6, A7, false>;
+}
+
+// Arg Count 8
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &)) {
+    return &SqMemberFmt<C, R>::template Func8<A1, A2, A3, A4, A5, A6, A7, A8, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
+inline SQFUNCTION SqMemberFuncFmt(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const) {
+    return &SqMemberFmt<C, R>::template Func8C<A1, A2, A3, A4, A5, A6, A7, A8, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &)) {
+    return &SqMemberFmt<C, R&>::template Func8<A1, A2, A3, A4, A5, A6, A7, A8, false>;
+}
+
+template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
+inline SQFUNCTION SqMemberFuncFmt(R& (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, StackStrF &) const) {
+    return &SqMemberFmt<C, R&>::template Func8C<A1, A2, A3, A4, A5, A6, A7, A8, false>;
+}
+
 
 //
 // Variable Get
