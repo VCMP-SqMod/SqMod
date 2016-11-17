@@ -5,11 +5,6 @@
 #include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <array>
-#include <utility>
-#include <unordered_map>
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -25,9 +20,280 @@ public:
     typedef Int64                                       Time;
     typedef SQInteger                                   Interval;
     typedef Uint32                                      Iterator;
-    typedef std::pair< Interval, Routine * >            Element;
-    typedef std::array< Element, SQMOD_MAX_ROUTINES >   Routines;
-    typedef std::unordered_map< Routine *, Object >     Objects;
+    typedef LightObj                                    Argument;
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Structure that represents an active routine and keeps track of the routine information.
+    */
+    struct Instance
+    {
+        // ----------------------------------------------------------------------------------------
+        LightObj    mEnv; // A reference to the managed environment object.
+        LightObj    mFunc; // A reference to the managed function object.
+        LightObj    mInst; // Reference to the routine associated with this instance.
+        LightObj    mData; // A reference to the arbitrary data associated with this instance.
+        String      mTag; // An arbitrary string which represents the tag.
+        Iterator    mIterations; // Number of iterations before self destruct.
+        Interval    mInterval; // Interval between routine invocations.
+        bool        mSuspended; // Whether this instance is allowed to receive calls.
+        Uint8       mArgc; // The number of arguments that the routine must forward.
+        Argument    mArgv[14]; // The arguments that the routine must forward.
+
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
+        Instance()
+            : mEnv()
+            , mFunc()
+            , mInst()
+            , mData()
+            , mTag()
+            , mIterations(0)
+            , mInterval(0)
+            , mSuspended(false)
+            , mArgc(0)
+            , mArgv()
+        {
+            /* ... */
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy constructor. (disabled)
+        */
+        Instance(const Instance & o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move constructor. (disabled)
+        */
+        Instance(Instance && o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Destructor.
+        */
+        ~Instance()
+        {
+            Terminate();
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Copy assignment operator. (disabled)
+        */
+        Instance & operator = (const Instance & o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Move assignment operator. (disabled)
+        */
+        Instance & operator = (Instance && o) = delete;
+
+        /* ----------------------------------------------------------------------------------------
+         * Initializes the routine parameters. (assumes previous values are already released)
+        */
+        void Init(HSQOBJECT & env, HSQOBJECT & func, HSQOBJECT & inst, Interval intrv, Iterator itr)
+        {
+            // Initialize the callback objects
+            mEnv = LightObj(env);
+            mFunc = LightObj(func);
+            // Associate with the routine instance
+            mInst = LightObj(inst);
+            // Initialize the routine options
+            mIterations = itr;
+            mInterval = intrv;
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Release managed script resources.
+        */
+        void Release()
+        {
+            mEnv.Release();
+            mFunc.Release();
+            mInst.Release();
+            mData.Release();
+            mIterations = 0;
+            mInterval = 0;
+            mTag.clear();
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Execute the managed routine.
+        */
+        Interval Execute()
+        {
+            // is this even a valid routine?
+            if (mInst.IsNull())
+            {
+                return 0; // Dunno how we got here but it ends now
+            }
+            // Are we allowed to forward calls?
+            else if (!mSuspended)
+            {
+                // Grab the virtual machine once
+                HSQUIRRELVM vm = DefaultVM::Get();
+                // Push the function on the stack
+                sq_pushobject(vm, mFunc);
+                // Push the environment on the stack
+                sq_pushobject(vm, mEnv);
+                // Push function parameters, if any
+                for (Uint32 n = 0; n < mArgc; ++n)
+                {
+                    sq_pushobject(vm, mArgv[n].mObj);
+                }
+                // Make the function call and store the result
+                const SQRESULT res = sq_call(vm, mArgc + 1, false, ErrorHandling::IsEnabled());
+                // Validate the result
+                if (SQ_FAILED(res))
+                {
+                    Terminate(); // Destroy ourself on error
+                }
+            }
+            // Decrease the number of iterations if necessary
+            if (mIterations && (--mIterations) == 0)
+            {
+                Terminate(); // This routine reached the end of it's life
+            }
+            // Return the current interval
+            return mInterval;
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Clear the arguments.
+        */
+        void Clear()
+        {
+            // Now release the arguments
+            for (auto & a : mArgv)
+            {
+                a.Release();
+            }
+            // Reset the counter
+            mArgc = 0;
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Terminate the routine.
+        */
+        void Terminate()
+        {
+            Release();
+            Clear();
+        }
+    };
+
+private:
+
+    // --------------------------------------------------------------------------------------------
+    static Time         s_Last; // Last time point.
+    static Time         s_Prev; // Previous time point.
+    static Interval     s_Intervals[SQMOD_MAX_ROUTINES]; // List of intervals to be processed.
+    static Instance     s_Instances[SQMOD_MAX_ROUTINES]; // List of routines to be executed.
+
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * The index of the slot in the pool of active routines.
+    */
+    Uint32   m_Slot;
+
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    Routine()
+        : m_Slot(SQMOD_MAX_ROUTINES)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    Routine(Uint32 slot)
+        : m_Slot(slot)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    Routine(const Routine & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    Routine(Routine && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    Routine & operator = (const Routine & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    Routine & operator = (Routine && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Find an unoccupied routine slot.
+    */
+    static SQInteger FindUnused()
+    {
+        for (const auto & r : s_Instances)
+        {
+            if (r.mInst.IsNull())
+            {
+                return (&r - s_Instances); // Return the index of this element
+            }
+        }
+        // No available slot
+        return -1;
+    }
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of used routine slots.
+    */
+    static SQInteger GetUsed()
+    {
+        SQInteger n = 0;
+        // Iterate routine list
+        for (const auto & r : s_Instances)
+        {
+            if (!r.mInst.IsNull())
+            {
+                ++n;
+            }
+        }
+        // Return the final count
+        return n;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of used routine slots.
+    */
+    static const LightObj & FindByTag(const StackStrF & tag)
+    {
+        if (!tag.mPtr)
+        {
+            STHROWF("Invalid entity tag");
+        }
+        // Iterate routine list
+        for (const auto & r : s_Instances)
+        {
+            if (!r.mInst.IsNull() && r.mTag.compare(tag.mPtr) == 0)
+            {
+                return r.mInst; // Return this routine instance
+            }
+        }
+        // Unable to find such routine
+        STHROWF("Unable to find a routine with tag (%s)", tag.mPtr);
+        // Should not reach this point but if it did, we have to return something
+        return s_Instances[SQMOD_MAX_TASKS].mInst; // Intentional Buffer overflow!
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Process all active routines and update elapsed time.
@@ -44,432 +310,196 @@ public:
     */
     static void Deinitialize();
 
-protected:
-
-    // --------------------------------------------------------------------------------------------
-    static Time         s_Last; // Last time point.
-    static Time         s_Prev; // Previous time point.
-    static Routines     s_Routines; // List of routines to be processed.
-    static Objects      s_Objects; // List of existing routines and their associated object.
+    /* --------------------------------------------------------------------------------------------
+     * Create a routine with the specified parameters.
+    */
+    static SQInteger Create(HSQUIRRELVM vm);
 
 protected:
-
-    /* --------------------------------------------------------------------------------------------
-     * Create or locate the object for the specified routine and keep a strong reference to it.
-    */
-    static Object Associate(Routine * routine);
-
-    /* --------------------------------------------------------------------------------------------
-     * Release the strong reference associated with the specified routine so it can be destroyed.
-    */
-    static void Dissociate(Routine * routine);
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the specified routine exists in the pool and references itself.
-    */
-    static bool Associated(Routine * routine);
-
-    /* --------------------------------------------------------------------------------------------
-     * Remove the specified routine from the pool and any associated reference, if any.
-    */
-    static void Forget(Routine * routine);
-
-    /* --------------------------------------------------------------------------------------------
-     * Insert a routine instance into the pool to be processed.
-    */
-    static void Insert(Routine * routine, bool associate = true);
-
-    /* --------------------------------------------------------------------------------------------
-     * Remove a routine instance from the pool to not be processed.
-    */
-    static void Remove(Routine * routine, bool forget = false);
-
-    /* --------------------------------------------------------------------------------------------
-     * Release routine resources.
-    */
-    void Release();
-
-    /* --------------------------------------------------------------------------------------------
-     * Execute the binded callback.
-    */
-    void Execute();
 
     /* --------------------------------------------------------------------------------------------
      * See whether this routine is valid otherwise throw an exception.
     */
     void Validate() const
     {
-        if (m_Terminated)
+        if (m_Slot >= SQMOD_MAX_ROUTINES)
         {
-            STHROWF("Routine was terminated [%s]", m_Tag.c_str());
+            STHROWF("This instance does not reference a valid routine");
         }
     }
 
-private:
-
     /* --------------------------------------------------------------------------------------------
-     * Constructor with just an interval.
+     * See whether this routine is valid otherwise throw an exception.
     */
-    Routine(Object & env, Function & func, Interval interval);
-
-    /* --------------------------------------------------------------------------------------------
-     * Constructor with just an interval and explicit iterations.
-    */
-    Routine(Object & env, Function & func, Interval interval, Iterator iterations);
-
-    /* --------------------------------------------------------------------------------------------
-     * Constructor with just an interval, explicit iterations and arguments.
-    */
-    Routine(Object & env, Function & func, Interval interval, Iterator iterations
-            , Object & a1);
-
-    /* --------------------------------------------------------------------------------------------
-     * Constructor with just an interval, explicit iterations and arguments.
-    */
-    Routine(Object & env, Function & func, Interval interval, Iterator iterations
-            , Object & a1, Object & a2);
-
-    /* --------------------------------------------------------------------------------------------
-     * Constructor with just an interval, explicit iterations and arguments.
-    */
-    Routine(Object & env, Function & func, Interval interval, Iterator iterations
-            , Object & a1, Object & a2, Object & a3);
-
-    /* --------------------------------------------------------------------------------------------
-     * Constructor with just an interval, explicit iterations and arguments.
-    */
-    Routine(Object & env, Function & func, Interval interval, Iterator iterations
-            , Object & a1, Object & a2, Object & a3, Object & a4);
-
-    /* --------------------------------------------------------------------------------------------
-     * Constructor with just an interval, explicit iterations and arguments.
-    */
-    Routine(Object & env, Function & func, Interval interval, Iterator iterations
-            , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5);
-
-private:
-
-    /* --------------------------------------------------------------------------------------------
-     * Number of iterations before self destruct.
-    */
-    Iterator     m_Iterations;
-
-    /* --------------------------------------------------------------------------------------------
-     * Interval between calls.
-    */
-    Interval    m_Interval;
-
-    /* --------------------------------------------------------------------------------------------
-     * The index of the slot in the pool.
-    */
-    Uint16       m_Slot;
-
-    /* --------------------------------------------------------------------------------------------
-     * Number of arguments to forward.
-    */
-    Uint16       m_Arguments;
-
-    /* --------------------------------------------------------------------------------------------
-     * Whether calls should be ignored.
-    */
-    bool        m_Suspended;
-
-    /* --------------------------------------------------------------------------------------------
-     * Whether the routine was terminated.
-    */
-    bool        m_Terminated;
-
-    /* --------------------------------------------------------------------------------------------
-     * The callback to be executed when triggered.
-    */
-    Function    m_Callback;
-
-    /* --------------------------------------------------------------------------------------------
-     * User tag associated with this instance.
-    */
-    String      m_Tag;
-
-    /* --------------------------------------------------------------------------------------------
-     * User data associated with this instance.
-    */
-    Object      m_Data;
-
-    /* --------------------------------------------------------------------------------------------
-     * Arguments to be forwarded to the callback.
-    */
-    Object      m_Arg1, m_Arg2, m_Arg3, m_Arg4, m_Arg5, m_Arg6, m_Arg7,
-                m_Arg8, m_Arg9, m_Arg10, m_Arg11, m_Arg12, m_Arg13, m_Arg14;
+    Instance & GetValid() const
+    {
+        if (m_Slot >= SQMOD_MAX_ROUTINES)
+        {
+            STHROWF("This instance does not reference a valid routine");
+        }
+        // We know it's valid so let's return it
+        return s_Instances[m_Slot];
+    }
 
 public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    Routine(const Routine & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor. (disabled)
-    */
-    Routine(Routine && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~Routine();
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    Routine & operator = (const Routine & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator. (disabled)
-    */
-    Routine & operator = (Routine && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare two instances of this type.
-    */
-    Int32 Cmp(const Routine & o) const
-    {
-        return Cmp(static_cast< SQInteger >(o.m_Interval));
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare an instance of this type with an integer.
-    */
-    Int32 Cmp(SQInteger interval) const
-    {
-        if (m_Interval == interval)
-        {
-            return 0;
-        }
-        else if (m_Interval > interval)
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare an instance of this type with an float.
-    */
-    Int32 Cmp(SQFloat interval) const
-    {
-        return Cmp(static_cast< SQInteger >(interval));
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare an instance of this type with an string.
-    */
-    Int32 Cmp(CSStr tag) const
-    {
-        return m_Tag.compare(tag);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare an instance of this type with a boolean.
-    */
-    Int32 Cmp(bool suspended) const
-    {
-        if (m_Suspended == suspended)
-        {
-            return 0;
-        }
-        else if (m_Suspended > suspended)
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to compare an instance of this type with a null pointer.
-    */
-    Int32 Cmp(std::nullptr_t) const
-    {
-        if (m_Terminated == true)
-        {
-            return 0;
-        }
-        else
-        {
-            return 1;
-        }
-    }
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    const String & ToString() const
+    {
+        return (m_Slot >= SQMOD_MAX_ROUTINES) ? NullString() : s_Instances[m_Slot].mTag;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Terminate the routine.
+    */
+    void Terminate()
+    {
+        GetValid().Terminate();
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user tag.
     */
-    const String & GetTag() const;
+    const String & GetTag() const
+    {
+        return GetValid().mTag;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    void SetTag(const StackStrF & tag);
+    void SetTag(const StackStrF & tag)
+    {
+        GetValid().mTag.assign(tag.mPtr, ClampMin(tag.mLen, 0));
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user data.
+     * Retrieve the environment object.
     */
-    Object & GetData();
+    const LightObj & GetEnv() const
+    {
+        return GetValid().mEnv;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Modify the associated user data.
+     * Modify the environment object.
     */
-    void SetData(Object & data);
+    void SetEnv(const LightObj & env)
+    {
+        GetValid().mEnv = env.IsNull() ? LightObj(RootTable().GetObject()) : env;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Modify the associated user tag and allow chaining of operations.
+     * Retrieve the function object.
     */
-    Routine & ApplyTag(const StackStrF & tag);
+    const LightObj & GetFunc() const
+    {
+        return GetValid().mFunc;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Modify the associated user data and allow chaining of operations.
+     * Modify the function object.
     */
-    Routine & ApplyData(Object & data);
+    void SetFunc(const Function & func)
+    {
+        // Validate the specified
+        if (!sq_isclosure(func.GetFunc()) && !sq_isnativeclosure(func.GetFunc()))
+        {
+            STHROWF("Invalid callback type %s", SqTypeName(GetValid().mFunc.GetType()));
+        }
+        // Store the function without the environment
+        GetValid().mFunc = LightObj(func.GetFunc());
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Activate the routine instance.
+     * Retrieve the arbitrary user data object.
     */
-    Routine & Activate();
+    const LightObj & GetData() const
+    {
+        return GetValid().mData;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Deactivate the routine instance.
+     * Modify the arbitrary user data object.
     */
-    Routine & Deactivate();
+    void SetData(const LightObj & data)
+    {
+        GetValid().mData = data;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Terminate this routine by deactivating and releasing all resources.
+     * Retrieve the execution interval.
     */
-    Routine & Terminate();
+    SQInteger GetInterval() const
+    {
+        return ConvTo< SQInteger >::From(GetValid().mInterval);
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Unmark this routine as terminated and allow to be activated.
+     * Modify the execution interval.
     */
-    Routine & Reanimate();
+    void SetInterval(SQInteger itr)
+    {
+        GetValid().mInterval = ClampMin(ConvTo< Interval >::From(itr), static_cast< Interval >(0));
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Modify an explicit value to be passed as the specified argument.
+     * Retrieve the number of iterations.
     */
-    Routine & SetArg(Uint16 num, Object & val);
+    SQInteger GetIterations() const
+    {
+        return ConvTo< SQInteger >::From(GetValid().mIterations);
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the value that is passed as the specified argument.
+     * Modify the number of iterations.
     */
-    Object & GetArg(Uint16 num);
+    void SetIterations(SQInteger itr)
+    {
+        GetValid().mIterations = ConvTo< Iterator >::From(itr);
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the amount of time required to wait between calls to the routine.
+     * See whether the routine is suspended.
     */
-    Interval GetInterval() const;
+    bool GetSuspended() const
+    {
+        return GetValid().mSuspended;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Modify the amount of time required to wait between calls to the routine.
+     * Set whether the routine should be suspended.
     */
-    void SetInterval(Interval interval);
+    void SetSuspended(bool toggle)
+    {
+        GetValid().mSuspended = toggle;
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the number of times that the routine can be called before terminating itself.
+     * Retrieve the number of arguments to be forwarded.
     */
-    Iterator GetIterations() const;
+    SQInteger GetArguments() const
+    {
+        return ConvTo< SQInteger >::From(GetValid().mArgc);
+    }
 
     /* --------------------------------------------------------------------------------------------
-     * Modify the number of times that the routine can be called before terminating itself.
+     * Retrieve a certain argument.
     */
-    void SetIterations(Iterator iterations);
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the number of arguments that are forwarded when executing the callback.
-    */
-    Uint16 GetArguments() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the number of arguments that are forwarded when executing the callback.
-    */
-    void SetArguments(Uint16 num);
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the routine is suspended from further calls.
-    */
-    bool GetSuspended() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Set whether the routine is suspended from further calls.
-    */
-    void SetSuspended(bool toggle);
-
-    /* --------------------------------------------------------------------------------------------
-     * See whether the routine was terminated or not.
-    */
-    bool GetTerminated() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the currently binded callback.
-    */
-    Function & GetCallback();
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a certain function to be executed when this routine is triggered.
-    */
-    void SetCallback(Object & env, Function & func);
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a routine with just an interval.
-    */
-    static Object Create(Object & env, Function & func, Interval interval);
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a routine with just an interval and explicit iterations.
-    */
-    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations);
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a routine with just an interval, explicit iterations and arguments.
-    */
-    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
-                            , Object & a1);
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a routine with just an interval, explicit iterations and arguments.
-    */
-    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
-                            , Object & a1, Object & a2);
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a routine with just an interval, explicit iterations and arguments.
-    */
-    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
-                            , Object & a1, Object & a2, Object & a3);
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a routine with just an interval, explicit iterations and arguments.
-    */
-    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
-                            , Object & a1, Object & a2, Object & a3, Object & a4);
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a routine with just an interval, explicit iterations and arguments.
-    */
-    static Object Create(Object & env, Function & func, Interval interval, Iterator iterations
-                            , Object & a1, Object & a2, Object & a3, Object & a4, Object & a5);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to find a certain routine by its associated tag.
-    */
-    static Object FindByTag(CSStr tag);
+    const Argument & GetArgument(SQInteger arg) const
+    {
+        // Cast the index to the proper value
+        Uint8 idx = ConvTo< Uint8 >::From(arg);
+        // Validate the specified index
+        if (idx >= 14)
+        {
+            STHROWF("The specified index is out of range: %u >= %u", idx, 14);
+        }
+        // Return the requested argument
+        return GetValid().mArgv[idx];
+    }
 };
 
 } // Namespace:: SqMod
