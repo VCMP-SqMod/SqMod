@@ -582,6 +582,7 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CCheckpoint, ENT_CHECKPOINT >)
         .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CCheckpoint, ENT_CHECKPOINT >)
         .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CCheckpoint, ENT_CHECKPOINT >)
+        .SquirrelFunc(_SC("FindTask"), &Tasks::FindTask< CCheckpoint, ENT_CHECKPOINT >)
     );
 }
 

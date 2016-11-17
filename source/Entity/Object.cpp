@@ -995,6 +995,7 @@ void Register_CObject(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CObject, ENT_OBJECT >)
         .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CObject, ENT_OBJECT >)
         .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CObject, ENT_OBJECT >)
+        .SquirrelFunc(_SC("FindTask"), &Tasks::FindTask< CObject, ENT_OBJECT >)
     );
 }
 

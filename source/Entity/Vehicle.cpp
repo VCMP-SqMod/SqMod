@@ -1931,6 +1931,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CVehicle, ENT_VEHICLE >)
         .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CVehicle, ENT_VEHICLE >)
         .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CVehicle, ENT_VEHICLE >)
+        .SquirrelFunc(_SC("FindTask"), &Tasks::FindTask< CVehicle, ENT_VEHICLE >)
     );
 }
 

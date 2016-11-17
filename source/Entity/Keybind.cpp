@@ -244,6 +244,7 @@ void Register_CKeybind(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CKeybind, ENT_KEYBIND >)
         .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CKeybind, ENT_KEYBIND >)
         .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CKeybind, ENT_KEYBIND >)
+        .SquirrelFunc(_SC("FindTask"), &Tasks::FindTask< CKeybind, ENT_KEYBIND >)
     );
 }
 

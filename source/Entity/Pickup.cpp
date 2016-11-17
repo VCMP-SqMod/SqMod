@@ -498,6 +498,7 @@ void Register_CPickup(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CPickup, ENT_PICKUP >)
         .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CPickup, ENT_PICKUP >)
         .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CPickup, ENT_PICKUP >)
+        .SquirrelFunc(_SC("FindTask"), &Tasks::FindTask< CPickup, ENT_PICKUP >)
     );
 }
 

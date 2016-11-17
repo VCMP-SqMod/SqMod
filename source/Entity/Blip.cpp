@@ -361,6 +361,7 @@ void Register_CBlip(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CBlip, ENT_BLIP >)
         .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CBlip, ENT_BLIP >)
         .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CBlip, ENT_BLIP >)
+        .SquirrelFunc(_SC("FindTask"), &Tasks::FindTask< CBlip, ENT_BLIP >)
     );
 }
 

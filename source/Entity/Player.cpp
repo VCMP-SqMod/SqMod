@@ -2533,6 +2533,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CPlayer, ENT_PLAYER >)
         .SquirrelFunc(_SC("DropTask"), &Tasks::DropTask< CPlayer, ENT_PLAYER >)
         .SquirrelFunc(_SC("DoesTask"), &Tasks::DoesTask< CPlayer, ENT_PLAYER >)
+        .SquirrelFunc(_SC("FindTask"), &Tasks::FindTask< CPlayer, ENT_PLAYER >)
     );
 }
 
