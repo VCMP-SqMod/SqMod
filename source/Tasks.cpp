@@ -55,6 +55,7 @@ void Tasks::Task::Init(HSQOBJECT & func, HSQOBJECT & inst, Interval intrv, Itera
 void Tasks::Task::Release()
 {
     mHash = 0;
+    mTag.clear();
     mFunc.Release();
     mInst.Release();
     mData.Release();
