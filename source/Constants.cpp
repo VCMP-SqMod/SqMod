@@ -1140,6 +1140,8 @@ void Register_Constants(HSQUIRRELVM vm)
         .Const(_SC("Infinity"),     static_cast< float >(INFINITY))
         .Const(_SC("Inf"),          static_cast< float >(INFINITY))
         .Const(_SC("Nan"),          static_cast< float >(NAN))
+        .Const(_SC("MaxTasks"),     SQMOD_MAX_TASKS)
+        .Const(_SC("MaxRoutines"),  SQMOD_MAX_ROUTINES)
     );
 
     RegisterEnum(vm, _SC("SqArchitectre"),      g_ArchitectureEnum,     SQENUMCOUNT(g_ArchitectureEnum));
