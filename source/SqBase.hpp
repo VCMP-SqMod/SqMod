@@ -141,6 +141,7 @@ namespace Sqrat {
     class Table;
     class Function;
     class StackStrF;
+    class LightObject;
 } // Namespace:: Sqrat
 
 /* ------------------------------------------------------------------------------------------------
