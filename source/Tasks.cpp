@@ -18,7 +18,6 @@ namespace SqMod {
 SQMODE_DECL_TYPENAME(Typename, _SC("SqTask"))
 
 // ------------------------------------------------------------------------------------------------
-Uint32              Tasks::s_Used = 0;
 Tasks::Time         Tasks::s_Last = 0;
 Tasks::Time         Tasks::s_Prev = 0;
 Tasks::Interval     Tasks::s_Intervals[SQMOD_MAX_TASKS];
@@ -169,6 +168,8 @@ void Tasks::Register(HSQUIRRELVM vm)
         .FmtFunc(_SC("SetTag"), &Task::SetTag)
         .Func(_SC("Terminate"), &Task::Terminate)
         .Func(_SC("GetArgument"), &Task::GetArgument)
+        // Static functions
+        .StaticFunc(_SC("Used"), &Tasks::GetUsed)
     );
 }
 
@@ -216,8 +217,10 @@ SQInteger Tasks::FindUnused()
 // ------------------------------------------------------------------------------------------------
 SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
 {
+    // Locate the identifier of a free slot
+    const SQInteger slot = FindUnused();
     // See if we have where to store this task
-    if (s_Used >= SQMOD_MAX_TASKS)
+    if (slot < 0)
     {
         return sq_throwerror(vm, "Reached the maximum number of tasks");
     }
@@ -284,14 +287,6 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
         }
     }
 
-    // Obtain the identifier of a free slot
-    const SQInteger slot = FindUnused();
-    // Validate the slot, although it shouldn't be necessary
-    if (slot < 0)
-    {
-        return sq_throwerror(vm, "Unable to acquire a task slot");
-    }
-
     // At this point we can grab a reference to our slot
     Task & task = s_Tasks[slot];
     // Were there any arguments specified?
@@ -319,12 +314,11 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
             ++task.mArgc;
         }
     }
+
     // Alright, at this point we can initialize the slot
     task.Init(func, inst, intrv, itr, id, type);
     // Now initialize the interval
     s_Intervals[slot] = intrv;
-    // Increase the number of used slots
-    ++s_Used;
     // Push the tag instance on the stack
     sq_pushobject(vm, task.mSelf);
     // Specify that this function returns a value

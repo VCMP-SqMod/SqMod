@@ -78,8 +78,7 @@ private:
         */
         ~Task()
         {
-            Release();
-            Clear();
+            Terminate();
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -106,6 +105,16 @@ private:
         void Init(HSQOBJECT & inst, HSQOBJECT & func, Interval intrv, Iterator itr, Int32 id, Int32 type);
 
         /* ----------------------------------------------------------------------------------------
+         * Release managed script resources.
+        */
+        void Release();
+
+        /* ----------------------------------------------------------------------------------------
+         * Execute the managed task.
+        */
+        Interval Execute();
+
+        /* ----------------------------------------------------------------------------------------
          * Clear the arguments.
         */
         void Clear()
@@ -120,23 +129,13 @@ private:
         }
 
         /* ----------------------------------------------------------------------------------------
-         * Release managed script resources.
-        */
-        void Release();
-
-        /* ----------------------------------------------------------------------------------------
-         * Terminate the task
+         * Terminate the task.
         */
         void Terminate()
         {
             Release();
             Clear();
         }
-
-        /* ----------------------------------------------------------------------------------------
-         * Execute the managed task.
-        */
-        Interval Execute();
 
         /* ----------------------------------------------------------------------------------------
          * Retrieve the associated user tag.
@@ -267,7 +266,6 @@ private:
     };
 
     // --------------------------------------------------------------------------------------------
-    static Uint32       s_Used; // The number of occupied slots.
     static Time         s_Last; // Last time point.
     static Time         s_Prev; // Previous time point.
     static Interval     s_Intervals[SQMOD_MAX_TASKS]; // List of intervals to be processed.
@@ -363,6 +361,24 @@ protected:
     static const Task & FindByTag(Int32 id, Int32 type, const StackStrF & tag);
 
 public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of used tasks slots.
+    */
+    static SQInteger GetUsed()
+    {
+        SQInteger n = 0;
+        // Iterate task list
+        for (const auto & t : s_Tasks)
+        {
+            if (VALID_ENTITY(t.mEntity))
+            {
+                ++n;
+            }
+        }
+        // Return the final count
+        return n;
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Cleanup all tasks associated with the specified entity.
