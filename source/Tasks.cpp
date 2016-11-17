@@ -153,7 +153,7 @@ void Tasks::Initialize()
 void Tasks::Register(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(Typename::Str,
-        Class< Task, NoConstructor< Task > >(vm, Typename::Str)
+        Class< Task, NoDestructor< Task > >(vm, Typename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         //.Func(_SC("_tostring"), &CBlip::ToString)
