@@ -464,6 +464,89 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// NoDestructor is the allocator to use for Class that can NOT be constructed, copied or destructed
+///
+/// \tparam C Type of class
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class C>
+class NoDestructor {
+public:
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Associates a newly created instance with an object allocated with the new operator (which is automatically deleted)
+    ///
+    /// \param vm  VM that has an instance object of the correct type at idx
+    /// \param idx Index of the stack that the instance object is at
+    /// \param ptr Should be the return value from a call to the new operator
+    ///
+    /// \remarks
+    /// This function should only need to be used when custom constructors are bound with Class::SquirrelFunc.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static void SetInstance(HSQUIRRELVM vm, SQInteger idx, C* ptr)
+    {
+        ClassData<C>* cd = ClassType<C>::getClassData(vm);
+        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >(ptr, cd->instance));
+        sq_setreleasehook(vm, idx, &Delete);
+        sq_getstackobj(vm, idx, &((*cd->instances)[ptr]));
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat to set up an instance on the stack for the template class (not allowed in this allocator)
+    ///
+    /// \param vm VM that has an instance object of the correct type at position 1 in its stack
+    ///
+    /// \return Squirrel error code
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static SQInteger New(HSQUIRRELVM vm) {
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        return sq_throwerror(vm, (ClassType<C>::ClassName() + string(_SC(" constructing is not allowed"))).c_str());
+#else
+        SQUNUSED(vm);
+        return 0;
+#endif
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat to set up the instance at idx on the stack as a copy of a value of the same type (not used in this allocator)
+    ///
+    /// \param vm    VM that has an instance object of the correct type at idx
+    /// \param idx   Index of the stack that the instance object is at
+    /// \param value A pointer to data of the same type as the instance object
+    ///
+    /// \return Squirrel error code
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static SQInteger Copy(HSQUIRRELVM vm, SQInteger idx, const void* value) {
+        SQUNUSED(vm);
+        SQUNUSED(idx);
+        SQUNUSED(value);
+        return sq_throwerror(vm, (ClassType<C>::ClassName() + string(_SC(" cloning is not allowed"))).c_str());
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat to delete an instance's data
+    ///
+    /// \param ptr  Pointer to the data contained by the instance
+    /// \param size Size of the data contained by the instance
+    ///
+    /// \return Squirrel error code
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static SQInteger Delete(SQUserPointer ptr, SQInteger size) {
+        SQUNUSED(size);
+        std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >*>(ptr);
+        instance->second->erase(instance->first);
+        // Only delete our pair instance and leave the actual instance untouched
+        //delete instance->first; 
+        delete instance;
+        return 0;
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// CopyOnly is the allocator to use for Class that can be copied but not constructed
 ///
 /// \tparam C Type of class
