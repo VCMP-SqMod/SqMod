@@ -31,6 +31,7 @@ private:
     {
         // ----------------------------------------------------------------------------------------
         SQHash      mHash; // The hash of the referenced function object.
+        String      mTag; // An arbitrary string which represents the tag.
         LightObj    mSelf; // A reference to `this`as a script object.
         LightObj    mFunc; // A reference to the managed function object.
         LightObj    mInst; // A reference to the associated entity object.
@@ -47,6 +48,7 @@ private:
         */
         Task()
             : mHash(0)
+            , mTag()
             , mSelf()
             , mFunc()
             , mInst()
@@ -135,6 +137,22 @@ private:
          * Execute the managed task.
         */
         Interval Execute();
+
+        /* ----------------------------------------------------------------------------------------
+         * Retrieve the associated user tag.
+        */
+        const String & GetTag() const
+        {
+            return mTag;
+        }
+
+        /* ----------------------------------------------------------------------------------------
+         * Modify the associated user tag.
+        */
+        void SetTag(const StackStrF & tag)
+        {
+            mTag.assign(tag.mPtr, ClampMin(tag.mLen, 0));
+        }
 
         /* ----------------------------------------------------------------------------------------
          * Retrieve the instance to entity instance.
@@ -339,6 +357,11 @@ protected:
     */
     static SQInteger Exists(Int32 id, Int32 type, HSQUIRRELVM vm);
 
+    /* --------------------------------------------------------------------------------------------
+     * Cleanup all tasks associated with the specified entity.
+    */
+    static const Task & FindByTag(Int32 id, Int32 type, const StackStrF & tag);
+
 public:
 
     /* --------------------------------------------------------------------------------------------
@@ -428,6 +451,58 @@ public:
         }
         // Forward the call and return the result
         return Exists(inst->GetID(), Type, vm);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Forwards calls to find tasks.
+    */
+    template < typename Entity, Int32 Type > static SQInteger FindTask(HSQUIRRELVM vm)
+    {
+        // Was the tag string specified?
+        if (sq_gettop(vm) <= 1)
+        {
+            return sq_throwerror(vm, "Missing tag string");
+        }
+        // The entity instance
+        const Entity * inst = nullptr;
+        // Attempt to extract the instance
+        try
+        {
+            // Fetch the instance from the stack
+            inst = Var< const Entity * >(vm, 1).value;
+            // Do we have a valid instance?
+            if (!inst)
+            {
+                STHROWF("Invalid entity instance");
+            }
+            // Validate the actual entity instance
+            inst->Validate();
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            return sq_throwerror(vm, e.what());
+        }
+        // Attempt to generate the string value
+        const StackStrF tag(vm, 2);
+        // Have we failed to retrieve the string?
+        if (SQ_FAILED(tag.mRes))
+        {
+            return tag.mRes; // Propagate the error!
+        }
+        // Attempt to find the specified task
+        try
+        {
+            // Perform the search
+            const Task & task = FindByTag(inst->GetID(), Type, tag);
+            // Now push the instance on the stack
+            sq_pushobject(vm, task.mSelf.mObj);
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            return sq_throwerror(vm, e.what());
+        }
+        // Specify that this function returns a value
+        return 1;
     }
 };
 

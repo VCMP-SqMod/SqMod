@@ -157,14 +157,16 @@ void Tasks::Register(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Task::ToString)
         // Properties
-        .Prop(_SC("Inst"), &Task::GetInst)
+        .Prop(_SC("Tag"), &Task::GetTag, &Task::SetTag)
+        .Prop(_SC("Entity"), &Task::GetInst)
         .Prop(_SC("Func"), &Task::GetFunc, &Task::SetFunc)
         .Prop(_SC("Data"), &Task::GetData, &Task::SetData)
         .Prop(_SC("Interval"), &Task::GetInterval, &Task::SetInterval)
         .Prop(_SC("Iterations"), &Task::GetIterations, &Task::SetIterations)
         .Prop(_SC("Arguments"), &Task::GetArguments)
-        .Prop(_SC("Entity"), &Task::GetInst)
+        .Prop(_SC("Inst"), &Task::GetInst)
         // Member Methods
+        .FmtFunc(_SC("SetTag"), &Task::SetTag)
         .Func(_SC("Terminate"), &Task::Terminate)
         .Func(_SC("GetArgument"), &Task::GetArgument)
     );
@@ -323,8 +325,10 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
     s_Intervals[slot] = intrv;
     // Increase the number of used slots
     ++s_Used;
-    // Specify that this function doesn't return anything
-    return 0;
+    // Push the tag instance on the stack
+    sq_pushobject(vm, task.mSelf);
+    // Specify that this function returns a value
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -449,6 +453,23 @@ SQInteger Tasks::Exists(Int32 id, Int32 type, HSQUIRRELVM vm)
     sq_pushbool(vm, pos >= 0);
     // Specify that we're returning a value
     return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+const Tasks::Task & Tasks::FindByTag(Int32 id, Int32 type, const StackStrF & tag)
+{
+    // Attempt to find the requested task
+    for (const auto & t : s_Tasks)
+    {
+        if (t.mEntity == id && t.mType == type && t.mTag.compare(tag.mPtr) == 0)
+        {
+            return t; // Return this task instance
+        }
+    }
+    // Unable to find such task
+    STHROWF("Unable to find a task with tag (%s)", tag.mPtr);
+    // Should not reach this point but if it did, we have to return something
+    return s_Tasks[SQMOD_MAX_TASKS]; // Intentional Buffer overflow!
 }
 
 // ------------------------------------------------------------------------------------------------
