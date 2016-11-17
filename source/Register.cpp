@@ -49,6 +49,7 @@ extern void Register_Log(HSQUIRRELVM vm);
 extern void Register_Core(HSQUIRRELVM vm);
 extern void Register_Command(HSQUIRRELVM vm);
 extern void Register_Routine(HSQUIRRELVM vm);
+extern void RegisterTask(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_Misc(HSQUIRRELVM vm);
@@ -91,6 +92,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Core(vm);
     Register_Command(vm);
     Register_Routine(vm);
+    RegisterTask(vm);
 
     Register_Misc(vm);
     Register_Signal(vm);

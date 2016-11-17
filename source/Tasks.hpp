@@ -20,7 +20,7 @@ public:
     typedef Int64                                       Time;
     typedef SQInteger                                   Interval;
     typedef Uint32                                      Iterator;
-    typedef LightObject                                 Argument;
+    typedef LightObj                                    Argument;
 
 private:
 
@@ -31,8 +31,9 @@ private:
     {
         // ----------------------------------------------------------------------------------------
         SQHash      mHash; // The hash of the referenced function object.
-        HSQOBJECT   mEnv; // A reference to the managed environment object.
-        HSQOBJECT   mFunc; // A reference to the managed function object.
+        LightObj    mSelf; // A reference to `this`as a script object.
+        LightObj    mFunc; // A reference to the managed function object.
+        LightObj    mInst; // A reference to the associated entity object.
         Iterator    mIterations; // Number of iterations before self destruct.
         Interval    mInterval; // Interval between task invocations.
         Int16       mEntity; // The identifier of the entity to which is belongs.
@@ -45,8 +46,9 @@ private:
         */
         Task()
             : mHash(0)
-            , mEnv()
+            , mSelf()
             , mFunc()
+            , mInst()
             , mIterations(0)
             , mInterval(0)
             , mEntity(-1)
@@ -54,8 +56,7 @@ private:
             , mArgc(0)
             , mArgv()
         {
-            sq_resetobject(&mEnv);
-            sq_resetobject(&mFunc);
+            /* ... */
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -90,7 +91,7 @@ private:
         /* ----------------------------------------------------------------------------------------
          * Initializes the task parameters. (assumes previous values are already released)
         */
-        void Init(HSQOBJECT & env, HSQOBJECT & func, Interval intrv, Iterator itr, Int32 id, Int32 type);
+        void Init(HSQOBJECT & inst, HSQOBJECT & func, Interval intrv, Iterator itr, Int32 id, Int32 type);
 
         /* ----------------------------------------------------------------------------------------
          * Clear the arguments.
@@ -165,6 +166,11 @@ public:
      * Initialize all resources and prepare for startup.
     */
     static void Initialize();
+
+    /* --------------------------------------------------------------------------------------------
+     * Register the task class.
+    */
+    static void Register(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * Release all resources and prepare for shutdown.

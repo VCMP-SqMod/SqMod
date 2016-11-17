@@ -15,6 +15,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqTask"))
+
+// ------------------------------------------------------------------------------------------------
 Uint32              Tasks::s_Used = 0;
 Tasks::Time         Tasks::s_Last = 0;
 Tasks::Time         Tasks::s_Prev = 0;
@@ -22,13 +25,13 @@ Tasks::Interval     Tasks::s_Intervals[SQMOD_MAX_TASKS];
 Tasks::Task         Tasks::s_Tasks[SQMOD_MAX_TASKS];
 
 // ------------------------------------------------------------------------------------------------
-void Tasks::Task::Init(HSQOBJECT & env, HSQOBJECT & func, Interval intrv, Iterator itr, Int32 id, Int32 type)
+void Tasks::Task::Init(HSQOBJECT & func, HSQOBJECT & inst, Interval intrv, Iterator itr, Int32 id, Int32 type)
 {
     // Initialize the callback hash
     mHash = 0;
     // Initialize the callback objects
-    mEnv = env;
-    mFunc = func;
+    mFunc = LightObj(func);
+    mInst = LightObj(inst);
     // Initialize the task options
     mIterations = itr;
     mInterval = intrv;
@@ -37,18 +40,11 @@ void Tasks::Task::Init(HSQOBJECT & env, HSQOBJECT & func, Interval intrv, Iterat
     mType = ConvTo< Uint8 >::From(type);
     // Grab the virtual machine once
     HSQUIRRELVM vm = DefaultVM::Get();
-    // Is there a valid environment?
-    if (!sq_isnull(mEnv))
-    {
-        sq_addref(vm, &mEnv); // Keep a reference to this environment
-    }
     // Remember the current stack size
     const StackGuard sg(vm);
     // Is there a valid function?
-    if (!sq_isnull(mFunc))
+    if (!mFunc.IsNull())
     {
-        // Keep a reference to this function
-        sq_addref(vm, &mFunc);
         // Push the callback on the stack
         sq_pushobject(vm, mFunc);
         // Grab the hash of the callback object
@@ -59,20 +55,9 @@ void Tasks::Task::Init(HSQOBJECT & env, HSQOBJECT & func, Interval intrv, Iterat
 // ------------------------------------------------------------------------------------------------
 void Tasks::Task::Release()
 {
-    // Should we release any environment object?
-    if (!sq_isnull(mEnv))
-    {
-        sq_release(DefaultVM::Get(), &mEnv);
-        sq_resetobject(&mEnv);
-    }
-    // Should we release any callback object?
-    if (!sq_isnull(mFunc))
-    {
-        sq_release(DefaultVM::Get(), &mFunc);
-        sq_resetobject(&mFunc);
-    }
-    // Reset member variables as well
     mHash = 0;
+    mFunc.Release();
+    mInst.Release();
     mIterations = 0;
     mInterval = 0;
     mEntity = -1;
@@ -92,7 +77,7 @@ Tasks::Interval Tasks::Task::Execute()
     // Push the function on the stack
     sq_pushobject(vm, mFunc);
     // Push the environment on the stack
-    sq_pushobject(vm, mEnv);
+    sq_pushobject(vm, mSelf);
     // Push function parameters, if any
     for (Uint32 n = 0; n < mArgc; ++n)
     {
@@ -156,6 +141,23 @@ void Tasks::Process()
 void Tasks::Initialize()
 {
     std::memset(s_Intervals, 0, sizeof(s_Intervals));
+    // Transform all task instances to script objects
+    for (auto & t : s_Tasks)
+    {
+        // This is fine because they'll always outlive the virtual machine
+        t.mSelf = LightObj(&t);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Tasks::Register(HSQUIRRELVM vm)
+{
+    RootTable(vm).Bind(Typename::Str,
+        Class< Task, NoConstructor< Task > >(vm, Typename::Str)
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        //.Func(_SC("_tostring"), &CBlip::ToString)
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -166,6 +168,7 @@ void Tasks::Deinitialize()
     {
         t.Release();
         t.Clear();
+        t.mSelf.Release();
     }
 }
 
@@ -219,17 +222,26 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Missing task callback");
     }
-
-    SQRESULT res = SQ_OK;
-    // Prepare some objects for the environment and callback
-    HSQOBJECT env = FindEntity(id, type).GetObject(), func;
     // Validate the callback type
-    if (sq_gettype(vm, 2) != OT_CLOSURE && sq_gettype(vm, 2) != OT_NATIVECLOSURE)
+    else if (sq_gettype(vm, 2) != OT_CLOSURE && sq_gettype(vm, 2) != OT_NATIVECLOSURE)
     {
         return sq_throwerror(vm, "Invalid callback type");
     }
+    // Prepare an entity instance object
+    HSQOBJECT inst;
+    // Attempt to retrieve the entity instance
+    try
+    {
+        inst =  FindEntity(id, type).GetObject();
+    }
+    catch (const std::exception & e)
+    {
+        return sq_throwerror(vm, e.what());
+    }
+    // Prepare the function object
+    HSQOBJECT func;
     // Fetch the specified callback
-    res = sq_getstackobj(vm, 2, &func);
+    SQRESULT res = sq_getstackobj(vm, 2, &func);
     // Validate the result
     if (SQ_FAILED(res))
     {
@@ -297,7 +309,7 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
         }
     }
     // Alright, at this point we can initialize the slot
-    task.Init(env, func, intrv, itr, id, type);
+    task.Init(func, inst, intrv, itr, id, type);
     // Now initialize the interval
     s_Intervals[slot] = intrv;
     // Increase the number of used slots
@@ -460,6 +472,14 @@ void ProcessTasks()
 void InitializeTasks()
 {
     Tasks::Initialize();
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward the call to register tasks.
+*/
+void RegisterTask(HSQUIRRELVM vm)
+{
+    Tasks::Register(vm);
 }
 
 /* ------------------------------------------------------------------------------------------------

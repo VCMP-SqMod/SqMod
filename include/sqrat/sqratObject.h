@@ -651,10 +651,10 @@ struct Var<const Object&> : Var<Object> {Var(HSQUIRRELVM vm, SQInteger idx) : Va
 /// A lightweight wrapper arround the Squirrel objects that implements RAII and still remains a POD type.
 ///
 /// \remarks
-/// All LightObject and derived classes MUST be destroyed before calling sq_close or your application will crash when exiting.
+/// All LightObj and derived classes MUST be destroyed before calling sq_close or your application will crash when exiting.
 ///
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct LightObject {
+struct LightObj {
 
     HSQOBJECT mObj;
 
@@ -662,48 +662,48 @@ struct LightObject {
     /// Default constructor (null)
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObject() {
+    LightObj() {
         sq_resetobject(&mObj);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Copy constructor
     ///
-    /// \param so LightObject to copy
+    /// \param so LightObj to copy
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObject(const LightObject& so) : mObj(so.mObj) {
+    LightObj(const LightObj& so) : mObj(so.mObj) {
         sq_addref(DefaultVM::Get(), &mObj);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Move constructor
     ///
-    /// \param so LightObject to move
+    /// \param so LightObj to move
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObject(LightObject&& so) : mObj(so.mObj) {
+    LightObj(LightObj&& so) : mObj(so.mObj) {
         sq_resetobject(&so.mObj);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Constructs a LightObject from a Squirrel object
+    /// Constructs a LightObj from a Squirrel object
     ///
     /// \param o Squirrel object
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObject(HSQOBJECT o) : mObj(o) {
+    LightObj(HSQOBJECT o) : mObj(o) {
         sq_addref(DefaultVM::Get(), &mObj);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Constructs a LightObject from a Squirrel object at a certain index on the stack
+    /// Constructs a LightObj from a Squirrel object at a certain index on the stack
     ///
     /// \param i Index of the Squirrel object on stack
     /// \param v VM that the object will exist in
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObject(SQInteger i, HSQUIRRELVM v = DefaultVM::Get()) {
+    LightObj(SQInteger i, HSQUIRRELVM v = DefaultVM::Get()) {
         if (SQ_FAILED(sq_getstackobj(v, i, &mObj))) {
             sq_resetobject(&mObj);
         } else {
@@ -712,19 +712,19 @@ struct LightObject {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Construct a LightObject from a regular Object instance.
+    /// Construct a LightObj from a regular Object instance.
     ///
     /// \param so Object to copy
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObject(const Object& obj) : mObj(obj.GetObject()) {
+    LightObj(const Object& obj) : mObj(obj.GetObject()) {
         if (!sq_isnull(mObj)) {
             sq_addref(obj.GetVM(), &mObj);
         }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Constructs an LightObject from a C++ instance
+    /// Constructs an LightObj from a C++ instance
     ///
     /// \param instance Pointer to a C++ class instance that has been bound already
     /// \param v        VM that the object will exist in
@@ -733,7 +733,7 @@ struct LightObject {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class T>
-    LightObject(T* instance, HSQUIRRELVM v = DefaultVM::Get()) {
+    LightObj(T* instance, HSQUIRRELVM v = DefaultVM::Get()) {
         // Preserve the stack state
         const StackGuard sg(v);
         // Push the instance on the stack
@@ -750,19 +750,19 @@ struct LightObject {
     /// Destructor
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ~LightObject() {
+    ~LightObj() {
         Release();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Assignment operator
     ///
-    /// \param so LightObject to copy
+    /// \param so LightObj to copy
     ///
-    /// \return The LightObject itself
+    /// \return The LightObj itself
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObject& operator=(const LightObject& so) {
+    LightObj& operator=(const LightObj& so) {
         if (this != &so) {
             Release();
             mObj = so.mObj;
@@ -774,12 +774,12 @@ struct LightObject {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Assignment operator
     ///
-    /// \param so LightObject to move
+    /// \param so LightObj to move
     ///
-    /// \return The LightObject itself
+    /// \return The LightObj itself
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObject& operator=(LightObject&& so) {
+    LightObj& operator=(LightObj&& so) {
         if (this != &so) {
             Release();
             mObj = so.mObj;
@@ -789,9 +789,9 @@ struct LightObject {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Gets the type of the LightObject as defined by the Squirrel API
+    /// Gets the type of the LightObj as defined by the Squirrel API
     ///
-    /// \return SQObjectType for the LightObject
+    /// \return SQObjectType for the LightObj
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     SQObjectType GetType() const {
@@ -799,9 +799,9 @@ struct LightObject {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Checks whether the LightObject is null
+    /// Checks whether the LightObj is null
     ///
-    /// \return True if the LightObject currently has a null value, otherwise false
+    /// \return True if the LightObj currently has a null value, otherwise false
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     bool IsNull() const {
@@ -809,7 +809,7 @@ struct LightObject {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Gets the Squirrel object for this LightObject (copy)
+    /// Gets the Squirrel object for this LightObj (copy)
     ///
     /// \return Squirrel object
     ///
@@ -819,7 +819,7 @@ struct LightObject {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Gets the Squirrel object for this LightObject (reference)
+    /// Gets the Squirrel object for this LightObj (reference)
     ///
     /// \return Squirrel object
     ///
@@ -829,7 +829,7 @@ struct LightObject {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Allows the LightObject to be inputted directly into places that expect a HSQOBJECT
+    /// Allows the LightObj to be inputted directly into places that expect a HSQOBJECT
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     operator HSQOBJECT&() {
@@ -837,7 +837,7 @@ struct LightObject {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Sets the LightObject to null (removing its references to underlying Squirrel objects)
+    /// Sets the LightObj to null (removing its references to underlying Squirrel objects)
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void Release() {
@@ -850,15 +850,15 @@ struct LightObject {
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Used to get and push LightObject instances to and from the stack as references (LightObject is always a reference)
+/// Used to get and push LightObj instances to and from the stack as references (LightObj is always a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<LightObject> {
+struct Var<LightObj> {
 
-    LightObject value; ///< The actual value of get operations
+    LightObj value; ///< The actual value of get operations
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Attempts to get the value off the stack at idx as an LightObject
+    /// Attempts to get the value off the stack at idx as an LightObj
     ///
     /// \param vm  Target VM
     /// \param idx Index trying to be read
@@ -871,28 +871,28 @@ struct Var<LightObject> {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Called by Sqrat::PushVar to put an LightObject on the stack
+    /// Called by Sqrat::PushVar to put an LightObj on the stack
     ///
     /// \param vm    Target VM
     /// \param value Value to push on to the VM's stack
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm, const LightObject& value) {
+    static void push(HSQUIRRELVM vm, const LightObj& value) {
         sq_pushobject(vm, value.mObj);
     }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Used to get and push LightObject instances to and from the stack as references (LightObject is always a reference)
+/// Used to get and push LightObj instances to and from the stack as references (LightObj is always a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<LightObject&> : Var<LightObject> {Var(HSQUIRRELVM vm, SQInteger idx) : Var<LightObject>(vm, idx) {}};
+struct Var<LightObj&> : Var<LightObj> {Var(HSQUIRRELVM vm, SQInteger idx) : Var<LightObj>(vm, idx) {}};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Used to get and push LightObject instances to and from the stack as references (LightObject is always a reference)
+/// Used to get and push LightObj instances to and from the stack as references (LightObj is always a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<const LightObject&> : Var<LightObject> {Var(HSQUIRRELVM vm, SQInteger idx) : Var<LightObject>(vm, idx) {}};
+struct Var<const LightObj&> : Var<LightObj> {Var(HSQUIRRELVM vm, SQInteger idx) : Var<LightObj>(vm, idx) {}};
 
 }
 
