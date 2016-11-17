@@ -94,9 +94,9 @@ private:
         /* ----------------------------------------------------------------------------------------
          * Used by the script engine to convert an instance of this type to a string.
         */
-        CSStr ToString() const
+        const String & ToString() const
         {
-            return ToStrF("%lld", static_cast< Int64 >(mInterval));
+            return mTag;
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -250,7 +250,7 @@ private:
         /* ----------------------------------------------------------------------------------------
          * Retrieve a certain argument.
         */
-        LightObj GetArgument(SQInteger arg) const
+        const Argument & GetArgument(SQInteger arg) const
         {
             constexpr Uint32 argvn = (sizeof(mArgv) / sizeof(mArgv[0]));
             // Cast the index to the proper value

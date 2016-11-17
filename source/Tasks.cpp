@@ -89,14 +89,12 @@ Tasks::Interval Tasks::Task::Execute()
     // Validate the result
     if (SQ_FAILED(res))
     {
-        // Destroy ourself on error
-        Terminate();
+        Terminate(); // Destroy ourself on error
     }
     // Decrease the number of iterations if necessary
     if (mIterations && (--mIterations) == 0)
     {
-        // This routine reached the end of it's life
-        Terminate();
+        Terminate(); // This routine reached the end of it's life
     }
     // Return the current interval
     return mInterval;
@@ -129,7 +127,7 @@ void Tasks::Process()
             // Have we completed the routine interval?
             if ((*itr) <= 0)
             {
-                // Reset the elapsed time
+                // Execute and reset the elapsed time
                 (*itr) = s_Tasks[itr - s_Intervals].Execute();
             }
         }
@@ -230,9 +228,9 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
     // See if too many arguments were specified
     if (top > 12) /* 4 base + 8 parameters = 12 */
     {
-        return sq_throwerror(vm, "Too many parameter specified");
+        return sq_throwerror(vm, "Too many parameters specified");
     }
-    // Was there a callback specified?
+    // Was there was a callback specified?
     else if (top <= 1)
     {
         return sq_throwerror(vm, "Missing task callback");
@@ -318,7 +316,7 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
 
     // Alright, at this point we can initialize the slot
     task.Init(func, inst, intrv, itr, id, type);
-    // Now initialize the interval
+    // Now initialize the timer
     s_Intervals[slot] = intrv;
     // Push the tag instance on the stack
     sq_pushobject(vm, task.mSelf);
