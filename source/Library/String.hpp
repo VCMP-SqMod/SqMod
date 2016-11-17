@@ -8,15 +8,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Utility used to generate a string with an arbitrary text surrounded by a specific character
-*/
-CSStr LeftStr(CSStr t, SQChar f, Uint32 w);
-CSStr LeftStr(CSStr t, SQChar f, Uint32 w, Uint32 o);
-CSStr RightStr(CSStr t, SQChar f, Uint32 w);
-CSStr RightStr(CSStr t, SQChar f, Uint32 w, Uint32 o);
-CSStr CenterStr(CSStr t, SQChar f, Uint32 w);
-
-/* ------------------------------------------------------------------------------------------------
  * Get a new string with only the alpha numeric characters from the specified string.
 */
 CSStr StrJustAlphaNum(CSStr str);
