@@ -157,7 +157,6 @@ void Tasks::Register(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Task::ToString)
         // Properties
-        .Prop(_SC("Self"), &Task::GetSelf)
         .Prop(_SC("Inst"), &Task::GetInst)
         .Prop(_SC("Func"), &Task::GetFunc, &Task::SetFunc)
         .Prop(_SC("Data"), &Task::GetData, &Task::SetData)
@@ -223,7 +222,7 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
     // Grab the top of the stack
     const SQInteger top = sq_gettop(vm);
     // See if too many arguments were specified
-    if (top > 18) /* 4 base + 14 parameters = 18 */
+    if (top > 12) /* 4 base + 8 parameters = 12 */
     {
         return sq_throwerror(vm, "Too many parameter specified");
     }

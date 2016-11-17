@@ -40,7 +40,7 @@ private:
         Int16       mEntity; // The identifier of the entity to which is belongs.
         Uint8       mType; // The type of the entity to which is belongs.
         Uint8       mArgc; // The number of arguments that the task must forward.
-        Argument    mArgv[14]; // The arguments that the task must forward.
+        Argument    mArgv[8]; // The arguments that the task must forward.
 
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
@@ -135,14 +135,6 @@ private:
          * Execute the managed task.
         */
         Interval Execute();
-
-        /* ----------------------------------------------------------------------------------------
-         * Retrieve the instance to self.
-        */
-        const LightObj & GetSelf() const
-        {
-            return mSelf;
-        }
 
         /* ----------------------------------------------------------------------------------------
          * Retrieve the instance to entity instance.
