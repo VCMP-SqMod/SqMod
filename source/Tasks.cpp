@@ -58,6 +58,7 @@ void Tasks::Task::Release()
     mHash = 0;
     mFunc.Release();
     mInst.Release();
+    mData.Release();
     mIterations = 0;
     mInterval = 0;
     mEntity = -1;
@@ -89,15 +90,13 @@ Tasks::Interval Tasks::Task::Execute()
     if (SQ_FAILED(res))
     {
         // Destroy ourself on error
-        Release();
-        Clear();
+        Terminate();
     }
     // Decrease the number of iterations if necessary
     if (mIterations && (--mIterations) == 0)
     {
         // This routine reached the end of it's life
-        Release();
-        Clear();
+        Terminate();
     }
     // Return the current interval
     return mInterval;
@@ -156,7 +155,19 @@ void Tasks::Register(HSQUIRRELVM vm)
         Class< Task, NoDestructor< Task > >(vm, Typename::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
-        //.Func(_SC("_tostring"), &CBlip::ToString)
+        .Func(_SC("_tostring"), &Task::ToString)
+        // Properties
+        .Prop(_SC("Self"), &Task::GetSelf)
+        .Prop(_SC("Inst"), &Task::GetInst)
+        .Prop(_SC("Func"), &Task::GetFunc, &Task::SetFunc)
+        .Prop(_SC("Data"), &Task::GetData, &Task::SetData)
+        .Prop(_SC("Interval"), &Task::GetInterval, &Task::SetInterval)
+        .Prop(_SC("Iterations"), &Task::GetIterations, &Task::SetIterations)
+        .Prop(_SC("Arguments"), &Task::GetArguments)
+        .Prop(_SC("Entity"), &Task::GetInst)
+        // Member Methods
+        .Func(_SC("Terminate"), &Task::Terminate)
+        .Func(_SC("GetArgument"), &Task::GetArgument)
     );
 }
 
@@ -166,8 +177,7 @@ void Tasks::Deinitialize()
     // Release any script resources that the tasks might store
     for (auto & t : s_Tasks)
     {
-        t.Release();
-        t.Clear();
+        t.Terminate();
         t.mSelf.Release();
     }
 }
@@ -416,8 +426,7 @@ SQInteger Tasks::Remove(Int32 id, Int32 type, HSQUIRRELVM vm)
     else
     {
         // Release task resources
-        s_Tasks[pos].Release();
-        s_Tasks[pos].Clear();
+        s_Tasks[pos].Terminate();
         // Reset the timer
         s_Intervals[pos] = 0;
     }
@@ -450,8 +459,7 @@ void Tasks::Cleanup(Int32 id, Int32 type)
     {
         if (t.mEntity == id && t.mType == type)
         {
-            t.Release();
-            t.Clear();
+            t.Terminate();
             // Also disable the timer
             s_Intervals[&t - s_Tasks] = 0;
         }
