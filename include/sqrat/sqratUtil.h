@@ -1533,7 +1533,7 @@ struct StackStrF
             mRes = sq_throwerror(vm, "Missing string or value");
         }
         // Do we have enough values to call the format function and are we allowed to?
-        else if ((top - 1) > idx && fmt)
+        else if (fmt && (top - 1) >= idx)
         {
             // Pointer to the generated string
             SQChar * str = nullptr;
