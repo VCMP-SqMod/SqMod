@@ -125,15 +125,15 @@ namespace Sqrat {
     #define SQWHAT(vm)           _SC("")
     #define SQWHAT_NOEXCEPT(vm)  _SC("")
 #elif defined (SCRAT_USE_EXCEPTIONS)
-    #define SQCATCH(vm)          } catch (const Sqrat::Exception& e)
+    #define SQCATCH(vm)          } catch (const ::Sqrat::Exception& e)
     #define SQCATCH_NOEXCEPT(vm) if (SQRAT_CONST_CONDITION(false))
     #define SQCLEAR(vm)
     #ifdef _MSC_VER // avoid MSVC's "unreachable code" warning
         #define SQRETHROW(vm)      if (SQRAT_CONST_CONDITION(true)) throw
-        #define SQTHROW(vm, err)   if (SQRAT_CONST_CONDITION(true)) throw Sqrat::Exception(err)
+        #define SQTHROW(vm, err)   if (SQRAT_CONST_CONDITION(true)) throw ::Sqrat::Exception(err)
     #else
         #define SQRETHROW(vm)      throw
-        #define SQTHROW(vm, err)   throw Sqrat::Exception(err)
+        #define SQTHROW(vm, err)   throw ::Sqrat::Exception(err)
     #endif
     #define SQTRY()              try {
     #define SQWHAT(vm)           e.Message().c_str()
