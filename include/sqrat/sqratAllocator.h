@@ -345,6 +345,309 @@ public:
     }
     /// @endcond
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// @cond DEV
+    /// following iNew functions are used only if constructors are bound via FmtCtor() in Sqrat::Class (safe to ignore)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+
+        const StackStrF fmt(vm, 2, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <typename A1>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 3, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 4, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 5, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 6, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 7, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5,typename A6>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 8, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 9, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7,typename A8>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 10, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            a8.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7,typename A8,typename A9>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        Var<A9> a9(vm, 10);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 11, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            a8.value,
+            a9.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    /// @endcond
+
 public:
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -902,6 +1205,309 @@ public:
             a7.value,
             a8.value,
             a9.value
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    /// @endcond
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// @cond DEV
+    /// following iNew functions are used only if constructors are bound via FmtCtor() in Sqrat::Class (safe to ignore)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+
+        const StackStrF fmt(vm, 2, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+
+    template <typename A1>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 3, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 4, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 5, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 6, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 7, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5,typename A6>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 8, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 9, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7,typename A8>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 10, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            a8.value,
+            fmt
+        ));
+        SQCATCH(vm) {
+            return sq_throwerror(vm, SQWHAT(vm));
+        }
+        return 0;
+    }
+    template <typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7,typename A8,typename A9>
+    static SQInteger iFmtNew(HSQUIRRELVM vm) {
+        SQTRY()
+        Var<A1> a1(vm, 2);
+        Var<A2> a2(vm, 3);
+        Var<A3> a3(vm, 4);
+        Var<A4> a4(vm, 5);
+        Var<A5> a5(vm, 6);
+        Var<A6> a6(vm, 7);
+        Var<A7> a7(vm, 8);
+        Var<A8> a8(vm, 9);
+        Var<A9> a9(vm, 10);
+        SQCATCH_NOEXCEPT(vm) {
+            return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
+        }
+
+        const StackStrF fmt(vm, 11, true);
+        // Validate the format
+        if (SQ_FAILED(fmt.mRes)) {
+            return fmt.mRes;
+        }
+
+        SetInstance(vm, 1, new C(
+            a1.value,
+            a2.value,
+            a3.value,
+            a4.value,
+            a5.value,
+            a6.value,
+            a7.value,
+            a8.value,
+            a9.value,
+            fmt
         ));
         SQCATCH(vm) {
             return sq_throwerror(vm, SQWHAT(vm));

@@ -937,6 +937,219 @@ public:
     Class& Ctor(const SQChar *name = 0) {
         return BindConstructor(A::template iNew<A1, A2, A3, A4, A5, A6, A7, A8, A9>, 9, name);
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 1 argument (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::iFmtNew, 1, name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 2 arguments (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \tparam A1 Type of argument 1 of the constructor (must be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class A1>
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::template iFmtNew<A1>, 2, name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 3 arguments (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \tparam A1 Type of argument 1 of the constructor (must be defined explicitly)
+    /// \tparam A2 Type of argument 2 of the constructor (must be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class A1, class A2>
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::template iFmtNew<A1, A2>, 3, name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 4 arguments (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \tparam A1 Type of argument 1 of the constructor (must be defined explicitly)
+    /// \tparam A2 Type of argument 2 of the constructor (must be defined explicitly)
+    /// \tparam A3 Type of argument 3 of the constructor (must be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class A1, class A2, class A3>
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::template iFmtNew<A1, A2, A3>, 4, name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 5 arguments (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \tparam A1 Type of argument 1 of the constructor (must be defined explicitly)
+    /// \tparam A2 Type of argument 2 of the constructor (must be defined explicitly)
+    /// \tparam A3 Type of argument 3 of the constructor (must be defined explicitly)
+    /// \tparam A4 Type of argument 4 of the constructor (must be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class A1, class A2, class A3, class A4>
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::template iFmtNew<A1, A2, A3, A4>, 5, name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 6 arguments (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \tparam A1 Type of argument 1 of the constructor (must be defined explicitly)
+    /// \tparam A2 Type of argument 2 of the constructor (must be defined explicitly)
+    /// \tparam A3 Type of argument 3 of the constructor (must be defined explicitly)
+    /// \tparam A4 Type of argument 4 of the constructor (must be defined explicitly)
+    /// \tparam A5 Type of argument 5 of the constructor (must be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class A1, class A2, class A3, class A4, class A5>
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::template iFmtNew<A1, A2, A3, A4, A5>, 6, name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 7 arguments (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \tparam A1 Type of argument 1 of the constructor (must be defined explicitly)
+    /// \tparam A2 Type of argument 2 of the constructor (must be defined explicitly)
+    /// \tparam A3 Type of argument 3 of the constructor (must be defined explicitly)
+    /// \tparam A4 Type of argument 4 of the constructor (must be defined explicitly)
+    /// \tparam A5 Type of argument 5 of the constructor (must be defined explicitly)
+    /// \tparam A6 Type of argument 6 of the constructor (must be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class A1, class A2, class A3, class A4, class A5, class A6>
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::template iFmtNew<A1, A2, A3, A4, A5, A6>, 7, name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 8 arguments (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \tparam A1 Type of argument 1 of the constructor (must be defined explicitly)
+    /// \tparam A2 Type of argument 2 of the constructor (must be defined explicitly)
+    /// \tparam A3 Type of argument 3 of the constructor (must be defined explicitly)
+    /// \tparam A4 Type of argument 4 of the constructor (must be defined explicitly)
+    /// \tparam A5 Type of argument 5 of the constructor (must be defined explicitly)
+    /// \tparam A6 Type of argument 6 of the constructor (must be defined explicitly)
+    /// \tparam A7 Type of argument 7 of the constructor (must be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::template iFmtNew<A1, A2, A3, A4, A5, A6, A7>, 8, name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 9 arguments (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \tparam A1 Type of argument 1 of the constructor (must be defined explicitly)
+    /// \tparam A2 Type of argument 2 of the constructor (must be defined explicitly)
+    /// \tparam A3 Type of argument 3 of the constructor (must be defined explicitly)
+    /// \tparam A4 Type of argument 4 of the constructor (must be defined explicitly)
+    /// \tparam A5 Type of argument 5 of the constructor (must be defined explicitly)
+    /// \tparam A6 Type of argument 6 of the constructor (must be defined explicitly)
+    /// \tparam A7 Type of argument 7 of the constructor (must be defined explicitly)
+    /// \tparam A8 Type of argument 8 of the constructor (must be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::template iFmtNew<A1, A2, A3, A4, A5, A6, A7, A8>, 9, name);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constructor with 10 arguments (there can only be one constructor of this many arguments for a given name)
+    ///
+    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
+    ///
+    /// \tparam A1 Type of argument 1 of the constructor (must be defined explicitly)
+    /// \tparam A2 Type of argument 2 of the constructor (must be defined explicitly)
+    /// \tparam A3 Type of argument 3 of the constructor (must be defined explicitly)
+    /// \tparam A4 Type of argument 4 of the constructor (must be defined explicitly)
+    /// \tparam A5 Type of argument 5 of the constructor (must be defined explicitly)
+    /// \tparam A6 Type of argument 6 of the constructor (must be defined explicitly)
+    /// \tparam A7 Type of argument 7 of the constructor (must be defined explicitly)
+    /// \tparam A8 Type of argument 8 of the constructor (must be defined explicitly)
+    /// \tparam A9 Type of argument 9 of the constructor (must be defined explicitly)
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
+    Class& FmtCtor(const SQChar *name = 0) {
+        return BindConstructor(A::template iFmtNew<A1, A2, A3, A4, A5, A6, A7, A8, A9>, 10, name);
+    }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
