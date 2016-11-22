@@ -7,17 +7,51 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-/* ------------------------------------------------------------------------------------------------
- * Helper class that represents an integral enumeration value. Used to reduce compilation times.
-*/
-struct EnumElement
-{
-    CSStr Name;
-    Int32 Value;
-};
-
 // ------------------------------------------------------------------------------------------------
-#define SQENUMCOUNT(arr) (sizeof(arr) / sizeof(EnumElement))
+static const EnumElement g_SqMod[] = {
+    {_SC("Version"),      SQMOD_VERSION},
+    {_SC("Success"),      SQMOD_SUCCESS},
+    {_SC("Failure"),      SQMOD_FAILURE},
+    {_SC("Unknown"),      SQMOD_UNKNOWN},
+    {_SC("Arch"),         SQMOD_ARCHITECTURE},
+    {_SC("Architecture"), SQMOD_ARCHITECTURE},
+    {_SC("Platform"),     SQMOD_PLATFORM},
+    {_SC("MinChar"),      std::numeric_limits< SQChar >::min()},
+    {_SC("MaxChar"),      std::numeric_limits< SQChar >::max()},
+    {_SC("MinAchar"),     std::numeric_limits< Int8 >::min()},
+    {_SC("MaxAchar"),     std::numeric_limits< Int8 >::max()},
+    {_SC("MinByte"),      std::numeric_limits< Uint8 >::min()},
+    {_SC("MaxByte"),      std::numeric_limits< Uint8 >::max()},
+    {_SC("MinShort"),     std::numeric_limits< Int16 >::min()},
+    {_SC("MaxShort"),     std::numeric_limits< Int16 >::max()},
+    {_SC("MinWord"),      std::numeric_limits< Uint16 >::min()},
+    {_SC("MaxWord"),      std::numeric_limits< Uint16 >::max()},
+    {_SC("MinInt"),       std::numeric_limits< SQInteger >::min()},
+    {_SC("MaxInt"),       std::numeric_limits< SQInteger >::max()},
+    {_SC("MinInteger"),   std::numeric_limits< SQInteger >::min()},
+    {_SC("MaxInteger"),   std::numeric_limits< SQInteger >::max()},
+    {_SC("MinInt32"),     std::numeric_limits< SQInt32 >::min()},
+    {_SC("MaxInt32"),     std::numeric_limits< SQInt32 >::max()},
+    {_SC("MinFloat"),     std::numeric_limits< SQFloat >::min()},
+    {_SC("MaxFloat"),     std::numeric_limits< SQFloat >::max()},
+    {_SC("MinFloat32"),   std::numeric_limits< Float32 >::min()},
+    {_SC("MaxFloat32"),   std::numeric_limits< Float32 >::max()},
+    {_SC("FpNormal"),     FP_NORMAL},
+    {_SC("FpSubnormal"),  FP_SUBNORMAL},
+    {_SC("FpZero"),       FP_ZERO},
+    {_SC("FpInfinite"),   FP_INFINITE},
+    {_SC("FpNan"),        FP_NAN},
+#ifdef SQUSEDOUBLE
+    {_SC("HugeVal"),      HUGE_VAL},
+#else
+    {_SC("HugeVal"),      HUGE_VALF},
+#endif // SQUSEDOUBLE
+    {_SC("Infinity"),     INFINITY},
+    {_SC("Inf"),          INFINITY},
+    {_SC("Nan"),          NAN},
+    {_SC("MaxTasks"),     SQMOD_MAX_TASKS},
+    {_SC("MaxRoutines"),  SQMOD_MAX_ROUTINES}
+};
 
 // ------------------------------------------------------------------------------------------------
 static const EnumElement g_ArchitectureEnum[] = {
@@ -1081,93 +1115,38 @@ static const EnumElement g_AsciiEnum[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
-static Enumeration RegisterEnum(HSQUIRRELVM vm, CSStr name, const EnumElement * data, Uint32 count)
-{
-    // Allocate an empty enumeration
-    Enumeration e(vm);
-    // Register the values from the received data
-    for (Uint32 n = 0; n < count; ++n, ++data)
-    {
-        e.Const(data->Name, data->Value);
-    }
-    // Bind the enumeration to the constant table
-    ConstTable(vm).Enum(name, e);
-    // Return the enumeration for further changes if necessary
-    return e;
-}
+static const EnumElements g_EnumList[] = {
+    {_SC("SqMod"),              g_SqMod},
+    {_SC("SqArchitectre"),      g_ArchitectureEnum},
+    {_SC("SqPlatform"),         g_PlatformEnum},
+    {_SC("SqEvent"),            g_EventEnum},
+    {_SC("SqCreate"),           g_CreateEnum},
+    {_SC("SqDestroy"),          g_DestroyEnum},
+    {_SC("SqServerError"),      g_ServerErrorEnum},
+    {_SC("SqEntityPool"),       g_EntityPoolEnum},
+    {_SC("SqPlayerUpdate"),     g_PlayerUpdateEnum},
+    {_SC("SqVehicleUpdate"),    g_VehicleUpdateEnum},
+    {_SC("SqPlayerVehicle"),    g_PlayerVehicleEnum},
+    {_SC("SqVehicleSync"),      g_VehicleSyncEnum},
+    {_SC("SqPartReason"),       g_PartReasonEnum},
+    {_SC("SqServerOption"),     g_ServerOptionEnum},
+    {_SC("SqPlayerOption"),     g_PlayerOptionEnum},
+    {_SC("SqVehicleOption"),    g_VehicleOptionEnum},
+    {_SC("SqBodyPart"),         g_BodyPartEnum},
+    {_SC("SqPlayerState"),      g_PlayerStateEnum},
+    {_SC("SqPlayerAction"),     g_PlayerActionEnum},
+    {_SC("SqWeather"),          g_WeatherEnum},
+    {_SC("SqWep"),              g_WeaponEnum},
+    {_SC("SqVeh"),              g_VehicleEnum},
+    {_SC("SqSkin"),             g_SkinEnum},
+    {_SC("SqKeyCode"),          g_KeyCodeEnum},
+    {_SC("SqASCII"),            g_AsciiEnum}
+};
 
 // ------------------------------------------------------------------------------------------------
 void Register_Constants(HSQUIRRELVM vm)
 {
-    ConstTable(vm).Enum(_SC("SqMod"), Enumeration(vm)
-        .Const(_SC("Version"),      SQMOD_VERSION)
-        .Const(_SC("Success"),      SQMOD_SUCCESS)
-        .Const(_SC("Failure"),      SQMOD_FAILURE)
-        .Const(_SC("Unknown"),      SQMOD_UNKNOWN)
-        .Const(_SC("Arch"),         SQMOD_ARCHITECTURE)
-        .Const(_SC("Architecture"), SQMOD_ARCHITECTURE)
-        .Const(_SC("Platform"),     SQMOD_PLATFORM)
-        .Const(_SC("MinChar"),      std::numeric_limits< SQChar >::min())
-        .Const(_SC("MaxChar"),      std::numeric_limits< SQChar >::max())
-        .Const(_SC("MinAchar"),     std::numeric_limits< Int8 >::min())
-        .Const(_SC("MaxAchar"),     std::numeric_limits< Int8 >::max())
-        .Const(_SC("MinByte"),      std::numeric_limits< Uint8 >::min())
-        .Const(_SC("MaxByte"),      std::numeric_limits< Uint8 >::max())
-        .Const(_SC("MinShort"),     std::numeric_limits< Int16 >::min())
-        .Const(_SC("MaxShort"),     std::numeric_limits< Int16 >::max())
-        .Const(_SC("MinWord"),      std::numeric_limits< Uint16 >::min())
-        .Const(_SC("MaxWord"),      std::numeric_limits< Uint16 >::max())
-        .Const(_SC("MinInt"),       std::numeric_limits< SQInteger >::min())
-        .Const(_SC("MaxInt"),       std::numeric_limits< SQInteger >::max())
-        .Const(_SC("MinInteger"),   std::numeric_limits< SQInteger >::min())
-        .Const(_SC("MaxInteger"),   std::numeric_limits< SQInteger >::max())
-        .Const(_SC("MinInt32"),     std::numeric_limits< SQInt32 >::min())
-        .Const(_SC("MaxInt32"),     std::numeric_limits< SQInt32 >::max())
-        .Const(_SC("MinFloat"),     std::numeric_limits< SQFloat >::min())
-        .Const(_SC("MaxFloat"),     std::numeric_limits< SQFloat >::max())
-        .Const(_SC("MinFloat32"),   std::numeric_limits< Float32 >::min())
-        .Const(_SC("MaxFloat32"),   std::numeric_limits< Float32 >::max())
-        .Const(_SC("FpNormal"),     FP_NORMAL)
-        .Const(_SC("FpSubnormal"),  FP_SUBNORMAL)
-        .Const(_SC("FpZero"),       FP_ZERO)
-        .Const(_SC("FpInfinite"),   FP_INFINITE)
-        .Const(_SC("FpNan"),        FP_NAN)
-#ifdef SQUSEDOUBLE
-        .Const(_SC("HugeVal"),      HUGE_VAL)
-#else
-        .Const(_SC("HugeVal"),      HUGE_VALF)
-#endif // SQUSEDOUBLE
-        .Const(_SC("Infinity"),     static_cast< float >(INFINITY))
-        .Const(_SC("Inf"),          static_cast< float >(INFINITY))
-        .Const(_SC("Nan"),          static_cast< float >(NAN))
-        .Const(_SC("MaxTasks"),     SQMOD_MAX_TASKS)
-        .Const(_SC("MaxRoutines"),  SQMOD_MAX_ROUTINES)
-    );
-
-    RegisterEnum(vm, _SC("SqArchitectre"),      g_ArchitectureEnum,     SQENUMCOUNT(g_ArchitectureEnum));
-    RegisterEnum(vm, _SC("SqPlatform"),         g_PlatformEnum,         SQENUMCOUNT(g_PlatformEnum));
-    RegisterEnum(vm, _SC("SqEvent"),            g_EventEnum,            SQENUMCOUNT(g_EventEnum));
-    RegisterEnum(vm, _SC("SqCreate"),           g_CreateEnum,           SQENUMCOUNT(g_CreateEnum));
-    RegisterEnum(vm, _SC("SqDestroy"),          g_DestroyEnum,          SQENUMCOUNT(g_DestroyEnum));
-    RegisterEnum(vm, _SC("SqServerError"),      g_ServerErrorEnum,      SQENUMCOUNT(g_ServerErrorEnum));
-    RegisterEnum(vm, _SC("SqEntityPool"),       g_EntityPoolEnum,       SQENUMCOUNT(g_EntityPoolEnum));
-    RegisterEnum(vm, _SC("SqPlayerUpdate"),     g_PlayerUpdateEnum,     SQENUMCOUNT(g_PlayerUpdateEnum));
-    RegisterEnum(vm, _SC("SqVehicleUpdate"),    g_VehicleUpdateEnum,    SQENUMCOUNT(g_VehicleUpdateEnum));
-    RegisterEnum(vm, _SC("SqPlayerVehicle"),    g_PlayerVehicleEnum,    SQENUMCOUNT(g_PlayerVehicleEnum));
-    RegisterEnum(vm, _SC("SqVehicleSync"),      g_VehicleSyncEnum,      SQENUMCOUNT(g_VehicleSyncEnum));
-    RegisterEnum(vm, _SC("SqPartReason"),       g_PartReasonEnum,       SQENUMCOUNT(g_PartReasonEnum));
-    RegisterEnum(vm, _SC("SqServerOption"),     g_ServerOptionEnum,     SQENUMCOUNT(g_ServerOptionEnum));
-    RegisterEnum(vm, _SC("SqPlayerOption"),     g_PlayerOptionEnum,     SQENUMCOUNT(g_PlayerOptionEnum));
-    RegisterEnum(vm, _SC("SqVehicleOption"),    g_VehicleOptionEnum,    SQENUMCOUNT(g_VehicleOptionEnum));
-    RegisterEnum(vm, _SC("SqBodyPart"),         g_BodyPartEnum,         SQENUMCOUNT(g_BodyPartEnum));
-    RegisterEnum(vm, _SC("SqPlayerState"),      g_PlayerStateEnum,      SQENUMCOUNT(g_PlayerStateEnum));
-    RegisterEnum(vm, _SC("SqPlayerAction"),     g_PlayerActionEnum,     SQENUMCOUNT(g_PlayerActionEnum));
-    RegisterEnum(vm, _SC("SqWeather"),          g_WeatherEnum,          SQENUMCOUNT(g_WeatherEnum));
-    RegisterEnum(vm, _SC("SqWep"),              g_WeaponEnum,           SQENUMCOUNT(g_WeaponEnum));
-    RegisterEnum(vm, _SC("SqVeh"),              g_VehicleEnum,          SQENUMCOUNT(g_VehicleEnum));
-    RegisterEnum(vm, _SC("SqSkin"),             g_SkinEnum,             SQENUMCOUNT(g_SkinEnum));
-    RegisterEnum(vm, _SC("SqKeyCode"),          g_KeyCodeEnum,          SQENUMCOUNT(g_KeyCodeEnum));
-    RegisterEnum(vm, _SC("SqASCII"),            g_AsciiEnum,            SQENUMCOUNT(g_AsciiEnum));
+    RegisterEnumerations(vm, g_EnumList);
 }
 
 } // Namespace:: SqMod
