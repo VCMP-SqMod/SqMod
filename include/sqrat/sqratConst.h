@@ -41,6 +41,146 @@
 namespace Sqrat {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper to remember the type of the constant.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+enum ConstType
+{
+    SQET_STRING = 0,
+    SQET_INT    = 1,
+    SQET_REAL   = 2,
+    SQET_BOOL   = 3
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper class that represents an enumeration value. Used to reduce compilation times and executable size.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct EnumElement
+{
+    // The name of the constant
+    const SQChar *          Name;
+    // The value of the constant
+    union {
+        const SQChar *      mSTR;
+        const SQInteger     mINT;
+        const SQFloat       mREAL;
+        const bool          mBOOL;
+    };
+    // The type of the constant value
+    const unsigned short    Type;
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructors that can identify the type and perform the proper conversion.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    EnumElement(const SQChar * name, const SQChar * value)
+        : Name(name), mSTR(value), Type(SQET_STRING)
+    { /* ... */ }
+    EnumElement(const SQChar * name, bool value)
+        : Name(name), mBOOL(value), Type(SQET_BOOL)
+    { /* ... */ }
+    EnumElement(const SQChar * name, signed char value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, unsigned char value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, signed short value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, unsigned short value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, signed int value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, unsigned int value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, signed long value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, unsigned long value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, signed long long value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, unsigned long long value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+    EnumElement(const SQChar * name, float value)
+        : Name(name), mREAL(static_cast< SQFloat >(value)), Type(SQET_REAL)
+    { /* ... */ }
+    EnumElement(const SQChar * name, double value)
+        : Name(name), mREAL(static_cast< SQFloat >(value)), Type(SQET_REAL)
+    { /* ... */ }
+    template < typename T > EnumElement(const SQChar * name, T value)
+        : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
+    { /* ... */ }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// HHelper class that represents an enumeration. Used to reduce compilation times and executable size.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct EnumElements
+{
+    // The name of the enumeration if this is an enumeration otherwise null
+    const SQChar *      Name;
+    // The constant values
+    const EnumElement * Values;
+    // The number of values
+    const unsigned int  Count;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructor that can identify the number of values at compile-time.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template < size_t N > EnumElements(const EnumElement(&values)[N])
+        : EnumElements(nullptr, values, N)
+    { /* ... */ }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructor that takes an explicit number of values at run-time.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    EnumElements(const EnumElement * values, unsigned int count)
+        : EnumElements(nullptr, values, count)
+    { /* ... */ }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructor that can identify the number of values at compile-time.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template < size_t N > EnumElements(const SQChar * name, const EnumElement(&values)[N])
+        : EnumElements(name, values, N)
+    { /* ... */ }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructor that takes an explicit number of values at run-time.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    EnumElements(const SQChar * name, const EnumElement * values, unsigned int count)
+        : Name(name), Values(values), Count(count)
+    { /* ... */ }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Register the managed constants into the specified constants table.
+    ///
+    /// \remarks
+    /// The constants table could be either the main constants table or an enumeration.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template < typename T > void Bind(T & table) const
+    {
+        for (unsigned int i = 0; i < Count; ++i)
+        {
+            switch (Values[i].Type)
+            {
+                case SQET_STRING:   table.Const(Values[i].Name, Values[i].mSTR); break;
+                case SQET_INT:      table.Const(Values[i].Name, Values[i].mINT); break;
+                case SQET_REAL:     table.Const(Values[i].Name, Values[i].mREAL); break;
+                case SQET_BOOL:     table.Const(Values[i].Name, Values[i].mBOOL); break;
+                default:            SQTHROW(table.GetVM(), "Unknown constant value type");
+            }
+        }
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Facilitates exposing a C++ enumeration to Squirrel
 ///
 /// \remarks
@@ -227,6 +367,46 @@ public:
         return *this;
     }
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Register a dynamic amount of enumerations into the constants table.
+///
+/// \remarks
+/// The number of enumerations have to be manually specified.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+inline void RegisterEnumerationsPtr(HSQUIRRELVM vm, const EnumElements * elist, unsigned int count)
+{
+    // Grab a reference to the constants table
+    ConstTable ct(vm);
+    // Iterate over the specified enumerations
+    for (unsigned int i = 0; i < count; ++i)
+    {
+        // Validate the enumeration name
+        if (!(elist[i].Name ) || *(elist[i].Name) == '\0')
+        {
+            SQTHROW(vm, _SC("Invalid or empty enumeration name"));
+        }
+        // Prepare an enumeration table
+        Enumeration e(vm);
+        // Bind the enumeration values
+        elist[i].Bind(e);
+        // Bind the enumeration to the constant table
+        ct.Enum(elist[i].Name, e);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Register a specific amount of enumerations identified at compile-time into the constants table.
+///
+/// \remarks
+/// The number of enumerations will be automatically detected.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < size_t N > inline void RegisterEnumerations(HSQUIRRELVM vm, const EnumElements(&elist)[N])
+{
+    RegisterEnumerationsPtr(vm, elist, N); // Just forward the information
+}
 
 }
 
