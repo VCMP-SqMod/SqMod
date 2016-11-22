@@ -10,6 +10,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqLiteColumn"))
+
+// ------------------------------------------------------------------------------------------------
 static inline bool IsDigitsOnly(CSStr str)
 {
     while (std::isdigit(*str) || std::isspace(*str))
@@ -18,14 +21,6 @@ static inline bool IsDigitsOnly(CSStr str)
     }
     // Return whether we reached the end while searching
     return *str == '\0';
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Column::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqSQLiteColumn");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -513,12 +508,12 @@ Object Column::GetBlob() const
 void Register_Column(Table & sqlns)
 {
     sqlns.Bind(_SC("Column"),
-        Class< Column >(sqlns.GetVM(), _SC("SqSQLiteColumn"))
+        Class< Column >(sqlns.GetVM(), Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const Column & >()
         // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &Column::Typename)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Column::ToString)
         // Properties
         .Prop(_SC("IsValid"), &Column::IsValid)

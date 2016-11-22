@@ -10,12 +10,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Statement::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqSQLiteStatement");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+SQMODE_DECL_TYPENAME(Typename, _SC("SqLiteStatement"))
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
@@ -426,13 +421,13 @@ Table Statement::GetTable(Int32 min, Int32 max) const
 void Register_Statement(Table & sqlns)
 {
     sqlns.Bind(_SC("Statement"),
-        Class< Statement >(sqlns.GetVM(), _SC("SqSQLiteStatement"))
+        Class< Statement >(sqlns.GetVM(), Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const Statement & >()
         .FmtCtor< const Connection & >()
         // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &Statement::Typename)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Statement::ToString)
         // Properties
         .Prop(_SC("IsValid"), &Statement::IsValid)

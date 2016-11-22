@@ -6,12 +6,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Connection::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqSQLiteConnection");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+SQMODE_DECL_TYPENAME(Typename, _SC("SqLiteConnection"))
 
 // ------------------------------------------------------------------------------------------------
 void Connection::TraceOutput(void * /*ptr*/, CCStr sql)
@@ -348,14 +343,14 @@ Int32 Connection::Flush(SQInteger num, Object & env, Function & func)
 void Register_Connection(Table & sqlns)
 {
     sqlns.Bind(_SC("Connection"),
-        Class< Connection >(sqlns.GetVM(), _SC("SqSQLiteConnection"))
+        Class< Connection >(sqlns.GetVM(), Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const StackStrF & >()
         .Ctor< const StackStrF &, Int32 >()
         .Ctor< const StackStrF &, Int32, const StackStrF & >()
         // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &Connection::Typename)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Connection::ToString)
         // Properties
         .Prop(_SC("IsValid"), &Connection::IsValid)

@@ -15,6 +15,9 @@ namespace SqMod {
 #define SQMOD_BINDFAILED "Unable to bind (%s) parameter (%d) because [%s]"
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(Typename, _SC("SqLiteParameter"))
+
+// ------------------------------------------------------------------------------------------------
 static inline bool IsDigitsOnly(CSStr str)
 {
     while (std::isdigit(*str) || std::isspace(*str))
@@ -23,14 +26,6 @@ static inline bool IsDigitsOnly(CSStr str)
     }
     // Return whether we reached the end while searching
     return *str == '\0';
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Parameter::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqSQLiteParameter");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -734,12 +729,12 @@ void Parameter::SetNull()
 void Register_Parameter(Table & sqlns)
 {
     sqlns.Bind(_SC("Parameter"),
-        Class< Parameter >(sqlns.GetVM(), _SC("SqSQLiteParameter"))
+        Class< Parameter >(sqlns.GetVM(), Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< const Parameter & >()
         // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &Parameter::Typename)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Parameter::ToString)
         // Properties
         .Prop(_SC("IsValid"), &Parameter::IsValid)

@@ -213,11 +213,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
      * See whether this statement is valid.
     */
     bool IsValid() const

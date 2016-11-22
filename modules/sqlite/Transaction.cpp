@@ -6,12 +6,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Transaction::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqSQLiteTransaction");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
+SQMODE_DECL_TYPENAME(Typename, _SC("SqLiteTransaction"))
 
 // ------------------------------------------------------------------------------------------------
 Transaction::Transaction(const Connection & db)
@@ -88,11 +83,11 @@ bool Transaction::Commit()
 void Register_Transaction(Table & sqlns)
 {
     sqlns.Bind(_SC("Transaction"),
-        Class< Transaction, NoCopy< Transaction > >(sqlns.GetVM(), _SC("SqSQLiteTransaction"))
+        Class< Transaction, NoCopy< Transaction > >(sqlns.GetVM(), Typename::Str)
         // Constructors
         .Ctor< const Connection & >()
         // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &Transaction::Typename)
+        .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Transaction::ToString)
         // Properties
         .Prop(_SC("IsValid"), &Transaction::IsValid)
