@@ -12,13 +12,6 @@ namespace SqMod {
 */
 class Connection
 {
-protected:
-
-    /* --------------------------------------------------------------------------------------------
-     * Create the database connection resource.
-    */
-    void Create(CSStr name, Int32 flags, CSStr vfs);
-
 private:
 
     // --------------------------------------------------------------------------------------------
@@ -86,28 +79,28 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(CSStr name)
+    Connection(const StackStrF & name)
         : m_Handle(new ConnHnd())
     {
-        SQMOD_GET_VALID(*this)->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
+        SQMOD_GET_VALID(*this)->Create(name.mPtr, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(CSStr name, Int32 flags)
+    Connection(const StackStrF & name, Int32 flags)
         : m_Handle(new ConnHnd())
     {
-        SQMOD_GET_VALID(*this)->Create(name, flags, nullptr);
+        SQMOD_GET_VALID(*this)->Create(name.mPtr, flags, nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(CSStr name, Int32 flags, CSStr vfs)
+    Connection(const StackStrF & name, Int32 flags, const StackStrF & vfs)
         : m_Handle(new ConnHnd())
     {
-        SQMOD_GET_VALID(*this)->Create(name, flags, vfs);
+        SQMOD_GET_VALID(*this)->Create(name.mPtr, flags, vfs.mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -291,32 +284,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(CSStr name);
+    void Open(const StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(CSStr name, Int32 flags);
+    void Open(const StackStrF & name, Int32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(CSStr name, Int32 flags, CSStr vfs);
+    void Open(const StackStrF & name, Int32 flags, const StackStrF & vfs);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to execute the specified query.
     */
-    Int32 Exec(CSStr str);
+    Int32 Exec(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to queue the specified query.
     */
-    void Queue(CSStr str);
+    void Queue(const StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to create a statement from the specified query.
     */
-    Object Query(CSStr str) const;
+    Object Query(const StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the database connection was opened in read-only mode.
@@ -326,7 +319,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Shortcut to test if a table exists.
     */
-    bool TableExists(CCStr name) const;
+    bool TableExists(const StackStrF & name) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the database connection is or is not in auto-commit mode.
@@ -483,21 +476,6 @@ public:
      * Flush a specific amount of queries from the queue and handle errors manually.
     */
     Int32 Flush(SQInteger num, Object & env, Function & func);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to execute the specified query.
-    */
-    static SQInteger ExecF(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to queue the specified query.
-    */
-    static SQInteger QueueF(HSQUIRRELVM vm);
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to create a statement from the specified query.
-    */
-    static SQInteger QueryF(HSQUIRRELVM vm);
 };
 
 } // Namespace:: SqMod

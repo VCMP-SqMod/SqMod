@@ -266,7 +266,15 @@ void Parameter::SetValue(const Object & value)
         } break;
         case OT_STRING:
         {
-            SetString(value.Cast< CSStr >());
+            SQMOD_VALIDATE_CREATED(*this);
+            // Remember the current stack size
+            const StackGuard sg;
+            // Push the object onto the stack
+            Var< Object >::push(DefaultVM::Get(), value);
+            // Pop the object from the stack as a string
+            const Var< CSStr > str(DefaultVM::Get(), -1);
+            // Attempt to bind the specified value
+            SetStringRaw(str.value, ConvTo< SQInteger >::From(str.size));
         } break;
         default: STHROWF("No known conversion for the specified value type");
     }
@@ -456,11 +464,11 @@ void Parameter::SetFloat64(SQFloat value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetString(CSStr value)
+void Parameter::SetString(const StackStrF & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_text(m_Handle->mPtr, m_Index, value, -1, SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_text(m_Handle->mPtr, m_Index, value.mPtr, value.mLen, SQLITE_TRANSIENT);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -469,7 +477,7 @@ void Parameter::SetString(CSStr value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetStringEx(CSStr value, Int32 length)
+void Parameter::SetStringRaw(CSStr value, SQInteger length)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -722,64 +730,6 @@ void Parameter::SetNull()
     }
 }
 
-// ------------------------------------------------------------------------------------------------
-SQInteger Parameter::SetStringF(HSQUIRRELVM vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Was the parameter value specified?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing parameter value");
-    }
-    // The parameter instance
-    Parameter * param = nullptr;
-    // Attempt to extract the argument values
-    try
-    {
-        param = Var< Parameter * >(vm, 1).value;
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Do we have a valid parameter instance?
-    if (!param)
-    {
-        return sq_throwerror(vm, "Invalid SQLite parameter instance");
-    }
-    // Validate the parameter info
-    try
-    {
-        SQMOD_VALIDATE_CREATED(*param);
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Attempt to bind the obtained string
-    try
-    {
-        param->SetStringEx(val.mPtr, val.mLen);
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // This function does not return any value
-    return 0;
-}
-
-
 // ================================================================================================
 void Register_Parameter(Table & sqlns)
 {
@@ -816,7 +766,7 @@ void Register_Parameter(Table & sqlns)
         .Func(_SC("SetFloat"), &Parameter::SetFloat)
         .Func(_SC("SetFloat32"), &Parameter::SetFloat32)
         .Func(_SC("SetFloat64"), &Parameter::SetFloat64)
-        .Func(_SC("SetString"), &Parameter::SetString)
+        .FmtFunc(_SC("SetString"), &Parameter::SetString)
         .Func(_SC("SetZeroBlob"), &Parameter::SetZeroBlob)
         .Func(_SC("SetBlob"), &Parameter::SetBlob)
         .Func(_SC("SetData"), &Parameter::SetData)
@@ -828,8 +778,6 @@ void Register_Parameter(Table & sqlns)
         .Func(_SC("SetDatetimeEx"), &Parameter::SetDatetimeEx)
         .Func(_SC("SetNow"), &Parameter::SetNow)
         .Func(_SC("SetNull"), &Parameter::SetNull)
-        // Squirrel Methods
-        .SquirrelFunc(_SC("SetStringF"), &Parameter::SetStringF)
     );
 }
 

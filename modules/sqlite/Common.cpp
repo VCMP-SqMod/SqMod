@@ -41,7 +41,7 @@ CSStr QFmtStr(CSStr str, ...)
 bool IsQueryEmpty(CSStr str)
 {
     // Is the pointer valid?
-    if (!str)
+    if (!str || *str == '\0')
     {
         return true;
     }
@@ -101,42 +101,21 @@ Object GetMemoryHighwaterMark(bool reset)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr EscapeString(CSStr str)
+CSStr EscapeString(const StackStrF & str)
 {
     // Is there even a string to escape?
-    if (!str)
+    if (str.mLen <= 0)
     {
         return _SC(""); // Default to empty string
     }
     // Attempt to escape the specified string
-    sqlite3_snprintf(GetTempBuffSize(), GetTempBuff(), "%q", str);
+    sqlite3_snprintf(GetTempBuffSize(), GetTempBuff(), "%q", str.mPtr);
     // Return the resulted string
     return GetTempBuff();
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQInteger SqEscapeString(HSQUIRRELVM vm)
-{
-    // Was the string specified?
-    if (sq_gettop(vm) <= 1)
-    {
-        return sq_throwerror(vm, "Missing un-escaped string");
-    }
-    // Attempt to generate the string value
-    StackStrF val(vm, 2);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Attempt to escape the obtained string and push it on the stack
-    sq_pushstring(vm, EscapeString(val.mPtr), -1);
-    // Specify that we have a return value
-    return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
-CCStr EscapeStringEx(SQChar spec, CCStr str)
+CCStr EscapeStringEx(SQChar spec, const StackStrF & str)
 {
     // Utility that allows changing the format specifier temporarily
     static SQChar fs[] = _SC("%q");
@@ -146,60 +125,18 @@ CCStr EscapeStringEx(SQChar spec, CCStr str)
         STHROWF("Unknown format specifier: '%c'", spec);
     }
     // Is there even a string to escape?
-    else if (!str)
+    else if (!str.mLen)
     {
         return _SC(""); // Default to empty string
     }
     // Apply the format specifier
     fs[1] = spec;
     // Attempt to escape the specified string
-    sqlite3_snprintf(GetTempBuffSize(), GetTempBuff(), fs, str);
+    sqlite3_snprintf(GetTempBuffSize(), GetTempBuff(), fs, str.mPtr);
     // Restore the format specifier
     fs[1] = 'q';
     // Return the resulted string
     return GetTempBuff();
-}
-
-// ------------------------------------------------------------------------------------------------
-static SQInteger SqEscapeStringEx(HSQUIRRELVM vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Was the escape specifier specified?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing escape specifier");
-    }
-    // Was the string specified?
-    else if (top <= 2)
-    {
-        return sq_throwerror(vm, "Missing un-escaped string");
-    }
-    SQInteger spec = 'q';
-    // Attempt to extract the escape specifier
-    const SQRESULT res = sq_getinteger(vm, 2, &spec);
-    // Have we failed to retrieve the specifier?
-    if (SQ_FAILED(res))
-    {
-        return res; // Propagate the error!
-    }
-    // Attempt to generate the string value
-    StackStrF val(vm, 3);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Attempt to escape the obtained string and push it on the stack
-    try
-    {
-        sq_pushstring(vm, EscapeStringEx(static_cast< SQChar >(spec), val.mPtr), -1);
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        return sq_throwerror(vm, e.what());
-    }
-    // Specify that we have a return value
-    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -295,10 +232,10 @@ void Register_Common(Table & sqlns)
         .Func(_SC("MemoryUsage"), &GetMemoryUsage)
         .Func(_SC("ArrayToQueryColumns"), &ArrayToQueryColumns)
         .Func(_SC("TableToQueryColumns"), &TableToQueryColumns)
-        .SquirrelFunc(_SC("EscapeString"), &SqEscapeString)
-        .SquirrelFunc(_SC("EscapeStringEx"), &SqEscapeStringEx)
-        .SquirrelFunc(_SC("Escape"), &SqEscapeString)
-        .SquirrelFunc(_SC("EscapeEx"), &SqEscapeStringEx);
+        .FmtFunc(_SC("EscapeString"), &EscapeString)
+        .FmtFunc(_SC("EscapeStringEx"), &EscapeStringEx)
+        .FmtFunc(_SC("Escape"), &EscapeString)
+        .FmtFunc(_SC("EscapeEx"), &EscapeStringEx);
 }
 
 } // Namespace:: SqMod

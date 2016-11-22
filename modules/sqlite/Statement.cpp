@@ -165,10 +165,10 @@ void Statement::ValidateRow() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-Statement::Statement(const Connection & connection, CSStr query)
+Statement::Statement(const Connection & connection, const StackStrF & query)
     : m_Handle(new StmtHnd(connection.GetHandle()))
 {
-    SQMOD_GET_VALID(*this)->Create(query);
+    SQMOD_GET_VALID(*this)->Create(query.mPtr, query.mLen);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -430,7 +430,7 @@ void Register_Statement(Table & sqlns)
         // Constructors
         .Ctor()
         .Ctor< const Statement & >()
-        .Ctor< const Connection &, CCStr >()
+        .FmtCtor< const Connection & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Statement::Typename)
         .Func(_SC("_tostring"), &Statement::ToString)
@@ -454,11 +454,11 @@ void Register_Statement(Table & sqlns)
         // Member Methods
         .Func(_SC("Release"), &Statement::Release)
         .Func(_SC("CheckParameter"), &Statement::CheckParameter)
-        .Func(_SC("GetParameterIndex"), &Statement::GetParameterIndex)
+        .FmtFunc(_SC("GetParameterIndex"), &Statement::GetParameterIndex)
         .Func(_SC("GetParameterName"), &Statement::GetParameterName)
         .Func(_SC("CheckColumn"), &Statement::CheckColumn)
         .Func(_SC("IsColumnNull"), &Statement::IsColumnNull)
-        .Func(_SC("ColumnIndex"), &Statement::GetColumnIndex)
+        .FmtFunc(_SC("ColumnIndex"), &Statement::GetColumnIndex)
         .Func(_SC("ColumnName"), &Statement::GetColumnName)
         .Func(_SC("ColumnOriginName"), &Statement::GetColumnOriginName)
         .Func(_SC("ColumnType"), &Statement::GetColumnType)
@@ -484,7 +484,7 @@ void Register_Statement(Table & sqlns)
         .Func(_SC("SetFloat"), &Statement::SetFloat)
         .Func(_SC("SetFloat32"), &Statement::SetFloat32)
         .Func(_SC("SetFloat64"), &Statement::SetFloat64)
-        .Func(_SC("SetString"), &Statement::SetString)
+        .FmtFunc(_SC("SetString"), &Statement::SetString)
         .Func(_SC("SetZeroBlob"), &Statement::SetZeroBlob)
         .Func(_SC("SetBlob"), &Statement::SetBlob)
         .Func(_SC("SetData"), &Statement::SetData)

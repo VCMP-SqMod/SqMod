@@ -3,6 +3,9 @@
 #include "Handle/Connection.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <cstring>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -35,7 +38,7 @@ StmtHnd::~StmtHnd()
 }
 
 // ------------------------------------------------------------------------------------------------
-void StmtHnd::Create(CSStr query)
+void StmtHnd::Create(CSStr query, SQInteger length)
 {
     // Make sure a previous statement doesn't exist
     if (mPtr)
@@ -47,15 +50,15 @@ void StmtHnd::Create(CSStr query)
     {
         STHROWF("Unable to prepare statement. Invalid connection handle");
     }
-    // Save the query string and therefore multiple strlen(...) calls
-    mQuery.assign(query ? query : _SC(""));
-    // Is the specified query string we just saved, valid?
-    if (mQuery.empty())
+    // Is the specified query string valid?
+    else if (!query || *query || !length)
     {
         STHROWF("Unable to prepare statement. Invalid query string");
     }
+    // Save the query string
+    mQuery.assign(query, length);
     // Attempt to prepare a statement with the specified query string
-    else if ((mStatus = sqlite3_prepare_v2(mConn->mPtr, mQuery.c_str(), (Int32)mQuery.size(),
+    if ((mStatus = sqlite3_prepare_v2(mConn->mPtr, mQuery.c_str(), ConvTo< Int32 >::From(mQuery.size()),
                                             &mPtr, nullptr)) != SQLITE_OK)
     {
         // Clear the query string since it failed
@@ -75,7 +78,7 @@ void StmtHnd::Create(CSStr query)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 StmtHnd::GetColumnIndex(CSStr name)
+Int32 StmtHnd::GetColumnIndex(CSStr name, SQInteger length)
 {
     // Validate the handle
     if (!mPtr)
@@ -101,8 +104,9 @@ Int32 StmtHnd::GetColumnIndex(CSStr name)
             }
         }
     }
+    const String str(name, length < 0 ? std::strlen(name) : length);
     // Attempt to find the specified column
-    const Indexes::iterator itr = mIndexes.find(name);
+    const Indexes::iterator itr = mIndexes.find(str);
     // Was there a column with the specified name?
     if (itr != mIndexes.end())
     {

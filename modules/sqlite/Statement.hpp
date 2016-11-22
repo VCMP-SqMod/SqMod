@@ -98,16 +98,16 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const ConnRef & connection, CSStr query)
+    Statement(const ConnRef & connection, const StackStrF & query)
         : m_Handle(new StmtHnd(connection))
     {
-        SQMOD_GET_VALID(*this)->Create(query);
+        SQMOD_GET_VALID(*this)->Create(query.mPtr, query.mLen);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const Connection & connection, CSStr query);
+    Statement(const Connection & connection, const StackStrF & query);
 
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
@@ -319,9 +319,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the parameter index associated with the specified name.
     */
-    Int32 GetParameterIndex(CSStr name) const
+    Int32 GetParameterIndex(const StackStrF & name) const
     {
-        return sqlite3_bind_parameter_index(SQMOD_GET_VALID(*this)->mPtr, name);
+        return sqlite3_bind_parameter_index(SQMOD_GET_VALID(*this)->mPtr, name.mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -372,9 +372,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the column index associated with the specified name.
     */
-    Int32 GetColumnIndex(CSStr name) const
+    Int32 GetColumnIndex(const StackStrF & name) const
     {
-        return SQMOD_GET_VALID(*this)->GetColumnIndex(name);
+        return SQMOD_GET_VALID(*this)->GetColumnIndex(name.mPtr, name.mLen);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -599,7 +599,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a string value at the specified parameter index.
     */
-    Statement & SetString(const Object & param, CSStr value)
+    Statement & SetString(const Object & param, const StackStrF & value)
     {
         Parameter(SQMOD_GET_CREATED(*this), param).SetString(value);
         // Allow chaining of operations

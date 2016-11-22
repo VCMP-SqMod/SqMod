@@ -102,7 +102,7 @@ const ConnRef & Connection::GetCreated() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Open(CSStr name)
+void Connection::Open(const StackStrF & name)
 {
     // Should we create a connection handle?
     if (!m_Handle)
@@ -115,11 +115,11 @@ void Connection::Open(CSStr name)
         STHROWF("Already referencing a valid database connection");
     }
     // Perform the requested operation
-    m_Handle->Create(name, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
+    m_Handle->Create(name.mPtr, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Open(CSStr name, Int32 flags)
+void Connection::Open(const StackStrF & name, Int32 flags)
 {
     // Should we create a connection handle?
     if (!m_Handle)
@@ -132,11 +132,11 @@ void Connection::Open(CSStr name, Int32 flags)
         STHROWF("Already referencing a valid database connection");
     }
     // Perform the requested operation
-    m_Handle->Create(name, flags, nullptr);
+    m_Handle->Create(name.mPtr, flags, nullptr);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Open(CSStr name, Int32 flags, CSStr vfs)
+void Connection::Open(const StackStrF & name, Int32 flags, const StackStrF & vfs)
 {
     // Should we create a connection handle?
     if (!m_Handle)
@@ -149,15 +149,15 @@ void Connection::Open(CSStr name, Int32 flags, CSStr vfs)
         STHROWF("Already referencing a valid database connection");
     }
     // Perform the requested operation
-    m_Handle->Create(name, flags, vfs);
+    m_Handle->Create(name.mPtr, flags, vfs.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::Exec(CSStr str)
+Int32 Connection::Exec(const StackStrF & str)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to execute the specified query
-    m_Handle->mStatus = sqlite3_exec(m_Handle->mPtr, str, nullptr, nullptr, nullptr);
+    m_Handle->mStatus = sqlite3_exec(m_Handle->mPtr, str.mPtr, nullptr, nullptr, nullptr);
     // Validate the execution result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -168,7 +168,7 @@ Int32 Connection::Exec(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Connection::Query(CSStr str) const
+Object Connection::Query(const StackStrF & str) const
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Return the requested information
@@ -176,16 +176,16 @@ Object Connection::Query(CSStr str) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Queue(CSStr str)
+void Connection::Queue(const StackStrF & str)
 {
     SQMOD_VALIDATE(*this);
     // Is there a query to commit?
-    if (IsQueryEmpty(str))
+    if (!str.mLen || IsQueryEmpty(str.mPtr))
     {
         STHROWF("No query string to queue");
     }
     // Add the specified string to the queue
-    m_Handle->mQueue.push_back(str);
+    m_Handle->mQueue.emplace_back(str.mPtr, str.mLen);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ bool Connection::IsReadOnly() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Connection::TableExists(CCStr name) const
+bool Connection::TableExists(const StackStrF & name) const
 {
     // Prepare a statement to inspect the master table
     Statement stmt(SQMOD_GET_CREATED(*this), "SELECT count(*) FROM [sqlite_master] WHERE [type]='table' AND [name]=?");
@@ -344,167 +344,6 @@ Int32 Connection::Flush(SQInteger num, Object & env, Function & func)
     return m_Handle->Flush(ConvTo< Uint32 >::From(num), env, func);
 }
 
-// ------------------------------------------------------------------------------------------------
-SQInteger Connection::ExecF(HSQUIRRELVM vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Was the query value specified?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing query value");
-    }
-    // The connection instance
-    Connection * conn = nullptr;
-    // Attempt to extract the argument values
-    try
-    {
-        conn = Var< Connection * >(vm, 1).value;
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Do we have a valid connection instance?
-    if (!conn)
-    {
-        return sq_throwerror(vm, "Invalid SQLite connection instance");
-    }
-    // Validate the connection info
-    try
-    {
-        SQMOD_VALIDATE_CREATED(*conn);
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Attempt to execute the specified query
-    conn->m_Handle->mStatus = sqlite3_exec(conn->m_Handle->mPtr, val.mPtr, nullptr, nullptr, nullptr);
-    // Validate the result
-    if (conn->m_Handle->mStatus != SQLITE_OK)
-    {
-        return sq_throwerror(vm, FmtStr("Unable to execute query [%s]", conn->m_Handle->ErrMsg()));
-    }
-    // Push the number of changes onto the stack
-    sq_pushinteger(vm, sqlite3_changes(conn->m_Handle->mPtr));
-    // This function returned a value
-    return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Connection::QueueF(HSQUIRRELVM vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Was the query value specified?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing query value");
-    }
-    // The connection instance
-    Connection * conn = nullptr;
-    // Attempt to extract the argument values
-    try
-    {
-        conn = Var< Connection * >(vm, 1).value;
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Do we have a valid connection instance?
-    if (!conn)
-    {
-        return sq_throwerror(vm, "Invalid SQLite connection instance");
-    }
-    // Validate the connection info
-    try
-    {
-        SQMOD_VALIDATE_CREATED(*conn);
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Attempt to queue the specified query
-    conn->m_Handle->mQueue.emplace_back(val.mPtr, val.mLen);
-    // This function does not return a value
-    return 0;
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger Connection::QueryF(HSQUIRRELVM vm)
-{
-    const Int32 top = sq_gettop(vm);
-    // Was the query value specified?
-    if (top <= 1)
-    {
-        return sq_throwerror(vm, "Missing query value");
-    }
-    // The connection instance
-    Connection * conn = nullptr;
-    // Attempt to extract the argument values
-    try
-    {
-        conn = Var< Connection * >(vm, 1).value;
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Do we have a valid connection instance?
-    if (!conn)
-    {
-        return sq_throwerror(vm, "Invalid SQLite connection instance");
-    }
-    // Validate the connection info
-    try
-    {
-        SQMOD_VALIDATE_CREATED(*conn);
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
-    }
-    // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
-    // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
-    {
-        return val.mRes; // Propagate the error!
-    }
-    // Attempt to create a statement with the specified query
-    try
-    {
-        ClassType< Statement >::PushInstance(vm, new Statement(conn->m_Handle, val.mPtr));
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        return sq_throwerror(vm, e.what());
-    }
-    // This function returned a value
-    return 1;
-}
-
 // ================================================================================================
 void Register_Connection(Table & sqlns)
 {
@@ -512,9 +351,9 @@ void Register_Connection(Table & sqlns)
         Class< Connection >(sqlns.GetVM(), _SC("SqSQLiteConnection"))
         // Constructors
         .Ctor()
-        .Ctor< CCStr >()
-        .Ctor< CCStr, Int32 >()
-        .Ctor< CCStr, Int32, CCStr >()
+        .Ctor< const StackStrF & >()
+        .Ctor< const StackStrF &, Int32 >()
+        .Ctor< const StackStrF &, Int32, const StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Connection::Typename)
         .Func(_SC("_tostring"), &Connection::ToString)
@@ -541,10 +380,10 @@ void Register_Connection(Table & sqlns)
         .Prop(_SC("QueueSize"), &Connection::QueueSize)
         // Member Methods
         .Func(_SC("Release"), &Connection::Release)
-        .Func(_SC("Exec"), &Connection::Exec)
-        .Func(_SC("Queue"), &Connection::Queue)
-        .Func(_SC("Query"), &Connection::Query)
-        .Func(_SC("TableExists"), &Connection::TableExists)
+        .FmtFunc(_SC("Exec"), &Connection::Exec)
+        .FmtFunc(_SC("Queue"), &Connection::Queue)
+        .FmtFunc(_SC("Query"), &Connection::Query)
+        .FmtFunc(_SC("TableExists"), &Connection::TableExists)
         .Func(_SC("InterruptOperation"), &Connection::InterruptOperation)
         .Func(_SC("SetBusyTimeout"), &Connection::SetBusyTimeout)
         .Func(_SC("ReleaseMemory"), &Connection::ReleaseMemory)
@@ -553,9 +392,9 @@ void Register_Connection(Table & sqlns)
         .Func(_SC("ClearQueue"), &Connection::ClearQueue)
         .Func(_SC("PopQueue"), &Connection::PopQueue)
         // Member Overloads
-        .Overload< void (Connection::*)(CSStr) >(_SC("Open"), &Connection::Open)
-        .Overload< void (Connection::*)(CSStr, Int32) >(_SC("Open"), &Connection::Open)
-        .Overload< void (Connection::*)(CSStr, Int32, CSStr) >(_SC("Open"), &Connection::Open)
+        .Overload< void (Connection::*)(const StackStrF &) >(_SC("Open"), &Connection::Open)
+        .Overload< void (Connection::*)(const StackStrF &, Int32) >(_SC("Open"), &Connection::Open)
+        .Overload< void (Connection::*)(const StackStrF &, Int32, const StackStrF &) >(_SC("Open"), &Connection::Open)
         .Overload< Int32 (Connection::*)(Int32) >(_SC("GetInfo"), &Connection::GetInfo)
         .Overload< Int32 (Connection::*)(Int32, bool) >(_SC("GetInfo"), &Connection::GetInfo)
         .Overload< Int32 (Connection::*)(Int32, bool, bool) >(_SC("GetInfo"), &Connection::GetInfo)
@@ -563,10 +402,6 @@ void Register_Connection(Table & sqlns)
         .Overload< Int32 (Connection::*)(SQInteger) >(_SC("Flush"), &Connection::Flush)
         .Overload< Int32 (Connection::*)(Object &, Function &) >(_SC("Flush"), &Connection::Flush)
         .Overload< Int32 (Connection::*)(SQInteger, Object &, Function &) >(_SC("Flush"), &Connection::Flush)
-        // Squirrel Methods
-        .SquirrelFunc(_SC("ExecF"), &Connection::ExecF)
-        .SquirrelFunc(_SC("QueueF"), &Connection::QueueF)
-        .SquirrelFunc(_SC("QueryF"), &Connection::QueryF)
     );
 }
 

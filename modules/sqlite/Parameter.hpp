@@ -346,12 +346,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a string value at the referenced parameter index.
     */
-    void SetString(CSStr value);
+    void SetString(const StackStrF & value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a string value at the referenced parameter index.
     */
-    void SetStringEx(CSStr value, Int32 length);
+    void SetStringRaw(CSStr value, SQInteger length = -1);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a zeroed blob value at the referenced parameter index.
@@ -407,12 +407,6 @@ public:
      * Attempt to bind a null value at the referenced parameter index.
     */
     void SetNull();
-
-    /* --------------------------------------------------------------------------------------------
-     * Attempt to bind a string value at the referenced parameter index.
-    */
-    static SQInteger SetStringF(HSQUIRRELVM vm);
-
 };
 
 } // Namespace:: SqMod

@@ -87,7 +87,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create the database statement resource.
     */
-    void Create(CSStr query);
+    void Create(CSStr query, SQInteger length = -1);
 
     /* --------------------------------------------------------------------------------------------
      * Check whether a specific column index is in range.
@@ -108,7 +108,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the column index associated with the specified name.
     */
-    Int32 GetColumnIndex(CSStr name);
+    Int32 GetColumnIndex(CSStr name, SQInteger length = -1);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the message of the last received error code.

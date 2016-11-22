@@ -126,12 +126,12 @@ Object GetMemoryHighwaterMark(bool reset);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the escaped version of the specified string.
 */
-CSStr EscapeString(CSStr str);
+CSStr EscapeString(const StackStrF & str);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the escaped version of the specified string using the supplied format specifier.
 */
-CCStr EscapeStringEx(SQChar spec, CCStr str);
+CCStr EscapeStringEx(SQChar spec, const StackStrF & str);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert the values from the specified array to a list of column names string.
