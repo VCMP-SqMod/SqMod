@@ -74,7 +74,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        BlipInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
+        BlipInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr), mObj()
         {
             ResetInstance();
         }
@@ -143,7 +143,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        CheckpointInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
+        CheckpointInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr), mObj()
         {
             ResetInstance();
         }
@@ -207,7 +207,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        KeybindInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
+        KeybindInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr), mObj()
         {
             ResetInstance();
         }
@@ -275,7 +275,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        ObjectInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
+        ObjectInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr), mObj()
         {
             ResetInstance();
         }
@@ -340,7 +340,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        PickupInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
+        PickupInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr), mObj()
         {
             ResetInstance();
         }
@@ -407,7 +407,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        PlayerInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
+        PlayerInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr), mObj()
         {
             ResetInstance();
         }
@@ -558,7 +558,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        VehicleInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
+        VehicleInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr), mObj()
         {
             ResetInstance();
         }

@@ -152,7 +152,7 @@ Core::BlipInst & Core::AllocBlip(Int32 id, bool owned, Int32 header, LightObj & 
     // Instantiate the entity manager
     DeleteGuard< CBlip > dg(new CBlip(id));
     // Create the script object
-    inst.mObj = LightObj(inst.mInst, m_VM);
+    inst.mObj = LightObj(dg.Get(), m_VM);
     // Store the manager instance itself
     inst.mInst = dg.Get();
     // The instance is now managed by the script
@@ -201,7 +201,7 @@ Core::CheckpointInst & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header,
     // Instantiate the entity manager
     DeleteGuard< CCheckpoint > dg(new CCheckpoint(id));
     // Create the script object
-    inst.mObj = LightObj(inst.mInst, m_VM);
+    inst.mObj = LightObj(dg.Get(), m_VM);
     // Store the manager instance itself
     inst.mInst = dg.Get();
     // The instance is now managed by the script
@@ -250,7 +250,7 @@ Core::KeybindInst & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Light
     // Instantiate the entity manager
     DeleteGuard< CKeybind > dg(new CKeybind(id));
     // Create the script object
-    inst.mObj = LightObj(inst.mInst, m_VM);
+    inst.mObj = LightObj(dg.Get(), m_VM);
     // Store the manager instance itself
     inst.mInst = dg.Get();
     // The instance is now managed by the script
@@ -299,7 +299,7 @@ Core::ObjectInst & Core::AllocObject(Int32 id, bool owned, Int32 header, LightOb
     // Instantiate the entity manager
     DeleteGuard< CObject > dg(new CObject(id));
     // Create the script object
-    inst.mObj = LightObj(inst.mInst, m_VM);
+    inst.mObj = LightObj(dg.Get(), m_VM);
     // Store the manager instance itself
     inst.mInst = dg.Get();
     // The instance is now managed by the script
@@ -348,7 +348,7 @@ Core::PickupInst & Core::AllocPickup(Int32 id, bool owned, Int32 header, LightOb
     // Instantiate the entity manager
     DeleteGuard< CPickup > dg(new CPickup(id));
     // Create the script object
-    inst.mObj = LightObj(inst.mInst, m_VM);
+    inst.mObj = LightObj(dg.Get(), m_VM);
     // Store the manager instance itself
     inst.mInst = dg.Get();
     // The instance is now managed by the script
@@ -397,7 +397,7 @@ Core::VehicleInst & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Light
     // Instantiate the entity manager
     DeleteGuard< CVehicle > dg(new CVehicle(id));
     // Create the script object
-    inst.mObj = LightObj(inst.mInst, m_VM);
+    inst.mObj = LightObj(dg.Get(), m_VM);
     // Store the manager instance itself
     inst.mInst = dg.Get();
     // The instance is now managed by the script
@@ -780,9 +780,13 @@ void Core::ConnectPlayer(Int32 id, Int32 header, LightObj & payload)
         return; // Nothing to allocate!
     }
     // Instantiate the entity manager
-    inst.mInst = new CPlayer(id);
+    DeleteGuard< CPlayer > dg(new CPlayer(id));
     // Create the script object
-    inst.mObj = LightObj(inst.mInst, m_VM);
+    inst.mObj = LightObj(dg.Get(), m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
     // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
@@ -798,6 +802,8 @@ void Core::ConnectPlayer(Int32 id, Int32 header, LightObj & payload)
     inst.mLastHealth = _Func->GetPlayerHealth(id);
     inst.mLastArmour = _Func->GetPlayerArmour(id);
     inst.mLastHeading = _Func->GetPlayerHeading(id);
+    // Initialize the instance events
+    inst.InitEvents();
     // Let the script callbacks know about this entity
     EmitPlayerCreated(id, header, payload);
 }
