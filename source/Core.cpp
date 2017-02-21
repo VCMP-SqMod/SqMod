@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
 #include "Logger.hpp"
+#include "Signal.hpp"
 #include "SqMod.h"
 
 // ------------------------------------------------------------------------------------------------
@@ -30,15 +31,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
-// --------------------------------------------------------------------------------------------
-#define SQMOD_CATCH_EVENT_EXCEPTION(action) /*
-*/ catch (const Sqrat::Exception & e) /*
-*/ { /*
-*/  LogErr("Squirrel exception caught " action); /*
-*/  Logger::Get().Debug("%s", e.what()); /*
-*/ } /*
-*/
-
 // ------------------------------------------------------------------------------------------------
 extern bool RegisterAPI(HSQUIRRELVM vm);
 
@@ -49,9 +41,6 @@ extern void TerminateTasks();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
-
-// ------------------------------------------------------------------------------------------------
-extern void CleanupTasks(Int32 id, Int32 type);
 
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(CSStr path);
@@ -121,7 +110,7 @@ public:
     {
         for (auto & ent : container)
         {
-            ent.Destroy(destroy, SQMOD_DESTROY_CLEANUP, NullObject());
+            ent.Destroy(destroy, SQMOD_DESTROY_CLEANUP, NullLightObj());
         }
     }
 
@@ -151,6 +140,7 @@ Core::Core()
     , m_Pickups()
     , m_Players()
     , m_Vehicles()
+    , m_Events()
     , m_CircularLocks(0)
     , m_ReloadHeader(0)
     , m_ReloadPayload()
@@ -278,6 +268,7 @@ bool Core::Initialize()
     NullArray() = Array();
     NullTable() = Table();
     NullObject() = Object();
+    NullLightObj() = LightObj();
     NullFunction() = Function();
 
     cLogDbg(m_Verbosity >= 1, "Registering the standard libraries");
@@ -310,6 +301,14 @@ bool Core::Initialize()
     {
         return false; // Can't execute scripts without a valid API!
     }
+
+    // Initialize the module global events
+    InitEvents();
+
+    // Initialize load stage signals
+    InitSignalPair(mOnPreLoad, NullLightObj(), nullptr);
+    InitSignalPair(mOnPostLoad, NullLightObj(), nullptr);
+    InitSignalPair(mOnUnload, NullLightObj(), nullptr);
 
     CSimpleIniA::TNamesDepend scripts;
     // Attempt to retrieve the list of keys to make sure there's actually something to process
@@ -412,34 +411,28 @@ bool Core::Execute()
     }
 
     // Create the null entity instances
-    m_NullBlip = Object(new CBlip(-1));
-    m_NullCheckpoint = Object(new CCheckpoint(-1));
-    m_NullKeybind = Object(new CKeybind(-1));
-    m_NullObject = Object(new CObject(-1));
-    m_NullPickup = Object(new CPickup(-1));
-    m_NullPlayer = Object(new CPlayer(-1));
-    m_NullVehicle = Object(new CVehicle(-1));
+    m_NullBlip = LightObj(new CBlip(-1));
+    m_NullCheckpoint = LightObj(new CCheckpoint(-1));
+    m_NullKeybind = LightObj(new CKeybind(-1));
+    m_NullObject = LightObj(new CObject(-1));
+    m_NullPickup = LightObj(new CPickup(-1));
+    m_NullPlayer = LightObj(new CPlayer(-1));
+    m_NullVehicle = LightObj(new CVehicle(-1));
 
     m_LockPreLoadSignal = true;
-    // Trigger functions that must initialize stuff before the loaded event is triggered
-    for (FuncData & fn : m_PreLoadSignal)
-    {
-        Emit(fn.first,  fn.second);
-    }
-    // Clear the functions
-    m_PreLoadSignal.clear();
+    // Trigger callbacks that must initialize stuff before the loaded event is triggered
+    (*mOnPreLoad.first)();
+    // Clear the callbacks
+    ResetSignalPair(mOnPreLoad);
 
     // Notify the script callback that the scripts were loaded
     EmitScriptLoaded();
 
     m_LockPostLoadSignal = true;
-    // Trigger functions that must initialize stuff after the loaded event is triggered
-    for (FuncData & fn : m_PostLoadSignal)
-    {
-        Emit(fn.first, fn.second);
-    }
-    // Clear the functions
-    m_PostLoadSignal.clear();
+    // Trigger callbacks that must initialize stuff after the loaded event is triggered
+    (*mOnPostLoad.first)();
+    // Clear the callbacks
+    ResetSignalPair(mOnPostLoad);
 
     // Import already existing entities
     ImportPlayers();
@@ -449,7 +442,6 @@ bool Core::Execute()
     ImportObjects();
     ImportPickups();
     ImportVehicles();
-
     // Successfully executed
     return (m_Executed = true);
 }
@@ -462,13 +454,10 @@ void Core::Terminate(bool shutdown)
     if (m_VM)
     {
         m_LockUnloadSignal = true;
-        // Trigger functions that must de-initialize stuff before the scripts are unloaded
-        for (FuncData & fn : m_UnloadSignal)
-        {
-            Emit(fn.first, fn.second, shutdown);
-        }
-        // Clear the functions
-        m_UnloadSignal.clear();
+        // Trigger callbacks that must de-initialize stuff before the scripts are unloaded
+        (*mOnUnload.first)();
+        // Clear the callbacks
+        ResetSignalPair(mOnUnload);
 
         cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
@@ -497,6 +486,7 @@ void Core::Terminate(bool shutdown)
     NullArray().Release();
     NullTable().Release();
     NullObject().Release();
+    NullLightObj().Release();
     NullFunction().ReleaseGently();
     // Release null entity instances
     m_NullBlip.Release();
@@ -506,16 +496,12 @@ void Core::Terminate(bool shutdown)
     m_NullPickup.Release();
     m_NullPlayer.Release();
     m_NullVehicle.Release();
-    // Clear any functions added during shutdown
-    m_PreLoadSignal.clear();
-    m_PostLoadSignal.clear();
-    m_UnloadSignal.clear();
     // Is there a VM to close?
     if (m_VM)
     {
         cLogDbg(m_Verbosity >= 1, "Releasing any final resources and all loaded scripts");
         // Release all script callbacks
-        ResetFunc();
+        DropEvents();
         // Release the script instances
         m_Scripts.clear();
         m_PendingScripts.clear(); // Just in case
@@ -845,378 +831,6 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
 void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInteger line, SQInteger column)
 {
     LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %d\n=>Column: %d\n]", desc, src, line, column);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::BindPreLoad(Object & env, Function & func, Object & payload)
-{
-    if (m_LockPreLoadSignal)
-    {
-        STHROWF("Cannot bind functions to pre-load signal anymore");
-    }
-    else if (func.IsNull())
-    {
-        STHROWF("Cannot bind null as callback to pre-load signal");
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        m_PreLoadSignal.emplace_back(func, payload);
-    }
-    // Assign the specified environment and function
-    else
-    {
-        m_PreLoadSignal.emplace_back(Function(env.GetVM(), env, func.GetFunc()), payload);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::BindPostLoad(Object & env, Function & func, Object & payload)
-{
-    if (m_LockPostLoadSignal)
-    {
-        STHROWF("Cannot bind functions to post-load signal anymore");
-    }
-    else if (func.IsNull())
-    {
-        STHROWF("Cannot bind null as callback to post-load signal");
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        m_PostLoadSignal.emplace_back(func, payload);
-    }
-    // Assign the specified environment and function
-    else
-    {
-        m_PostLoadSignal.emplace_back(Function(env.GetVM(), env, func.GetFunc()), payload);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::BindUnload(Object & env, Function & func, Object & payload)
-{
-    if (m_LockUnloadSignal)
-    {
-        STHROWF("Cannot bind functions to unload signal anymore");
-    }
-    else if (func.IsNull())
-    {
-        STHROWF("Cannot bind null as callback to unload signal");
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        m_UnloadSignal.emplace_back(func, payload);
-    }
-    // Assign the specified environment and function
-    else
-    {
-        m_UnloadSignal.emplace_back(Function(env.GetVM(), env, func.GetFunc()), payload);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::BindEvent(Int32 id, Object & env, Function & func)
-{
-    // Obtain the function instance called for this event
-    Function & event = GetEvent(id);
-    // Is the specified callback function null?
-    if (func.IsNull())
-    {
-        event.ReleaseGently(); // Then release the current callback
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        event = func;
-    }
-    // Assign the specified environment and function
-    else
-    {
-        event = Function(env.GetVM(), env, func.GetFunc());
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::BlipInst::Destroy(bool destroy, Int32 header, Object & payload)
-{
-    // Should we notify that this entity is being cleaned up?
-    if (VALID_ENTITY(mID))
-    {
-        // Don't leave exceptions to prevent us from releasing this instance
-        try
-        {
-            Core::Get().EmitBlipDestroyed(mID, header, payload);
-        }
-        SQMOD_CATCH_EVENT_EXCEPTION("while destroying blip")
-    }
-    // Is there a manager instance associated with this entity?
-    if (mInst)
-    {
-        // Prevent further use of this entity
-        mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        mInst->m_Data.Release();
-    }
-    // Prevent further use of the manager instance
-    mInst = nullptr;
-    // Release the script object, if any
-    mObj.Release();
-    // Release tasks, if any
-    CleanupTasks(mID, ENT_BLIP);
-    // Are we supposed to clean up this entity? (only at reload)
-    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
-    {
-        // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
-        // Now attempt to destroy this entity from the server
-        _Func->DestroyCoordBlip(mID);
-    }
-    // Reset the instance to it's initial state
-    Core::ResetInst(*this);
-    // Don't release the callbacks abruptly
-    Core::ResetFunc(*this);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::CheckpointInst::Destroy(bool destroy, Int32 header, Object & payload)
-{
-    // Should we notify that this entity is being cleaned up?
-    if (VALID_ENTITY(mID))
-    {
-        // Don't leave exceptions to prevent us from releasing this instance
-        try
-        {
-            Core::Get().EmitCheckpointDestroyed(mID, header, payload);
-        }
-        SQMOD_CATCH_EVENT_EXCEPTION("while destroying checkpoint")
-    }
-    // Is there a manager instance associated with this entity?
-    if (mInst)
-    {
-        // Prevent further use of this entity
-        mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        mInst->m_Data.Release();
-    }
-    // Prevent further use of the manager instance
-    mInst = nullptr;
-    // Release the script object, if any
-    mObj.Release();
-    // Release tasks, if any
-    CleanupTasks(mID, ENT_CHECKPOINT);
-    // Are we supposed to clean up this entity? (only at reload)
-    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
-    {
-        // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
-        // Now attempt to destroy this entity from the server
-        _Func->DeleteCheckPoint(mID);
-    }
-    // Reset the instance to it's initial state
-    Core::ResetInst(*this);
-    // Don't release the callbacks abruptly
-    Core::ResetFunc(*this);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::KeybindInst::Destroy(bool destroy, Int32 header, Object & payload)
-{
-    // Should we notify that this entity is being cleaned up?
-    if (VALID_ENTITY(mID))
-    {
-        // Don't leave exceptions to prevent us from releasing this instance
-        try
-        {
-            Core::Get().EmitKeybindDestroyed(mID, header, payload);
-        }
-        SQMOD_CATCH_EVENT_EXCEPTION("while destroying keybind")
-    }
-    // Is there a manager instance associated with this entity?
-    if (mInst)
-    {
-        // Prevent further use of this entity
-        mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        mInst->m_Data.Release();
-    }
-    // Prevent further use of the manager instance
-    mInst = nullptr;
-    // Release the script object, if any
-    mObj.Release();
-    // Release tasks, if any
-    CleanupTasks(mID, ENT_KEYBIND);
-    // Are we supposed to clean up this entity? (only at reload)
-    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
-    {
-        // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
-        // Now attempt to destroy this entity from the server
-        _Func->RemoveKeyBind(mID);
-    }
-    // Reset the instance to it's initial state
-    Core::ResetInst(*this);
-    // Don't release the callbacks abruptly
-    Core::ResetFunc(*this);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ObjectInst::Destroy(bool destroy, Int32 header, Object & payload)
-{
-    // Should we notify that this entity is being cleaned up?
-    if (VALID_ENTITY(mID))
-    {
-        // Don't leave exceptions to prevent us from releasing this instance
-        try
-        {
-            Core::Get().EmitObjectDestroyed(mID, header, payload);
-        }
-        SQMOD_CATCH_EVENT_EXCEPTION("while destroying object")
-    }
-    // Is there a manager instance associated with this entity?
-    if (mInst)
-    {
-        // Prevent further use of this entity
-        mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        mInst->m_Data.Release();
-    }
-    // Prevent further use of the manager instance
-    mInst = nullptr;
-    // Release the script object, if any
-    mObj.Release();
-    // Release tasks, if any
-    CleanupTasks(mID, ENT_OBJECT);
-    // Are we supposed to clean up this entity? (only at reload)
-    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
-    {
-        // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
-        // Now attempt to destroy this entity from the server
-        _Func->DeleteObject(mID);
-    }
-    // Reset the instance to it's initial state
-    Core::ResetInst(*this);
-    // Don't release the callbacks abruptly
-    Core::ResetFunc(*this);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::PickupInst::Destroy(bool destroy, Int32 header, Object & payload)
-{
-    // Should we notify that this entity is being cleaned up?
-    if (VALID_ENTITY(mID))
-    {
-        // Don't leave exceptions to prevent us from releasing this instance
-        try
-        {
-            Core::Get().EmitPickupDestroyed(mID, header, payload);
-        }
-        SQMOD_CATCH_EVENT_EXCEPTION("while destroying pickup")
-    }
-    // Is there a manager instance associated with this entity?
-    if (mInst)
-    {
-        // Prevent further use of this entity
-        mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        mInst->m_Data.Release();
-    }
-    // Prevent further use of the manager instance
-    mInst = nullptr;
-    // Release the script object, if any
-    mObj.Release();
-    // Release tasks, if any
-    CleanupTasks(mID, ENT_PICKUP);
-    // Are we supposed to clean up this entity? (only at reload)
-    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
-    {
-        // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
-        // Now attempt to destroy this entity from the server
-        _Func->DeletePickup(mID);
-    }
-    // Reset the instance to it's initial state
-    Core::ResetInst(*this);
-    // Don't release the callbacks abruptly
-    Core::ResetFunc(*this);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::PlayerInst::Destroy(bool /*destroy*/, Int32 header, Object & payload)
-{
-    // Should we notify that this entity is being cleaned up?
-    if (VALID_ENTITY(mID))
-    {
-        // Don't leave exceptions to prevent us from releasing this instance
-        try
-        {
-            Core::Get().EmitPlayerDestroyed(mID, header, payload);
-        }
-        SQMOD_CATCH_EVENT_EXCEPTION("while destroying player")
-    }
-    // Is there a manager instance associated with this entity?
-    if (mInst)
-    {
-        // Prevent further use of this entity
-        mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        mInst->m_Data.Release();
-        // Release the used memory buffer
-        mInst->m_Buffer.ResetAll();
-    }
-    // Prevent further use of the manager instance
-    mInst = nullptr;
-    // Release the script object, if any
-    mObj.Release();
-    // Release tasks, if any
-    CleanupTasks(mID, ENT_PLAYER);
-    // Reset the instance to it's initial state
-    Core::ResetInst(*this);
-    // Don't release the callbacks abruptly
-    Core::ResetFunc(*this);
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::VehicleInst::Destroy(bool destroy, Int32 header, Object & payload)
-{
-    // Should we notify that this entity is being cleaned up?
-    if (VALID_ENTITY(mID))
-    {
-        // Don't leave exceptions to prevent us from releasing this instance
-        try
-        {
-            Core::Get().EmitVehicleDestroyed(mID, header, payload);
-        }
-        SQMOD_CATCH_EVENT_EXCEPTION("while destroying vehicle")
-    }
-    // Is there a manager instance associated with this entity?
-    if (mInst)
-    {
-        // Prevent further use of this entity
-        mInst->m_ID = -1;
-        // Release user data to avoid dangling or circular references
-        mInst->m_Data.Release();
-    }
-    // Prevent further use of the manager instance
-    mInst = nullptr;
-    // Release the script object, if any
-    mObj.Release();
-    // Release tasks, if any
-    CleanupTasks(mID, ENT_VEHICLE);
-    // Are we supposed to clean up this entity? (only at reload)
-    if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
-    {
-        // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
-        // Now attempt to destroy this entity from the server
-        _Func->DeleteVehicle(mID);
-    }
-    // Reset the instance to it's initial state
-    Core::ResetInst(*this);
-    // Don't release the callbacks abruptly
-    Core::ResetFunc(*this);
 }
 
 } // Namespace:: SqMod

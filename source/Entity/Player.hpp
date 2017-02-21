@@ -45,27 +45,27 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
-    Int32   m_ID;
+    Int32       m_ID;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
     */
-    String  m_Tag;
+    String      m_Tag;
 
     /* --------------------------------------------------------------------------------------------
      * User data associated with this instance.
     */
-    Object  m_Data;
+    LightObj    m_Data;
 
     /* --------------------------------------------------------------------------------------------
      * Buffer used to generate client data.
     */
-    Buffer  m_Buffer;
+    Buffer      m_Buffer;
 
     /* --------------------------------------------------------------------------------------------
      * Prevent events from triggering themselves.
     */
-    Uint32  m_CircularLocks;
+    Uint32      m_CircularLocks;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -181,7 +181,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
     */
-    static Object & GetNull();
+    static LightObj & GetNull();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
@@ -217,22 +217,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
     */
-    Object & GetData();
+    LightObj & GetData();
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user data.
     */
-    void SetData(Object & data);
+    void SetData(LightObj & data);
 
     /* --------------------------------------------------------------------------------------------
-     * Bind to an event supported by this entity type.
+     * Retrieve the events table of this entity.
     */
-    void BindEvent(Int32 evid, Object & env, Function & func) const;
+    LightObj & GetEvents() const;
 
     /* --------------------------------------------------------------------------------------------
      * Emit a custom event for the managed entity
     */
-    void CustomEvent(Int32 header, Object & payload) const;
+    void CustomEvent(Int32 header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is connected.
@@ -277,7 +277,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Kick the managed player entity from the server.
     */
-    void KickBecause(Int32 header, Object & payload) const;
+    void KickBecause(Int32 header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Ban the managed player entity from the server.
@@ -287,7 +287,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Ban the managed player entity from the server.
     */
-    void BanBecause(Int32 header, Object & payload) const;
+    void BanBecause(Int32 header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the key of the managed player entity.
@@ -322,7 +322,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the current option value of the managed player entity.
     */
-    void SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload);
+    void SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed player entity exists.
@@ -612,7 +612,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle in which the managed player entity is embarked.
     */
-    Object & GetVehicle() const;
+    LightObj & GetVehicle() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle identifier in which the managed player entity is embarked.
@@ -707,12 +707,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle that the managed player entity is standing on.
     */
-    Object & StandingOnVehicle() const;
+    LightObj & StandingOnVehicle() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the object that the managed player entity is standing on.
     */
-    Object & StandingOnObject() const;
+    LightObj & StandingOnObject() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is away.
@@ -722,7 +722,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the player that the managed player entity is spectating.
     */
-    Object & GetSpectator() const;
+    LightObj & GetSpectator() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set the managed player entity to spectate the specified player entity.
@@ -743,27 +743,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */
-    Object & CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+    LightObj & CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius) const;
 
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */
-    Object & CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+    LightObj & CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
-                            Int32 header, Object & payload) const;
+                            Int32 header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */
-    Object & CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos,
+    LightObj & CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos,
                         const Color4 & color, Float32 radius) const;
 
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */
-    Object & CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos, const Color4 & color,
-                                    Float32 radius, Int32 header, Object & payload) const;
+    LightObj & CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos, const Color4 & color,
+                                    Float32 radius, Int32 header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the authority level of the managed player entity.
@@ -798,7 +798,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the amount of tracked position changes for the managed player entity.
     */
-    void SetTrackPositionEx(SQInteger num, Int32 header, const Object & payload) const;
+    void SetTrackPositionEx(SQInteger num, Int32 header, const LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked heading changes for the managed player entity.

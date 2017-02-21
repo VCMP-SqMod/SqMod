@@ -27,7 +27,7 @@ SQInteger CObject::SqGetNull(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CObject::GetNull()
+LightObj & CObject::GetNull()
 {
     return Core::Get().GetNullObject();
 }
@@ -85,7 +85,7 @@ CObject & CObject::ApplyTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CObject::GetData()
+LightObj & CObject::GetData()
 {
     // Validate the managed identifier
     Validate();
@@ -94,7 +94,7 @@ Object & CObject::GetData()
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetData(Object & data)
+void CObject::SetData(LightObj & data)
 {
     // Validate the managed identifier
     Validate();
@@ -103,7 +103,7 @@ void CObject::SetData(Object & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CObject::Destroy(Int32 header, Object & payload)
+bool CObject::Destroy(Int32 header, LightObj & payload)
 {
     // Validate the managed identifier
     Validate();
@@ -112,31 +112,16 @@ bool CObject::Destroy(Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::BindEvent(Int32 evid, Object & env, Function & func) const
+LightObj & CObject::GetEvents() const
 {
     // Validate the managed identifier
     Validate();
-    // Obtain the function instance called for this event
-    Function & event = Core::Get().GetObjectEvent(m_ID, evid);
-    // Is the specified callback function null?
-    if (func.IsNull())
-    {
-        event.ReleaseGently(); // Then release the current callback
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        event = func;
-    }
-    // Assign the specified environment and function
-    else
-    {
-        event = Function(env.GetVM(), env, func.GetFunc());
-    }
+    // Return the associated event table
+    return Core::Get().GetObject(m_ID).mEvents;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::CustomEvent(Int32 header, Object & payload) const
+void CObject::CustomEvent(Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -854,27 +839,27 @@ void CObject::RotateByEulerZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Object_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+static LightObj & Object_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
                                 Int32 alpha)
 {
-    return Core::Get().NewObject(model, world, x, y, z, alpha, SQMOD_CREATE_DEFAULT, NullObject());
+    return Core::Get().NewObject(model, world, x, y, z, alpha, SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Object_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
-                        Int32 alpha, Int32 header, Object & payload)
+static LightObj & Object_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+                        Int32 alpha, Int32 header, LightObj & payload)
 {
     return Core::Get().NewObject(model, world, x, y, z, alpha, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha)
+static LightObj & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha)
 {
     return Core::Get().NewObject(model, world, pos.x, pos.y, pos.z, alpha,
-                            SQMOD_CREATE_DEFAULT, NullObject());
+                            SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha,
-                            Int32 header, Object & payload)
+static LightObj & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha,
+                            Int32 header, LightObj & payload)
 {
     return Core::Get().NewObject(model, world, pos.x, pos.y, pos.z, alpha, header, payload);
 }
@@ -897,18 +882,18 @@ void Register_CObject(HSQUIRRELVM vm)
         .Var(_SC("RotateToEulerDuration"), &CObject::mRotateToEulerDuration)
         .Var(_SC("RotateByEulerDuration"), &CObject::mRotateByEulerDuration)
         // Core Properties
+        .Prop(_SC("On"), &CObject::GetEvents)
         .Prop(_SC("ID"), &CObject::GetID)
         .Prop(_SC("Tag"), &CObject::GetTag, &CObject::SetTag)
         .Prop(_SC("Data"), &CObject::GetData, &CObject::SetData)
         .Prop(_SC("Active"), &CObject::IsActive)
         // Core Methods
-        .Func(_SC("Bind"), &CObject::BindEvent)
         .FmtFunc(_SC("SetTag"), &CObject::ApplyTag)
         .Func(_SC("CustomEvent"), &CObject::CustomEvent)
         // Core Overloads
         .Overload< bool (CObject::*)(void) >(_SC("Destroy"), &CObject::Destroy)
         .Overload< bool (CObject::*)(Int32) >(_SC("Destroy"), &CObject::Destroy)
-        .Overload< bool (CObject::*)(Int32, Object &) >(_SC("Destroy"), &CObject::Destroy)
+        .Overload< bool (CObject::*)(Int32, LightObj &) >(_SC("Destroy"), &CObject::Destroy)
         // Properties
         .Prop(_SC("Model"), &CObject::GetModel)
         .Prop(_SC("World"), &CObject::GetWorld, &CObject::SetWorld)
@@ -982,13 +967,13 @@ void Register_CObject(HSQUIRRELVM vm)
         .Overload< void (CObject::*)(Float32, Float32, Float32, Uint32) const >
             (_SC("RotateByEuler"), &CObject::RotateByEulerEx)
         // Static Overloads
-        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Float32, Float32, Float32, Int32) >
             (_SC("CreateEx"), &Object_CreateEx)
-        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Int32, LightObj &) >
             (_SC("CreateEx"), &Object_CreateEx)
-        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, const Vector3 &, Int32) >
             (_SC("Create"), &Object_Create)
-        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, const Vector3 &, Int32, Int32, LightObj &) >
             (_SC("Create"), &Object_Create)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CObject::SqGetNull)

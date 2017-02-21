@@ -20,7 +20,7 @@ SQInteger CBlip::SqGetNull(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CBlip::GetNull()
+LightObj & CBlip::GetNull()
 {
     return Core::Get().GetNullBlip();
 }
@@ -72,7 +72,7 @@ CBlip & CBlip::ApplyTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CBlip::GetData()
+LightObj & CBlip::GetData()
 {
     // Validate the managed identifier
     Validate();
@@ -81,7 +81,7 @@ Object & CBlip::GetData()
 }
 
 // ------------------------------------------------------------------------------------------------
-void CBlip::SetData(Object & data)
+void CBlip::SetData(LightObj & data)
 {
     // Validate the managed identifier
     Validate();
@@ -90,7 +90,7 @@ void CBlip::SetData(Object & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CBlip::Destroy(Int32 header, Object & payload)
+bool CBlip::Destroy(Int32 header, LightObj & payload)
 {
     // Validate the managed identifier
     Validate();
@@ -99,31 +99,16 @@ bool CBlip::Destroy(Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CBlip::BindEvent(Int32 evid, Object & env, Function & func) const
+LightObj & CBlip::GetEvents() const
 {
     // Validate the managed identifier
     Validate();
-    // Obtain the function instance called for this event
-    Function & event = Core::Get().GetBlipEvent(m_ID, evid);
-    // Is the specified callback function null?
-    if (func.IsNull())
-    {
-        event.ReleaseGently(); // Then release the current callback
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        event = func;
-    }
-    // Assign the specified environment and function
-    else
-    {
-        event = Function(env.GetVM(), env, func.GetFunc());
-    }
+    // Return the associated event table
+    return Core::Get().GetBlip(m_ID).mEvents;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CBlip::CustomEvent(Int32 header, Object & payload) const
+void CBlip::CustomEvent(Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -240,62 +225,62 @@ Int32 CBlip::GetColorA() const
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Blip_CreateEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
+static LightObj & Blip_CreateEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid)
 {
     return Core::Get().NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
-                            SQMOD_CREATE_DEFAULT, NullObject());
+                            SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Blip_CreateEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
+static LightObj & Blip_CreateEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid,
-                            Int32 header, Object & payload)
+                            Int32 header, LightObj & payload)
 {
     return Core::Get().NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
                             header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Blip_CreateEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
+static LightObj & Blip_CreateEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
                             Int32 scale, Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid)
 {
     return Core::Get().NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
-                            SQMOD_CREATE_DEFAULT, NullObject());
+                            SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Blip_CreateEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
+static LightObj & Blip_CreateEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid,
-                            Int32 header, Object & payload)
+                            Int32 header, LightObj & payload)
 {
     return Core::Get().NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
                             header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Blip_Create(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
+static LightObj & Blip_Create(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
                             Int32 sprid)
 {
     return Core::Get().NewBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
-                            SQMOD_CREATE_DEFAULT, NullObject());
+                            SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Blip_Create(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
-                            Int32 sprid, Int32 header, Object & payload)
+static LightObj & Blip_Create(Int32 world, const Vector3 & pos, Int32 scale, const Color4 & color,
+                            Int32 sprid, Int32 header, LightObj & payload)
 {
     return Core::Get().NewBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
+static LightObj & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
                             const Color4 & color, Int32 sprid)
 {
     return Core::Get().NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
-                            SQMOD_CREATE_DEFAULT, NullObject());
+                            SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
-                            const Color4 & color, Int32 sprid, Int32 header, Object & payload)
+static LightObj & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int32 scale,
+                            const Color4 & color, Int32 sprid, Int32 header, LightObj & payload)
 {
     return Core::Get().NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprid,
                             header, payload);
@@ -312,18 +297,18 @@ void Register_CBlip(HSQUIRRELVM vm)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CBlip::Max)
         // Core Properties
+        .Prop(_SC("On"), &CBlip::GetEvents)
         .Prop(_SC("ID"), &CBlip::GetID)
         .Prop(_SC("Tag"), &CBlip::GetTag, &CBlip::SetTag)
         .Prop(_SC("Data"), &CBlip::GetData, &CBlip::SetData)
         .Prop(_SC("Active"), &CBlip::IsActive)
         // Core Methods
-        .Func(_SC("Bind"), &CBlip::BindEvent)
         .FmtFunc(_SC("SetTag"), &CBlip::ApplyTag)
         .Func(_SC("CustomEvent"), &CBlip::CustomEvent)
         // Core Overloads
         .Overload< bool (CBlip::*)(void) >(_SC("Destroy"), &CBlip::Destroy)
         .Overload< bool (CBlip::*)(Int32) >(_SC("Destroy"), &CBlip::Destroy)
-        .Overload< bool (CBlip::*)(Int32, Object &) >(_SC("Destroy"), &CBlip::Destroy)
+        .Overload< bool (CBlip::*)(Int32, LightObj &) >(_SC("Destroy"), &CBlip::Destroy)
         // Properties
         .Prop(_SC("World"), &CBlip::GetWorld)
         .Prop(_SC("Scale"), &CBlip::GetScale)
@@ -340,21 +325,21 @@ void Register_CBlip(HSQUIRRELVM vm)
         .Prop(_SC("Blue"), &CBlip::GetColorB)
         .Prop(_SC("Alpha"), &CBlip::GetColorA)
         // Static Overloads
-        .StaticOverload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
+        .StaticOverload< LightObj & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
             (_SC("CreateEx"), &Blip_CreateEx)
-        .StaticOverload< Object & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, LightObj &) >
             (_SC("CreateEx"), &Blip_CreateEx)
-        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32) >
             (_SC("CreateEx"), &Blip_CreateEx)
-        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Uint8, Uint8, Uint8, Uint8, Int32, Int32, LightObj &) >
             (_SC("CreateEx"), &Blip_CreateEx)
-        .StaticOverload< Object & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32) >
+        .StaticOverload< LightObj & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32) >
             (_SC("Create"), &Blip_Create)
-        .StaticOverload< Object & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, LightObj &) >
             (_SC("Create"), &Blip_Create)
-        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32) >
             (_SC("Create"), &Blip_Create)
-        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, const Vector3 &, Int32, const Color4 &, Int32, Int32, LightObj &) >
             (_SC("Create"), &Blip_Create)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CBlip::SqGetNull)

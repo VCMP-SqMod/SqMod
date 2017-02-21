@@ -170,7 +170,7 @@ void SetServerOption(Int32 option_id, bool toggle);
 /* ------------------------------------------------------------------------------------------------
  * Modify a server option.
 */
-void SetServerOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload);
+void SetServerOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the world bounds.

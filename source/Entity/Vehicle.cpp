@@ -29,7 +29,7 @@ SQInteger CVehicle::SqGetNull(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CVehicle::GetNull()
+LightObj & CVehicle::GetNull()
 {
     return Core::Get().GetNullVehicle();
 }
@@ -81,7 +81,7 @@ CVehicle & CVehicle::ApplyTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CVehicle::GetData()
+LightObj & CVehicle::GetData()
 {
     // Validate the managed identifier
     Validate();
@@ -90,7 +90,7 @@ Object & CVehicle::GetData()
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetData(Object & data)
+void CVehicle::SetData(LightObj & data)
 {
     // Validate the managed identifier
     Validate();
@@ -99,7 +99,7 @@ void CVehicle::SetData(Object & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::Destroy(Int32 header, Object & payload)
+bool CVehicle::Destroy(Int32 header, LightObj & payload)
 {
     // Validate the managed identifier
     Validate();
@@ -108,31 +108,16 @@ bool CVehicle::Destroy(Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::BindEvent(Int32 evid, Object & env, Function & func) const
+LightObj & CVehicle::GetEvents() const
 {
     // Validate the managed identifier
     Validate();
-    // Obtain the function instance called for this event
-    Function & event = Core::Get().GetVehicleEvent(m_ID, evid);
-    // Is the specified callback function null?
-    if (func.IsNull())
-    {
-        event.ReleaseGently(); // Then release the current callback
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        event = func;
-    }
-    // Assign the specified environment and function
-    else
-    {
-        event = Function(env.GetVM(), env, func.GetFunc());
-    }
+    // Return the associated event table
+    return Core::Get().GetVehicle(m_ID).mEvents;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::CustomEvent(Int32 header, Object & payload) const
+void CVehicle::CustomEvent(Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -184,12 +169,12 @@ void CVehicle::SetOption(Int32 option_id, bool toggle)
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_OPTION);
         // Now forward the event call
-        Core::Get().EmitVehicleOption(m_ID, option_id, value, 0, NullObject());
+        Core::Get().EmitVehicleOption(m_ID, option_id, value, 0, NullLightObj());
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload)
+void CVehicle::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload)
 {
     // Attempt to obtain the current value of the specified option
     const bool value = _Func->GetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id));
@@ -269,7 +254,7 @@ Int32 CVehicle::GetModel() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CVehicle::GetOccupant(Int32 slot) const
+LightObj & CVehicle::GetOccupant(Int32 slot) const
 {
     // Validate the managed identifier
     Validate();
@@ -1725,30 +1710,30 @@ void CVehicle::SetRelativeTurnSpeedZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Vehicle_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z, Float32 angle,
+static LightObj & Vehicle_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z, Float32 angle,
                             Int32 primary, Int32 secondary)
 {
     return Core::Get().NewVehicle(model, world, x, y, z, angle, primary, secondary,
-                            SQMOD_CREATE_DEFAULT, NullObject());
+                            SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Vehicle_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z, Float32 angle,
-                            Int32 primary, Int32 secondary, Int32 header, Object & payload)
+static LightObj & Vehicle_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z, Float32 angle,
+                            Int32 primary, Int32 secondary, Int32 header, LightObj & payload)
 {
     return Core::Get().NewVehicle(model, world, x, y, z, angle, primary, secondary,
                             header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, Float32 angle,
+static LightObj & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, Float32 angle,
                         Int32 primary, Int32 secondary)
 {
     return Core::Get().NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
-                            SQMOD_CREATE_DEFAULT, NullObject());
+                            SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, Float32 angle,
-                        Int32 primary, Int32 secondary, Int32 header, Object & payload)
+static LightObj & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, Float32 angle,
+                        Int32 primary, Int32 secondary, Int32 header, LightObj & payload)
 {
     return Core::Get().NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
                             header, payload);
@@ -1765,18 +1750,18 @@ void Register_CVehicle(HSQUIRRELVM vm)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CVehicle::Max)
         // Core Properties
+        .Prop(_SC("On"), &CVehicle::GetEvents)
         .Prop(_SC("ID"), &CVehicle::GetID)
         .Prop(_SC("Tag"), &CVehicle::GetTag, &CVehicle::SetTag)
         .Prop(_SC("Data"), &CVehicle::GetData, &CVehicle::SetData)
         .Prop(_SC("Active"), &CVehicle::IsActive)
         // Core Methods
-        .Func(_SC("Bind"), &CVehicle::BindEvent)
         .FmtFunc(_SC("SetTag"), &CVehicle::ApplyTag)
         .Func(_SC("CustomEvent"), &CVehicle::CustomEvent)
         // Core Overloads
         .Overload< bool (CVehicle::*)(void) >(_SC("Destroy"), &CVehicle::Destroy)
         .Overload< bool (CVehicle::*)(Int32) >(_SC("Destroy"), &CVehicle::Destroy)
-        .Overload< bool (CVehicle::*)(Int32, Object &) >(_SC("Destroy"), &CVehicle::Destroy)
+        .Overload< bool (CVehicle::*)(Int32, LightObj &) >(_SC("Destroy"), &CVehicle::Destroy)
         // Properties
         .Prop(_SC("SyncSource"), &CVehicle::GetSyncSource)
         .Prop(_SC("SyncType"), &CVehicle::GetSyncType)
@@ -1918,13 +1903,13 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Overload< bool (CVehicle::*)(CPlayer &, Int32, bool, bool) const >
             (_SC("Embark"), &CVehicle::Embark)
         // Static Overloads
-        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Float32, Int32, Int32) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Float32, Float32, Float32, Float32, Int32, Int32) >
             (_SC("CreateEx"), &Vehicle_CreateEx)
-        .StaticOverload< Object & (*)(Int32, Int32, Float32, Float32, Float32, Float32, Int32, Int32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Float32, Float32, Float32, Float32, Int32, Int32, Int32, LightObj &) >
             (_SC("CreateEx"), &Vehicle_CreateEx)
-        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Float32, Int32, Int32) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, const Vector3 &, Float32, Int32, Int32) >
             (_SC("Create"), &Vehicle_Create)
-        .StaticOverload< Object & (*)(Int32, Int32, const Vector3 &, Float32, Int32, Int32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, const Vector3 &, Float32, Int32, Int32, Int32, LightObj &) >
             (_SC("Create"), &Vehicle_Create)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CVehicle::SqGetNull)

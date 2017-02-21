@@ -109,6 +109,11 @@ bool SToB(CSStr str);
 Object & NullObject();
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve a reference to a null script object.
+*/
+LightObj & NullLightObj();
+
+/* ------------------------------------------------------------------------------------------------
  * Retrieve a reference to a null/empty script table.
 */
 Table & NullTable();
@@ -1302,83 +1307,6 @@ public:
 typedef BitGuard< Uint8 >    BitGuardU8;
 typedef BitGuard< Uint16 >   BitGuardU16;
 typedef BitGuard< Uint32 >   BitGuardU32;
-
-/* ------------------------------------------------------------------------------------------------
- * RAII approach to make sure an instance is deleted regardless of what exceptions are thrown.
-*/
-template < typename T > struct DeleteGuard
-{
-private:
-
-    // --------------------------------------------------------------------------------------------
-    T * m_Ptr; // Pointer to the instance to manage.
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor.
-    */
-    DeleteGuard(T * ptr)
-        : m_Ptr(ptr)
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    DeleteGuard(const DeleteGuard & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor. (disabled)
-    */
-    DeleteGuard(DeleteGuard && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~DeleteGuard()
-    {
-        if (m_Ptr)
-        {
-            delete m_Ptr;
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    DeleteGuard & operator = (const DeleteGuard & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator. (disabled)
-    */
-    DeleteGuard & operator = (DeleteGuard && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion the managed instance type.
-    */
-    operator T * () const
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the managed instance.
-    */
-    T * Get() const
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Release the managed instance.
-    */
-    void Release()
-    {
-        m_Ptr = nullptr;
-    }
-};
 
 /* ------------------------------------------------------------------------------------------------
  * RAII approach to make sure a value is assigned regardless of what exceptions are thrown.

@@ -237,7 +237,7 @@ static void OnPlayerConnect(int32_t player_id)
     // Attempt to forward the event
     try
     {
-        Core::Get().ConnectPlayer(player_id, SQMOD_CREATE_AUTOMATIC, NullObject());
+        Core::Get().ConnectPlayer(player_id, SQMOD_CREATE_AUTOMATIC, NullLightObj());
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerConnect)
     // See if a reload was requested
@@ -257,7 +257,7 @@ static void OnPlayerDisconnect(int32_t player_id, vcmpDisconnectReason reason)
         }
         else
         {
-            Core::Get().DisconnectPlayer(player_id, reason, NullObject());
+            Core::Get().DisconnectPlayer(player_id, reason, NullLightObj());
         }
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerDisconnect)
@@ -875,6 +875,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
         // Stop here!
         return SQMOD_FAILURE;
     }
+
     // Bind to the server callbacks
     _Clbk->OnServerInitialise           = OnServerInitialise;
     _Clbk->OnServerShutdown             = OnServerShutdown;

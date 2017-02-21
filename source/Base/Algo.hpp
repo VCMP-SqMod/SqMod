@@ -457,7 +457,7 @@ template <> struct InstSpec< CBlip >
     /* --------------------------------------------------------------------------------------------
      * Reference to the NULL instance.
     */
-    static inline Object & Null()
+    static inline LightObj & Null()
     {
         return Core::Get().GetNullBlip();
     }
@@ -498,7 +498,7 @@ template <> struct InstSpec< CCheckpoint >
     /* --------------------------------------------------------------------------------------------
      * Reference to the NULL instance.
     */
-    static inline Object & Null()
+    static inline LightObj & Null()
     {
         return Core::Get().GetNullCheckpoint();
     }
@@ -539,7 +539,7 @@ template <> struct InstSpec< CKeybind >
     /* --------------------------------------------------------------------------------------------
      * Reference to the NULL instance.
     */
-    static inline Object & Null()
+    static inline LightObj & Null()
     {
         return Core::Get().GetNullKeybind();
     }
@@ -580,7 +580,7 @@ template <> struct InstSpec< CObject >
     /* --------------------------------------------------------------------------------------------
      * Reference to the NULL instance.
     */
-    static inline Object & Null()
+    static inline LightObj & Null()
     {
         return Core::Get().GetNullObject();
     }
@@ -621,7 +621,7 @@ template <> struct InstSpec< CPickup >
     /* --------------------------------------------------------------------------------------------
      * Reference to the NULL instance.
     */
-    static inline Object & Null()
+    static inline LightObj & Null()
     {
         return Core::Get().GetNullPickup();
     }
@@ -662,7 +662,7 @@ template <> struct InstSpec< CPlayer >
     /* --------------------------------------------------------------------------------------------
      * Reference to the NULL instance.
     */
-    static inline Object & Null()
+    static inline LightObj & Null()
     {
         return Core::Get().GetNullPlayer();
     }
@@ -703,7 +703,7 @@ template <> struct InstSpec< CVehicle >
     /* --------------------------------------------------------------------------------------------
      * Reference to the NULL instance.
     */
-    static inline Object & Null()
+    static inline LightObj & Null()
     {
         return Core::Get().GetNullVehicle();
     }
@@ -776,7 +776,7 @@ template < typename T > struct AppendElemFunc
 template < typename T > struct RecvElemFunc
 {
     // --------------------------------------------------------------------------------------------
-    Object  mObj; // Reference to the received object.
+    LightObj  mObj; // Reference to the received object.
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
@@ -798,7 +798,7 @@ template < typename T > struct RecvElemFunc
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the managed object.
     */
-    operator Object ()
+    operator LightObj ()
     {
         return mObj;
     }
@@ -806,7 +806,7 @@ template < typename T > struct RecvElemFunc
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the managed object.
     */
-    operator Object & ()
+    operator LightObj & ()
     {
         return mObj;
     }
@@ -814,7 +814,7 @@ template < typename T > struct RecvElemFunc
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the managed object.
     */
-    operator const Object & () const
+    operator const LightObj & () const
     {
         return mObj;
     }
@@ -834,7 +834,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    ForwardElemFunc(Object & env, Function & func)
+    ForwardElemFunc(LightObj & env, Function & func)
         : mFunc(env.IsNull() ? func : Function(env.GetVM(), env, func.GetFunc())), mCount(0)
     {
         if (mFunc.IsNull())
@@ -894,13 +894,13 @@ public:
 
     // --------------------------------------------------------------------------------------------
     Function    mFunc; // The script callback to forward the element.
-    Object      mData; // The script payload to accompany the element.
+    LightObj    mData; // The script payload to accompany the element.
     Uint32      mCount; // The number of elements forwarded by this functor.
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    ForwardElemDataFunc(Object & data, Object & env, Function & func)
+    ForwardElemDataFunc(LightObj & data, LightObj & env, Function & func)
         : mFunc(env.IsNull() ? func : Function(env.GetVM(), env, func.GetFunc())), mData(data), mCount(0)
     {
         if (mFunc.IsNull())
@@ -945,7 +945,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the managed payload.
     */
-    operator Object ()
+    operator LightObj ()
     {
         return mData;
     }
@@ -953,7 +953,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the managed payload.
     */
-    operator Object & ()
+    operator LightObj & ()
     {
         return mData;
     }
@@ -961,7 +961,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the managed payload.
     */
-    operator const Object & () const
+    operator const LightObj & () const
     {
         return mData;
     }
@@ -1066,7 +1066,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Find the entity that matches the specified identifier.
     */
-    static inline const Object & FindByID(Int32 id)
+    static inline const LightObj & FindByID(Int32 id)
     {
         // Perform a range check on the specified identifier
         if (INVALID_ENTITYEX(id, Inst::Max))
@@ -1186,7 +1186,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag matches or not the specified one.
     */
-    static inline Object FirstWhereTagEquals(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagEquals(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1201,7 +1201,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag begins or not with the specified string.
     */
-    static inline Object FirstWhereTagBegins(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagBegins(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1216,7 +1216,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag ends or not with the specified string.
     */
-    static inline Object FirstWhereTagEnds(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagEnds(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1231,7 +1231,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag contains or not the specified string.
     */
-    static inline Object FirstWhereTagContains(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagContains(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1246,7 +1246,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag matches or not the specified filter.
     */
-    static inline Object FirstWhereTagMatches(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagMatches(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1261,7 +1261,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all active entities of this type.
     */
-    static inline Uint32 EachActive(Object & env, Function & func)
+    static inline Uint32 EachActive(LightObj & env, Function & func)
     {
         // Create a new element forwarder
         ForwardElem fwd(env, func);
@@ -1275,7 +1275,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all active entities of this type.
     */
-    static inline Uint32 EachActiveData(Object & data, Object & env, Function & func)
+    static inline Uint32 EachActiveData(LightObj & data, LightObj & env, Function & func)
     {
         // Create a new element forwarder
         ForwardElemData fwd(data, env, func);
@@ -1289,7 +1289,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag matches or not the specified one.
     */
-    static inline Uint32 EachWhereTagEquals(bool neg, bool cs, CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagEquals(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1304,7 +1304,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag matches or not the specified one.
     */
-    static inline Uint32 EachWhereTagEqualsData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    static inline Uint32 EachWhereTagEqualsData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1319,7 +1319,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag begins with the specified string.
     */
-    static inline Uint32 EachWhereTagBegins(bool neg, bool cs, CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagBegins(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1334,7 +1334,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag begins with the specified string.
     */
-    static inline Uint32 EachWhereTagBeginsData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    static inline Uint32 EachWhereTagBeginsData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1349,7 +1349,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Uint32 EachWhereTagEnds(bool neg, bool cs, CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagEnds(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1364,7 +1364,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Uint32 EachWhereTagEndsData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    static inline Uint32 EachWhereTagEndsData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1379,7 +1379,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag contains the specified string.
     */
-    static inline Uint32 EachWhereTagContains(bool neg, bool cs, CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagContains(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1394,7 +1394,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag contains the specified string.
     */
-    static inline Uint32 EachWhereTagContainsData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    static inline Uint32 EachWhereTagContainsData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1409,7 +1409,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag match the specified filter.
     */
-    static inline Uint32 EachWhereTagMatches(bool neg, bool cs, CSStr tag, Object & env, Function & func)
+    static inline Uint32 EachWhereTagMatches(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1424,7 +1424,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag match the specified filter.
     */
-    static inline Uint32 EachWhereTagMatchesData(bool neg, bool cs, CSStr tag, Object & data, Object & env, Function & func)
+    static inline Uint32 EachWhereTagMatchesData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder

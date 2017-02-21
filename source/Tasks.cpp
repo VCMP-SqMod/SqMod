@@ -184,7 +184,7 @@ void Tasks::Deinitialize()
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & Tasks::FindEntity(Int32 id, Int32 type)
+LightObj & Tasks::FindEntity(Int32 id, Int32 type)
 {
     switch (type)
     {
@@ -195,7 +195,7 @@ Object & Tasks::FindEntity(Int32 id, Int32 type)
         case ENT_PICKUP:        return Core::Get().GetPickup(id).mObj;
         case ENT_PLAYER:        return Core::Get().GetPlayer(id).mObj;
         case ENT_VEHICLE:       return Core::Get().GetVehicle(id).mObj;
-        default:                return NullObject();
+        default:                return NullLightObj();
     }
 }
 

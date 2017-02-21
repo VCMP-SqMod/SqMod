@@ -76,7 +76,7 @@ protected:
         */
         BlipInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         {
-            Core::Get().ResetInst(*this);
+            ResetInstance();
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -86,20 +86,35 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullLightObj());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool destroy, Int32 header, Object & payload);
+        void Destroy(bool destroy, Int32 header, LightObj & payload);
+
+        /* ----------------------------------------------------------------------------------------
+         * Reset the instance to the default values.
+        */
+        void ResetInstance();
+
+        /* ----------------------------------------------------------------------------------------
+         * Create the associated signals.
+        */
+        void InitEvents();
+
+        /* ----------------------------------------------------------------------------------------
+         * Clear the associated signals.
+        */
+        void DropEvents();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
         Uint16          mFlags; // Various options and states that can be toggled on the instance.
         CBlip *         mInst; // Pointer to the actual instance used to interact this entity.
-        Object          mObj; // Script object of the instance used to interact this entity.
+        LightObj        mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
         Int32           mWorld; // The identifier of the world in which this blip was created.
@@ -109,12 +124,15 @@ protected:
         Int32           mSprID;
 
         // ----------------------------------------------------------------------------------------
+        LightObj        mEvents; // Table containing the emitted entity events.
+
+        // ----------------------------------------------------------------------------------------
         Vector3         mPosition;
         Color4          mColor;
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
+        SignalPair      mOnDestroyed;
+        SignalPair      mOnCustom;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -127,7 +145,7 @@ protected:
         */
         CheckpointInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         {
-            Core::Get().ResetInst(*this);
+            ResetInstance();
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -137,30 +155,48 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullLightObj());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool destroy, Int32 header, Object & payload);
+        void Destroy(bool destroy, Int32 header, LightObj & payload);
+
+        /* ----------------------------------------------------------------------------------------
+         * Reset the instance to the default values.
+        */
+        void ResetInstance();
+
+        /* ----------------------------------------------------------------------------------------
+         * Create the associated signals.
+        */
+        void InitEvents();
+
+        /* ----------------------------------------------------------------------------------------
+         * Clear the associated signals.
+        */
+        void DropEvents();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
         Uint16          mFlags; // Various options and states that can be toggled on the instance.
         CCheckpoint *   mInst; // Pointer to the actual instance used to interact this entity.
-        Object          mObj; // Script object of the instance used to interact this entity.
+        LightObj        mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
+        LightObj        mEvents; // Table containing the emitted entity events.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnEntered;
-        Function        mOnExited;
-        Function        mOnWorld;
-        Function        mOnRadius;
+        SignalPair      mOnDestroyed;
+        SignalPair      mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        SignalPair      mOnEntered;
+        SignalPair      mOnExited;
+        SignalPair      mOnWorld;
+        SignalPair      mOnRadius;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -173,7 +209,7 @@ protected:
         */
         KeybindInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         {
-            Core::Get().ResetInst(*this);
+            ResetInstance();
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -183,20 +219,35 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullLightObj());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool destroy, Int32 header, Object & payload);
+        void Destroy(bool destroy, Int32 header, LightObj & payload);
+
+        /* ----------------------------------------------------------------------------------------
+         * Reset the instance to the default values.
+        */
+        void ResetInstance();
+
+        /* ----------------------------------------------------------------------------------------
+         * Create the associated signals.
+        */
+        void InitEvents();
+
+        /* ----------------------------------------------------------------------------------------
+         * Clear the associated signals.
+        */
+        void DropEvents();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
         Uint16          mFlags; // Various options and states that can be toggled on the instance.
         CKeybind *      mInst; // Pointer to the actual instance used to interact this entity.
-        Object          mObj; // Script object of the instance used to interact this entity.
+        LightObj        mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
         Int32           mFirst; // Key-code of the first button from the triggering combination.
@@ -205,12 +256,15 @@ protected:
         Int32           mRelease; // Whether the key-bind reacts to button press or release.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
+        LightObj        mEvents; // Table containing the emitted entity events.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnKeyPress;
-        Function        mOnKeyRelease;
+        SignalPair      mOnDestroyed;
+        SignalPair      mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        SignalPair      mOnKeyPress;
+        SignalPair      mOnKeyRelease;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -223,7 +277,7 @@ protected:
         */
         ObjectInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         {
-            Core::Get().ResetInst(*this);
+            ResetInstance();
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -233,31 +287,49 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullLightObj());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool destroy, Int32 header, Object & payload);
+        void Destroy(bool destroy, Int32 header, LightObj & payload);
+
+        /* ----------------------------------------------------------------------------------------
+         * Reset the instance to the default values.
+        */
+        void ResetInstance();
+
+        /* ----------------------------------------------------------------------------------------
+         * Create the associated signals.
+        */
+        void InitEvents();
+
+        /* ----------------------------------------------------------------------------------------
+         * Clear the associated signals.
+        */
+        void DropEvents();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
         Uint16          mFlags; // Various options and states that can be toggled on the instance.
         CObject *       mInst; // Pointer to the actual instance used to interact this entity.
-        Object          mObj; // Script object of the instance used to interact this entity.
+        LightObj        mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
+        LightObj        mEvents; // Table containing the emitted entity events.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnShot;
-        Function        mOnTouched;
-        Function        mOnWorld;
-        Function        mOnAlpha;
-        Function        mOnReport;
+        SignalPair      mOnDestroyed;
+        SignalPair      mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        SignalPair      mOnShot;
+        SignalPair      mOnTouched;
+        SignalPair      mOnWorld;
+        SignalPair      mOnAlpha;
+        SignalPair      mOnReport;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -270,7 +342,7 @@ protected:
         */
         PickupInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         {
-            Core::Get().ResetInst(*this);
+            ResetInstance();
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -280,33 +352,51 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullLightObj());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool destroy, Int32 header, Object & payload);
+        void Destroy(bool destroy, Int32 header, LightObj & payload);
+
+        /* ----------------------------------------------------------------------------------------
+         * Reset the instance to the default values.
+        */
+        void ResetInstance();
+
+        /* ----------------------------------------------------------------------------------------
+         * Create the associated signals.
+        */
+        void InitEvents();
+
+        /* ----------------------------------------------------------------------------------------
+         * Clear the associated signals.
+        */
+        void DropEvents();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
         Uint16          mFlags; // Various options and states that can be toggled on the instance.
         CPickup *       mInst; // Pointer to the actual instance used to interact this entity.
-        Object          mObj; // Script object of the instance used to interact this entity.
+        LightObj        mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
+        LightObj        mEvents; // Table containing the emitted entity events.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnRespawn;
-        Function        mOnClaimed;
-        Function        mOnCollected;
-        Function        mOnWorld;
-        Function        mOnAlpha;
-        Function        mOnAutomatic;
-        Function        mOnAutoTimer;
+        SignalPair      mOnDestroyed;
+        SignalPair      mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        SignalPair      mOnRespawn;
+        SignalPair      mOnClaimed;
+        SignalPair      mOnCollected;
+        SignalPair      mOnWorld;
+        SignalPair      mOnAlpha;
+        SignalPair      mOnAutomatic;
+        SignalPair      mOnAutoTimer;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -319,7 +409,7 @@ protected:
         */
         PlayerInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         {
-            Core::Get().ResetInst(*this);
+            ResetInstance();
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -329,20 +419,35 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy(false, SQMOD_DESTROY_CLEANUP, NullObject());
+                Destroy(false, SQMOD_DESTROY_CLEANUP, NullLightObj());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool destroy, Int32 header, Object & payload);
+        void Destroy(bool destroy, Int32 header, LightObj & payload);
+
+        /* ----------------------------------------------------------------------------------------
+         * Reset the instance to the default values.
+        */
+        void ResetInstance();
+
+        /* ----------------------------------------------------------------------------------------
+         * Create the associated signals.
+        */
+        void InitEvents();
+
+        /* ----------------------------------------------------------------------------------------
+         * Clear the associated signals.
+        */
+        void DropEvents();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
         Uint16          mFlags; // Various options and states that can be toggled on the instance.
         CPlayer *       mInst; // Pointer to the actual instance used to interact this entity.
-        Object          mObj; // Script object of the instance used to interact this entity.
+        LightObj        mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
         SQInteger       mTrackPosition; // The number of times to track position changes.
@@ -350,11 +455,11 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mTrackPositionHeader; // Header to send when triggering position callback.
-        Object          mTrackPositionPayload; // Payload to send when triggering position callback.
+        LightObj        mTrackPositionPayload; // Payload to send when triggering position callback.
 
         // ----------------------------------------------------------------------------------------
         Int32           mKickBanHeader; // Header to send when triggering kick/ban callback.
-        Object          mKickBanPayload; // Payload to send when triggering kick/ban callback.
+        LightObj        mKickBanPayload; // Payload to send when triggering kick/ban callback.
 
         // ----------------------------------------------------------------------------------------
         Int32           mLastWeapon; // Last known weapon of the player entity.
@@ -367,79 +472,82 @@ protected:
         Int32           mAuthority; // The authority level of the managed player.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
+        LightObj        mEvents; // Table containing the emitted entity events.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnRequestClass;
-        Function        mOnRequestSpawn;
-        Function        mOnSpawn;
-        Function        mOnWasted;
-        Function        mOnKilled;
-        Function        mOnEmbarking;
-        Function        mOnEmbarked;
-        Function        mOnDisembark;
-        Function        mOnRename;
-        Function        mOnState;
-        Function        mOnStateNone;
-        Function        mOnStateNormal;
-        Function        mOnStateAim;
-        Function        mOnStateDriver;
-        Function        mOnStatePassenger;
-        Function        mOnStateEnterDriver;
-        Function        mOnStateEnterPassenger;
-        Function        mOnStateExit;
-        Function        mOnStateUnspawned;
-        Function        mOnAction;
-        Function        mOnActionNone;
-        Function        mOnActionNormal;
-        Function        mOnActionAiming;
-        Function        mOnActionShooting;
-        Function        mOnActionJumping;
-        Function        mOnActionLieDown;
-        Function        mOnActionGettingUp;
-        Function        mOnActionJumpVehicle;
-        Function        mOnActionDriving;
-        Function        mOnActionDying;
-        Function        mOnActionWasted;
-        Function        mOnActionEmbarking;
-        Function        mOnActionDisembarking;
-        Function        mOnBurning;
-        Function        mOnCrouching;
-        Function        mOnGameKeys;
-        Function        mOnStartTyping;
-        Function        mOnStopTyping;
-        Function        mOnAway;
-        Function        mOnMessage;
-        Function        mOnCommand;
-        Function        mOnPrivateMessage;
-        Function        mOnKeyPress;
-        Function        mOnKeyRelease;
-        Function        mOnSpectate;
-        Function        mOnCrashreport;
-        Function        mOnObjectShot;
-        Function        mOnObjectTouched;
-        Function        mOnPickupClaimed;
-        Function        mOnPickupCollected;
-        Function        mOnCheckpointEntered;
-        Function        mOnCheckpointExited;
-        Function        mOnClientScriptData;
-        Function        mOnUpdate;
-        Function        mOnHealth;
-        Function        mOnArmour;
-        Function        mOnWeapon;
-        Function        mOnHeading;
-        Function        mOnPosition;
-        Function        mOnOption;
-        Function        mOnAdmin;
-        Function        mOnWorld;
-        Function        mOnTeam;
-        Function        mOnSkin;
-        Function        mOnMoney;
-        Function        mOnScore;
-        Function        mOnWantedLevel;
-        Function        mOnImmunity;
-        Function        mOnAlpha;
+        SignalPair      mOnDestroyed;
+        SignalPair      mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        SignalPair      mOnRequestClass;
+        SignalPair      mOnRequestSpawn;
+        SignalPair      mOnSpawn;
+        SignalPair      mOnWasted;
+        SignalPair      mOnKilled;
+        SignalPair      mOnEmbarking;
+        SignalPair      mOnEmbarked;
+        SignalPair      mOnDisembark;
+        SignalPair      mOnRename;
+        SignalPair      mOnState;
+        SignalPair      mOnStateNone;
+        SignalPair      mOnStateNormal;
+        SignalPair      mOnStateAim;
+        SignalPair      mOnStateDriver;
+        SignalPair      mOnStatePassenger;
+        SignalPair      mOnStateEnterDriver;
+        SignalPair      mOnStateEnterPassenger;
+        SignalPair      mOnStateExit;
+        SignalPair      mOnStateUnspawned;
+        SignalPair      mOnAction;
+        SignalPair      mOnActionNone;
+        SignalPair      mOnActionNormal;
+        SignalPair      mOnActionAiming;
+        SignalPair      mOnActionShooting;
+        SignalPair      mOnActionJumping;
+        SignalPair      mOnActionLieDown;
+        SignalPair      mOnActionGettingUp;
+        SignalPair      mOnActionJumpVehicle;
+        SignalPair      mOnActionDriving;
+        SignalPair      mOnActionDying;
+        SignalPair      mOnActionWasted;
+        SignalPair      mOnActionEmbarking;
+        SignalPair      mOnActionDisembarking;
+        SignalPair      mOnBurning;
+        SignalPair      mOnCrouching;
+        SignalPair      mOnGameKeys;
+        SignalPair      mOnStartTyping;
+        SignalPair      mOnStopTyping;
+        SignalPair      mOnAway;
+        SignalPair      mOnMessage;
+        SignalPair      mOnCommand;
+        SignalPair      mOnPrivateMessage;
+        SignalPair      mOnKeyPress;
+        SignalPair      mOnKeyRelease;
+        SignalPair      mOnSpectate;
+        SignalPair      mOnCrashreport;
+        SignalPair      mOnObjectShot;
+        SignalPair      mOnObjectTouched;
+        SignalPair      mOnPickupClaimed;
+        SignalPair      mOnPickupCollected;
+        SignalPair      mOnCheckpointEntered;
+        SignalPair      mOnCheckpointExited;
+        SignalPair      mOnClientScriptData;
+        SignalPair      mOnUpdate;
+        SignalPair      mOnHealth;
+        SignalPair      mOnArmour;
+        SignalPair      mOnWeapon;
+        SignalPair      mOnHeading;
+        SignalPair      mOnPosition;
+        SignalPair      mOnOption;
+        SignalPair      mOnAdmin;
+        SignalPair      mOnWorld;
+        SignalPair      mOnTeam;
+        SignalPair      mOnSkin;
+        SignalPair      mOnMoney;
+        SignalPair      mOnScore;
+        SignalPair      mOnWantedLevel;
+        SignalPair      mOnImmunity;
+        SignalPair      mOnAlpha;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -452,7 +560,7 @@ protected:
         */
         VehicleInst() : mID(-1), mFlags(ENF_DEFAULT), mInst(nullptr)
         {
-            Core::Get().ResetInst(*this);
+            ResetInstance();
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -462,20 +570,35 @@ protected:
         {
             if (VALID_ENTITY(mID))
             {
-                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullObject());
+                Destroy(!Core::Get().ShuttingDown(), SQMOD_DESTROY_CLEANUP, NullLightObj());
             }
         }
 
         /* ----------------------------------------------------------------------------------------
          * Destroy the entity instance from the server, if necessary.
         */
-        void Destroy(bool destroy, Int32 header, Object & payload);
+        void Destroy(bool destroy, Int32 header, LightObj & payload);
+
+        /* ----------------------------------------------------------------------------------------
+         * Reset the instance to the default values.
+        */
+        void ResetInstance();
+
+        /* ----------------------------------------------------------------------------------------
+         * Create the associated signals.
+        */
+        void InitEvents();
+
+        /* ----------------------------------------------------------------------------------------
+         * Clear the associated signals.
+        */
+        void DropEvents();
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
         Uint16          mFlags; // Various options and states that can be toggled on the instance.
         CVehicle *      mInst; // Pointer to the actual instance used to interact this entity.
-        Object          mObj; // Script object of the instance used to interact this entity.
+        LightObj        mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
         SQInteger       mTrackPosition; // The number of times to track position changes.
@@ -489,28 +612,31 @@ protected:
         Quaternion      mLastRotation; // Last known rotation of the player entity.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnDestroyed;
-        Function        mOnCustom;
+        LightObj        mEvents; // Table containing the emitted entity events.
 
         // ----------------------------------------------------------------------------------------
-        Function        mOnEmbarking;
-        Function        mOnEmbarked;
-        Function        mOnDisembark;
-        Function        mOnExplode;
-        Function        mOnRespawn;
-        Function        mOnUpdate;
-        Function        mOnColor;
-        Function        mOnHealth;
-        Function        mOnPosition;
-        Function        mOnRotation;
-        Function        mOnOption;
-        Function        mOnWorld;
-        Function        mOnImmunity;
-        Function        mOnPartStatus;
-        Function        mOnTyreStatus;
-        Function        mOnDamageData;
-        Function        mOnRadio;
-        Function        mOnHandlingRule;
+        SignalPair      mOnDestroyed;
+        SignalPair      mOnCustom;
+
+        // ----------------------------------------------------------------------------------------
+        SignalPair      mOnEmbarking;
+        SignalPair      mOnEmbarked;
+        SignalPair      mOnDisembark;
+        SignalPair      mOnExplode;
+        SignalPair      mOnRespawn;
+        SignalPair      mOnUpdate;
+        SignalPair      mOnColor;
+        SignalPair      mOnHealth;
+        SignalPair      mOnPosition;
+        SignalPair      mOnRotation;
+        SignalPair      mOnOption;
+        SignalPair      mOnWorld;
+        SignalPair      mOnImmunity;
+        SignalPair      mOnPartStatus;
+        SignalPair      mOnTyreStatus;
+        SignalPair      mOnDamageData;
+        SignalPair      mOnRadio;
+        SignalPair      mOnHandlingRule;
     };
 
 public:
@@ -526,9 +652,6 @@ public:
 
     // --------------------------------------------------------------------------------------------
     typedef std::vector< ScriptSrc >                Scripts; // List of loaded scripts.
-    typedef std::pair< Function, Object >           FuncData; // Data about a function to be called.
-    typedef std::vector< FuncData >                 Functions; // List of functions to execute.
-
     // --------------------------------------------------------------------------------------------
     typedef std::unordered_map< String, String >    Options; // List of custom options.
 
@@ -551,11 +674,14 @@ private:
     Vehicles                        m_Vehicles; // Vehicles pool.
 
     // --------------------------------------------------------------------------------------------
+    LightObj                        m_Events; // Table containing the emitted module events.
+
+    // --------------------------------------------------------------------------------------------
     Uint32                          m_CircularLocks; // Prevent events from triggering themselves.
 
     // --------------------------------------------------------------------------------------------
     Int32                           m_ReloadHeader; // The specified reload header.
-    Object                          m_ReloadPayload; // The specified reload payload.
+    LightObj                        m_ReloadPayload; // The specified reload payload.
 
     // --------------------------------------------------------------------------------------------
     CStr                            m_IncomingNameBuffer; // Name of an incoming connection.
@@ -574,18 +700,13 @@ private:
     Int32                           m_Verbosity; // Restrict the amount of outputted information.
 
     // --------------------------------------------------------------------------------------------
-    Functions                       m_PreLoadSignal; // Functions to call before the loaded event.
-    Functions                       m_PostLoadSignal; // Functions to call after the loaded event.
-    Functions                       m_UnloadSignal; // Functions to call before unloading scripts.
-
-    // --------------------------------------------------------------------------------------------
-    Object                          m_NullBlip; // Null Blips instance.
-    Object                          m_NullCheckpoint; // Null Checkpoints instance.
-    Object                          m_NullKeybind; // Null Key-instance pool.
-    Object                          m_NullObject; // Null Objects instance.
-    Object                          m_NullPickup; // Null Pickups instance.
-    Object                          m_NullPlayer; // Null Players instance.
-    Object                          m_NullVehicle; // Null Vehicles instance.
+    LightObj                        m_NullBlip; // Null Blips instance.
+    LightObj                        m_NullCheckpoint; // Null Checkpoints instance.
+    LightObj                        m_NullKeybind; // Null Key-instance pool.
+    LightObj                        m_NullObject; // Null Objects instance.
+    LightObj                        m_NullPickup; // Null Pickups instance.
+    LightObj                        m_NullPlayer; // Null Players instance.
+    LightObj                        m_NullVehicle; // Null Vehicles instance.
 
 public:
 
@@ -681,6 +802,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the global events table.
+    */
+    LightObj & GetEvents()
+    {
+        return m_Events;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the circular locks.
     */
     Uint32 & GetCircularLock()
@@ -699,7 +828,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the header and payload for the reload.
     */
-    void SetReloadInfo(Int32 header, Object & payload)
+    void SetReloadInfo(Int32 header, LightObj & payload)
     {
         m_ReloadHeader = header;
         m_ReloadPayload = payload;
@@ -725,7 +854,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the specified reload header.
     */
-    Object & GetReloadPayload()
+    LightObj & GetReloadPayload()
     {
         return m_ReloadPayload;
     }
@@ -782,67 +911,67 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Entity allocators.
     */
-    BlipInst & AllocBlip(Int32 id, bool owned, Int32 header, Object & payload);
-    CheckpointInst & AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payload);
-    KeybindInst & AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload);
-    ObjectInst & AllocObject(Int32 id, bool owned, Int32 header, Object & payload);
-    PickupInst & AllocPickup(Int32 id, bool owned, Int32 header, Object & payload);
-    VehicleInst & AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload);
+    BlipInst & AllocBlip(Int32 id, bool owned, Int32 header, LightObj & payload);
+    CheckpointInst & AllocCheckpoint(Int32 id, bool owned, Int32 header, LightObj & payload);
+    KeybindInst & AllocKeybind(Int32 id, bool owned, Int32 header, LightObj & payload);
+    ObjectInst & AllocObject(Int32 id, bool owned, Int32 header, LightObj & payload);
+    PickupInst & AllocPickup(Int32 id, bool owned, Int32 header, LightObj & payload);
+    VehicleInst & AllocVehicle(Int32 id, bool owned, Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Entity deallocator.
     */
-    void DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload);
-    void DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payload);
-    void DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload);
-    void DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload);
-    void DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload);
-    void DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload);
+    void DeallocBlip(Int32 id, bool destroy, Int32 header, LightObj & payload);
+    void DeallocCheckpoint(Int32 id, bool destroy, Int32 header, LightObj & payload);
+    void DeallocKeybind(Int32 id, bool destroy, Int32 header, LightObj & payload);
+    void DeallocObject(Int32 id, bool destroy, Int32 header, LightObj & payload);
+    void DeallocPickup(Int32 id, bool destroy, Int32 header, LightObj & payload);
+    void DeallocVehicle(Int32 id, bool destroy, Int32 header, LightObj & payload);
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Entity creators.
     */
-    Object & NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
+    LightObj & NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
                         Int32 scale, Uint32 color, Int32 sprid,
-                        Int32 header, Object & payload);
+                        Int32 header, LightObj & payload);
 
-    Object & NewCheckpoint(Int32 player, Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+    LightObj & NewCheckpoint(Int32 player, Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                         Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
-                        Int32 header, Object & payload);
+                        Int32 header, LightObj & payload);
 
-    Object & NewKeybind(Int32 slot, bool release,
+    LightObj & NewKeybind(Int32 slot, bool release,
                         Int32 primary, Int32 secondary, Int32 alternative,
-                        Int32 header, Object & payload);
+                        Int32 header, LightObj & payload);
 
-    Object & NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
-                        Int32 alpha, Int32 header, Object & payload);
+    LightObj & NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+                        Int32 alpha, Int32 header, LightObj & payload);
 
-    Object & NewPickup(Int32 model, Int32 world, Int32 quantity,
+    LightObj & NewPickup(Int32 model, Int32 world, Int32 quantity,
                         Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic,
-                        Int32 header, Object & payload);
+                        Int32 header, LightObj & payload);
 
-    Object & NewSprite(Int32 index, CSStr file, Int32 xp, Int32 yp,
+    LightObj & NewSprite(Int32 index, CSStr file, Int32 xp, Int32 yp,
                         Int32 xr, Int32 yr, Float32 angle, Int32 alpha, bool rel,
-                        Int32 header, Object & payload);
+                        Int32 header, LightObj & payload);
 
-    Object & NewTextdraw(Int32 index, CSStr text, Int32 xp, Int32 yp,
-                        Uint32 color, bool rel, Int32 header, Object & payload);
+    LightObj & NewTextdraw(Int32 index, CSStr text, Int32 xp, Int32 yp,
+                        Uint32 color, bool rel, Int32 header, LightObj & payload);
 
-    Object & NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+    LightObj & NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
                         Float32 angle, Int32 primary, Int32 secondary,
-                        Int32 header, Object & payload);
+                        Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Entity destroyers.
     */
-    bool DelBlip(Int32 id, Int32 header, Object & payload);
-    bool DelCheckpoint(Int32 id, Int32 header, Object & payload);
-    bool DelKeybind(Int32 id, Int32 header, Object & payload);
-    bool DelObject(Int32 id, Int32 header, Object & payload);
-    bool DelPickup(Int32 id, Int32 header, Object & payload);
-    bool DelVehicle(Int32 id, Int32 header, Object & payload);
+    bool DelBlip(Int32 id, Int32 header, LightObj & payload);
+    bool DelCheckpoint(Int32 id, Int32 header, LightObj & payload);
+    bool DelKeybind(Int32 id, Int32 header, LightObj & payload);
+    bool DelObject(Int32 id, Int32 header, LightObj & payload);
+    bool DelPickup(Int32 id, Int32 header, LightObj & payload);
+    bool DelVehicle(Int32 id, Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Entity retrievers.
@@ -869,13 +998,13 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Null instance retrievers.
     */
-    Object & GetNullBlip() { return m_NullBlip; }
-    Object & GetNullCheckpoint() { return m_NullCheckpoint; }
-    Object & GetNullKeybind() { return m_NullKeybind; }
-    Object & GetNullObject() { return m_NullObject; }
-    Object & GetNullPickup() { return m_NullPickup; }
-    Object & GetNullPlayer() { return m_NullPlayer; }
-    Object & GetNullVehicle() { return m_NullVehicle; }
+    LightObj & GetNullBlip() { return m_NullBlip; }
+    LightObj & GetNullCheckpoint() { return m_NullCheckpoint; }
+    LightObj & GetNullKeybind() { return m_NullKeybind; }
+    LightObj & GetNullObject() { return m_NullObject; }
+    LightObj & GetNullPickup() { return m_NullPickup; }
+    LightObj & GetNullPlayer() { return m_NullPlayer; }
+    LightObj & GetNullVehicle() { return m_NullVehicle; }
 
     /* --------------------------------------------------------------------------------------------
      * Container cleaner.
@@ -885,103 +1014,48 @@ public:
 protected:
 
     /* --------------------------------------------------------------------------------------------
-     * Instance cleaners.
+     * Signal initialization and termination.
     */
-    static void ResetInst(BlipInst & inst);
-    static void ResetInst(CheckpointInst & inst);
-    static void ResetInst(KeybindInst & inst);
-    static void ResetInst(ObjectInst & inst);
-    static void ResetInst(PickupInst & inst);
-    static void ResetInst(PlayerInst & inst);
-    static void ResetInst(VehicleInst & inst);
-
-    /* --------------------------------------------------------------------------------------------
-     * Bindings cleaners.
-    */
-    static void ResetFunc(BlipInst & inst);
-    static void ResetFunc(CheckpointInst & inst);
-    static void ResetFunc(KeybindInst & inst);
-    static void ResetFunc(ObjectInst & inst);
-    static void ResetFunc(PickupInst & inst);
-    static void ResetFunc(PlayerInst & inst);
-    static void ResetFunc(VehicleInst & inst);
-    static void ResetFunc();
-
-    // --------------------------------------------------------------------------------------------
-    static void Emit(Function & func)
-    {
-        if (!func.IsNull())
-        {
-            func.Execute();
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-    template < typename... Args > static void Emit(Function & func, Args&&... args)
-    {
-        if (!func.IsNull())
-        {
-            func.Execute(std::forward< Args >(args)...);
-        }
-    }
+    void InitEvents();
+    void DropEvents();
 
 public:
 
     /* --------------------------------------------------------------------------------------------
-     * Pre load signal binder.
-    */
-    void BindPreLoad(Object & env, Function & func, Object & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Post load signal binder.
-    */
-    void BindPostLoad(Object & env, Function & func, Object & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Unload signal binder.
-    */
-    void BindUnload(Object & env, Function & func, Object & payload);
-
-    /* --------------------------------------------------------------------------------------------
-     * Global event binder.
-    */
-    void BindEvent(Int32 id, Object & env, Function & func);
-
-    /* --------------------------------------------------------------------------------------------
      * Player lifetime management.
     */
-    void ConnectPlayer(Int32 id, Int32 header, Object & payload);
-    void DisconnectPlayer(Int32 id, Int32 header, Object & payload);
+    void ConnectPlayer(Int32 id, Int32 header, LightObj & payload);
+    void DisconnectPlayer(Int32 id, Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Emit a custom event.
     */
-    void EmitCustomEvent(Int32 group, Int32 header, Object & payload);
+    void EmitCustomEvent(Int32 group, Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Server events.
     */
-    void EmitBlipCreated(Int32 blip, Int32 header, Object & payload);
-    void EmitCheckpointCreated(Int32 forcefield, Int32 header, Object & payload);
-    void EmitKeybindCreated(Int32 keybind, Int32 header, Object & payload);
-    void EmitObjectCreated(Int32 object, Int32 header, Object & payload);
-    void EmitPickupCreated(Int32 pickup, Int32 header, Object & payload);
-    void EmitPlayerCreated(Int32 player, Int32 header, Object & payload);
-    void EmitVehicleCreated(Int32 vehicle, Int32 header, Object & payload);
-    void EmitBlipDestroyed(Int32 blip, Int32 header, Object & payload);
-    void EmitCheckpointDestroyed(Int32 forcefield, Int32 header, Object & payload);
-    void EmitKeybindDestroyed(Int32 keybind, Int32 header, Object & payload);
-    void EmitObjectDestroyed(Int32 object, Int32 header, Object & payload);
-    void EmitPickupDestroyed(Int32 pickup, Int32 header, Object & payload);
-    void EmitPlayerDestroyed(Int32 player, Int32 header, Object & payload);
-    void EmitVehicleDestroyed(Int32 vehicle, Int32 header, Object & payload);
-    void EmitBlipCustom(Int32 blip, Int32 header, Object & payload);
-    void EmitCheckpointCustom(Int32 forcefield, Int32 header, Object & payload);
-    void EmitKeybindCustom(Int32 keybind, Int32 header, Object & payload);
-    void EmitObjectCustom(Int32 object, Int32 header, Object & payload);
-    void EmitPickupCustom(Int32 pickup, Int32 header, Object & payload);
-    void EmitPlayerCustom(Int32 player, Int32 header, Object & payload);
-    void EmitVehicleCustom(Int32 vehicle, Int32 header, Object & payload);
+    void EmitBlipCreated(Int32 blip, Int32 header, LightObj & payload);
+    void EmitCheckpointCreated(Int32 forcefield, Int32 header, LightObj & payload);
+    void EmitKeybindCreated(Int32 keybind, Int32 header, LightObj & payload);
+    void EmitObjectCreated(Int32 object, Int32 header, LightObj & payload);
+    void EmitPickupCreated(Int32 pickup, Int32 header, LightObj & payload);
+    void EmitPlayerCreated(Int32 player, Int32 header, LightObj & payload);
+    void EmitVehicleCreated(Int32 vehicle, Int32 header, LightObj & payload);
+    void EmitBlipDestroyed(Int32 blip, Int32 header, LightObj & payload);
+    void EmitCheckpointDestroyed(Int32 forcefield, Int32 header, LightObj & payload);
+    void EmitKeybindDestroyed(Int32 keybind, Int32 header, LightObj & payload);
+    void EmitObjectDestroyed(Int32 object, Int32 header, LightObj & payload);
+    void EmitPickupDestroyed(Int32 pickup, Int32 header, LightObj & payload);
+    void EmitPlayerDestroyed(Int32 player, Int32 header, LightObj & payload);
+    void EmitVehicleDestroyed(Int32 vehicle, Int32 header, LightObj & payload);
+    void EmitBlipCustom(Int32 blip, Int32 header, LightObj & payload);
+    void EmitCheckpointCustom(Int32 forcefield, Int32 header, LightObj & payload);
+    void EmitKeybindCustom(Int32 keybind, Int32 header, LightObj & payload);
+    void EmitObjectCustom(Int32 object, Int32 header, LightObj & payload);
+    void EmitPickupCustom(Int32 pickup, Int32 header, LightObj & payload);
+    void EmitPlayerCustom(Int32 player, Int32 header, LightObj & payload);
+    void EmitVehicleCustom(Int32 vehicle, Int32 header, LightObj & payload);
     void EmitServerStartup();
     void EmitServerShutdown();
     void EmitServerFrame(Float32 elapsed_time);
@@ -1060,7 +1134,7 @@ public:
     void EmitPlayerWeapon(Int32 player_id, Int32 old_weapon, Int32 new_weapon);
     void EmitPlayerHeading(Int32 player_id, Float32 old_heading, Float32 new_heading);
     void EmitPlayerPosition(Int32 player_id);
-    void EmitPlayerOption(Int32 player_id, Int32 option_id, bool value, Int32 header, Object & payload);
+    void EmitPlayerOption(Int32 player_id, Int32 option_id, bool value, Int32 header, LightObj & payload);
     void EmitPlayerAdmin(Int32 player_id, bool old_status, bool new_status);
     void EmitPlayerWorld(Int32 player_id, Int32 old_world, Int32 new_world, bool secondary);
     void EmitPlayerTeam(Int32 player_id, Int32 old_team, Int32 new_team);
@@ -1074,7 +1148,7 @@ public:
     void EmitVehicleHealth(Int32 vehicle_id, Float32 old_health, Float32 new_health);
     void EmitVehiclePosition(Int32 vehicle_id);
     void EmitVehicleRotation(Int32 vehicle_id);
-    void EmitVehicleOption(Int32 vehicle_id, Int32 option_id, bool value, Int32 header, Object & payload);
+    void EmitVehicleOption(Int32 vehicle_id, Int32 option_id, bool value, Int32 header, LightObj & payload);
     void EmitVehicleWorld(Int32 vehicle_id, Int32 old_world, Int32 new_world);
     void EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_immunity);
     void EmitVehiclePartStatus(Int32 vehicle_id, Int32 part, Int32 old_status, Int32 new_status);
@@ -1082,8 +1156,8 @@ public:
     void EmitVehicleDamageData(Int32 vehicle_id, Uint32 old_data, Uint32 new_data);
     void EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio);
     void EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, Float32 old_data, Float32 new_data);
-    void EmitServerOption(Int32 option, bool value, Int32 header, Object & payload);
-    void EmitScriptReload(Int32 header, Object & payload);
+    void EmitServerOption(Int32 option, bool value, Int32 header, LightObj & payload);
+    void EmitScriptReload(Int32 header, LightObj & payload);
     void EmitScriptLoaded();
 
     /* --------------------------------------------------------------------------------------------
@@ -1102,151 +1176,142 @@ public:
     */
     void EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t size);
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve global event bindings.
-    */
-    Function & GetEvent(Int32 evid);
+public:
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve local event bindings.
+     * Module signals.
     */
-    Function & GetBlipEvent(Int32 id, Int32 evid);
-    Function & GetCheckpointEvent(Int32 id, Int32 evid);
-    Function & GetKeybindEvent(Int32 id, Int32 evid);
-    Function & GetObjectEvent(Int32 id, Int32 evid);
-    Function & GetPickupEvent(Int32 id, Int32 evid);
-    Function & GetPlayerEvent(Int32 id, Int32 evid);
-    Function & GetVehicleEvent(Int32 id, Int32 evid);
-
-private:
+    SignalPair  mOnPreLoad;
+    SignalPair  mOnPostLoad;
+    SignalPair  mOnUnload;
 
     /* --------------------------------------------------------------------------------------------
-     * Global event bindings.
+     * Server signals.
     */
-    Function    mOnCustomEvent;
-    Function    mOnBlipCreated;
-    Function    mOnCheckpointCreated;
-    Function    mOnKeybindCreated;
-    Function    mOnObjectCreated;
-    Function    mOnPickupCreated;
-    Function    mOnPlayerCreated;
-    Function    mOnVehicleCreated;
-    Function    mOnBlipDestroyed;
-    Function    mOnCheckpointDestroyed;
-    Function    mOnKeybindDestroyed;
-    Function    mOnObjectDestroyed;
-    Function    mOnPickupDestroyed;
-    Function    mOnPlayerDestroyed;
-    Function    mOnVehicleDestroyed;
-    Function    mOnBlipCustom;
-    Function    mOnCheckpointCustom;
-    Function    mOnKeybindCustom;
-    Function    mOnObjectCustom;
-    Function    mOnPickupCustom;
-    Function    mOnPlayerCustom;
-    Function    mOnVehicleCustom;
-    Function    mOnServerStartup;
-    Function    mOnServerShutdown;
-    Function    mOnServerFrame;
-    Function    mOnIncomingConnection;
-    Function    mOnPlayerRequestClass;
-    Function    mOnPlayerRequestSpawn;
-    Function    mOnPlayerSpawn;
-    Function    mOnPlayerWasted;
-    Function    mOnPlayerKilled;
-    Function    mOnPlayerEmbarking;
-    Function    mOnPlayerEmbarked;
-    Function    mOnPlayerDisembark;
-    Function    mOnPlayerRename;
-    Function    mOnPlayerState;
-    Function    mOnStateNone;
-    Function    mOnStateNormal;
-    Function    mOnStateAim;
-    Function    mOnStateDriver;
-    Function    mOnStatePassenger;
-    Function    mOnStateEnterDriver;
-    Function    mOnStateEnterPassenger;
-    Function    mOnStateExit;
-    Function    mOnStateUnspawned;
-    Function    mOnPlayerAction;
-    Function    mOnActionNone;
-    Function    mOnActionNormal;
-    Function    mOnActionAiming;
-    Function    mOnActionShooting;
-    Function    mOnActionJumping;
-    Function    mOnActionLieDown;
-    Function    mOnActionGettingUp;
-    Function    mOnActionJumpVehicle;
-    Function    mOnActionDriving;
-    Function    mOnActionDying;
-    Function    mOnActionWasted;
-    Function    mOnActionEmbarking;
-    Function    mOnActionDisembarking;
-    Function    mOnPlayerBurning;
-    Function    mOnPlayerCrouching;
-    Function    mOnPlayerGameKeys;
-    Function    mOnPlayerStartTyping;
-    Function    mOnPlayerStopTyping;
-    Function    mOnPlayerAway;
-    Function    mOnPlayerMessage;
-    Function    mOnPlayerCommand;
-    Function    mOnPlayerPrivateMessage;
-    Function    mOnPlayerKeyPress;
-    Function    mOnPlayerKeyRelease;
-    Function    mOnPlayerSpectate;
-    Function    mOnPlayerCrashreport;
-    Function    mOnVehicleExplode;
-    Function    mOnVehicleRespawn;
-    Function    mOnObjectShot;
-    Function    mOnObjectTouched;
-    Function    mOnObjectWorld;
-    Function    mOnObjectAlpha;
-    Function    mOnObjectReport;
-    Function    mOnPickupClaimed;
-    Function    mOnPickupCollected;
-    Function    mOnPickupRespawn;
-    Function    mOnPickupWorld;
-    Function    mOnPickupAlpha;
-    Function    mOnPickupAutomatic;
-    Function    mOnPickupAutoTimer;
-    Function    mOnCheckpointEntered;
-    Function    mOnCheckpointExited;
-    Function    mOnCheckpointWorld;
-    Function    mOnCheckpointRadius;
-    Function    mOnEntityPool;
-    Function    mOnClientScriptData;
-    Function    mOnPlayerUpdate;
-    Function    mOnVehicleUpdate;
-    Function    mOnPlayerHealth;
-    Function    mOnPlayerArmour;
-    Function    mOnPlayerWeapon;
-    Function    mOnPlayerHeading;
-    Function    mOnPlayerPosition;
-    Function    mOnPlayerOption;
-    Function    mOnPlayerAdmin;
-    Function    mOnPlayerWorld;
-    Function    mOnPlayerTeam;
-    Function    mOnPlayerSkin;
-    Function    mOnPlayerMoney;
-    Function    mOnPlayerScore;
-    Function    mOnPlayerWantedLevel;
-    Function    mOnPlayerImmunity;
-    Function    mOnPlayerAlpha;
-    Function    mOnVehicleColor;
-    Function    mOnVehicleHealth;
-    Function    mOnVehiclePosition;
-    Function    mOnVehicleRotation;
-    Function    mOnVehicleOption;
-    Function    mOnVehicleWorld;
-    Function    mOnVehicleImmunity;
-    Function    mOnVehiclePartStatus;
-    Function    mOnVehicleTyreStatus;
-    Function    mOnVehicleDamageData;
-    Function    mOnVehicleRadio;
-    Function    mOnVehicleHandlingRule;
-    Function    mOnServerOption;
-    Function    mOnScriptReload;
-    Function    mOnScriptLoaded;
+    SignalPair  mOnCustomEvent;
+    SignalPair  mOnBlipCreated;
+    SignalPair  mOnCheckpointCreated;
+    SignalPair  mOnKeybindCreated;
+    SignalPair  mOnObjectCreated;
+    SignalPair  mOnPickupCreated;
+    SignalPair  mOnPlayerCreated;
+    SignalPair  mOnVehicleCreated;
+    SignalPair  mOnBlipDestroyed;
+    SignalPair  mOnCheckpointDestroyed;
+    SignalPair  mOnKeybindDestroyed;
+    SignalPair  mOnObjectDestroyed;
+    SignalPair  mOnPickupDestroyed;
+    SignalPair  mOnPlayerDestroyed;
+    SignalPair  mOnVehicleDestroyed;
+    SignalPair  mOnBlipCustom;
+    SignalPair  mOnCheckpointCustom;
+    SignalPair  mOnKeybindCustom;
+    SignalPair  mOnObjectCustom;
+    SignalPair  mOnPickupCustom;
+    SignalPair  mOnPlayerCustom;
+    SignalPair  mOnVehicleCustom;
+    SignalPair  mOnServerStartup;
+    SignalPair  mOnServerShutdown;
+    SignalPair  mOnServerFrame;
+    SignalPair  mOnIncomingConnection;
+    SignalPair  mOnPlayerRequestClass;
+    SignalPair  mOnPlayerRequestSpawn;
+    SignalPair  mOnPlayerSpawn;
+    SignalPair  mOnPlayerWasted;
+    SignalPair  mOnPlayerKilled;
+    SignalPair  mOnPlayerEmbarking;
+    SignalPair  mOnPlayerEmbarked;
+    SignalPair  mOnPlayerDisembark;
+    SignalPair  mOnPlayerRename;
+    SignalPair  mOnPlayerState;
+    SignalPair  mOnStateNone;
+    SignalPair  mOnStateNormal;
+    SignalPair  mOnStateAim;
+    SignalPair  mOnStateDriver;
+    SignalPair  mOnStatePassenger;
+    SignalPair  mOnStateEnterDriver;
+    SignalPair  mOnStateEnterPassenger;
+    SignalPair  mOnStateExit;
+    SignalPair  mOnStateUnspawned;
+    SignalPair  mOnPlayerAction;
+    SignalPair  mOnActionNone;
+    SignalPair  mOnActionNormal;
+    SignalPair  mOnActionAiming;
+    SignalPair  mOnActionShooting;
+    SignalPair  mOnActionJumping;
+    SignalPair  mOnActionLieDown;
+    SignalPair  mOnActionGettingUp;
+    SignalPair  mOnActionJumpVehicle;
+    SignalPair  mOnActionDriving;
+    SignalPair  mOnActionDying;
+    SignalPair  mOnActionWasted;
+    SignalPair  mOnActionEmbarking;
+    SignalPair  mOnActionDisembarking;
+    SignalPair  mOnPlayerBurning;
+    SignalPair  mOnPlayerCrouching;
+    SignalPair  mOnPlayerGameKeys;
+    SignalPair  mOnPlayerStartTyping;
+    SignalPair  mOnPlayerStopTyping;
+    SignalPair  mOnPlayerAway;
+    SignalPair  mOnPlayerMessage;
+    SignalPair  mOnPlayerCommand;
+    SignalPair  mOnPlayerPrivateMessage;
+    SignalPair  mOnPlayerKeyPress;
+    SignalPair  mOnPlayerKeyRelease;
+    SignalPair  mOnPlayerSpectate;
+    SignalPair  mOnPlayerCrashreport;
+    SignalPair  mOnVehicleExplode;
+    SignalPair  mOnVehicleRespawn;
+    SignalPair  mOnObjectShot;
+    SignalPair  mOnObjectTouched;
+    SignalPair  mOnObjectWorld;
+    SignalPair  mOnObjectAlpha;
+    SignalPair  mOnObjectReport;
+    SignalPair  mOnPickupClaimed;
+    SignalPair  mOnPickupCollected;
+    SignalPair  mOnPickupRespawn;
+    SignalPair  mOnPickupWorld;
+    SignalPair  mOnPickupAlpha;
+    SignalPair  mOnPickupAutomatic;
+    SignalPair  mOnPickupAutoTimer;
+    SignalPair  mOnCheckpointEntered;
+    SignalPair  mOnCheckpointExited;
+    SignalPair  mOnCheckpointWorld;
+    SignalPair  mOnCheckpointRadius;
+    SignalPair  mOnEntityPool;
+    SignalPair  mOnClientScriptData;
+    SignalPair  mOnPlayerUpdate;
+    SignalPair  mOnVehicleUpdate;
+    SignalPair  mOnPlayerHealth;
+    SignalPair  mOnPlayerArmour;
+    SignalPair  mOnPlayerWeapon;
+    SignalPair  mOnPlayerHeading;
+    SignalPair  mOnPlayerPosition;
+    SignalPair  mOnPlayerOption;
+    SignalPair  mOnPlayerAdmin;
+    SignalPair  mOnPlayerWorld;
+    SignalPair  mOnPlayerTeam;
+    SignalPair  mOnPlayerSkin;
+    SignalPair  mOnPlayerMoney;
+    SignalPair  mOnPlayerScore;
+    SignalPair  mOnPlayerWantedLevel;
+    SignalPair  mOnPlayerImmunity;
+    SignalPair  mOnPlayerAlpha;
+    SignalPair  mOnVehicleColor;
+    SignalPair  mOnVehicleHealth;
+    SignalPair  mOnVehiclePosition;
+    SignalPair  mOnVehicleRotation;
+    SignalPair  mOnVehicleOption;
+    SignalPair  mOnVehicleWorld;
+    SignalPair  mOnVehicleImmunity;
+    SignalPair  mOnVehiclePartStatus;
+    SignalPair  mOnVehicleTyreStatus;
+    SignalPair  mOnVehicleDamageData;
+    SignalPair  mOnVehicleRadio;
+    SignalPair  mOnVehicleHandlingRule;
+    SignalPair  mOnServerOption;
+    SignalPair  mOnScriptReload;
+    SignalPair  mOnScriptLoaded;
 };
 
 } // Namespace:: SqMod

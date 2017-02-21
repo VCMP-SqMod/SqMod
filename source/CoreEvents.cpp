@@ -1,6 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
-#include "Base/Shared.hpp"
+#include "Signal.hpp"
 #include "Base/Buffer.hpp"
 #include "Library/Utils/Buffer.hpp"
 
@@ -8,181 +8,181 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCustomEvent(Int32 group, Int32 header, Object & payload)
+void Core::EmitCustomEvent(Int32 group, Int32 header, LightObj & payload)
 {
-    Emit(mOnCustomEvent, group, header, payload);
+    (*mOnCustomEvent.first)(group, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitBlipCreated(Int32 blip, Int32 header, Object & payload)
+void Core::EmitBlipCreated(Int32 blip, Int32 header, LightObj & payload)
 {
-    Emit(mOnBlipCreated, m_Blips.at(blip).mObj, header, payload);
+    (*mOnBlipCreated.first)(m_Blips.at(blip).mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointCreated(Int32 checkpoint, Int32 header, Object & payload)
+void Core::EmitCheckpointCreated(Int32 checkpoint, Int32 header, LightObj & payload)
 {
-    Emit(mOnCheckpointCreated, m_Checkpoints.at(checkpoint).mObj, header, payload);
+    (*mOnCheckpointCreated.first)(m_Checkpoints.at(checkpoint).mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitKeybindCreated(Int32 keybind, Int32 header, Object & payload)
+void Core::EmitKeybindCreated(Int32 keybind, Int32 header, LightObj & payload)
 {
-    Emit(mOnKeybindCreated, m_Keybinds.at(keybind).mObj, header, payload);
+    (*mOnKeybindCreated.first)(m_Keybinds.at(keybind).mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectCreated(Int32 object, Int32 header, Object & payload)
+void Core::EmitObjectCreated(Int32 object, Int32 header, LightObj & payload)
 {
-    Emit(mOnObjectCreated, m_Objects.at(object).mObj, header, payload);
+    (*mOnObjectCreated.first)(m_Objects.at(object).mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupCreated(Int32 pickup, Int32 header, Object & payload)
+void Core::EmitPickupCreated(Int32 pickup, Int32 header, LightObj & payload)
 {
-    Emit(mOnPickupCreated, m_Pickups.at(pickup).mObj, header, payload);
+    (*mOnPickupCreated.first)(m_Pickups.at(pickup).mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerCreated(Int32 player, Int32 header, Object & payload)
+void Core::EmitPlayerCreated(Int32 player, Int32 header, LightObj & payload)
 {
-    Emit(mOnPlayerCreated, m_Players.at(player).mObj, header, payload);
+    (*mOnPlayerCreated.first)(m_Players.at(player).mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleCreated(Int32 vehicle, Int32 header, Object & payload)
+void Core::EmitVehicleCreated(Int32 vehicle, Int32 header, LightObj & payload)
 {
-    Emit(mOnVehicleCreated, m_Vehicles.at(vehicle).mObj, header, payload);
+    (*mOnVehicleCreated.first)(m_Vehicles.at(vehicle).mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitBlipDestroyed(Int32 blip, Int32 header, Object & payload)
+void Core::EmitBlipDestroyed(Int32 blip, Int32 header, LightObj & payload)
 {
     BlipInst & _blip = m_Blips.at(blip);
-    Emit(_blip.mOnDestroyed, header, payload);
-    Emit(mOnBlipDestroyed, _blip.mObj, header, payload);
+    (*_blip.mOnDestroyed.first)(header, payload);
+    (*mOnBlipDestroyed.first)(_blip.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointDestroyed(Int32 checkpoint, Int32 header, Object & payload)
+void Core::EmitCheckpointDestroyed(Int32 checkpoint, Int32 header, LightObj & payload)
 {
     CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint);
-    Emit(_checkpoint.mOnDestroyed, header, payload);
-    Emit(mOnCheckpointDestroyed, _checkpoint.mObj, header, payload);
+    (*_checkpoint.mOnDestroyed.first)(header, payload);
+    (*mOnCheckpointDestroyed.first)(_checkpoint.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitKeybindDestroyed(Int32 keybind, Int32 header, Object & payload)
+void Core::EmitKeybindDestroyed(Int32 keybind, Int32 header, LightObj & payload)
 {
     KeybindInst & _keybind = m_Keybinds.at(keybind);
-    Emit(_keybind.mOnDestroyed, header, payload);
-    Emit(mOnKeybindDestroyed, _keybind.mObj, header, payload);
+    (*_keybind.mOnDestroyed.first)(header, payload);
+    (*mOnKeybindDestroyed.first)(_keybind.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectDestroyed(Int32 object, Int32 header, Object & payload)
+void Core::EmitObjectDestroyed(Int32 object, Int32 header, LightObj & payload)
 {
     ObjectInst & _object = m_Objects.at(object);
-    Emit(_object.mOnDestroyed, header, payload);
-    Emit(mOnObjectDestroyed, _object.mObj, header, payload);
+    (*_object.mOnDestroyed.first)(header, payload);
+    (*mOnObjectDestroyed.first)(_object.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupDestroyed(Int32 pickup, Int32 header, Object & payload)
+void Core::EmitPickupDestroyed(Int32 pickup, Int32 header, LightObj & payload)
 {
     PickupInst & _pickup = m_Pickups.at(pickup);
-    Emit(_pickup.mOnDestroyed, header, payload);
-    Emit(mOnPickupDestroyed, _pickup.mObj, header, payload);
+    (*_pickup.mOnDestroyed.first)(header, payload);
+    (*mOnPickupDestroyed.first)(_pickup.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerDestroyed(Int32 player, Int32 header, Object & payload)
+void Core::EmitPlayerDestroyed(Int32 player, Int32 header, LightObj & payload)
 {
     PlayerInst & _player = m_Players.at(player);
-    Emit(_player.mOnDestroyed, header, payload);
-    Emit(mOnPlayerDestroyed, _player.mObj, header, payload);
+    (*_player.mOnDestroyed.first)(header, payload);
+    (*mOnPlayerDestroyed.first)(_player.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleDestroyed(Int32 vehicle, Int32 header, Object & payload)
+void Core::EmitVehicleDestroyed(Int32 vehicle, Int32 header, LightObj & payload)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle);
-    Emit(_vehicle.mOnDestroyed, header, payload);
-    Emit(mOnVehicleDestroyed, _vehicle.mObj, header, payload);
+    (*_vehicle.mOnDestroyed.first)(header, payload);
+    (*mOnVehicleDestroyed.first)(_vehicle.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitBlipCustom(Int32 blip, Int32 header, Object & payload)
+void Core::EmitBlipCustom(Int32 blip, Int32 header, LightObj & payload)
 {
     BlipInst & _blip = m_Blips.at(blip);
-    Emit(_blip.mOnCustom, header, payload);
-    Emit(mOnBlipCustom, _blip.mObj, header, payload);
+    (*_blip.mOnCustom.first)(header, payload);
+    (*mOnBlipCustom.first)(_blip.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointCustom(Int32 checkpoint, Int32 header, Object & payload)
+void Core::EmitCheckpointCustom(Int32 checkpoint, Int32 header, LightObj & payload)
 {
     CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint);
-    Emit(_checkpoint.mOnCustom, header, payload);
-    Emit(mOnCheckpointCustom, _checkpoint.mObj, header, payload);
+    (*_checkpoint.mOnCustom.first)(header, payload);
+    (*mOnCheckpointCustom.first)(_checkpoint.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitKeybindCustom(Int32 keybind, Int32 header, Object & payload)
+void Core::EmitKeybindCustom(Int32 keybind, Int32 header, LightObj & payload)
 {
     KeybindInst & _keybind = m_Keybinds.at(keybind);
-    Emit(_keybind.mOnCustom, header, payload);
-    Emit(mOnKeybindCustom, _keybind.mObj, header, payload);
+    (*_keybind.mOnCustom.first)(header, payload);
+    (*mOnKeybindCustom.first)(_keybind.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectCustom(Int32 object, Int32 header, Object & payload)
+void Core::EmitObjectCustom(Int32 object, Int32 header, LightObj & payload)
 {
     ObjectInst & _object = m_Objects.at(object);
-    Emit(_object.mOnCustom, header, payload);
-    Emit(mOnObjectCustom, _object.mObj, header, payload);
+    (*_object.mOnCustom.first)(header, payload);
+    (*mOnObjectCustom.first)(_object.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupCustom(Int32 pickup, Int32 header, Object & payload)
+void Core::EmitPickupCustom(Int32 pickup, Int32 header, LightObj & payload)
 {
     PickupInst & _pickup = m_Pickups.at(pickup);
-    Emit(_pickup.mOnCustom, header, payload);
-    Emit(mOnPickupCustom, _pickup.mObj, header, payload);
+    (*_pickup.mOnCustom.first)(header, payload);
+    (*mOnPickupCustom.first)(_pickup.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerCustom(Int32 player, Int32 header, Object & payload)
+void Core::EmitPlayerCustom(Int32 player, Int32 header, LightObj & payload)
 {
     PlayerInst & _player = m_Players.at(player);
-    Emit(_player.mOnCustom, header, payload);
-    Emit(mOnPlayerCustom, _player.mObj, header, payload);
+    (*_player.mOnCustom.first)(header, payload);
+    (*mOnPlayerCustom.first)(_player.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleCustom(Int32 vehicle, Int32 header, Object & payload)
+void Core::EmitVehicleCustom(Int32 vehicle, Int32 header, LightObj & payload)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle);
-    Emit(_vehicle.mOnCustom, header, payload);
-    Emit(mOnVehicleCustom, _vehicle.mObj, header, payload);
+    (*_vehicle.mOnCustom.first)(header, payload);
+    (*mOnVehicleCustom.first)(_vehicle.mObj, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitServerStartup()
 {
-    Emit(mOnServerStartup);
+    (*mOnServerStartup.first)();
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitServerShutdown()
 {
-    Emit(mOnServerShutdown);
+    (*mOnServerShutdown.first)();
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitServerFrame(Float32 elapsed_time)
 {
-    Emit(mOnServerFrame, elapsed_time);
+    (*mOnServerFrame.first)(elapsed_time);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -200,11 +200,15 @@ void Core::EmitIncomingConnection(CStr player_name, size_t name_buffer_size, CCS
     // Attempt to forward the event to the script callback
     try
     {
-        Emit(mOnIncomingConnection, player_name, name_buffer_size, user_password, ip_address);
+        (*mOnIncomingConnection.first)(player_name, name_buffer_size, user_password, ip_address);
     }
     catch (...)
     {
-        // We catch the exception so we can release the assigned buffer
+        // Release any stored buffer information
+        m_IncomingNameBuffer = nullptr;
+        m_IncomingNameCapacity = 0;
+        // We catched the exception so we can release the assigned buffer
+        throw; // re-throw it
     }
     // Release any stored buffer information
     m_IncomingNameBuffer = nullptr;
@@ -215,32 +219,32 @@ void Core::EmitIncomingConnection(CStr player_name, size_t name_buffer_size, CCS
 void Core::EmitPlayerRequestClass(Int32 player_id, Int32 offset)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnRequestClass, offset);
-    Emit(mOnPlayerRequestClass, _player.mObj, offset);
+    (*_player.mOnRequestClass.first)(offset);
+    (*mOnPlayerRequestClass.first)(_player.mObj, offset);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerRequestSpawn(Int32 player_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnRequestSpawn);
-    Emit(mOnPlayerRequestSpawn, _player.mObj);
+    (*_player.mOnRequestSpawn.first)();
+    (*mOnPlayerRequestSpawn.first)(_player.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerSpawn(Int32 player_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnSpawn);
-    Emit(mOnPlayerSpawn, _player.mObj);
+    (*_player.mOnSpawn.first)();
+    (*mOnPlayerSpawn.first)(_player.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerWasted(Int32 player_id, Int32 reason)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnWasted, reason);
-    Emit(mOnPlayerWasted, _player.mObj, reason);
+    (*_player.mOnWasted.first)(reason);
+    (*mOnPlayerWasted.first)(_player.mObj, reason);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -248,8 +252,8 @@ void Core::EmitPlayerKilled(Int32 player_id, Int32 killer_id, Int32 reason, vcmp
 {
     PlayerInst & _player = m_Players.at(player_id);
     PlayerInst & _killer = m_Players.at(killer_id);
-    Emit(_player.mOnKilled, _killer.mObj, reason, static_cast< Int32 >(body_part), team_kill);
-    Emit(mOnPlayerKilled, _player.mObj, _killer.mObj, reason, static_cast< Int32 >(body_part), team_kill);
+    (*_player.mOnKilled.first)(_killer.mObj, reason, static_cast< Int32 >(body_part), team_kill);
+    (*mOnPlayerKilled.first)(_player.mObj, _killer.mObj, reason, static_cast< Int32 >(body_part), team_kill);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -257,9 +261,9 @@ void Core::EmitPlayerEmbarking(Int32 player_id, Int32 vehicle_id, Int32 slot_ind
 {
     PlayerInst & _player = m_Players.at(player_id);
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_player.mOnEmbarking, _vehicle.mObj, slot_index);
-    Emit(_vehicle.mOnEmbarking, _player.mObj, slot_index);
-    Emit(mOnPlayerEmbarking, _player.mObj, _vehicle.mObj, slot_index);
+    (*_player.mOnEmbarking.first)(_vehicle.mObj, slot_index);
+    (*_vehicle.mOnEmbarking.first)(_player.mObj, slot_index);
+    (*mOnPlayerEmbarking.first)(_player.mObj, _vehicle.mObj, slot_index);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -267,9 +271,9 @@ void Core::EmitPlayerEmbarked(Int32 player_id, Int32 vehicle_id, Int32 slot_inde
 {
     PlayerInst & _player = m_Players.at(player_id);
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_player.mOnEmbarked, _vehicle.mObj, slot_index);
-    Emit(_vehicle.mOnEmbarked, _player.mObj, slot_index);
-    Emit(mOnPlayerEmbarked, _player.mObj, _vehicle.mObj, slot_index);
+    (*_player.mOnEmbarked.first)(_vehicle.mObj, slot_index);
+    (*_vehicle.mOnEmbarked.first)(_player.mObj, slot_index);
+    (*mOnPlayerEmbarked.first)(_player.mObj, _vehicle.mObj, slot_index);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -277,273 +281,273 @@ void Core::EmitPlayerDisembark(Int32 player_id, Int32 vehicle_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_player.mOnDisembark, _vehicle.mObj);
-    Emit(_vehicle.mOnDisembark, _player.mObj);
-    Emit(mOnPlayerDisembark, _player.mObj, _vehicle.mObj);
+    (*_player.mOnDisembark.first)(_vehicle.mObj);
+    (*_vehicle.mOnDisembark.first)(_player.mObj);
+    (*mOnPlayerDisembark.first)(_player.mObj, _vehicle.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerRename(Int32 player_id, CCStr old_name, CCStr new_name)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnRename, old_name, new_name);
-    Emit(mOnPlayerRename, _player.mObj, old_name, new_name);
+    (*_player.mOnRename.first)(old_name, new_name);
+    (*mOnPlayerRename.first)(_player.mObj, old_name, new_name);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerState(Int32 player_id, Int32 old_state, Int32 new_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnState, old_state, new_state);
-    Emit(mOnPlayerState, _player.mObj, old_state, new_state);
+    (*_player.mOnState.first)(old_state, new_state);
+    (*mOnPlayerState.first)(_player.mObj, old_state, new_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitStateNone(Int32 player_id, Int32 old_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStateNone, old_state);
-    Emit(mOnStateNone, _player.mObj, old_state);
+    (*_player.mOnStateNone.first)(old_state);
+    (*mOnStateNone.first)(_player.mObj, old_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitStateNormal(Int32 player_id, Int32 old_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStateNormal, old_state);
-    Emit(mOnStateNormal, _player.mObj, old_state);
+    (*_player.mOnStateNormal.first)(old_state);
+    (*mOnStateNormal.first)(_player.mObj, old_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitStateAim(Int32 player_id, Int32 old_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStateAim, old_state);
-    Emit(mOnStateAim, _player.mObj, old_state);
+    (*_player.mOnStateAim.first)(old_state);
+    (*mOnStateAim.first)(_player.mObj, old_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitStateDriver(Int32 player_id, Int32 old_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStateDriver, old_state);
-    Emit(mOnStateDriver, _player.mObj, old_state);
+    (*_player.mOnStateDriver.first)(old_state);
+    (*mOnStateDriver.first)(_player.mObj, old_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitStatePassenger(Int32 player_id, Int32 old_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStatePassenger, old_state);
-    Emit(mOnStatePassenger, _player.mObj, old_state);
+    (*_player.mOnStatePassenger.first)(old_state);
+    (*mOnStatePassenger.first)(_player.mObj, old_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitStateEnterDriver(Int32 player_id, Int32 old_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStateEnterDriver, old_state);
-    Emit(mOnStateEnterDriver, _player.mObj, old_state);
+    (*_player.mOnStateEnterDriver.first)(old_state);
+    (*mOnStateEnterDriver.first)(_player.mObj, old_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitStateEnterPassenger(Int32 player_id, Int32 old_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStateEnterPassenger, old_state);
-    Emit(mOnStateEnterPassenger, _player.mObj, old_state);
+    (*_player.mOnStateEnterPassenger.first)(old_state);
+    (*mOnStateEnterPassenger.first)(_player.mObj, old_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitStateExit(Int32 player_id, Int32 old_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStateExit, old_state);
-    Emit(mOnStateExit, _player.mObj, old_state);
+    (*_player.mOnStateExit.first)(old_state);
+    (*mOnStateExit.first)(_player.mObj, old_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitStateUnspawned(Int32 player_id, Int32 old_state)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStateUnspawned, old_state);
-    Emit(mOnStateUnspawned, _player.mObj, old_state);
+    (*_player.mOnStateUnspawned.first)(old_state);
+    (*mOnStateUnspawned.first)(_player.mObj, old_state);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerAction(Int32 player_id, Int32 old_action, Int32 new_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnAction, old_action, new_action);
-    Emit(mOnPlayerAction, _player.mObj, old_action, new_action);
+    (*_player.mOnAction.first)(old_action, new_action);
+    (*mOnPlayerAction.first)(_player.mObj, old_action, new_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionNone(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionNone, old_action);
-    Emit(mOnActionNone, _player.mObj, old_action);
+    (*_player.mOnActionNone.first)(old_action);
+    (*mOnActionNone.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionNormal(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionNormal, old_action);
-    Emit(mOnActionNormal, _player.mObj, old_action);
+    (*_player.mOnActionNormal.first)(old_action);
+    (*mOnActionNormal.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionAiming(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionAiming, old_action);
-    Emit(mOnActionAiming, _player.mObj, old_action);
+    (*_player.mOnActionAiming.first)(old_action);
+    (*mOnActionAiming.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionShooting(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionShooting, old_action);
-    Emit(mOnActionShooting, _player.mObj, old_action);
+    (*_player.mOnActionShooting.first)(old_action);
+    (*mOnActionShooting.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionJumping(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionJumping, old_action);
-    Emit(mOnActionJumping, _player.mObj, old_action);
+    (*_player.mOnActionJumping.first)(old_action);
+    (*mOnActionJumping.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionLieDown(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionLieDown, old_action);
-    Emit(mOnActionLieDown, _player.mObj, old_action);
+    (*_player.mOnActionLieDown.first)(old_action);
+    (*mOnActionLieDown.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionGettingUp(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionGettingUp, old_action);
-    Emit(mOnActionGettingUp, _player.mObj, old_action);
+    (*_player.mOnActionGettingUp.first)(old_action);
+    (*mOnActionGettingUp.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionJumpVehicle(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionJumpVehicle, old_action);
-    Emit(mOnActionJumpVehicle, _player.mObj, old_action);
+    (*_player.mOnActionJumpVehicle.first)(old_action);
+    (*mOnActionJumpVehicle.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionDriving(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionDriving, old_action);
-    Emit(mOnActionDriving, _player.mObj, old_action);
+    (*_player.mOnActionDriving.first)(old_action);
+    (*mOnActionDriving.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionDying(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionDying, old_action);
-    Emit(mOnActionDying, _player.mObj, old_action);
+    (*_player.mOnActionDying.first)(old_action);
+    (*mOnActionDying.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionWasted(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionWasted, old_action);
-    Emit(mOnActionWasted, _player.mObj, old_action);
+    (*_player.mOnActionWasted.first)(old_action);
+    (*mOnActionWasted.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionEmbarking(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionEmbarking, old_action);
-    Emit(mOnActionEmbarking, _player.mObj, old_action);
+    (*_player.mOnActionEmbarking.first)(old_action);
+    (*mOnActionEmbarking.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitActionDisembarking(Int32 player_id, Int32 old_action)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnActionDisembarking, old_action);
-    Emit(mOnActionDisembarking, _player.mObj, old_action);
+    (*_player.mOnActionDisembarking.first)(old_action);
+    (*mOnActionDisembarking.first)(_player.mObj, old_action);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerBurning(Int32 player_id, bool is_on_fire)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnBurning, is_on_fire);
-    Emit(mOnPlayerBurning, _player.mObj, is_on_fire);
+    (*_player.mOnBurning.first)(is_on_fire);
+    (*mOnPlayerBurning.first)(_player.mObj, is_on_fire);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerCrouching(Int32 player_id, bool is_crouching)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnCrouching, is_crouching);
-    Emit(mOnPlayerCrouching, _player.mObj, is_crouching);
+    (*_player.mOnCrouching.first)(is_crouching);
+    (*mOnPlayerCrouching.first)(_player.mObj, is_crouching);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerGameKeys(Int32 player_id, Uint32 old_keys, Uint32 new_keys)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnGameKeys, old_keys, new_keys);
-    Emit(mOnPlayerGameKeys, _player.mObj, old_keys, new_keys);
+    (*_player.mOnGameKeys.first)(old_keys, new_keys);
+    (*mOnPlayerGameKeys.first)(_player.mObj, old_keys, new_keys);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerStartTyping(Int32 player_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStartTyping);
-    Emit(mOnPlayerStartTyping, _player.mObj);
+    (*_player.mOnStartTyping.first)();
+    (*mOnPlayerStartTyping.first)(_player.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerStopTyping(Int32 player_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnStopTyping);
-    Emit(mOnPlayerStopTyping, _player.mObj);
+    (*_player.mOnStopTyping.first)();
+    (*mOnPlayerStopTyping.first)(_player.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerAway(Int32 player_id, bool is_away)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnAway, is_away);
-    Emit(mOnPlayerAway, _player.mObj, is_away);
+    (*_player.mOnAway.first)(is_away);
+    (*mOnPlayerAway.first)(_player.mObj, is_away);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerMessage(Int32 player_id, CCStr message)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnMessage, message);
-    Emit(mOnPlayerMessage, _player.mObj, message);
+    (*_player.mOnMessage.first)(message);
+    (*mOnPlayerMessage.first)(_player.mObj, message);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerCommand(Int32 player_id, CCStr message)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnCommand, message);
-    Emit(mOnPlayerCommand, _player.mObj, message);
+    (*_player.mOnCommand.first)(message);
+    (*mOnPlayerCommand.first)(_player.mObj, message);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -551,8 +555,8 @@ void Core::EmitPlayerPrivateMessage(Int32 player_id, Int32 target_player_id, CCS
 {
     PlayerInst & _player = m_Players.at(player_id);
     PlayerInst & _receiver = m_Players.at(target_player_id);
-    Emit(_player.mOnMessage,_receiver.mObj,  message);
-    Emit(mOnPlayerPrivateMessage, _player.mObj, _receiver.mObj, message);
+    (*_player.mOnMessage.first)(_receiver.mObj,  message);
+    (*mOnPlayerPrivateMessage.first)(_player.mObj, _receiver.mObj, message);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -560,9 +564,9 @@ void Core::EmitPlayerKeyPress(Int32 player_id, Int32 bind_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
     KeybindInst & _keybind = m_Keybinds.at(bind_id);
-    Emit(_player.mOnKeyPress, _keybind.mObj);
-    Emit(_keybind.mOnKeyPress, _player.mObj);
-    Emit(mOnPlayerKeyPress, _player.mObj, _keybind.mObj);
+    (*_player.mOnKeyPress.first)(_keybind.mObj);
+    (*_keybind.mOnKeyPress.first)(_player.mObj);
+    (*mOnPlayerKeyPress.first)(_player.mObj, _keybind.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -570,9 +574,9 @@ void Core::EmitPlayerKeyRelease(Int32 player_id, Int32 bind_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
     KeybindInst & _keybind = m_Keybinds.at(bind_id);
-    Emit(_keybind.mOnKeyRelease, _player.mObj);
-    Emit(_player.mOnKeyRelease, _keybind.mObj);
-    Emit(mOnPlayerKeyRelease, _player.mObj, _keybind.mObj);
+    (*_keybind.mOnKeyRelease.first)(_player.mObj);
+    (*_player.mOnKeyRelease.first)(_keybind.mObj);
+    (*mOnPlayerKeyRelease.first)(_player.mObj, _keybind.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -580,32 +584,32 @@ void Core::EmitPlayerSpectate(Int32 player_id, Int32 target_player_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
     PlayerInst & _target = m_Players.at(target_player_id);
-    Emit(_player.mOnSpectate, _target.mObj);
-    Emit(mOnPlayerSpectate, _player.mObj, _target.mObj);
+    (*_player.mOnSpectate.first)(_target.mObj);
+    (*mOnPlayerSpectate.first)(_player.mObj, _target.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerCrashreport(Int32 player_id, CCStr report)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnCrashreport, report);
-    Emit(mOnPlayerCrashreport, _player.mObj, report);
+    (*_player.mOnCrashreport.first)(report);
+    (*mOnPlayerCrashreport.first)(_player.mObj, report);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleExplode(Int32 vehicle_id)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnExplode);
-    Emit(mOnVehicleExplode, _vehicle.mObj);
+    (*_vehicle.mOnExplode.first)();
+    (*mOnVehicleExplode.first)(_vehicle.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleRespawn(Int32 vehicle_id)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnRespawn);
-    Emit(mOnVehicleRespawn, _vehicle.mObj);
+    (*_vehicle.mOnRespawn.first)();
+    (*mOnVehicleRespawn.first)(_vehicle.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -613,9 +617,9 @@ void Core::EmitObjectShot(Int32 object_id, Int32 player_id, Int32 weapon_id)
 {
     ObjectInst & _object = m_Objects.at(object_id);
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_object.mOnShot, _player.mObj, weapon_id);
-    Emit(_player.mOnObjectShot, _object.mObj, weapon_id);
-    Emit(mOnObjectShot, _player.mObj, _object.mObj, weapon_id);
+    (*_object.mOnShot.first)(_player.mObj, weapon_id);
+    (*_player.mOnObjectShot.first)(_object.mObj, weapon_id);
+    (*mOnObjectShot.first)(_player.mObj, _object.mObj, weapon_id);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -623,9 +627,9 @@ void Core::EmitObjectTouched(Int32 object_id, Int32 player_id)
 {
     ObjectInst & _object = m_Objects.at(object_id);
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_object.mOnTouched, _player.mObj);
-    Emit(_player.mOnObjectTouched, _object.mObj);
-    Emit(mOnObjectTouched, _player.mObj, _object.mObj);
+    (*_object.mOnTouched.first)(_player.mObj);
+    (*_player.mOnObjectTouched.first)(_object.mObj);
+    (*mOnObjectTouched.first)(_player.mObj, _object.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -633,9 +637,9 @@ void Core::EmitPickupClaimed(Int32 pickup_id, Int32 player_id)
 {
     PickupInst & _pickup = m_Pickups.at(pickup_id);
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_pickup.mOnClaimed, _player.mObj);
-    Emit(_player.mOnPickupClaimed, _pickup.mObj);
-    Emit(mOnPickupClaimed, _player.mObj, _pickup.mObj);
+    (*_pickup.mOnClaimed.first)(_player.mObj);
+    (*_player.mOnPickupClaimed.first)(_pickup.mObj);
+    (*mOnPickupClaimed.first)(_player.mObj, _pickup.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -643,17 +647,17 @@ void Core::EmitPickupCollected(Int32 pickup_id, Int32 player_id)
 {
     PickupInst & _pickup = m_Pickups.at(pickup_id);
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_pickup.mOnCollected, _player.mObj);
-    Emit(_player.mOnPickupCollected, _pickup.mObj);
-    Emit(mOnPickupCollected, _player.mObj, _pickup.mObj);
+    (*_pickup.mOnCollected.first)(_player.mObj);
+    (*_player.mOnPickupCollected.first)(_pickup.mObj);
+    (*mOnPickupCollected.first)(_player.mObj, _pickup.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPickupRespawn(Int32 pickup_id)
 {
     PickupInst & _pickup = m_Pickups.at(pickup_id);
-    Emit(_pickup.mOnRespawn);
-    Emit(mOnPickupRespawn, _pickup.mObj);
+    (*_pickup.mOnRespawn.first)();
+    (*mOnPickupRespawn.first)(_pickup.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -661,9 +665,9 @@ void Core::EmitCheckpointEntered(Int32 checkpoint_id, Int32 player_id)
 {
     CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint_id);
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_checkpoint.mOnEntered, _player.mObj);
-    Emit(_player.mOnCheckpointEntered, _checkpoint.mObj);
-    Emit(mOnCheckpointEntered, _player.mObj, _checkpoint.mObj);
+    (*_checkpoint.mOnEntered.first)(_player.mObj);
+    (*_player.mOnCheckpointEntered.first)(_checkpoint.mObj);
+    (*mOnCheckpointEntered.first)(_player.mObj, _checkpoint.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -671,303 +675,303 @@ void Core::EmitCheckpointExited(Int32 checkpoint_id, Int32 player_id)
 {
     CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint_id);
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_checkpoint.mOnExited, _player.mObj);
-    Emit(_player.mOnCheckpointExited, _checkpoint.mObj);
-    Emit(mOnCheckpointExited, _player.mObj, _checkpoint.mObj);
+    (*_checkpoint.mOnExited.first)(_player.mObj);
+    (*_player.mOnCheckpointExited.first)(_checkpoint.mObj);
+    (*mOnCheckpointExited.first)(_player.mObj, _checkpoint.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitCheckpointWorld(Int32 checkpoint_id, Int32 old_world, Int32 new_world)
 {
     CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint_id);
-    Emit(_checkpoint.mOnWorld, old_world, new_world);
-    Emit(mOnCheckpointWorld, _checkpoint.mObj, old_world, new_world);
+    (*_checkpoint.mOnWorld.first)(old_world, new_world);
+    (*mOnCheckpointWorld.first)(_checkpoint.mObj, old_world, new_world);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitCheckpointRadius(Int32 checkpoint_id, Float32 old_radius, Float32 new_radius)
 {
     CheckpointInst & _checkpoint = m_Checkpoints.at(checkpoint_id);
-    Emit(_checkpoint.mOnRadius, old_radius, new_radius);
-    Emit(mOnCheckpointRadius, _checkpoint.mObj, old_radius, new_radius);
+    (*_checkpoint.mOnRadius.first)(old_radius, new_radius);
+    (*mOnCheckpointRadius.first)(_checkpoint.mObj, old_radius, new_radius);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitObjectWorld(Int32 object_id, Int32 old_world, Int32 new_world)
 {
     ObjectInst & _object = m_Objects.at(object_id);
-    Emit(_object.mOnWorld, old_world, new_world);
-    Emit(mOnObjectWorld, _object.mObj, old_world, new_world);
+    (*_object.mOnWorld.first)(old_world, new_world);
+    (*mOnObjectWorld.first)(_object.mObj, old_world, new_world);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitObjectAlpha(Int32 object_id, Int32 old_alpha, Int32 new_alpha, Int32 time)
 {
     ObjectInst & _object = m_Objects.at(object_id);
-    Emit(_object.mOnAlpha, old_alpha, new_alpha, time);
-    Emit(mOnObjectAlpha, _object.mObj, old_alpha, new_alpha, time);
+    (*_object.mOnAlpha.first)(old_alpha, new_alpha, time);
+    (*mOnObjectAlpha.first)(_object.mObj, old_alpha, new_alpha, time);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPickupWorld(Int32 pickup_id, Int32 old_world, Int32 new_world)
 {
     PickupInst & _pickup = m_Pickups.at(pickup_id);
-    Emit(_pickup.mOnWorld, old_world, new_world);
-    Emit(mOnPickupWorld, _pickup.mObj, old_world, new_world);
+    (*_pickup.mOnWorld.first)(old_world, new_world);
+    (*mOnPickupWorld.first)(_pickup.mObj, old_world, new_world);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPickupAlpha(Int32 pickup_id, Int32 old_alpha, Int32 new_alpha)
 {
     PickupInst & _pickup = m_Pickups.at(pickup_id);
-    Emit(_pickup.mOnAlpha, old_alpha, new_alpha);
-    Emit(mOnPickupAlpha, _pickup.mObj, old_alpha, new_alpha);
+    (*_pickup.mOnAlpha.first)(old_alpha, new_alpha);
+    (*mOnPickupAlpha.first)(_pickup.mObj, old_alpha, new_alpha);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPickupAutomatic(Int32 pickup_id, bool old_status, bool new_status)
 {
     PickupInst & _pickup = m_Pickups.at(pickup_id);
-    Emit(_pickup.mOnAutomatic, old_status, new_status);
-    Emit(mOnPickupAutomatic, _pickup.mObj, old_status, new_status);
+    (*_pickup.mOnAutomatic.first)(old_status, new_status);
+    (*mOnPickupAutomatic.first)(_pickup.mObj, old_status, new_status);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPickupAutoTimer(Int32 pickup_id, Int32 old_timer, Int32 new_timer)
 {
     PickupInst & _pickup = m_Pickups.at(pickup_id);
-    Emit(_pickup.mOnAutoTimer, old_timer, new_timer);
-    Emit(mOnPickupAutoTimer, _pickup.mObj, old_timer, new_timer);
+    (*_pickup.mOnAutoTimer.first)(old_timer, new_timer);
+    (*mOnPickupAutoTimer.first)(_pickup.mObj, old_timer, new_timer);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitObjectReport(Int32 object_id, bool old_status, bool new_status, bool touched)
 {
     ObjectInst & _object = m_Objects.at(object_id);
-    Emit(_object.mOnReport, old_status, new_status, touched);
-    Emit(mOnObjectReport, _object.mObj, old_status, new_status, touched);
+    (*_object.mOnReport.first)(old_status, new_status, touched);
+    (*mOnObjectReport.first)(_object.mObj, old_status, new_status, touched);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnHealth, old_health, new_health);
-    Emit(mOnPlayerHealth, _player.mObj, old_health, new_health);
+    (*_player.mOnHealth.first)(old_health, new_health);
+    (*mOnPlayerHealth.first)(_player.mObj, old_health, new_health);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerArmour(Int32 player_id, Float32 old_armour, Float32 new_armour)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnArmour, old_armour, new_armour);
-    Emit(mOnPlayerArmour, _player.mObj, old_armour, new_armour);
+    (*_player.mOnArmour.first)(old_armour, new_armour);
+    (*mOnPlayerArmour.first)(_player.mObj, old_armour, new_armour);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerWeapon(Int32 player_id, Int32 old_weapon, Int32 new_weapon)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnWeapon, old_weapon, new_weapon);
-    Emit(mOnPlayerWeapon, _player.mObj, old_weapon, new_weapon);
+    (*_player.mOnWeapon.first)(old_weapon, new_weapon);
+    (*mOnPlayerWeapon.first)(_player.mObj, old_weapon, new_weapon);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerHeading(Int32 player_id, Float32 old_heading, Float32 new_heading)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnHeading, old_heading, new_heading);
-    Emit(mOnPlayerHeading, _player.mObj, old_heading, new_heading);
+    (*_player.mOnHeading.first)(old_heading, new_heading);
+    (*mOnPlayerHeading.first)(_player.mObj, old_heading, new_heading);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerPosition(Int32 player_id)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnPosition, _player.mTrackPositionHeader, _player.mTrackPositionPayload);
-    Emit(mOnPlayerPosition, _player.mObj, _player.mTrackPositionHeader, _player.mTrackPositionPayload);
+    (*_player.mOnPosition.first)(_player.mTrackPositionHeader, _player.mTrackPositionPayload);
+    (*mOnPlayerPosition.first)(_player.mObj, _player.mTrackPositionHeader, _player.mTrackPositionPayload);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerOption(Int32 player_id, Int32 option_id, bool value,
-                                Int32 header, Object & payload)
+                                Int32 header, LightObj & payload)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnOption, option_id, value, header, payload);
-    Emit(mOnPlayerOption, _player.mObj, option_id, value, header, payload);
+    (*_player.mOnOption.first)(option_id, value, header, payload);
+    (*mOnPlayerOption.first)(_player.mObj, option_id, value, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerAdmin(Int32 player_id, bool old_status, bool new_status)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnAdmin, old_status, new_status);
-    Emit(mOnPlayerAdmin, _player.mObj, old_status, new_status);
+    (*_player.mOnAdmin.first)(old_status, new_status);
+    (*mOnPlayerAdmin.first)(_player.mObj, old_status, new_status);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerWorld(Int32 player_id, Int32 old_world, Int32 new_world, bool secondary)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnWorld, old_world, new_world, secondary);
-    Emit(mOnPlayerWorld, _player.mObj, old_world, new_world, secondary);
+    (*_player.mOnWorld.first)(old_world, new_world, secondary);
+    (*mOnPlayerWorld.first)(_player.mObj, old_world, new_world, secondary);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerTeam(Int32 player_id, Int32 old_team, Int32 new_team)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnTeam, old_team, new_team);
-    Emit(mOnPlayerTeam, _player.mObj, old_team, new_team);
+    (*_player.mOnTeam.first)(old_team, new_team);
+    (*mOnPlayerTeam.first)(_player.mObj, old_team, new_team);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerSkin(Int32 player_id, Int32 old_skin, Int32 new_skin)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnSkin, old_skin, new_skin);
-    Emit(mOnPlayerSkin, _player.mObj, old_skin, new_skin);
+    (*_player.mOnSkin.first)(old_skin, new_skin);
+    (*mOnPlayerSkin.first)(_player.mObj, old_skin, new_skin);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerMoney(Int32 player_id, Int32 old_money, Int32 new_money)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnMoney, old_money, new_money);
-    Emit(mOnPlayerMoney, _player.mObj, old_money, new_money);
+    (*_player.mOnMoney.first)(old_money, new_money);
+    (*mOnPlayerMoney.first)(_player.mObj, old_money, new_money);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerScore(Int32 player_id, Int32 old_score, Int32 new_score)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnScore, old_score, new_score);
-    Emit(mOnPlayerScore, _player.mObj, old_score, new_score);
+    (*_player.mOnScore.first)(old_score, new_score);
+    (*mOnPlayerScore.first)(_player.mObj, old_score, new_score);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerWantedLevel(Int32 player_id, Int32 old_level, Int32 new_level)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnWantedLevel, old_level, new_level);
-    Emit(mOnPlayerWantedLevel, _player.mObj, old_level, new_level);
+    (*_player.mOnWantedLevel.first)(old_level, new_level);
+    (*mOnPlayerWantedLevel.first)(_player.mObj, old_level, new_level);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerImmunity(Int32 player_id, Int32 old_immunity, Int32 new_immunity)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnImmunity, old_immunity, new_immunity);
-    Emit(mOnPlayerImmunity, _player.mObj, old_immunity, new_immunity);
+    (*_player.mOnImmunity.first)(old_immunity, new_immunity);
+    (*mOnPlayerImmunity.first)(_player.mObj, old_immunity, new_immunity);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerAlpha(Int32 player_id, Int32 old_alpha, Int32 new_alpha, Int32 fade)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    Emit(_player.mOnAlpha, old_alpha, new_alpha, fade);
-    Emit(mOnPlayerAlpha, _player.mObj, old_alpha, new_alpha, fade);
+    (*_player.mOnAlpha.first)(old_alpha, new_alpha, fade);
+    (*mOnPlayerAlpha.first)(_player.mObj, old_alpha, new_alpha, fade);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleColor(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnColor, changed);
-    Emit(mOnVehicleColor, _vehicle.mObj, changed);
+    (*_vehicle.mOnColor.first)(changed);
+    (*mOnVehicleColor.first)(_vehicle.mObj, changed);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleHealth(Int32 vehicle_id, Float32 old_health, Float32 new_health)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnHealth, old_health, new_health);
-    Emit(mOnVehicleHealth, _vehicle.mObj, old_health, new_health);
+    (*_vehicle.mOnHealth.first)(old_health, new_health);
+    (*mOnVehicleHealth.first)(_vehicle.mObj, old_health, new_health);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehiclePosition(Int32 vehicle_id)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnPosition);
-    Emit(mOnVehiclePosition, _vehicle.mObj);
+    (*_vehicle.mOnPosition.first)();
+    (*mOnVehiclePosition.first)(_vehicle.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleRotation(Int32 vehicle_id)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnRotation);
-    Emit(mOnVehicleRotation, _vehicle.mObj);
+    (*_vehicle.mOnRotation.first)();
+    (*mOnVehicleRotation.first)(_vehicle.mObj);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleOption(Int32 vehicle_id, Int32 option_id, bool value,
-                                Int32 header, Object & payload)
+                                Int32 header, LightObj & payload)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnOption, option_id, value, header, payload);
-    Emit(mOnVehicleOption, _vehicle.mObj, option_id, value, header, payload);
+    (*_vehicle.mOnOption.first)(option_id, value, header, payload);
+    (*mOnVehicleOption.first)(_vehicle.mObj, option_id, value, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleWorld(Int32 vehicle_id, Int32 old_world, Int32 new_world)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnWorld, old_world, new_world);
-    Emit(mOnVehicleWorld, _vehicle.mObj, old_world, new_world);
+    (*_vehicle.mOnWorld.first)(old_world, new_world);
+    (*mOnVehicleWorld.first)(_vehicle.mObj, old_world, new_world);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_immunity)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnImmunity, old_immunity, new_immunity);
-    Emit(mOnVehicleImmunity, _vehicle.mObj, old_immunity, new_immunity);
+    (*_vehicle.mOnImmunity.first)(old_immunity, new_immunity);
+    (*mOnVehicleImmunity.first)(_vehicle.mObj, old_immunity, new_immunity);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehiclePartStatus(Int32 vehicle_id, Int32 part, Int32 old_status, Int32 new_status)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnPartStatus, part, old_status, new_status);
-    Emit(mOnVehiclePartStatus, _vehicle.mObj, part, old_status, new_status);
+    (*_vehicle.mOnPartStatus.first)(part, old_status, new_status);
+    (*mOnVehiclePartStatus.first)(_vehicle.mObj, part, old_status, new_status);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleTyreStatus(Int32 vehicle_id, Int32 tyre, Int32 old_status, Int32 new_status)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnTyreStatus, tyre, old_status, new_status);
-    Emit(mOnVehicleTyreStatus, _vehicle.mObj, tyre, old_status, new_status);
+    (*_vehicle.mOnTyreStatus.first)(tyre, old_status, new_status);
+    (*mOnVehicleTyreStatus.first)(_vehicle.mObj, tyre, old_status, new_status);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleDamageData(Int32 vehicle_id, Uint32 old_data, Uint32 new_data)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnDamageData, old_data, new_data);
-    Emit(mOnVehicleDamageData, _vehicle.mObj, old_data, new_data);
+    (*_vehicle.mOnDamageData.first)(old_data, new_data);
+    (*mOnVehicleDamageData.first)(_vehicle.mObj, old_data, new_data);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnRadio, old_radio, new_radio);
-    Emit(mOnVehicleRadio, _vehicle.mObj, old_radio, new_radio);
+    (*_vehicle.mOnRadio.first)(old_radio, new_radio);
+    (*mOnVehicleRadio.first)(_vehicle.mObj, old_radio, new_radio);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, Float32 old_data, Float32 new_data)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    Emit(_vehicle.mOnHandlingRule, rule, old_data, new_data);
-    Emit(mOnVehicleHandlingRule, _vehicle.mObj, rule, old_data, new_data);
+    (*mOnVehicleHandlingRule.first)(_vehicle.mObj, rule, old_data, new_data);
+    (*_vehicle.mOnHandlingRule.first)(rule, old_data, new_data);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitServerOption(Int32 option, bool value, Int32 header, Object & payload)
+void Core::EmitServerOption(Int32 option, bool value, Int32 header, LightObj & payload)
 {
     if (m_CircularLocks & CCL_EMIT_SERVER_OPTION)
     {
@@ -976,19 +980,19 @@ void Core::EmitServerOption(Int32 option, bool value, Int32 header, Object & pay
     // Prevent further calls to this event
     BitGuardU32 bg(m_CircularLocks, CCL_EMIT_SERVER_OPTION);
     // Now forward the event call
-    Emit(mOnServerOption, option, value, header, payload);
+    (*mOnServerOption.first)(option, value, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitScriptReload(Int32 header, Object & payload)
+void Core::EmitScriptReload(Int32 header, LightObj & payload)
 {
-    Emit(mOnScriptReload, header, payload);
+    (*mOnScriptReload.first)(header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitScriptLoaded()
 {
-    Emit(mOnScriptLoaded);
+    (*mOnScriptLoaded.first)();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1001,36 +1005,36 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
             // Do we even have this vehicle that we're trying to delete?
             if (is_deleted && VALID_ENTITY(m_Vehicles[entity_id].mID))
             {
-                DeallocVehicle(entity_id, false, SQMOD_DESTROY_POOL, NullObject());
+                DeallocVehicle(entity_id, false, SQMOD_DESTROY_POOL, NullLightObj());
             }
             // Do we already have this vehicle that we're trying to create?
             else if (INVALID_ENTITY(m_Vehicles[entity_id].mID))
             {
-                AllocVehicle(entity_id, false, SQMOD_CREATE_POOL, NullObject());
+                AllocVehicle(entity_id, false, SQMOD_CREATE_POOL, NullLightObj());
             }
         break;
         case vcmpEntityPoolObject:
             // Do we even have this object that we're trying to delete?
             if (is_deleted && VALID_ENTITY(m_Objects[entity_id].mID))
             {
-                DeallocObject(entity_id, false, SQMOD_DESTROY_POOL, NullObject());
+                DeallocObject(entity_id, false, SQMOD_DESTROY_POOL, NullLightObj());
             }
             // Do we already have this object that we're trying to create?
             else if (INVALID_ENTITY(m_Objects[entity_id].mID))
             {
-                AllocObject(entity_id, false, SQMOD_CREATE_POOL, NullObject());
+                AllocObject(entity_id, false, SQMOD_CREATE_POOL, NullLightObj());
             }
         break;
         case vcmpEntityPoolPickup:
             // Do we even have this pickup that we're trying to delete?
             if (is_deleted && VALID_ENTITY(m_Pickups[entity_id].mID))
             {
-                DeallocPickup(entity_id, false, SQMOD_DESTROY_POOL, NullObject());
+                DeallocPickup(entity_id, false, SQMOD_DESTROY_POOL, NullLightObj());
             }
             // Do we already have this pickup that we're trying to create?
             else if (INVALID_ENTITY(m_Pickups[entity_id].mID))
             {
-                AllocPickup(entity_id, false, SQMOD_CREATE_POOL, NullObject());
+                AllocPickup(entity_id, false, SQMOD_CREATE_POOL, NullLightObj());
             }
         break;
         case vcmpEntityPoolRadio:
@@ -1040,19 +1044,19 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
             // Do we even have this checkpoint that we're trying to delete?
             if (is_deleted && VALID_ENTITY(m_Checkpoints[entity_id].mID))
             {
-                DeallocCheckpoint(entity_id, false, SQMOD_DESTROY_POOL, NullObject());
+                DeallocCheckpoint(entity_id, false, SQMOD_DESTROY_POOL, NullLightObj());
             }
             // Do we already have this checkpoint that we're trying to create?
             else if (INVALID_ENTITY(m_Checkpoints[entity_id].mID))
             {
-                AllocCheckpoint(entity_id, false, SQMOD_CREATE_POOL, NullObject());
+                AllocCheckpoint(entity_id, false, SQMOD_CREATE_POOL, NullLightObj());
             }
         break;
         case vcmpEntityPoolBlip:
             // Do we even have this blip that we're trying to delete?
             if (is_deleted && VALID_ENTITY(m_Blips[entity_id].mID))
             {
-                DeallocBlip(entity_id, false, SQMOD_DESTROY_POOL, NullObject());
+                DeallocBlip(entity_id, false, SQMOD_DESTROY_POOL, NullLightObj());
             }
             // Do we already have this blip that we're trying to create?
             else if (INVALID_ENTITY(m_Blips[entity_id].mID))
@@ -1082,14 +1086,14 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
                 inst.mColor.SetRGBA(color);
                 inst.mPosition.SetVector3Ex(x, y, z);
                 // Now we can try to allocate the instance after we have all the information
-                AllocBlip(entity_id, false, SQMOD_CREATE_POOL, NullObject());
+                AllocBlip(entity_id, false, SQMOD_CREATE_POOL, NullLightObj());
             }
         break;
         default:
             LogErr("Unknown change in the entity pool of type: %d", entity_type);
     }
     // Finally, forward the event to the script
-    Emit(mOnEntityPool, static_cast< Int32 >(entity_type), entity_id, is_deleted);
+    (*mOnEntityPool.first)(static_cast< Int32 >(entity_type), entity_id, is_deleted);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1178,8 +1182,8 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
     }
 
     // Finally, forward the call to the update callback
-    Emit(inst.mOnUpdate, static_cast< Int32 >(update_type));
-    Emit(mOnPlayerUpdate, inst.mObj, static_cast< Int32 >(update_type));
+    (*inst.mOnUpdate.first)(static_cast< Int32 >(update_type));
+    (*mOnPlayerUpdate.first)(inst.mObj, static_cast< Int32 >(update_type));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1264,8 +1268,8 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
         default:
         {
             // Finally, forward the call to the update callback
-            Emit(inst.mOnUpdate, static_cast< Int32 >(update_type));
-            Emit(mOnVehicleUpdate, inst.mObj, static_cast< Int32 >(update_type));
+            (*inst.mOnUpdate.first)(static_cast< Int32 >(update_type));
+            (*mOnVehicleUpdate.first)(inst.mObj, static_cast< Int32 >(update_type));
         }
     }
 }
@@ -1275,7 +1279,7 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
 {
     PlayerInst & _player = m_Players.at(player_id);
     // Don't even bother if there's no one listening
-    if (_player.mOnClientScriptData.IsNull() && mOnClientScriptData.IsNull())
+    if (_player.mOnClientScriptData.first->IsEmpty() && mOnClientScriptData.first->IsEmpty())
     {
         return;
     }
@@ -1284,7 +1288,7 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
     // Replicate the data to the allocated buffer
     b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), size);
     // Prepare an object for the obtained buffer
-    Object o;
+    LightObj o;
     // Attempt to create the requested buffer
     try
     {
@@ -1297,7 +1301,7 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
         // The script took over the instance now
         ad.Release();
         // Get the object from the stack and store it
-        o = Var< Object >(DefaultVM::Get(), -1).value;
+        o = Var< LightObj >(DefaultVM::Get(), -1).value;
     }
     catch (const std::exception & e)
     {
@@ -1309,8 +1313,8 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
         STHROWF("Unable to transform script data into buffer");
     }
     // Forward the event call
-    Emit(_player.mOnClientScriptData, o, size);
-    Emit(mOnClientScriptData, _player.mObj, o, size);
+    (*_player.mOnClientScriptData.first)(o, size);
+    (*mOnClientScriptData.first)(_player.mObj, o, size);
 }
 
 } // Namespace:: SqMod

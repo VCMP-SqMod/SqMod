@@ -469,6 +469,7 @@
 		<Unit filename="../source/CoreEntity.cpp" />
 		<Unit filename="../source/CoreEvents.cpp" />
 		<Unit filename="../source/CoreFuncs.cpp" />
+		<Unit filename="../source/CoreInst.cpp" />
 		<Unit filename="../source/CoreUtils.cpp" />
 		<Unit filename="../source/Entity/Blip.cpp" />
 		<Unit filename="../source/Entity/Blip.hpp" />
@@ -540,8 +541,6 @@
 		<Unit filename="../source/Misc/Player.cpp" />
 		<Unit filename="../source/Misc/Player.hpp" />
 		<Unit filename="../source/Misc/Register.cpp" />
-		<Unit filename="../source/Misc/Signal.cpp" />
-		<Unit filename="../source/Misc/Signal.hpp" />
 		<Unit filename="../source/Misc/Vehicle.cpp" />
 		<Unit filename="../source/Misc/Vehicle.hpp" />
 		<Unit filename="../source/Misc/Weapon.cpp" />
@@ -549,6 +548,8 @@
 		<Unit filename="../source/Register.cpp" />
 		<Unit filename="../source/Routine.cpp" />
 		<Unit filename="../source/Routine.hpp" />
+		<Unit filename="../source/Signal.cpp" />
+		<Unit filename="../source/Signal.hpp" />
 		<Unit filename="../source/SqBase.hpp" />
 		<Unit filename="../source/Tasks.cpp" />
 		<Unit filename="../source/Tasks.hpp" />

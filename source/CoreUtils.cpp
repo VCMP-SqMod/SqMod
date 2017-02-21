@@ -42,691 +42,272 @@ void Core::ClearContainer(EntityType type)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::ResetInst(BlipInst & inst)
+void Core::InitEvents()
 {
-    inst.mID = -1;
-    inst.mFlags = ENF_DEFAULT;
-    inst.mWorld = -1;
-    inst.mScale = -1;
-    inst.mSprID = -1;
-    inst.mPosition.Clear();
-    inst.mColor.Clear();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetInst(CheckpointInst & inst)
-{
-    inst.mID = -1;
-    inst.mFlags = ENF_DEFAULT;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetInst(KeybindInst & inst)
-{
-    inst.mID = -1;
-    inst.mFlags = ENF_DEFAULT;
-    inst.mFirst = -1;
-    inst.mSecond = -1;
-    inst.mThird = -1;
-    inst.mRelease = -1;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetInst(ObjectInst & inst)
-{
-    inst.mID = -1;
-    inst.mFlags = ENF_DEFAULT;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetInst(PickupInst & inst)
-{
-    inst.mID = -1;
-    inst.mFlags = ENF_DEFAULT;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetInst(PlayerInst & inst)
-{
-    inst.mID = -1;
-    inst.mFlags = ENF_DEFAULT;
-    inst.mTrackPosition = 0;
-    inst.mTrackHeading = 0;
-    inst.mTrackPositionHeader = 0;
-    inst.mTrackPositionPayload.Release();
-    inst.mKickBanHeader = 0;
-    inst.mKickBanPayload.Release();
-    inst.mLastWeapon = -1;
-    inst.mLastHealth = 0.0;
-    inst.mLastArmour = 0.0;
-    inst.mLastHeading = 0.0;
-    inst.mLastPosition.Clear();
-    inst.mAuthority = 0;
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetInst(VehicleInst & inst)
-{
-    inst.mID = -1;
-    inst.mFlags = ENF_DEFAULT;
-    inst.mTrackPosition = 0;
-    inst.mTrackRotation = 0;
-    inst.mLastPrimaryColor = -1;
-    inst.mLastSecondaryColor = -1;
-    inst.mLastHealth = 0.0;
-    inst.mLastPosition.Clear();
-    inst.mLastRotation.Clear();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetFunc(BlipInst & inst)
-{
-    inst.mOnDestroyed.ReleaseGently();
-    inst.mOnCustom.ReleaseGently();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetFunc(CheckpointInst & inst)
-{
-    inst.mOnDestroyed.ReleaseGently();
-    inst.mOnCustom.ReleaseGently();
-    inst.mOnEntered.ReleaseGently();
-    inst.mOnExited.ReleaseGently();
-    inst.mOnWorld.ReleaseGently();
-    inst.mOnRadius.ReleaseGently();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetFunc(KeybindInst & inst)
-{
-    inst.mOnDestroyed.ReleaseGently();
-    inst.mOnCustom.ReleaseGently();
-    inst.mOnKeyPress.ReleaseGently();
-    inst.mOnKeyRelease.ReleaseGently();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetFunc(ObjectInst & inst)
-{
-    inst.mOnDestroyed.ReleaseGently();
-    inst.mOnCustom.ReleaseGently();
-    inst.mOnShot.ReleaseGently();
-    inst.mOnTouched.ReleaseGently();
-    inst.mOnWorld.ReleaseGently();
-    inst.mOnAlpha.ReleaseGently();
-    inst.mOnReport.ReleaseGently();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetFunc(PickupInst & inst)
-{
-    inst.mOnDestroyed.ReleaseGently();
-    inst.mOnCustom.ReleaseGently();
-    inst.mOnRespawn.ReleaseGently();
-    inst.mOnClaimed.ReleaseGently();
-    inst.mOnCollected.ReleaseGently();
-    inst.mOnWorld.ReleaseGently();
-    inst.mOnAlpha.ReleaseGently();
-    inst.mOnAutomatic.ReleaseGently();
-    inst.mOnAutoTimer.ReleaseGently();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetFunc(PlayerInst & inst)
-{
-    inst.mOnDestroyed.ReleaseGently();
-    inst.mOnCustom.ReleaseGently();
-    inst.mOnRequestClass.ReleaseGently();
-    inst.mOnRequestSpawn.ReleaseGently();
-    inst.mOnSpawn.ReleaseGently();
-    inst.mOnWasted.ReleaseGently();
-    inst.mOnKilled.ReleaseGently();
-    inst.mOnEmbarking.ReleaseGently();
-    inst.mOnEmbarked.ReleaseGently();
-    inst.mOnDisembark.ReleaseGently();
-    inst.mOnRename.ReleaseGently();
-    inst.mOnState.ReleaseGently();
-    inst.mOnStateNone.ReleaseGently();
-    inst.mOnStateNormal.ReleaseGently();
-    inst.mOnStateAim.ReleaseGently();
-    inst.mOnStateDriver.ReleaseGently();
-    inst.mOnStatePassenger.ReleaseGently();
-    inst.mOnStateEnterDriver.ReleaseGently();
-    inst.mOnStateEnterPassenger.ReleaseGently();
-    inst.mOnStateExit.ReleaseGently();
-    inst.mOnStateUnspawned.ReleaseGently();
-    inst.mOnAction.ReleaseGently();
-    inst.mOnActionNone.ReleaseGently();
-    inst.mOnActionNormal.ReleaseGently();
-    inst.mOnActionAiming.ReleaseGently();
-    inst.mOnActionShooting.ReleaseGently();
-    inst.mOnActionJumping.ReleaseGently();
-    inst.mOnActionLieDown.ReleaseGently();
-    inst.mOnActionGettingUp.ReleaseGently();
-    inst.mOnActionJumpVehicle.ReleaseGently();
-    inst.mOnActionDriving.ReleaseGently();
-    inst.mOnActionDying.ReleaseGently();
-    inst.mOnActionWasted.ReleaseGently();
-    inst.mOnActionEmbarking.ReleaseGently();
-    inst.mOnActionDisembarking.ReleaseGently();
-    inst.mOnBurning.ReleaseGently();
-    inst.mOnCrouching.ReleaseGently();
-    inst.mOnGameKeys.ReleaseGently();
-    inst.mOnStartTyping.ReleaseGently();
-    inst.mOnStopTyping.ReleaseGently();
-    inst.mOnAway.ReleaseGently();
-    inst.mOnMessage.ReleaseGently();
-    inst.mOnCommand.ReleaseGently();
-    inst.mOnPrivateMessage.ReleaseGently();
-    inst.mOnKeyPress.ReleaseGently();
-    inst.mOnKeyRelease.ReleaseGently();
-    inst.mOnSpectate.ReleaseGently();
-    inst.mOnCrashreport.ReleaseGently();
-    inst.mOnObjectShot.ReleaseGently();
-    inst.mOnObjectTouched.ReleaseGently();
-    inst.mOnPickupClaimed.ReleaseGently();
-    inst.mOnPickupCollected.ReleaseGently();
-    inst.mOnCheckpointEntered.ReleaseGently();
-    inst.mOnCheckpointExited.ReleaseGently();
-    inst.mOnClientScriptData.ReleaseGently();
-    inst.mOnUpdate.ReleaseGently();
-    inst.mOnHealth.ReleaseGently();
-    inst.mOnArmour.ReleaseGently();
-    inst.mOnWeapon.ReleaseGently();
-    inst.mOnHeading.ReleaseGently();
-    inst.mOnPosition.ReleaseGently();
-    inst.mOnOption.ReleaseGently();
-    inst.mOnAdmin.ReleaseGently();
-    inst.mOnWorld.ReleaseGently();
-    inst.mOnTeam.ReleaseGently();
-    inst.mOnSkin.ReleaseGently();
-    inst.mOnMoney.ReleaseGently();
-    inst.mOnScore.ReleaseGently();
-    inst.mOnWantedLevel.ReleaseGently();
-    inst.mOnImmunity.ReleaseGently();
-    inst.mOnAlpha.ReleaseGently();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetFunc(VehicleInst & inst)
-{
-    inst.mOnDestroyed.ReleaseGently();
-    inst.mOnCustom.ReleaseGently();
-    inst.mOnEmbarking.ReleaseGently();
-    inst.mOnEmbarked.ReleaseGently();
-    inst.mOnDisembark.ReleaseGently();
-    inst.mOnExplode.ReleaseGently();
-    inst.mOnRespawn.ReleaseGently();
-    inst.mOnUpdate.ReleaseGently();
-    inst.mOnColor.ReleaseGently();
-    inst.mOnHealth.ReleaseGently();
-    inst.mOnPosition.ReleaseGently();
-    inst.mOnRotation.ReleaseGently();
-    inst.mOnOption.ReleaseGently();
-    inst.mOnWorld.ReleaseGently();
-    inst.mOnImmunity.ReleaseGently();
-    inst.mOnPartStatus.ReleaseGently();
-    inst.mOnTyreStatus.ReleaseGently();
-    inst.mOnDamageData.ReleaseGently();
-    inst.mOnRadio.ReleaseGently();
-    inst.mOnHandlingRule.ReleaseGently();
-}
-
-// ------------------------------------------------------------------------------------------------
-void Core::ResetFunc()
-{
-    Core::Get().mOnCustomEvent.ReleaseGently();
-    Core::Get().mOnBlipCreated.ReleaseGently();
-    Core::Get().mOnCheckpointCreated.ReleaseGently();
-    Core::Get().mOnKeybindCreated.ReleaseGently();
-    Core::Get().mOnObjectCreated.ReleaseGently();
-    Core::Get().mOnPickupCreated.ReleaseGently();
-    Core::Get().mOnPlayerCreated.ReleaseGently();
-    Core::Get().mOnVehicleCreated.ReleaseGently();
-    Core::Get().mOnBlipDestroyed.ReleaseGently();
-    Core::Get().mOnCheckpointDestroyed.ReleaseGently();
-    Core::Get().mOnKeybindDestroyed.ReleaseGently();
-    Core::Get().mOnObjectDestroyed.ReleaseGently();
-    Core::Get().mOnPickupDestroyed.ReleaseGently();
-    Core::Get().mOnPlayerDestroyed.ReleaseGently();
-    Core::Get().mOnVehicleDestroyed.ReleaseGently();
-    Core::Get().mOnBlipCustom.ReleaseGently();
-    Core::Get().mOnCheckpointCustom.ReleaseGently();
-    Core::Get().mOnKeybindCustom.ReleaseGently();
-    Core::Get().mOnObjectCustom.ReleaseGently();
-    Core::Get().mOnPickupCustom.ReleaseGently();
-    Core::Get().mOnPlayerCustom.ReleaseGently();
-    Core::Get().mOnVehicleCustom.ReleaseGently();
-    Core::Get().mOnServerStartup.ReleaseGently();
-    Core::Get().mOnServerShutdown.ReleaseGently();
-    Core::Get().mOnServerFrame.ReleaseGently();
-    Core::Get().mOnIncomingConnection.ReleaseGently();
-    Core::Get().mOnPlayerRequestClass.ReleaseGently();
-    Core::Get().mOnPlayerRequestSpawn.ReleaseGently();
-    Core::Get().mOnPlayerSpawn.ReleaseGently();
-    Core::Get().mOnPlayerWasted.ReleaseGently();
-    Core::Get().mOnPlayerKilled.ReleaseGently();
-    Core::Get().mOnPlayerEmbarking.ReleaseGently();
-    Core::Get().mOnPlayerEmbarked.ReleaseGently();
-    Core::Get().mOnPlayerDisembark.ReleaseGently();
-    Core::Get().mOnPlayerRename.ReleaseGently();
-    Core::Get().mOnPlayerState.ReleaseGently();
-    Core::Get().mOnStateNone.ReleaseGently();
-    Core::Get().mOnStateNormal.ReleaseGently();
-    Core::Get().mOnStateAim.ReleaseGently();
-    Core::Get().mOnStateDriver.ReleaseGently();
-    Core::Get().mOnStatePassenger.ReleaseGently();
-    Core::Get().mOnStateEnterDriver.ReleaseGently();
-    Core::Get().mOnStateEnterPassenger.ReleaseGently();
-    Core::Get().mOnStateExit.ReleaseGently();
-    Core::Get().mOnStateUnspawned.ReleaseGently();
-    Core::Get().mOnPlayerAction.ReleaseGently();
-    Core::Get().mOnActionNone.ReleaseGently();
-    Core::Get().mOnActionNormal.ReleaseGently();
-    Core::Get().mOnActionAiming.ReleaseGently();
-    Core::Get().mOnActionShooting.ReleaseGently();
-    Core::Get().mOnActionJumping.ReleaseGently();
-    Core::Get().mOnActionLieDown.ReleaseGently();
-    Core::Get().mOnActionGettingUp.ReleaseGently();
-    Core::Get().mOnActionJumpVehicle.ReleaseGently();
-    Core::Get().mOnActionDriving.ReleaseGently();
-    Core::Get().mOnActionDying.ReleaseGently();
-    Core::Get().mOnActionWasted.ReleaseGently();
-    Core::Get().mOnActionEmbarking.ReleaseGently();
-    Core::Get().mOnActionDisembarking.ReleaseGently();
-    Core::Get().mOnPlayerBurning.ReleaseGently();
-    Core::Get().mOnPlayerCrouching.ReleaseGently();
-    Core::Get().mOnPlayerGameKeys.ReleaseGently();
-    Core::Get().mOnPlayerStartTyping.ReleaseGently();
-    Core::Get().mOnPlayerStopTyping.ReleaseGently();
-    Core::Get().mOnPlayerAway.ReleaseGently();
-    Core::Get().mOnPlayerMessage.ReleaseGently();
-    Core::Get().mOnPlayerCommand.ReleaseGently();
-    Core::Get().mOnPlayerPrivateMessage.ReleaseGently();
-    Core::Get().mOnPlayerKeyPress.ReleaseGently();
-    Core::Get().mOnPlayerKeyRelease.ReleaseGently();
-    Core::Get().mOnPlayerSpectate.ReleaseGently();
-    Core::Get().mOnPlayerCrashreport.ReleaseGently();
-    Core::Get().mOnVehicleExplode.ReleaseGently();
-    Core::Get().mOnVehicleRespawn.ReleaseGently();
-    Core::Get().mOnObjectShot.ReleaseGently();
-    Core::Get().mOnObjectTouched.ReleaseGently();
-    Core::Get().mOnObjectWorld.ReleaseGently();
-    Core::Get().mOnObjectAlpha.ReleaseGently();
-    Core::Get().mOnObjectReport.ReleaseGently();
-    Core::Get().mOnPickupClaimed.ReleaseGently();
-    Core::Get().mOnPickupCollected.ReleaseGently();
-    Core::Get().mOnPickupRespawn.ReleaseGently();
-    Core::Get().mOnPickupWorld.ReleaseGently();
-    Core::Get().mOnPickupAlpha.ReleaseGently();
-    Core::Get().mOnPickupAutomatic.ReleaseGently();
-    Core::Get().mOnPickupAutoTimer.ReleaseGently();
-    Core::Get().mOnCheckpointEntered.ReleaseGently();
-    Core::Get().mOnCheckpointExited.ReleaseGently();
-    Core::Get().mOnCheckpointWorld.ReleaseGently();
-    Core::Get().mOnCheckpointRadius.ReleaseGently();
-    Core::Get().mOnEntityPool.ReleaseGently();
-    Core::Get().mOnClientScriptData.ReleaseGently();
-    Core::Get().mOnPlayerUpdate.ReleaseGently();
-    Core::Get().mOnVehicleUpdate.ReleaseGently();
-    Core::Get().mOnPlayerHealth.ReleaseGently();
-    Core::Get().mOnPlayerArmour.ReleaseGently();
-    Core::Get().mOnPlayerWeapon.ReleaseGently();
-    Core::Get().mOnPlayerHeading.ReleaseGently();
-    Core::Get().mOnPlayerPosition.ReleaseGently();
-    Core::Get().mOnPlayerOption.ReleaseGently();
-    Core::Get().mOnPlayerAdmin.ReleaseGently();
-    Core::Get().mOnPlayerWorld.ReleaseGently();
-    Core::Get().mOnPlayerTeam.ReleaseGently();
-    Core::Get().mOnPlayerSkin.ReleaseGently();
-    Core::Get().mOnPlayerMoney.ReleaseGently();
-    Core::Get().mOnPlayerScore.ReleaseGently();
-    Core::Get().mOnPlayerWantedLevel.ReleaseGently();
-    Core::Get().mOnPlayerImmunity.ReleaseGently();
-    Core::Get().mOnPlayerAlpha.ReleaseGently();
-    Core::Get().mOnVehicleColor.ReleaseGently();
-    Core::Get().mOnVehicleHealth.ReleaseGently();
-    Core::Get().mOnVehiclePosition.ReleaseGently();
-    Core::Get().mOnVehicleRotation.ReleaseGently();
-    Core::Get().mOnVehicleOption.ReleaseGently();
-    Core::Get().mOnVehicleWorld.ReleaseGently();
-    Core::Get().mOnVehicleImmunity.ReleaseGently();
-    Core::Get().mOnVehiclePartStatus.ReleaseGently();
-    Core::Get().mOnVehicleTyreStatus.ReleaseGently();
-    Core::Get().mOnVehicleDamageData.ReleaseGently();
-    Core::Get().mOnVehicleRadio.ReleaseGently();
-    Core::Get().mOnVehicleHandlingRule.ReleaseGently();
-    Core::Get().mOnServerOption.ReleaseGently();
-    Core::Get().mOnScriptReload.ReleaseGently();
-    Core::Get().mOnScriptLoaded.ReleaseGently();
-}
-
-// ------------------------------------------------------------------------------------------------
-Function & Core::GetEvent(Int32 evid)
-{
-    switch (evid)
+    // Ignore the call if already initialized
+    if (!m_Events.IsNull())
     {
-        case EVT_CUSTOMEVENT:           return mOnCustomEvent;
-        case EVT_BLIPCREATED:           return mOnBlipCreated;
-        case EVT_CHECKPOINTCREATED:     return mOnCheckpointCreated;
-        case EVT_KEYBINDCREATED:        return mOnKeybindCreated;
-        case EVT_OBJECTCREATED:         return mOnObjectCreated;
-        case EVT_PICKUPCREATED:         return mOnPickupCreated;
-        case EVT_PLAYERCREATED:         return mOnPlayerCreated;
-        case EVT_VEHICLECREATED:        return mOnVehicleCreated;
-        case EVT_BLIPDESTROYED:         return mOnBlipDestroyed;
-        case EVT_CHECKPOINTDESTROYED:   return mOnCheckpointDestroyed;
-        case EVT_KEYBINDDESTROYED:      return mOnKeybindDestroyed;
-        case EVT_OBJECTDESTROYED:       return mOnObjectDestroyed;
-        case EVT_PICKUPDESTROYED:       return mOnPickupDestroyed;
-        case EVT_PLAYERDESTROYED:       return mOnPlayerDestroyed;
-        case EVT_VEHICLEDESTROYED:      return mOnVehicleDestroyed;
-        case EVT_BLIPCUSTOM:            return mOnBlipCustom;
-        case EVT_CHECKPOINTCUSTOM:      return mOnCheckpointCustom;
-        case EVT_KEYBINDCUSTOM:         return mOnKeybindCustom;
-        case EVT_OBJECTCUSTOM:          return mOnObjectCustom;
-        case EVT_PICKUPCUSTOM:          return mOnPickupCustom;
-        case EVT_PLAYERCUSTOM:          return mOnPlayerCustom;
-        case EVT_VEHICLECUSTOM:         return mOnVehicleCustom;
-        case EVT_SERVERSTARTUP:         return mOnServerStartup;
-        case EVT_SERVERSHUTDOWN:        return mOnServerShutdown;
-        case EVT_SERVERFRAME:           return mOnServerFrame;
-        case EVT_INCOMINGCONNECTION:    return mOnIncomingConnection;
-        case EVT_PLAYERREQUESTCLASS:    return mOnPlayerRequestClass;
-        case EVT_PLAYERREQUESTSPAWN:    return mOnPlayerRequestSpawn;
-        case EVT_PLAYERSPAWN:           return mOnPlayerSpawn;
-        case EVT_PLAYERWASTED:          return mOnPlayerWasted;
-        case EVT_PLAYERKILLED:          return mOnPlayerKilled;
-        case EVT_PLAYEREMBARKING:       return mOnPlayerEmbarking;
-        case EVT_PLAYEREMBARKED:        return mOnPlayerEmbarked;
-        case EVT_PLAYERDISEMBARK:       return mOnPlayerDisembark;
-        case EVT_PLAYERRENAME:          return mOnPlayerRename;
-        case EVT_PLAYERSTATE:           return mOnPlayerState;
-        case EVT_STATENONE:             return mOnStateNone;
-        case EVT_STATENORMAL:           return mOnStateNormal;
-        case EVT_STATEAIM:              return mOnStateAim;
-        case EVT_STATEDRIVER:           return mOnStateDriver;
-        case EVT_STATEPASSENGER:        return mOnStatePassenger;
-        case EVT_STATEENTERDRIVER:      return mOnStateEnterDriver;
-        case EVT_STATEENTERPASSENGER:   return mOnStateEnterPassenger;
-        case EVT_STATEEXIT:             return mOnStateExit;
-        case EVT_STATEUNSPAWNED:        return mOnStateUnspawned;
-        case EVT_PLAYERACTION:          return mOnPlayerAction;
-        case EVT_ACTIONNONE:            return mOnActionNone;
-        case EVT_ACTIONNORMAL:          return mOnActionNormal;
-        case EVT_ACTIONAIMING:          return mOnActionAiming;
-        case EVT_ACTIONSHOOTING:        return mOnActionShooting;
-        case EVT_ACTIONJUMPING:         return mOnActionJumping;
-        case EVT_ACTIONLIEDOWN:         return mOnActionLieDown;
-        case EVT_ACTIONGETTINGUP:       return mOnActionGettingUp;
-        case EVT_ACTIONJUMPVEHICLE:     return mOnActionJumpVehicle;
-        case EVT_ACTIONDRIVING:         return mOnActionDriving;
-        case EVT_ACTIONDYING:           return mOnActionDying;
-        case EVT_ACTIONWASTED:          return mOnActionWasted;
-        case EVT_ACTIONEMBARKING:       return mOnActionEmbarking;
-        case EVT_ACTIONDISEMBARKING:    return mOnActionDisembarking;
-        case EVT_PLAYERBURNING:         return mOnPlayerBurning;
-        case EVT_PLAYERCROUCHING:       return mOnPlayerCrouching;
-        case EVT_PLAYERGAMEKEYS:        return mOnPlayerGameKeys;
-        case EVT_PLAYERSTARTTYPING:     return mOnPlayerStartTyping;
-        case EVT_PLAYERSTOPTYPING:      return mOnPlayerStopTyping;
-        case EVT_PLAYERAWAY:            return mOnPlayerAway;
-        case EVT_PLAYERMESSAGE:         return mOnPlayerMessage;
-        case EVT_PLAYERCOMMAND:         return mOnPlayerCommand;
-        case EVT_PLAYERPRIVATEMESSAGE:  return mOnPlayerPrivateMessage;
-        case EVT_PLAYERKEYPRESS:        return mOnPlayerKeyPress;
-        case EVT_PLAYERKEYRELEASE:      return mOnPlayerKeyRelease;
-        case EVT_PLAYERSPECTATE:        return mOnPlayerSpectate;
-        case EVT_PLAYERCRASHREPORT:     return mOnPlayerCrashreport;
-        case EVT_VEHICLEEXPLODE:        return mOnVehicleExplode;
-        case EVT_VEHICLERESPAWN:        return mOnVehicleRespawn;
-        case EVT_OBJECTSHOT:            return mOnObjectShot;
-        case EVT_OBJECTTOUCHED:         return mOnObjectTouched;
-        case EVT_OBJECTWORLD:           return mOnObjectWorld;
-        case EVT_OBJECTALPHA:           return mOnObjectAlpha;
-        case EVT_OBJECTREPORT:          return mOnObjectReport;
-        case EVT_PICKUPCLAIMED:         return mOnPickupClaimed;
-        case EVT_PICKUPCOLLECTED:       return mOnPickupCollected;
-        case EVT_PICKUPRESPAWN:         return mOnPickupRespawn;
-        case EVT_PICKUPWORLD:           return mOnPickupWorld;
-        case EVT_PICKUPALPHA:           return mOnPickupAlpha;
-        case EVT_PICKUPAUTOMATIC:       return mOnPickupAutomatic;
-        case EVT_PICKUPAUTOTIMER:       return mOnPickupAutoTimer;
-        case EVT_CHECKPOINTENTERED:     return mOnCheckpointEntered;
-        case EVT_CHECKPOINTEXITED:      return mOnCheckpointExited;
-        case EVT_CHECKPOINTWORLD:       return mOnCheckpointWorld;
-        case EVT_CHECKPOINTRADIUS:      return mOnCheckpointRadius;
-        case EVT_ENTITYPOOL:            return mOnEntityPool;
-        case EVT_CLIENTSCRIPTDATA:      return mOnClientScriptData;
-        case EVT_PLAYERUPDATE:          return mOnPlayerUpdate;
-        case EVT_VEHICLEUPDATE:         return mOnVehicleUpdate;
-        case EVT_PLAYERHEALTH:          return mOnPlayerHealth;
-        case EVT_PLAYERARMOUR:          return mOnPlayerArmour;
-        case EVT_PLAYERWEAPON:          return mOnPlayerWeapon;
-        case EVT_PLAYERHEADING:         return mOnPlayerHeading;
-        case EVT_PLAYERPOSITION:        return mOnPlayerPosition;
-        case EVT_PLAYEROPTION:          return mOnPlayerOption;
-        case EVT_PLAYERADMIN:           return mOnPlayerAdmin;
-        case EVT_PLAYERWORLD:           return mOnPlayerWorld;
-        case EVT_PLAYERTEAM:            return mOnPlayerTeam;
-        case EVT_PLAYERSKIN:            return mOnPlayerSkin;
-        case EVT_PLAYERMONEY:           return mOnPlayerMoney;
-        case EVT_PLAYERSCORE:           return mOnPlayerScore;
-        case EVT_PLAYERWANTEDLEVEL:     return mOnPlayerWantedLevel;
-        case EVT_PLAYERIMMUNITY:        return mOnPlayerImmunity;
-        case EVT_PLAYERALPHA:           return mOnPlayerAlpha;
-        case EVT_VEHICLECOLOR:          return mOnVehicleColor;
-        case EVT_VEHICLEHEALTH:         return mOnVehicleHealth;
-        case EVT_VEHICLEPOSITION:       return mOnVehiclePosition;
-        case EVT_VEHICLEROTATION:       return mOnVehicleRotation;
-        case EVT_VEHICLEOPTION:         return mOnVehicleOption;
-        case EVT_VEHICLEWORLD:          return mOnVehicleWorld;
-        case EVT_VEHICLEIMMUNITY:       return mOnVehicleImmunity;
-        case EVT_VEHICLEPARTSTATUS:     return mOnVehiclePartStatus;
-        case EVT_VEHICLETYRESTATUS:     return mOnVehicleTyreStatus;
-        case EVT_VEHICLEDAMAGEDATA:     return mOnVehicleDamageData;
-        case EVT_VEHICLERADIO:          return mOnVehicleRadio;
-        case EVT_VEHICLEHANDLINGRULE:   return mOnVehicleHandlingRule;
-        case EVT_SERVEROPTION:          return mOnServerOption;
-        case EVT_SCRIPTRELOAD:          return mOnScriptReload;
-        case EVT_SCRIPTLOADED:          return mOnScriptLoaded;
-        default:                        return NullFunction();
+        return;
     }
+    // Create a new table on the stack
+    sq_newtableex(DefaultVM::Get(), 128);
+    // Grab the table object from the stack
+    m_Events = LightObj(-1, DefaultVM::Get());
+    // Pop the table object from the stack
+    sq_pop(DefaultVM::Get(), 1);
+    // Proceed to initializing the events
+    InitSignalPair(mOnCustomEvent, m_Events, "CustomEvent");
+    InitSignalPair(mOnBlipCreated, m_Events, "BlipCreated");
+    InitSignalPair(mOnCheckpointCreated, m_Events, "CheckpointCreated");
+    InitSignalPair(mOnKeybindCreated, m_Events, "KeybindCreated");
+    InitSignalPair(mOnObjectCreated, m_Events, "ObjectCreated");
+    InitSignalPair(mOnPickupCreated, m_Events, "PickupCreated");
+    InitSignalPair(mOnPlayerCreated, m_Events, "PlayerCreated");
+    InitSignalPair(mOnVehicleCreated, m_Events, "VehicleCreated");
+    InitSignalPair(mOnBlipDestroyed, m_Events, "BlipDestroyed");
+    InitSignalPair(mOnCheckpointDestroyed, m_Events, "CheckpointDestroyed");
+    InitSignalPair(mOnKeybindDestroyed, m_Events, "KeybindDestroyed");
+    InitSignalPair(mOnObjectDestroyed, m_Events, "ObjectDestroyed");
+    InitSignalPair(mOnPickupDestroyed, m_Events, "PickupDestroyed");
+    InitSignalPair(mOnPlayerDestroyed, m_Events, "PlayerDestroyed");
+    InitSignalPair(mOnVehicleDestroyed, m_Events, "VehicleDestroyed");
+    InitSignalPair(mOnBlipCustom, m_Events, "BlipCustom");
+    InitSignalPair(mOnCheckpointCustom, m_Events, "CheckpointCustom");
+    InitSignalPair(mOnKeybindCustom, m_Events, "KeybindCustom");
+    InitSignalPair(mOnObjectCustom, m_Events, "ObjectCustom");
+    InitSignalPair(mOnPickupCustom, m_Events, "PickupCustom");
+    InitSignalPair(mOnPlayerCustom, m_Events, "PlayerCustom");
+    InitSignalPair(mOnVehicleCustom, m_Events, "VehicleCustom");
+    InitSignalPair(mOnServerStartup, m_Events, "ServerStartup");
+    InitSignalPair(mOnServerShutdown, m_Events, "ServerShutdown");
+    InitSignalPair(mOnServerFrame, m_Events, "ServerFrame");
+    InitSignalPair(mOnIncomingConnection, m_Events, "IncomingConnection");
+    InitSignalPair(mOnPlayerRequestClass, m_Events, "PlayerRequestClass");
+    InitSignalPair(mOnPlayerRequestSpawn, m_Events, "PlayerRequestSpawn");
+    InitSignalPair(mOnPlayerSpawn, m_Events, "PlayerSpawn");
+    InitSignalPair(mOnPlayerWasted, m_Events, "PlayerWasted");
+    InitSignalPair(mOnPlayerKilled, m_Events, "PlayerKilled");
+    InitSignalPair(mOnPlayerEmbarking, m_Events, "PlayerEmbarking");
+    InitSignalPair(mOnPlayerEmbarked, m_Events, "PlayerEmbarked");
+    InitSignalPair(mOnPlayerDisembark, m_Events, "PlayerDisembark");
+    InitSignalPair(mOnPlayerRename, m_Events, "PlayerRename");
+    InitSignalPair(mOnPlayerState, m_Events, "PlayerState");
+    InitSignalPair(mOnStateNone, m_Events, "StateNone");
+    InitSignalPair(mOnStateNormal, m_Events, "StateNormal");
+    InitSignalPair(mOnStateAim, m_Events, "StateAim");
+    InitSignalPair(mOnStateDriver, m_Events, "StateDriver");
+    InitSignalPair(mOnStatePassenger, m_Events, "StatePassenger");
+    InitSignalPair(mOnStateEnterDriver, m_Events, "StateEnterDriver");
+    InitSignalPair(mOnStateEnterPassenger, m_Events, "StateEnterPassenger");
+    InitSignalPair(mOnStateExit, m_Events, "StateExit");
+    InitSignalPair(mOnStateUnspawned, m_Events, "StateUnspawned");
+    InitSignalPair(mOnPlayerAction, m_Events, "PlayerAction");
+    InitSignalPair(mOnActionNone, m_Events, "ActionNone");
+    InitSignalPair(mOnActionNormal, m_Events, "ActionNormal");
+    InitSignalPair(mOnActionAiming, m_Events, "ActionAiming");
+    InitSignalPair(mOnActionShooting, m_Events, "ActionShooting");
+    InitSignalPair(mOnActionJumping, m_Events, "ActionJumping");
+    InitSignalPair(mOnActionLieDown, m_Events, "ActionLieDown");
+    InitSignalPair(mOnActionGettingUp, m_Events, "ActionGettingUp");
+    InitSignalPair(mOnActionJumpVehicle, m_Events, "ActionJumpVehicle");
+    InitSignalPair(mOnActionDriving, m_Events, "ActionDriving");
+    InitSignalPair(mOnActionDying, m_Events, "ActionDying");
+    InitSignalPair(mOnActionWasted, m_Events, "ActionWasted");
+    InitSignalPair(mOnActionEmbarking, m_Events, "ActionEmbarking");
+    InitSignalPair(mOnActionDisembarking, m_Events, "ActionDisembarking");
+    InitSignalPair(mOnPlayerBurning, m_Events, "PlayerBurning");
+    InitSignalPair(mOnPlayerCrouching, m_Events, "PlayerCrouching");
+    InitSignalPair(mOnPlayerGameKeys, m_Events, "PlayerGameKeys");
+    InitSignalPair(mOnPlayerStartTyping, m_Events, "PlayerStartTyping");
+    InitSignalPair(mOnPlayerStopTyping, m_Events, "PlayerStopTyping");
+    InitSignalPair(mOnPlayerAway, m_Events, "PlayerAway");
+    InitSignalPair(mOnPlayerMessage, m_Events, "PlayerMessage");
+    InitSignalPair(mOnPlayerCommand, m_Events, "PlayerCommand");
+    InitSignalPair(mOnPlayerPrivateMessage, m_Events, "PlayerPrivateMessage");
+    InitSignalPair(mOnPlayerKeyPress, m_Events, "PlayerKeyPress");
+    InitSignalPair(mOnPlayerKeyRelease, m_Events, "PlayerKeyRelease");
+    InitSignalPair(mOnPlayerSpectate, m_Events, "PlayerSpectate");
+    InitSignalPair(mOnPlayerCrashreport, m_Events, "PlayerCrashreport");
+    InitSignalPair(mOnVehicleExplode, m_Events, "VehicleExplode");
+    InitSignalPair(mOnVehicleRespawn, m_Events, "VehicleRespawn");
+    InitSignalPair(mOnObjectShot, m_Events, "ObjectShot");
+    InitSignalPair(mOnObjectTouched, m_Events, "ObjectTouched");
+    InitSignalPair(mOnObjectWorld, m_Events, "ObjectWorld");
+    InitSignalPair(mOnObjectAlpha, m_Events, "ObjectAlpha");
+    InitSignalPair(mOnObjectReport, m_Events, "ObjectReport");
+    InitSignalPair(mOnPickupClaimed, m_Events, "PickupClaimed");
+    InitSignalPair(mOnPickupCollected, m_Events, "PickupCollected");
+    InitSignalPair(mOnPickupRespawn, m_Events, "PickupRespawn");
+    InitSignalPair(mOnPickupWorld, m_Events, "PickupWorld");
+    InitSignalPair(mOnPickupAlpha, m_Events, "PickupAlpha");
+    InitSignalPair(mOnPickupAutomatic, m_Events, "PickupAutomatic");
+    InitSignalPair(mOnPickupAutoTimer, m_Events, "PickupAutoTimer");
+    InitSignalPair(mOnCheckpointEntered, m_Events, "CheckpointEntered");
+    InitSignalPair(mOnCheckpointExited, m_Events, "CheckpointExited");
+    InitSignalPair(mOnCheckpointWorld, m_Events, "CheckpointWorld");
+    InitSignalPair(mOnCheckpointRadius, m_Events, "CheckpointRadius");
+    InitSignalPair(mOnEntityPool, m_Events, "EntityPool");
+    InitSignalPair(mOnClientScriptData, m_Events, "ClientScriptData");
+    InitSignalPair(mOnPlayerUpdate, m_Events, "PlayerUpdate");
+    InitSignalPair(mOnVehicleUpdate, m_Events, "VehicleUpdate");
+    InitSignalPair(mOnPlayerHealth, m_Events, "PlayerHealth");
+    InitSignalPair(mOnPlayerArmour, m_Events, "PlayerArmour");
+    InitSignalPair(mOnPlayerWeapon, m_Events, "PlayerWeapon");
+    InitSignalPair(mOnPlayerHeading, m_Events, "PlayerHeading");
+    InitSignalPair(mOnPlayerPosition, m_Events, "PlayerPosition");
+    InitSignalPair(mOnPlayerOption, m_Events, "PlayerOption");
+    InitSignalPair(mOnPlayerAdmin, m_Events, "PlayerAdmin");
+    InitSignalPair(mOnPlayerWorld, m_Events, "PlayerWorld");
+    InitSignalPair(mOnPlayerTeam, m_Events, "PlayerTeam");
+    InitSignalPair(mOnPlayerSkin, m_Events, "PlayerSkin");
+    InitSignalPair(mOnPlayerMoney, m_Events, "PlayerMoney");
+    InitSignalPair(mOnPlayerScore, m_Events, "PlayerScore");
+    InitSignalPair(mOnPlayerWantedLevel, m_Events, "PlayerWantedLevel");
+    InitSignalPair(mOnPlayerImmunity, m_Events, "PlayerImmunity");
+    InitSignalPair(mOnPlayerAlpha, m_Events, "PlayerAlpha");
+    InitSignalPair(mOnVehicleColor, m_Events, "VehicleColor");
+    InitSignalPair(mOnVehicleHealth, m_Events, "VehicleHealth");
+    InitSignalPair(mOnVehiclePosition, m_Events, "VehiclePosition");
+    InitSignalPair(mOnVehicleRotation, m_Events, "VehicleRotation");
+    InitSignalPair(mOnVehicleOption, m_Events, "VehicleOption");
+    InitSignalPair(mOnVehicleWorld, m_Events, "VehicleWorld");
+    InitSignalPair(mOnVehicleImmunity, m_Events, "VehicleImmunity");
+    InitSignalPair(mOnVehiclePartStatus, m_Events, "VehiclePartStatus");
+    InitSignalPair(mOnVehicleTyreStatus, m_Events, "VehicleTyreStatus");
+    InitSignalPair(mOnVehicleDamageData, m_Events, "VehicleDamageData");
+    InitSignalPair(mOnVehicleRadio, m_Events, "VehicleRadio");
+    InitSignalPair(mOnVehicleHandlingRule, m_Events, "VehicleHandlingRule");
+    InitSignalPair(mOnServerOption, m_Events, "ServerOption");
+    InitSignalPair(mOnScriptReload, m_Events, "ScriptReload");
+    InitSignalPair(mOnScriptLoaded, m_Events, "ScriptLoaded");
 }
-
 // ------------------------------------------------------------------------------------------------
-Function & Core::GetBlipEvent(Int32 id, Int32 evid)
+void Core::DropEvents()
 {
-    BlipInst & inst = m_Blips.at(id);
-
-    switch (evid)
-    {
-        case EVT_BLIPDESTROYED:         return inst.mOnDestroyed;
-        case EVT_BLIPCUSTOM:            return inst.mOnCustom;
-        default:                        return NullFunction();
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-Function & Core::GetCheckpointEvent(Int32 id, Int32 evid)
-{
-    CheckpointInst & inst = m_Checkpoints.at(id);
-
-    switch (evid)
-    {
-        case EVT_CHECKPOINTDESTROYED:   return inst.mOnDestroyed;
-        case EVT_CHECKPOINTCUSTOM:      return inst.mOnCustom;
-        case EVT_CHECKPOINTENTERED:     return inst.mOnEntered;
-        case EVT_CHECKPOINTEXITED:      return inst.mOnExited;
-        case EVT_CHECKPOINTWORLD:       return inst.mOnWorld;
-        case EVT_CHECKPOINTRADIUS:      return inst.mOnRadius;
-        default:                        return NullFunction();
-    }
-}
-
-
-// ------------------------------------------------------------------------------------------------
-Function & Core::GetKeybindEvent(Int32 id, Int32 evid)
-{
-    KeybindInst & inst = m_Keybinds.at(id);
-
-    switch (evid)
-    {
-        case EVT_KEYBINDDESTROYED:      return inst.mOnDestroyed;
-        case EVT_KEYBINDCUSTOM:         return inst.mOnCustom;
-        case EVT_PLAYERKEYPRESS:        return inst.mOnKeyPress;
-        case EVT_PLAYERKEYRELEASE:      return inst.mOnKeyRelease;
-        default:                        return NullFunction();
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-Function & Core::GetObjectEvent(Int32 id, Int32 evid)
-{
-    ObjectInst & inst = m_Objects.at(id);
-
-    switch (evid)
-    {
-        case EVT_OBJECTDESTROYED:       return inst.mOnDestroyed;
-        case EVT_OBJECTCUSTOM:          return inst.mOnCustom;
-        case EVT_OBJECTSHOT:            return inst.mOnShot;
-        case EVT_OBJECTTOUCHED:         return inst.mOnTouched;
-        case EVT_OBJECTWORLD:           return inst.mOnWorld;
-        case EVT_OBJECTALPHA:           return inst.mOnAlpha;
-        case EVT_OBJECTREPORT:          return inst.mOnReport;
-        default:                        return NullFunction();
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-Function & Core::GetPickupEvent(Int32 id, Int32 evid)
-{
-    PickupInst & inst = m_Pickups.at(id);
-
-    switch (evid)
-    {
-        case EVT_PICKUPDESTROYED:       return inst.mOnDestroyed;
-        case EVT_PICKUPCUSTOM:          return inst.mOnCustom;
-        case EVT_PICKUPRESPAWN:         return inst.mOnRespawn;
-        case EVT_PICKUPCLAIMED:         return inst.mOnClaimed;
-        case EVT_PICKUPCOLLECTED:       return inst.mOnCollected;
-        case EVT_PICKUPWORLD:           return inst.mOnWorld;
-        case EVT_PICKUPALPHA:           return inst.mOnAlpha;
-        case EVT_PICKUPAUTOMATIC:       return inst.mOnAutomatic;
-        case EVT_PICKUPAUTOTIMER:       return inst.mOnAutoTimer;
-        default:                        return NullFunction();
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-Function & Core::GetPlayerEvent(Int32 id, Int32 evid)
-{
-    PlayerInst & inst = m_Players.at(id);
-
-    switch (evid)
-    {
-        case EVT_PLAYERDESTROYED:       return inst.mOnDestroyed;
-        case EVT_PLAYERCUSTOM:          return inst.mOnCustom;
-        case EVT_PLAYERREQUESTCLASS:    return inst.mOnRequestClass;
-        case EVT_PLAYERREQUESTSPAWN:    return inst.mOnRequestSpawn;
-        case EVT_PLAYERSPAWN:           return inst.mOnSpawn;
-        case EVT_PLAYERWASTED:          return inst.mOnWasted;
-        case EVT_PLAYERKILLED:          return inst.mOnKilled;
-        case EVT_PLAYEREMBARKING:       return inst.mOnEmbarking;
-        case EVT_PLAYEREMBARKED:        return inst.mOnEmbarked;
-        case EVT_PLAYERDISEMBARK:       return inst.mOnDisembark;
-        case EVT_PLAYERRENAME:          return inst.mOnRename;
-        case EVT_PLAYERSTATE:           return inst.mOnState;
-        case EVT_STATENONE:             return inst.mOnStateNone;
-        case EVT_STATENORMAL:           return inst.mOnStateNormal;
-        case EVT_STATEAIM:              return inst.mOnStateAim;
-        case EVT_STATEDRIVER:           return inst.mOnStateDriver;
-        case EVT_STATEPASSENGER:        return inst.mOnStatePassenger;
-        case EVT_STATEENTERDRIVER:      return inst.mOnStateEnterDriver;
-        case EVT_STATEENTERPASSENGER:   return inst.mOnStateEnterPassenger;
-        case EVT_STATEEXIT:             return inst.mOnStateExit;
-        case EVT_STATEUNSPAWNED:        return inst.mOnStateUnspawned;
-        case EVT_PLAYERACTION:          return inst.mOnAction;
-        case EVT_ACTIONNONE:            return inst.mOnActionNone;
-        case EVT_ACTIONNORMAL:          return inst.mOnActionNormal;
-        case EVT_ACTIONAIMING:          return inst.mOnActionAiming;
-        case EVT_ACTIONSHOOTING:        return inst.mOnActionShooting;
-        case EVT_ACTIONJUMPING:         return inst.mOnActionJumping;
-        case EVT_ACTIONLIEDOWN:         return inst.mOnActionLieDown;
-        case EVT_ACTIONGETTINGUP:       return inst.mOnActionGettingUp;
-        case EVT_ACTIONJUMPVEHICLE:     return inst.mOnActionJumpVehicle;
-        case EVT_ACTIONDRIVING:         return inst.mOnActionDriving;
-        case EVT_ACTIONDYING:           return inst.mOnActionDying;
-        case EVT_ACTIONWASTED:          return inst.mOnActionWasted;
-        case EVT_ACTIONEMBARKING:       return inst.mOnActionEmbarking;
-        case EVT_ACTIONDISEMBARKING:    return inst.mOnActionDisembarking;
-        case EVT_PLAYERBURNING:         return inst.mOnBurning;
-        case EVT_PLAYERCROUCHING:       return inst.mOnCrouching;
-        case EVT_PLAYERGAMEKEYS:        return inst.mOnGameKeys;
-        case EVT_PLAYERSTARTTYPING:     return inst.mOnStartTyping;
-        case EVT_PLAYERSTOPTYPING:      return inst.mOnStopTyping;
-        case EVT_PLAYERAWAY:            return inst.mOnAway;
-        case EVT_PLAYERMESSAGE:         return inst.mOnMessage;
-        case EVT_PLAYERCOMMAND:         return inst.mOnCommand;
-        case EVT_PLAYERPRIVATEMESSAGE:  return inst.mOnPrivateMessage;
-        case EVT_PLAYERKEYPRESS:        return inst.mOnKeyPress;
-        case EVT_PLAYERKEYRELEASE:      return inst.mOnKeyRelease;
-        case EVT_PLAYERSPECTATE:        return inst.mOnSpectate;
-        case EVT_PLAYERCRASHREPORT:     return inst.mOnCrashreport;
-        case EVT_OBJECTSHOT:            return inst.mOnObjectShot;
-        case EVT_OBJECTTOUCHED:         return inst.mOnObjectTouched;
-        case EVT_PICKUPCLAIMED:         return inst.mOnPickupClaimed;
-        case EVT_PICKUPCOLLECTED:       return inst.mOnPickupCollected;
-        case EVT_CHECKPOINTENTERED:     return inst.mOnCheckpointEntered;
-        case EVT_CHECKPOINTEXITED:      return inst.mOnCheckpointExited;
-        case EVT_CLIENTSCRIPTDATA:      return inst.mOnClientScriptData;
-        case EVT_PLAYERUPDATE:          return inst.mOnUpdate;
-        case EVT_PLAYERHEALTH:          return inst.mOnHealth;
-        case EVT_PLAYERARMOUR:          return inst.mOnArmour;
-        case EVT_PLAYERWEAPON:          return inst.mOnWeapon;
-        case EVT_PLAYERHEADING:         return inst.mOnHeading;
-        case EVT_PLAYERPOSITION:        return inst.mOnPosition;
-        case EVT_PLAYEROPTION:          return inst.mOnOption;
-        case EVT_PLAYERADMIN:           return inst.mOnAdmin;
-        case EVT_PLAYERWORLD:           return inst.mOnWorld;
-        case EVT_PLAYERTEAM:            return inst.mOnTeam;
-        case EVT_PLAYERSKIN:            return inst.mOnSkin;
-        case EVT_PLAYERMONEY:           return inst.mOnMoney;
-        case EVT_PLAYERSCORE:           return inst.mOnScore;
-        case EVT_PLAYERWANTEDLEVEL:     return inst.mOnWantedLevel;
-        case EVT_PLAYERIMMUNITY:        return inst.mOnImmunity;
-        case EVT_PLAYERALPHA:           return inst.mOnAlpha;
-        default:                        return NullFunction();
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-Function & Core::GetVehicleEvent(Int32 id, Int32 evid)
-{
-    VehicleInst & inst = m_Vehicles.at(id);
-
-    switch (evid)
-    {
-        case EVT_PLAYEREMBARKING:       return inst.mOnEmbarking;
-        case EVT_PLAYEREMBARKED:        return inst.mOnEmbarked;
-        case EVT_PLAYERDISEMBARK:       return inst.mOnDisembark;
-        case EVT_VEHICLEEXPLODE:        return inst.mOnExplode;
-        case EVT_VEHICLERESPAWN:        return inst.mOnRespawn;
-        case EVT_VEHICLEUPDATE:         return inst.mOnUpdate;
-        case EVT_VEHICLECOLOR:          return inst.mOnColor;
-        case EVT_VEHICLEHEALTH:         return inst.mOnHealth;
-        case EVT_VEHICLEPOSITION:       return inst.mOnPosition;
-        case EVT_VEHICLEROTATION:       return inst.mOnRotation;
-        case EVT_VEHICLEOPTION:         return inst.mOnOption;
-        case EVT_VEHICLEWORLD:          return inst.mOnWorld;
-        case EVT_VEHICLEIMMUNITY:       return inst.mOnImmunity;
-        case EVT_VEHICLEPARTSTATUS:     return inst.mOnPartStatus;
-        case EVT_VEHICLETYRESTATUS:     return inst.mOnTyreStatus;
-        case EVT_VEHICLEDAMAGEDATA:     return inst.mOnDamageData;
-        case EVT_VEHICLERADIO:          return inst.mOnRadio;
-        case EVT_VEHICLEHANDLINGRULE:   return inst.mOnHandlingRule;
-        default:                        return NullFunction();
-    }
+    ResetSignalPair(mOnCustomEvent);
+    ResetSignalPair(mOnBlipCreated);
+    ResetSignalPair(mOnCheckpointCreated);
+    ResetSignalPair(mOnKeybindCreated);
+    ResetSignalPair(mOnObjectCreated);
+    ResetSignalPair(mOnPickupCreated);
+    ResetSignalPair(mOnPlayerCreated);
+    ResetSignalPair(mOnVehicleCreated);
+    ResetSignalPair(mOnBlipDestroyed);
+    ResetSignalPair(mOnCheckpointDestroyed);
+    ResetSignalPair(mOnKeybindDestroyed);
+    ResetSignalPair(mOnObjectDestroyed);
+    ResetSignalPair(mOnPickupDestroyed);
+    ResetSignalPair(mOnPlayerDestroyed);
+    ResetSignalPair(mOnVehicleDestroyed);
+    ResetSignalPair(mOnBlipCustom);
+    ResetSignalPair(mOnCheckpointCustom);
+    ResetSignalPair(mOnKeybindCustom);
+    ResetSignalPair(mOnObjectCustom);
+    ResetSignalPair(mOnPickupCustom);
+    ResetSignalPair(mOnPlayerCustom);
+    ResetSignalPair(mOnVehicleCustom);
+    ResetSignalPair(mOnServerStartup);
+    ResetSignalPair(mOnServerShutdown);
+    ResetSignalPair(mOnServerFrame);
+    ResetSignalPair(mOnIncomingConnection);
+    ResetSignalPair(mOnPlayerRequestClass);
+    ResetSignalPair(mOnPlayerRequestSpawn);
+    ResetSignalPair(mOnPlayerSpawn);
+    ResetSignalPair(mOnPlayerWasted);
+    ResetSignalPair(mOnPlayerKilled);
+    ResetSignalPair(mOnPlayerEmbarking);
+    ResetSignalPair(mOnPlayerEmbarked);
+    ResetSignalPair(mOnPlayerDisembark);
+    ResetSignalPair(mOnPlayerRename);
+    ResetSignalPair(mOnPlayerState);
+    ResetSignalPair(mOnStateNone);
+    ResetSignalPair(mOnStateNormal);
+    ResetSignalPair(mOnStateAim);
+    ResetSignalPair(mOnStateDriver);
+    ResetSignalPair(mOnStatePassenger);
+    ResetSignalPair(mOnStateEnterDriver);
+    ResetSignalPair(mOnStateEnterPassenger);
+    ResetSignalPair(mOnStateExit);
+    ResetSignalPair(mOnStateUnspawned);
+    ResetSignalPair(mOnPlayerAction);
+    ResetSignalPair(mOnActionNone);
+    ResetSignalPair(mOnActionNormal);
+    ResetSignalPair(mOnActionAiming);
+    ResetSignalPair(mOnActionShooting);
+    ResetSignalPair(mOnActionJumping);
+    ResetSignalPair(mOnActionLieDown);
+    ResetSignalPair(mOnActionGettingUp);
+    ResetSignalPair(mOnActionJumpVehicle);
+    ResetSignalPair(mOnActionDriving);
+    ResetSignalPair(mOnActionDying);
+    ResetSignalPair(mOnActionWasted);
+    ResetSignalPair(mOnActionEmbarking);
+    ResetSignalPair(mOnActionDisembarking);
+    ResetSignalPair(mOnPlayerBurning);
+    ResetSignalPair(mOnPlayerCrouching);
+    ResetSignalPair(mOnPlayerGameKeys);
+    ResetSignalPair(mOnPlayerStartTyping);
+    ResetSignalPair(mOnPlayerStopTyping);
+    ResetSignalPair(mOnPlayerAway);
+    ResetSignalPair(mOnPlayerMessage);
+    ResetSignalPair(mOnPlayerCommand);
+    ResetSignalPair(mOnPlayerPrivateMessage);
+    ResetSignalPair(mOnPlayerKeyPress);
+    ResetSignalPair(mOnPlayerKeyRelease);
+    ResetSignalPair(mOnPlayerSpectate);
+    ResetSignalPair(mOnPlayerCrashreport);
+    ResetSignalPair(mOnVehicleExplode);
+    ResetSignalPair(mOnVehicleRespawn);
+    ResetSignalPair(mOnObjectShot);
+    ResetSignalPair(mOnObjectTouched);
+    ResetSignalPair(mOnObjectWorld);
+    ResetSignalPair(mOnObjectAlpha);
+    ResetSignalPair(mOnObjectReport);
+    ResetSignalPair(mOnPickupClaimed);
+    ResetSignalPair(mOnPickupCollected);
+    ResetSignalPair(mOnPickupRespawn);
+    ResetSignalPair(mOnPickupWorld);
+    ResetSignalPair(mOnPickupAlpha);
+    ResetSignalPair(mOnPickupAutomatic);
+    ResetSignalPair(mOnPickupAutoTimer);
+    ResetSignalPair(mOnCheckpointEntered);
+    ResetSignalPair(mOnCheckpointExited);
+    ResetSignalPair(mOnCheckpointWorld);
+    ResetSignalPair(mOnCheckpointRadius);
+    ResetSignalPair(mOnEntityPool);
+    ResetSignalPair(mOnClientScriptData);
+    ResetSignalPair(mOnPlayerUpdate);
+    ResetSignalPair(mOnVehicleUpdate);
+    ResetSignalPair(mOnPlayerHealth);
+    ResetSignalPair(mOnPlayerArmour);
+    ResetSignalPair(mOnPlayerWeapon);
+    ResetSignalPair(mOnPlayerHeading);
+    ResetSignalPair(mOnPlayerPosition);
+    ResetSignalPair(mOnPlayerOption);
+    ResetSignalPair(mOnPlayerAdmin);
+    ResetSignalPair(mOnPlayerWorld);
+    ResetSignalPair(mOnPlayerTeam);
+    ResetSignalPair(mOnPlayerSkin);
+    ResetSignalPair(mOnPlayerMoney);
+    ResetSignalPair(mOnPlayerScore);
+    ResetSignalPair(mOnPlayerWantedLevel);
+    ResetSignalPair(mOnPlayerImmunity);
+    ResetSignalPair(mOnPlayerAlpha);
+    ResetSignalPair(mOnVehicleColor);
+    ResetSignalPair(mOnVehicleHealth);
+    ResetSignalPair(mOnVehiclePosition);
+    ResetSignalPair(mOnVehicleRotation);
+    ResetSignalPair(mOnVehicleOption);
+    ResetSignalPair(mOnVehicleWorld);
+    ResetSignalPair(mOnVehicleImmunity);
+    ResetSignalPair(mOnVehiclePartStatus);
+    ResetSignalPair(mOnVehicleTyreStatus);
+    ResetSignalPair(mOnVehicleDamageData);
+    ResetSignalPair(mOnVehicleRadio);
+    ResetSignalPair(mOnVehicleHandlingRule);
+    ResetSignalPair(mOnServerOption);
+    ResetSignalPair(mOnScriptReload);
+    ResetSignalPair(mOnScriptLoaded);
 }
 
 } // Namespace:: SqMod

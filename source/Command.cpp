@@ -212,7 +212,7 @@ Int32 Controller::Run(const Guard & guard, CCStr command)
         ++split;
     }
     // Are there any arguments specified?
-    if (split != '\0')
+    if (*split != '\0')
     {
         // Save the command name
         ctx.mCommand.assign(command, (split - command));
@@ -665,13 +665,13 @@ bool Controller::Parse(Context & ctx)
             {
                 // Let's us know if the whole argument was part of the resulted value
                 CStr next = nullptr;
-                // Attempt to extract the integer value from the string
+                // Attempt to extract the float value from the string
 #ifdef SQUSEDOUBLE
                 const Float64 value = std::strtod(str, &next);
 #else
                 const Float32 value = std::strtof(str, &next);
 #endif // SQUSEDOUBLE
-                // See if this whole string was indeed an integer
+                // See if this whole string was indeed an float
                 if (next == end)
                 {
                     // Remember the current stack size

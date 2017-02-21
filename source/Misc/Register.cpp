@@ -18,7 +18,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static const Object & FindPlayer(Object & by)
+static const LightObj & FindPlayer(Object & by)
 {
     switch (by.GetType())
     {
@@ -45,7 +45,7 @@ static const Object & FindPlayer(Object & by)
         default: STHROWF("Unsupported search identifier");
     }
     // Default to a null object
-    return NullObject();
+    return NullLightObj();
 }
 
 // ------------------------------------------------------------------------------------------------

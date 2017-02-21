@@ -42,51 +42,12 @@ static SQInteger SqLoadScript(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SqBindPreLoad(Object & env, Function & func)
+static SQInteger SqGetEvents(HSQUIRRELVM vm)
 {
-    Core::Get().BindPreLoad(env, func, NullObject());
-}
-
-// ------------------------------------------------------------------------------------------------
-static void SqBindPostLoad(Object & env, Function & func)
-{
-    Core::Get().BindPostLoad(env, func, NullObject());
-}
-
-// ------------------------------------------------------------------------------------------------
-static void SqBindUnload(Object & env, Function & func)
-{
-    Core::Get().BindUnload(env, func, NullObject());
-}
-
-// ------------------------------------------------------------------------------------------------
-static void SqBindPreLoadEx(Object & env, Function & func, Object & payload)
-{
-    Core::Get().BindPreLoad(env, func, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-static void SqBindPostLoadEx(Object & env, Function & func, Object & payload)
-{
-    Core::Get().BindPostLoad(env, func, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-static void SqBindUnloadEx(Object & env, Function & func, Object & payload)
-{
-    Core::Get().BindUnload(env, func, payload);
-}
-
-// ------------------------------------------------------------------------------------------------
-static void SqBindEvent(Int32 id, Object & env, Function & func)
-{
-    Core::Get().BindEvent(id, env, func);
-}
-
-// ------------------------------------------------------------------------------------------------
-static void SqCustomEvent(Int32 group, Int32 header, Object & payload)
-{
-    Core::Get().EmitCustomEvent(group, header, payload);
+    // Push the events table object on the stack
+    sq_pushobject(vm, Core::Get().GetEvents().mObj);
+    // Specify that we're returning a value
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -102,7 +63,7 @@ static void SqSetReloadStatus(bool toggle)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SqReloadBecause(Int32 header, Object & payload)
+static void SqReloadBecause(Int32 header, LightObj & payload)
 {
     // Assign the reload info
     Core::Get().SetReloadInfo(header, payload);
@@ -111,7 +72,7 @@ static void SqReloadBecause(Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SqSetReloadInfo(Int32 header, Object & payload)
+static void SqSetReloadInfo(Int32 header, LightObj & payload)
 {
     Core::Get().SetReloadInfo(header, payload);
 }
@@ -123,7 +84,7 @@ static Int32 SqGetReloadHeader()
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & SqGetReloadPayload()
+static LightObj & SqGetReloadPayload()
 {
     return Core::Get().GetReloadPayload();
 }
@@ -159,7 +120,7 @@ static void SetOption(CSStr name, CSStr value)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & GetBlip(Int32 id)
+static LightObj & GetBlip(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
@@ -171,7 +132,7 @@ static Object & GetBlip(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & GetCheckpoint(Int32 id)
+static LightObj & GetCheckpoint(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
@@ -183,7 +144,7 @@ static Object & GetCheckpoint(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & GetKeybind(Int32 id)
+static LightObj & GetKeybind(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
@@ -195,7 +156,7 @@ static Object & GetKeybind(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & GetObject(Int32 id)
+static LightObj & GetObject(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
@@ -207,7 +168,7 @@ static Object & GetObject(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & GetPickup(Int32 id)
+static LightObj & GetPickup(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
@@ -219,7 +180,7 @@ static Object & GetPickup(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & GetPlayer(Int32 id)
+static LightObj & GetPlayer(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
@@ -231,7 +192,7 @@ static Object & GetPlayer(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & GetVehicle(Int32 id)
+static LightObj & GetVehicle(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
@@ -243,7 +204,7 @@ static Object & GetVehicle(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelBlip(Int32 id, Int32 header, Object & payload)
+static bool DelBlip(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
@@ -255,7 +216,7 @@ static bool DelBlip(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelCheckpoint(Int32 id, Int32 header, Object & payload)
+static bool DelCheckpoint(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
@@ -267,7 +228,7 @@ static bool DelCheckpoint(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelKeybind(Int32 id, Int32 header, Object & payload)
+static bool DelKeybind(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
@@ -279,7 +240,7 @@ static bool DelKeybind(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelObject(Int32 id, Int32 header, Object & payload)
+static bool DelObject(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
@@ -291,7 +252,7 @@ static bool DelObject(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelPickup(Int32 id, Int32 header, Object & payload)
+static bool DelPickup(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
@@ -303,7 +264,7 @@ static bool DelPickup(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelVehicle(Int32 id, Int32 header, Object & payload)
+static bool DelVehicle(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
@@ -319,14 +280,6 @@ void Register_Core(HSQUIRRELVM vm)
 {
     RootTable(vm)
     .Bind(_SC("SqCore"), Table(vm)
-        .Func(_SC("Bind"), &SqBindEvent)
-        .Func(_SC("BindPreLoad"), &SqBindPreLoad)
-        .Func(_SC("BindPostLoad"), &SqBindPostLoad)
-        .Func(_SC("BindUnload"), &SqBindUnload)
-        .Func(_SC("BindPreLoadEx"), &SqBindPreLoadEx)
-        .Func(_SC("BindPostLoadEx"), &SqBindPostLoadEx)
-        .Func(_SC("BindUnloadEx"), &SqBindUnloadEx)
-        .Func(_SC("CustomEvent"), &SqCustomEvent)
         .Func(_SC("Reload"), &SqSetReloadStatus)
         .Func(_SC("Reloading"), &SqGetReloadStatus)
         .Func(_SC("ReloadBecause"), &SqReloadBecause)
@@ -352,6 +305,7 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("DestroyPickup"), &DelPickup)
         .Func(_SC("DestroyVehicle"), &DelVehicle)
         .SquirrelFunc(_SC("LoadScript"), &SqLoadScript)
+        .SquirrelFunc(_SC("On"), &SqGetEvents)
     );
 }
 

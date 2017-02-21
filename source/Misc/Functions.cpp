@@ -365,12 +365,12 @@ void SetServerOption(Int32 option_id, bool toggle)
     }
     else
     {
-        Core::Get().EmitServerOption(option_id, toggle, 0, NullObject());
+        Core::Get().EmitServerOption(option_id, toggle, 0, NullLightObj());
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetServerOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload)
+void SetServerOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload)
 {
     if (_Func->SetServerOption(static_cast< vcmpServerOption >(option_id),
                                 toggle) == vcmpErrorArgumentOutOfBounds)

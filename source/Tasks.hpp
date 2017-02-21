@@ -328,7 +328,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the instance of the specified entity.
     */
-    static Object & FindEntity(Int32 id, Int32 type);
+    static LightObj & FindEntity(Int32 id, Int32 type);
 
     /* --------------------------------------------------------------------------------------------
      * Find an unoccupied task slot.

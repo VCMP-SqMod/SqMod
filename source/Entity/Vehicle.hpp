@@ -40,22 +40,22 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
-    Int32   m_ID;
+    Int32       m_ID;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
     */
-    String  m_Tag;
+    String      m_Tag;
 
     /* --------------------------------------------------------------------------------------------
      * User data associated with this instance.
     */
-    Object  m_Data;
+    LightObj    m_Data;
 
     /* --------------------------------------------------------------------------------------------
      * Prevent events from triggering themselves.
     */
-    Uint32  m_CircularLocks;
+    Uint32      m_CircularLocks;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -118,7 +118,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
     */
-    static Object & GetNull();
+    static LightObj & GetNull();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
@@ -154,19 +154,19 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
     */
-    Object & GetData();
+    LightObj & GetData();
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user data.
     */
-    void SetData(Object & data);
+    void SetData(LightObj & data);
 
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed vehicle entity.
     */
     bool Destroy()
     {
-        return Destroy(0, NullObject());
+        return Destroy(0, NullLightObj());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -174,23 +174,23 @@ public:
     */
     bool Destroy(Int32 header)
     {
-        return Destroy(header, NullObject());
+        return Destroy(header, NullLightObj());
     }
 
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed vehicle entity.
     */
-    bool Destroy(Int32 header, Object & payload);
+    bool Destroy(Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
-     * Bind to an event supported by this entity type.
+     * Retrieve the events table of this entity.
     */
-    void BindEvent(Int32 evid, Object & env, Function & func) const;
+    LightObj & GetEvents() const;
 
     /* --------------------------------------------------------------------------------------------
      * Emit a custom event for the managed entity
     */
-    void CustomEvent(Int32 header, Object & payload) const;
+    void CustomEvent(Int32 header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the managed vehicle entity is streamed for the specified player.
@@ -210,7 +210,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the current option value of the managed vehicle entity.
     */
-    void SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload);
+    void SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the synchronization source of the managed vehicle entity.
@@ -240,7 +240,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the slot occupant from the managed vehicle entity.
     */
-    Object & GetOccupant(Int32 slot) const;
+    LightObj & GetOccupant(Int32 slot) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the slot occupant identifier from the managed vehicle entity.

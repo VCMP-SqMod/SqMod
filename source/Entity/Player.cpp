@@ -41,7 +41,7 @@ SQInteger CPlayer::SqGetNull(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::GetNull()
+LightObj & CPlayer::GetNull()
 {
     return Core::Get().GetNullPlayer();
 }
@@ -107,7 +107,7 @@ CPlayer & CPlayer::ApplyTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::GetData()
+LightObj & CPlayer::GetData()
 {
     // Validate the managed identifier
     Validate();
@@ -116,7 +116,7 @@ Object & CPlayer::GetData()
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetData(Object & data)
+void CPlayer::SetData(LightObj & data)
 {
     // Validate the managed identifier
     Validate();
@@ -125,31 +125,16 @@ void CPlayer::SetData(Object & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::BindEvent(Int32 evid, Object & env, Function & func) const
+LightObj & CPlayer::GetEvents() const
 {
     // Validate the managed identifier
     Validate();
-    // Obtain the function instance called for this event
-    Function & event = Core::Get().GetPlayerEvent(m_ID, evid);
-    // Is the specified callback function null?
-    if (func.IsNull())
-    {
-        event.ReleaseGently(); // Then release the current callback
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        event = func;
-    }
-    // Assign the specified environment and function
-    else
-    {
-        event = Function(env.GetVM(), env, func.GetFunc());
-    }
+    // Return the associated event table
+    return Core::Get().GetPlayer(m_ID).mEvents;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::CustomEvent(Int32 header, Object & payload) const
+void CPlayer::CustomEvent(Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -265,13 +250,13 @@ void CPlayer::Kick() const
     Validate();
     // Store the default header and payload
     Core::Get().GetPlayer(m_ID).mKickBanHeader = vcmpDisconnectReasonKick;
-    Core::Get().GetPlayer(m_ID).mKickBanPayload = NullObject();
+    Core::Get().GetPlayer(m_ID).mKickBanPayload = NullLightObj();
     // Perform the requested operation
     _Func->KickPlayer(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::KickBecause(Int32 header, Object & payload) const
+void CPlayer::KickBecause(Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -289,13 +274,13 @@ void CPlayer::Ban() const
     Validate();
     // Store the default header and payload
     Core::Get().GetPlayer(m_ID).mKickBanHeader = vcmpDisconnectReasonKick;
-    Core::Get().GetPlayer(m_ID).mKickBanPayload = NullObject();
+    Core::Get().GetPlayer(m_ID).mKickBanPayload = NullLightObj();
     // Perform the requested operation
     _Func->BanPlayer(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::BanBecause(Int32 header, Object & payload) const
+void CPlayer::BanBecause(Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -379,11 +364,11 @@ Int32 CPlayer::GetOption(Int32 option_id) const
 // ------------------------------------------------------------------------------------------------
 void CPlayer::SetOption(Int32 option_id, bool toggle)
 {
-    SetOptionEx(option_id, toggle, 0, NullObject());
+    SetOptionEx(option_id, toggle, 0, NullLightObj());
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, Object & payload)
+void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload)
 {
     // Validate the managed identifier
     Validate();
@@ -1099,7 +1084,7 @@ Int32 CPlayer::GetVehicleSlot() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::GetVehicle() const
+LightObj & CPlayer::GetVehicle() const
 {
     // Validate the managed identifier
     Validate();
@@ -1112,7 +1097,7 @@ Object & CPlayer::GetVehicle() const
         return Core::Get().GetVehicle(id).mObj;
     }
     // Default to a null object
-    return NullObject();
+    return NullLightObj();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1300,7 +1285,7 @@ void CPlayer::SetAnimation(Int32 anim, Int32 group) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::StandingOnVehicle() const
+LightObj & CPlayer::StandingOnVehicle() const
 {
     // Validate the managed identifier
     Validate();
@@ -1313,11 +1298,11 @@ Object & CPlayer::StandingOnVehicle() const
         return Core::Get().GetVehicle(id).mObj;
     }
     // Default to a null object
-    return NullObject();
+    return NullLightObj();
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::StandingOnObject() const
+LightObj & CPlayer::StandingOnObject() const
 {
     // Validate the managed identifier
     Validate();
@@ -1330,7 +1315,7 @@ Object & CPlayer::StandingOnObject() const
         return Core::Get().GetObject(id).mObj;
     }
     // Default to a null object
-    return NullObject();
+    return NullLightObj();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1343,7 +1328,7 @@ bool CPlayer::IsAway() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::GetSpectator() const
+LightObj & CPlayer::GetSpectator() const
 {
     // Validate the managed identifier
     Validate();
@@ -1356,7 +1341,7 @@ Object & CPlayer::GetSpectator() const
         return Core::Get().GetPlayer(id).mObj;
     }
     // Default to a null object
-    return NullObject();
+    return NullLightObj();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1392,20 +1377,20 @@ void CPlayer::PlaySound(Int32 sound_id) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+LightObj & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, x, y, z, r, g, b, a, radius,
-                                        SQMOD_CREATE_DEFAULT, NullObject());
+                                        SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+LightObj & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
-                            Int32 header, Object & payload) const
+                            Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -1415,7 +1400,7 @@ Object & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float3
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos,
+LightObj & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos,
                         const Color4 & color, Float32 radius) const
 {
     // Validate the managed identifier
@@ -1423,12 +1408,12 @@ Object & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos
     // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, pos.x, pos.y, pos.z,
                                         color.r, color.g, color.b, color.a, radius,
-                                        SQMOD_CREATE_DEFAULT, NullObject());
+                                        SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos, const Color4 & color,
-                                    Float32 radius, Int32 header, Object & payload) const
+LightObj & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos, const Color4 & color,
+                                    Float32 radius, Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -1502,7 +1487,7 @@ void CPlayer::SetTrackPosition(SQInteger num) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetTrackPositionEx(SQInteger num, Int32 header, const Object & payload) const
+void CPlayer::SetTrackPositionEx(SQInteger num, Int32 header, const LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -2315,7 +2300,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-static const Object & Player_FindAuto(Object & by)
+static const LightObj & Player_FindAuto(Object & by)
 {
     switch (by.GetType())
     {
@@ -2342,7 +2327,7 @@ static const Object & Player_FindAuto(Object & by)
         default: STHROWF("Unsupported search identifier");
     }
     // Default to a null object
-    return NullObject();
+    return NullLightObj();
 }
 
 // ================================================================================================
@@ -2366,12 +2351,12 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Var(_SC("AnnouncePostfix"), &CPlayer::mAnnouncePostfix)
         .Var(_SC("LimitPrefixPostfixMessage"), &CPlayer::mLimitPrefixPostfixMessage)
         // Core Properties
+        .Prop(_SC("On"), &CPlayer::GetEvents)
         .Prop(_SC("ID"), &CPlayer::GetID)
         .Prop(_SC("Tag"), &CPlayer::GetTag, &CPlayer::SetTag)
         .Prop(_SC("Data"), &CPlayer::GetData, &CPlayer::SetData)
         .Prop(_SC("Active"), &CPlayer::IsActive)
         // Core Methods
-        .Func(_SC("Bind"), &CPlayer::BindEvent)
         .FmtFunc(_SC("SetTag"), &CPlayer::ApplyTag)
         .Func(_SC("CustomEvent"), &CPlayer::CustomEvent)
         // Properties
@@ -2510,13 +2495,13 @@ void Register_CPlayer(HSQUIRRELVM vm)
             (_SC("SetAnimation"), &CPlayer::SetAnimation)
         .Overload< void (CPlayer::*)(Int32, Int32) const >
             (_SC("SetAnimation"), &CPlayer::SetAnimation)
-        .Overload< Object & (CPlayer::*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) const >
+        .Overload< LightObj & (CPlayer::*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) const >
             (_SC("CreateCheckpointEx"), &CPlayer::CreateCheckpointEx)
-        .Overload< Object & (CPlayer::*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, Object &) const >
+        .Overload< LightObj & (CPlayer::*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, LightObj &) const >
             (_SC("CreateCheckpointEx"), &CPlayer::CreateCheckpointEx)
-        .Overload< Object & (CPlayer::*)(Int32, bool, const Vector3 &, const Color4 &, Float32) const >
+        .Overload< LightObj & (CPlayer::*)(Int32, bool, const Vector3 &, const Color4 &, Float32) const >
             (_SC("CreateCheckpoint"), &CPlayer::CreateCheckpoint)
-        .Overload< Object & (CPlayer::*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, Object &) const >
+        .Overload< LightObj & (CPlayer::*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, LightObj &) const >
             (_SC("CreateCheckpoint"), &CPlayer::CreateCheckpoint)
         // Static Functions
         .StaticFunc(_SC("Find"), &Player_FindAuto)

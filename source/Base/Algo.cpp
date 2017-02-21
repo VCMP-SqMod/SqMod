@@ -111,7 +111,7 @@ struct PlayerName
 };
 
 // ------------------------------------------------------------------------------------------------
-static const Object & Blip_FindBySprID(Int32 sprid)
+static const LightObj & Blip_FindBySprID(Int32 sprid)
 {
     // Perform a range check on the specified identifier
     if (sprid < 0)
@@ -131,7 +131,7 @@ static const Object & Blip_FindBySprID(Int32 sprid)
         }
     }
     // Unable to locate a blip matching the specified identifier
-    return NullObject();
+    return NullLightObj();
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -227,7 +227,7 @@ static inline Array Player_AllWhereNameMatches(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name matches or not the specified one.
 */
-static inline Object Player_FirstWhereNameEquals(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameEquals(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -243,7 +243,7 @@ static inline Object Player_FirstWhereNameEquals(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name begins or not with the specified string.
 */
-static inline Object Player_FirstWhereNameBegins(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameBegins(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -259,7 +259,7 @@ static inline Object Player_FirstWhereNameBegins(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name ends or not with the specified string.
 */
-static inline Object Player_FirstWhereNameEnds(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameEnds(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -275,7 +275,7 @@ static inline Object Player_FirstWhereNameEnds(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name contains or not the specified string.
 */
-static inline Object Player_FirstWhereNameContains(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameContains(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -291,7 +291,7 @@ static inline Object Player_FirstWhereNameContains(bool neg, bool cs, CSStr name
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name matches or not the specified filter.
 */
-static inline Object Player_FirstWhereNameMatches(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameMatches(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -307,7 +307,7 @@ static inline Object Player_FirstWhereNameMatches(bool neg, bool cs, CSStr name)
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches or not the specified one.
 */
-static inline Uint32 Player_EachWhereNameEquals(bool neg, bool cs, CSStr name, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameEquals(bool neg, bool cs, CSStr name, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -323,7 +323,7 @@ static inline Uint32 Player_EachWhereNameEquals(bool neg, bool cs, CSStr name, O
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches or not the specified one.
 */
-static inline Uint32 Player_EachWhereNameEqualsData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameEqualsData(bool neg, bool cs, CSStr name, LightObj & data, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -339,7 +339,7 @@ static inline Uint32 Player_EachWhereNameEqualsData(bool neg, bool cs, CSStr nam
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name begins with the specified string.
 */
-static inline Uint32 Player_EachWhereNameBegins(bool neg, bool cs, CSStr name, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameBegins(bool neg, bool cs, CSStr name, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -355,7 +355,7 @@ static inline Uint32 Player_EachWhereNameBegins(bool neg, bool cs, CSStr name, O
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name begins with the specified string.
 */
-static inline Uint32 Player_EachWhereNameBeginsData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameBeginsData(bool neg, bool cs, CSStr name, LightObj & data, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -371,7 +371,7 @@ static inline Uint32 Player_EachWhereNameBeginsData(bool neg, bool cs, CSStr nam
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name ends or not with the specified string.
 */
-static inline Uint32 Player_EachWhereNameEnds(bool neg, bool cs, CSStr name, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameEnds(bool neg, bool cs, CSStr name, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -387,7 +387,7 @@ static inline Uint32 Player_EachWhereNameEnds(bool neg, bool cs, CSStr name, Obj
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name ends or not with the specified string.
 */
-static inline Uint32 Player_EachWhereNameEndsData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameEndsData(bool neg, bool cs, CSStr name, LightObj & data, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -403,7 +403,7 @@ static inline Uint32 Player_EachWhereNameEndsData(bool neg, bool cs, CSStr name,
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name contains the specified string.
 */
-static inline Uint32 Player_EachWhereNameContains(bool neg, bool cs, CSStr name, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameContains(bool neg, bool cs, CSStr name, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -419,7 +419,7 @@ static inline Uint32 Player_EachWhereNameContains(bool neg, bool cs, CSStr name,
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name contains the specified string.
 */
-static inline Uint32 Player_EachWhereNameContainsData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameContainsData(bool neg, bool cs, CSStr name, LightObj & data, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -435,7 +435,7 @@ static inline Uint32 Player_EachWhereNameContainsData(bool neg, bool cs, CSStr n
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches the specified filter.
 */
-static inline Uint32 Player_EachWhereNameMatches(bool neg, bool cs, CSStr name, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameMatches(bool neg, bool cs, CSStr name, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -451,7 +451,7 @@ static inline Uint32 Player_EachWhereNameMatches(bool neg, bool cs, CSStr name, 
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches the specified filter.
 */
-static inline Uint32 Player_EachWhereNameMatchesData(bool neg, bool cs, CSStr name, Object & data, Object & env, Function & func)
+static inline Uint32 Player_EachWhereNameMatchesData(bool neg, bool cs, CSStr name, LightObj & data, LightObj & env, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder

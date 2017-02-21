@@ -39,6 +39,11 @@ enum Intersection
 };
 
 /* ------------------------------------------------------------------------------------------------
+ * Helper used to reference and keep track of signal instances.
+*/
+typedef std::pair< Signal *, LightObj > SignalPair;
+
+/* ------------------------------------------------------------------------------------------------
  * Forward declarations of the logging functions to avoid including the logger everywhere.
  * Primary logging functions.
 */
@@ -192,6 +197,16 @@ const SLongInt & GetSLongInt(CSStr s);
 const ULongInt & GetULongInt();
 const ULongInt & GetULongInt(Uint64 n);
 const ULongInt & GetULongInt(CSStr s);
+
+/* ------------------------------------------------------------------------------------------------
+ * Initialize a signal instance into the specified pair.
+*/
+extern void InitSignalPair(SignalPair & sp, LightObj & et, const char * name);
+
+/* ------------------------------------------------------------------------------------------------
+ * Reset/release the specified signal pair.
+*/
+extern void ResetSignalPair(SignalPair & sp, bool clear = true);
 
 /* ------------------------------------------------------------------------------------------------
  * A simple implementation of name filtering.

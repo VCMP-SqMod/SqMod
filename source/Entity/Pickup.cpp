@@ -25,7 +25,7 @@ SQInteger CPickup::SqGetNull(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPickup::GetNull()
+LightObj & CPickup::GetNull()
 {
     return Core::Get().GetNullPickup();
 }
@@ -77,7 +77,7 @@ CPickup & CPickup::ApplyTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CPickup::GetData()
+LightObj & CPickup::GetData()
 {
     // Validate the managed identifier
     Validate();
@@ -86,7 +86,7 @@ Object & CPickup::GetData()
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetData(Object & data)
+void CPickup::SetData(LightObj & data)
 {
     // Validate the managed identifier
     Validate();
@@ -95,7 +95,7 @@ void CPickup::SetData(Object & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPickup::Destroy(Int32 header, Object & payload)
+bool CPickup::Destroy(Int32 header, LightObj & payload)
 {
     // Validate the managed identifier
     Validate();
@@ -104,31 +104,16 @@ bool CPickup::Destroy(Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::BindEvent(Int32 evid, Object & env, Function & func) const
+LightObj & CPickup::GetEvents() const
 {
     // Validate the managed identifier
     Validate();
-    // Obtain the function instance called for this event
-    Function & event = Core::Get().GetPickupEvent(m_ID, evid);
-    // Is the specified callback function null?
-    if (func.IsNull())
-    {
-        event.ReleaseGently(); // Then release the current callback
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        event = func;
-    }
-    // Assign the specified environment and function
-    else
-    {
-        event = Function(env.GetVM(), env, func.GetFunc());
-    }
+    // Return the associated event table
+    return Core::Get().GetPickup(m_ID).mEvents;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::CustomEvent(Int32 header, Object & payload) const
+void CPickup::CustomEvent(Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -413,30 +398,30 @@ void CPickup::SetPositionZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Pickup_CreateEx(Int32 model, Int32 world, Int32 quantity,
+static LightObj & Pickup_CreateEx(Int32 model, Int32 world, Int32 quantity,
                         Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic)
 {
     return Core::Get().NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullObject());
+                            SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Pickup_CreateEx(Int32 model, Int32 world, Int32 quantity,
+static LightObj & Pickup_CreateEx(Int32 model, Int32 world, Int32 quantity,
                         Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic,
-                        Int32 header, Object & payload)
+                        Int32 header, LightObj & payload)
 {
     return Core::Get().NewPickup(model, world, quantity, x, y, z, alpha, automatic, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const Vector3 & pos,
+static LightObj & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const Vector3 & pos,
                             Int32 alpha, bool automatic)
 {
     return Core::Get().NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullObject());
+                            SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const Vector3 & pos,
-                            Int32 alpha, bool automatic, Int32 header, Object & payload)
+static LightObj & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const Vector3 & pos,
+                            Int32 alpha, bool automatic, Int32 header, LightObj & payload)
 {
     return Core::Get().NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
                             header, payload);
@@ -453,18 +438,18 @@ void Register_CPickup(HSQUIRRELVM vm)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CPickup::Max)
         // Core Properties
+        .Prop(_SC("On"), &CPickup::GetEvents)
         .Prop(_SC("ID"), &CPickup::GetID)
         .Prop(_SC("Tag"), &CPickup::GetTag, &CPickup::SetTag)
         .Prop(_SC("Data"), &CPickup::GetData, &CPickup::SetData)
         .Prop(_SC("Active"), &CPickup::IsActive)
         // Core Methods
-        .Func(_SC("Bind"), &CPickup::BindEvent)
         .FmtFunc(_SC("SetTag"), &CPickup::ApplyTag)
         .Func(_SC("CustomEvent"), &CPickup::CustomEvent)
         // Core Overloads
         .Overload< bool (CPickup::*)(void) >(_SC("Destroy"), &CPickup::Destroy)
         .Overload< bool (CPickup::*)(Int32) >(_SC("Destroy"), &CPickup::Destroy)
-        .Overload< bool (CPickup::*)(Int32, Object &) >(_SC("Destroy"), &CPickup::Destroy)
+        .Overload< bool (CPickup::*)(Int32, LightObj &) >(_SC("Destroy"), &CPickup::Destroy)
         // Properties
         .Prop(_SC("Model"), &CPickup::GetModel)
         .Prop(_SC("World"), &CPickup::GetWorld, &CPickup::SetWorld)
@@ -485,13 +470,13 @@ void Register_CPickup(HSQUIRRELVM vm)
         .Func(_SC("SetPos"), &CPickup::SetPositionEx)
         .Func(_SC("SetPosition"), &CPickup::SetPositionEx)
         // Static Overloads
-        .StaticOverload< Object & (*)(Int32, Int32, Int32, Float32, Float32, Float32, Int32, bool) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Int32, Float32, Float32, Float32, Int32, bool) >
             (_SC("CreateEx"), &Pickup_CreateEx)
-        .StaticOverload< Object & (*)(Int32, Int32, Int32, Float32, Float32, Float32, Int32, bool, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Int32, Float32, Float32, Float32, Int32, bool, Int32, LightObj &) >
             (_SC("CreateEx"), &Pickup_CreateEx)
-        .StaticOverload< Object & (*)(Int32, Int32, Int32, const Vector3 &, Int32, bool) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Int32, const Vector3 &, Int32, bool) >
             (_SC("Create"), &Pickup_Create)
-        .StaticOverload< Object & (*)(Int32, Int32, Int32, const Vector3 &, Int32, bool, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, Int32, Int32, const Vector3 &, Int32, bool, Int32, LightObj &) >
             (_SC("Create"), &Pickup_Create)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CPickup::SqGetNull)

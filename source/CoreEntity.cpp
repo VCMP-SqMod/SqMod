@@ -34,7 +34,7 @@ void Core::ImportBlips()
             m_Blips[i].mPosition.SetVector3Ex(x, y, z);
             m_Blips[i].mColor.SetRGBA(color);
             // Attempt to allocate the instance
-            AllocBlip(i, false, SQMOD_CREATE_IMPORT, NullObject());
+            AllocBlip(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
         }
     }
 }
@@ -47,7 +47,7 @@ void Core::ImportCheckpoints()
         // See if this entity exists on the server and whether was not allocated already
         if (_Func->CheckEntityExists(vcmpEntityPoolCheckPoint, i) && INVALID_ENTITY(m_Checkpoints[i].mID))
         {
-            AllocCheckpoint(i, false, SQMOD_CREATE_IMPORT, NullObject());
+            AllocCheckpoint(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
         }
     }
 }
@@ -55,6 +55,12 @@ void Core::ImportCheckpoints()
 // ------------------------------------------------------------------------------------------------
 void Core::ImportKeybinds()
 {
+    /* @NOTE This function is disabled because VC:MP server seems bugged
+     * and does not return vcmpErrorNoSuchEntity when the keybind does not exist.
+     * Therefore causing incorrect behavior in the plugin.
+    */
+    return;
+
     // Information about the key-bind entity
     Uint8 release = 0;
     Int32 first = -1, second = -1, third = -1;
@@ -71,7 +77,7 @@ void Core::ImportKeybinds()
             m_Keybinds[i].mThird = third;
             m_Keybinds[i].mRelease = release;
             // Attempt to allocate the instance
-            AllocKeybind(i, false, SQMOD_CREATE_IMPORT, NullObject());
+            AllocKeybind(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
         }
     }
 }
@@ -84,7 +90,7 @@ void Core::ImportObjects()
         // See if this entity exists on the server and whether was not allocated already
         if (_Func->CheckEntityExists(vcmpEntityPoolObject, i) && INVALID_ENTITY(m_Objects[i].mID))
         {
-            AllocObject(i, false, SQMOD_CREATE_IMPORT, NullObject());
+            AllocObject(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
         }
     }
 }
@@ -97,7 +103,7 @@ void Core::ImportPickups()
         // See if this entity exists on the server and whether was not allocated already
         if (_Func->CheckEntityExists(vcmpEntityPoolPickup, i) && (INVALID_ENTITY(m_Pickups[i].mID)))
         {
-            AllocPickup(i, false, SQMOD_CREATE_IMPORT, NullObject());
+            AllocPickup(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
         }
     }
 }
@@ -110,7 +116,7 @@ void Core::ImportPlayers()
         // See if this entity exists on the server and whether was not allocated already
         if (_Func->IsPlayerConnected(i) && (INVALID_ENTITY(m_Players[i].mID)))
         {
-            ConnectPlayer(i, SQMOD_CREATE_IMPORT, NullObject());
+            ConnectPlayer(i, SQMOD_CREATE_IMPORT, NullLightObj());
         }
     }
 }
@@ -123,13 +129,13 @@ void Core::ImportVehicles()
         // See if this entity exists on the server and whether was not allocated already
         if (_Func->CheckEntityExists(vcmpEntityPoolVehicle, i) && INVALID_ENTITY(m_Vehicles[i].mID))
         {
-            AllocVehicle(i, false, SQMOD_CREATE_IMPORT, NullObject());
+            AllocVehicle(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
         }
     }
 }
 
 // --------------------------------------------------------------------------------------------
-Core::BlipInst & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & payload)
+Core::BlipInst & Core::AllocBlip(Int32 id, bool owned, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
@@ -144,13 +150,17 @@ Core::BlipInst & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & pa
         return inst; // Return the existing instance
     }
     // Instantiate the entity manager
-    inst.mInst = new CBlip(id);
+    DeleteGuard< CBlip > dg(new CBlip(id));
     // Create the script object
-    inst.mObj = Object(inst.mInst, m_VM);
+    inst.mObj = LightObj(inst.mInst, m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
     // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        ResetInst(inst);
+        inst.ResetInstance();
         // Now we can throw the error
         STHROWF("Unable to create a blip instance for: %d", id);
     }
@@ -165,6 +175,8 @@ Core::BlipInst & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & pa
     {
         inst.mFlags ^= ENF_OWNED;
     }
+    // Initialize the instance events
+    inst.InitEvents();
     // Let the script callbacks know about this entity
     EmitBlipCreated(id, header, payload);
     // Return the allocated instance
@@ -172,7 +184,7 @@ Core::BlipInst & Core::AllocBlip(Int32 id, bool owned, Int32 header, Object & pa
 }
 
 // --------------------------------------------------------------------------------------------
-Core::CheckpointInst & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, Object & payload)
+Core::CheckpointInst & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
@@ -187,13 +199,17 @@ Core::CheckpointInst & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header,
         return inst; // Return the existing instance
     }
     // Instantiate the entity manager
-    inst.mInst = new CCheckpoint(id);
+    DeleteGuard< CCheckpoint > dg(new CCheckpoint(id));
     // Create the script object
-    inst.mObj = Object(inst.mInst, m_VM);
+    inst.mObj = LightObj(inst.mInst, m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
     // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        ResetInst(inst);
+        inst.ResetInstance();
         // Now we can throw the error
         STHROWF("Unable to create a checkpoint instance for: %d", id);
     }
@@ -208,6 +224,8 @@ Core::CheckpointInst & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header,
     {
         inst.mFlags ^= ENF_OWNED;
     }
+    // Initialize the instance events
+    inst.InitEvents();
     // Let the script callbacks know about this entity
     EmitCheckpointCreated(id, header, payload);
     // Return the allocated instance
@@ -215,7 +233,7 @@ Core::CheckpointInst & Core::AllocCheckpoint(Int32 id, bool owned, Int32 header,
 }
 
 // --------------------------------------------------------------------------------------------
-Core::KeybindInst & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Object & payload)
+Core::KeybindInst & Core::AllocKeybind(Int32 id, bool owned, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
@@ -230,13 +248,17 @@ Core::KeybindInst & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Objec
         return inst; // Return the existing instance
     }
     // Instantiate the entity manager
-    inst.mInst = new CKeybind(id);
+    DeleteGuard< CKeybind > dg(new CKeybind(id));
     // Create the script object
-    inst.mObj = Object(inst.mInst, m_VM);
+    inst.mObj = LightObj(inst.mInst, m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
     // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        ResetInst(inst);
+        inst.ResetInstance();
         // Now we can throw the error
         STHROWF("Unable to create a keybind instance for: %d", id);
     }
@@ -251,6 +273,8 @@ Core::KeybindInst & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Objec
     {
         inst.mFlags ^= ENF_OWNED;
     }
+    // Initialize the instance events
+    inst.InitEvents();
     // Let the script callbacks know about this entity
     EmitKeybindCreated(id, header, payload);
     // Return the allocated instance
@@ -258,7 +282,7 @@ Core::KeybindInst & Core::AllocKeybind(Int32 id, bool owned, Int32 header, Objec
 }
 
 // --------------------------------------------------------------------------------------------
-Core::ObjectInst & Core::AllocObject(Int32 id, bool owned, Int32 header, Object & payload)
+Core::ObjectInst & Core::AllocObject(Int32 id, bool owned, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
@@ -273,13 +297,17 @@ Core::ObjectInst & Core::AllocObject(Int32 id, bool owned, Int32 header, Object 
         return inst; // Return the existing instance
     }
     // Instantiate the entity manager
-    inst.mInst = new CObject(id);
+    DeleteGuard< CObject > dg(new CObject(id));
     // Create the script object
-    inst.mObj = Object(inst.mInst, m_VM);
+    inst.mObj = LightObj(inst.mInst, m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
     // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        ResetInst(inst);
+        inst.ResetInstance();
         // Now we can throw the error
         STHROWF("Unable to create a object instance for: %d", id);
     }
@@ -294,6 +322,8 @@ Core::ObjectInst & Core::AllocObject(Int32 id, bool owned, Int32 header, Object 
     {
         inst.mFlags ^= ENF_OWNED;
     }
+    // Initialize the instance events
+    inst.InitEvents();
     // Let the script callbacks know about this entity
     EmitObjectCreated(id, header, payload);
     // Return the allocated instance
@@ -301,7 +331,7 @@ Core::ObjectInst & Core::AllocObject(Int32 id, bool owned, Int32 header, Object 
 }
 
 // --------------------------------------------------------------------------------------------
-Core::PickupInst & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object & payload)
+Core::PickupInst & Core::AllocPickup(Int32 id, bool owned, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
@@ -316,13 +346,17 @@ Core::PickupInst & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object 
         return inst; // Return the existing instance
     }
     // Instantiate the entity manager
-    inst.mInst = new CPickup(id);
+    DeleteGuard< CPickup > dg(new CPickup(id));
     // Create the script object
-    inst.mObj = Object(inst.mInst, m_VM);
+    inst.mObj = LightObj(inst.mInst, m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
     // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        ResetInst(inst);
+        inst.ResetInstance();
         // Now we can throw the error
         STHROWF("Unable to create a pickup instance for: %d", id);
     }
@@ -337,6 +371,8 @@ Core::PickupInst & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object 
     {
         inst.mFlags ^= ENF_OWNED;
     }
+    // Initialize the instance events
+    inst.InitEvents();
     // Let the script callbacks know about this entity
     EmitPickupCreated(id, header, payload);
     // Return the allocated instance
@@ -344,7 +380,7 @@ Core::PickupInst & Core::AllocPickup(Int32 id, bool owned, Int32 header, Object 
 }
 
 // --------------------------------------------------------------------------------------------
-Core::VehicleInst & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Object & payload)
+Core::VehicleInst & Core::AllocVehicle(Int32 id, bool owned, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
@@ -359,13 +395,17 @@ Core::VehicleInst & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Objec
         return inst; // Return the existing instance
     }
     // Instantiate the entity manager
-    inst.mInst = new CVehicle(id);
+    DeleteGuard< CVehicle > dg(new CVehicle(id));
     // Create the script object
-    inst.mObj = Object(inst.mInst, m_VM);
+    inst.mObj = LightObj(inst.mInst, m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
     // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        ResetInst(inst);
+        inst.ResetInstance();
         // Now we can throw the error
         STHROWF("Unable to create a vehicle instance for: %d", id);
     }
@@ -380,6 +420,8 @@ Core::VehicleInst & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Objec
     {
         inst.mFlags ^= ENF_OWNED;
     }
+    // Initialize the instance events
+    inst.InitEvents();
     // Let the script callbacks know about this entity
     EmitVehicleCreated(id, header, payload);
     // Return the allocated instance
@@ -387,7 +429,7 @@ Core::VehicleInst & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Objec
 }
 
 // --------------------------------------------------------------------------------------------
-void Core::DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload)
+void Core::DeallocBlip(Int32 id, bool destroy, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
@@ -404,7 +446,7 @@ void Core::DeallocBlip(Int32 id, bool destroy, Int32 header, Object & payload)
 }
 
 // --------------------------------------------------------------------------------------------
-void Core::DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payload)
+void Core::DeallocCheckpoint(Int32 id, bool destroy, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
@@ -421,7 +463,7 @@ void Core::DeallocCheckpoint(Int32 id, bool destroy, Int32 header, Object & payl
 }
 
 // --------------------------------------------------------------------------------------------
-void Core::DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload)
+void Core::DeallocKeybind(Int32 id, bool destroy, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
@@ -438,7 +480,7 @@ void Core::DeallocKeybind(Int32 id, bool destroy, Int32 header, Object & payload
 }
 
 // --------------------------------------------------------------------------------------------
-void Core::DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload)
+void Core::DeallocObject(Int32 id, bool destroy, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
@@ -455,7 +497,7 @@ void Core::DeallocObject(Int32 id, bool destroy, Int32 header, Object & payload)
 }
 
 // --------------------------------------------------------------------------------------------
-void Core::DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload)
+void Core::DeallocPickup(Int32 id, bool destroy, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
@@ -472,7 +514,7 @@ void Core::DeallocPickup(Int32 id, bool destroy, Int32 header, Object & payload)
 }
 
 // --------------------------------------------------------------------------------------------
-void Core::DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload)
+void Core::DeallocVehicle(Int32 id, bool destroy, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
@@ -489,9 +531,9 @@ void Core::DeallocVehicle(Int32 id, bool destroy, Int32 header, Object & payload
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
+LightObj & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
                             Int32 scale, Uint32 color, Int32 sprid,
-                            Int32 header, Object & payload)
+                            Int32 header, LightObj & payload)
 {
     // Request the server to create this entity
     const Int32 id = _Func->CreateCoordBlip(index, world, x, y, z, scale, color, sprid);
@@ -517,9 +559,9 @@ Object & Core::NewBlip(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::NewCheckpoint(Int32 player, Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+LightObj & Core::NewCheckpoint(Int32 player, Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                                 Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
-                                Int32 header, Object & payload)
+                                Int32 header, LightObj & payload)
 {
     // Request the server to create this entity
     const Int32 id = _Func->CreateCheckPoint(player, world, sphere, x, y, z, r, g, b, a, radius);
@@ -549,8 +591,8 @@ Object & Core::NewCheckpoint(Int32 player, Int32 world, bool sphere, Float32 x, 
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::NewKeybind(Int32 slot, bool release, Int32 primary, Int32 secondary, Int32 alternative,
-                            Int32 header, Object & payload)
+LightObj & Core::NewKeybind(Int32 slot, bool release, Int32 primary, Int32 secondary, Int32 alternative,
+                            Int32 header, LightObj & payload)
 {
     // Should we obtain a new keybind slot automatically?
     if (slot < 0)
@@ -581,8 +623,8 @@ Object & Core::NewKeybind(Int32 slot, bool release, Int32 primary, Int32 seconda
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,  Int32 alpha,
-                            Int32 header, Object & payload)
+LightObj & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,  Int32 alpha,
+                            Int32 header, LightObj & payload)
 {
     // Request the server to create this entity
     const Int32 id = _Func->CreateObject(model, world, x, y, z, alpha);
@@ -608,9 +650,9 @@ Object & Core::NewObject(Int32 model, Int32 world, Float32 x, Float32 y, Float32
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
+LightObj & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
                             Float32 x, Float32 y, Float32 z, Int32 alpha, bool automatic,
-                            Int32 header, Object & payload)
+                            Int32 header, LightObj & payload)
 {
     // Request the server to create this entity
     const Int32 id = _Func->CreatePickup(model, world, quantity, x, y, z, alpha, automatic);
@@ -636,9 +678,9 @@ Object & Core::NewPickup(Int32 model, Int32 world, Int32 quantity,
 }
 
 // --------------------------------------------------------------------------------------------
-Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
+LightObj & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
                             Float32 angle, Int32 primary, Int32 secondary,
-                            Int32 header, Object & payload)
+                            Int32 header, LightObj & payload)
 {
 
     // Request the server to create this entity
@@ -669,7 +711,7 @@ Object & Core::NewVehicle(Int32 model, Int32 world, Float32 x, Float32 y, Float3
 }
 
 // --------------------------------------------------------------------------------------------
-bool Core::DelBlip(Int32 id, Int32 header, Object & payload)
+bool Core::DelBlip(Int32 id, Int32 header, LightObj & payload)
 {
     // Attempt to destroy and deallocate the specified entity instance
     DeallocBlip(id, true, header, payload);
@@ -678,7 +720,7 @@ bool Core::DelBlip(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::DelCheckpoint(Int32 id, Int32 header, Object & payload)
+bool Core::DelCheckpoint(Int32 id, Int32 header, LightObj & payload)
 {
     // Attempt to destroy and deallocate the specified entity instance
     DeallocCheckpoint(id, true, header, payload);
@@ -687,7 +729,7 @@ bool Core::DelCheckpoint(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::DelKeybind(Int32 id, Int32 header, Object & payload)
+bool Core::DelKeybind(Int32 id, Int32 header, LightObj & payload)
 {
     // Attempt to destroy and deallocate the specified entity instance
     DeallocKeybind(id, true, header, payload);
@@ -696,7 +738,7 @@ bool Core::DelKeybind(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::DelObject(Int32 id, Int32 header, Object & payload)
+bool Core::DelObject(Int32 id, Int32 header, LightObj & payload)
 {
     // Attempt to destroy and deallocate the specified entity instance
     DeallocObject(id, true, header, payload);
@@ -705,7 +747,7 @@ bool Core::DelObject(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::DelPickup(Int32 id, Int32 header, Object & payload)
+bool Core::DelPickup(Int32 id, Int32 header, LightObj & payload)
 {
     // Attempt to destroy and deallocate the specified entity instance
     DeallocPickup(id, true, header, payload);
@@ -714,7 +756,7 @@ bool Core::DelPickup(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::DelVehicle(Int32 id, Int32 header, Object & payload)
+bool Core::DelVehicle(Int32 id, Int32 header, LightObj & payload)
 {
     // Attempt to destroy and deallocate the specified entity instance
     DeallocVehicle(id, true, header, payload);
@@ -723,7 +765,7 @@ bool Core::DelVehicle(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
+void Core::ConnectPlayer(Int32 id, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
@@ -740,11 +782,11 @@ void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
     // Instantiate the entity manager
     inst.mInst = new CPlayer(id);
     // Create the script object
-    inst.mObj = Object(inst.mInst, m_VM);
+    inst.mObj = LightObj(inst.mInst, m_VM);
     // Make sure that both the instance and script object could be created
     if (!inst.mInst || inst.mObj.IsNull())
     {
-        ResetInst(inst);
+        inst.ResetInstance();
         STHROWF("Unable to create a player instance for: %d", id);
     }
     // Assign the specified entity identifier
@@ -761,7 +803,7 @@ void Core::ConnectPlayer(Int32 id, Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::DisconnectPlayer(Int32 id, Int32 header, Object & payload)
+void Core::DisconnectPlayer(Int32 id, Int32 header, LightObj & payload)
 {
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))

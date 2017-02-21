@@ -33,7 +33,7 @@ SQInteger CCheckpoint::SqGetNull(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CCheckpoint::GetNull()
+LightObj & CCheckpoint::GetNull()
 {
     return Core::Get().GetNullCheckpoint();
 }
@@ -85,7 +85,7 @@ CCheckpoint & CCheckpoint::ApplyTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CCheckpoint::GetData()
+LightObj & CCheckpoint::GetData()
 {
     // Validate the managed identifier
     Validate();
@@ -94,7 +94,7 @@ Object & CCheckpoint::GetData()
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetData(Object & data)
+void CCheckpoint::SetData(LightObj & data)
 {
     // Validate the managed identifier
     Validate();
@@ -103,7 +103,7 @@ void CCheckpoint::SetData(Object & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CCheckpoint::Destroy(Int32 header, Object & payload)
+bool CCheckpoint::Destroy(Int32 header, LightObj & payload)
 {
     // Validate the managed identifier
     Validate();
@@ -112,31 +112,16 @@ bool CCheckpoint::Destroy(Int32 header, Object & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::BindEvent(Int32 evid, Object & env, Function & func) const
+LightObj & CCheckpoint::GetEvents() const
 {
     // Validate the managed identifier
     Validate();
-    // Obtain the function instance called for this event
-    Function & event = Core::Get().GetCheckpointEvent(m_ID, evid);
-    // Is the specified callback function null?
-    if (func.IsNull())
-    {
-        event.ReleaseGently(); // Then release the current callback
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        event = func;
-    }
-    // Assign the specified environment and function
-    else
-    {
-        event = Function(env.GetVM(), env, func.GetFunc());
-    }
+    // Return the associated event table
+    return Core::Get().GetCheckpoint(m_ID).mEvents;
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::CustomEvent(Int32 header, Object & payload) const
+void CCheckpoint::CustomEvent(Int32 header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -302,7 +287,7 @@ void CCheckpoint::SetRadius(Float32 radius)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object & CCheckpoint::GetOwner() const
+LightObj & CCheckpoint::GetOwner() const
 {
     // Validate the managed identifier
     Validate();
@@ -488,32 +473,32 @@ void CCheckpoint::SetColorA(Int32 a) const
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Checkpoint_CreateEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+static LightObj & Checkpoint_CreateEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, x, y, z, r, g, b, a, radius,
-                                SQMOD_CREATE_DEFAULT, NullObject());
+                                SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Checkpoint_CreateEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
+static LightObj & Checkpoint_CreateEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
-                            Int32 header, Object & payload)
+                            Int32 header, LightObj & payload)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, x, y, z, r, g, b, a,
                                 radius, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Object & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & pos,
+static LightObj & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & pos,
                             const Color4 & color, Float32 radius)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, pos.x, pos.y, pos.z,
                                 color.r, color.g, color.b, color.a, radius,
-                                SQMOD_CREATE_DEFAULT, NullObject());
+                                SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static Object & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & pos,
-                            const Color4 & color, Float32 radius, Int32 header, Object & payload)
+static LightObj & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & pos,
+                            const Color4 & color, Float32 radius, Int32 header, LightObj & payload)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, pos.x, pos.y, pos.z,
                                 color.r, color.g, color.b, color.a, radius, header, payload);
@@ -530,18 +515,18 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         // Static Values
         .SetStaticValue(_SC("MaxID"), CCheckpoint::Max)
         // Core Properties
+        .Prop(_SC("On"), &CCheckpoint::GetEvents)
         .Prop(_SC("ID"), &CCheckpoint::GetID)
         .Prop(_SC("Tag"), &CCheckpoint::GetTag, &CCheckpoint::SetTag)
         .Prop(_SC("Data"), &CCheckpoint::GetData, &CCheckpoint::SetData)
         .Prop(_SC("Active"), &CCheckpoint::IsActive)
         // Core Methods
-        .Func(_SC("Bind"), &CCheckpoint::BindEvent)
         .FmtFunc(_SC("SetTag"), &CCheckpoint::ApplyTag)
         .Func(_SC("CustomEvent"), &CCheckpoint::CustomEvent)
         // Core Overloads
         .Overload< bool (CCheckpoint::*)(void) >(_SC("Destroy"), &CCheckpoint::Destroy)
         .Overload< bool (CCheckpoint::*)(Int32) >(_SC("Destroy"), &CCheckpoint::Destroy)
-        .Overload< bool (CCheckpoint::*)(Int32, Object &) >(_SC("Destroy"), &CCheckpoint::Destroy)
+        .Overload< bool (CCheckpoint::*)(Int32, LightObj &) >(_SC("Destroy"), &CCheckpoint::Destroy)
         // Properties
         .Prop(_SC("Sphere"), &CCheckpoint::IsSphere)
         .Prop(_SC("World"), &CCheckpoint::GetWorld, &CCheckpoint::SetWorld)
@@ -569,13 +554,13 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Overload< void (CCheckpoint::*)(Uint8, Uint8, Uint8, Uint8) const >
             (_SC("SetColor"), &CCheckpoint::SetColorEx)
         // Static Overloads
-        .StaticOverload< Object & (*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
+        .StaticOverload< LightObj & (*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
             (_SC("CreateEx"), &Checkpoint_CreateEx)
-        .StaticOverload< Object & (*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, LightObj &) >
             (_SC("CreateEx"), &Checkpoint_CreateEx)
-        .StaticOverload< Object & (*)(Int32, bool, const Vector3 &, const Color4 &, Float32) >
+        .StaticOverload< LightObj & (*)(Int32, bool, const Vector3 &, const Color4 &, Float32) >
             (_SC("Create"), &Checkpoint_Create)
-        .StaticOverload< Object & (*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, Object &) >
+        .StaticOverload< LightObj & (*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, LightObj &) >
             (_SC("Create"), &Checkpoint_Create)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CCheckpoint::SqGetNull)
