@@ -148,6 +148,24 @@ public:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a Table or Class to the Table (can be used to facilitate namespaces)
+    ///
+    /// \param name The key in the table being assigned a Table or Class
+    /// \param obj  Table or Class that is being placed in the table
+    ///
+    /// \remarks
+    /// Bind cannot be called "inline" like other functions because it introduces order-of-initialization bugs.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void Bind(const SQChar* name, LightObj& obj) {
+        sq_pushobject(vm, GetObject());
+        sq_pushstring(vm, name, -1);
+        sq_pushobject(vm, obj.GetObject());
+        sq_newslot(vm, -3, false);
+        sq_pop(vm,1); // pop table
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Binds a raw Squirrel closure to the Table
     ///
     /// \param name The key in the table being assigned a function

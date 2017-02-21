@@ -505,6 +505,33 @@ inline string LastErrorString(HSQUIRRELVM vm) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Used internally to store the counters of managed pointers.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct SqReferenceCounter {
+    typedef unsigned int ValueType; ///< The type of value that is used to represent a count.
+
+    ValueType mHard; ///< Strong reference count. If equal to zero, the object has been destroyed.
+    ValueType mSoft; ///< Weak reference count. If equal to zero, the counter has been destroyed.
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Default constructor
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    SqReferenceCounter()
+        : mHard(0), mSoft(0)
+    { }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Construct with specific counts
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    SqReferenceCounter(ValueType hard, ValueType soft)
+        : mHard(hard), mSoft(soft)
+    { }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// A smart pointer that retains shared ownership of an object through a pointer (see std::shared_ptr)
 ///
 /// \tparam T Type of pointer
@@ -525,11 +552,66 @@ class SharedPtr
     template <class U>
     friend class WeakPtr;
 
+    typedef SqReferenceCounter Counter;
+
 private:
 
     T*            m_Ptr;
-    unsigned int* m_RefCount;
-    unsigned int* m_RefCountRefCount;
+    Counter*      m_Ref;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructs with explicit pointer and counter.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    SharedPtr(T * ptr, Counter * ref)
+        : m_Ptr(ptr)
+        , m_Ref(ref)
+    {
+        if (m_Ptr != NULL)
+        {
+            ++(m_Ref->mHard);
+            ++(m_Ref->mSoft);
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Assigns a new pointer.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void Assign(T * ptr) noexcept
+    {
+        if (m_Ptr != ptr)
+        {
+            Reset();
+
+            if (ptr != NULL)
+            {
+                m_Ptr = ptr;
+                m_Ref = new Counter(1,1);
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Assigns a new pointer and counter.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void Assign(T * ptr, Counter * ref) noexcept
+    {
+        if (m_Ptr != ptr)
+        {
+            Reset();
+
+            if (ptr != NULL)
+            {
+                m_Ptr = ptr;
+                m_Ref = ref;
+
+                ++(m_Ref->mHard);
+                ++(m_Ref->mSoft);
+            }
+        }
+    }
 
 public:
 
@@ -537,10 +619,9 @@ public:
     /// Constructs a new SharedPtr
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr() :
-    m_Ptr             (NULL),
-    m_RefCount        (NULL),
-    m_RefCountRefCount(NULL)
+    SharedPtr()
+        : m_Ptr(NULL)
+        , m_Ref(NULL)
     {
 
     }
@@ -551,12 +632,11 @@ public:
     /// \param ptr Should be the return value from a call to the new operator
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr(T* ptr) :
-    m_Ptr             (NULL),
-    m_RefCount        (NULL),
-    m_RefCountRefCount(NULL)
+    SharedPtr(T* ptr)
+        : m_Ptr(NULL)
+        , m_Ref(NULL)
     {
-        Init(ptr);
+        Assign(ptr);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -568,12 +648,11 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    SharedPtr(U* ptr) :
-    m_Ptr             (NULL),
-    m_RefCount        (NULL),
-    m_RefCountRefCount(NULL)
+    SharedPtr(U* ptr)
+        : m_Ptr(NULL)
+        , m_Ref(NULL)
     {
-        Init(ptr);
+        Assign(static_cast<T*>(ptr));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -583,22 +662,8 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     SharedPtr(const SharedPtr<T>& copy)
+        : SharedPtr(copy.m_Ptr, copy.m_Ref)
     {
-        if (copy.Get() != NULL)
-        {
-            m_Ptr              = copy.Get();
-            m_RefCount         = copy.m_RefCount;
-            m_RefCountRefCount = copy.m_RefCountRefCount;
-
-            *m_RefCount         += 1;
-            *m_RefCountRefCount += 1;
-        }
-        else
-        {
-            m_Ptr              = NULL;
-            m_RefCount         = NULL;
-            m_RefCountRefCount = NULL;
-        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -611,22 +676,8 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
     SharedPtr(const SharedPtr<U>& copy)
+        : SharedPtr(static_cast<T*>(copy.m_Ptr), copy.m_Ref)
     {
-        if (copy.Get() != NULL)
-        {
-            m_Ptr              = static_cast<T*>(copy.Get());
-            m_RefCount         = copy.m_RefCount;
-            m_RefCountRefCount = copy.m_RefCountRefCount;
-
-            *m_RefCount         += 1;
-            *m_RefCountRefCount += 1;
-        }
-        else
-        {
-            m_Ptr              = NULL;
-            m_RefCount         = NULL;
-            m_RefCountRefCount = NULL;
-        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -637,12 +688,10 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     SharedPtr(SharedPtr<T>&& other)
         : m_Ptr(other.m_Ptr)
-        , m_RefCount(other.m_RefCount)
-        , m_RefCountRefCount(other.m_RefCountRefCount)
+        , m_Ref(other.m_Ref)
     {
-        other.m_Ptr              = NULL;
-        other.m_RefCount         = NULL;
-        other.m_RefCountRefCount = NULL;
+        other.m_Ptr = NULL;
+        other.m_Ref = NULL;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -656,12 +705,23 @@ public:
     template <class U>
     SharedPtr(SharedPtr<U>&& other)
         : m_Ptr(static_cast<T*>(other.m_Ptr))
-        , m_RefCount(other.m_RefCount)
-        , m_RefCountRefCount(other.m_RefCountRefCount)
+        , m_Ref(other.m_Ref)
     {
-        other.m_Ptr              = NULL;
-        other.m_RefCount         = NULL;
-        other.m_RefCountRefCount = NULL;
+        other.m_Ptr = NULL;
+        other.m_Ref = NULL;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Copy constructor
+    ///
+    /// \param copy WeakPtr to copy
+    ///
+    /// \tparam U Type of copy (usually doesnt need to be defined explicitly)
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    SharedPtr(const WeakPtr<T>& copy)
+        : SharedPtr(copy.m_Ptr, copy.m_Ref)
+    {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -674,22 +734,8 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
     SharedPtr(const WeakPtr<U>& copy)
+        : SharedPtr(static_cast<T*>(copy.m_Ptr), copy.m_Ref)
     {
-        if (copy.m_Ptr != NULL)
-        {
-            m_Ptr              = static_cast<T*>(copy.m_Ptr);
-            m_RefCount         = copy.m_RefCount;
-            m_RefCountRefCount = copy.m_RefCountRefCount;
-
-            *m_RefCount         += 1;
-            *m_RefCountRefCount += 1;
-        }
-        else
-        {
-            m_Ptr              = NULL;
-            m_RefCount         = NULL;
-            m_RefCountRefCount = NULL;
-        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -711,20 +757,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     SharedPtr<T>& operator=(const SharedPtr<T>& copy)
     {
-        if (this != &copy)
-        {
-            Reset();
-
-            if (copy.Get() != NULL)
-            {
-                m_Ptr              = copy.Get();
-                m_RefCount         = copy.m_RefCount;
-                m_RefCountRefCount = copy.m_RefCountRefCount;
-
-                *m_RefCount         += 1;
-                *m_RefCountRefCount += 1;
-            }
-        }
+        Assign(copy.m_Ptr, copy.m_Ref);
 
         return *this;
     }
@@ -742,17 +775,7 @@ public:
     template <class U>
     SharedPtr<T>& operator=(const SharedPtr<U>& copy)
     {
-        Reset();
-
-        if (copy.Get() != NULL)
-        {
-            m_Ptr              = static_cast<T*>(copy.Get());
-            m_RefCount         = copy.m_RefCount;
-            m_RefCountRefCount = copy.m_RefCountRefCount;
-
-            *m_RefCount         += 1;
-            *m_RefCountRefCount += 1;
-        }
+        Assign(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
 
         return *this;
     }
@@ -772,12 +795,10 @@ public:
             Reset();
 
             m_Ptr = other.m_Ptr;
-            m_RefCount = other.m_RefCount;
-            m_RefCountRefCount = other.m_RefCountRefCount;
+            m_Ref = other.m_Ref;
 
-            other.m_Ptr              = NULL;
-            other.m_RefCount         = NULL;
-            other.m_RefCountRefCount = NULL;
+            other.m_Ptr = NULL;
+            other.m_Ref = NULL;
         }
 
         return *this;
@@ -801,12 +822,10 @@ public:
             Reset();
 
             m_Ptr = static_cast<T*>(other.m_Ptr);
-            m_RefCount = other.m_RefCount;
-            m_RefCountRefCount = other.m_RefCountRefCount;
+            m_Ref = other.m_Ref;
 
-            other.m_Ptr              = NULL;
-            other.m_RefCount         = NULL;
-            other.m_RefCountRefCount = NULL;
+            other.m_Ptr = NULL;
+            other.m_Ref = NULL;
         }
 
         return *this;
@@ -820,15 +839,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void Init(T* ptr)
     {
-        Reset();
-
-        m_Ptr = ptr;
-
-        m_RefCount = new unsigned int;
-        *m_RefCount = 1;
-
-        m_RefCountRefCount = new unsigned int;
-        *m_RefCountRefCount = 1;
+        Assign(ptr);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -842,15 +853,7 @@ public:
     template <class U>
     void Init(U* ptr)
     {
-        Reset();
-
-        m_Ptr = static_cast<T*>(ptr);
-
-        m_RefCount = new unsigned int;
-        *m_RefCount = 1;
-
-        m_RefCountRefCount = new unsigned int;
-        *m_RefCountRefCount = 1;
+        Assign(static_cast<T*>(ptr));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -861,23 +864,22 @@ public:
     {
         if (m_Ptr != NULL)
         {
-            *m_RefCount         -= 1;
-            *m_RefCountRefCount -= 1;
+            --(m_Ref->mHard);
 
-            if (*m_RefCount == 0)
+            if (m_Ref->mHard == 0)
             {
                 delete m_Ptr;
             }
 
-            if (*m_RefCountRefCount == 0)
+            --(m_Ref->mSoft);
+
+            if (m_Ref->mSoft == 0)
             {
-                delete m_RefCount;
-                delete m_RefCountRefCount;
+                delete m_Ref;
             }
 
-            m_Ptr              = NULL;
-            m_RefCount         = NULL;
-            m_RefCountRefCount = NULL;
+            m_Ptr = NULL;
+            m_Ref = NULL;
         }
     }
 
@@ -1050,9 +1052,9 @@ public:
     /// \return Number of references
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    unsigned int Count() const
+    Counter::ValueType Count() const
     {
-        return m_RefCount ? *m_RefCount : 0;
+        return m_Ref ? m_Ref->mHard : 0;
     }
 };
 
@@ -1074,11 +1076,66 @@ class WeakPtr
     template <class U>
     friend class SharedPtr;
 
+    typedef SqReferenceCounter Counter;
+
 private:
 
     T*            m_Ptr;
-    unsigned int* m_RefCount;
-    unsigned int* m_RefCountRefCount;
+    Counter*      m_Ref;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructs with explicit pointer and counter.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    WeakPtr(T * ptr, Counter * ref)
+        : m_Ptr(ptr)
+        , m_Ref(ref)
+    {
+        if (m_Ptr != NULL)
+        {
+            ++(m_Ref->mSoft);
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Initializes the pointer and counter.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void Initialize(T * ptr, Counter * ref) noexcept
+    {
+        if (ptr != NULL)
+        {
+            m_Ptr = ptr;
+            m_Ref = ref;
+
+            ++(m_Ref->mSoft);
+        }
+        else
+        {
+            m_Ptr = NULL;
+            m_Ref = NULL;
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Assigns a new pointer and counter.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void Assign(T * ptr, Counter * ref) noexcept
+    {
+        if (m_Ptr != ptr)
+        {
+            Reset();
+
+            if (ptr != NULL)
+            {
+                m_Ptr = ptr;
+                m_Ref = ref;
+
+                ++(m_Ref->mSoft);
+            }
+        }
+    }
 
 public:
 
@@ -1086,10 +1143,9 @@ public:
     /// Constructs a new WeakPtr
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    WeakPtr() :
-    m_Ptr             (NULL),
-    m_RefCount        (NULL),
-    m_RefCountRefCount(NULL)
+    WeakPtr()
+        : m_Ptr(NULL)
+        , m_Ref(NULL)
     {
 
     }
@@ -1102,20 +1158,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     WeakPtr(const WeakPtr<T>& copy)
     {
-        if (copy.m_Ptr != NULL)
-        {
-            m_Ptr              = copy.m_Ptr;
-            m_RefCount         = copy.m_RefCount;
-            m_RefCountRefCount = copy.m_RefCountRefCount;
-
-            *m_RefCountRefCount += 1;
-        }
-        else
-        {
-            m_Ptr              = NULL;
-            m_RefCount         = NULL;
-            m_RefCountRefCount = NULL;
-        }
+        Initialize(copy.m_Ptr, copy.m_Ref);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1129,20 +1172,7 @@ public:
     template <class U>
     WeakPtr(const WeakPtr<U>& copy)
     {
-        if (copy.m_Ptr != NULL)
-        {
-            m_Ptr              = static_cast<T*>(copy.m_Ptr);
-            m_RefCount         = copy.m_RefCount;
-            m_RefCountRefCount = copy.m_RefCountRefCount;
-
-            *m_RefCountRefCount += 1;
-        }
-        else
-        {
-            m_Ptr              = NULL;
-            m_RefCount         = NULL;
-            m_RefCountRefCount = NULL;
-        }
+        Initialize(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1153,12 +1183,10 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     WeakPtr(WeakPtr<T>&& other)
         : m_Ptr(other.m_Ptr)
-        , m_RefCount(other.m_RefCount)
-        , m_RefCountRefCount(other.m_RefCountRefCount)
+        , m_Ref(other.m_Ref)
     {
-        other.m_Ptr              = NULL;
-        other.m_RefCount         = NULL;
-        other.m_RefCountRefCount = NULL;
+        other.m_Ptr = NULL;
+        other.m_Ref = NULL;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1172,12 +1200,21 @@ public:
     template <class U>
     WeakPtr(WeakPtr<U>&& other)
         : m_Ptr(static_cast<T*>(other.m_Ptr))
-        , m_RefCount(other.m_RefCount)
-        , m_RefCountRefCount(other.m_RefCountRefCount)
+        , m_Ref(other.m_Ref)
     {
-        other.m_Ptr              = NULL;
-        other.m_RefCount         = NULL;
-        other.m_RefCountRefCount = NULL;
+        other.m_Ptr = NULL;
+        other.m_Ref = NULL;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Copy constructor
+    ///
+    /// \param copy SharedPtr to copy
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    WeakPtr(const SharedPtr<T>& copy)
+    {
+        Initialize(copy.m_Ptr, copy.m_Ref);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1191,20 +1228,7 @@ public:
     template <class U>
     WeakPtr(const SharedPtr<U>& copy)
     {
-        if (copy.Get() != NULL)
-        {
-            m_Ptr              = static_cast<T*>(copy.Get());
-            m_RefCount         = copy.m_RefCount;
-            m_RefCountRefCount = copy.m_RefCountRefCount;
-
-            *m_RefCountRefCount += 1;
-        }
-        else
-        {
-            m_Ptr              = NULL;
-            m_RefCount         = NULL;
-            m_RefCountRefCount = NULL;
-        }
+        Initialize(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1226,19 +1250,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     WeakPtr<T>& operator=(const WeakPtr<T>& copy)
     {
-        if (this != &copy)
-        {
-            Reset();
-
-            if (copy.m_Ptr != NULL)
-            {
-                m_Ptr              = copy.m_Ptr;
-                m_RefCount         = copy.m_RefCount;
-                m_RefCountRefCount = copy.m_RefCountRefCount;
-
-                *m_RefCountRefCount += 1;
-            }
-        }
+        Assign(copy.m_Ptr, copy.m_Ref);
 
         return *this;
     }
@@ -1256,16 +1268,7 @@ public:
     template <class U>
     WeakPtr<T>& operator=(const WeakPtr<U>& copy)
     {
-        Reset();
-
-        if (copy.m_Ptr != NULL)
-        {
-            m_Ptr              = static_cast<T*>(copy.m_Ptr);
-            m_RefCount         = copy.m_RefCount;
-            m_RefCountRefCount = copy.m_RefCountRefCount;
-
-            *m_RefCountRefCount += 1;
-        }
+        Assign(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
 
         return *this;
     }
@@ -1284,13 +1287,11 @@ public:
         {
             Reset();
 
-            m_Ptr              = other.m_Ptr;
-            m_RefCount         = other.m_RefCount;
-            m_RefCountRefCount = other.m_RefCountRefCount;
+            m_Ptr = other.m_Ptr;
+            m_Ref = other.m_Ref;
 
-            other.m_Ptr              = NULL;
-            other.m_RefCount         = NULL;
-            other.m_RefCountRefCount = NULL;
+            other.m_Ptr = NULL;
+            other.m_Ref = NULL;
         }
 
         return *this;
@@ -1313,20 +1314,33 @@ public:
         {
             Reset();
 
-            m_Ptr              = static_cast<T*>(other.m_Ptr);
-            m_RefCount         = other.m_RefCount;
-            m_RefCountRefCount = other.m_RefCountRefCount;
+            m_Ptr = static_cast<T*>(other.m_Ptr);
+            m_Ref = other.m_Ref;
 
-            other.m_Ptr              = NULL;
-            other.m_RefCount         = NULL;
-            other.m_RefCountRefCount = NULL;
+            other.m_Ptr = NULL;
+            other.m_Ref = NULL;
         }
 
         return *this;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Assigns the WeakPtr
+    /// Assigns the SharedPtr
+    ///
+    /// \param copy SharedPtr to copy
+    ///
+    /// \return The WeakPtr itself
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    WeakPtr<T>& operator=(const SharedPtr<T>& copy)
+    {
+        Assign(copy.m_Ptr, copy.m_Ref);
+
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Assigns the SharedPtr
     ///
     /// \param copy SharedPtr to copy
     ///
@@ -1338,16 +1352,7 @@ public:
     template <class U>
     WeakPtr<T>& operator=(const SharedPtr<U>& copy)
     {
-        Reset();
-
-        if (copy.Get() != NULL)
-        {
-            m_Ptr              = static_cast<T*>(copy.Get());
-            m_RefCount         = copy.m_RefCount;
-            m_RefCountRefCount = copy.m_RefCountRefCount;
-
-            *m_RefCountRefCount += 1;
-        }
+        Assign(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
 
         return *this;
     }
@@ -1360,7 +1365,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     bool Expired() const
     {
-        return (m_Ptr == NULL || *m_RefCount == 0);
+        return (m_Ptr == NULL || m_Ref->mHard == 0);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1371,17 +1376,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     SharedPtr<T> Lock() const
     {
-        SharedPtr<T> other;
-        if (m_Ptr != NULL)
-        {
-            other.m_Ptr              = m_Ptr;
-            other.m_RefCount         = m_RefCount;
-            other.m_RefCountRefCount = m_RefCountRefCount;
-
-            *m_RefCount         += 1;
-            *m_RefCountRefCount += 1;
-        }
-        return other;
+        return SharedPtr<T>(m_Ptr, m_Ref);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1392,17 +1387,15 @@ public:
     {
         if (m_Ptr != NULL)
         {
-            *m_RefCountRefCount -= 1;
+            --(m_Ref->mSoft);
 
-            if (*m_RefCountRefCount == 0)
+            if (m_Ref->mSoft == 0)
             {
-                delete m_RefCount;
-                delete m_RefCountRefCount;
+                delete m_Ref;
             }
 
-            m_Ptr              = NULL;
-            m_RefCount         = NULL;
-            m_RefCountRefCount = NULL;
+            m_Ptr = NULL;
+            m_Ref = NULL;
         }
     }
 
@@ -1412,9 +1405,9 @@ public:
     /// \return Number of references
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    unsigned int Count() const
+    Counter::ValueType Count() const
     {
-        return m_RefCountRefCount ? *m_RefCountRefCount : 0;
+        return m_Ref ? m_Ref->mSoft : 0;
     }
 };
 
@@ -1642,6 +1635,83 @@ struct StackStrF
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// RAII approach to make sure an instance is deleted regardless of what exceptions are thrown.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < typename T > struct DeleteGuard
+{
+private:
+
+    // --------------------------------------------------------------------------------------------
+    T * m_Ptr; // Pointer to the instance to manage.
+
+public:
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Default constructor.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    DeleteGuard(T * ptr)
+        : m_Ptr(ptr)
+    {
+        /* ... */
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Copy constructor. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    DeleteGuard(const DeleteGuard & o) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Move constructor. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    DeleteGuard(DeleteGuard && o) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Destructor.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ~DeleteGuard()
+    {
+        if (m_Ptr)
+        {
+            delete m_Ptr;
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Copy assignment operator. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    DeleteGuard & operator = (const DeleteGuard & o) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Move assignment operator. (disabled)
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    DeleteGuard & operator = (DeleteGuard && o) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Implicit conversion the managed instance type.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    operator T * () const
+    {
+        return m_Ptr;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Retrieve the managed instance.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    T * Get() const
+    {
+        return m_Ptr;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Release the managed instance.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void Release()
+    {
+        m_Ptr = nullptr;
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @cond DEV
 /// Used internally to get and manipulate the underlying type of variables - retrieved from cppreference.com
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1650,13 +1720,13 @@ template<class T> struct remove_const<const T>                                  
 template<class T> struct remove_volatile                                             {typedef T type;};
 template<class T> struct remove_volatile<volatile T>                                 {typedef T type;};
 template<class T> struct remove_cv                                                   {typedef typename remove_volatile<typename remove_const<T>::type>::type type;};
-template<class T> struct is_pointer_helper                                           {static const bool value = false;};
-template<class T> struct is_pointer_helper<T*>                                       {static const bool value = true;};
-template<class T> struct is_pointer_helper<SharedPtr<T> >                            {static const bool value = true;};
-template<class T> struct is_pointer_helper<WeakPtr<T> >                              {static const bool value = true;};
+template<class T> struct is_pointer_helper                                           {static constexpr bool value = false;};
+template<class T> struct is_pointer_helper<T*>                                       {static constexpr bool value = true;};
+template<class T> struct is_pointer_helper<SharedPtr<T> >                            {static constexpr bool value = true;};
+template<class T> struct is_pointer_helper<WeakPtr<T> >                              {static constexpr bool value = true;};
 template<class T> struct is_pointer : is_pointer_helper<typename remove_cv<T>::type> {};
-template<class T> struct is_reference                                                {static const bool value = false;};
-template<class T> struct is_reference<T&>                                            {static const bool value = true;};
+template<class T> struct is_reference                                                {static constexpr bool value = false;};
+template<class T> struct is_reference<T&>                                            {static constexpr bool value = true;};
 /// @endcond
 
 }
