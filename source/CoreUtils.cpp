@@ -308,6 +308,7 @@ void Core::DropEvents()
     ResetSignalPair(mOnServerOption);
     ResetSignalPair(mOnScriptReload);
     ResetSignalPair(mOnScriptLoaded);
+    m_Events.Release();
 }
 
 } // Namespace:: SqMod

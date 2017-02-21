@@ -292,7 +292,7 @@ public:
         // Unable to find such routine
         STHROWF("Unable to find a routine with tag (%s)", tag.mPtr);
         // Should not reach this point but if it did, we have to return something
-        return s_Instances[SQMOD_MAX_TASKS].mInst; // Intentional Buffer overflow!
+        return s_Instances[SQMOD_MAX_ROUTINES].mInst; // Intentional Buffer overflow!
     }
 
     /* --------------------------------------------------------------------------------------------

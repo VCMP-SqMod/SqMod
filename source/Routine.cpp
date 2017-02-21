@@ -39,7 +39,7 @@ void Routine::Process()
     // Calculate the elapsed time
     const Int32 delta = Int32((s_Last - s_Prev) / 1000L);
     // Process all active routines
-    for (Interval * itr = s_Intervals; itr != (s_Intervals + SQMOD_MAX_TASKS); ++itr)
+    for (Interval * itr = s_Intervals; itr != (s_Intervals + SQMOD_MAX_ROUTINES); ++itr)
     {
         // Is this routine valid?
         if (*itr)

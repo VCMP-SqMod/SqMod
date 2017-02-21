@@ -105,9 +105,65 @@ static uint8_t OnServerInitialise(void)
     return ConvTo< Uint8 >::From(Core::Get().GetState());
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * RAII approach to unbinding the server callbacks.
+*/
+struct CallbackUnbinder
+{
+    ~CallbackUnbinder()
+    {
+        _Clbk->OnServerInitialise           = nullptr;
+        _Clbk->OnServerShutdown             = nullptr;
+        _Clbk->OnServerFrame                = nullptr;
+        _Clbk->OnPluginCommand              = nullptr;
+        _Clbk->OnIncomingConnection         = nullptr;
+        _Clbk->OnClientScriptData           = nullptr;
+        _Clbk->OnPlayerConnect              = nullptr;
+        _Clbk->OnPlayerDisconnect           = nullptr;
+        _Clbk->OnPlayerRequestClass         = nullptr;
+        _Clbk->OnPlayerRequestSpawn         = nullptr;
+        _Clbk->OnPlayerSpawn                = nullptr;
+        _Clbk->OnPlayerDeath                = nullptr;
+        _Clbk->OnPlayerUpdate               = nullptr;
+        _Clbk->OnPlayerRequestEnterVehicle  = nullptr;
+        _Clbk->OnPlayerEnterVehicle         = nullptr;
+        _Clbk->OnPlayerExitVehicle          = nullptr;
+        _Clbk->OnPlayerNameChange           = nullptr;
+        _Clbk->OnPlayerStateChange          = nullptr;
+        _Clbk->OnPlayerActionChange         = nullptr;
+        _Clbk->OnPlayerOnFireChange         = nullptr;
+        _Clbk->OnPlayerCrouchChange         = nullptr;
+        _Clbk->OnPlayerGameKeysChange       = nullptr;
+        _Clbk->OnPlayerBeginTyping          = nullptr;
+        _Clbk->OnPlayerEndTyping            = nullptr;
+        _Clbk->OnPlayerAwayChange           = nullptr;
+        _Clbk->OnPlayerMessage              = nullptr;
+        _Clbk->OnPlayerCommand              = nullptr;
+        _Clbk->OnPlayerPrivateMessage       = nullptr;
+        _Clbk->OnPlayerKeyBindDown          = nullptr;
+        _Clbk->OnPlayerKeyBindUp            = nullptr;
+        _Clbk->OnPlayerSpectate             = nullptr;
+        _Clbk->OnPlayerCrashReport          = nullptr;
+        _Clbk->OnVehicleUpdate              = nullptr;
+        _Clbk->OnVehicleExplode             = nullptr;
+        _Clbk->OnVehicleRespawn             = nullptr;
+        _Clbk->OnObjectShot                 = nullptr;
+        _Clbk->OnObjectTouched              = nullptr;
+        _Clbk->OnPickupPickAttempt          = nullptr;
+        _Clbk->OnPickupPicked               = nullptr;
+        _Clbk->OnPickupRespawn              = nullptr;
+        _Clbk->OnCheckpointEntered          = nullptr;
+        _Clbk->OnCheckpointExited           = nullptr;
+        _Clbk->OnEntityPoolChange           = nullptr;
+        _Clbk->OnServerPerformanceReport    = nullptr;
+    }
+};
+
 // ------------------------------------------------------------------------------------------------
 static void OnServerShutdown(void)
 {
+    // The server still triggers callbacks and we deallocated everything!
+    const CallbackUnbinder cu;
     // Attempt to forward the event
     try
     {
@@ -119,51 +175,6 @@ static void OnServerShutdown(void)
     SQMOD_CATCH_EVENT_EXCEPTION(OnServerShutdown)
     // See if a reload was requested (quite useless here but why not)
     SQMOD_RELOAD_CHECK(g_Reload)
-    // The server still triggers callbacks and we deallocated everything!
-    _Clbk->OnServerInitialise           = nullptr;
-    _Clbk->OnServerShutdown             = nullptr;
-    _Clbk->OnServerFrame                = nullptr;
-    _Clbk->OnPluginCommand              = nullptr;
-    _Clbk->OnIncomingConnection         = nullptr;
-    _Clbk->OnClientScriptData           = nullptr;
-    _Clbk->OnPlayerConnect              = nullptr;
-    _Clbk->OnPlayerDisconnect           = nullptr;
-    _Clbk->OnPlayerRequestClass         = nullptr;
-    _Clbk->OnPlayerRequestSpawn         = nullptr;
-    _Clbk->OnPlayerSpawn                = nullptr;
-    _Clbk->OnPlayerDeath                = nullptr;
-    _Clbk->OnPlayerUpdate               = nullptr;
-    _Clbk->OnPlayerRequestEnterVehicle  = nullptr;
-    _Clbk->OnPlayerEnterVehicle         = nullptr;
-    _Clbk->OnPlayerExitVehicle          = nullptr;
-    _Clbk->OnPlayerNameChange           = nullptr;
-    _Clbk->OnPlayerStateChange          = nullptr;
-    _Clbk->OnPlayerActionChange         = nullptr;
-    _Clbk->OnPlayerOnFireChange         = nullptr;
-    _Clbk->OnPlayerCrouchChange         = nullptr;
-    _Clbk->OnPlayerGameKeysChange       = nullptr;
-    _Clbk->OnPlayerBeginTyping          = nullptr;
-    _Clbk->OnPlayerEndTyping            = nullptr;
-    _Clbk->OnPlayerAwayChange           = nullptr;
-    _Clbk->OnPlayerMessage              = nullptr;
-    _Clbk->OnPlayerCommand              = nullptr;
-    _Clbk->OnPlayerPrivateMessage       = nullptr;
-    _Clbk->OnPlayerKeyBindDown          = nullptr;
-    _Clbk->OnPlayerKeyBindUp            = nullptr;
-    _Clbk->OnPlayerSpectate             = nullptr;
-    _Clbk->OnPlayerCrashReport          = nullptr;
-    _Clbk->OnVehicleUpdate              = nullptr;
-    _Clbk->OnVehicleExplode             = nullptr;
-    _Clbk->OnVehicleRespawn             = nullptr;
-    _Clbk->OnObjectShot                 = nullptr;
-    _Clbk->OnObjectTouched              = nullptr;
-    _Clbk->OnPickupPickAttempt          = nullptr;
-    _Clbk->OnPickupPicked               = nullptr;
-    _Clbk->OnPickupRespawn              = nullptr;
-    _Clbk->OnCheckpointEntered          = nullptr;
-    _Clbk->OnCheckpointExited           = nullptr;
-    _Clbk->OnEntityPoolChange           = nullptr;
-    _Clbk->OnServerPerformanceReport    = nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
