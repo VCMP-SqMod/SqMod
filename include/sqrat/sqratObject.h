@@ -712,6 +712,24 @@ struct LightObj {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructs a LightObj from a string
+    ///
+    /// \param i The string itself
+    /// \param i The length of the string
+    /// \param v VM that the object will exist in
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    LightObj(const SQChar * s, SQInteger l, HSQUIRRELVM v = DefaultVM::Get()) {
+        sq_pushstring(v, s, l);
+        if (SQ_FAILED(sq_getstackobj(v, -1, &mObj))) {
+            sq_resetobject(&mObj);
+        } else {
+            sq_addref(v, &mObj);
+        }
+        sq_pop(v, 1);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Construct a LightObj from a regular Object instance.
     ///
     /// \param so Object to copy

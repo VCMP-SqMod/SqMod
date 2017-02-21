@@ -200,7 +200,8 @@ void Core::EmitIncomingConnection(CStr player_name, size_t name_buffer_size, CCS
     // Attempt to forward the event to the script callback
     try
     {
-        (*mOnIncomingConnection.first)(player_name, name_buffer_size, user_password, ip_address);
+        (*mOnIncomingConnection.first)(LightObj(player_name, -1), name_buffer_size,
+                                        LightObj(user_password, -1), LightObj(ip_address, -1));
     }
     catch (...)
     {
@@ -290,8 +291,9 @@ void Core::EmitPlayerDisembark(Int32 player_id, Int32 vehicle_id)
 void Core::EmitPlayerRename(Int32 player_id, CCStr old_name, CCStr new_name)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    (*_player.mOnRename.first)(old_name, new_name);
-    (*mOnPlayerRename.first)(_player.mObj, old_name, new_name);
+    LightObj oname(old_name, -1), nname(new_name, -1);
+    (*_player.mOnRename.first)(oname, nname);
+    (*mOnPlayerRename.first)(_player.mObj, oname, nname);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -538,16 +540,18 @@ void Core::EmitPlayerAway(Int32 player_id, bool is_away)
 void Core::EmitPlayerMessage(Int32 player_id, CCStr message)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    (*_player.mOnMessage.first)(message);
-    (*mOnPlayerMessage.first)(_player.mObj, message);
+    LightObj msg(message, -1);
+    (*_player.mOnMessage.first)(msg);
+    (*mOnPlayerMessage.first)(_player.mObj, msg);
 }
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerCommand(Int32 player_id, CCStr message)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    (*_player.mOnCommand.first)(message);
-    (*mOnPlayerCommand.first)(_player.mObj, message);
+    LightObj msg(message, -1);
+    (*_player.mOnCommand.first)(msg);
+    (*mOnPlayerCommand.first)(_player.mObj, msg);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -555,8 +559,9 @@ void Core::EmitPlayerPrivateMessage(Int32 player_id, Int32 target_player_id, CCS
 {
     PlayerInst & _player = m_Players.at(player_id);
     PlayerInst & _receiver = m_Players.at(target_player_id);
-    (*_player.mOnMessage.first)(_receiver.mObj,  message);
-    (*mOnPlayerPrivateMessage.first)(_player.mObj, _receiver.mObj, message);
+    LightObj msg(message, -1);
+    (*_player.mOnMessage.first)(_receiver.mObj,  msg);
+    (*mOnPlayerPrivateMessage.first)(_player.mObj, _receiver.mObj, msg);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -592,8 +597,9 @@ void Core::EmitPlayerSpectate(Int32 player_id, Int32 target_player_id)
 void Core::EmitPlayerCrashreport(Int32 player_id, CCStr report)
 {
     PlayerInst & _player = m_Players.at(player_id);
-    (*_player.mOnCrashreport.first)(report);
-    (*mOnPlayerCrashreport.first)(_player.mObj, report);
+    LightObj rep(report, -1);
+    (*_player.mOnCrashreport.first)(rep);
+    (*mOnPlayerCrashreport.first)(_player.mObj, rep);
 }
 
 // ------------------------------------------------------------------------------------------------
