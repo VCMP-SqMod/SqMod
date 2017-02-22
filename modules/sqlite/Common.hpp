@@ -23,7 +23,7 @@ class Transaction;
 */
 #define SQSQLITE_NAME "Squirrel SQLite Module"
 #define SQSQLITE_AUTHOR "Sandu Liviu Catalin (S.L.C)"
-#define SQSQLITE_COPYRIGHT "Copyright (C) 2016 Sandu Liviu Catalin"
+#define SQSQLITE_COPYRIGHT "Copyright (C) 2017 Sandu Liviu Catalin"
 #define SQSQLITE_HOST_NAME "SqModSQLiteHost"
 #define SQSQLITE_VERSION 001
 #define SQSQLITE_VERSION_STR "0.0.1"

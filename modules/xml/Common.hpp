@@ -15,7 +15,7 @@ namespace SqMod {
 */
 #define SQXML_NAME "Squirrel XML Module"
 #define SQXML_AUTHOR "Sandu Liviu Catalin (S.L.C)"
-#define SQXML_COPYRIGHT "Copyright (C) 2016 Sandu Liviu Catalin"
+#define SQXML_COPYRIGHT "Copyright (C) 2017 Sandu Liviu Catalin"
 #define SQXML_HOST_NAME "SqModXMLHost"
 #define SQXML_VERSION 001
 #define SQXML_VERSION_STR "0.0.1"

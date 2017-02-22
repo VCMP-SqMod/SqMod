@@ -15,7 +15,7 @@ namespace SqMod {
 */
 #define SQMG_NAME "Squirrel Mongoose Module"
 #define SQMG_AUTHOR "Sandu Liviu Catalin (S.L.C)"
-#define SQMG_COPYRIGHT "Copyright (C) 2016 Sandu Liviu Catalin"
+#define SQMG_COPYRIGHT "Copyright (C) 2017 Sandu Liviu Catalin"
 #define SQMG_HOST_NAME "SqModMongooseHost"
 #define SQMG_VERSION 001
 #define SQMG_VERSION_STR "0.0.1"

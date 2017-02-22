@@ -15,7 +15,7 @@ namespace SqMod {
 */
 #define SQMMDB_NAME "Squirrel MaxmindDB Module"
 #define SQMMDB_AUTHOR "Sandu Liviu Catalin (S.L.C)"
-#define SQMMDB_COPYRIGHT "Copyright (C) 2016 Sandu Liviu Catalin"
+#define SQMMDB_COPYRIGHT "Copyright (C) 2017 Sandu Liviu Catalin"
 #define SQMMDB_HOST_NAME "SqModMMDBHost"
 #define SQMMDB_VERSION 001
 #define SQMMDB_VERSION_STR "0.0.1"

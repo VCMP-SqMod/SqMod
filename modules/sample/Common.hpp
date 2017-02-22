@@ -12,7 +12,7 @@ namespace SqMod {
 */
 #define SQSAMPLE_NAME "Squirrel Sample Module"
 #define SQSAMPLE_AUTHOR "Sandu Liviu Catalin (S.L.C)"
-#define SQSAMPLE_COPYRIGHT "Copyright (C) 2016 Sandu Liviu Catalin"
+#define SQSAMPLE_COPYRIGHT "Copyright (C) 2017 Sandu Liviu Catalin"
 #define SQSAMPLE_HOST_NAME "SqModSampleHost"
 #define SQSAMPLE_VERSION 001
 #define SQSAMPLE_VERSION_STR "0.0.1"

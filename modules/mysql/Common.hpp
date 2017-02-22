@@ -12,7 +12,7 @@ namespace SqMod {
 */
 #define SQMYSQL_NAME "Squirrel MySQL Module"
 #define SQMYSQL_AUTHOR "Sandu Liviu Catalin (S.L.C)"
-#define SQMYSQL_COPYRIGHT "Copyright (C) 2016 Sandu Liviu Catalin"
+#define SQMYSQL_COPYRIGHT "Copyright (C) 2017 Sandu Liviu Catalin"
 #define SQMYSQL_HOST_NAME "SqModMySQLHost"
 #define SQMYSQL_VERSION 001
 #define SQMYSQL_VERSION_STR "0.0.1"
