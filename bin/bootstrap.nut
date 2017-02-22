@@ -1,1 +1,1 @@
-SqRoutine.Create(this, print, 100, 3, "HELLO WORLD");
+SqRoutine(this, print, 100, 3, "HELLO WORLD");
