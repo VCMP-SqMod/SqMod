@@ -1345,12 +1345,21 @@ LightObj & CPlayer::GetSpectator() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSpectator(CPlayer & target) const
+void CPlayer::SetSpectator(CPlayer * target) const
 {
     // Validate the managed identifier
     Validate();
-    // Perform the requested operation
-    _Func->SetPlayerSpectateTarget(m_ID, target.GetID());
+    // See if the given target is null
+    if (target == nullptr)
+    {
+        // Spectate an invalid player
+        _Func->SetPlayerSpectateTarget(m_ID, -1);
+    }
+    else
+    {
+        // Spectate the given target
+        _Func->SetPlayerSpectateTarget(m_ID, target->GetID());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

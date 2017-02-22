@@ -727,7 +727,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the managed player entity to spectate the specified player entity.
     */
-    void SetSpectator(CPlayer & target) const;
+    void SetSpectator(CPlayer * target) const;
 
     /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.
