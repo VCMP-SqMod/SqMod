@@ -34,8 +34,8 @@ private:
 
     // ------------------------------------------------------------------------------------------------
     SQChar  m_Delimiter; // Date and time delimiter when generating strings.
-    SQChar  m_DateDelim; // Time component delimiter when generating strings.
-    SQChar  m_TimeDelim; // Date component delimiter when generating strings.
+    SQChar  m_DateDelim; // Date component delimiter when generating strings.
+    SQChar  m_TimeDelim; // Time component delimiter when generating strings.
 
 protected:
 

@@ -123,9 +123,9 @@ void Datetime::Set(Uint16 year, Uint8 month, Uint8 day, Uint8 hour, Uint8 minute
     if (!Chrono::ValidDate(year, month, day))
     {
         STHROWF("Invalid date: %04u%c%02u%c%02u%c%u"
-            , m_Delimiter, m_Year
-            , m_Delimiter, m_Month
-            , m_Delimiter, m_Day
+            , m_DateDelim, m_Year
+            , m_DateDelim, m_Month
+            , m_DateDelim, m_Day
         );
     }
     // Is the specified hour within range?
