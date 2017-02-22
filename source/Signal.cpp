@@ -1569,7 +1569,7 @@ void Signal::Remove(const StackStrF & name)
     // Validate the signal name
     if (name.mLen <= 0)
     {
-        //STHROWF("Signals without names cannot be removed manually");
+        STHROWF("Signals without names cannot be removed manually");
     }
     // Create a copy of the name
     const String sname(name.mPtr, name.mLen);
@@ -1603,7 +1603,7 @@ const LightObj & Signal::Fetch(const StackStrF & name)
     // Validate the signal name
     if (name.mLen <= 0)
     {
-        //STHROWF("Signals without names cannot be retrieved manually");
+        STHROWF("Signals without names cannot be retrieved manually");
     }
     // Create a copy of the name
     const String sname(name.mPtr, name.mLen);
@@ -1618,7 +1618,7 @@ const LightObj & Signal::Fetch(const StackStrF & name)
         }
     }
     // No such signal exists
-    //STHROWF("Unknown signal named (%s)", sname.c_str());
+    STHROWF("Unknown signal named (%s)", sname.c_str());
     // SHOULD NOT REACH THIS POINT!
     static LightObj slo;
     return slo;
