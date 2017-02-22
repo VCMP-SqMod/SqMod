@@ -818,6 +818,30 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the preload signal if not complete.
+    */
+    LightObj & GetPreLoadEvent()
+    {
+        return m_LockPreLoadSignal ? NullLightObj() : mOnPreLoad.second;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the postload signal if not complete.
+    */
+    LightObj & GetPostLoadEvent()
+    {
+        return m_LockPostLoadSignal ? NullLightObj() : mOnPostLoad.second;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the unload signal if not complete.
+    */
+    LightObj & GetUnloadEvent()
+    {
+        return m_LockUnloadSignal ? NullLightObj() : mOnUnload.second;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * See if certain circular locks are enabled.
     */
     bool IsCircularLock(Uint32 lock) const

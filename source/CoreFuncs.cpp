@@ -51,6 +51,24 @@ static SQInteger SqGetEvents(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+static LightObj & SqGetPreLoadEvent()
+{
+    return Core::Get().GetPreLoadEvent();
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetPostLoadEvent()
+{
+    return Core::Get().GetPostLoadEvent();
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetUnloadEvent()
+{
+    return Core::Get().GetUnloadEvent();
+}
+
+// ------------------------------------------------------------------------------------------------
 static bool SqGetReloadStatus()
 {
     return GetReloadStatus();
@@ -304,6 +322,9 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("DestroyObject"), &DelObject)
         .Func(_SC("DestroyPickup"), &DelPickup)
         .Func(_SC("DestroyVehicle"), &DelVehicle)
+        .Func(_SC("OnPreLoad"), &SqGetPreLoadEvent)
+        .Func(_SC("OnPostLoad"), &SqGetPostLoadEvent)
+        .Func(_SC("OnUnload"), &SqGetUnloadEvent)
         .SquirrelFunc(_SC("LoadScript"), &SqLoadScript)
         .SquirrelFunc(_SC("On"), &SqGetEvents)
     );
