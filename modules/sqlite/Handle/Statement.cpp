@@ -51,9 +51,9 @@ void StmtHnd::Create(CSStr query, SQInteger length)
         STHROWF("Unable to prepare statement. Invalid connection handle");
     }
     // Is the specified query string valid?
-    else if (!query || *query || !length)
+    else if (!query || !length || *query == '\0')
     {
-        STHROWF("Unable to prepare statement. Invalid query string");
+        STHROWF("Unable to prepare statement. Invalid or empty query string");
     }
     // Save the query string
     mQuery.assign(query, length);
