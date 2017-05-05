@@ -166,93 +166,156 @@ template < typename T > constexpr T MinOf() noexcept
 /* ------------------------------------------------------------------------------------------------
  * Perform an equality comparison between two values taking into account floating point issues.
 */
-template< typename T > inline bool EpsEq(const T a, const T b)
+template < typename T, typename U > struct EpsCmp
 {
-    return abs(a - b) <= 0;
+    static inline bool EQ(const T & a, const U & b) { return abs(a - b) <= 0; }
+    static inline bool LT(const T & a, const U & b) { return !EQ(a, b) && (a < b); }
+    static inline bool GT(const T & a, const U & b) { return !EQ(a, b) && (a > b); }
+    static inline bool LE(const T & a, const U & b) { return EQ(a, b) || (a < b); }
+    static inline bool GE(const T & a, const U & b) { return EQ(a, b) || (a > b); }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Perform an equality comparison between two real values taking into account floating point issues.
+*/
+template < > struct EpsCmp< float, float > {
+    static inline bool EQ(const float & a, const float & b) { return fabsf(a - b) <= 0.000001f; }
+    static inline bool LT(const float & a, const float & b) { return !EQ(a, b) && (a - b) < 0.000001f; }
+    static inline bool GT(const float & a, const float & b) { return !EQ(a, b) && (a - b) > 0.000001f; }
+    static inline bool LE(const float & a, const float & b) { return EQ(a, b) || (a - b) < 0.000001f; }
+    static inline bool GE(const float & a, const float & b) { return EQ(a, b) || (a - b) > 0.000001f; }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Perform an equality comparison between two real values taking into account floating point issues.
+*/
+template < > struct EpsCmp< double, double > {
+    static inline bool EQ(const double & a, const double & b) { return fabs(a - b) <= 0.000000001d; }
+    static inline bool LT(const double & a, const double & b) { return !EQ(a, b) && (a - b) < 0.000000001d; }
+    static inline bool GT(const double & a, const double & b) { return !EQ(a, b) && (a - b) > 0.000000001d; }
+    static inline bool LE(const double & a, const double & b) { return EQ(a, b) || (a - b) < 0.000000001d; }
+    static inline bool GE(const double & a, const double & b) { return EQ(a, b) || (a - b) > 0.000000001d; }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Perform an equality comparison between two real values taking into account floating point issues.
+*/
+template < > struct EpsCmp< float, double > {
+    static inline bool EQ(const float & a, const double & b) { return fabs(static_cast< double >(a) - b) <= 0.000001d; }
+    static inline bool LT(const float & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) < 0.000001d; }
+    static inline bool GT(const float & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) > 0.000001d; }
+    static inline bool LE(const float & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) < 0.000001d; }
+    static inline bool GE(const float & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) > 0.000001d; }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Perform an equality comparison between two real values taking into account floating point issues.
+*/
+template < > struct EpsCmp< double, float > {
+    static inline bool EQ(const double & a, const float & b) { return fabs(a - static_cast< double >(b)) <= 0.000001d; }
+    static inline bool LT(const double & a, const float & b) { return !EQ(a, b) && (a - static_cast< double >(b)) < 0.000001d; }
+    static inline bool GT(const double & a, const float & b) { return !EQ(a, b) && (a - static_cast< double >(b)) > 0.000001d; }
+    static inline bool LE(const double & a, const float & b) { return EQ(a, b) || (a - static_cast< double >(b)) < 0.000001d; }
+    static inline bool GE(const double & a, const float & b) { return EQ(a, b) || (a - static_cast< double >(b)) > 0.000001d; }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Perform an equality comparison between two real values taking into account floating point issues.
+*/
+template < typename T > struct EpsCmp< float, T > {
+    static inline bool EQ(const float & a, const T & b) { return fabsf(a - static_cast< float >(b)) <= 0.000001f; }
+    static inline bool LT(const float & a, const T & b) { return !EQ(a, b) && (a - static_cast< float >(b)) < 0.000001f; }
+    static inline bool GT(const float & a, const T & b) { return !EQ(a, b) && (a - static_cast< float >(b)) > 0.000001f; }
+    static inline bool LE(const float & a, const T & b) { return EQ(a, b) || (a - static_cast< float >(b)) < 0.000001f; }
+    static inline bool GE(const float & a, const T & b) { return EQ(a, b) || (a - static_cast< float >(b)) > 0.000001f; }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Perform an equality comparison between two real values taking into account floating point issues.
+*/
+template < typename T > struct EpsCmp< T, float > {
+    static inline bool EQ(const T & a, const float & b) { return fabsf(static_cast< float >(a) - b) <= 0.000001f; }
+    static inline bool LT(const T & a, const float & b) { return !EQ(a, b) && (static_cast< float >(a) - b) < 0.000001f; }
+    static inline bool GT(const T & a, const float & b) { return !EQ(a, b) && (static_cast< float >(a) - b) > 0.000001f; }
+    static inline bool LE(const T & a, const float & b) { return EQ(a, b) || (static_cast< float >(a) - b) < 0.000001f; }
+    static inline bool GE(const T & a, const float & b) { return EQ(a, b) || (static_cast< float >(a) - b) > 0.000001f; }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Perform an equality comparison between two real values taking into account floating point issues.
+*/
+template < typename T > struct EpsCmp< double, T > {
+    static inline bool EQ(const double & a, const T & b) { return fabs(a - static_cast< double >(b)) <= 0.000000001d; }
+    static inline bool LT(const double & a, const T & b) { return !EQ(a, b) && (a - static_cast< double >(b)) < 0.000000001d; }
+    static inline bool GT(const double & a, const T & b) { return !EQ(a, b) && (a - static_cast< double >(b)) > 0.000000001d; }
+    static inline bool LE(const double & a, const T & b) { return EQ(a, b) || (a - static_cast< double >(b)) < 0.000000001d; }
+    static inline bool GE(const double & a, const T & b) { return EQ(a, b) || (a - static_cast< double >(b)) > 0.000000001d; }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Perform an equality comparison between two real values taking into account floating point issues.
+*/
+template < typename T > struct EpsCmp< T, double > {
+    static inline bool EQ(const T & a, const double & b) { return fabs(static_cast< double >(a) - b) <= 0.000000001d; }
+    static inline bool LT(const T & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) < 0.000000001d; }
+    static inline bool GT(const T & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) > 0.000000001d; }
+    static inline bool LE(const T & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) < 0.000000001d; }
+    static inline bool GE(const T & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) > 0.000000001d; }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Alias of precise comparison helpers.
+*/
+template < typename T, typename U > using ECMP = EpsCmp< typename std::decay< T >::type, typename std::decay< U >::type >;
+
+/* ------------------------------------------------------------------------------------------------
+ * Perform an equality comparison between two values taking into account floating point issues.
+*/
+template < typename T, typename U > inline constexpr bool EpsEq(T a, U b)
+{
+	return ECMP< T, U >::EQ(a, b);
 }
 
-template <> inline bool EpsEq(const Float32 a, const Float32 b)
+/* ------------------------------------------------------------------------------------------------
+ * Perform an inequality comparison between two values taking into account floating point issues.
+*/
+template < typename T, typename U > inline constexpr bool EpsNe(T a, U b)
 {
-    return fabs(a - b) <= 0.000001f;
-}
-
-template <> inline bool EpsEq(const Float64 a, const Float64 b)
-{
-    return fabs(a - b) <= 0.000000001d;
+	return ECMP< T, U >::NE(a, b);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Perform a less than comparison between two values taking into account floating point issues.
 */
-template< typename T > inline bool EpsLt(const T a, const T b)
+template < typename T, typename U > inline constexpr bool EpsLt(T a, U b)
 {
-    return !EpsEq(a, b) && (a < b);
-}
-
-template <> inline bool EpsLt(const Float32 a, const Float32 b)
-{
-    return !EpsEq(a, b) && (a - b) < 0.000001f;
-}
-
-template <> inline bool EpsLt(const Float64 a, const Float64 b)
-{
-    return !EpsEq(a, b) && (a - b) < 0.000000001d;
+	return ECMP< T, U >::LT(a, b);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Perform a greater than comparison between two values taking into account floating point issues.
 */
-template< typename T > inline bool EpsGt(const T a, const T b)
+template < typename T, typename U > inline constexpr bool EpsGt(T a, U b)
 {
-    return !EpsEq(a, b) && (a > b);
-}
-
-template <> inline bool EpsGt(const Float32 a, const Float32 b)
-{
-    return !EpsEq(a, b) && (a - b) > 0.000001f;
-}
-
-template <> inline bool EpsGt(const Float64 a, const Float64 b)
-{
-    return !EpsEq(a, b) && (a - b) > 0.000000001d;
+	return ECMP< T, U >::GT(a, b);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Perform a less than or equal comparison between two values taking into account
  * floating point issues.
 */
-template< typename T > inline bool EpsLtEq(const T a, const T b)
+template < typename T, typename U > inline constexpr bool EpsLtEq(T a, U b)
 {
-    return !EpsEq(a, b) || (a < b);
-}
-
-template <> inline bool EpsLtEq(const Float32 a, const Float32 b)
-{
-    return !EpsEq(a, b) || (a - b) < 0.000001f;
-}
-
-template <> inline bool EpsLtEq(const Float64 a, const Float64 b)
-{
-    return !EpsEq(a, b) || (a - b) < 0.000000001d;
+	return ECMP< T, U >::LE(a, b);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Perform a greater than or equal comparison between two values taking into account
  * floating point issues.
 */
-template< typename T > inline bool EpsGtEq(const T a, const T b)
+template < typename T, typename U > inline constexpr bool EpsGtEq(T a, U b)
 {
-    return !EpsEq(a, b) || (a > b);
-}
-
-template <> inline bool EpsGtEq(const Float32 a, const Float32 b)
-{
-    return !EpsEq(a, b) || (a - b) > 0.000001f;
-}
-
-template <> inline bool EpsGtEq(const Float64 a, const Float64 b)
-{
-    return !EpsEq(a, b) || (a - b) > 0.000000001d;
+	return ECMP< T, U >::GE(a, b);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -667,11 +730,11 @@ template <> template <> inline Uint32 ConvTo< Uint32 >::From< LongI >(LongI v)
 */
 template <> template <> inline Int8 ConvTo< Int8 >::From< Float32 >(Float32 v)
 {
-    if (EpsLt(v, static_cast< Float32 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -680,11 +743,11 @@ template <> template <> inline Int8 ConvTo< Int8 >::From< Float32 >(Float32 v)
 
 template <> template <> inline Int16 ConvTo< Int16 >::From< Float32 >(Float32 v)
 {
-    if (EpsLt(v, static_cast< Float32 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -693,11 +756,11 @@ template <> template <> inline Int16 ConvTo< Int16 >::From< Float32 >(Float32 v)
 
 template <> template <> inline Int32 ConvTo< Int32 >::From< Float32 >(Float32 v)
 {
-    if (EpsLt(v, static_cast< Float32 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -709,11 +772,11 @@ template <> template <> inline Int32 ConvTo< Int32 >::From< Float32 >(Float32 v)
 */
 template <> template <> inline Int8 ConvTo< Int8 >::From< Float64 >(Float64 v)
 {
-    if (EpsLt(v, static_cast< Float64 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -722,11 +785,11 @@ template <> template <> inline Int8 ConvTo< Int8 >::From< Float64 >(Float64 v)
 
 template <> template <> inline Int16 ConvTo< Int16 >::From< Float64 >(Float64 v)
 {
-    if (EpsLt(v, static_cast< Float64 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -735,11 +798,11 @@ template <> template <> inline Int16 ConvTo< Int16 >::From< Float64 >(Float64 v)
 
 template <> template <> inline Int32 ConvTo< Int32 >::From< Float64 >(Float64 v)
 {
-    if (EpsLt(v, static_cast< Float64 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -751,11 +814,11 @@ template <> template <> inline Int32 ConvTo< Int32 >::From< Float64 >(Float64 v)
 */
 template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float32 >(Float32 v)
 {
-    if (EpsLt(v, static_cast< Float32 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -764,11 +827,11 @@ template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float32 >(Float32 v)
 
 template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float32 >(Float32 v)
 {
-    if (EpsLt(v, static_cast< Float32 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -777,11 +840,11 @@ template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float32 >(Float32 
 
 template <> template <> inline Uint32 ConvTo< Uint32 >::From< Float32 >(Float32 v)
 {
-    if (EpsLt(v, static_cast< Float32 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float32 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -793,11 +856,11 @@ template <> template <> inline Uint32 ConvTo< Uint32 >::From< Float32 >(Float32 
 */
 template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float64 >(Float64 v)
 {
-    if (EpsLt(v, static_cast< Float64 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -806,11 +869,11 @@ template <> template <> inline Uint8 ConvTo< Uint8 >::From< Float64 >(Float64 v)
 
 template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float64 >(Float64 v)
 {
-    if (EpsLt(v, static_cast< Float64 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -819,11 +882,11 @@ template <> template <> inline Uint16 ConvTo< Uint16 >::From< Float64 >(Float64 
 
 template <> template <> inline Uint32 ConvTo< Uint32 >::From< Float64 >(Float64 v)
 {
-    if (EpsLt(v, static_cast< Float64 >(Min)))
+    if (EpsLt(v, Min))
     {
         return Min;
     }
-    else if (EpsGt(v, static_cast< Float64 >(Max)))
+    else if (EpsGt(v, Max))
     {
         return Max;
     }
@@ -1009,7 +1072,7 @@ template <> inline Ulong ConvTo< Ulong >::From< Float64 >(Float64 v)
 template <> struct ConvTo< Float32 >
 {
     // --------------------------------------------------------------------------------------------
-    static constexpr Float32 Min = std::numeric_limits< Float32 >::min();
+    static constexpr Float32 Min = std::numeric_limits< Float32 >::lowest();
     static constexpr Float32 Max = std::numeric_limits< Float32 >::max();
 
     // --------------------------------------------------------------------------------------------
@@ -1028,11 +1091,11 @@ template <> inline Float32 ConvTo< Float32 >::From< CCStr >(CCStr v)
 // ------------------------------------------------------------------------------------------------
 template <> inline Float32 ConvTo< Float32 >::From< Float64 >(Float64 v)
 {
-    if (EpsGt(v, static_cast< Float64 >(Max)))
+    if (EpsGt(v, Max))
     {
         return Max;
     }
-    else if (EpsLt(v, static_cast< Float64 >(Min)))
+    else if (EpsLt(v, Min))
     {
         return Min;
     }
@@ -1045,7 +1108,7 @@ template <> inline Float32 ConvTo< Float32 >::From< Float64 >(Float64 v)
 template <> struct ConvTo< Float64 >
 {
     // --------------------------------------------------------------------------------------------
-    static constexpr Float64 Min = std::numeric_limits< Float64 >::min();
+    static constexpr Float64 Min = std::numeric_limits< Float64 >::lowest();
     static constexpr Float64 Max = std::numeric_limits< Float64 >::max();
 
     // --------------------------------------------------------------------------------------------

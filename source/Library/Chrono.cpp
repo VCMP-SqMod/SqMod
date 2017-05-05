@@ -225,7 +225,7 @@ Int64 Chrono::DateRangeToSeconds(Uint16 _year, Uint8 _month, Uint8 _day, Uint16 
     // Are we within the same year?
     if (_year == year_)
     {
-        return std::abs((DayOfYear(_year, _month, _day) - DayOfYear(year_, month_, day_)) * 86400ULL);
+        return std::abs((DayOfYear(_year, _month, _day) - DayOfYear(year_, month_, day_)) * 86400LL);
     }
     // Is the start year greater than the end year?
     else if (_year > year_)
