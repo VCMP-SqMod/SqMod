@@ -776,8 +776,8 @@ SQRESULT sq_getobjtypetag(const HSQOBJECT *o,SQUserPointer * typetag)
 SQRESULT sq_gettypetag(HSQUIRRELVM v,SQInteger idx,SQUserPointer *typetag)
 {
     SQObjectPtr &o = stack_get(v,idx);
-    if(SQ_FAILED(sq_getobjtypetag(&o,typetag)))
-        return sq_throwerror(v,_SC("invalid object type"));
+	if (SQ_FAILED(sq_getobjtypetag(&o, typetag)))
+		return SQ_ERROR;// this is not an error it should be a bool but would break backward compatibility
     return SQ_OK;
 }
 
@@ -971,8 +971,11 @@ SQRESULT sq_setdelegate(HSQUIRRELVM v,SQInteger idx)
     switch(type) {
     case OT_TABLE:
         if(type(mt) == OT_TABLE) {
-            if(!_table(self)->SetDelegate(_table(mt))) return sq_throwerror(v, _SC("delagate cycle"));
-            v->Pop(); }
+            if(!_table(self)->SetDelegate(_table(mt))) {
+                return sq_throwerror(v, _SC("delagate cycle"));
+            }
+            v->Pop();
+        }
         else if(type(mt)==OT_NULL) {
             _table(self)->SetDelegate(NULL); v->Pop(); }
         else return sq_aux_invalidtype(v,type);
