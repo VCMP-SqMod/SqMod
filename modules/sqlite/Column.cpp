@@ -462,7 +462,7 @@ Object Column::GetBuffer() const
     // Retrieve the the actual blob data that must be returned
     CCStr data = reinterpret_cast< CCStr >(sqlite3_column_blob(m_Handle->mPtr, m_Index));
     // Attempt to create a buffer with the blob data on the stack
-    if (SQ_FAILED(SqMod_PushBufferData(DefaultVM::Get(), data, size, size)))
+    if (SQ_FAILED(SqMod_PushBufferData(DefaultVM::Get(), data, size, 0)))
     {
         STHROWF("Unable to allocate buffer of at least (%d) bytes", size);
     }
