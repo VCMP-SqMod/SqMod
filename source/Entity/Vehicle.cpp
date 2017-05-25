@@ -258,8 +258,28 @@ LightObj & CVehicle::GetOccupant(Int32 slot) const
 {
     // Validate the managed identifier
     Validate();
+    // Attempt to retrieve the requested information
+    const int id = _Func->GetVehicleOccupant(m_ID, slot);
+    // Was there an issue with the given value?
+    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        const vcmpError err = _Func->GetLastError();
+        // Identify the type of error
+        if (err == vcmpErrorArgumentOutOfBounds)
+        {
+            STHROWF("Out of range slot [%d]", slot);
+        }
+        else if (err == vcmpErrorNoSuchEntity)
+        {
+            STHROWF("Unoccupied slot [%d]", id);
+        }
+        else
+        {
+            STHROWF("Error while getting occupant at [%d] for [%s]", slot, m_Tag.c_str());
+        }
+    }
     // Return the requested information
-    return Core::Get().GetPlayer(_Func->GetVehicleOccupant(m_ID, slot)).mObj;
+    return Core::Get().GetPlayer(id).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
