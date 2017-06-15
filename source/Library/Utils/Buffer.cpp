@@ -218,10 +218,29 @@ Object SqBuffer::ReadString()
 }
 
 // ------------------------------------------------------------------------------------------------
-Object SqBuffer::ReadRawString(Uint32 len)
+Object SqBuffer::ReadRawString(SQInteger length)
 {
     // Validate the managed buffer reference
     ValidateDeeper();
+    // Start with a length of zero
+    Uint32 len = 0;
+    // Should we Identify the string length ourselves?
+    if (length < 0)
+    {
+        // Grab the buffer range to search for
+        CCStr ptr = &m_Buffer->Cursor(), itr = ptr, end = m_Buffer->End();
+        // Attempt to look for a string terminator
+        while (itr != end && *itr != '\0')
+        {
+            ++itr;
+        }
+        // If nothing was found, consider the remaining buffer part of the requested string
+        len = static_cast< Uint32 >(ptr - itr);
+    }
+    else
+    {
+        len = ConvTo< Uint32 >::From(length);
+    }
     // Validate the obtained length
     if ((m_Buffer->Position() + len) > m_Buffer->Capacity())
     {

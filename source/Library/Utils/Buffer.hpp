@@ -779,7 +779,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Read a raw string from the buffer.
     */
-    Object ReadRawString(Uint32 len);
+    Object ReadRawString(SQInteger length);
 
     /* --------------------------------------------------------------------------------------------
      * Read a AABB from the buffer.
