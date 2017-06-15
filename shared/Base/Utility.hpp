@@ -99,6 +99,11 @@ CSStr ToStrF(CCStr str, ...);
 CSStr ToStringF(CCStr str, ...);
 
 /* ------------------------------------------------------------------------------------------------
+ * Generate a formatted string and throw it as a squirrel exception.
+*/
+SQRESULT SqThrowErrorF(HSQUIRRELVM vm, CCStr str, ...);
+
+/* ------------------------------------------------------------------------------------------------
  * Simple function to check whether the specified string can be considered as a boolean value
 */
 bool SToB(CSStr str);

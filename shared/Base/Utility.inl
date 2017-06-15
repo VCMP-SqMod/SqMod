@@ -209,6 +209,23 @@ CSStr ToStringF(CSStr str, ...)
 }
 
 // ------------------------------------------------------------------------------------------------
+SQRESULT SqThrowErrorF(HSQUIRRELVM vm, CCStr str, ...)
+{
+    // Prepare the arguments list
+    va_list args;
+    va_start(args, str);
+    // Write the requested contents
+    if (std::vsnprintf(g_Buffer, sizeof(g_Buffer), str, args) < 0)
+    {
+        return sq_throwerror(vm, _SC("Formatting error occurred while throwing a script error"));
+    }
+    // Finalize the argument list
+    va_end(args);
+    // Throw the resulted string
+    return sq_throwerror(vm, g_Buffer);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool SToB(CSStr str)
 {
     // Temporary buffer to store the lowercase string
