@@ -119,10 +119,11 @@ static bool OnSquirrelLoad()
         return false;
     }
     // Prevent common null objects from using dead virtual machines
-    NullArray() = Array();
-    NullTable() = Table();
-    NullObject() = Object();
-    NullFunction() = Function();
+    NullObject().Release();
+    NullTable().Release();
+    NullArray().Release();
+    NullLightObj().Release();
+    NullFunction().ReleaseGently();
     // Register the module API
     if (RegisterAPI(DefaultVM::Get()))
     {

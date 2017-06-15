@@ -99,6 +99,7 @@ static void OnSquirrelTerminate()
     NullObject().Release();
     NullTable().Release();
     NullArray().Release();
+    NullLightObj().Release();
     NullFunction().ReleaseGently();
 }
 
