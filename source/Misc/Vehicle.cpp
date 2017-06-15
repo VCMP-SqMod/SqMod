@@ -68,17 +68,41 @@ static String CS_Vehicle_Names[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetAutomobileName(Uint32 id)
+static String CS_Custom_Vehicle_Names[100]{};
+
+// ------------------------------------------------------------------------------------------------
+String GetAutomobileName(Uint32 id)
 {
-    return (id < 130 || id > 236) ? _SC("") : CS_Vehicle_Names[id-130].c_str();
+    if (id > 129 && id < 237)
+    {
+        return CS_Vehicle_Names[id-130];
+    }
+    else if (id > 6399 && id < 6500)
+    {
+        return CS_Custom_Vehicle_Names[id-6400];
+    }
+    else
+    {
+        STHROWF("Vehicle identifier breaks these demands (%u > 129 and %u < 237) or (%u > 6399 and %u < 6500)", id, id, id, id);
+    }
+    // Should never reach this point
+    return NullString();
 }
 
 // ------------------------------------------------------------------------------------------------
 void SetAutomobileName(Uint32 id, const StackStrF & name)
 {
-    if (id >= 130 || id <= 236)
+    if (id > 129 && id < 237)
     {
-        CS_Vehicle_Names[id-130].assign(name.mPtr);
+        CS_Vehicle_Names[id-130].assign(name.mPtr, ConvTo< size_t >::From(name.mLen));
+    }
+    else if (id > 6399 && id < 6500)
+    {
+        CS_Custom_Vehicle_Names[id-6400].assign(name.mPtr, ConvTo< size_t >::From(name.mLen));
+    }
+    else
+    {
+        STHROWF("Vehicle identifier breaks these demands (%u > 129 and %u < 237) or (%u > 6399 and %u < 6500)", id, id, id, id);
     }
 }
 
@@ -657,8 +681,16 @@ Int32 GetAutomobileID(const StackStrF & name)
 // ------------------------------------------------------------------------------------------------
 bool IsAutomobileValid(Int32 id)
 {
-    CSStr name = GetAutomobileName(id);
-    return (name && *name != '\0');
+    try
+    {
+        return !GetAutomobileName(id).empty();
+    }
+    catch (...)
+    {
+        //... Ignore it
+    }
+    // If we reached here then no!
+    return false;
 }
 
 } // Namespace:: SqMod

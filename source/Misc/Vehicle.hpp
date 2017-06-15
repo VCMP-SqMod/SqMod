@@ -10,7 +10,7 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the name associated with a vehicle model identifier.
 */
-CSStr GetAutomobileName(Uint32 id);
+String GetAutomobileName(Uint32 id);
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the name associated with a vehicle model identifier.
