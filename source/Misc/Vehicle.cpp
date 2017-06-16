@@ -71,6 +71,18 @@ static String CS_Vehicle_Names[] = {
 static String CS_Custom_Vehicle_Names[100]{};
 
 // ------------------------------------------------------------------------------------------------
+struct InitCustomVehicleNames
+{
+    InitCustomVehicleNames()
+    {
+        for (String & s : CS_Custom_Vehicle_Names)
+        {
+            s.assign("");
+        }
+    }
+} g_InitCustomVehicleNames{};
+
+// ------------------------------------------------------------------------------------------------
 String GetAutomobileName(Uint32 id)
 {
     if (id > 129 && id < 237)
@@ -98,7 +110,7 @@ void SetAutomobileName(Uint32 id, const StackStrF & name)
     }
     else if (id > 6399 && id < 6500)
     {
-        CS_Custom_Vehicle_Names[id-6400].assign(name.mPtr, ConvTo< size_t >::From(name.mLen));
+        CS_Custom_Vehicle_Names[id-6400].assign(name.mPtr, name.mLen < 0 ? 0 : static_cast< size_t >(name.mLen));
     }
     else
     {
