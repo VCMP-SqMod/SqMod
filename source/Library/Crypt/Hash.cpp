@@ -9,6 +9,8 @@
 #include <sha1.h>
 #include <sha256.h>
 #include <sha3.h>
+#include <b64.h>
+#include <whirlpool.h>
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
@@ -44,6 +46,99 @@ template < class T > static SQInteger HashF(HSQUIRRELVM vm)
     String str(BaseHash< T >::Algo(val.mPtr));
     // Push the string on the stack
     sq_pushstring(vm, str.data(), str.size());
+    // At this point we have a valid string on the stack
+    return 1;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Hash the specified value or the result of a formatted string with whirlpool algorithm.
+*/
+static SQInteger WhirlpoolF(HSQUIRRELVM vm)
+{
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Prepare a whirlpool hashing context
+    whirlpool_ctx ctx;
+    // Initialize the hashing context
+    rhash_whirlpool_init(&ctx);
+    // Update the context with the given string
+    rhash_whirlpool_update(&ctx, reinterpret_cast< const unsigned char * >(val.mPtr),
+                                    val.mLen < 0 ? 0 : static_cast< size_t >(val.mLen));
+    // Reserve space for the result in binary form
+    unsigned char raw_hash[whirlpool_block_size];
+    // Finalize hashing and obtain the result
+    rhash_whirlpool_final(&ctx, raw_hash);
+    // Reserve space for the hexadecimal string
+    char hex_hash[whirlpool_block_size * 2];
+    // Convert from binary form to hex string
+    for (int i = 0, p = 0; i < whirlpool_block_size; ++i)
+    {
+        static const char dec2hex[16+1] = "0123456789abcdef";
+        hex_hash[p++] = dec2hex[(raw_hash[i] >> 4) & 15];
+        hex_hash[p++] = dec2hex[ raw_hash[i]       & 15];
+    }
+    // Push the string on the stack
+    sq_pushstring(vm, hex_hash, whirlpool_block_size * 2);
+    // At this point we have a valid string on the stack
+    return 1;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Encode the specified value or the result of a formatted string with base64 algorithm.
+*/
+static SQInteger EncodeBase64F(HSQUIRRELVM vm)
+{
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Size of the encoded string
+    size_t enclen = 0;
+    // Attempt to encode the resulted string
+    char * result = b64_encode_ex(reinterpret_cast< const unsigned char * >(val.mPtr),
+                                val.mLen < 0 ? 0 : static_cast< size_t >(val.mLen), &enclen);
+    // Did we fail to allocate memory for it?
+    if (!result)
+    {
+        return sq_throwerror(vm, _SC("Unable to allocate memory for output"));
+    }
+    // Push the string on the stack
+    sq_pushstring(vm, result, ConvTo< SQInteger >::From(enclen));
+    // At this point we have a valid string on the stack
+    return 1;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Decode the specified value or the result of a formatted string with base64 algorithm.
+*/
+static SQInteger DecodeBase64F(HSQUIRRELVM vm)
+{
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.mRes))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Size of the decoded string
+    size_t declen = 0;
+    // Attempt to decode the resulted string
+    unsigned char * result = b64_decode_ex(val.mPtr, val.mLen < 0 ? 0 : static_cast< size_t >(val.mLen), &declen);
+    // Did we fail to allocate memory for it?
+    if (!result)
+    {
+        return sq_throwerror(vm, _SC("Unable to allocate memory for output"));
+    }
+    // Push the string on the stack
+    sq_pushstring(vm, reinterpret_cast< CSStr >(result), ConvTo< SQInteger >::From(declen));
     // At this point we have a valid string on the stack
     return 1;
 }
@@ -87,6 +182,9 @@ void Register_Hash(HSQUIRRELVM vm)
     hashns.SquirrelFunc(_SC("GetSHA1"), &HashF< SHA1 >);
     hashns.SquirrelFunc(_SC("GetSHA256"), &HashF< SHA256 >);
     hashns.SquirrelFunc(_SC("GetSHA3"), &HashF< SHA3 >);
+    hashns.SquirrelFunc(_SC("GetWhirlpool"), &WhirlpoolF);
+    hashns.SquirrelFunc(_SC("EncodeBase64"), &EncodeBase64F);
+    hashns.SquirrelFunc(_SC("DecodeBase64"), &DecodeBase64F);
 
     RootTable(vm).Bind(_SC("SqHash"), hashns);
 }

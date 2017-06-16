@@ -415,7 +415,22 @@
 		<Linker>
 			<Add library="squirrel" />
 		</Linker>
+		<Unit filename="../external/B64/decode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../external/B64/encode.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../external/Common/aes256.cpp" />
+		<Unit filename="../external/Common/byte_order.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../external/Common/whirlpool.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../external/Common/whirlpool_sbox.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../external/Hash/crc32.cpp" />
 		<Unit filename="../external/Hash/crc32.h" />
 		<Unit filename="../external/Hash/digest.cpp" />
