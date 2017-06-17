@@ -34,7 +34,7 @@ Account::Account(CSStr host, CSStr user, CSStr pass, CSStr name, SQInteger port,
     , m_SSL_CA_Path()
     , m_SSL_Cipher()
     , m_Options()
-    , m_AutoCommit(false)
+    , m_AutoCommit(true)
 {
     // Validate the specified port number
     if (port >= 0xFFFF)
