@@ -2403,7 +2403,7 @@ public:
 
         SQTRY()
 
-        const StackStrF fmt(vm, 2, true);
+        const StackStrF fmt(vm, 2, true, sq_gettop(vm) == 2);
         // Validate the format
         if (SQ_FAILED(fmt.mRes)) {
             return fmt.mRes;
@@ -2822,7 +2822,7 @@ public:
 
         SQTRY()
 
-        const StackStrF fmt(vm, 2, true);
+        const StackStrF fmt(vm, 2, true, sq_gettop(vm) == 2);
         // Validate the format
         if (SQ_FAILED(fmt.mRes)) {
             return fmt.mRes;
@@ -3241,7 +3241,7 @@ public:
 
         SQTRY()
 
-        const StackStrF fmt(vm, 2, true);
+        const StackStrF fmt(vm, 2, true, sq_gettop(vm) == 2);
         // Validate the format
         if (SQ_FAILED(fmt.mRes)) {
             return fmt.mRes;

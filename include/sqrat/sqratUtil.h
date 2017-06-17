@@ -1510,16 +1510,26 @@ struct StackStrF
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Base constructor.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt = true)
+    StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt = true, bool dummy = false)
         : mPtr(nullptr)
         , mLen(-1)
         , mRes(SQ_OK)
         , mObj()
         , mVM(vm)
     {
-        const SQInteger top = sq_gettop(vm);
         // Reset the converted value object
         sq_resetobject(&mObj);
+        // is this a dummy request?
+        if (dummy)
+        {
+            // Since this is a dummy then avoid making it look like a failure
+            mPtr = _SC("");
+            mLen = 0;
+            // We're not supposed to proceed with this!
+            return;
+        }
+        // Grab the top of the stack
+        const SQInteger top = sq_gettop(vm);
         // Was the string or value specified?
         if (top <= (idx - 1))
         {
