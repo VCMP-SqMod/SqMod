@@ -112,7 +112,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
-        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        Uint32          mFlags; // Various options and states that can be toggled on the instance.
         CBlip *         mInst; // Pointer to the actual instance used to interact this entity.
         LightObj        mObj; // Script object of the instance used to interact this entity.
 
@@ -181,7 +181,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
-        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        Uint32          mFlags; // Various options and states that can be toggled on the instance.
         CCheckpoint *   mInst; // Pointer to the actual instance used to interact this entity.
         LightObj        mObj; // Script object of the instance used to interact this entity.
 
@@ -245,7 +245,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
-        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        Uint32          mFlags; // Various options and states that can be toggled on the instance.
         CKeybind *      mInst; // Pointer to the actual instance used to interact this entity.
         LightObj        mObj; // Script object of the instance used to interact this entity.
 
@@ -313,7 +313,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
-        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        Uint32          mFlags; // Various options and states that can be toggled on the instance.
         CObject *       mInst; // Pointer to the actual instance used to interact this entity.
         LightObj        mObj; // Script object of the instance used to interact this entity.
 
@@ -378,7 +378,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
-        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        Uint32          mFlags; // Various options and states that can be toggled on the instance.
         CPickup *       mInst; // Pointer to the actual instance used to interact this entity.
         LightObj        mObj; // Script object of the instance used to interact this entity.
 
@@ -445,7 +445,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
-        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        Uint32          mFlags; // Various options and states that can be toggled on the instance.
         CPlayer *       mInst; // Pointer to the actual instance used to interact this entity.
         LightObj        mObj; // Script object of the instance used to interact this entity.
 
@@ -596,7 +596,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         Int32           mID; // The unique number that identifies this entity on the server.
-        Uint16          mFlags; // Various options and states that can be toggled on the instance.
+        Uint32          mFlags; // Various options and states that can be toggled on the instance.
         CVehicle *      mInst; // Pointer to the actual instance used to interact this entity.
         LightObj        mObj; // Script object of the instance used to interact this entity.
 
