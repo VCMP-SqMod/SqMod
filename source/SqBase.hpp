@@ -415,11 +415,15 @@ enum EventType
     EVT_MAX
 };
 
+/* ------------------------------------------------------------------------------------------------
+ * Entity flags to control certain behaviors.
+*/
 enum EntityFlags
 {
     ENF_DEFAULT     = (0),
     ENF_OWNED       = (1 << 1),
-    ENF_LOCKED      = (2 << 1)
+    ENF_LOCKED      = (1 << 2),
+    ENF_AREA_TRACK  = (1 << 3)
 };
 
 /* ------------------------------------------------------------------------------------------------
