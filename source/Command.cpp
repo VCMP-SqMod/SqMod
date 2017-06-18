@@ -1072,8 +1072,8 @@ void Register(HSQUIRRELVM vm)
     cmdns.Bind(_SC("Listener"),
         Class< Listener, NoCopy< Listener > >(vm, ListenerTypename::Str)
         // Constructors
-        .Ctor< const StackStrF & >()
-        .Ctor< const StackStrF &, const StackStrF & >()
+        .FmtCtor()
+        .FmtCtor< const StackStrF & >()
         .Ctor< const StackStrF &, const StackStrF &, Array & >()
         .Ctor< const StackStrF &, const StackStrF &, Uint8, Uint8 >()
         .Ctor< const StackStrF &, const StackStrF &, Array &, Uint8, Uint8 >()
