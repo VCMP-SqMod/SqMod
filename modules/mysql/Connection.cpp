@@ -178,7 +178,7 @@ SQInteger Connection::ExecuteF(HSQUIRRELVM vm)
         return sq_throwerror(vm, e.what());
     }
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -245,7 +245,7 @@ SQInteger Connection::InsertF(HSQUIRRELVM vm)
         return sq_throwerror(vm, e.what());
     }
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -318,7 +318,7 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
         return sq_throwerror(vm, e.what());
     }
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {

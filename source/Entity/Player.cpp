@@ -1901,7 +1901,7 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx);
+    StackStrF val(vm, msgidx, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -1982,7 +1982,7 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 3);
+    StackStrF val(vm, 3, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -2088,7 +2088,7 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx);
+    StackStrF val(vm, msgidx, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -2153,7 +2153,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -2210,7 +2210,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -2280,7 +2280,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 3);
+    StackStrF val(vm, 3, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {

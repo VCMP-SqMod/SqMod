@@ -259,7 +259,7 @@ static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx);
+    StackStrF val(vm, msgidx, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -339,7 +339,7 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 3);
+    StackStrF val(vm, 3, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -444,7 +444,7 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx);
+    StackStrF val(vm, msgidx, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -508,7 +508,7 @@ static SQInteger SqBroadcastMessage(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -564,7 +564,7 @@ static SQInteger SqBroadcastAnnounce(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -641,7 +641,7 @@ static SQInteger SqBroadcastAnnounceEx(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 3);
+    StackStrF val(vm, 3, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {

@@ -499,7 +499,7 @@ public:
             return sq_throwerror(vm, e.what());
         }
         // Attempt to generate the string value
-        const StackStrF tag(vm, 2);
+        const StackStrF tag(vm, 2, true);
         // Have we failed to retrieve the string?
         if (SQ_FAILED(tag.mRes))
         {

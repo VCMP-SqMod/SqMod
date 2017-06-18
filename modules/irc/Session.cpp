@@ -1048,7 +1048,7 @@ static SQInteger FormattedIrcMessageCmd(HSQUIRRELVM vm, SendIrcMessageFunc send_
     }
 
     // Attempt to retrieve the value from the stack as a string
-    StackStrF message(vm, 3);
+    StackStrF message(vm, 3, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(message.mRes))
     {

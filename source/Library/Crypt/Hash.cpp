@@ -36,7 +36,7 @@ template < class T > T BaseHash< T >::Algo;
 template < class T > static SQInteger HashF(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -56,7 +56,7 @@ template < class T > static SQInteger HashF(HSQUIRRELVM vm)
 static SQInteger WhirlpoolF(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -94,7 +94,7 @@ static SQInteger WhirlpoolF(HSQUIRRELVM vm)
 static SQInteger EncodeBase64F(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -122,7 +122,7 @@ static SQInteger EncodeBase64F(HSQUIRRELVM vm)
 static SQInteger DecodeBase64F(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {

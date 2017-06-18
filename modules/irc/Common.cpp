@@ -33,7 +33,7 @@ void IrcFreeMem(void * p)
 static SQInteger SqGetNick(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -51,7 +51,7 @@ static SQInteger SqGetNick(HSQUIRRELVM vm)
 static SQInteger SqGetHost(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -69,7 +69,7 @@ static SQInteger SqGetHost(HSQUIRRELVM vm)
 static SQInteger SqStripColorFromMIRC(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -94,7 +94,7 @@ static SQInteger SqStripColorFromMIRC(HSQUIRRELVM vm)
 static SQInteger SqConvertColorFromMIRC(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
@@ -119,7 +119,7 @@ static SQInteger SqConvertColorFromMIRC(HSQUIRRELVM vm)
 static SQInteger SqConvertColorToMIRC(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2);
+    StackStrF val(vm, 2, true);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.mRes))
     {
