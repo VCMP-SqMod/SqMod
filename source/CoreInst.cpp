@@ -58,7 +58,7 @@ void Core::BlipInst::Destroy(bool destroy, Int32 header, LightObj & payload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        const BitGuardU32 bg(mFlags, static_cast< Uint32 >(ENF_LOCKED));
         // Now attempt to destroy this entity from the server
         _Func->DestroyCoordBlip(mID);
     }
@@ -99,7 +99,7 @@ void Core::CheckpointInst::Destroy(bool destroy, Int32 header, LightObj & payloa
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        const BitGuardU32 bg(mFlags, static_cast< Uint32 >(ENF_LOCKED));
         // Now attempt to destroy this entity from the server
         _Func->DeleteCheckPoint(mID);
     }
@@ -140,7 +140,7 @@ void Core::KeybindInst::Destroy(bool destroy, Int32 header, LightObj & payload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        const BitGuardU32 bg(mFlags, static_cast< Uint32 >(ENF_LOCKED));
         // Now attempt to destroy this entity from the server
         _Func->RemoveKeyBind(mID);
     }
@@ -181,7 +181,7 @@ void Core::ObjectInst::Destroy(bool destroy, Int32 header, LightObj & payload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        const BitGuardU32 bg(mFlags, static_cast< Uint32 >(ENF_LOCKED));
         // Now attempt to destroy this entity from the server
         _Func->DeleteObject(mID);
     }
@@ -222,7 +222,7 @@ void Core::PickupInst::Destroy(bool destroy, Int32 header, LightObj & payload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        const BitGuardU32 bg(mFlags, static_cast< Uint32 >(ENF_LOCKED));
         // Now attempt to destroy this entity from the server
         _Func->DeletePickup(mID);
     }
@@ -298,7 +298,7 @@ void Core::VehicleInst::Destroy(bool destroy, Int32 header, LightObj & payload)
     if (destroy && VALID_ENTITY(mID) && (mFlags & ENF_OWNED))
     {
         // Block the entity pool changes notification from triggering the destroy event
-        const BitGuardU16 bg(mFlags, static_cast< Uint16 >(ENF_LOCKED));
+        const BitGuardU32 bg(mFlags, static_cast< Uint32 >(ENF_LOCKED));
         // Now attempt to destroy this entity from the server
         _Func->DeleteVehicle(mID);
     }
