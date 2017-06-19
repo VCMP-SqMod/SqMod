@@ -499,6 +499,30 @@ public:
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///  Used to go through all the slots in an Object (same limitations as sq_next)
+    ///
+    /// \param func Functor that is continuously called to process values on the stack
+    ///
+    /// \tparam F Type of functor (usually doesnt need to be defined explicitly)
+    ///
+    /// \return Nothing
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class F>
+    void Foreach(F&& func) const
+    {
+        sq_pushobject(vm,obj);
+        sq_pushnull(vm);
+        while(SQ_SUCCEEDED(sq_next(vm,-2)))
+        {
+            func(vm); // -1 is the value and -2 is the key
+            sq_pop(vm,2); // Pop the key and value
+        }
+        // Pop the null iterator and the object
+        sq_pop(vm,2);
+    }
+
 protected:
 /// @cond DEV
 
