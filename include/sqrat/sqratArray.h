@@ -498,6 +498,28 @@ public:
         sq_pop(vm, 1);
         return r;
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Appends values to the end of the Array
+    ///
+    /// \param func Functor that is continuously called to push values on the stack
+    ///
+    /// \tparam F Type of functor (usually doesnt need to be defined explicitly)
+    ///
+    /// \return The Array itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class F>
+    ArrayBase& AppendFrom(F&& func) {
+        sq_pushobject(vm, GetObject());
+        while (func(vm))
+        {
+            sq_arrayappend(vm, -2);
+        }
+        sq_pop(vm,1); // pop array
+        return *this;
+    }
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
