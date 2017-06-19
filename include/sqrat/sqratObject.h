@@ -440,8 +440,6 @@ public:
             Index = 0;
             sq_resetobject(&Key);
             sq_resetobject(&Value);
-            Key._type = OT_NULL;
-            Value._type = OT_NULL;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
