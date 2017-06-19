@@ -450,6 +450,8 @@
 		<Unit filename="../shared/Base/Buffer.hpp" />
 		<Unit filename="../shared/Base/Plugin.cpp" />
 		<Unit filename="../shared/Base/Utility.hpp" />
+		<Unit filename="../source/Areas.cpp" />
+		<Unit filename="../source/Areas.hpp" />
 		<Unit filename="../source/Base/AABB.cpp" />
 		<Unit filename="../source/Base/AABB.hpp" />
 		<Unit filename="../source/Base/Algo.cpp" />

@@ -66,6 +66,9 @@ private:
 
 protected:
 
+    // --------------------------------------------------------------------------------------------
+    typedef std::vector< std::pair< Area *, LightObj > > AreaList; // List of colided areas.
+
     /* --------------------------------------------------------------------------------------------
      * Helper structure used to identify a blip entity instance on the server.
     */
@@ -450,6 +453,9 @@ protected:
         LightObj        mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
+        AreaList        mAreas; // Areas the player is currently in.
+
+        // ----------------------------------------------------------------------------------------
         SQInteger       mTrackPosition; // The number of times to track position changes.
         SQInteger       mTrackHeading; // The number of times to track heading changes.
 
@@ -548,6 +554,8 @@ protected:
         SignalPair      mOnWantedLevel;
         SignalPair      mOnImmunity;
         SignalPair      mOnAlpha;
+        SignalPair      mOnEnterArea;
+        SignalPair      mOnLeaveArea;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -601,6 +609,9 @@ protected:
         LightObj        mObj; // Script object of the instance used to interact this entity.
 
         // ----------------------------------------------------------------------------------------
+        AreaList        mAreas; // Areas the vehicle is currently in.
+
+        // ----------------------------------------------------------------------------------------
         SQInteger       mTrackPosition; // The number of times to track position changes.
         SQInteger       mTrackRotation; // The number of times to track rotation changes.
 
@@ -637,6 +648,8 @@ protected:
         SignalPair      mOnDamageData;
         SignalPair      mOnRadio;
         SignalPair      mOnHandlingRule;
+        SignalPair      mOnEnterArea;
+        SignalPair      mOnLeaveArea;
     };
 
 public:
@@ -688,6 +701,7 @@ private:
     size_t                          m_IncomingNameCapacity; // Incoming connection name size.
 
     // --------------------------------------------------------------------------------------------
+    bool                            m_AreasEnabled; // Whether area tracking is enabled.
     bool                            m_Debugging; // Enable debugging features, if any.
     bool                            m_Executed; // Whether the scripts were executed.
     bool                            m_Shutdown; // Whether the server currently shutting down.
@@ -695,7 +709,6 @@ private:
     bool                            m_LockPostLoadSignal; // Lock post load signal container.
     bool                            m_LockUnloadSignal; // Lock unload signal container.
     bool                            m_EmptyInit; // Whether to initialize without any scripts.
-
     // --------------------------------------------------------------------------------------------
     Int32                           m_Verbosity; // Restrict the amount of outputted information.
 
@@ -776,6 +789,22 @@ public:
     bool ShuttingDown() const
     {
         return m_Shutdown;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether area tracking should be enabled on newlly created entities.
+    */
+    bool AreasEnabled() const
+    {
+        return m_AreasEnabled;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Toggle whether area tracking should be enabled on newlly created entities.
+    */
+    void AreasEnabled(bool toggle)
+    {
+        m_AreasEnabled = toggle;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1168,6 +1197,8 @@ public:
     void EmitPlayerWantedLevel(Int32 player_id, Int32 old_level, Int32 new_level);
     void EmitPlayerImmunity(Int32 player_id, Int32 old_immunity, Int32 new_immunity);
     void EmitPlayerAlpha(Int32 player_id, Int32 old_alpha, Int32 new_alpha, Int32 fade);
+    void EmitPlayerEnterArea(Int32 player_id, LightObj & area_obj);
+    void EmitPlayerLeaveArea(Int32 player_id, LightObj & area_obj);
     void EmitVehicleColor(Int32 vehicle_id, Int32 changed);
     void EmitVehicleHealth(Int32 vehicle_id, Float32 old_health, Float32 new_health);
     void EmitVehiclePosition(Int32 vehicle_id);
@@ -1180,6 +1211,8 @@ public:
     void EmitVehicleDamageData(Int32 vehicle_id, Uint32 old_data, Uint32 new_data);
     void EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio);
     void EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, Float32 old_data, Float32 new_data);
+    void EmitVehicleEnterArea(Int32 player_id, LightObj & area_obj);
+    void EmitVehicleLeaveArea(Int32 player_id, LightObj & area_obj);
     void EmitServerOption(Int32 option, bool value, Int32 header, LightObj & payload);
     void EmitScriptReload(Int32 header, LightObj & payload);
     void EmitScriptLoaded();
@@ -1321,6 +1354,8 @@ public:
     SignalPair  mOnPlayerWantedLevel;
     SignalPair  mOnPlayerImmunity;
     SignalPair  mOnPlayerAlpha;
+    SignalPair  mOnPlayerEnterArea;
+    SignalPair  mOnPlayerLeaveArea;
     SignalPair  mOnVehicleColor;
     SignalPair  mOnVehicleHealth;
     SignalPair  mOnVehiclePosition;
@@ -1333,6 +1368,8 @@ public:
     SignalPair  mOnVehicleDamageData;
     SignalPair  mOnVehicleRadio;
     SignalPair  mOnVehicleHandlingRule;
+    SignalPair  mOnVehicleEnterArea;
+    SignalPair  mOnVehicleLeaveArea;
     SignalPair  mOnServerOption;
     SignalPair  mOnScriptReload;
     SignalPair  mOnScriptLoaded;

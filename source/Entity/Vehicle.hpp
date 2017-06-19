@@ -613,6 +613,21 @@ public:
     bool Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) const;
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the managed vehicle entity collides with user defined areas.
+    */
+    bool GetCollideAreas() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the managed vehicle entity can collide with user defined areas.
+    */
+    void SetCollideAreas(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the managed vehicle entity can collide with user defined areas (with last test).
+    */
+    void SetAreasCollide(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked position changes for the managed vehicle entity.
     */
     SQInteger GetTrackPosition() const;

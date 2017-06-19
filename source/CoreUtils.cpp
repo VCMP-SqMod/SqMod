@@ -165,6 +165,8 @@ void Core::InitEvents()
     InitSignalPair(mOnPlayerWantedLevel, m_Events, "PlayerWantedLevel");
     InitSignalPair(mOnPlayerImmunity, m_Events, "PlayerImmunity");
     InitSignalPair(mOnPlayerAlpha, m_Events, "PlayerAlpha");
+    InitSignalPair(mOnPlayerEnterArea, m_Events, "PlayerEnterArea");
+    InitSignalPair(mOnPlayerLeaveArea, m_Events, "PlayerLeaveArea");
     InitSignalPair(mOnVehicleColor, m_Events, "VehicleColor");
     InitSignalPair(mOnVehicleHealth, m_Events, "VehicleHealth");
     InitSignalPair(mOnVehiclePosition, m_Events, "VehiclePosition");
@@ -177,6 +179,8 @@ void Core::InitEvents()
     InitSignalPair(mOnVehicleDamageData, m_Events, "VehicleDamageData");
     InitSignalPair(mOnVehicleRadio, m_Events, "VehicleRadio");
     InitSignalPair(mOnVehicleHandlingRule, m_Events, "VehicleHandlingRule");
+    InitSignalPair(mOnVehicleEnterArea, m_Events, "VehicleEnterArea");
+    InitSignalPair(mOnVehicleLeaveArea, m_Events, "VehicleLeaveArea");
     InitSignalPair(mOnServerOption, m_Events, "ServerOption");
     InitSignalPair(mOnScriptReload, m_Events, "ScriptReload");
     InitSignalPair(mOnScriptLoaded, m_Events, "ScriptLoaded");
@@ -293,6 +297,8 @@ void Core::DropEvents()
     ResetSignalPair(mOnPlayerWantedLevel);
     ResetSignalPair(mOnPlayerImmunity);
     ResetSignalPair(mOnPlayerAlpha);
+    ResetSignalPair(mOnPlayerEnterArea);
+    ResetSignalPair(mOnPlayerLeaveArea);
     ResetSignalPair(mOnVehicleColor);
     ResetSignalPair(mOnVehicleHealth);
     ResetSignalPair(mOnVehiclePosition);
@@ -305,6 +311,8 @@ void Core::DropEvents()
     ResetSignalPair(mOnVehicleDamageData);
     ResetSignalPair(mOnVehicleRadio);
     ResetSignalPair(mOnVehicleHandlingRule);
+    ResetSignalPair(mOnVehicleEnterArea);
+    ResetSignalPair(mOnVehicleLeaveArea);
     ResetSignalPair(mOnServerOption);
     ResetSignalPair(mOnScriptReload);
     ResetSignalPair(mOnScriptLoaded);

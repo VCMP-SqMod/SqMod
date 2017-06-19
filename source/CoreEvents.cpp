@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
+#include "Areas.hpp"
 #include "Signal.hpp"
 #include "Base/Buffer.hpp"
 #include "Library/Utils/Buffer.hpp"
@@ -880,6 +881,22 @@ void Core::EmitPlayerAlpha(Int32 player_id, Int32 old_alpha, Int32 new_alpha, In
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerEnterArea(Int32 player_id, LightObj & area_obj)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    (*_player.mOnEnterArea.first)(area_obj);
+    (*mOnPlayerEnterArea.first)(_player.mObj, area_obj);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerLeaveArea(Int32 player_id, LightObj & area_obj)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    (*_player.mOnLeaveArea.first)(area_obj);
+    (*mOnPlayerLeaveArea.first)(_player.mObj, area_obj);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleColor(Int32 vehicle_id, Int32 changed)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
@@ -972,8 +989,24 @@ void Core::EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio)
 void Core::EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, Float32 old_data, Float32 new_data)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
-    (*mOnVehicleHandlingRule.first)(_vehicle.mObj, rule, old_data, new_data);
     (*_vehicle.mOnHandlingRule.first)(rule, old_data, new_data);
+    (*mOnVehicleHandlingRule.first)(_vehicle.mObj, rule, old_data, new_data);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::EmitVehicleEnterArea(Int32 vehicle_id, LightObj & area_obj)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
+    (*_vehicle.mOnEnterArea.first)(area_obj);
+    (*mOnVehicleEnterArea.first)(_vehicle.mObj, area_obj);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::EmitVehicleLeaveArea(Int32 vehicle_id, LightObj & area_obj)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);
+    (*_vehicle.mOnLeaveArea.first)(area_obj);
+    (*mOnVehicleLeaveArea.first)(_vehicle.mObj, area_obj);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1150,6 +1183,39 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
             // Now emit the event
             EmitPlayerPosition(player_id);
         }
+        // Should we check for area collision
+        if (inst.mFlags & ENF_AREA_TRACK)
+        {
+            // Eliminate existing areas first, if the player is not in them anymore
+            inst.mAreas.erase(std::remove_if(inst.mAreas.begin(), inst.mAreas.end(),
+                [this, pos, player_id](AreaList::reference ap) -> bool {
+                    // Is this player still in this area?
+                    if (!ap.first->TestEx(pos.x, pos.y))
+                    {
+                        // Emit the script event
+                        this->EmitPlayerLeaveArea(player_id, ap.second);
+                        // Remove this area
+                        return true;
+                    }
+                    // Still in this area
+                    return false;
+            }), inst.mAreas.end());
+            // See if the player entered any new areas
+            AreaManager::Get().TestPoint([this, &inst, player_id](AreaList::reference ap) -> void {
+                // Was the player in this area before?
+                if (std::find_if(inst.mAreas.begin(), inst.mAreas.end(),
+                    [a = ap.first](AreaList::reference ap) -> bool {
+                        return (a == ap.first);
+                    }) == inst.mAreas.end())
+                {
+                    // The player just entered this area so emit the event
+                    this->EmitPlayerEnterArea(player_id, ap.second);
+                    // Now store this area so we know when the player leaves
+                    inst.mAreas.emplace_back(ap);
+                }
+                // The player was in this area before so ignore it
+            }, pos.x, pos.y);
+        }
         // Update the tracked value
         inst.mLastPosition = pos;
     }
@@ -1218,9 +1284,45 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
                 // Now emit the event
                 EmitVehiclePosition(vehicle_id);
             }
+            // New vehicle position
+            Vector3 pos;
+            // Retrieve the current vehicle position
+            _Func->GetVehiclePosition(vehicle_id, &pos.x, &pos.y, &pos.z);
+            // Should we check for area collision
+            if (inst.mFlags & ENF_AREA_TRACK)
+            {
+                // Eliminate existing areas first, if the vehicle is not in them anymore
+                inst.mAreas.erase(std::remove_if(inst.mAreas.begin(), inst.mAreas.end(),
+                    [this, pos, vehicle_id](AreaList::reference ap) -> bool {
+                        // Is this vehicle still in this area?
+                        if (!ap.first->TestEx(pos.x, pos.y))
+                        {
+                            // Emit the script event
+                            this->EmitVehicleLeaveArea(vehicle_id, ap.second);
+                            // Remove this area
+                            return true;
+                        }
+                        // Still in this area
+                        return false;
+                }), inst.mAreas.end());
+                // See if the vehicle entered any new areas
+                AreaManager::Get().TestPoint([this, &inst, vehicle_id](AreaList::reference ap) -> void {
+                    // Was the vehicle in this area before?
+                    if (std::find_if(inst.mAreas.begin(), inst.mAreas.end(),
+                        [a = ap.first](AreaList::reference ap) -> bool {
+                            return (a == ap.first);
+                        }) == inst.mAreas.end())
+                    {
+                        // The vehicle just entered this area so emit the event
+                        this->EmitVehicleEnterArea(vehicle_id, ap.second);
+                        // Now store this area so we know when the vehicle leaves
+                        inst.mAreas.emplace_back(ap);
+                    }
+                    // The vehicle was in this area before so ignore it
+                }, pos.x, pos.y);
+            }
             // Update the tracked value
-            _Func->GetVehiclePosition(vehicle_id, &inst.mLastPosition.x,
-                                        &inst.mLastPosition.y, &inst.mLastPosition.z);
+            inst.mLastPosition = pos;
         } break;
         case vcmpVehicleUpdateHealth:
         {

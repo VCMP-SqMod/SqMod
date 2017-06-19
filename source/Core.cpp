@@ -37,6 +37,7 @@ extern bool RegisterAPI(HSQUIRRELVM vm);
 // ------------------------------------------------------------------------------------------------
 extern void InitializeTasks();
 extern void InitializeRoutines();
+extern void TerminateAreas();
 extern void TerminateTasks();
 extern void TerminateRoutines();
 extern void TerminateCommands();
@@ -146,6 +147,7 @@ Core::Core()
     , m_ReloadPayload()
     , m_IncomingNameBuffer(nullptr)
     , m_IncomingNameCapacity(0)
+    , m_AreasEnabled(false)
     , m_Debugging(false)
     , m_Executed(false)
     , m_Shutdown(false)
@@ -480,6 +482,8 @@ void Core::Terminate(bool shutdown)
     TerminateCommands();
     // Release all resources from signals
     TerminateSignals();
+    // Release all managed areas
+    TerminateAreas();
     // In case there's a payload for reload
     m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them

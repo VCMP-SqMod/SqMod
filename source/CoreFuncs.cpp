@@ -120,6 +120,18 @@ static void SetState(Int32 value)
 }
 
 // ------------------------------------------------------------------------------------------------
+static bool GetAreasEnabled()
+{
+    return Core::Get().AreasEnabled();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SetAreasEnabled(bool toggle)
+{
+    Core::Get().AreasEnabled(toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
 static CSStr GetOption(CSStr name)
 {
     return Core::Get().GetOption(name);
@@ -306,6 +318,8 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("GetReloadPayload"), &SqGetReloadPayload)
         .Func(_SC("GetState"), &GetState)
         .Func(_SC("SetState"), &SetState)
+        .Func(_SC("AreasEnabled"), &GetAreasEnabled)
+        .Func(_SC("SetAreasEnabled"), &SetAreasEnabled)
         .Func(_SC("GetOption"), &GetOption)
         .Func(_SC("GetOptionOr"), &GetOptionOr)
         .Func(_SC("SetOption"), &SetOption)

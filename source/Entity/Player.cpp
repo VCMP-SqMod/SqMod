@@ -6,6 +6,7 @@
 #include "Base/Vector3.hpp"
 #include "Library/Utils/Buffer.hpp"
 #include "Core.hpp"
+#include "Areas.hpp"
 #include "Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -1432,6 +1433,83 @@ LightObj & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & p
 }
 
 // ------------------------------------------------------------------------------------------------
+bool CPlayer::GetCollideAreas() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return (Core::Get().GetPlayer(m_ID).mFlags & ENF_AREA_TRACK);
+}
+
+void CPlayer::SetCollideAreas(bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    if (toggle)
+    {
+        Core::Get().GetPlayer(m_ID).mFlags |= ENF_AREA_TRACK;
+    }
+    else
+    {
+        // Obtain the actual entity instance
+        auto & inst = Core::Get().GetPlayer(m_ID);
+        // Is this option even enabled?
+        if (!(inst.mFlags & ENF_AREA_TRACK))
+        {
+            return; // Not enabled to begin with
+        }
+        // Disable the option
+        inst.mFlags ^= ENF_AREA_TRACK;
+        // Clear current areas
+        inst.mAreas.clear();
+    }
+}
+
+void CPlayer::SetAreasCollide(bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    if (toggle)
+    {
+        Core::Get().GetPlayer(m_ID).mFlags |= ENF_AREA_TRACK;
+    }
+    else
+    {
+        // Obtain the actual entity instance
+        auto & inst = Core::Get().GetPlayer(m_ID);
+        // Is this option even enabled?
+        if (!(inst.mFlags & ENF_AREA_TRACK))
+        {
+            return; // Not enabled to begin with
+        }
+        // Disable the option
+        inst.mFlags ^= ENF_AREA_TRACK;
+        // Is the player currently in any areas?
+        if (inst.mAreas.empty())
+        {
+            return; // Nothing to test
+        }
+
+        Vector3 pos;
+        // Obtain the current position of this instance
+        _Func->GetPlayerPosition(m_ID, &pos.x, &pos.y, &pos.z);
+        // Do a final check to see if the player left any area
+        for (auto & ap : inst.mAreas)
+        {
+            // Is the player still in this area?
+            if (!ap.first->TestEx(pos.x, pos.y))
+            {
+                Core::Get().EmitPlayerLeaveArea(m_ID, ap.second); // Emit the script event
+            }
+        }
+        // Clear current areas
+        inst.mAreas.clear();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetAuthority() const
 {
     // Validate the managed identifier
@@ -2423,6 +2501,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("TouchedObject"), &CPlayer::StandingOnObject)
         .Prop(_SC("Away"), &CPlayer::IsAway)
         .Prop(_SC("Spec"), &CPlayer::GetSpectator, &CPlayer::SetSpectator)
+        .Prop(_SC("CollideAreas"), &CPlayer::GetCollideAreas, &CPlayer::SetCollideAreas)
         .Prop(_SC("Authority"), &CPlayer::GetAuthority, &CPlayer::SetAuthority)
         .Prop(_SC("TrackPosition"), &CPlayer::GetTrackPosition, &CPlayer::SetTrackPosition)
         .Prop(_SC("TrackHeading"), &CPlayer::GetTrackHeading, &CPlayer::SetTrackHeading)
@@ -2472,6 +2551,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("PlaySound"), &CPlayer::PlaySound)
+        .Func(_SC("AreasCollide"), &CPlayer::SetAreasCollide)
         .Func(_SC("GetMsgPrefix"), &CPlayer::GetMessagePrefix)
         .FmtFunc(_SC("SetMsgPrefix"), &CPlayer::SetMessagePrefix)
         .Func(_SC("SetTrackPosition"), &CPlayer::SetTrackPositionEx)

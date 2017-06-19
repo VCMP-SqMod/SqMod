@@ -5,6 +5,7 @@
 #include "Base/Vector2.hpp"
 #include "Base/Vector3.hpp"
 #include "Core.hpp"
+#include "Areas.hpp"
 #include "Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -1120,6 +1121,83 @@ bool CVehicle::Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) co
 }
 
 // ------------------------------------------------------------------------------------------------
+bool CVehicle::GetCollideAreas() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return (Core::Get().GetVehicle(m_ID).mFlags & ENF_AREA_TRACK);
+}
+
+void CVehicle::SetCollideAreas(bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    if (toggle)
+    {
+        Core::Get().GetVehicle(m_ID).mFlags |= ENF_AREA_TRACK;
+    }
+    else
+    {
+        // Obtain the actual entity instance
+        auto & inst = Core::Get().GetVehicle(m_ID);
+        // Is this option even enabled?
+        if (!(inst.mFlags & ENF_AREA_TRACK))
+        {
+            return; // Not enabled to begin with
+        }
+        // Disable the option
+        inst.mFlags ^= ENF_AREA_TRACK;
+        // Clear current areas
+        inst.mAreas.clear();
+    }
+}
+
+void CVehicle::SetAreasCollide(bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    if (toggle)
+    {
+        Core::Get().GetVehicle(m_ID).mFlags |= ENF_AREA_TRACK;
+    }
+    else
+    {
+        // Obtain the actual entity instance
+        auto & inst = Core::Get().GetVehicle(m_ID);
+        // Is this option even enabled?
+        if (!(inst.mFlags & ENF_AREA_TRACK))
+        {
+            return; // Not enabled to begin with
+        }
+        // Disable the option
+        inst.mFlags ^= ENF_AREA_TRACK;
+        // Is the vehicle currently in any areas?
+        if (inst.mAreas.empty())
+        {
+            return; // Nothing to test
+        }
+
+        Vector3 pos;
+        // Obtain the current position of this instance
+        _Func->GetVehiclePosition(m_ID, &pos.x, &pos.y, &pos.z);
+        // Do a final check to see if the vehicle left any area
+        for (auto & ap : inst.mAreas)
+        {
+            // Is the vehicle still in this area?
+            if (!ap.first->TestEx(pos.x, pos.y))
+            {
+                Core::Get().EmitVehicleLeaveArea(m_ID, ap.second); // Emit the script event
+            }
+        }
+        // Clear current areas
+        inst.mAreas.clear();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 SQInteger CVehicle::GetTrackPosition() const
 {
     // Validate the managed identifier
@@ -1820,6 +1898,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("HorizontalTurretRotation"), &CVehicle::GetHorizontalTurretRotation)
         .Prop(_SC("VerTurretRotation"), &CVehicle::GetVerticalTurretRotation)
         .Prop(_SC("VerticalTurretRotation"), &CVehicle::GetVerticalTurretRotation)
+        .Prop(_SC("CollideAreas"), &CVehicle::GetCollideAreas, &CVehicle::SetCollideAreas)
         .Prop(_SC("TrackPosition"), &CVehicle::GetTrackPosition, &CVehicle::SetTrackPosition)
         .Prop(_SC("TrackRotation"), &CVehicle::GetTrackRotation, &CVehicle::SetTrackRotation)
         .Prop(_SC("LastPrimaryColor"), &CVehicle::GetLastPrimaryColor)
@@ -1885,6 +1964,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Func(_SC("SetHandlingRule"), &CVehicle::SetHandlingRule)
         .Func(_SC("ResetHandlingRule"), &CVehicle::ResetHandlingRule)
         .Func(_SC("ResetHandlings"), &CVehicle::ResetHandlings)
+        .Func(_SC("AreasCollide"), &CVehicle::SetAreasCollide)
         // Member Overloads
         .Overload< void (CVehicle::*)(const Vector3 &, bool) const >
             (_SC("SetPos"), &CVehicle::SetPositionEx)

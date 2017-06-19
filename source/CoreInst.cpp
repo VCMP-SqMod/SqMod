@@ -357,6 +357,7 @@ void Core::PlayerInst::ResetInstance()
 {
     mID = -1;
     mFlags = ENF_DEFAULT;
+    mAreas.clear();
     mTrackPosition = 0;
     mTrackHeading = 0;
     mTrackPositionHeader = 0;
@@ -376,6 +377,7 @@ void Core::VehicleInst::ResetInstance()
 {
     mID = -1;
     mFlags = ENF_DEFAULT;
+    mAreas.clear();
     mTrackPosition = 0;
     mTrackRotation = 0;
     mLastPrimaryColor = -1;
@@ -642,6 +644,8 @@ void Core::PlayerInst::InitEvents()
     InitSignalPair(mOnWantedLevel, mEvents, "WantedLevel");
     InitSignalPair(mOnImmunity, mEvents, "Immunity");
     InitSignalPair(mOnAlpha, mEvents, "Alpha");
+    InitSignalPair(mOnEnterArea, mEvents, "EnterArea");
+    InitSignalPair(mOnLeaveArea, mEvents, "LeaveArea");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -718,6 +722,8 @@ void Core::PlayerInst::DropEvents()
     ResetSignalPair(mOnWantedLevel);
     ResetSignalPair(mOnImmunity);
     ResetSignalPair(mOnAlpha);
+    ResetSignalPair(mOnEnterArea);
+    ResetSignalPair(mOnLeaveArea);
     mEvents.Release();
 }
 
@@ -756,6 +762,8 @@ void Core::VehicleInst::InitEvents()
     InitSignalPair(mOnDamageData, mEvents, "DamageData");
     InitSignalPair(mOnRadio, mEvents, "Radio");
     InitSignalPair(mOnHandlingRule, mEvents, "HandlingRule");
+    InitSignalPair(mOnEnterArea, mEvents, "EnterArea");
+    InitSignalPair(mOnLeaveArea, mEvents, "LeaveArea");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -781,6 +789,8 @@ void Core::VehicleInst::DropEvents()
     ResetSignalPair(mOnDamageData);
     ResetSignalPair(mOnRadio);
     ResetSignalPair(mOnHandlingRule);
+    ResetSignalPair(mOnEnterArea);
+    ResetSignalPair(mOnLeaveArea);
     mEvents.Release();
 }
 

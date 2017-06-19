@@ -53,6 +53,7 @@ extern void RegisterTask(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_Misc(HSQUIRRELVM vm);
+extern void Register_Areas(HSQUIRRELVM vm);
 extern void Register_Signal(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
@@ -95,6 +96,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     RegisterTask(vm);
 
     Register_Misc(vm);
+    Register_Areas(vm);
     Register_Signal(vm);
 
     return true;

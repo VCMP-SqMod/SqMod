@@ -420,6 +420,11 @@ Core::VehicleInst & Core::AllocVehicle(Int32 id, bool owned, Int32 header, Light
     {
         inst.mFlags ^= ENF_OWNED;
     }
+    // Should we enable area tracking?
+    if (m_AreasEnabled)
+    {
+        inst.mFlags |= ENF_AREA_TRACK;
+    }
     // Initialize the instance events
     inst.InitEvents();
     // Let the script callbacks know about this entity
@@ -795,6 +800,11 @@ void Core::ConnectPlayer(Int32 id, Int32 header, LightObj & payload)
     }
     // Assign the specified entity identifier
     inst.mID = id;
+    // Should we enable area tracking?
+    if (m_AreasEnabled)
+    {
+        inst.mFlags |= ENF_AREA_TRACK;
+    }
     // Initialize the position
     _Func->GetPlayerPosition(id, &inst.mLastPosition.x, &inst.mLastPosition.y, &inst.mLastPosition.z);
     // Initialize the remaining attributes

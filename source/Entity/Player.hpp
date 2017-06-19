@@ -766,6 +766,21 @@ public:
                                     Float32 radius, Int32 header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the managed player entity collides with user defined areas.
+    */
+    bool GetCollideAreas() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the managed player entity can collide with user defined areas.
+    */
+    void SetCollideAreas(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the managed player entity can collide with user defined areas (with last test).
+    */
+    void SetAreasCollide(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the authority level of the managed player entity.
     */
     Int32 GetAuthority() const;
