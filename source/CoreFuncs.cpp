@@ -9,6 +9,9 @@ extern bool GetReloadStatus();
 extern void SetReloadStatus(bool toggle);
 
 // ------------------------------------------------------------------------------------------------
+SQMODE_DECL_TYPENAME(CoreStateTypename, _SC("SqCoreState"))
+
+// ------------------------------------------------------------------------------------------------
 static SQInteger SqLoadScript(HSQUIRRELVM vm)
 {
     const Int32 top = sq_gettop(vm);
@@ -308,8 +311,20 @@ static bool DelVehicle(Int32 id, Int32 header, LightObj & payload)
 // ================================================================================================
 void Register_Core(HSQUIRRELVM vm)
 {
-    RootTable(vm)
-    .Bind(_SC("SqCore"), Table(vm)
+    Table corens(vm);
+
+    corens.Bind(_SC("State"),
+        Class< CoreState, NoCopy< CoreState > >(vm, CoreStateTypename::Str)
+        // Constructors
+        .Ctor()
+        .Ctor< int >()
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &CoreStateTypename::Fn)
+        // Member Properties
+        .Prop(_SC("Value"), &CoreState::GetValue)
+    );
+
+    corens
         .Func(_SC("Reload"), &SqSetReloadStatus)
         .Func(_SC("Reloading"), &SqGetReloadStatus)
         .Func(_SC("ReloadBecause"), &SqReloadBecause)
@@ -340,8 +355,9 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("OnPostLoad"), &SqGetPostLoadEvent)
         .Func(_SC("OnUnload"), &SqGetUnloadEvent)
         .SquirrelFunc(_SC("LoadScript"), &SqLoadScript)
-        .SquirrelFunc(_SC("On"), &SqGetEvents)
-    );
+        .SquirrelFunc(_SC("On"), &SqGetEvents);
+
+    RootTable(vm).Bind(_SC("SqCore"), corens);
 }
 
 } // Namespace:: SqMod

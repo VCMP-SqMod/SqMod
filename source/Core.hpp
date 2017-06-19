@@ -1375,6 +1375,70 @@ public:
     SignalPair  mOnScriptLoaded;
 };
 
+/* ------------------------------------------------------------------------------------------------
+ * Structure used to preserve the core state across recursive event calls from the server.
+*/
+struct CoreState
+{
+    /* --------------------------------------------------------------------------------------------
+     * Backup the current core state.
+    */
+    CoreState()
+        : m_State(Core::Get().GetState())
+    {
+        //...
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Backup the current core state and set the given state.
+    */
+    CoreState(int s)
+        : m_State(Core::Get().GetState())
+    {
+        Core::Get().SetState(s);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    CoreState(const CoreState & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor (disabled).
+    */
+    CoreState(CoreState && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor. Restore the grabbed core state.
+    */
+    ~CoreState()
+    {
+        Core::Get().SetState(m_State);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    CoreState & operator = (const CoreState & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator (disabled).
+    */
+    CoreState & operator = (CoreState && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the guarded state.
+    */
+    int GetValue() const
+    {
+        return m_State;
+    }
+
+protected:
+
+    int m_State; // The core state at the time when this instance was created.
+};
+
 } // Namespace:: SqMod
 
 #endif // _CORE_HPP_

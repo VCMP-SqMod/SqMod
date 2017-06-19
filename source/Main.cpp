@@ -78,7 +78,7 @@ void DoReload()
 static uint8_t OnServerInitialise(void)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
@@ -198,7 +198,7 @@ static void OnServerFrame(float elapsed_time)
 static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
@@ -216,7 +216,7 @@ static uint8_t OnIncomingConnection(CStr player_name, size_t name_buffer_size,
                                     CCStr user_password, CCStr ip_address)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
@@ -280,7 +280,7 @@ static void OnPlayerDisconnect(int32_t player_id, vcmpDisconnectReason reason)
 static uint8_t OnPlayerRequestClass(int32_t player_id, int32_t offset)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
@@ -297,7 +297,7 @@ static uint8_t OnPlayerRequestClass(int32_t player_id, int32_t offset)
 static uint8_t OnPlayerRequestSpawn(int32_t player_id)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
@@ -362,7 +362,7 @@ static void OnPlayerUpdate(int32_t player_id, vcmpPlayerUpdate update_type)
 static uint8_t OnPlayerRequestEnterVehicle(int32_t player_id, int32_t vehicle_id, int32_t slot_index)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
@@ -597,7 +597,7 @@ static void OnPlayerAwayChange(int32_t player_id, uint8_t is_away)
 static uint8_t OnPlayerMessage(int32_t player_id, CCStr message)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
@@ -614,7 +614,7 @@ static uint8_t OnPlayerMessage(int32_t player_id, CCStr message)
 static uint8_t OnPlayerCommand(int32_t player_id, CCStr message)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
@@ -631,7 +631,7 @@ static uint8_t OnPlayerCommand(int32_t player_id, CCStr message)
 static uint8_t OnPlayerPrivateMessage(int32_t player_id, int32_t target_player_id, CCStr message)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
@@ -765,7 +765,7 @@ static void OnObjectTouched(int32_t object_id, int32_t player_id)
 static uint8_t OnPickupPickAttempt(int32_t pickup_id, int32_t player_id)
 {
     // Mark the initialization as successful by default
-    Core::Get().SetState(SQMOD_SUCCESS);
+    const CoreState cs(SQMOD_SUCCESS);
     // Attempt to forward the event
     try
     {
