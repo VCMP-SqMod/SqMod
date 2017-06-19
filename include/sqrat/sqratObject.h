@@ -512,15 +512,17 @@ public:
     template<class F>
     void Foreach(F&& func) const
     {
+        const StackGuard sg(vm);
         sq_pushobject(vm,obj);
         sq_pushnull(vm);
         while(SQ_SUCCEEDED(sq_next(vm,-2)))
         {
-            func(vm); // -1 is the value and -2 is the key
-            sq_pop(vm,2); // Pop the key and value
+            if (!func(vm))
+            {
+                return;
+            }
+            sq_pop(vm,2);
         }
-        // Pop the null iterator and the object
-        sq_pop(vm,2);
     }
 
 protected:
