@@ -291,6 +291,32 @@ struct Area
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Modify the bounding box of this area.
+    */
+    void SetBoundingBox(const Vector4 & b)
+    {
+        CheckLock();
+        // Apply the given bounding box
+        mL = b.x;
+        mB = b.y;
+        mR = b.z;
+        mT = b.w;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the bounding box of this area.
+    */
+    void SetBoundingBoxEx(float l, float b, float r, float t)
+    {
+        CheckLock();
+        // Apply the given bounding box
+        mL = l;
+        mB = b;
+        mR = r;
+        mT = t;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * See whether the area has no points.
     */
     bool Empty() const
@@ -361,6 +387,26 @@ struct Area
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Add a 2D vector to the bounding box only. Not stored in the list.
+    */
+    void AddVirtualPoint(const Vector2 & v)
+    {
+        CheckLock();
+        // Update the bounding box
+        Expand(v.x, v.y);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Add a point to the bounding box only. Not stored in the list.
+    */
+    void AddVirtualPointEx(float x, float y)
+    {
+        CheckLock();
+        // Update the bounding box
+        Expand(x, y);
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Add an array of points to the point list.
     */
     void AddArray(const Sqrat::Array & a);
@@ -373,7 +419,7 @@ struct Area
         // Is the given point in this bounding box at least?
         if (mL <= v.x && mR >= v.x && mB <= v.y && mT >= v.y)
         {
-            return IsInside(v.x, v.y);
+            return mPoints.empty() ? true : IsInside(v.x, v.y);
         }
         // Not in this area
         return false;
@@ -387,7 +433,7 @@ struct Area
         // Is the given point in this bounding box at least?
         if (mL <= x && mR >= x && mB <= y && mT >= y)
         {
-            return IsInside(x, y);
+            return mPoints.empty() ? true : IsInside(x, y);
         }
         // Not in this area
         return false;

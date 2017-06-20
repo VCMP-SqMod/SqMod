@@ -14,9 +14,36 @@ SQMODE_DECL_TYPENAME(AreaTypename, _SC("SqArea"))
 AreaManager AreaManager::s_Inst;
 
 // ------------------------------------------------------------------------------------------------
-void Area::AddArray(const Sqrat::Array &)
+void Area::AddArray(const Sqrat::Array & a)
 {
-    //todo...
+    float values[2];
+
+    a.Foreach([this, &values, n = int(0)](HSQUIRRELVM vm) mutable -> bool {
+        // Retrieve the type of the value
+        const SQObjectType type = sq_gettype(vm, -1);
+        // Are we dealing with a vector?
+        if (type == OT_INSTANCE)
+        {
+            // Next time, start again for floats
+            n = 0;
+            // Grab the instance from the stack
+            this->AddPoint(*ClassType< Vector2 >::GetInstance(vm, -1));
+        }
+        else if (type & SQOBJECT_NUMERIC)
+        {
+            // Retrieve the value from the stack
+            values[n] = Var< float >(vm, -1).value;
+            // Do we have enough to form a vector?
+            if (++n == 2)
+            {
+                this->AddPointEx(values[0], values[1]);
+                // Reset the counter
+                n = 0;
+            }
+        }
+        // Ignore anything else
+        return true;
+    });
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -26,11 +53,6 @@ bool Area::Manage()
     if (!mCells.empty())
     {
         STHROWF("The area is already managed");
-    }
-    // Is there something to be managed?
-    else if (mPoints.size() < 3)
-    {
-        STHROWF("Areas need at least 3 points to be managed");
     }
     // We expect this to be called only from the script so that the first parameter in the vm
     // is the area instance
@@ -271,10 +293,8 @@ void AreaManager::InsertArea(Area & a, LightObj & obj)
         return; // Already managed or nothing to manage
     }
     // Go through each cell and check if the area touches it
-    //for (AreaCell (&row)[GRIDN] : m_Grid)
     for (int y = 0; y < GRIDN; ++y)
     {
-        //for (AreaCell & c : row)
         for (int x = 0; x < GRIDN; ++x)
         {
             AreaCell & c = m_Grid[y][x];
@@ -418,7 +438,8 @@ void Register_Areas(HSQUIRRELVM vm)
         .Prop(_SC("Locked"), &Area::IsLocked)
         .Prop(_SC("IsLocked"), &Area::IsLocked)
         .Prop(_SC("Center"), &Area::GetCenter)
-        .Prop(_SC("BoundingBox"), &Area::GetBoundingBox)
+        .Prop(_SC("Box"), &Area::GetBoundingBox, &Area::SetBoundingBox)
+        .Prop(_SC("Empty"), &Area::Empty)
         .Prop(_SC("Empty"), &Area::Empty)
         .Prop(_SC("Size"), &Area::Size)
         .Prop(_SC("Points"), &Area::Size)
@@ -428,8 +449,14 @@ void Register_Areas(HSQUIRRELVM vm)
         .Func(_SC("SetID"), &Area::ApplyID)
         .Func(_SC("Clear"), &Area::Clear)
         .Func(_SC("Reserve"), &Area::Reserve)
+        .Func(_SC("SetBox"), &Area::SetBoundingBoxEx)
+        .Func(_SC("SetBoundingBox"), &Area::SetBoundingBoxEx)
         .Func(_SC("Add"), &Area::AddPoint)
         .Func(_SC("AddEx"), &Area::AddPointEx)
+        .Func(_SC("AddVirtual"), &Area::AddVirtualPoint)
+        .Func(_SC("AddVirtualEx"), &Area::AddVirtualPointEx)
+        .Func(_SC("FakeAdd"), &Area::AddVirtualPoint)
+        .Func(_SC("FakeAddEx"), &Area::AddVirtualPointEx)
         .Func(_SC("AddArray"), &Area::AddArray)
         .Func(_SC("Test"), &Area::Test)
         .Func(_SC("TestEx"), &Area::TestEx)
