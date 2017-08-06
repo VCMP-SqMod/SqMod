@@ -2405,34 +2405,176 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-static const LightObj & Player_FindAuto(Object & by)
+static SQInteger Player_FindAuto(HSQUIRRELVM vm)
 {
-    switch (by.GetType())
+    // See if a search token was specified
+    if (sq_gettop(vm) <= 1)
     {
-        case OT_INTEGER:
-        {
-            return Core::Get().GetPlayer(by.Cast< Int32 >()).mObj;
-        } break;
-        case OT_FLOAT:
-        {
-            return Core::Get().GetPlayer(std::round(by.Cast< Float32 >())).mObj;
-        } break;
-        case OT_STRING:
-        {
-            // Obtain the argument as a string
-            String str(by.Cast< String >());
-            // Attempt to locate the player with this name
-            Int32 id = _Func->GetPlayerIdFromName(&str[0]);
-            // Was there a player with this name?
-            if (VALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+        return sq_throwerror(vm, _SC("Please specify a token with which to identify the player (id/name)"));
+    }
+    // Identify the token type.
+    switch (sq_gettype(vm, 2))
+    {
+        case OT_INTEGER: {
+            SQInteger id;
+            // Attempt to retrieve the given id
+            const SQRESULT res = sq_getinteger(vm, 2, &id);
+            // Validate the given identifier
+            if (SQ_FAILED(res))
             {
-                Core::Get().GetPlayer(id).mObj;
+                return res; // Propagate the error
+            }
+            // Check identifier range
+            else if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+            {
+                sq_pushnull(vm); // Default to null
+            }
+            // Finally, attempt to push the return value
+            else
+            {
+                sq_pushobject(vm, Core::Get().GetPlayer(id).mObj.mObj);
             }
         } break;
-        default: STHROWF("Unsupported search identifier");
+        case OT_FLOAT: {
+
+            SQFloat fid;
+            // Attempt to retrieve the given id
+            const SQRESULT res = sq_getfloat(vm, 2, &fid);
+            // Validate the given identifier
+            if (SQ_FAILED(res))
+            {
+                return res; // Propagate the error
+            }
+            // Convert the float value to an integer
+            const Int32 id = std::round(static_cast< Float32 >(fid));
+            // Check identifier range
+            if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+            {
+                sq_pushnull(vm);  // Default to null
+            }
+            // Finally, attempt to push the return value
+            else
+            {
+                sq_pushobject(vm, Core::Get().GetPlayer(id).mObj.mObj);
+            }
+        } break;
+        case OT_STRING:
+        default: {
+            // Attempt to convert the obtained value to a string
+            StackStrF val(vm, 2, true);
+            // Did the conversion failed?
+            if (SQ_FAILED(val.mRes))
+            {
+                return val.mRes; // Propagate the error
+            }
+            else if (val.mLen <= 0)
+            {
+                // Default to null
+                sq_pushnull(vm);
+                // Stop here!
+                break;
+            }
+            // Attempt to locate the player with this name
+            Int32 id = _Func->GetPlayerIdFromName(val.mPtr);
+            // Was there a player with this name?
+            if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+            {
+                sq_pushnull(vm);  // Default to null
+            }
+            // Finally, attempt to push the return value
+            else
+            {
+                sq_pushobject(vm, Core::Get().GetPlayer(id).mObj.mObj);
+            }
+        } break;
     }
-    // Default to a null object
-    return NullLightObj();
+    // There should be a value on the stack with the found player
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger Player_ExistsAuto(HSQUIRRELVM vm)
+{
+    // See if a search token was specified
+    if (sq_gettop(vm) <= 1)
+    {
+        return sq_throwerror(vm, _SC("Please specify a token with which to identify the player (id/name)"));
+    }
+    // Identify the token type.
+    switch (sq_gettype(vm, 2))
+    {
+        case OT_INTEGER: {
+            SQInteger id;
+            // Attempt to retrieve the given id
+            const SQRESULT res = sq_getinteger(vm, 2, &id);
+            // Validate the given identifier
+            if (SQ_FAILED(res))
+            {
+                return res; // Propagate the error
+            }
+            // Check identifier range and the entity instance
+            else if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL) || INVALID_ENTITY(Core::Get().GetPlayer(id).mID))
+            {
+                sq_pushbool(vm, SQFalse);
+            }
+            else
+            {
+                sq_pushbool(vm, SQTrue);
+            }
+        } break;
+        case OT_FLOAT: {
+
+            SQFloat fid;
+            // Attempt to retrieve the given id
+            const SQRESULT res = sq_getfloat(vm, 2, &fid);
+            // Validate the given identifier
+            if (SQ_FAILED(res))
+            {
+                return res; // Propagate the error
+            }
+            // Convert the float value to an integer
+            const Int32 id = std::round(static_cast< Float32 >(fid));
+            // Check identifier range and the entity instance
+            if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL) || INVALID_ENTITY(Core::Get().GetPlayer(id).mID))
+            {
+                sq_pushbool(vm, SQFalse);
+            }
+            else
+            {
+                sq_pushbool(vm, SQTrue);
+            }
+        } break;
+        case OT_STRING:
+        default: {
+            // Attempt to convert the obtained value to a string
+            StackStrF val(vm, 2, true);
+            // Did the conversion failed?
+            if (SQ_FAILED(val.mRes))
+            {
+                return val.mRes; // Propagate the error
+            }
+            else if (val.mLen <= 0)
+            {
+                // Default to false
+                sq_pushbool(vm, SQFalse);
+                // Stop here!
+                break;
+            }
+            // Attempt to locate the player with this name
+            Int32 id = _Func->GetPlayerIdFromName(val.mPtr);
+            // Check identifier range and the entity instance
+            if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL) || INVALID_ENTITY(Core::Get().GetPlayer(id).mID))
+            {
+                sq_pushbool(vm, SQFalse);
+            }
+            else
+            {
+                sq_pushbool(vm, SQTrue);
+            }
+        } break;
+    }
+    // There should be a value on the stack with the found player
+    return 1;
 }
 
 // ================================================================================================
@@ -2613,7 +2755,8 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Overload< LightObj & (CPlayer::*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, LightObj &) const >
             (_SC("CreateCheckpoint"), &CPlayer::CreateCheckpoint)
         // Static Functions
-        .StaticFunc(_SC("Find"), &Player_FindAuto)
+        .SquirrelFunc(_SC("Find"), &Player_FindAuto)
+        .SquirrelFunc(_SC("Exists"), &Player_ExistsAuto)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("Msg"), &CPlayer::Msg)
         .SquirrelFunc(_SC("MsgP"), &CPlayer::MsgP)
