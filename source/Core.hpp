@@ -530,6 +530,7 @@ protected:
         SignalPair      mOnKeyPress;
         SignalPair      mOnKeyRelease;
         SignalPair      mOnSpectate;
+        SignalPair      mOnUnspectate;
         SignalPair      mOnCrashreport;
         SignalPair      mOnObjectShot;
         SignalPair      mOnObjectTouched;
@@ -1159,6 +1160,7 @@ public:
     void EmitPlayerKeyPress(Int32 player_id, Int32 bind_id);
     void EmitPlayerKeyRelease(Int32 player_id, Int32 bind_id);
     void EmitPlayerSpectate(Int32 player_id, Int32 target_player_id);
+    void EmitPlayerUnspectate(Int32 player_id);
     void EmitPlayerCrashreport(Int32 player_id, CCStr report);
     void EmitVehicleExplode(Int32 vehicle_id);
     void EmitVehicleRespawn(Int32 vehicle_id);
@@ -1316,6 +1318,7 @@ public:
     SignalPair  mOnPlayerKeyPress;
     SignalPair  mOnPlayerKeyRelease;
     SignalPair  mOnPlayerSpectate;
+    SignalPair  mOnPlayerUnspectate;
     SignalPair  mOnPlayerCrashreport;
     SignalPair  mOnVehicleExplode;
     SignalPair  mOnVehicleRespawn;

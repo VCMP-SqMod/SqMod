@@ -131,7 +131,7 @@ static const LightObj & Blip_FindBySprID(Int32 sprid)
         }
     }
     // Unable to locate a blip matching the specified identifier
-    return NullLightObj();
+    return Core::Get().GetNullBlip();
 }
 
 /* ------------------------------------------------------------------------------------------------

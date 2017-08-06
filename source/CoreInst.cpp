@@ -620,6 +620,7 @@ void Core::PlayerInst::InitEvents()
     InitSignalPair(mOnKeyPress, mEvents, "KeyPress");
     InitSignalPair(mOnKeyRelease, mEvents, "KeyRelease");
     InitSignalPair(mOnSpectate, mEvents, "Spectate");
+    InitSignalPair(mOnUnspectate, mEvents, "Unspectate");
     InitSignalPair(mOnCrashreport, mEvents, "Crashreport");
     InitSignalPair(mOnObjectShot, mEvents, "ObjectShot");
     InitSignalPair(mOnObjectTouched, mEvents, "ObjectTouched");
@@ -698,6 +699,7 @@ void Core::PlayerInst::DropEvents()
     ResetSignalPair(mOnKeyPress);
     ResetSignalPair(mOnKeyRelease);
     ResetSignalPair(mOnSpectate);
+    ResetSignalPair(mOnUnspectate);
     ResetSignalPair(mOnCrashreport);
     ResetSignalPair(mOnObjectShot);
     ResetSignalPair(mOnObjectTouched);

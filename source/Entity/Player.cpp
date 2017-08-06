@@ -1098,7 +1098,7 @@ LightObj & CPlayer::GetVehicle() const
         return Core::Get().GetVehicle(id).mObj;
     }
     // Default to a null object
-    return NullLightObj();
+    return Core::Get().GetNullVehicle();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1299,7 +1299,7 @@ LightObj & CPlayer::StandingOnVehicle() const
         return Core::Get().GetVehicle(id).mObj;
     }
     // Default to a null object
-    return NullLightObj();
+    return Core::Get().GetNullVehicle();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1316,7 +1316,7 @@ LightObj & CPlayer::StandingOnObject() const
         return Core::Get().GetObject(id).mObj;
     }
     // Default to a null object
-    return NullLightObj();
+    return Core::Get().GetNullObject();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1342,7 +1342,7 @@ LightObj & CPlayer::GetSpectator() const
         return Core::Get().GetPlayer(id).mObj;
     }
     // Default to a null object
-    return NullLightObj();
+    return Core::Get().GetNullPlayer();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2405,7 +2405,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQInteger Player_FindAuto(HSQUIRRELVM vm)
+SQInteger Player_FindAuto(HSQUIRRELVM vm)
 {
     // See if a search token was specified
     if (sq_gettop(vm) <= 1)
@@ -2493,7 +2493,7 @@ static SQInteger Player_FindAuto(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQInteger Player_ExistsAuto(HSQUIRRELVM vm)
+SQInteger Player_ExistsAuto(HSQUIRRELVM vm)
 {
     // See if a search token was specified
     if (sq_gettop(vm) <= 1)

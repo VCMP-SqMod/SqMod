@@ -127,6 +127,7 @@ void Core::InitEvents()
     InitSignalPair(mOnPlayerKeyPress, m_Events, "PlayerKeyPress");
     InitSignalPair(mOnPlayerKeyRelease, m_Events, "PlayerKeyRelease");
     InitSignalPair(mOnPlayerSpectate, m_Events, "PlayerSpectate");
+    InitSignalPair(mOnPlayerUnspectate, m_Events, "PlayerUnspectate");
     InitSignalPair(mOnPlayerCrashreport, m_Events, "PlayerCrashreport");
     InitSignalPair(mOnVehicleExplode, m_Events, "VehicleExplode");
     InitSignalPair(mOnVehicleRespawn, m_Events, "VehicleRespawn");
@@ -259,6 +260,7 @@ void Core::DropEvents()
     ResetSignalPair(mOnPlayerKeyPress);
     ResetSignalPair(mOnPlayerKeyRelease);
     ResetSignalPair(mOnPlayerSpectate);
+    ResetSignalPair(mOnPlayerUnspectate);
     ResetSignalPair(mOnPlayerCrashreport);
     ResetSignalPair(mOnVehicleExplode);
     ResetSignalPair(mOnVehicleRespawn);

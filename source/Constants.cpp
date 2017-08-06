@@ -143,6 +143,7 @@ static const EnumElement g_EventEnum[] = {
     {_SC("PlayerKeyPress"),             EVT_PLAYERKEYPRESS},
     {_SC("PlayerKeyRelease"),           EVT_PLAYERKEYRELEASE},
     {_SC("PlayerSpectate"),             EVT_PLAYERSPECTATE},
+    {_SC("PlayerUnspectate"),           EVT_PLAYERUNSPECTATE},
     {_SC("PlayerCrashReport"),          EVT_PLAYERCRASHREPORT},
     {_SC("VehicleExplode"),             EVT_VEHICLEEXPLODE},
     {_SC("VehicleRespawn"),             EVT_VEHICLERESPAWN},

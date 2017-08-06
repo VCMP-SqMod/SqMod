@@ -18,35 +18,8 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static const LightObj & FindPlayer(Object & by)
-{
-    switch (by.GetType())
-    {
-        case OT_INTEGER:
-        {
-            return Core::Get().GetPlayer(by.Cast< Int32 >()).mObj;
-        } break;
-        case OT_FLOAT:
-        {
-            return Core::Get().GetPlayer(std::round(by.Cast< Float32 >())).mObj;
-        } break;
-        case OT_STRING:
-        {
-            // Obtain the argument as a string
-            String str(by.Cast< String >());
-            // Attempt to locate the player with this name
-            Int32 id = _Func->GetPlayerIdFromName(&str[0]);
-            // Was there a player with this name?
-            if (VALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
-            {
-                Core::Get().GetPlayer(id).mObj;
-            }
-        } break;
-        default: STHROWF("Unsupported search identifier");
-    }
-    // Default to a null object
-    return NullLightObj();
-}
+extern SQInteger Player_FindAuto(HSQUIRRELVM vm);
+extern SQInteger Player_ExistsAuto(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_Broadcast(HSQUIRRELVM vm);
@@ -150,7 +123,8 @@ void Register_Misc(HSQUIRRELVM vm)
     RootTable(vm).Bind(_SC("SqServer"), srvns);
 
     RootTable(vm)
-    .Func(_SC("FindPlayer"), &FindPlayer)
+    .SquirrelFunc(_SC("FindPlayer"), &Player_FindAuto)
+    .SquirrelFunc(_SC("PlayerExists"), &Player_ExistsAuto)
     .Func(_SC("GetKeyCodeName"), &GetKeyCodeName)
     .FmtFunc(_SC("SetKeyCodeName"), &SetKeyCodeName)
     .Func(_SC("GetModelName"), &GetModelName)

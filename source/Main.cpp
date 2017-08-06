@@ -676,7 +676,14 @@ static void OnPlayerSpectate(int32_t player_id, int32_t target_player_id)
     // Attempt to forward the event
     try
     {
-        Core::Get().EmitPlayerSpectate(player_id, target_player_id);
+        if (target_player_id < 0)
+        {
+            Core::Get().EmitPlayerUnspectate(player_id);
+        }
+        else
+        {
+            Core::Get().EmitPlayerSpectate(player_id, target_player_id);
+        }
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerSpectate)
     // See if a reload was requested

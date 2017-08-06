@@ -595,6 +595,14 @@ void Core::EmitPlayerSpectate(Int32 player_id, Int32 target_player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerUnspectate(Int32 player_id)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    (*_player.mOnUnspectate.first)();
+    (*mOnPlayerUnspectate.first)(_player.mObj);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerCrashreport(Int32 player_id, CCStr report)
 {
     PlayerInst & _player = m_Players.at(player_id);
