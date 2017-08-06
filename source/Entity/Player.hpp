@@ -727,7 +727,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the managed player entity to spectate the specified player entity.
     */
-    void SetSpectator(CPlayer * target) const;
+    void SetSpectator(CPlayer & target) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the identifier of the player that the managed player entity is spectating.
+    */
+    SQInteger GetSpectatorID() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set the managed player entity to spectate the specified player entity.
+    */
+    void SetSpectatorID(SQInteger id) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set the managed player entity to spectate no one.
+    */
+    void SpectateNone() const;
 
     /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.

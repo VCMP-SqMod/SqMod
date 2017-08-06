@@ -1346,21 +1346,39 @@ LightObj & CPlayer::GetSpectator() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSpectator(CPlayer * target) const
+void CPlayer::SetSpectator(CPlayer & target) const
 {
     // Validate the managed identifier
     Validate();
-    // See if the given target is null
-    if (target == nullptr)
-    {
-        // Spectate an invalid player
-        _Func->SetPlayerSpectateTarget(m_ID, -1);
-    }
-    else
-    {
-        // Spectate the given target
-        _Func->SetPlayerSpectateTarget(m_ID, target->GetID());
-    }
+    // Spectate the given target
+    _Func->SetPlayerSpectateTarget(m_ID, target.GetID());
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::GetSpectatorID() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the identifier of the player
+    return _Func->GetPlayerSpectateTarget(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetSpectatorID(SQInteger id) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    _Func->SetPlayerSpectateTarget(m_ID, id);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SpectateNone() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    _Func->SetPlayerSpectateTarget(m_ID, -1);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2501,6 +2519,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("TouchedObject"), &CPlayer::StandingOnObject)
         .Prop(_SC("Away"), &CPlayer::IsAway)
         .Prop(_SC("Spec"), &CPlayer::GetSpectator, &CPlayer::SetSpectator)
+        .Prop(_SC("SpecID"), &CPlayer::GetSpectatorID, &CPlayer::SetSpectatorID)
         .Prop(_SC("CollideAreas"), &CPlayer::GetCollideAreas, &CPlayer::SetCollideAreas)
         .Prop(_SC("Authority"), &CPlayer::GetAuthority, &CPlayer::SetAuthority)
         .Prop(_SC("TrackPosition"), &CPlayer::GetTrackPosition, &CPlayer::SetTrackPosition)
@@ -2548,6 +2567,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("StripWeapons"), &CPlayer::StripWeapons)
         .Func(_SC("RestoreCamera"), &CPlayer::RestoreCamera)
         .Func(_SC("Spectating"), &CPlayer::GetSpectator)
+        .Func(_SC("SpectateNone"), &CPlayer::SpectateNone)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("PlaySound"), &CPlayer::PlaySound)
