@@ -1373,7 +1373,7 @@ void CPlayer::SetSpectatorID(SQInteger id) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SpectateNone() const
+void CPlayer::Unspectate() const
 {
     // Validate the managed identifier
     Validate();
@@ -2709,7 +2709,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("StripWeapons"), &CPlayer::StripWeapons)
         .Func(_SC("RestoreCamera"), &CPlayer::RestoreCamera)
         .Func(_SC("Spectating"), &CPlayer::GetSpectator)
-        .Func(_SC("SpectateNone"), &CPlayer::SpectateNone)
+        .Func(_SC("Unspectate"), &CPlayer::Unspectate)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("PlaySound"), &CPlayer::PlaySound)

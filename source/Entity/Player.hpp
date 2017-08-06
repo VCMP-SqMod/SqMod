@@ -742,7 +742,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the managed player entity to spectate no one.
     */
-    void SpectateNone() const;
+    void Unspectate() const;
 
     /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.
