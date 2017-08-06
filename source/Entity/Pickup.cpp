@@ -12,9 +12,6 @@ namespace SqMod {
 SQMODE_DECL_TYPENAME(Typename, _SC("SqPickup"))
 
 // ------------------------------------------------------------------------------------------------
-Vector3     CPickup::s_Vector3;
-
-// ------------------------------------------------------------------------------------------------
 const Int32 CPickup::Max = SQMOD_PICKUP_POOL;
 
 // ------------------------------------------------------------------------------------------------
@@ -277,16 +274,16 @@ void CPickup::Refresh() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPickup::GetPosition()
+Vector3 CPickup::GetPosition()
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
-    s_Vector3.Clear();
+    // Create a default vector instance
+    Vector3 vec;
     // Query the server for the position values
-    _Func->GetPickupPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPickupPosition(m_ID, &vec.x, &vec.y, &vec.z);
     // Return the requested information
-    return s_Vector3;
+    return vec;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -331,11 +328,11 @@ Float32 CPickup::GetPositionX() const
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
-    s_Vector3.x = 0;
+    Float32 x = 0.0f;
     // Query the server for the requested component value
-    _Func->GetPickupPosition(m_ID, &s_Vector3.x, NULL, NULL);
+    _Func->GetPickupPosition(m_ID, &x, nullptr, nullptr);
     // Return the requested information
-    return s_Vector3.x;
+    return x;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -344,11 +341,11 @@ Float32 CPickup::GetPositionY() const
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
-    s_Vector3.y = 0;
+    Float32 y = 0.0f;
     // Query the server for the requested component value
-    _Func->GetPickupPosition(m_ID, NULL, &s_Vector3.y, NULL);
+    _Func->GetPickupPosition(m_ID, nullptr, &y, nullptr);
     // Return the requested information
-    return s_Vector3.y;
+    return y;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -357,11 +354,11 @@ Float32 CPickup::GetPositionZ() const
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
-    s_Vector3.z = 0;
+    Float32 z = 0.0f;
     // Query the server for the requested component value
-    _Func->GetPickupPosition(m_ID, NULL, NULL, &s_Vector3.z);
+    _Func->GetPickupPosition(m_ID, nullptr, nullptr, &z);
     // Return the requested information
-    return s_Vector3.z;
+    return z;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -369,10 +366,12 @@ void CPickup::SetPositionX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 y, z;
     // Retrieve the current values for unchanged components
-    _Func->GetPickupPosition(m_ID, NULL, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPickupPosition(m_ID, nullptr, &y, &z);
     // Perform the requested operation
-    _Func->SetPickupPosition(m_ID, x, s_Vector3.y, s_Vector3.z);
+    _Func->SetPickupPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -380,10 +379,12 @@ void CPickup::SetPositionY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, z;
     // Retrieve the current values for unchanged components
-    _Func->GetPickupPosition(m_ID, &s_Vector3.x, NULL, &s_Vector3.z);
+    _Func->GetPickupPosition(m_ID, &x, nullptr, &z);
     // Perform the requested operation
-    _Func->SetPickupPosition(m_ID, s_Vector3.x, y, s_Vector3.z);
+    _Func->SetPickupPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -391,10 +392,12 @@ void CPickup::SetPositionZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, y;
     // Retrieve the current values for unchanged components
-    _Func->GetPickupPosition(m_ID, &s_Vector3.x, &s_Vector3.y, NULL);
+    _Func->GetPickupPosition(m_ID, &x, &y, nullptr);
     // Perform the requested operation
-    _Func->SetPickupPosition(m_ID, s_Vector3.z, s_Vector3.y, z);
+    _Func->SetPickupPosition(m_ID, z, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------

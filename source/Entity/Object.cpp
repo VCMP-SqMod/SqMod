@@ -13,10 +13,6 @@ namespace SqMod {
 SQMODE_DECL_TYPENAME(Typename, _SC("SqObject"))
 
 // ------------------------------------------------------------------------------------------------
-Vector3      CObject::s_Vector3;
-Quaternion   CObject::s_Quaternion;
-
-// ------------------------------------------------------------------------------------------------
 const Int32 CObject::Max = SQMOD_OBJECT_POOL;
 
 // ------------------------------------------------------------------------------------------------
@@ -261,16 +257,16 @@ void CObject::MoveByEx(Float32 x, Float32 y, Float32 z, Uint32 time) const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CObject::GetPosition()
+Vector3 CObject::GetPosition()
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Create a default vector instance
+    Vector3 vec;
     // Query the server for the values
-    _Func->GetObjectPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetObjectPosition(m_ID, &vec.x, &vec.y, &vec.z);
     // Return the requested information
-    return s_Vector3;
+    return vec;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -364,29 +360,29 @@ void CObject::RotateByEulerEx(Float32 x, Float32 y, Float32 z, Uint32 time) cons
 }
 
 // ------------------------------------------------------------------------------------------------
-const Quaternion & CObject::GetRotation()
+Quaternion CObject::GetRotation()
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Quaternion.Clear();
+    // Create a default quaternion instance
+    Quaternion quat;
     // Query the server for the values
-    _Func->GetObjectRotation(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
+    _Func->GetObjectRotation(m_ID, &quat.x, &quat.y, &quat.z, &quat.w);
     // Return the requested information
-    return s_Quaternion;
+    return quat;
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CObject::GetRotationEuler()
+Vector3 CObject::GetRotationEuler()
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Create a default vector instance
+    Vector3 vec;
     // Query the server for the values
-    _Func->GetObjectRotationEuler(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetObjectRotationEuler(m_ID, &vec.x, &vec.y, &vec.z);
     // Return the requested information
-    return s_Vector3;
+    return vec;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -461,11 +457,11 @@ Float32 CObject::GetPositionX() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Vector3.x = 0.0f;
+    Float32 x = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectPosition(m_ID, &s_Vector3.x, nullptr, nullptr);
+    _Func->GetObjectPosition(m_ID, &x, nullptr, nullptr);
     // Return the requested information
-    return s_Vector3.x;
+    return x;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -474,11 +470,11 @@ Float32 CObject::GetPositionY() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Vector3.y = 0.0f;
+    Float32 y = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectPosition(m_ID, nullptr, &s_Vector3.y, nullptr);
+    _Func->GetObjectPosition(m_ID, nullptr, &y, nullptr);
     // Return the requested information
-    return s_Vector3.y;
+    return y;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -487,11 +483,11 @@ Float32 CObject::GetPositionZ() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Vector3.z = 0.0f;
+    Float32 z = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectPosition(m_ID, nullptr, nullptr, &s_Vector3.z);
+    _Func->GetObjectPosition(m_ID, nullptr, nullptr, &z);
     // Return the requested information
-    return s_Vector3.z;
+    return z;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -499,10 +495,12 @@ void CObject::SetPositionX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 y, z;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetObjectPosition(m_ID, nullptr, &y, &z);
     // Perform the requested operation
-    _Func->SetObjectPosition(m_ID, x, s_Vector3.y, s_Vector3.z);
+    _Func->SetObjectPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -510,10 +508,12 @@ void CObject::SetPositionY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, z;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z);
+    _Func->GetObjectPosition(m_ID, &x, nullptr, &z);
     // Perform the requested operation
-    _Func->SetObjectPosition(m_ID, s_Vector3.x, y, s_Vector3.z);
+    _Func->SetObjectPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -521,10 +521,12 @@ void CObject::SetPositionZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, y;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr);
+    _Func->GetObjectPosition(m_ID, &x, &y, nullptr);
     // Perform the requested operation
-    _Func->SetObjectPosition(m_ID, s_Vector3.z, s_Vector3.y, z);
+    _Func->SetObjectPosition(m_ID, z, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -533,11 +535,11 @@ Float32 CObject::GetRotationX() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Quaternion.x = 0.0f;
+    Float32 x = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectRotation(m_ID, &s_Quaternion.x, nullptr, nullptr, nullptr);
+    _Func->GetObjectRotation(m_ID, &x, nullptr, nullptr, nullptr);
     // Return the requested information
-    return s_Quaternion.x;
+    return x;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -546,11 +548,11 @@ Float32 CObject::GetRotationY() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Quaternion.y = 0.0f;
+    Float32 y = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectRotation(m_ID, nullptr, &s_Quaternion.y, nullptr, nullptr);
+    _Func->GetObjectRotation(m_ID, nullptr, &y, nullptr, nullptr);
     // Return the requested information
-    return s_Quaternion.y;
+    return y;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -559,11 +561,11 @@ Float32 CObject::GetRotationZ() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Quaternion.z = 0.0f;
+    Float32 z = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectRotation(m_ID, nullptr, nullptr, &s_Quaternion.z, nullptr);
+    _Func->GetObjectRotation(m_ID, nullptr, nullptr, &z, nullptr);
     // Return the requested information
-    return s_Quaternion.z;
+    return z;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -572,11 +574,11 @@ Float32 CObject::GetRotationW() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Quaternion.w = 0.0f;
+    Float32 w = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectRotation(m_ID, nullptr, nullptr, nullptr, &s_Quaternion.w);
+    _Func->GetObjectRotation(m_ID, nullptr, nullptr, nullptr, &w);
     // Return the requested information
-    return s_Quaternion.w;
+    return w;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -585,11 +587,11 @@ Float32 CObject::GetEulerRotationX() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Vector3.x = 0.0f;
+    Float32 x = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectRotationEuler(m_ID, &s_Vector3.x, nullptr, nullptr);
+    _Func->GetObjectRotationEuler(m_ID, &x, nullptr, nullptr);
     // Return the requested information
-    return s_Vector3.x;
+    return x;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -598,11 +600,11 @@ Float32 CObject::GetEulerRotationY() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Vector3.y = 0.0f;
+    Float32 y = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectRotationEuler(m_ID, nullptr, &s_Vector3.y, nullptr);
+    _Func->GetObjectRotationEuler(m_ID, nullptr, &y, nullptr);
     // Return the requested information
-    return s_Vector3.y;
+    return y;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -611,11 +613,11 @@ Float32 CObject::GetEulerRotationZ() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    s_Vector3.z = 0.0f;
+    Float32 z = 0.0f;
     // Query the server for the requested component value
-    _Func->GetObjectRotationEuler(m_ID, nullptr, nullptr, &s_Vector3.z);
+    _Func->GetObjectRotationEuler(m_ID, nullptr, nullptr, &z);
     // Return the requested information
-    return s_Vector3.z;
+    return z;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -623,12 +625,12 @@ void CObject::MoveToX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 y, z;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetObjectPosition(m_ID, nullptr, &y, &z);
     // Perform the requested operation
-    _Func->MoveObjectTo(m_ID, x, s_Vector3.y, s_Vector3.z, mMoveToDuration);
+    _Func->MoveObjectTo(m_ID, x, y, z, mMoveToDuration);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -636,12 +638,12 @@ void CObject::MoveToY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, z;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z);
+    _Func->GetObjectPosition(m_ID, &x, nullptr, &z);
     // Perform the requested operation
-    _Func->MoveObjectTo(m_ID, s_Vector3.x, y, s_Vector3.z, mMoveToDuration);
+    _Func->MoveObjectTo(m_ID, x, y, z, mMoveToDuration);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -649,12 +651,12 @@ void CObject::MoveToZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, y;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr);
+    _Func->GetObjectPosition(m_ID, &x, &y, nullptr);
     // Perform the requested operation
-    _Func->MoveObjectTo(m_ID, s_Vector3.z, s_Vector3.y, z, mMoveToDuration);
+    _Func->MoveObjectTo(m_ID, z, y, z, mMoveToDuration);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -689,12 +691,12 @@ void CObject::RotateToX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Quaternion.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 y, z, w;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotation(m_ID, nullptr, &s_Quaternion.y, &s_Quaternion.z, &s_Quaternion.w);
+    _Func->GetObjectRotation(m_ID, nullptr, &y, &z, &w);
     // Perform the requested operation
-    _Func->RotateObjectTo(m_ID, x, s_Quaternion.y, s_Quaternion.z, s_Quaternion.w, mRotateToDuration);
+    _Func->RotateObjectTo(m_ID, x, y, z, w, mRotateToDuration);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -702,12 +704,12 @@ void CObject::RotateToY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Quaternion.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, z, w;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotation(m_ID, &s_Quaternion.x, nullptr, &s_Quaternion.z, &s_Quaternion.w);
+    _Func->GetObjectRotation(m_ID, &x, nullptr, &z, &w);
     // Perform the requested operation
-    _Func->RotateObjectTo(m_ID, s_Quaternion.x, y, s_Quaternion.z, s_Quaternion.w, mRotateToDuration);
+    _Func->RotateObjectTo(m_ID, x, y, z, w, mRotateToDuration);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -715,12 +717,12 @@ void CObject::RotateToZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Quaternion.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, y, w;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotation(m_ID, &s_Quaternion.x, &s_Quaternion.y, nullptr, &s_Quaternion.w);
+    _Func->GetObjectRotation(m_ID, &x, &y, nullptr, &w);
     // Perform the requested operation
-    _Func->RotateObjectTo(m_ID, s_Quaternion.x, s_Quaternion.y, z, s_Quaternion.w, mRotateToDuration);
+    _Func->RotateObjectTo(m_ID, x, y, z, w, mRotateToDuration);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -728,12 +730,12 @@ void CObject::RotateToW(Float32 w) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Quaternion.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, y, z;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotation(m_ID, &s_Quaternion.x, &s_Quaternion.y, &s_Quaternion.z, nullptr);
+    _Func->GetObjectRotation(m_ID, &x, &y, &z, nullptr);
     // Perform the requested operation
-    _Func->RotateObjectTo(m_ID, s_Quaternion.x, s_Quaternion.y, s_Quaternion.z, w, mRotateToDuration);
+    _Func->RotateObjectTo(m_ID, x, y, z, w, mRotateToDuration);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -777,12 +779,12 @@ void CObject::RotateToEulerX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 y, z;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotationEuler(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetObjectRotationEuler(m_ID, nullptr, &y, &z);
     // Perform the requested operation
-    _Func->RotateObjectToEuler(m_ID, x, s_Vector3.y, s_Vector3.z, mRotateToEulerDuration);
+    _Func->RotateObjectToEuler(m_ID, x, y, z, mRotateToEulerDuration);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -790,12 +792,12 @@ void CObject::RotateToEulerY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, z;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotationEuler(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z);
+    _Func->GetObjectRotationEuler(m_ID, &x, nullptr, &z);
     // Perform the requested operation
-    _Func->RotateObjectToEuler(m_ID, s_Vector3.x, y, s_Vector3.z, mRotateToEulerDuration);
+    _Func->RotateObjectToEuler(m_ID, x, y, z, mRotateToEulerDuration);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -803,12 +805,12 @@ void CObject::RotateToEulerZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, y;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotationEuler(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr);
+    _Func->GetObjectRotationEuler(m_ID, &x, &y, nullptr);
     // Perform the requested operation
-    _Func->RotateObjectToEuler(m_ID, s_Vector3.z, s_Vector3.y, z, mRotateToEulerDuration);
+    _Func->RotateObjectToEuler(m_ID, z, y, z, mRotateToEulerDuration);
 }
 
 // ------------------------------------------------------------------------------------------------

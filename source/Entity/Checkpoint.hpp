@@ -26,13 +26,6 @@ class CCheckpoint
 
 private:
 
-    // --------------------------------------------------------------------------------------------
-    static Color4       s_Color4;
-    static Vector3      s_Vector3;
-
-    // --------------------------------------------------------------------------------------------
-    static Int32        s_ColorR, s_ColorG, s_ColorB, s_ColorA;
-
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
@@ -211,7 +204,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the color of the managed checkpoint entity.
     */
-    const Color4 & GetColor() const;
+    Color4 GetColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the color of the managed checkpoint entity.
@@ -231,7 +224,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed checkpoint entity.
     */
-    const Vector3 & GetPosition() const;
+    Vector3 GetPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed checkpoint entity.

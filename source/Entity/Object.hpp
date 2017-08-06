@@ -27,10 +27,6 @@ class CObject
 
 private:
 
-    // --------------------------------------------------------------------------------------------
-    static Vector3      s_Vector3;
-    static Quaternion   s_Quaternion;
-
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
@@ -262,7 +258,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed object entity.
     */
-    const Vector3 & GetPosition();
+    Vector3 GetPosition();
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed object entity.
@@ -317,12 +313,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation of the managed object entity.
     */
-    const Quaternion & GetRotation();
+    Quaternion GetRotation();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the Euler rotation of the managed object entity.
     */
-    const Vector3 & GetRotationEuler();
+    Vector3 GetRotationEuler();
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed object entity reports gunshots.

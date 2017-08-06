@@ -28,9 +28,6 @@ class CPickup
 
 private:
 
-    // --------------------------------------------------------------------------------------------
-    static Vector3      s_Vector3;
-
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
@@ -239,7 +236,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed pickup entity.
     */
-    const Vector3 & GetPosition();
+    Vector3 GetPosition();
 
     /* --------------------------------------------------------------------------------------------
      * Mpdify the position of the managed pickup entity.

@@ -25,10 +25,6 @@ extern SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & col
 SQMODE_DECL_TYPENAME(Typename, _SC("SqPlayer"))
 
 // ------------------------------------------------------------------------------------------------
-Color3  CPlayer::s_Color3;
-Vector3 CPlayer::s_Vector3;
-
-// ------------------------------------------------------------------------------------------------
 SQChar  CPlayer::s_Buffer[SQMOD_PLAYER_TMP_BUFFER];
 
 // ------------------------------------------------------------------------------------------------
@@ -562,16 +558,16 @@ void CPlayer::SetSkin(Int32 skin)
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color3 & CPlayer::GetColor() const
+Color3 CPlayer::GetColor() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous color information, if any
-    s_Color3.Clear();
+    // Create an empty color
+    Color3 color;
     // Query the server for the color values
-    s_Color3.SetRGB(_Func->GetPlayerColour(m_ID));
+    color.SetRGB(_Func->GetPlayerColour(m_ID));
     // Return the requested information
-    return s_Color3;
+    return color;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -829,16 +825,16 @@ void CPlayer::SetImmunity(Int32 flags)
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetPosition() const
+Vector3 CPlayer::GetPosition() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Create a default vector instance
+    Vector3 vec;
     // Query the server for the values
-    _Func->GetPlayerPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPlayerPosition(m_ID, &vec.x, &vec.y, &vec.z);
     // Return the requested information
-    return s_Vector3;
+    return vec;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -860,16 +856,16 @@ void CPlayer::SetPositionEx(Float32 x, Float32 y, Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetSpeed() const
+Vector3 CPlayer::GetSpeed() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous speed information, if any
-    s_Vector3.Clear();
+    // Create a default vector instance
+    Vector3 vec;
     // Query the server for the speed values
-    _Func->GetPlayerSpeed(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPlayerSpeed(m_ID, &vec.x, &vec.y, &vec.z);
     // Return the requested information
-    return s_Vector3;
+    return vec;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -966,29 +962,29 @@ void CPlayer::SetAlphaEx(Int32 alpha, Int32 fade)
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetAimPosition() const
+Vector3 CPlayer::GetAimPosition() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.Clear();
+    // Create a default vector instance
+    Vector3 vec;
     // Query the server for the values
-    _Func->GetPlayerAimPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPlayerAimPosition(m_ID, &vec.x, &vec.y, &vec.z);
     // Return the requested information
-    return s_Vector3;
+    return vec;
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CPlayer::GetAimDirection() const
+Vector3 CPlayer::GetAimDirection() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous direction information, if any
-    s_Vector3.Clear();
+    // Create a default vector instance
+    Vector3 vec;
     // Query the server for the direction values
-    _Func->GetPlayerAimDirection(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPlayerAimDirection(m_ID, &vec.x, &vec.y, &vec.z);
     // Return the requested information
-    return s_Vector3;
+    return vec;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1820,12 +1816,12 @@ Float32 CPlayer::GetPositionX() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.x = 0;
+    // Reserve a temporary float to retrieve the requested component
+    Float32 x = 0.0f;
     // Query the server for the requested component value
-    _Func->GetPlayerPosition(m_ID, &s_Vector3.x, nullptr, nullptr);
+    _Func->GetPlayerPosition(m_ID, &x, nullptr, nullptr);
     // Return the requested information
-    return s_Vector3.x;
+    return x;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1833,12 +1829,12 @@ Float32 CPlayer::GetPositionY() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.y = 0;
+    // Reserve a temporary float to retrieve the requested component
+    Float32 y = 0.0f;
     // Query the server for the requested component value
-    _Func->GetPlayerPosition(m_ID, nullptr, &s_Vector3.y, nullptr);
+    _Func->GetPlayerPosition(m_ID, nullptr, &y, nullptr);
     // Return the requested information
-    return s_Vector3.y;
+    return y;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1846,12 +1842,12 @@ Float32 CPlayer::GetPositionZ() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous information, if any
-    s_Vector3.z = 0;
+    // Reserve a temporary float to retrieve the requested component
+    Float32 z = 0.0f;
     // Query the server for the requested component value
-    _Func->GetPlayerPosition(m_ID, nullptr, nullptr, &s_Vector3.z);
+    _Func->GetPlayerPosition(m_ID, nullptr, nullptr, &z);
     // Return the requested information
-    return s_Vector3.z;
+    return z;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1859,10 +1855,12 @@ void CPlayer::SetPositionX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 y, z;
     // Retrieve the current values for unchanged components
-    _Func->GetPlayerPosition(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetPlayerPosition(m_ID, nullptr, &y, &z);
     // Perform the requested operation
-    _Func->SetPlayerPosition(m_ID, x, s_Vector3.y, s_Vector3.z);
+    _Func->SetPlayerPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1870,10 +1868,12 @@ void CPlayer::SetPositionY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, z;
     // Retrieve the current values for unchanged components
-    _Func->GetPlayerPosition(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z);
+    _Func->GetPlayerPosition(m_ID, &x, nullptr, &z);
     // Perform the requested operation
-    _Func->SetPlayerPosition(m_ID, s_Vector3.x, y, s_Vector3.z);
+    _Func->SetPlayerPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1881,10 +1881,12 @@ void CPlayer::SetPositionZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, y;
     // Retrieve the current values for unchanged components
-    _Func->GetPlayerPosition(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr);
+    _Func->GetPlayerPosition(m_ID, &x, &y, nullptr);
     // Perform the requested operation
-    _Func->SetPlayerPosition(m_ID, s_Vector3.z, s_Vector3.y, z);
+    _Func->SetPlayerPosition(m_ID, z, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------

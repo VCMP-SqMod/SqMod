@@ -32,11 +32,6 @@ class CVehicle
 
 private:
 
-    // --------------------------------------------------------------------------------------------
-    static Vector2      s_Vector2;
-    static Vector3      s_Vector3;
-    static Quaternion   s_Quaternion;
-
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
@@ -275,7 +270,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed vehicle entity.
     */
-    const Vector3 & GetPosition() const;
+    Vector3 GetPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed vehicle entity.
@@ -300,7 +295,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation of the managed vehicle entity.
     */
-    const Quaternion & GetRotation() const;
+    Quaternion GetRotation() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the rotation of the managed vehicle entity.
@@ -315,7 +310,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the euler rotation of the managed vehicle entity.
     */
-    const Vector3 & GetRotationEuler() const;
+    Vector3 GetRotationEuler() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the euler rotation of the managed vehicle entity.
@@ -330,7 +325,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the speed of the managed vehicle entity.
     */
-    const Vector3 & GetSpeed() const;
+    Vector3 GetSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed vehicle entity.
@@ -355,7 +350,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative speed of the managed vehicle entity.
     */
-    const Vector3 & GetRelativeSpeed() const;
+    Vector3 GetRelativeSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative speed of the managed vehicle entity.
@@ -380,7 +375,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the turn speed of the managed vehicle entity.
     */
-    const Vector3 & GetTurnSpeed() const;
+    Vector3 GetTurnSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the turn speed of the managed vehicle entity.
@@ -405,7 +400,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative turn speed of the managed vehicle entity.
     */
-    const Vector3 & GetRelativeTurnSpeed() const;
+    Vector3 GetRelativeTurnSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative turn speed of the managed vehicle entity.
@@ -430,7 +425,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the spawn position of the managed vehicle entity.
     */
-    const Vector3 & GetSpawnPosition() const;
+    Vector3 GetSpawnPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the spawn position of the managed vehicle entity.
@@ -445,7 +440,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the spawn rotation of the managed vehicle entity.
     */
-    const Quaternion & GetSpawnRotation() const;
+    Quaternion GetSpawnRotation() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the spawn rotation of the managed vehicle entity.
@@ -460,7 +455,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the euler spawn rotation of the managed vehicle entity.
     */
-    const Vector3 & GetSpawnRotationEuler() const;
+    Vector3 GetSpawnRotationEuler() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the euler spawn rotation of the managed vehicle entity.
@@ -565,7 +560,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the turret rotation of the managed vehicle entity.
     */
-    const Vector2 & GetTurretRotation() const;
+    Vector2 GetTurretRotation() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the horizontal turret rotation of the managed vehicle entity.

@@ -13,16 +13,6 @@ namespace SqMod {
 SQMODE_DECL_TYPENAME(Typename, _SC("SqCheckpoint"))
 
 // ------------------------------------------------------------------------------------------------
-Color4      CCheckpoint::s_Color4;
-Vector3     CCheckpoint::s_Vector3;
-
-// ------------------------------------------------------------------------------------------------
-Int32      CCheckpoint::s_ColorR;
-Int32      CCheckpoint::s_ColorG;
-Int32      CCheckpoint::s_ColorB;
-Int32      CCheckpoint::s_ColorA;
-
-// ------------------------------------------------------------------------------------------------
 const Int32 CCheckpoint::Max = SQMOD_CHECKPOINT_POOL;
 
 // ------------------------------------------------------------------------------------------------
@@ -186,18 +176,17 @@ void CCheckpoint::SetWorld(Int32 world)
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color4 & CCheckpoint::GetColor() const
+Color4 CCheckpoint::GetColor() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous color information, if any
-    s_ColorR = s_ColorG = s_ColorB = s_ColorA = 0;
+    // Reserve some temporary floats to retrieve the color information
+    Int32 r, g, b, a;
     // Query the server for the color values
-    _Func->GetCheckPointColour(m_ID, &s_ColorR, &s_ColorG, &s_ColorB, &s_ColorA);
-    // Convert and assign the retrieved values
-    s_Color4.SetColor4Ex(s_ColorR, s_ColorG, s_ColorB, s_ColorA);
+    _Func->GetCheckPointColour(m_ID, &r, &g, &b, &a);
     // Return the requested information
-    return s_Color4;
+    return Color4(ConvTo< Color4::Value >::From(r), ConvTo< Color4::Value >::From(g),
+                  ConvTo< Color4::Value >::From(b), ConvTo< Color4::Value >::From(a));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -228,16 +217,16 @@ void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & CCheckpoint::GetPosition() const
+Vector3 CCheckpoint::GetPosition() const
 {
     // Validate the managed identifier
     Validate();
-    // Clear previous position information, if any
-    s_Vector3.Clear();
+    // Create a default vector instance
+    Vector3 vec;
     // Query the server for the position values
-    _Func->GetCheckPointPosition(m_ID, &s_Vector3.x, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetCheckPointPosition(m_ID, &vec.x, &vec.y, &vec.z);
     // Return the requested information
-    return s_Vector3;
+    return vec;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -310,11 +299,11 @@ Float32 CCheckpoint::GetPositionX() const
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
-    s_Vector3.x = 0;
+    Float32 x = 0.0f;
     // Query the server for the requested component value
-    _Func->GetCheckPointPosition(m_ID, &s_Vector3.x, nullptr, nullptr);
+    _Func->GetCheckPointPosition(m_ID, &x, nullptr, nullptr);
     // Return the requested information
-    return s_Vector3.x;
+    return x;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -323,11 +312,11 @@ Float32 CCheckpoint::GetPositionY() const
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
-    s_Vector3.y = 0;
+    Float32 y = 0.0f;
     // Query the server for the requested component value
-    _Func->GetCheckPointPosition(m_ID, nullptr, &s_Vector3.y, nullptr);
+    _Func->GetCheckPointPosition(m_ID, nullptr, &y, nullptr);
     // Return the requested information
-    return s_Vector3.y;
+    return y;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -336,11 +325,11 @@ Float32 CCheckpoint::GetPositionZ() const
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
-    s_Vector3.z = 0;
+    Float32 z = 0.0f;
     // Query the server for the requested component value
-    _Func->GetCheckPointPosition(m_ID, nullptr, nullptr, &s_Vector3.z);
+    _Func->GetCheckPointPosition(m_ID, nullptr, nullptr, &z);
     // Return the requested information
-    return s_Vector3.z;
+    return z;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -348,10 +337,12 @@ void CCheckpoint::SetPositionX(Float32 x) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 y, z;
     // Retrieve the current values for unchanged components
-    _Func->GetCheckPointPosition(m_ID, nullptr, &s_Vector3.y, &s_Vector3.z);
+    _Func->GetCheckPointPosition(m_ID, nullptr, &y, &z);
     // Perform the requested operation
-    _Func->SetCheckPointPosition(m_ID, x, s_Vector3.y, s_Vector3.z);
+    _Func->SetCheckPointPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -359,10 +350,12 @@ void CCheckpoint::SetPositionY(Float32 y) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, z;
     // Retrieve the current values for unchanged components
-    _Func->GetCheckPointPosition(m_ID, &s_Vector3.x, nullptr, &s_Vector3.z);
+    _Func->GetCheckPointPosition(m_ID, &x, nullptr, &z);
     // Perform the requested operation
-    _Func->SetCheckPointPosition(m_ID, s_Vector3.x, y, s_Vector3.z);
+    _Func->SetCheckPointPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -370,10 +363,12 @@ void CCheckpoint::SetPositionZ(Float32 z) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary floats to retrieve the missing components
+    Float32 x, y;
     // Retrieve the current values for unchanged components
-    _Func->GetCheckPointPosition(m_ID, &s_Vector3.x, &s_Vector3.y, nullptr);
+    _Func->GetCheckPointPosition(m_ID, &x, &y, nullptr);
     // Perform the requested operation
-    _Func->SetCheckPointPosition(m_ID, s_Vector3.z, s_Vector3.y, z);
+    _Func->SetCheckPointPosition(m_ID, z, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -382,11 +377,11 @@ Int32 CCheckpoint::GetColorR() const
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
-    s_ColorR = 0;
+    Int32 r = 0;
     // Query the server for the requested component value
-    _Func->GetCheckPointColour(m_ID, &s_ColorR, NULL, NULL, NULL);
+    _Func->GetCheckPointColour(m_ID, &r, nullptr, nullptr, nullptr);
     // Return the requested information
-    return s_ColorR;
+    return r;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -395,11 +390,11 @@ Int32 CCheckpoint::GetColorG() const
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
-    s_ColorG = 0;
+    Int32 g = 0;
     // Query the server for the requested component value
-    _Func->GetCheckPointColour(m_ID, NULL, &s_ColorG, NULL, NULL);
+    _Func->GetCheckPointColour(m_ID, nullptr, &g, nullptr, nullptr);
     // Return the requested information
-    return s_ColorG;
+    return g;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -408,11 +403,11 @@ Int32 CCheckpoint::GetColorB() const
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
-    s_ColorB = 0;
+    Int32 b = 0;
     // Query the server for the requested component value
-    _Func->GetCheckPointColour(m_ID, NULL, NULL, &s_ColorB, NULL);
+    _Func->GetCheckPointColour(m_ID, nullptr, nullptr, &b, nullptr);
     // Return the requested information
-    return s_ColorB;
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -421,11 +416,11 @@ Int32 CCheckpoint::GetColorA() const
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
-    s_ColorA = 0;
+    Int32 a = 0;
     // Query the server for the requested component value
-    _Func->GetCheckPointColour(m_ID, NULL, NULL, NULL, &s_ColorA);
+    _Func->GetCheckPointColour(m_ID, nullptr, nullptr, nullptr, &a);
     // Return the requested information
-    return s_ColorA;
+    return a;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -433,10 +428,12 @@ void CCheckpoint::SetColorR(Int32 r) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary integers to retrieve the missing components
+    Int32 g, b, a;
     // Retrieve the current values for unchanged components
-    _Func->GetCheckPointColour(m_ID, NULL, &s_ColorG, &s_ColorB, &s_ColorA);
+    _Func->GetCheckPointColour(m_ID, nullptr, &g, &b, &a);
     // Perform the requested operation
-    _Func->SetCheckPointColour(m_ID, r, s_ColorG, s_ColorB, s_ColorA);
+    _Func->SetCheckPointColour(m_ID, r, g, b, a);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -444,10 +441,12 @@ void CCheckpoint::SetColorG(Int32 g) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary integers to retrieve the missing components
+    Int32 r, b, a;
     // Retrieve the current values for unchanged components
-    _Func->GetCheckPointColour(m_ID, &s_ColorR, NULL, &s_ColorB, &s_ColorA);
+    _Func->GetCheckPointColour(m_ID, &r, nullptr, &b, &a);
     // Perform the requested operation
-    _Func->SetCheckPointColour(m_ID, s_ColorR, g, s_ColorB, s_ColorA);
+    _Func->SetCheckPointColour(m_ID, r, g, b, a);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -455,10 +454,12 @@ void CCheckpoint::SetColorB(Int32 b) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary integers to retrieve the missing components
+    Int32 r, g, a;
     // Retrieve the current values for unchanged components
-    _Func->GetCheckPointColour(m_ID, &s_ColorB, &s_ColorG, NULL, &s_ColorA);
+    _Func->GetCheckPointColour(m_ID, &r, &g, nullptr, &a);
     // Perform the requested operation
-    _Func->SetCheckPointColour(m_ID, s_ColorB, s_ColorG, b, s_ColorA);
+    _Func->SetCheckPointColour(m_ID, r, g, b, a);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -466,10 +467,12 @@ void CCheckpoint::SetColorA(Int32 a) const
 {
     // Validate the managed identifier
     Validate();
+    // Reserve some temporary integers to retrieve the missing components
+    Int32 r, g, b;
     // Retrieve the current values for unchanged components
-    _Func->GetCheckPointColour(m_ID, &s_ColorA, &s_ColorG, &s_ColorB, NULL);
+    _Func->GetCheckPointColour(m_ID, &r, &g, &b, nullptr);
     // Perform the requested operation
-    _Func->SetCheckPointColour(m_ID, s_ColorA, s_ColorG, s_ColorB, a);
+    _Func->SetCheckPointColour(m_ID, r, g, b, a);
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -36,10 +36,6 @@ class CPlayer
 private:
 
     // --------------------------------------------------------------------------------------------
-    static Color3       s_Color3;
-    static Vector3      s_Vector3;
-
-    // --------------------------------------------------------------------------------------------
     static SQChar       s_Buffer[SQMOD_PLAYER_TMP_BUFFER];
 
     /* --------------------------------------------------------------------------------------------
@@ -382,7 +378,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the color of the managed player entity.
     */
-    const Color3 & GetColor() const;
+    Color3 GetColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the color of the managed player entity.
@@ -492,7 +488,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed player entity.
     */
-    const Vector3 & GetPosition() const;
+    Vector3 GetPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed player entity.
@@ -507,7 +503,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the speed of the managed player entity.
     */
-    const Vector3 & GetSpeed() const;
+    Vector3 GetSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed player entity.
@@ -557,12 +553,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the aim position of the managed player entity.
     */
-    const Vector3 & GetAimPosition() const;
+    Vector3 GetAimPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the aim direction of the managed player entity.
     */
-    const Vector3 & GetAimDirection() const;
+    Vector3 GetAimDirection() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is burning.
