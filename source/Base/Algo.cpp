@@ -313,7 +313,7 @@ static inline Uint32 Player_EachWhereNameEquals(bool neg, bool cs, CSStr name, L
     // Create a new element forwarder
     ForwardElemFunc< CPlayer > fwd(env, func);
     // Process each entity in the pool
-    EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachEqualsWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg, cs);
     // Return the forward count
@@ -329,7 +329,7 @@ static inline Uint32 Player_EachWhereNameEqualsData(bool neg, bool cs, CSStr nam
     // Create a new element forwarder
     ForwardElemDataFunc< CPlayer > fwd(data, env, func);
     // Process each entity in the pool
-    EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachEqualsWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, !neg, cs);
     // Return the forward count
@@ -345,7 +345,7 @@ static inline Uint32 Player_EachWhereNameBegins(bool neg, bool cs, CSStr name, L
     // Create a new element forwarder
     ForwardElemFunc< CPlayer > fwd(env, func);
     // Process each entity in the pool
-    EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachBeginsWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, strlen(name), !neg, cs);
     // Return the forward count
@@ -361,7 +361,7 @@ static inline Uint32 Player_EachWhereNameBeginsData(bool neg, bool cs, CSStr nam
     // Create a new element forwarder
     ForwardElemDataFunc< CPlayer > fwd(data, env, func);
     // Process each entity in the pool
-    EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachBeginsWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, strlen(name), !neg, cs);
     // Return the forward count
@@ -377,7 +377,7 @@ static inline Uint32 Player_EachWhereNameEnds(bool neg, bool cs, CSStr name, Lig
     // Create a new element forwarder
     ForwardElemFunc< CPlayer > fwd(env, func);
     // Process each entity in the pool
-    EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachEndsWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, strlen(name), !neg, cs);
     // Return the forward count
@@ -393,7 +393,7 @@ static inline Uint32 Player_EachWhereNameEndsData(bool neg, bool cs, CSStr name,
     // Create a new element forwarder
     ForwardElemDataFunc< CPlayer > fwd(data, env, func);
     // Process each entity in the pool
-    EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachEndsWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, strlen(name), !neg, cs);
     // Return the forward count
@@ -409,7 +409,7 @@ static inline Uint32 Player_EachWhereNameContains(bool neg, bool cs, CSStr name,
     // Create a new element forwarder
     ForwardElemFunc< CPlayer > fwd(env, func);
     // Process each entity in the pool
-    EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachContainsWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg, cs);
     // Return the forward count
@@ -425,7 +425,7 @@ static inline Uint32 Player_EachWhereNameContainsData(bool neg, bool cs, CSStr n
     // Create a new element forwarder
     ForwardElemDataFunc< CPlayer > fwd(data, env, func);
     // Process each entity in the pool
-    EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachContainsWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, !neg, cs);
     // Return the forward count
@@ -441,7 +441,7 @@ static inline Uint32 Player_EachWhereNameMatches(bool neg, bool cs, CSStr name, 
     // Create a new element forwarder
     ForwardElemFunc< CPlayer > fwd(env, func);
     // Process each entity in the pool
-    EachMatches(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachMatchesWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemFunc< CPlayer > >(fwd), name, !neg, cs);
     // Return the forward count
@@ -457,7 +457,7 @@ static inline Uint32 Player_EachWhereNameMatchesData(bool neg, bool cs, CSStr na
     // Create a new element forwarder
     ForwardElemDataFunc< CPlayer > fwd(data, env, func);
     // Process each entity in the pool
-    EachMatches(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
+    EachMatchesWhile(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 std::reference_wrapper< ForwardElemDataFunc< CPlayer > >(fwd), name, !neg, cs);
     // Return the forward count

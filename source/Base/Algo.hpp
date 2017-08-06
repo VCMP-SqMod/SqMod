@@ -177,6 +177,24 @@ void Collect(Iterator first, Iterator last, Inspector inspect, Collector collect
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Collect all elements within the specified range that the inspector deems worthy.
+*/
+template < typename Iterator, typename Inspector, typename Collector >
+void CollectWhile(Iterator first, Iterator last, Inspector inspect, Collector collect)
+{
+    for (; first != last; ++first)
+    {
+        if (inspect(*first))
+        {
+            if (!collect(*first))
+            {
+                break;
+            }
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Collect all elements within the specified range where the string matches or not the specified one.
 */
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
@@ -189,6 +207,26 @@ void EachEquals(Iterator first, Iterator last,
         if (inspect(*first) && (CompareStr(retrieve(*first).c_str(), str, cs) == 0) == neg)
         {
             collect(*first);
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Collect all elements within the specified range where the string matches or not the specified one.
+*/
+template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
+void EachEqualsWhile(Iterator first, Iterator last,
+                        Inspector inspect, Retriever retrieve, Collector collect,
+                        CSStr str, bool neg, bool cs)
+{
+    for (; first != last; ++first)
+    {
+        if (inspect(*first) && (CompareStr(retrieve(*first).c_str(), str, cs) == 0) == neg)
+        {
+            if (!collect(*first))
+            {
+                break;
+            }
         }
     }
 }
@@ -226,6 +264,44 @@ void EachBegins(Iterator first, Iterator last,
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Collect all elements within the specified range where the string begins or not with the specified
+ * string.
+*/
+template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
+void EachBeginsWhile(Iterator first, Iterator last,
+                        Inspector inspect, Retriever retrieve, Collector collect,
+                        CSStr str, std::size_t len, bool neg, bool cs)
+{
+    for (; first != last; ++first)
+    {
+        if (!inspect(*first))
+        {
+            continue;
+        }
+        // Retrieve the string
+        const auto & s = retrieve(*first);
+        // Compare the string
+        if (s.size() >= len)
+        {
+            if ((CompareStr(s.c_str(), str, len, cs) == 0) == neg)
+            {
+                if (!collect(*first))
+                {
+                    break;
+                }
+            }
+        }
+        else if (!neg)
+        {
+            if (!collect(*first))
+            {
+                break;
+            }
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Collect all elements within the specified range where the string ends or not with the specified
  * string.
 */
@@ -258,6 +334,44 @@ void EachEnds(Iterator first, Iterator last,
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Collect all elements within the specified range where the string ends or not with the specified
+ * string.
+*/
+template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
+void EachEndsWhile(Iterator first, Iterator last,
+                        Inspector inspect, Retriever retrieve, Collector collect,
+                        CSStr str, std::size_t len, bool neg, bool cs)
+{
+    for (; first != last; ++first)
+    {
+        if (!inspect(*first))
+        {
+            continue;
+        }
+        // Retrieve the string
+        const auto & s = retrieve(*first);
+        // Compare the tag
+        if (s.size() >= len)
+        {
+            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), len, cs) == 0) == neg)
+            {
+                if (!collect(*first))
+                {
+                    break;
+                }
+            }
+        }
+        else if (!neg)
+        {
+            if (!collect(*first))
+            {
+                break;
+            }
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Collect all elements within the specified range where the string contains or not the specified
  * string.
 */
@@ -276,6 +390,27 @@ void EachContains(Iterator first, Iterator last,
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Collect all elements within the specified range where the string contains or not the specified
+ * string.
+*/
+template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
+void EachContainsWhile(Iterator first, Iterator last,
+                        Inspector inspect, Retriever retrieve, Collector collect,
+                        CSStr str, bool neg, bool cs)
+{
+    for (; first != last; ++first)
+    {
+        if (inspect(*first) && FindStr(retrieve(*first).c_str(), str, cs) == neg)
+        {
+            if (!collect(*first))
+            {
+                break;
+            }
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Collect all elements within the specified range where the string matches or not the specified
  * filter.
 */
@@ -289,6 +424,27 @@ void EachMatches(Iterator first, Iterator last,
         if (inspect(*first) && ApplyStrFilter(retrieve(*first).c_str(), str, cs) == neg)
         {
             collect(*first);
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Collect all elements within the specified range where the string matches or not the specified
+ * filter.
+*/
+template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
+void EachMatchesWhile(Iterator first, Iterator last,
+                        Inspector inspect, Retriever retrieve, Collector collect,
+                        CSStr str, bool neg, bool cs)
+{
+    for (; first != last; ++first)
+    {
+        if (inspect(*first) && ApplyStrFilter(retrieve(*first).c_str(), str, cs) == neg)
+        {
+            if (!collect(*first))
+            {
+                break;
+            }
         }
     }
 }
@@ -828,14 +984,15 @@ template < typename T > struct ForwardElemFunc
 public:
 
     // --------------------------------------------------------------------------------------------
-    Function    mFunc; // The script callback to forward the element.
+    LightObj    mEnv; // The script callback environment object.
+    LightObj    mFunc; // The script callback object to receive the element.
     Uint32      mCount; // The number of elements forwarded by this functor.
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
     ForwardElemFunc(LightObj & env, Function & func)
-        : mFunc(env.IsNull() ? func : Function(env.GetVM(), env, func.GetFunc())), mCount(0)
+        : mEnv(env.IsNull() ? func.GetEnv() : env.mObj), mFunc(func.GetFunc()), mCount(0)
     {
         if (mFunc.IsNull())
         {
@@ -846,10 +1003,41 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Function call operator.
     */
-    void operator () (const typename InstSpec< T >::Instance & inst)
+    bool operator () (const typename InstSpec< T >::Instance & inst)
     {
-        mFunc.Execute(inst.mObj);
-        ++mCount; // Only successful forwards are counted!
+        HSQUIRRELVM vm = DefaultVM::Get();
+        // Push the callback object
+        sq_pushobject(vm, mFunc.mObj);
+        // Push the callback environment object
+        sq_pushobject(vm, mEnv.mObj);
+        // Push the element instance on the stack
+        sq_pushobject(vm, inst.mObj.mObj);
+        // Make the function call and store the result
+        SQRESULT res = sq_call(vm, 2, true, ErrorHandling::IsEnabled());
+        // Make sure the callback object and return value are popped from the stack
+        const SqPopGuard pg(vm, 2);
+        // Validate the result
+        if (SQ_FAILED(res))
+        {
+            return false; // Stop the iteration process
+        }
+        // Is the returned value not null?
+        else if (sq_gettype(vm, -1) != OT_NULL)
+        {
+            // Default to continue
+            SQBool ret = SQTrue;
+            // Obtain the returned value as a boolean
+            sq_tobool(vm, -1, &ret);
+            // Should we proceed to the next element or stop here?
+            if (ret == SQFalse)
+            {
+                return false; // Stop the iteration process
+            }
+        }
+        // Only successful forwards are counted!
+        ++mCount;
+        // Proceed to the next element, if any
+        return true;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -893,7 +1081,8 @@ template < typename T > struct ForwardElemDataFunc
 public:
 
     // --------------------------------------------------------------------------------------------
-    Function    mFunc; // The script callback to forward the element.
+    LightObj    mEnv; // The script callback environment object.
+    LightObj    mFunc; // The script callback object to receive the element.
     LightObj    mData; // The script payload to accompany the element.
     Uint32      mCount; // The number of elements forwarded by this functor.
 
@@ -901,7 +1090,7 @@ public:
      * Base constructor.
     */
     ForwardElemDataFunc(LightObj & data, LightObj & env, Function & func)
-        : mFunc(env.IsNull() ? func : Function(env.GetVM(), env, func.GetFunc())), mData(data), mCount(0)
+        : mEnv(env.IsNull() ? func.GetEnv() : env.mObj), mFunc(func.GetFunc()), mData(data), mCount(0)
     {
         if (mFunc.IsNull())
         {
@@ -912,10 +1101,43 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Function call operator.
     */
-    void operator () (const typename InstSpec< T >::Instance & inst)
+    bool operator () (const typename InstSpec< T >::Instance & inst)
     {
-        mFunc.Execute(inst.mObj, mData);
-        ++mCount; // Only successful forwards are counted!
+        HSQUIRRELVM vm = DefaultVM::Get();
+        // Push the callback object
+        sq_pushobject(vm, mFunc.mObj);
+        // Push the callback environment object
+        sq_pushobject(vm, mEnv.mObj);
+        // Push the element instance on the stack
+        sq_pushobject(vm, inst.mObj.mObj);
+        // Push the iteration context on the stack
+        sq_pushobject(vm, mData.mObj);
+        // Make the function call and store the result
+        SQRESULT res = sq_call(vm, 3, true, ErrorHandling::IsEnabled());
+        // Make sure the callback object and return value are popped from the stack
+        const SqPopGuard pg(vm, 2);
+        // Validate the result
+        if (SQ_FAILED(res))
+        {
+            return false; // Stop the iteration process
+        }
+        // Is the returned value not null?
+        else if (sq_gettype(vm, -1) != OT_NULL)
+        {
+            // Default to continue
+            SQBool ret = SQTrue;
+            // Obtain the returned value as a boolean
+            sq_tobool(vm, -1, &ret);
+            // Should we proceed to the next element or stop here?
+            if (ret == SQFalse)
+            {
+                return false; // Stop the iteration process
+            }
+        }
+        // Only successful forwards are counted!
+        ++mCount;
+        // Proceed to the next element, if any
+        return true;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1266,7 +1488,7 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        Collect(Inst::CBegin(), Inst::CEnd(), ValidInst(),
+        CollectWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(),
                         std::reference_wrapper< ForwardElem >(fwd));
         // Return the forward count
         return fwd.mCount;
@@ -1280,7 +1502,7 @@ public:
         // Create a new element forwarder
         ForwardElemData fwd(data, env, func);
         // Process each entity in the pool
-        Collect(Inst::CBegin(), Inst::CEnd(), ValidInst(),
+        CollectWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(),
                         std::reference_wrapper< ForwardElemData >(fwd));
         // Return the forward count
         return fwd.mCount;
@@ -1295,7 +1517,7 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachEqualsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
@@ -1310,7 +1532,7 @@ public:
         // Create a new element forwarder
         ForwardElemData fwd(data, env, func);
         // Process each entity in the pool
-        EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachEqualsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
@@ -1325,7 +1547,7 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachBeginsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg, cs);
         // Return the forward count
         return fwd.mCount;
@@ -1340,7 +1562,7 @@ public:
         // Create a new element forwarder
         ForwardElemData fwd(data, env, func);
         // Process each entity in the pool
-        EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachBeginsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, strlen(tag), !neg, cs);
         // Return the forward count
         return fwd.mCount;
@@ -1355,7 +1577,7 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachEndsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg, cs);
         // Return the forward count
         return fwd.mCount;
@@ -1370,7 +1592,7 @@ public:
         // Create a new element forwarder
         ForwardElemData fwd(data, env, func);
         // Process each entity in the pool
-        EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachEndsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, strlen(tag), !neg, cs);
         // Return the forward count
         return fwd.mCount;
@@ -1385,7 +1607,7 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachContainsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
@@ -1400,7 +1622,7 @@ public:
         // Create a new element forwarder
         ForwardElemData fwd(data, env, func);
         // Process each entity in the pool
-        EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachContainsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
@@ -1415,7 +1637,7 @@ public:
         // Create a new element forwarder
         ForwardElem fwd(env, func);
         // Process each entity in the pool
-        EachMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachMatchesWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
@@ -1430,7 +1652,7 @@ public:
         // Create a new element forwarder
         ForwardElemData fwd(data, env, func);
         // Process each entity in the pool
-        EachMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
+        EachMatchesWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, !neg, cs);
         // Return the forward count
         return fwd.mCount;
