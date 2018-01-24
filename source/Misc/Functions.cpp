@@ -257,12 +257,21 @@ void SetMaxPlayers(Int32 max)
 // ------------------------------------------------------------------------------------------------
 CSStr GetServerName()
 {
+	// The server is retarded and returns `vcmpErrorBufferTooSmall` regardless of the buffer size.
     // Populate the buffer
-    if (_Func->GetServerName(g_SvNameBuff, SQMOD_SVNAMELENGTH) == vcmpErrorBufferTooSmall)
-    {
-        STHROWF("Server name was too big for the available buffer: %u", sizeof(g_SvNameBuff));
-    }
-    // Return the result
+    //if (_Func->GetServerName(g_SvNameBuff, SQMOD_SVNAMELENGTH) == vcmpErrorBufferTooSmall)
+    //{
+    //    STHROWF("Server name was too big for the available buffer: %u", sizeof(g_SvNameBuff));
+    //}
+
+	// TEMPORARY WROKAROUND
+
+	// Null initialize the buffer
+	memset(g_SvNameBuff, 0, sizeof(g_SvNameBuff));
+	// Forward the call to the server
+	_Func->GetServerName(g_SvNameBuff, SQMOD_SVNAMELENGTH);
+
+    // Return the result (without checking for errors!!!)
     return g_SvNameBuff;
 }
 
@@ -275,12 +284,21 @@ void SetServerName(const StackStrF & name)
 // ------------------------------------------------------------------------------------------------
 CSStr GetServerPassword()
 {
+	// The server is retarded and returns `vcmpErrorBufferTooSmall` regardless of the buffer size.
     // Populate the buffer
-    if (_Func->GetServerPassword(g_PasswdBuff, SQMOD_PASSWDLENGTH) == vcmpErrorBufferTooSmall)
-    {
-        STHROWF("Server password was too big for the available buffer: %u", sizeof(g_PasswdBuff));
-    }
-    // Return the result
+    //if (_Func->GetServerPassword(g_PasswdBuff, SQMOD_PASSWDLENGTH) == vcmpErrorBufferTooSmall)
+    //{
+    //    STHROWF("Server password was too big for the available buffer: %u", sizeof(g_PasswdBuff));
+    //}
+
+	// TEMPORARY WROKAROUND
+
+	// Null initialize the buffer
+	memset(g_PasswdBuff, 0, sizeof(g_PasswdBuff));
+	// Forward the call to the server
+	_Func->GetServerPassword(g_PasswdBuff, SQMOD_PASSWDLENGTH);
+
+    // Return the result (without checking for errors!!!)
     return g_PasswdBuff;
 }
 
@@ -293,12 +311,21 @@ void SetServerPassword(const StackStrF & passwd)
 // ------------------------------------------------------------------------------------------------
 CSStr GetGameModeText()
 {
+	// The server is retarded and returns `vcmpErrorBufferTooSmall` regardless of the buffer size.
     // Populate the buffer
-    if (_Func->GetGameModeText(g_GmNameBuff, SQMOD_GMNAMELENGTH) == vcmpErrorBufferTooSmall)
-    {
-        STHROWF("Game-mode text was too big for the available buffer: %u", sizeof(g_GmNameBuff));
-    }
-    // Return the result
+    //if (_Func->GetGameModeText(g_GmNameBuff, SQMOD_GMNAMELENGTH) == vcmpErrorBufferTooSmall)
+    //{
+    //    STHROWF("Game-mode text was too big for the available buffer: %u", sizeof(g_GmNameBuff));
+    //}
+
+	// TEMPORARY WROKAROUND
+
+	// Null initialize the buffer
+	memset(g_GmNameBuff, 0, sizeof(g_GmNameBuff));
+	// Forward the call to the server
+	_Func->GetGameModeText(g_GmNameBuff, SQMOD_GMNAMELENGTH);
+
+    // Return the result (without checking for errors!!!)
     return g_GmNameBuff;
 }
 
