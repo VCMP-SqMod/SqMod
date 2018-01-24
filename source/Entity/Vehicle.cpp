@@ -257,7 +257,7 @@ LightObj & CVehicle::GetOccupant(Int32 slot) const
     // Attempt to retrieve the requested information
     const int id = _Func->GetVehicleOccupant(m_ID, slot);
     // Was there an issue with the given value?
-    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
     {
         const vcmpError err = _Func->GetLastError();
         // Identify the type of error
