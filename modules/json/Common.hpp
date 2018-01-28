@@ -18,7 +18,7 @@ namespace SqMod {
 */
 #define SQJSON_NAME "Squirrel JSON Module"
 #define SQJSON_AUTHOR "Sandu Liviu Catalin (S.L.C)"
-#define SQJSON_COPYRIGHT "Copyright (C) 2017 Sandu Liviu Catalin"
+#define SQJSON_COPYRIGHT "Copyright (C) 2018 Sandu Liviu Catalin"
 #define SQJSON_HOST_NAME "SqModJSONHost"
 #define SQJSON_VERSION 001
 #define SQJSON_VERSION_STR "0.0.1"

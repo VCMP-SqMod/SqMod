@@ -16,7 +16,7 @@ namespace SqMod {
 */
 #define SQIRC_NAME "Squirrel IRC Module"
 #define SQIRC_AUTHOR "Sandu Liviu Catalin (S.L.C)"
-#define SQIRC_COPYRIGHT "Copyright (C) 2017 Sandu Liviu Catalin"
+#define SQIRC_COPYRIGHT "Copyright (C) 2018 Sandu Liviu Catalin"
 #define SQIRC_HOST_NAME "SqModIRCHost"
 #define SQIRC_VERSION 001
 #define SQIRC_VERSION_STR "0.0.1"
