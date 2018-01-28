@@ -243,6 +243,11 @@ public:
     Int32 GetOccupantID(Int32 slot) const;
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the managed vehicle entity has an occupant in a certain slot.
+    */
+    bool HasOccupant(Int32 slot) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Respawn the managed vehicle entity.
     */
     void Respawn() const;

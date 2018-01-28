@@ -288,6 +288,19 @@ Int32 CVehicle::GetOccupantID(Int32 slot) const
 }
 
 // ------------------------------------------------------------------------------------------------
+bool CVehicle::HasOccupant(Int32 slot) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    const Int32 id = _Func->GetVehicleOccupant(m_ID, slot);
+    // Use the server errors to see if there was an occupant
+    const vcmpError err = _Func->GetLastError();
+    // Return whether there was no error and the returned ID is valid
+    return (err == vcmpErrorNone) && INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL);
+}
+
+// ------------------------------------------------------------------------------------------------
 void CVehicle::Respawn() const
 {
     // Validate the managed identifier
@@ -1976,6 +1989,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Func(_SC("SetOptionEx"), &CVehicle::SetOptionEx)
         .Func(_SC("Occupant"), &CVehicle::GetOccupant)
         .Func(_SC("OccupantID"), &CVehicle::GetOccupantID)
+        .Func(_SC("HasOccupant"), &CVehicle::HasOccupant)
         .Func(_SC("Respawn"), &CVehicle::Respawn)
         .Func(_SC("Explode"), &CVehicle::Explode)
         .Func(_SC("SetRot"), &CVehicle::SetRotationEx)
