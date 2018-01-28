@@ -38,6 +38,8 @@ private:
         Iterator    mIterations; // Number of iterations before self destruct.
         Interval    mInterval; // Interval between routine invocations.
         bool        mSuspended; // Whether this instance is allowed to receive calls.
+        bool        mQuiet; // Whether this instance is allowed to handle errors.
+        bool        mEndure; // Whether this instance is allowed to terminate itself on errors.
         Uint8       mArgc; // The number of arguments that the routine must forward.
         Argument    mArgv[14]; // The arguments that the routine must forward.
 
@@ -53,6 +55,8 @@ private:
             , mIterations(0)
             , mInterval(0)
             , mSuspended(false)
+            , mQuiet(ErrorHandling::IsEnabled())
+            , mEndure(false)
             , mArgc(0)
             , mArgv()
         {
@@ -141,11 +145,15 @@ private:
                     sq_pushobject(vm, mArgv[n].mObj);
                 }
                 // Make the function call and store the result
-                const SQRESULT res = sq_call(vm, mArgc + 1, false, ErrorHandling::IsEnabled());
+                const SQRESULT res = sq_call(vm, mArgc + 1, false, mQuiet);
                 // Validate the result
                 if (SQ_FAILED(res))
                 {
-                    Terminate(); // Destroy ourself on error
+                    // Should we endure the errors?
+                    if (!mEndure)
+                    {
+                        Terminate(); // Destroy ourself on error
+                    }
                 }
             }
             // Decrease the number of iterations if necessary
@@ -475,6 +483,38 @@ public:
     void SetSuspended(bool toggle)
     {
         GetValid().mSuspended = toggle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the routine is quite.
+    */
+    bool GetQuiet() const
+    {
+        return GetValid().mQuiet;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the routine should be quiet.
+    */
+    void SetQuiet(bool toggle)
+    {
+        GetValid().mQuiet = toggle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the routine endures.
+    */
+    bool GetEndure() const
+    {
+        return GetValid().mEndure;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the routine should endure.
+    */
+    void SetEndure(bool toggle)
+    {
+        GetValid().mEndure = toggle;
     }
 
     /* --------------------------------------------------------------------------------------------

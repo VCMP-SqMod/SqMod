@@ -271,6 +271,8 @@ void Register_Routine(HSQUIRRELVM vm)
         .Prop(_SC("Interval"), &Routine::GetInterval, &Routine::SetInterval)
         .Prop(_SC("Iterations"), &Routine::GetIterations, &Routine::SetIterations)
         .Prop(_SC("Suspended"), &Routine::GetSuspended, &Routine::SetSuspended)
+        .Prop(_SC("Quiet"), &Routine::GetQuiet, &Routine::SetQuiet)
+        .Prop(_SC("Endure"), &Routine::GetEndure, &Routine::SetEndure)
         .Prop(_SC("Arguments"), &Routine::GetArguments)
         // Member Methods
         .FmtFunc(_SC("SetTag"), &Routine::SetTag)
