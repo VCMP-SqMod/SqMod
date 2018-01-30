@@ -1817,9 +1817,9 @@ Float32 CPlayer::GetPositionX() const
     // Validate the managed identifier
     Validate();
     // Reserve a temporary float to retrieve the requested component
-    Float32 x = 0.0f;
+    Float32 x = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetPlayerPosition(m_ID, &x, nullptr, nullptr);
+    _Func->GetPlayerPosition(m_ID, &x, &dummy, &dummy);
     // Return the requested information
     return x;
 }
@@ -1830,9 +1830,9 @@ Float32 CPlayer::GetPositionY() const
     // Validate the managed identifier
     Validate();
     // Reserve a temporary float to retrieve the requested component
-    Float32 y = 0.0f;
+    Float32 y = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetPlayerPosition(m_ID, nullptr, &y, nullptr);
+    _Func->GetPlayerPosition(m_ID, &dummy, &y, &dummy);
     // Return the requested information
     return y;
 }
@@ -1843,9 +1843,9 @@ Float32 CPlayer::GetPositionZ() const
     // Validate the managed identifier
     Validate();
     // Reserve a temporary float to retrieve the requested component
-    Float32 z = 0.0f;
+    Float32 z = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetPlayerPosition(m_ID, nullptr, nullptr, &z);
+    _Func->GetPlayerPosition(m_ID, &dummy, &dummy, &z);
     // Return the requested information
     return z;
 }
@@ -1856,9 +1856,9 @@ void CPlayer::SetPositionX(Float32 x) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z;
+    Float32 y, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetPlayerPosition(m_ID, nullptr, &y, &z);
+    _Func->GetPlayerPosition(m_ID, &dummy, &y, &z);
     // Perform the requested operation
     _Func->SetPlayerPosition(m_ID, x, y, z);
 }
@@ -1869,9 +1869,9 @@ void CPlayer::SetPositionY(Float32 y) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z;
+    Float32 x, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetPlayerPosition(m_ID, &x, nullptr, &z);
+    _Func->GetPlayerPosition(m_ID, &x, &dummy, &z);
     // Perform the requested operation
     _Func->SetPlayerPosition(m_ID, x, y, z);
 }
@@ -1882,9 +1882,9 @@ void CPlayer::SetPositionZ(Float32 z) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y;
+    Float32 x, y, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetPlayerPosition(m_ID, &x, &y, nullptr);
+    _Func->GetPlayerPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
     _Func->SetPlayerPosition(m_ID, z, y, z);
 }

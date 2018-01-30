@@ -457,9 +457,9 @@ Float32 CObject::GetPositionX() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 x = 0.0f;
+    Float32 x = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectPosition(m_ID, &x, nullptr, nullptr);
+    _Func->GetObjectPosition(m_ID, &x, &dummy, &dummy);
     // Return the requested information
     return x;
 }
@@ -470,9 +470,9 @@ Float32 CObject::GetPositionY() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 y = 0.0f;
+    Float32 y = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectPosition(m_ID, nullptr, &y, nullptr);
+    _Func->GetObjectPosition(m_ID, &dummy, &y, &dummy);
     // Return the requested information
     return y;
 }
@@ -483,9 +483,9 @@ Float32 CObject::GetPositionZ() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 z = 0.0f;
+    Float32 z = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectPosition(m_ID, nullptr, nullptr, &z);
+    _Func->GetObjectPosition(m_ID, &dummy, &dummy, &z);
     // Return the requested information
     return z;
 }
@@ -496,9 +496,9 @@ void CObject::SetPositionX(Float32 x) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z;
+    Float32 y, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, nullptr, &y, &z);
+    _Func->GetObjectPosition(m_ID, &dummy, &y, &z);
     // Perform the requested operation
     _Func->SetObjectPosition(m_ID, x, y, z);
 }
@@ -509,9 +509,9 @@ void CObject::SetPositionY(Float32 y) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z;
+    Float32 x, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, &x, nullptr, &z);
+    _Func->GetObjectPosition(m_ID, &x, &dummy, &z);
     // Perform the requested operation
     _Func->SetObjectPosition(m_ID, x, y, z);
 }
@@ -522,9 +522,9 @@ void CObject::SetPositionZ(Float32 z) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y;
+    Float32 x, y, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, &x, &y, nullptr);
+    _Func->GetObjectPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
     _Func->SetObjectPosition(m_ID, z, y, z);
 }
@@ -535,9 +535,9 @@ Float32 CObject::GetRotationX() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 x = 0.0f;
+    Float32 x = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectRotation(m_ID, &x, nullptr, nullptr, nullptr);
+    _Func->GetObjectRotation(m_ID, &x, &dummy, &dummy, &dummy);
     // Return the requested information
     return x;
 }
@@ -548,9 +548,9 @@ Float32 CObject::GetRotationY() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 y = 0.0f;
+    Float32 y = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectRotation(m_ID, nullptr, &y, nullptr, nullptr);
+    _Func->GetObjectRotation(m_ID, &dummy, &y, &dummy, &dummy);
     // Return the requested information
     return y;
 }
@@ -561,9 +561,9 @@ Float32 CObject::GetRotationZ() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 z = 0.0f;
+    Float32 z = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectRotation(m_ID, nullptr, nullptr, &z, nullptr);
+    _Func->GetObjectRotation(m_ID, &dummy, &dummy, &z, &dummy);
     // Return the requested information
     return z;
 }
@@ -574,9 +574,9 @@ Float32 CObject::GetRotationW() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 w = 0.0f;
+    Float32 w = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectRotation(m_ID, nullptr, nullptr, nullptr, &w);
+    _Func->GetObjectRotation(m_ID, &dummy, &dummy, &dummy, &w);
     // Return the requested information
     return w;
 }
@@ -587,9 +587,9 @@ Float32 CObject::GetEulerRotationX() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 x = 0.0f;
+    Float32 x = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectRotationEuler(m_ID, &x, nullptr, nullptr);
+    _Func->GetObjectRotationEuler(m_ID, &x, &dummy, &dummy);
     // Return the requested information
     return x;
 }
@@ -600,9 +600,9 @@ Float32 CObject::GetEulerRotationY() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 y = 0.0f;
+    Float32 y = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectRotationEuler(m_ID, nullptr, &y, nullptr);
+    _Func->GetObjectRotationEuler(m_ID, &dummy, &y, &dummy);
     // Return the requested information
     return y;
 }
@@ -613,9 +613,9 @@ Float32 CObject::GetEulerRotationZ() const
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 z = 0.0f;
+    Float32 z = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetObjectRotationEuler(m_ID, nullptr, nullptr, &z);
+    _Func->GetObjectRotationEuler(m_ID, &dummy, &dummy, &z);
     // Return the requested information
     return z;
 }
@@ -626,9 +626,9 @@ void CObject::MoveToX(Float32 x) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z;
+    Float32 y, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, nullptr, &y, &z);
+    _Func->GetObjectPosition(m_ID, &dummy, &y, &z);
     // Perform the requested operation
     _Func->MoveObjectTo(m_ID, x, y, z, mMoveToDuration);
 }
@@ -639,9 +639,9 @@ void CObject::MoveToY(Float32 y) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z;
+    Float32 x, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, &x, nullptr, &z);
+    _Func->GetObjectPosition(m_ID, &x, &dummy, &z);
     // Perform the requested operation
     _Func->MoveObjectTo(m_ID, x, y, z, mMoveToDuration);
 }
@@ -652,9 +652,9 @@ void CObject::MoveToZ(Float32 z) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y;
+    Float32 x, y, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectPosition(m_ID, &x, &y, nullptr);
+    _Func->GetObjectPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
     _Func->MoveObjectTo(m_ID, z, y, z, mMoveToDuration);
 }
@@ -692,9 +692,9 @@ void CObject::RotateToX(Float32 x) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z, w;
+    Float32 y, z, w, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotation(m_ID, nullptr, &y, &z, &w);
+    _Func->GetObjectRotation(m_ID, &dummy, &y, &z, &w);
     // Perform the requested operation
     _Func->RotateObjectTo(m_ID, x, y, z, w, mRotateToDuration);
 }
@@ -705,9 +705,9 @@ void CObject::RotateToY(Float32 y) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z, w;
+    Float32 x, z, w, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotation(m_ID, &x, nullptr, &z, &w);
+    _Func->GetObjectRotation(m_ID, &x, &dummy, &z, &w);
     // Perform the requested operation
     _Func->RotateObjectTo(m_ID, x, y, z, w, mRotateToDuration);
 }
@@ -718,9 +718,9 @@ void CObject::RotateToZ(Float32 z) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y, w;
+    Float32 x, y, w, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotation(m_ID, &x, &y, nullptr, &w);
+    _Func->GetObjectRotation(m_ID, &x, &y, &dummy, &w);
     // Perform the requested operation
     _Func->RotateObjectTo(m_ID, x, y, z, w, mRotateToDuration);
 }
@@ -731,9 +731,9 @@ void CObject::RotateToW(Float32 w) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y, z;
+    Float32 x, y, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotation(m_ID, &x, &y, &z, nullptr);
+    _Func->GetObjectRotation(m_ID, &x, &y, &z, &dummy);
     // Perform the requested operation
     _Func->RotateObjectTo(m_ID, x, y, z, w, mRotateToDuration);
 }
@@ -780,9 +780,9 @@ void CObject::RotateToEulerX(Float32 x) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z;
+    Float32 y, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotationEuler(m_ID, nullptr, &y, &z);
+    _Func->GetObjectRotationEuler(m_ID, &dummy, &y, &z);
     // Perform the requested operation
     _Func->RotateObjectToEuler(m_ID, x, y, z, mRotateToEulerDuration);
 }
@@ -793,9 +793,9 @@ void CObject::RotateToEulerY(Float32 y) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z;
+    Float32 x, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotationEuler(m_ID, &x, nullptr, &z);
+    _Func->GetObjectRotationEuler(m_ID, &x, &dummy, &z);
     // Perform the requested operation
     _Func->RotateObjectToEuler(m_ID, x, y, z, mRotateToEulerDuration);
 }
@@ -806,9 +806,9 @@ void CObject::RotateToEulerZ(Float32 z) const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y;
+    Float32 x, y, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetObjectRotationEuler(m_ID, &x, &y, nullptr);
+    _Func->GetObjectRotationEuler(m_ID, &x, &y, &dummy);
     // Perform the requested operation
     _Func->RotateObjectToEuler(m_ID, z, y, z, mRotateToEulerDuration);
 }
