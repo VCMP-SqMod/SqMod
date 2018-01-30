@@ -807,9 +807,9 @@ Int32 CVehicle::GetPrimaryColor() const
     // Validate the managed identifier
     Validate();
     // The color value
-    Int32 primary = -1;
+    Int32 primary = -1, dummy;
     // Query the server for the requested color
-    _Func->GetVehicleColour(m_ID, &primary, nullptr);
+    _Func->GetVehicleColour(m_ID, &primary, &dummy);
     // Return the requested information
     return primary;
 }
@@ -820,9 +820,9 @@ void CVehicle::SetPrimaryColor(Int32 col) const
     // Validate the managed identifier
     Validate();
     // The unchanged color value
-    Int32 secondary;
+    Int32 secondary = -1, dummy;
     // Query the server for the unchanged color
-    _Func->GetVehicleColour(m_ID, nullptr, &secondary);
+    _Func->GetVehicleColour(m_ID, &dummy, &secondary);
     // Perform the requested operation
     _Func->SetVehicleColour(m_ID, col, secondary);
 }
@@ -833,9 +833,9 @@ Int32 CVehicle::GetSecondaryColor() const
     // Validate the managed identifier
     Validate();
     // The color value
-    Int32 secondary = -1;
+    Int32 secondary = -1, dummy;
     // Query the server for the requested color
-    _Func->GetVehicleColour(m_ID, nullptr, &secondary);
+    _Func->GetVehicleColour(m_ID, &dummy, &secondary);
     // Return the requested information
     return secondary;
 }
@@ -846,9 +846,9 @@ void CVehicle::SetSecondaryColor(Int32 col) const
     // Validate the managed identifier
     Validate();
     // The unchanged color value
-    Int32 primary;
+    Int32 primary = -1, dummy;
     // Query the server for the unchanged color
-    _Func->GetVehicleColour(m_ID, &primary, nullptr);
+    _Func->GetVehicleColour(m_ID, &primary, &dummy);
     // Perform the requested operation
     _Func->SetVehicleColour(m_ID, primary, col);
 }
