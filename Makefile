@@ -51,6 +51,12 @@ else
 	else
 		SQ_ARCH = 32
 	endif
+	UNAME_M := $(shell uname -m)
+	ifeq ($(UNAME_M),x86_64)
+		SQ_ARCH = 64
+	else
+		SQ_ARCH = 32
+	endif
 endif
 
 ifdef ARCH
