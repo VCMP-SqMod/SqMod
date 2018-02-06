@@ -11,6 +11,7 @@ ifeq ($(SQ_PLAT),win)
 	SQ_DYNAMIC_LINKER_OPTIONS_ += -lmysql
 else
 	SQ_DYNAMIC_LINKER_OPTIONS_ += -lmysqlclient
+	SQ_INCLUDES += -I"/usr/include/mysql"
 endif
 
 SQ_INCLUDES += -I"$(SQ_SRCDIR)"
