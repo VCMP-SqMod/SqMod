@@ -113,9 +113,11 @@ else
 endif
 
 ifdef STANDALONE
-	SQ_DYNAMIC_LINKER_OPTIONS_ += -static
-else
-	SQ_DYNAMIC_LINKER_OPTIONS_ += -Bstatic
+	ifeq ($(SQ_PLAT),win)
+		SQ_DYNAMIC_LINKER_OPTIONS_ += -static
+	else
+		SQ_DYNAMIC_LINKER_OPTIONS_ += -Bstatic
+	endif
 endif
 
 SQ_DEFINES += -DSCRAT_USE_EXCEPTION -DSCRAT_USE_CXX11_OPTIMIZATIONS
