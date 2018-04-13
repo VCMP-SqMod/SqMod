@@ -18,6 +18,21 @@ CSStr GetWeaponName(Uint32 id);
 void SetWeaponName(Uint32 id, const StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve the total number of identifiers in the pool of custom weapon names.
+*/
+Uint32 GetCustomWeaponNamePoolSize();
+
+/* ------------------------------------------------------------------------------------------------
+ * Clear all identifiersand associated names from the pool of custom weapon names.
+*/
+void ClearCustomWeaponNamePool();
+
+/* ------------------------------------------------------------------------------------------------
+ * Modify the name associated with a weapon identifier.
+*/
+void SetWeaponName(Uint32 id, const StackStrF & name);
+
+/* ------------------------------------------------------------------------------------------------
  * Convert a weapon name to a weapon identifier.
 */
 Int32 GetWeaponID(const StackStrF & name);

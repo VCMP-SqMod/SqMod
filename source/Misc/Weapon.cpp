@@ -5,6 +5,7 @@
 // ------------------------------------------------------------------------------------------------
 #include <cstring>
 #include <algorithm>
+#include <unordered_map>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -48,20 +49,63 @@ static String CS_Weapon_Names[] = {
     /* 68 */ "",                            /* 69 */ "",
     /* 70 */ "Suicide",                     /* 71 */ ""
 };
+/// Fall back for custom weapon names.
+static std::unordered_map<Uint32, String> CS_Custom_Weapon_Names{};
+
+// ------------------------------------------------------------------------------------------------
+static inline bool IsCustomWeapon(Uint32 id)
+{
+	return (id > 70);
+}
 
 // ------------------------------------------------------------------------------------------------
 CCStr GetWeaponName(Uint32 id)
 {
-    return (id > 70) ? _SC("") : CS_Weapon_Names[id].c_str();
+	// Can we consider this a custom weapon ID?
+	if (IsCustomWeapon(id))
+	{
+		// Attempt to look for the specified identifier
+		auto it = CS_Custom_Weapon_Names.find(id);
+		// If we found anything than return the associated name
+		if ((it != CS_Custom_Weapon_Names.end()))
+		{
+			return it->second.c_str();
+		}
+	}
+	else
+	{
+		return CS_Weapon_Names[id].c_str(); // Use the standard weapon name
+	}
+	// Fall back to an empty name
+    return _SC("");
 }
 
 // ------------------------------------------------------------------------------------------------
 void SetWeaponName(Uint32 id, const StackStrF & name)
 {
-    if (id <= 70)
-    {
+	// Can we consider this a custom weapon ID?
+	if (IsCustomWeapon(id))
+	{
+		// Attempt to insert or update the name into the custom weapon table
+		CS_Custom_Weapon_Names[id] = String(name.mPtr, name.mLen);
+	}
+	else
+	{
+		// Attempt to insert or update the name into the standard weapon table
         CS_Weapon_Names[id].assign(name.mPtr);
-    }
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint32 GetCustomWeaponNamePoolSize()
+{
+	return static_cast< Uint32 >(CS_Custom_Weapon_Names.size());
+}
+
+// ------------------------------------------------------------------------------------------------
+void ClearCustomWeaponNamePool()
+{
+	CS_Custom_Weapon_Names.clear();
 }
 
 // ------------------------------------------------------------------------------------------------
