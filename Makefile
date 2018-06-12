@@ -184,7 +184,7 @@ clean:
 	cd $(SQ_MODDIR)/mysql; $(SQ_MAKE) clean
 	cd source; $(SQ_MAKE) clean
 
-all: mod_squirrel mod_sqlite mod_xml mod_mmdb mod_irc mod_mysql
+all: folders mod_squirrel mod_sqlite mod_xml mod_mmdb mod_irc mod_mysql
 
 folders:
 	mkdir -p $(SQ_LIBDIR)
