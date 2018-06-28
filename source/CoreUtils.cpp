@@ -144,6 +144,7 @@ void Core::InitEvents()
     InitSignalPair(mOnPickupAlpha, m_Events, "PickupAlpha");
     InitSignalPair(mOnPickupAutomatic, m_Events, "PickupAutomatic");
     InitSignalPair(mOnPickupAutoTimer, m_Events, "PickupAutoTimer");
+    InitSignalPair(mOnPickupOption, m_Events, "PickupOption");
     InitSignalPair(mOnCheckpointEntered, m_Events, "CheckpointEntered");
     InitSignalPair(mOnCheckpointExited, m_Events, "CheckpointExited");
     InitSignalPair(mOnCheckpointWorld, m_Events, "CheckpointWorld");
@@ -278,6 +279,7 @@ void Core::DropEvents()
     ResetSignalPair(mOnPickupAlpha);
     ResetSignalPair(mOnPickupAutomatic);
     ResetSignalPair(mOnPickupAutoTimer);
+    ResetSignalPair(mOnPickupOption);
     ResetSignalPair(mOnCheckpointEntered);
     ResetSignalPair(mOnCheckpointExited);
     ResetSignalPair(mOnCheckpointWorld);

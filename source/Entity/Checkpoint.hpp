@@ -13,7 +13,7 @@ namespace SqMod {
 enum CheckpointCircularLocks
 {
     CHECKPOINTCL_EMIT_CHECKPOINT_WORLD  = (1 << 0),
-    CHECKPOINTCL_EMIT_CHECKPOINT_RADIUS = (2 << 0)
+    CHECKPOINTCL_EMIT_CHECKPOINT_RADIUS = (1 << 1)
 };
 
 /* ------------------------------------------------------------------------------------------------

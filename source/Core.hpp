@@ -21,7 +21,7 @@ namespace SqMod {
 enum CoreCircularLocks
 {
     CCL_RELOAD_SCRIPTS      = (1 << 0),
-    CCL_EMIT_SERVER_OPTION  = (2 << 0)
+    CCL_EMIT_SERVER_OPTION  = (1 << 1)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -400,6 +400,7 @@ protected:
         SignalPair      mOnAlpha;
         SignalPair      mOnAutomatic;
         SignalPair      mOnAutoTimer;
+        SignalPair      mOnOption;
     };
 
     /* --------------------------------------------------------------------------------------------
@@ -1185,6 +1186,7 @@ public:
     void EmitPickupAlpha(Int32 pickup_id, Int32 old_alpha, Int32 new_alpha);
     void EmitPickupAutomatic(Int32 pickup_id, bool old_status, bool new_status);
     void EmitPickupAutoTimer(Int32 pickup_id, Int32 old_timer, Int32 new_timer);
+    void EmitPickupOption(Int32 pickup_id, Int32 option_id, bool value, Int32 header, LightObj & payload);
     void EmitObjectReport(Int32 object_id, bool old_status, bool new_status, bool touched);
     void EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health);
     void EmitPlayerArmour(Int32 player_id, Float32 old_armour, Float32 new_armour);
@@ -1337,6 +1339,7 @@ public:
     SignalPair  mOnPickupAlpha;
     SignalPair  mOnPickupAutomatic;
     SignalPair  mOnPickupAutoTimer;
+    SignalPair  mOnPickupOption;
     SignalPair  mOnCheckpointEntered;
     SignalPair  mOnCheckpointExited;
     SignalPair  mOnCheckpointWorld;

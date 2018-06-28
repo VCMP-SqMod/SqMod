@@ -133,6 +133,60 @@ bool CPickup::IsStreamedFor(CPlayer & player) const
 }
 
 // ------------------------------------------------------------------------------------------------
+bool CPickup::GetOption(Int32 option_id) const
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id));
+    // Check for errors
+    if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: %d", option_id);
+    }
+    // Return the requested value
+    return value;
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPickup::SetOption(Int32 option_id, bool toggle)
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id));
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
+                                toggle) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: %d", option_id);
+    }
+    else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_OPTION))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_OPTION);
+        // Now forward the event call
+        Core::Get().EmitPickupOption(m_ID, option_id, value, 0, NullLightObj());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPickup::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload)
+{
+    // Attempt to obtain the current value of the specified option
+    const bool value = _Func->GetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id));
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
+                                toggle) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: %d", option_id);
+    }
+    else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_OPTION))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_OPTION);
+        // Now forward the event call
+        Core::Get().EmitPickupOption(m_ID, option_id, value, header, payload);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CPickup::GetWorld() const
 {
     // Validate the managed identifier
@@ -469,6 +523,9 @@ void Register_CPickup(HSQUIRRELVM vm)
         .Prop(_SC("PosZ"), &CPickup::GetPositionZ, &CPickup::SetPositionZ)
         // Member Methods
         .Func(_SC("StreamedFor"), &CPickup::IsStreamedFor)
+        .Func(_SC("GetOption"), &CPickup::GetOption)
+        .Func(_SC("SetOption"), &CPickup::SetOption)
+        .Func(_SC("SetOptionEx"), &CPickup::SetOptionEx)
         .Func(_SC("Refresh"), &CPickup::Refresh)
         .Func(_SC("SetPos"), &CPickup::SetPositionEx)
         .Func(_SC("SetPosition"), &CPickup::SetPositionEx)

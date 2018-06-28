@@ -769,6 +769,15 @@ void Core::EmitPickupAutoTimer(Int32 pickup_id, Int32 old_timer, Int32 new_timer
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPickupOption(Int32 pickup_id, Int32 option_id, bool value,
+                                Int32 header, LightObj & payload)
+{
+    PickupInst & _pickup = m_Pickups.at(pickup_id);
+    (*_pickup.mOnOption.first)(option_id, value, header, payload);
+    (*mOnPickupOption.first)(_pickup.mObj, option_id, value, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitObjectReport(Int32 object_id, bool old_status, bool new_status, bool touched)
 {
     ObjectInst & _object = m_Objects.at(object_id);

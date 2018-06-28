@@ -541,6 +541,7 @@ void Core::PickupInst::InitEvents()
     InitSignalPair(mOnAlpha, mEvents, "Alpha");
     InitSignalPair(mOnAutomatic, mEvents, "Automatic");
     InitSignalPair(mOnAutoTimer, mEvents, "AutoTimer");
+    InitSignalPair(mOnOption, mEvents, "Option");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -555,6 +556,7 @@ void Core::PickupInst::DropEvents()
     ResetSignalPair(mOnAlpha);
     ResetSignalPair(mOnAutomatic);
     ResetSignalPair(mOnAutoTimer);
+    ResetSignalPair(mOnOption);
     mEvents.Release();
 }
 

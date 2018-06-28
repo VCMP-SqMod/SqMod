@@ -160,6 +160,7 @@ static const EnumElement g_EventEnum[] = {
     {_SC("PickupAlpha"),                EVT_PICKUPALPHA},
     {_SC("PickupAutomatic"),            EVT_PICKUPAUTOMATIC},
     {_SC("PickupAutoTimer"),            EVT_PICKUPAUTOTIMER},
+    {_SC("PickupOption"),               EVT_PICKUPOPTION},
     {_SC("CheckpointEntered"),          EVT_CHECKPOINTENTERED},
     {_SC("CheckpointExited"),           EVT_CHECKPOINTEXITED},
     {_SC("CheckpointWorld"),            EVT_CHECKPOINTWORLD},
@@ -358,6 +359,13 @@ static const EnumElement g_VehicleOptionEnum[] = {
     {_SC("Ghost"),            vcmpVehicleOptionGhost},
     {_SC("Siren"),            vcmpVehicleOptionSiren},
     {_SC("Max"),              vcmpVehicleOptionSiren}
+};
+
+// ------------------------------------------------------------------------------------------------
+static const EnumElement g_PickupOptionEnum[] = {
+    {_SC("Unknown"),          SQMOD_UNKNOWN},
+    {_SC("SingleUse "),       vcmpPickupOptionSingleUse},
+    {_SC("Max"),              vcmpPickupOptionSingleUse}
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1134,6 +1142,7 @@ static const EnumElements g_EnumList[] = {
     {_SC("SqServerOption"),     g_ServerOptionEnum},
     {_SC("SqPlayerOption"),     g_PlayerOptionEnum},
     {_SC("SqVehicleOption"),    g_VehicleOptionEnum},
+    {_SC("SqPickupOption"),     g_PickupOptionEnum},
     {_SC("SqBodyPart"),         g_BodyPartEnum},
     {_SC("SqPlayerState"),      g_PlayerStateEnum},
     {_SC("SqPlayerAction"),     g_PlayerActionEnum},

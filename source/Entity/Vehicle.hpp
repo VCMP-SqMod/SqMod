@@ -13,13 +13,13 @@ namespace SqMod {
 enum VehicleCircularLocks
 {
     VEHICLECL_EMIT_VEHICLE_OPTION       = (1 << 0),
-    VEHICLECL_EMIT_VEHICLE_WORLD        = (2 << 0),
-    VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (3 << 0),
-    VEHICLECL_EMIT_VEHICLE_PARTSTATUS   = (4 << 0),
-    VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (5 << 0),
-    VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (6 << 0),
-    VEHICLECL_EMIT_VEHICLE_RADIO        = (7 << 0),
-    VEHICLECL_EMIT_VEHICLE_HANDLINGRULE = (8 << 0)
+    VEHICLECL_EMIT_VEHICLE_WORLD        = (1 << 1),
+    VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (1 << 2),
+    VEHICLECL_EMIT_VEHICLE_PARTSTATUS   = (1 << 3),
+    VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (1 << 4),
+    VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (1 << 5),
+    VEHICLECL_EMIT_VEHICLE_RADIO        = (1 << 6),
+    VEHICLECL_EMIT_VEHICLE_HANDLINGRULE = (1 << 7)
 };
 
 /* ------------------------------------------------------------------------------------------------

@@ -12,10 +12,11 @@ namespace SqMod {
 */
 enum PickupCircularLocks
 {
-    PICKUPCL_EMIT_PICKUP_WORLD      = (1 << 0),
-    PICKUPCL_EMIT_PICKUP_ALPHA      = (2 << 0),
-    PICKUPCL_EMIT_PICKUP_AUTOMATIC  = (3 << 0),
-    PICKUPCL_EMIT_PICKUP_AUTOTIMER  = (4 << 0)
+    PICKUPCL_EMIT_PICKUP_OPTION     = (1 << 0),
+    PICKUPCL_EMIT_PICKUP_WORLD      = (1 << 1),
+    PICKUPCL_EMIT_PICKUP_ALPHA      = (1 << 2),
+    PICKUPCL_EMIT_PICKUP_AUTOMATIC  = (1 << 3),
+    PICKUPCL_EMIT_PICKUP_AUTOTIMER  = (1 << 4)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -187,6 +188,21 @@ public:
      * See if the managed pickup entity is streamed for the specified player.
     */
     bool IsStreamedFor(CPlayer & player) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current option value of the managed pickup entity.
+    */
+    bool GetOption(Int32 option_id) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the current option value of the managed pickup entity.
+    */
+    void SetOption(Int32 option_id, bool toggle);
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the current option value of the managed pickup entity.
+    */
+    void SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed pickup entity exists.
