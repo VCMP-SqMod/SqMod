@@ -603,6 +603,16 @@ public:
     void ResetHandlings() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the lights data for the managed vehicle entity.
+    */
+    Int32 GetLightsData() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the lights data for the managed vehicle entity.
+    */
+    void SetLightsData(Int32 data) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Embark the specified player entity into the managed vehicle entity.
     */
     bool Embark(CPlayer & player) const;

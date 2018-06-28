@@ -1099,6 +1099,24 @@ void CVehicle::ResetHandlings() const
 }
 
 // ------------------------------------------------------------------------------------------------
+Int32 CVehicle::GetLightsData() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the requested data
+    return _Func->GetVehicleLightsData(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetLightsData(Int32 data) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Apply the requested data
+    _Func->SetVehicleLightsData(m_ID, data);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CVehicle::Embark(CPlayer & player) const
 {
     // Is the specified player even valid?
@@ -1950,6 +1968,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("HorizontalTurretRotation"), &CVehicle::GetHorizontalTurretRotation)
         .Prop(_SC("VerTurretRotation"), &CVehicle::GetVerticalTurretRotation)
         .Prop(_SC("VerticalTurretRotation"), &CVehicle::GetVerticalTurretRotation)
+        .Prop(_SC("LightsData"), &CVehicle::GetLightsData, &CVehicle::SetLightsData)
         .Prop(_SC("CollideAreas"), &CVehicle::GetCollideAreas, &CVehicle::SetCollideAreas)
         .Prop(_SC("TrackPosition"), &CVehicle::GetTrackPosition, &CVehicle::SetTrackPosition)
         .Prop(_SC("TrackRotation"), &CVehicle::GetTrackRotation, &CVehicle::SetTrackRotation)
