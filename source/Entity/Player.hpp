@@ -747,6 +747,11 @@ public:
                     const StackStrF & server_pass, const StackStrF & user_pass);
 
     /* --------------------------------------------------------------------------------------------
+     * Request a list of the modules loaded into the client session.
+    */
+    void GetModuleList() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the authority level of the managed player entity.
     */
     void PlaySound(Int32 sound_id) const;

@@ -1392,6 +1392,15 @@ void CPlayer::Redirect(const StackStrF & ip, Uint32 port, const StackStrF & nick
 }
 
 // ------------------------------------------------------------------------------------------------
+void CPlayer::GetModuleList() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Send the request
+    _Func->GetPlayerModuleList(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
 void CPlayer::PlaySound(Int32 sound_id) const
 {
     // Validate the managed identifier
@@ -2714,6 +2723,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Unspectate"), &CPlayer::Unspectate)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
+        .Func(_SC("GetModuleList"), &CPlayer::GetModuleList)
         .Func(_SC("PlaySound"), &CPlayer::PlaySound)
         .Func(_SC("AreasCollide"), &CPlayer::SetAreasCollide)
         .Func(_SC("GetMsgPrefix"), &CPlayer::GetMessagePrefix)
