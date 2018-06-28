@@ -612,6 +612,15 @@ void Core::EmitPlayerCrashreport(Int32 player_id, CCStr report)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerModuleList(Int32 player_id, CCStr list)
+{
+    PlayerInst & _player = m_Players.at(player_id);
+    LightObj rep(list, -1);
+    (*_player.mOnModuleList.first)(rep);
+    (*mOnPlayerModuleList.first)(_player.mObj, rep);
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleExplode(Int32 vehicle_id)
 {
     VehicleInst & _vehicle = m_Vehicles.at(vehicle_id);

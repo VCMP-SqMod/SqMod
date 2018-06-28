@@ -622,6 +622,7 @@ void Core::PlayerInst::InitEvents()
     InitSignalPair(mOnSpectate, mEvents, "Spectate");
     InitSignalPair(mOnUnspectate, mEvents, "Unspectate");
     InitSignalPair(mOnCrashreport, mEvents, "Crashreport");
+    InitSignalPair(mOnModuleList, mEvents, "ModuleList");
     InitSignalPair(mOnObjectShot, mEvents, "ObjectShot");
     InitSignalPair(mOnObjectTouched, mEvents, "ObjectTouched");
     InitSignalPair(mOnPickupClaimed, mEvents, "PickupClaimed");
@@ -701,6 +702,7 @@ void Core::PlayerInst::DropEvents()
     ResetSignalPair(mOnSpectate);
     ResetSignalPair(mOnUnspectate);
     ResetSignalPair(mOnCrashreport);
+    ResetSignalPair(mOnModuleList);
     ResetSignalPair(mOnObjectShot);
     ResetSignalPair(mOnObjectTouched);
     ResetSignalPair(mOnPickupClaimed);

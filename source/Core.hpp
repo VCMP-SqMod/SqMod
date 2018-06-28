@@ -532,6 +532,7 @@ protected:
         SignalPair      mOnSpectate;
         SignalPair      mOnUnspectate;
         SignalPair      mOnCrashreport;
+        SignalPair      mOnModuleList;
         SignalPair      mOnObjectShot;
         SignalPair      mOnObjectTouched;
         SignalPair      mOnPickupClaimed;
@@ -1162,6 +1163,7 @@ public:
     void EmitPlayerSpectate(Int32 player_id, Int32 target_player_id);
     void EmitPlayerUnspectate(Int32 player_id);
     void EmitPlayerCrashreport(Int32 player_id, CCStr report);
+    void EmitPlayerModuleList(Int32 player_id, CCStr list);
     void EmitVehicleExplode(Int32 vehicle_id);
     void EmitVehicleRespawn(Int32 vehicle_id);
     void EmitObjectShot(Int32 object_id, Int32 player_id, Int32 weapon_id);
@@ -1320,6 +1322,7 @@ public:
     SignalPair  mOnPlayerSpectate;
     SignalPair  mOnPlayerUnspectate;
     SignalPair  mOnPlayerCrashreport;
+    SignalPair  mOnPlayerModuleList;
     SignalPair  mOnVehicleExplode;
     SignalPair  mOnVehicleRespawn;
     SignalPair  mOnObjectShot;

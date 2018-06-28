@@ -703,6 +703,18 @@ static void OnPlayerCrashReport(int32_t player_id, CCStr report)
     SQMOD_RELOAD_CHECK(false)
 }
 
+static void OnPlayerModuleList(int32_t player_id, const char * list)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitPlayerModuleList(player_id, list);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerModuleList)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
 // ------------------------------------------------------------------------------------------------
 static void OnVehicleUpdate(int32_t vehicle_id, vcmpVehicleUpdate update_type)
 {
@@ -939,6 +951,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     _Clbk->OnCheckpointExited           = OnCheckpointExited;
     _Clbk->OnEntityPoolChange           = OnEntityPoolChange;
     _Clbk->OnServerPerformanceReport    = OnServerPerformanceReport;
+    _Clbk->OnPlayerModuleList           = OnPlayerModuleList;
     // Attempt to initialize the plug-in exports
     InitExports();
     // Dummy spacing
