@@ -464,6 +464,16 @@ CSStr GetDistrictName(const Vector2 & point);
 */
 CSStr GetDistrictNameEx(SQFloat x, SQFloat y);
 
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the fall timer rate.
+*/
+Uint16 GetFallTimer();
+
+/* ------------------------------------------------------------------------------------------------
+ * Modify the fall timer rate.
+*/
+void SetFallTimer(Uint16 rate);
+
 } // Namespace:: SqMod
 
 #endif // _MISC_FUNCTIONS_HPP_

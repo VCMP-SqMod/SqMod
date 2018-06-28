@@ -118,7 +118,9 @@ void Register_Misc(HSQUIRRELVM vm)
     .Func(_SC("ForceAllSelect"), &ForceAllSelect)
     .Func(_SC("CheckEntityExists"), &CheckEntityExists)
     .Func(_SC("GetDistrictName"), &GetDistrictName)
-    .Func(_SC("GetDistrictNameEx"), &GetDistrictNameEx);
+    .Func(_SC("GetDistrictNameEx"), &GetDistrictNameEx)
+    .Func(_SC("GetFallTimer"), &GetFallTimer)
+    .Func(_SC("SetFallTimer"), &SetFallTimer);
 
     RootTable(vm).Bind(_SC("SqServer"), srvns);
 

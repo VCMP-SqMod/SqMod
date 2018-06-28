@@ -836,4 +836,16 @@ CSStr GetDistrictNameEx(SQFloat x, SQFloat y)
     return _SC("Vice City");
 }
 
+// ------------------------------------------------------------------------------------------------
+Uint16 GetFallTimer()
+{
+    return _Func->GetFallTimer();
+}
+
+// ------------------------------------------------------------------------------------------------
+void SetFallTimer(Uint16 rate)
+{
+    _Func->SetFallTimer(rate);
+}
+
 } // Namespace:: SqMod
