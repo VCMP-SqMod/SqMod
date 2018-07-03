@@ -145,7 +145,7 @@ private:
                     sq_pushobject(vm, mArgv[n].mObj);
                 }
                 // Make the function call and store the result
-                const SQRESULT res = sq_call(vm, mArgc + 1, false, mQuiet);
+                const SQRESULT res = sq_call(vm, mArgc + 1, false, !mQuiet);
                 // Validate the result
                 if (SQ_FAILED(res))
                 {
