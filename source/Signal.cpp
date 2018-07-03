@@ -876,7 +876,7 @@ SQInteger Signal::Eliminate(SignalWrapper & w)
         // Backup the current number of used slots
         const SizeType count = m_Used;
         // Forward the call to the actual function
-        RemoveIf(MatchSlot< Slot >(w.mSlot.mThisHash, w.mSlot.mFuncHash),
+        m_Used -= RemoveIf(MatchSlot< Slot >(w.mSlot.mThisHash, w.mSlot.mFuncHash),
                     m_Slots, m_Slots + m_Used, m_Scope);
         // Push the number of removed slots
         sq_pushinteger(w.mVM, static_cast< SQInteger >(count - m_Used));
@@ -899,7 +899,7 @@ SQInteger Signal::EliminateThis(SignalWrapper & w)
         // Backup the current number of used slots
         const SizeType count = m_Used;
         // Forward the call to the actual function
-        RemoveIf(MatchThis< Slot >(w.mSlot.mThisHash), m_Slots, m_Slots + m_Used, m_Scope);
+        m_Used -= RemoveIf(MatchThis< Slot >(w.mSlot.mThisHash), m_Slots, m_Slots + m_Used, m_Scope);
         // Push the number of removed slots
         sq_pushinteger(w.mVM, static_cast< SQInteger >(count - m_Used));
     }
@@ -921,7 +921,7 @@ SQInteger Signal::EliminateFunc(SignalWrapper & w)
         // Backup the current number of used slots
         const SizeType count = m_Used;
         // Forward the call to the actual function
-        RemoveIf(MatchFunc< Slot >(w.mSlot.mFuncHash), m_Slots, m_Slots + m_Used, m_Scope);
+        m_Used -= RemoveIf(MatchFunc< Slot >(w.mSlot.mFuncHash), m_Slots, m_Slots + m_Used, m_Scope);
         // Push the number of removed slots
         sq_pushinteger(w.mVM, static_cast< SQInteger >(count - m_Used));
     }
