@@ -86,6 +86,8 @@ Tasks::Interval Tasks::Task::Execute()
     }
     // Make the function call and store the result
     const SQRESULT res = sq_call(vm, mArgc + 1, false, ErrorHandling::IsEnabled());
+    // Pop the callback object from the stack
+    sq_pop(vm, 1);
     // Validate the result
     if (SQ_FAILED(res))
     {
