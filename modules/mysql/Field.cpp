@@ -523,8 +523,12 @@ Object Field::GetString() const
     const StackGuard sg;
     // Retrieve the value directly from the row and push it on the stack
     sq_pushstring(DefaultVM::Get(), m_Handle->mRow[m_Index], m_Handle->mLengths[m_Index]);
-    // Obtain the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    // Obtain the object from the stack
+    Object stro(-1, DefaultVM::Get());
+    // Restore the stack
+    sg.Restore();
+    // Return it the string object
+    return stro;
 }
 
 // ------------------------------------------------------------------------------------------------
