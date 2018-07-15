@@ -223,7 +223,7 @@ Table ResultSet::GetFieldsTable() const
     // Create a field instance to insert as copy
     Field field(m_Handle);
     // Allocate a table to be populated with field instances
-    Table tbl;
+    Table tbl(DefaultVM::Get(), fcount);
     // Iterate over all the available fields and insert them into the created table
     for (SQInteger n = 0; n < fcount; ++n)
     {
