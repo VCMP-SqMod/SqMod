@@ -7,6 +7,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <cstring>
+#include <vector>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -348,6 +349,22 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
     return 1;
 }
 
+// ------------------------------------------------------------------------------------------------
+LightObj Connection::EscapeString(const StackStrF & str)
+{
+    // Is there even a string to escape?
+    if (str.mLen <= 0)
+    {
+        return LightObj(_SC(""), 0, str.mVM); // Default to empty string
+    }
+    // Allocate a buffer for the given string
+    std::vector< SQChar > buffer(str.mLen * 2 + 1);
+    // Attempt to ecape the specified string
+    const Ulong len = mysql_real_escape_string(m_Handle->mPtr, buffer.data(), str.mPtr, str.mLen);
+    // Return the resulted string
+    return LightObj(buffer.data(), static_cast< SQInteger >(len), str.mVM);
+}
+
 // ================================================================================================
 void Register_Connection(Table & sqlns)
 {
@@ -391,6 +408,7 @@ void Register_Connection(Table & sqlns)
         .Func(_SC("Query"), &Connection::Query)
         .Func(_SC("Statement"), &Connection::GetStatement)
         .Func(_SC("Transaction"), &Connection::GetTransaction)
+        .FmtFunc(_SC("EscapeString"), &Connection::EscapeString)
         // Squirrel Methods
         .SquirrelFunc(_SC("ExecuteF"), &Connection::ExecuteF)
         .SquirrelFunc(_SC("InsertF"), &Connection::InsertF)

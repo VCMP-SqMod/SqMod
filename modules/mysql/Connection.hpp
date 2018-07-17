@@ -412,6 +412,11 @@ public:
     Transaction GetTransaction();
 
     /* --------------------------------------------------------------------------------------------
+     * Escape unwanted characters from a given string.
+    */
+    LightObj EscapeString(const StackStrF & str);
+
+    /* --------------------------------------------------------------------------------------------
      * Attempt to execute the specified query.
     */
     static SQInteger ExecuteF(HSQUIRRELVM vm);
