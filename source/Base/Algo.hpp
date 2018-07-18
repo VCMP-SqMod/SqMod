@@ -950,30 +950,6 @@ template < typename T > struct RecvElemFunc
     {
         mObj = inst.mObj;
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed object.
-    */
-    operator LightObj ()
-    {
-        return mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed object.
-    */
-    operator LightObj & ()
-    {
-        return mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed object.
-    */
-    operator const LightObj & () const
-    {
-        return mObj;
-    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -1038,30 +1014,6 @@ public:
         ++mCount;
         // Proceed to the next element, if any
         return true;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed function.
-    */
-    operator Function ()
-    {
-        return mFunc;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed function.
-    */
-    operator Function & ()
-    {
-        return mFunc;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed function.
-    */
-    operator const Function & () const
-    {
-        return mFunc;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1138,54 +1090,6 @@ public:
         ++mCount;
         // Proceed to the next element, if any
         return true;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed function.
-    */
-    operator Function ()
-    {
-        return mFunc;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed function.
-    */
-    operator Function & ()
-    {
-        return mFunc;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed function.
-    */
-    operator const Function & () const
-    {
-        return mFunc;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed payload.
-    */
-    operator LightObj ()
-    {
-        return mData;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed payload.
-    */
-    operator LightObj & ()
-    {
-        return mData;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit cast to the managed payload.
-    */
-    operator const LightObj & () const
-    {
-        return mData;
     }
 
     /* --------------------------------------------------------------------------------------------
