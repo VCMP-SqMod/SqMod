@@ -260,19 +260,21 @@ LightObj & CVehicle::GetOccupant(Int32 slot) const
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
     {
         const vcmpError err = _Func->GetLastError();
-        // Identify the type of error
+        // Identify the type of error and at least log it
         if (err == vcmpErrorArgumentOutOfBounds)
         {
-            STHROWF("Out of range slot [%d]", slot);
+            LogWrn("Out of range slot [%d]", slot);
         }
         else if (err == vcmpErrorNoSuchEntity)
         {
-            STHROWF("Unoccupied slot [%d]", id);
+            LogWrn("Unoccupied slot [%d]", id);
         }
         else
         {
-            STHROWF("Error while getting occupant at [%d] for [%s]", slot, m_Tag.c_str());
+            LogWrn("Error while getting occupant at [%d] for [%s]", slot, m_Tag.c_str());
         }
+        // Default to a null instance
+        return Core::Get().GetNullVehicle().GetObject();
     }
     // Return the requested information
     return Core::Get().GetPlayer(id).mObj;
