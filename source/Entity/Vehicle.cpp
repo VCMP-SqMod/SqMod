@@ -274,7 +274,7 @@ LightObj & CVehicle::GetOccupant(Int32 slot) const
             LogWrn("Error while getting occupant at [%d] for [%s]", slot, m_Tag.c_str());
         }
         // Default to a null instance
-        return Core::Get().GetNullVehicle().GetObject();
+        return Core::Get().GetNullVehicle();
     }
     // Return the requested information
     return Core::Get().GetPlayer(id).mObj;
