@@ -67,7 +67,7 @@ void DoReload()
 */ catch (const Sqrat::Exception & e) /*
 */ { /*
 */  LogErr("Squirrel exception caught (" #ev ") event"); /*
-*/  LogInf("Message: %s", e.what()); /*
+*/  LogSInf("Message: %s", e.what()); /*
 */ } /*
 */
 
@@ -897,15 +897,31 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     // Attempt to initialize the logger before anything else
     Logger::Get().Initialize(nullptr);
     // Attempt to initialize the plug-in core
-    if (!Core::Get().Initialize())
+    try
     {
-        LogFtl("Unable to initialize the plug-in central core");
-        // Attempt to terminate
-        Core::Get().Terminate(false);
-        // Stop here!
-        return SQMOD_FAILURE;
+        if (!Core::Get().Initialize())
+        {
+            LogFtl("Unable to initialize the plug-in central core");
+            // Attempt to terminate
+            Core::Get().Terminate(false);
+            // Stop here!
+            return SQMOD_FAILURE;
+        }
     }
-
+    catch (const Sqrat::Exception & e)
+    {
+        LogErr("Squirrel exception caught during initialization");
+        LogSInf("Message: %s", e.what());
+    }
+    catch (const std::exception & e)
+    {
+        LogErr("System exception caught during initialization");
+        LogSInf("Message: %s", e.what());
+    }
+    catch (...)
+    {
+        LogErr("Unknown exception caught during initialization");
+    }
     // Bind to the server callbacks
     _Clbk->OnServerInitialise           = OnServerInitialise;
     _Clbk->OnServerShutdown             = OnServerShutdown;
