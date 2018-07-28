@@ -591,9 +591,6 @@ void SetVehiclesForcedRespawnHeight(Float32 height)
 // ------------------------------------------------------------------------------------------------
 void CreateExplosion(Int32 world, Int32 type, const Vector3 & pos, CPlayer & source, bool grounded)
 {
-    // Validate the specified player
-    source.Validate();
-    // Perform the requested operation
     if (_Func->CreateExplosion(world, type, pos.x, pos.y, pos.z,
                                 source.GetID(), grounded) == vcmpErrorArgumentOutOfBounds)
     {
@@ -604,9 +601,6 @@ void CreateExplosion(Int32 world, Int32 type, const Vector3 & pos, CPlayer & sou
 // ------------------------------------------------------------------------------------------------
 void CreateExplosionEx(Int32 world, Int32 type, Float32 x, Float32 y, Float32 z, CPlayer & source, bool grounded)
 {
-    // Validate the specified player
-    source.Validate();
-    // Perform the requested operation
     if (_Func->CreateExplosion(world, type, x, y, z,
                                 source.GetID(), grounded) == vcmpErrorArgumentOutOfBounds)
     {
