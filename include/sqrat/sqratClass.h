@@ -462,7 +462,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class F>
     Class& GlobalFmtFunc(const SQChar* name, F method) {
-        BindFunc(name, &method, sizeof(method), SqMemberGlobalFmtFunc(method));
+        BindFunc(name, &method, sizeof(method), SqMemberGlobalFunc(method));
         return *this;
     }
 

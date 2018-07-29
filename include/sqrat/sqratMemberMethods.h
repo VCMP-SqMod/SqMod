@@ -54,7 +54,7 @@ template <class C,class R> struct SqMemberProxy {
             typedef R(C::*M)(A...);
             C* inst = Var<C*>(vm, 1).value;
             M* methodPtr;
-            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), NULL);
+            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
             R ret = (inst->*method)(a...);
             PushVar(vm, ret);
@@ -70,7 +70,7 @@ template <class C,class R> struct SqMemberProxy {
             typedef R(C::*M)(A...) const;
             C* inst = Var<C*>(vm, 1).value;
             M* methodPtr;
-            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), NULL);
+            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
             R ret = (inst->*method)(a...);
             PushVar(vm, ret);
@@ -83,7 +83,7 @@ template <class C,class R> struct SqMemberProxy {
 // reference return specialization
 //
 
-template <class C, class R> struct SqMemberProxy<C, R&> {
+template <class C, class R> struct SqMemberProxy<C,R&> {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm) noexcept {
         ArgPop<A...> a(vm, 2);
         if (SQ_FAILED(a.Proc(sizeof...(A) == 0 && sq_gettop(vm) == 2))) {
@@ -93,7 +93,7 @@ template <class C, class R> struct SqMemberProxy<C, R&> {
             typedef R&(C::*M)(A...);
             C* inst = Var<C*>(vm, 1).value;
             M* methodPtr;
-            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), NULL);
+            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
             R& ret = (inst->*method)(a...);
             PushVarR(vm, ret);
@@ -109,7 +109,7 @@ template <class C, class R> struct SqMemberProxy<C, R&> {
             typedef R&(C::*M)(A...) const;
             C* inst = Var<C*>(vm, 1).value;
             M* methodPtr;
-            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), NULL);
+            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
             R& ret = (inst->*method)(a...);
             PushVarR(vm, ret);
@@ -132,7 +132,7 @@ template <class C> struct SqMemberProxy<C, void> {
             typedef void(C::*M)(A...);
             C* inst = Var<C*>(vm, 1).value;
             M* methodPtr;
-            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), NULL);
+            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
             (inst->*method)(a...);
         });
@@ -147,7 +147,7 @@ template <class C> struct SqMemberProxy<C, void> {
             typedef void(C::*M)(A...) const;
             C* inst = Var<C*>(vm, 1).value;
             M* methodPtr;
-            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), NULL);
+            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
             (inst->*method)(a...);
         });
@@ -180,7 +180,7 @@ template <class C,class R> struct SqMember {
             }
 #endif
             try {
-                return SqMemberProxy<C, R>::Run(vm);
+                return SqMemberProxy<C, R>:: template Run<A...>(vm);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
             }
@@ -197,7 +197,7 @@ template <class C,class R> struct SqMember {
             }
 #endif
             try {
-                return SqMemberProxy<C,R>::RunC(vm);
+                return SqMemberProxy<C,R>::template RunC<A...>(vm);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
             }
@@ -210,7 +210,7 @@ template <class C,class R> struct SqMember {
 // reference return specialization
 //
 
-template <class C, class R> struct SqMember<C, R&> {
+template <class C, class R> struct SqMember<C,R&> {
     // Function proxy
     template <bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
         return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
@@ -221,7 +221,7 @@ template <class C, class R> struct SqMember<C, R&> {
             }
 #endif
             try {
-                return SqMemberProxy<C, R&>::Run(vm);
+                return SqMemberProxy<C,R&>::template Run<A...>(vm);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
             }
@@ -238,7 +238,7 @@ template <class C, class R> struct SqMember<C, R&> {
             }
 #endif
             try {
-                return SqMemberProxy<C,R&>::RunC(vm);
+                return SqMemberProxy<C,R&>::template RunC<A...>(vm);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
             }
@@ -263,7 +263,7 @@ template <class C> struct SqMember<C, void> {
             }
 #endif
             try {
-                return SqMemberProxy<C, void>::Run(vm);
+                return SqMemberProxy<C, void>::template Run<A...>(vm);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
             }
@@ -280,7 +280,7 @@ template <class C> struct SqMember<C, void> {
             }
 #endif
             try {
-                return SqMemberProxy<C,void>::RunC(vm);
+                return SqMemberProxy<C,void>::template RunC<A...>(vm);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
             }
@@ -327,8 +327,8 @@ inline SQInteger sqDefaultGet(HSQUIRRELVM vm) {
     }
 
     typedef V C::*M;
-    M* memberPtr = NULL;
-    sq_getuserdata(vm, -1, (SQUserPointer*)&memberPtr, NULL); // Get Member...
+    M* memberPtr = nullptr;
+    sq_getuserdata(vm, -1, (SQUserPointer*)&memberPtr, nullptr); // Get Member...
     M member = *memberPtr;
 
     PushVarR(vm, ptr->*member);
@@ -339,8 +339,8 @@ inline SQInteger sqDefaultGet(HSQUIRRELVM vm) {
 template <class C, class V>
 inline SQInteger sqStaticGet(HSQUIRRELVM vm) {
     typedef V *M;
-    M* memberPtr = NULL;
-    sq_getuserdata(vm, -1, (SQUserPointer*)&memberPtr, NULL); // Get Member...
+    M* memberPtr = nullptr;
+    sq_getuserdata(vm, -1, (SQUserPointer*)&memberPtr, nullptr); // Get Member...
     M member = *memberPtr;
 
     PushVarR(vm, *member);
@@ -399,8 +399,8 @@ inline SQInteger sqDefaultSet(HSQUIRRELVM vm) {
     }
 
     typedef V C::*M;
-    M* memberPtr = NULL;
-    sq_getuserdata(vm, -1, (SQUserPointer*)&memberPtr, NULL); // Get Member...
+    M* memberPtr = nullptr;
+    sq_getuserdata(vm, -1, (SQUserPointer*)&memberPtr, nullptr); // Get Member...
     M member = *memberPtr;
 
     SQTRY()
@@ -422,8 +422,8 @@ inline SQInteger sqDefaultSet(HSQUIRRELVM vm) {
 template <class C, class V>
 inline SQInteger sqStaticSet(HSQUIRRELVM vm) {
     typedef V *M;
-    M* memberPtr = NULL;
-    sq_getuserdata(vm, -1, (SQUserPointer*)&memberPtr, NULL); // Get Member...
+    M* memberPtr = nullptr;
+    sq_getuserdata(vm, -1, (SQUserPointer*)&memberPtr, nullptr); // Get Member...
     M member = *memberPtr;
 
     SQTRY()

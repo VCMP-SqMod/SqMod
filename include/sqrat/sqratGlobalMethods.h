@@ -127,7 +127,7 @@ template <class R> struct SqGlobal {
             }
 #endif
             try {
-                return SqGlobalProxy<R>::Run(vm, startIdx);
+                return SqGlobalProxy<R>::template Run<A...>(vm, startIdx);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
             }
@@ -151,7 +151,7 @@ template <class R> struct SqGlobal<R&> {
             }
 #endif
             try {
-                return SqGlobalProxy<R&>::Run(vm, startIdx);
+                return SqGlobalProxy<R&>::template Run<A...>(vm, startIdx);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
             }
@@ -175,7 +175,7 @@ template <> struct SqGlobal<void> {
             }
 #endif
             try {
-                return SqGlobalProxy<void>::Run(vm, startIdx);
+                return SqGlobalProxy<void>::Run<A...>(vm, startIdx);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
             }

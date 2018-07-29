@@ -1187,7 +1187,10 @@ template<> struct ArgPopHasFmt<const StackStrF&> { static constexpr bool value =
 /// Helper used to process formatted arguments when necessary.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<bool> struct ArgPopFmt {
-    static inline SQInteger Proc(StackStrF &, bool) {
+    template<class T> static inline SQInteger Proc(T &, bool) {
+        return SQ_OK;
+    }
+    template<class T> static inline SQInteger Get(T &) {
         return SQ_OK;
     }
 };
