@@ -44,35 +44,95 @@ namespace Sqrat {
 //
 // Squirrel Global Functions
 //
+template <class R> struct SqGlobalProxy {
+    template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
+        ArgPop<A...> a(vm, idx);
+        if (SQ_FAILED(a.Proc())) {
+            return a.ProcRes();
+        }
+        a.Call(vm, [](HSQUIRRELVM vm, A... a) {
+            typedef R(*M)(A...);
+            M* method;
+            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), nullptr);
+            R ret = (*method)(a...);
+            PushVar(vm, ret);
+        });
+        return 1;
+    }
+};
+
+//
+// reference return specialization
+//
+
+template <class R> struct SqGlobalProxy<R&> {
+    template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
+        ArgPop<A...> a(vm, idx);
+        if (SQ_FAILED(a.Proc())) {
+            return a.ProcRes();
+        }
+        a.Call(vm, [](HSQUIRRELVM vm, A... a) {
+            typedef R&(*M)(A...);
+            M* method;
+            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), nullptr);
+            R& ret = (*method)(a...);
+            PushVarR(vm, ret);
+        });
+        return 1;
+    }
+};
+
+//
+// void return specialization
+//
+
+template <> struct SqGlobalProxy<void> {
+    template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
+        ArgPop<A...> a(vm, idx);
+        if (SQ_FAILED(a.Proc())) {
+            return a.ProcRes();
+        }
+        a.Call(vm, [](HSQUIRRELVM vm, A... a) {
+            typedef void(*M)(A...);
+            M* method;
+            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), nullptr);
+            (*method)(a...);
+        });
+        return 0;
+    }
+};
+
+template<bool> struct SqGlobalParamCheck {
+    static inline bool Invalid(SQInteger top, SQInteger count) {
+        return top != count;
+    }
+};
+template<> struct SqGlobalParamCheck<true> {
+    static inline bool Invalid(SQInteger top, SQInteger count) {
+        return top < count;
+    }
+};
+
+//
+// Squirrel Global Functions
+//
 template <class R> struct SqGlobal {
     // Function proxy
     template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
-		typedef R(*M)(A...);
-		return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
+        return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-			if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) != static_cast<SQInteger>(startIdx + sizeof...(A))) {
-				return sq_throwerror(vm, _SC("wrong number of parameters"));
-			}
+            if (!SQRAT_CONST_CONDITION(overloaded) &&
+                SqGlobalParamCheck< ArgPop<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
+                return sq_throwerror(vm, _SC("wrong number of parameters"));
+            }
 #endif
-			M* method;
-			sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), NULL);
-
-			SQTRY()
-				ArgPop<A...> a(vm, startIdx);
-				SQCATCH_NOEXCEPT(vm) {
-					return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-				}
-				R ret = a.template Eval<R,M>(*method);
-				SQCATCH_NOEXCEPT(vm) {
-					return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-				}
-				PushVar(vm, ret);
-			SQCATCH(vm) {
-				return sq_throwerror(vm, SQWHAT(vm));
-			}
-
-			return 1;
-		};
+            try {
+                return SqGlobalProxy<R>::Run(vm, startIdx);
+            } catch (const Exception& e) {
+                return sq_throwerror(vm, e.what());
+            }
+            SQ_UNREACHABLE
+        };
     }
 };
 
@@ -83,32 +143,20 @@ template <class R> struct SqGlobal {
 template <class R> struct SqGlobal<R&> {
     // Function proxy
     template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
-		typedef R&(*M)(A...);
-		return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
+        return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-			if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) != static_cast<SQInteger>(startIdx + sizeof...(A))) {
-				return sq_throwerror(vm, _SC("wrong number of parameters"));
-			}
+            if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) &&
+                SqGlobalParamCheck< ArgPop<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
+                return sq_throwerror(vm, _SC("wrong number of parameters"));
+            }
 #endif
-			M* method;
-			sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), NULL);
-
-			SQTRY()
-				ArgPop<A...> a(vm, startIdx);
-				SQCATCH_NOEXCEPT(vm) {
-					return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-				}
-				R& ret = a.template Eval<R&, M>(*method);
-				SQCATCH_NOEXCEPT(vm) {
-					return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-				}
-				PushVarR(vm, ret);
-			SQCATCH(vm) {
-				return sq_throwerror(vm, SQWHAT(vm));
-			}
-
-			return 1;
-		};
+            try {
+                return SqGlobalProxy<R&>::Run(vm, startIdx);
+            } catch (const Exception& e) {
+                return sq_throwerror(vm, e.what());
+            }
+            SQ_UNREACHABLE
+        };
     }
 };
 
@@ -119,31 +167,20 @@ template <class R> struct SqGlobal<R&> {
 template <> struct SqGlobal<void> {
     // Function proxy
     template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
-		typedef void(*M)(A...);
-		return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
+        return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-			if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) != static_cast<SQInteger>(startIdx + sizeof...(A))) {
-				return sq_throwerror(vm, _SC("wrong number of parameters"));
-			}
+            if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) &&
+                SqGlobalParamCheck< ArgPop<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
+                return sq_throwerror(vm, _SC("wrong number of parameters"));
+            }
 #endif
-			M* method;
-			sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), NULL);
-
-			SQTRY()
-				ArgPop<A...> a(vm, startIdx);
-				SQCATCH_NOEXCEPT(vm) {
-					return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-				}
-				a.template Exec<M>(*method);
-				SQCATCH_NOEXCEPT(vm) {
-					return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-				}
-			SQCATCH(vm) {
-				return sq_throwerror(vm, SQWHAT(vm));
-			}
-
-			return 0;
-		};
+            try {
+                return SqGlobalProxy<void>::Run(vm, startIdx);
+            } catch (const Exception& e) {
+                return sq_throwerror(vm, e.what());
+            }
+            SQ_UNREACHABLE
+        };
     }
 };
 
@@ -165,144 +202,6 @@ template <class R,class T,class... A> SQFUNCTION SqMemberGlobalFunc(R (* /*metho
 // Member Global Function Resolver
 template <class R,class T,class... A> SQFUNCTION SqMemberGlobalFunc(R& (* /*method*/)(T, A...)) noexcept {
     return SqGlobal<R&>::template GetProxy<1, false, T, A...>();
-}
-
-//
-// Squirrel Global Functions
-//
-template <class R> struct SqGlobalFmt {
-    // Function proxy
-    template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
-        typedef R(*M)(A...);
-        return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
-#if !defined (SCRAT_NO_ERROR_CHECKING)
-            if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < static_cast<SQInteger>(startIdx + sizeof...(A))) {
-                return sq_throwerror(vm, _SC("wrong number of parameters"));
-            }
-#endif
-            M* method;
-            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), NULL);
-
-            SQTRY()
-                ArgPop<A...> a(vm, startIdx, true);
-                SQCATCH_NOEXCEPT(vm) {
-                    return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-                }
-                // Validate the format
-                if (SQ_FAILED(a.Last().value.mRes)) {
-                    return a.Last().value.mRes;
-                }
-                R ret = a.template Eval<R,M>(*method);
-                SQCATCH_NOEXCEPT(vm) {
-                    return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-                }
-                PushVar(vm, ret);
-            SQCATCH(vm) {
-                return sq_throwerror(vm, SQWHAT(vm));
-            }
-
-            return 1;
-        };
-    }
-};
-
-//
-// reference return specialization
-//
-
-template <class R> struct SqGlobalFmt<R&> {
-    // Function proxy
-    template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
-        typedef R&(*M)(A...);
-        return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
-#if !defined (SCRAT_NO_ERROR_CHECKING)
-            if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < static_cast<SQInteger>(startIdx + sizeof...(A))) {
-                return sq_throwerror(vm, _SC("wrong number of parameters"));
-            }
-#endif
-            M* method;
-            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), NULL);
-
-            SQTRY()
-                ArgPop<A...> a(vm, startIdx, true);
-                SQCATCH_NOEXCEPT(vm) {
-                    return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-                }
-                // Validate the format
-                if (SQ_FAILED(a.Last().value.mRes)) {
-                    return a.Last().value.mRes;
-                }
-                R& ret = a.template Eval<R&,M>(*method);
-                SQCATCH_NOEXCEPT(vm) {
-                    return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-                }
-                PushVarR(vm, ret);
-            SQCATCH(vm) {
-                return sq_throwerror(vm, SQWHAT(vm));
-            }
-
-            return 1;
-        };
-    }
-};
-
-//
-// void return specialization
-//
-
-template <> struct SqGlobalFmt<void> {
-    // Function proxy
-    template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
-        typedef void(*M)(A...);
-        return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
-#if !defined (SCRAT_NO_ERROR_CHECKING)
-            if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) < static_cast<SQInteger>(startIdx + sizeof...(A))) {
-                return sq_throwerror(vm, _SC("wrong number of parameters"));
-            }
-#endif
-            M* method;
-            sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), NULL);
-
-            SQTRY()
-                ArgPop<A...> a(vm, startIdx, true);
-                SQCATCH_NOEXCEPT(vm) {
-                    return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-                }
-                // Validate the format
-                if (SQ_FAILED(a.Last().value.mRes)) {
-                    return a.Last().value.mRes;
-                }
-                a.template Exec<M>(*method);
-                SQCATCH_NOEXCEPT(vm) {
-                    return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
-                }
-            SQCATCH(vm) {
-                return sq_throwerror(vm, SQWHAT(vm));
-            }
-
-            return 0;
-        };
-    }
-};
-
-// Formatted Global Function Resolver
-template <class R,class... A> SQFUNCTION SqGlobalFmtFunc(R (* /*method*/)(A...)) noexcept {
-    return SqGlobalFmt<R>::template GetProxy<2, false, A...>();
-}
-
-// Formatted Global Function Resolver
-template <class R,class... A> SQFUNCTION SqGlobalFmtFunc(R& (* /*method*/)(A...)) noexcept {
-    return SqGlobalFmt<R&>::template GetProxy<2, false, A...>();
-}
-
-// Formatted Member Global Function Resolver
-template <class R,class T,class... A> SQFUNCTION SqMemberGlobalFmtFunc(R (* /*method*/)(T, A...)) noexcept {
-    return SqGlobalFmt<R>::template GetProxy<1, false, T, A...>();
-}
-
-// Formatted Member Global Function Resolver
-template <class R,class T,class... A> SQFUNCTION SqMemberGlobalFmtFunc(R& (* /*method*/)(T, A...)) noexcept {
-    return SqGlobalFmt<R&>::template GetProxy<1, false, T, A...>();
 }
 
 /// @endcond

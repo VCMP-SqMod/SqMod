@@ -490,9 +490,9 @@ static SQInteger SplitWhereCharImpl(HSQUIRRELVM vm, int(*fn)(int), bool neg)
     }
 
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2, true);
+    StackStrF val(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -612,9 +612,9 @@ static SQInteger SqStrExplode(HSQUIRRELVM vm)
         return sq_throwerror(vm, _SC("Missing string value"));
     }
     // Attempt to generate the string value
-    StackStrF val(vm, 4, true);
+    StackStrF val(vm, 4);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -812,9 +812,9 @@ static CSStr FromArray(Array & arr)
 static SQInteger StdPrintF(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2, true);
+    StackStrF val(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }

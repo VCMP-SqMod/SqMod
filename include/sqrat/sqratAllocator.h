@@ -352,9 +352,9 @@ public:
     static SQInteger iFmtNew(HSQUIRRELVM vm) {
         SQTRY()
 
-        const StackStrF fmt(vm, 2, true);
+        StackStrF fmt(vm, 2);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -375,9 +375,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 3, true);
+        StackStrF fmt(vm, 3);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -425,9 +425,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 5, true);
+        StackStrF fmt(vm, 5);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -453,9 +453,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 6, true);
+        StackStrF fmt(vm, 6);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -515,9 +515,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 8, true);
+        StackStrF fmt(vm, 8);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -549,9 +549,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 9, true);
+        StackStrF fmt(vm, 9);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -843,7 +843,7 @@ public:
         std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >*>(ptr);
         instance->second->erase(instance->first);
         // Only delete our pair instance and leave the actual instance untouched
-        //delete instance->first; 
+        //delete instance->first;
         delete instance;
         return 0;
     }
@@ -1220,9 +1220,9 @@ public:
     static SQInteger iFmtNew(HSQUIRRELVM vm) {
         SQTRY()
 
-        const StackStrF fmt(vm, 2, true);
+        StackStrF fmt(vm, 2);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -1243,9 +1243,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 3, true);
+        StackStrF fmt(vm, 3);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 

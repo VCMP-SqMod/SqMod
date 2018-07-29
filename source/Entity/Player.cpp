@@ -2008,9 +2008,9 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx, true);
+    StackStrF val(vm, msgidx);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -2089,9 +2089,9 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 3, true);
+    StackStrF val(vm, 3);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -2195,9 +2195,9 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx, true);
+    StackStrF val(vm, msgidx);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -2260,9 +2260,9 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 2, true);
+    StackStrF val(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -2317,9 +2317,9 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 2, true);
+    StackStrF val(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -2387,9 +2387,9 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 3, true);
+    StackStrF val(vm, 3);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -2472,9 +2472,9 @@ SQInteger Player_FindAuto(HSQUIRRELVM vm)
         case OT_STRING:
         default: {
             // Attempt to convert the obtained value to a string
-            StackStrF val(vm, 2, true);
+            StackStrF val(vm, 2);
             // Did the conversion failed?
-            if (SQ_FAILED(val.mRes))
+            if (SQ_FAILED(val.Proc(true)))
             {
                 return val.mRes; // Propagate the error
             }
@@ -2558,9 +2558,9 @@ SQInteger Player_ExistsAuto(HSQUIRRELVM vm)
         case OT_STRING:
         default: {
             // Attempt to convert the obtained value to a string
-            StackStrF val(vm, 2, true);
+            StackStrF val(vm, 2);
             // Did the conversion failed?
-            if (SQ_FAILED(val.mRes))
+            if (SQ_FAILED(val.Proc(true)))
             {
                 return val.mRes; // Propagate the error
             }

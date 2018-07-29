@@ -259,9 +259,9 @@ static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx, true);
+    StackStrF val(vm, msgidx);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -339,9 +339,9 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 3, true);
+    StackStrF val(vm, 3);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -444,9 +444,9 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx, true);
+    StackStrF val(vm, msgidx);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -508,9 +508,9 @@ static SQInteger SqBroadcastMessage(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 2, true);
+    StackStrF val(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -564,9 +564,9 @@ static SQInteger SqBroadcastAnnounce(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 2, true);
+    StackStrF val(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }
@@ -641,9 +641,9 @@ static SQInteger SqBroadcastAnnounceEx(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, 3, true);
+    StackStrF val(vm, 3);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }

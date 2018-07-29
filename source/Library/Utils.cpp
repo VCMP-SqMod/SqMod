@@ -22,9 +22,9 @@ static SQInteger SqExtractIPv4(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing IP address string");
     }
     // Attempt to generate the string value
-    StackStrF val(vm, 2, true);
+    StackStrF val(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }

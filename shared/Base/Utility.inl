@@ -627,9 +627,9 @@ String SqTypeName(HSQUIRRELVM vm, SQInteger idx)
         return _SC("unknown");
     }
     // Attempt to convert the obtained value to a string
-    StackStrF val(vm, -1, false);
+    StackStrF val(vm, -1);
     // Did the conversion failed?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(false)))
     {
         return _SC("unknown");
     }

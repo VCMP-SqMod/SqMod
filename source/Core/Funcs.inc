@@ -25,9 +25,9 @@ static SQInteger SqLoadScript(HSQUIRRELVM vm)
     // Whether the script execution is delayed
     SQBool delay = SQFalse;
     // Attempt to generate the string value
-    StackStrF val(vm, 3, true);
+    StackStrF val(vm, 3);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }

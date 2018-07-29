@@ -45,6 +45,15 @@
 
 namespace Sqrat {
 
+#if defined(__GNUC__)
+    #define SQ_UNREACHABLE __builtin_unreachable();
+#elif defined(_MSVC)
+static _Noreturn void unreachable() { return; }
+    #define SQ_UNREACHABLE unreachable();
+#else
+    #define SQ_UNREACHABLE assert(0);
+#endif
+
 /// @cond DEV
 
 #if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
@@ -1531,7 +1540,7 @@ struct StackGuard
 		{
 			sq_pop(m_VM, top - m_Top); // Trim the stack
 		}
-	} 
+	}
 
 private:
 
@@ -1549,6 +1558,7 @@ struct StackStrF
     SQRESULT        mRes; ///< The result of the retrieval attempts.
     HSQOBJECT       mObj; ///< Strong reference to the string object.
     HSQUIRRELVM     mVM; ///< The associated virtual machine.
+    SQInteger       mIdx; ///< The index where the string should be retrieved from.
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Default constructor.
@@ -1559,9 +1569,9 @@ struct StackStrF
         , mRes(SQ_OK)
         , mObj()
         , mVM(DefaultVM::Get())
+        , mIdx(-1)
     {
-        // Reset the converted value object
-        sq_resetobject(&mObj);
+        sq_resetobject(&mObj); // Reset the converted value object
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1573,102 +1583,22 @@ struct StackStrF
         , mRes(SQ_OK)
         , mObj()
         , mVM(DefaultVM::Get())
+        , mIdx(-1)
     {
-        // Reset the converted value object
-        sq_resetobject(&mObj);
+        sq_resetobject(&mObj); // Reset the converted value object
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Base constructor.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    StackStrF(HSQUIRRELVM vm, SQInteger idx, bool fmt = false, bool dummy = false)
+    StackStrF(HSQUIRRELVM vm, SQInteger idx)
         : mPtr(nullptr)
         , mLen(-1)
         , mRes(SQ_OK)
         , mObj()
         , mVM(vm)
+        , mIdx(idx)
     {
-        // Reset the converted value object
-        sq_resetobject(&mObj);
-        // is this a dummy request?
-        if (dummy)
-        {
-            // Since this is a dummy then avoid making it look like a failure
-            mPtr = _SC("");
-            mLen = 0;
-            // We're not supposed to proceed with this!
-            return;
-        }
-        // Grab the top of the stack
-        const SQInteger top = sq_gettop(vm);
-        // Was the string or value specified?
-        if (top <= (idx - 1))
-        {
-            mRes = sq_throwerror(vm, "Missing string or value");
-        }
-        // Do we have enough values to call the format function and are we allowed to?
-        else if (fmt && (top - 1) >= idx)
-        {
-            // Pointer to the generated string
-            SQChar * str = nullptr;
-            // Attempt to generate the specified string format
-            mRes = sqstd_format(vm, idx, &mLen, &str);
-            // Did the format succeeded but ended up with a null string pointer?
-            if (SQ_SUCCEEDED(mRes) && !str)
-            {
-                mRes = sq_throwerror(vm, "Unable to generate the string");
-            }
-            else
-            {
-                mPtr = const_cast< const SQChar * >(str);
-            }
-        }
-        // Is the value on the stack an actual string?
-        else if (sq_gettype(vm, idx) == OT_STRING)
-        {
-            // Obtain a reference to the string object
-            mRes = sq_getstackobj(vm, idx, &mObj);
-            // Could we retrieve the object from the stack?
-            if (SQ_SUCCEEDED(mRes))
-            {
-                // Keep a strong reference to the object
-                sq_addref(vm, &mObj);
-                // Attempt to retrieve the string value from the stack
-                mRes = sq_getstringandsize(vm, idx, &mPtr, &mLen);
-            }
-            // Did the retrieval succeeded but ended up with a null string pointer?
-            if (SQ_SUCCEEDED(mRes) && !mPtr)
-            {
-                mRes = sq_throwerror(vm, "Unable to retrieve the string");
-            }
-        }
-        // We have to try and convert it to string
-        else
-        {
-            // Attempt to convert the value from the stack to a string
-            mRes = sq_tostring(vm, idx);
-            // Could we convert the specified value to string?
-            if (SQ_SUCCEEDED(mRes))
-            {
-                // Obtain a reference to the resulted object
-                mRes = sq_getstackobj(vm, -1, &mObj);
-                // Could we retrieve the object from the stack?
-                if (SQ_SUCCEEDED(mRes))
-                {
-                    // Keep a strong reference to the object
-                    sq_addref(vm, &mObj);
-                    // Attempt to obtain the string pointer
-                    mRes = sq_getstringandsize(vm, -1, &mPtr, &mLen);
-                }
-            }
-            // Pop a value from the stack regardless of the result
-            sq_pop(vm, 1);
-            // Did the retrieval succeeded but ended up with a null string pointer?
-            if (SQ_SUCCEEDED(mRes) && !mPtr)
-            {
-                mRes = sq_throwerror(vm, "Unable to retrieve the value");
-            }
-        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1685,11 +1615,13 @@ struct StackStrF
         , mRes(o.mRes)
         , mObj(o.mObj)
         , mVM(o.mVM)
+        , mIdx(o.mIdx)
     {
         o.mPtr = nullptr;
         o.mLen = 0;
         o.mRes = SQ_OK;
         o.mVM = nullptr;
+        o.mIdx = -1;
         sq_resetobject(&o.mObj);
     }
 
@@ -1713,6 +1645,95 @@ struct StackStrF
     /// Move assignment operator. (disabled)
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     StackStrF & operator = (StackStrF && o) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Actual implementation.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    SQRESULT Proc(bool fmt = false, bool dummy = false) noexcept
+    {
+        // Reset the converted value object
+        sq_resetobject(&mObj);
+        // is this a dummy request?
+        if (dummy)
+        {
+            // Since this is a dummy then avoid making it look like a failure
+            mPtr = _SC("");
+            mLen = 0;
+            // We're not supposed to proceed with this!
+            return mRes;
+        }
+        // Grab the top of the stack
+        const SQInteger top = sq_gettop(mVM);
+        // Was the string or value specified?
+        if (top <= (mIdx - 1))
+        {
+            mRes = sq_throwerror(mVM, "Missing string or value");
+        }
+        // Do we have enough values to call the format function and are we allowed to?
+        else if (fmt && (top - 1) >= mIdx)
+        {
+            // Pointer to the generated string
+            SQChar * str = nullptr;
+            // Attempt to generate the specified string format
+            mRes = sqstd_format(mVM, mIdx, &mLen, &str);
+            // Did the format succeeded but ended up with a null string pointer?
+            if (SQ_SUCCEEDED(mRes) && !str)
+            {
+                mRes = sq_throwerror(mVM, "Unable to generate the string");
+            }
+            else
+            {
+                mPtr = const_cast< const SQChar * >(str);
+            }
+        }
+        // Is the value on the stack an actual string?
+        else if (sq_gettype(mVM, mIdx) == OT_STRING)
+        {
+            // Obtain a reference to the string object
+            mRes = sq_getstackobj(mVM, mIdx, &mObj);
+            // Could we retrieve the object from the stack?
+            if (SQ_SUCCEEDED(mRes))
+            {
+                // Keep a strong reference to the object
+                sq_addref(mVM, &mObj);
+                // Attempt to retrieve the string value from the stack
+                mRes = sq_getstringandsize(mVM, mIdx, &mPtr, &mLen);
+            }
+            // Did the retrieval succeeded but ended up with a null string pointer?
+            if (SQ_SUCCEEDED(mRes) && !mPtr)
+            {
+                mRes = sq_throwerror(mVM, "Unable to retrieve the string");
+            }
+        }
+        // We have to try and convert it to string
+        else
+        {
+            // Attempt to convert the value from the stack to a string
+            mRes = sq_tostring(mVM, mIdx);
+            // Could we convert the specified value to string?
+            if (SQ_SUCCEEDED(mRes))
+            {
+                // Obtain a reference to the resulted object
+                mRes = sq_getstackobj(mVM, -1, &mObj);
+                // Could we retrieve the object from the stack?
+                if (SQ_SUCCEEDED(mRes))
+                {
+                    // Keep a strong reference to the object
+                    sq_addref(mVM, &mObj);
+                    // Attempt to obtain the string pointer
+                    mRes = sq_getstringandsize(mVM, -1, &mPtr, &mLen);
+                }
+            }
+            // Pop a value from the stack regardless of the result
+            sq_pop(mVM, 1);
+            // Did the retrieval succeeded but ended up with a null string pointer?
+            if (SQ_SUCCEEDED(mRes) && !mPtr)
+            {
+                mRes = sq_throwerror(mVM, "Unable to retrieve the value");
+            }
+        }
+        return mRes;
+    }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

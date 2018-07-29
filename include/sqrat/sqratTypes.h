@@ -1017,7 +1017,7 @@ struct Var<StackStrF> {
     /// This function MUST have its Error handled if it occurred.
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Var(HSQUIRRELVM vm, SQInteger idx, bool fmt = false) : value(vm, idx, fmt) {
+    Var(HSQUIRRELVM vm, SQInteger idx) : value(vm, idx) {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1040,13 +1040,13 @@ struct Var<StackStrF> {
 /// Used to get and push StackStrF instances to and from the stack as references (StackStrF should not be a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<StackStrF&> : Var<StackStrF> {Var(HSQUIRRELVM vm, SQInteger idx, bool fmt = false) : Var<StackStrF>(vm, idx, fmt) {}};
+struct Var<StackStrF&> : Var<StackStrF> {Var(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF>(vm, idx) {}};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Used to get and push StackStrF instances to and from the stack as references (StackStrF should not be a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<const StackStrF&> : Var<StackStrF> {Var(HSQUIRRELVM vm, SQInteger idx, bool fmt = false) : Var<StackStrF>(vm, idx, fmt) {}};
+struct Var<const StackStrF&> : Var<StackStrF> {Var(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF>(vm, idx) {}};
 
 // Non-referencable type definitions
 template<class T> struct is_referencable {static const bool value = true;};
@@ -1167,12 +1167,38 @@ struct PushVarR_helper<T, false> {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
 inline void PushVarR(HSQUIRRELVM vm, T& value) {
-    if (!is_pointer<T>::value && is_referencable<typename remove_cv<T>::type>::value) {
+    if (!std::is_pointer<T>::value && is_referencable<typename std::remove_cv<T>::type>::value) {
         Var<T&>::push(vm, value);
     } else {
-        PushVarR_helper<T, is_pointer<T>::value>::push(vm, value);
+        PushVarR_helper<T, std::is_pointer<T>::value>::push(vm, value);
     }
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper used to process formatted arguments when necessary.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class> struct ArgPopHasFmt { static constexpr bool value = false; };
+template<> struct ArgPopHasFmt<StackStrF> { static constexpr bool value = true; };
+template<> struct ArgPopHasFmt<const StackStrF> { static constexpr bool value = true; };
+template<> struct ArgPopHasFmt<StackStrF&> { static constexpr bool value = true; };
+template<> struct ArgPopHasFmt<const StackStrF&> { static constexpr bool value = true; };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper used to process formatted arguments when necessary.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<bool> struct ArgPopFmt {
+    static inline SQInteger Proc(StackStrF &, bool) {
+        return SQ_OK;
+    }
+};
+template<> struct ArgPopFmt<true> {
+    static inline SQInteger Proc(StackStrF & s, bool dummy = false) {
+        return s.Proc(true, dummy);
+    }
+    static inline SQInteger Get(StackStrF & s) {
+        return s.mRes;
+    }
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Helper used to pop multiple variables from the stack and forward them to a functor.
@@ -1184,15 +1210,17 @@ template<class...> struct ArgPop;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
 struct ArgPop<> {
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = false;
+    // Base constructor. Does nothing.
     ArgPop(HSQUIRRELVM /*vm*/, SQInteger /*idx*/)
     { }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f();
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f();
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { (void)(dummy); return SQ_OK; }
+    SQInteger ProcRes() { return SQ_OK; }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm);
     }
 };
 
@@ -1201,78 +1229,84 @@ struct ArgPop<> {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T1>
 struct ArgPop<T1> {
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T1>::value;
+    // Implement ours
     Var<T1> V1;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
-        : V1(vm, idx, a...)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : V1(vm, idx)
     { }
     // Retrieve the last popped variable
     Var<T1> & Last() { return V1; }
     const Var<T1> & Last() const { return V1; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V1.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V1.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value);
     }
 };
 
 template<class T1,class T2>
 struct ArgPop<T1,T2> : public ArgPop<T1> {
     using Base = ArgPop<T1>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T2>::value;
     // Import from base classes
     using Base::V1;
     // Implement ours
     Var<T2> V2;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1>(vm, idx)
-        , V2(vm, idx+1, a...)
+        , V2(vm, idx+1)
     { }
     // Retrieve the last popped variable
     Var<T2> & Last() { return V2; }
     const Var<T2> & Last() const { return V2; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V2.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V2.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value);
     }
 };
 
 template<class T1,class T2,class T3>
 struct ArgPop<T1,T2,T3> : public ArgPop<T1,T2> {
     using Base = ArgPop<T1,T2>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T3>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
     // Implement ours
     Var<T3> V3;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2>(vm, idx)
-        , V3(vm, idx+2, a...)
+        , V3(vm, idx+2)
     { }
     // Retrieve the last popped variable
     Var<T3> & Last() { return V3; }
     const Var<T3> & Last() const { return V3; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V3.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V3.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4>
 struct ArgPop<T1,T2,T3,T4> : public ArgPop<T1,T2,T3> {
     using Base = ArgPop<T1,T2,T3>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T4>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1280,26 +1314,27 @@ struct ArgPop<T1,T2,T3,T4> : public ArgPop<T1,T2,T3> {
     // Implement ours
     Var<T4> V4;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3>(vm, idx)
-        , V4(vm, idx+3, a...)
+        , V4(vm, idx+3)
     { }
     // Retrieve the last popped variable
     Var<T4> & Last() { return V4; }
     const Var<T4> & Last() const { return V4; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V4.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V4.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5>
 struct ArgPop<T1,T2,T3,T4,T5> : public ArgPop<T1,T2,T3,T4> {
     using Base = ArgPop<T1,T2,T3,T4>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T5>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1308,26 +1343,27 @@ struct ArgPop<T1,T2,T3,T4,T5> : public ArgPop<T1,T2,T3,T4> {
     // Implement ours
     Var<T5> V5;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4>(vm, idx)
-        , V5(vm, idx+4, a...)
+        , V5(vm, idx+4)
     { }
     // Retrieve the last popped variable
     Var<T5> & Last() { return V5; }
     const Var<T5> & Last() const { return V5; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V5.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V5.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5,class T6>
 struct ArgPop<T1,T2,T3,T4,T5,T6> : public ArgPop<T1,T2,T3,T4,T5> {
     using Base = ArgPop<T1,T2,T3,T4,T5>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T6>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1337,26 +1373,27 @@ struct ArgPop<T1,T2,T3,T4,T5,T6> : public ArgPop<T1,T2,T3,T4,T5> {
     // Implement ours
     Var<T6> V6;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4,T5>(vm, idx)
-        , V6(vm, idx+5, a...)
+        , V6(vm, idx+5)
     { }
     // Retrieve the last popped variable
     Var<T6> & Last() { return V6; }
     const Var<T6> & Last() const { return V6; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V6.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V6.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value,V6.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7>
 struct ArgPop<T1,T2,T3,T4,T5,T6,T7> : public ArgPop<T1,T2,T3,T4,T5,T6> {
     using Base = ArgPop<T1,T2,T3,T4,T5,T6>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T7>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1367,26 +1404,27 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7> : public ArgPop<T1,T2,T3,T4,T5,T6> {
     // Implement ours
     Var<T7> V7;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4,T5,T6>(vm, idx)
-        , V7(vm, idx+6, a...)
+        , V7(vm, idx+6)
     { }
     // Retrieve the last popped variable
     Var<T7> & Last() { return V7; }
     const Var<T7> & Last() const { return V7; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V7.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V7.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8>
 struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8> : public ArgPop<T1,T2,T3,T4,T5,T6,T7> {
     using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T8>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1398,26 +1436,27 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8> : public ArgPop<T1,T2,T3,T4,T5,T6,T7> {
     // Implement ours
     Var<T8> V8;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7>(vm, idx)
-        , V8(vm, idx+7, a...)
+        , V8(vm, idx+7)
     { }
     // Retrieve the last popped variable
     Var<T8> & Last() { return V8; }
     const Var<T8> & Last() const { return V8; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V8.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V8.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9>
 struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8> {
     using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T9>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1430,26 +1469,27 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T
     // Implement ours
     Var<T9> V9;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8>(vm, idx)
-        , V9(vm, idx+8, a...)
+        , V9(vm, idx+8)
     { }
     // Retrieve the last popped variable
     Var<T9> & Last() { return V9; }
     const Var<T9> & Last() const { return V9; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V9.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V9.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10>
 struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9> {
     using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T10>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1463,26 +1503,27 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : public ArgPop<T1,T2,T3,T4,T5,T6,
     // Implement ours
     Var<T10> V10;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9>(vm, idx)
-        , V10(vm, idx+9, a...)
+        , V10(vm, idx+9)
     { }
     // Retrieve the last popped variable
     Var<T10> & Last() { return V10; }
     const Var<T10> & Last() const { return V10; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V10.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V10.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11>
 struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
     using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T11>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1497,26 +1538,27 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : public ArgPop<T1,T2,T3,T4,T5
     // Implement ours
     Var<T11> V11;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(vm, idx)
-        , V11(vm, idx+10, a...)
+        , V11(vm, idx+10)
     { }
     // Retrieve the last popped variable
     Var<T11> & Last() { return V11; }
     const Var<T11> & Last() const { return V11; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V11.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V11.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11,class T12>
 struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
     using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T12>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1532,26 +1574,27 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : public ArgPop<T1,T2,T3,T
     // Implement ours
     Var<T12> V12;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(vm, idx)
-        , V12(vm, idx+11, a...)
+        , V12(vm, idx+11)
     { }
     // Retrieve the last popped variable
     Var<T12> & Last() { return V12; }
     const Var<T12> & Last() const { return V12; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V12.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V12.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11,class T12,class T13>
 struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
     using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T13>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1568,26 +1611,27 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : public ArgPop<T1,T2,
     // Implement ours
     Var<T13> V13;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(vm, idx)
-        , V13(vm, idx+12, a...)
+        , V13(vm, idx+12)
     { }
     // Retrieve the last popped variable
     Var<T13> & Last() { return V13; }
     const Var<T13> & Last() const { return V13; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V13.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V13.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value);
     }
 };
 
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11,class T12,class T13,class T14>
 struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
     using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>;
+    // Used to tell whether the last template parameter is a StackStrF type
+    static constexpr bool HASFMT = ArgPopHasFmt<T14>::value;
     // Import from base classes
     using Base::V1;
     using Base::V2;
@@ -1605,20 +1649,19 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> : public ArgPop<T1
     // Implement ours
     Var<T14> V14;
     // Base constructor. Can also pass extra parameters to the last popped argument.
-    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(vm, idx)
-        , V14(vm, idx+13, a...)
+        , V14(vm, idx+13)
     { }
     // Retrieve the last popped variable
     Var<T14> & Last() { return V14; }
     const Var<T14> & Last() const { return V14; }
-    // Forward the arguments to a functor that doesn't return anything
-    template<class F> void Exec(F f) {
-        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value,V14.value);
-    }
-    // Forward the arguments to a functor that returns a value
-    template<class R,class F> R Eval(F f) {
-        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value,V14.value);
+    // Process formatted arguments if necessary
+    SQInteger Proc(bool dummy = false) { return ArgPopFmt<HASFMT>::Proc(V14.value, dummy); }
+    SQInteger ProcRes() { return ArgPopFmt<HASFMT>::Get(V14.value); }
+    // Forward the arguments to a function object
+    template<class F> void Call(HSQUIRRELVM vm, F f) {
+        f(vm,V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value,V14.value);
     }
 };
 

@@ -281,7 +281,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class F>
     TableBase& FmtFunc(const SQChar* name, F method) {
-        BindFunc(name, &method, sizeof(method), SqGlobalFmtFunc(method));
+        BindFunc(name, &method, sizeof(method), SqGlobalFunc(method));
         return *this;
     }
 

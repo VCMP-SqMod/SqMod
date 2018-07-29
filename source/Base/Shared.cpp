@@ -1024,16 +1024,16 @@ static SQInteger SqNameFilterCheck(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing name string");
     }
     // Attempt to generate the string value
-    StackStrF filter(vm, 2, false);
+    StackStrF filter(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(filter.mRes))
+    if (SQ_FAILED(filter.Proc(false)))
     {
         return filter.mRes; // Propagate the error!
     }
     // Attempt to generate the string value
-    StackStrF name(vm, 3, true);
+    StackStrF name(vm, 3);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(name.mRes))
+    if (SQ_FAILED(name.Proc(true)))
     {
         return name.mRes; // Propagate the error!
     }
@@ -1058,16 +1058,16 @@ static SQInteger SqNameFilterCheckInsensitive(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing name string");
     }
     // Attempt to generate the string value
-    StackStrF filter(vm, 2, false);
+    StackStrF filter(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(filter.mRes))
+    if (SQ_FAILED(filter.Proc(false)))
     {
         return filter.mRes; // Propagate the error!
     }
     // Attempt to generate the string value
-    StackStrF name(vm, 3, true);
+    StackStrF name(vm, 3);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(name.mRes))
+    if (SQ_FAILED(name.Proc(true)))
     {
         return name.mRes; // Propagate the error!
     }

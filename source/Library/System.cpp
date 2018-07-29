@@ -21,9 +21,9 @@ extern void Register_SysPath(HSQUIRRELVM vm);
 static SQInteger SqSysExec(HSQUIRRELVM vm)
 {
     // Attempt to retrieve the value from the stack as a string
-    StackStrF val(vm, 2, true);
+    StackStrF val(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }

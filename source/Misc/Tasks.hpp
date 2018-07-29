@@ -499,9 +499,9 @@ public:
             return sq_throwerror(vm, e.what());
         }
         // Attempt to generate the string value
-        const StackStrF tag(vm, 2, true);
+        StackStrF tag(vm, 2);
         // Have we failed to retrieve the string?
-        if (SQ_FAILED(tag.mRes))
+        if (SQ_FAILED(tag.Proc(true)))
         {
             return tag.mRes; // Propagate the error!
         }

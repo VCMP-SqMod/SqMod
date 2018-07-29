@@ -539,9 +539,9 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing message value");
     }
     // Attempt to generate the string value
-    StackStrF val(vm, 2, true);
+    StackStrF val(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(true)))
     {
         return val.mRes; // Propagate the error!
     }

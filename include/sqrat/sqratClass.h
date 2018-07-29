@@ -407,7 +407,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class F>
     Class& FmtFunc(const SQChar* name, F method) {
-        BindFunc(name, &method, sizeof(method), SqMemberFuncFmt(method));
+        BindFunc(name, &method, sizeof(method), SqMemberFunc(method));
         return *this;
     }
 
@@ -496,7 +496,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class F>
     Class& StaticFmtFunc(const SQChar* name, F method) {
-        BindFunc(name, &method, sizeof(method), SqGlobalFmtFunc(method));
+        BindFunc(name, &method, sizeof(method), SqGlobalFunc(method));
         return *this;
     }
 
