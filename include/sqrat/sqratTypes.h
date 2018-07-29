@@ -1165,6 +1165,368 @@ inline void PushVarR(HSQUIRRELVM vm, T& value) {
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper used to pop multiple variables from the stack and forward them to a functor.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class...> struct ArgPop;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Special case for when nothing has to be popped.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<>
+struct ArgPop<> {
+    ArgPop(HSQUIRRELVM /*vm*/, SQInteger /*idx*/)
+    { }
+    template<class F> void Exec(F f) {
+        f();
+    }
+    template<class R, class F> R Eval(F f) {
+        return f();
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Incremental specialization for when types are actually specified.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T1>
+struct ArgPop<T1> {
+    Var<T1> V1;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : V1(vm, idx)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value);
+    }
+};
+
+template<class T1,class T2>
+struct ArgPop<T1,T2> : public ArgPop<T1> {
+    using Base = ArgPop<T1>;
+    // Import from base classes
+    using Base::V1;
+    // Implement ours
+    Var<T2> V2;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1>(vm, idx)
+        , V2(vm, idx+1)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value);
+    }
+};
+
+template<class T1,class T2,class T3>
+struct ArgPop<T1,T2,T3> : public ArgPop<T1,T2> {
+    using Base = ArgPop<T1,T2>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    // Implement ours
+    Var<T3> V3;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2>(vm, idx)
+        , V3(vm, idx+2)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4>
+struct ArgPop<T1,T2,T3,T4> : public ArgPop<T1,T2,T3> {
+    using Base = ArgPop<T1,T2,T3>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    // Implement ours
+    Var<T4> V4;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3>(vm, idx)
+        , V4(vm, idx+3)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5>
+struct ArgPop<T1,T2,T3,T4,T5> : public ArgPop<T1,T2,T3,T4> {
+    using Base = ArgPop<T1,T2,T3,T4>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    // Implement ours
+    Var<T5> V5;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4>(vm, idx)
+        , V5(vm, idx+4)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5,class T6>
+struct ArgPop<T1,T2,T3,T4,T5,T6> : public ArgPop<T1,T2,T3,T4,T5> {
+    using Base = ArgPop<T1,T2,T3,T4,T5>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    using Base::V5;
+    // Implement ours
+    Var<T6> V6;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4,T5>(vm, idx)
+        , V6(vm, idx+5)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5,class T6,class T7>
+struct ArgPop<T1,T2,T3,T4,T5,T6,T7> : public ArgPop<T1,T2,T3,T4,T5,T6> {
+    using Base = ArgPop<T1,T2,T3,T4,T5,T6>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    using Base::V5;
+    using Base::V6;
+    // Implement ours
+    Var<T7> V7;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4,T5,T6>(vm, idx)
+        , V7(vm, idx+6)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8>
+struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8> : public ArgPop<T1,T2,T3,T4,T5,T6,T7> {
+    using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    using Base::V5;
+    using Base::V6;
+    using Base::V7;
+    // Implement ours
+    Var<T8> V8;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4,T5,T6,T7>(vm, idx)
+        , V8(vm, idx+7)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9>
+struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8> {
+    using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    using Base::V5;
+    using Base::V6;
+    using Base::V7;
+    using Base::V8;
+    // Implement ours
+    Var<T9> V9;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8>(vm, idx)
+        , V9(vm, idx+8)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10>
+struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9> {
+    using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    using Base::V5;
+    using Base::V6;
+    using Base::V7;
+    using Base::V8;
+    using Base::V9;
+    // Implement ours
+    Var<T10> V10;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9>(vm, idx)
+        , V10(vm, idx+9)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11>
+struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
+    using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    using Base::V5;
+    using Base::V6;
+    using Base::V7;
+    using Base::V8;
+    using Base::V9;
+    using Base::V10;
+    // Implement ours
+    Var<T11> V11;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(vm, idx)
+        , V11(vm, idx+10)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11,class T12>
+struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
+    using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    using Base::V5;
+    using Base::V6;
+    using Base::V7;
+    using Base::V8;
+    using Base::V9;
+    using Base::V10;
+    using Base::V11;
+    // Implement ours
+    Var<T12> V12;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(vm, idx)
+        , V12(vm, idx+11)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11,class T12,class T13>
+struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
+    using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    using Base::V5;
+    using Base::V6;
+    using Base::V7;
+    using Base::V8;
+    using Base::V9;
+    using Base::V10;
+    using Base::V11;
+    using Base::V12;
+    // Implement ours
+    Var<T13> V13;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(vm, idx)
+        , V13(vm, idx+12)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value);
+    }
+};
+
+template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11,class T12,class T13,class T14>
+struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
+    using Base = ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>;
+    // Import from base classes
+    using Base::V1;
+    using Base::V2;
+    using Base::V3;
+    using Base::V4;
+    using Base::V5;
+    using Base::V6;
+    using Base::V7;
+    using Base::V8;
+    using Base::V9;
+    using Base::V10;
+    using Base::V11;
+    using Base::V12;
+    using Base::V13;
+    // Implement ours
+    Var<T14> V14;
+    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+        : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(vm, idx)
+        , V14(vm, idx+13)
+    { }
+    template<class F> void Exec(F f) {
+        f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value,V14.value);
+    }
+    template<class R, class F> R Eval(F f) {
+        return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value,V14.value);
+    }
+};
+
 }
 
 #endif
