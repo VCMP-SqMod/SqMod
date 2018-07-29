@@ -50,7 +50,7 @@ template <class R> struct SqGlobal {
 		typedef R(*M)(A...);
 		return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-			if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) != startIdx + 2) {
+			if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) != startIdx + sizeof...(A)) {
 				return sq_throwerror(vm, _SC("wrong number of parameters"));
 			}
 #endif
@@ -86,7 +86,7 @@ template <class R> struct SqGlobal<R&> {
 		typedef R&(*M)(A...);
 		return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-			if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) != startIdx + 2) {
+			if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) != startIdx + sizeof...(A)) {
 				return sq_throwerror(vm, _SC("wrong number of parameters"));
 			}
 #endif
@@ -122,7 +122,7 @@ template <> struct SqGlobal<void> {
 		typedef void(*M)(A...);
 		return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-			if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) != startIdx + 2) {
+			if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) != startIdx + sizeof...(A)) {
 				return sq_throwerror(vm, _SC("wrong number of parameters"));
 			}
 #endif
