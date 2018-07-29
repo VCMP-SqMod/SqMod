@@ -794,9 +794,9 @@ CSStr FetchDateObjStr(const Object & value)
     // Push the specified object onto the stack
     Var< const Object & >::push(vm, value);
     // Grab the date instance as a string
-    const StackStrF val(vm, -1, false);
+    StackStrF val(vm, -1);
     // Validate the result
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(false)))
     {
         return _SC("1000-01-01");
     }
@@ -874,9 +874,9 @@ CSStr FetchTimeObjStr(const Object & value)
     // Push the specified object onto the stack
     Var< const Object & >::push(vm, value);
     // Grab the time instance as a string
-    const StackStrF val(vm, -1, false);
+    StackStrF val(vm, -1);
     // Validate the result
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(false)))
     {
         return _SC("00:00:00");
     }
@@ -992,9 +992,9 @@ CSStr FetchDatetimeObjStr(const Object & value)
     // Push the specified object onto the stack
     Var< const Object & >::push(vm, value);
     // Grab the date-time instance as a string
-    const StackStrF val(vm, -1, false);
+    StackStrF val(vm, -1);
     // Validate the result
-    if (SQ_FAILED(val.mRes))
+    if (SQ_FAILED(val.Proc(false)))
     {
         return _SC("1000-01-01 00:00:00");
     }
