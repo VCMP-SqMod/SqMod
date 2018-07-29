@@ -3,7 +3,7 @@
 #include "Entity/Player.hpp"
 #include "Base/Vector3.hpp"
 #include "Core.hpp"
-#include "Tasks.hpp"
+#include "Misc/Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {

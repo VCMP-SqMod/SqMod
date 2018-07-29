@@ -450,8 +450,6 @@
 		<Unit filename="../shared/Base/Buffer.hpp" />
 		<Unit filename="../shared/Base/Plugin.cpp" />
 		<Unit filename="../shared/Base/Utility.hpp" />
-		<Unit filename="../source/Areas.cpp" />
-		<Unit filename="../source/Areas.hpp" />
 		<Unit filename="../source/Base/AABB.cpp" />
 		<Unit filename="../source/Base/AABB.hpp" />
 		<Unit filename="../source/Base/Algo.cpp" />
@@ -478,16 +476,8 @@
 		<Unit filename="../source/Base/Vector3.hpp" />
 		<Unit filename="../source/Base/Vector4.cpp" />
 		<Unit filename="../source/Base/Vector4.hpp" />
-		<Unit filename="../source/Command.cpp" />
-		<Unit filename="../source/Command.hpp" />
-		<Unit filename="../source/Constants.cpp" />
 		<Unit filename="../source/Core.cpp" />
 		<Unit filename="../source/Core.hpp" />
-		<Unit filename="../source/CoreEntity.cpp" />
-		<Unit filename="../source/CoreEvents.cpp" />
-		<Unit filename="../source/CoreFuncs.cpp" />
-		<Unit filename="../source/CoreInst.cpp" />
-		<Unit filename="../source/CoreUtils.cpp" />
 		<Unit filename="../source/Entity/Blip.cpp" />
 		<Unit filename="../source/Entity/Blip.hpp" />
 		<Unit filename="../source/Entity/Checkpoint.cpp" />
@@ -502,7 +492,6 @@
 		<Unit filename="../source/Entity/Player.hpp" />
 		<Unit filename="../source/Entity/Vehicle.cpp" />
 		<Unit filename="../source/Entity/Vehicle.hpp" />
-		<Unit filename="../source/Exports.cpp" />
 		<Unit filename="../source/Library/Chrono.cpp" />
 		<Unit filename="../source/Library/Chrono.hpp" />
 		<Unit filename="../source/Library/Chrono/Date.cpp" />
@@ -550,7 +539,13 @@
 		<Unit filename="../source/Logger.cpp" />
 		<Unit filename="../source/Logger.hpp" />
 		<Unit filename="../source/Main.cpp" />
+		<Unit filename="../source/Misc/Areas.cpp" />
+		<Unit filename="../source/Misc/Areas.hpp" />
 		<Unit filename="../source/Misc/Broadcast.cpp" />
+		<Unit filename="../source/Misc/Command.cpp" />
+		<Unit filename="../source/Misc/Command.hpp" />
+		<Unit filename="../source/Misc/Constants.cpp" />
+		<Unit filename="../source/Misc/Exports.cpp" />
 		<Unit filename="../source/Misc/Functions.cpp" />
 		<Unit filename="../source/Misc/Functions.hpp" />
 		<Unit filename="../source/Misc/Model.cpp" />
@@ -558,18 +553,18 @@
 		<Unit filename="../source/Misc/Player.cpp" />
 		<Unit filename="../source/Misc/Player.hpp" />
 		<Unit filename="../source/Misc/Register.cpp" />
+		<Unit filename="../source/Misc/Routine.cpp" />
+		<Unit filename="../source/Misc/Routine.hpp" />
+		<Unit filename="../source/Misc/Signal.cpp" />
+		<Unit filename="../source/Misc/Signal.hpp" />
+		<Unit filename="../source/Misc/Tasks.cpp" />
+		<Unit filename="../source/Misc/Tasks.hpp" />
 		<Unit filename="../source/Misc/Vehicle.cpp" />
 		<Unit filename="../source/Misc/Vehicle.hpp" />
 		<Unit filename="../source/Misc/Weapon.cpp" />
 		<Unit filename="../source/Misc/Weapon.hpp" />
 		<Unit filename="../source/Register.cpp" />
-		<Unit filename="../source/Routine.cpp" />
-		<Unit filename="../source/Routine.hpp" />
-		<Unit filename="../source/Signal.cpp" />
-		<Unit filename="../source/Signal.hpp" />
 		<Unit filename="../source/SqBase.hpp" />
-		<Unit filename="../source/Tasks.cpp" />
-		<Unit filename="../source/Tasks.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

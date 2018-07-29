@@ -1,8 +1,11 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
 #include "Logger.hpp"
-#include "Signal.hpp"
-#include "SqMod.h"
+#include "Misc/Signal.hpp"
+#include "Misc/Areas.hpp"
+#include "Misc/Signal.hpp"
+#include "Base/Buffer.hpp"
+#include "Library/Utils/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
@@ -14,6 +17,7 @@
 #include "Entity/Vehicle.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <SqMod.h>
 #include <sqstdio.h>
 #include <sqstdblob.h>
 #include <sqstdmath.h>
@@ -27,6 +31,11 @@
 #include <exception>
 #include <stdexcept>
 #include <algorithm>
+
+// ------------------------------------------------------------------------------------------------
+#ifdef GetObject
+    #undef GetObject
+#endif // ef you MS
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -838,3 +847,12 @@ void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInt
 }
 
 } // Namespace:: SqMod
+
+/* ------------------------------------------------------------------------------------------------
+ * Include remaining functionality.
+*/
+#include "Core/Inst.inc"
+#include "Core/Entity.inc"
+#include "Core/Events.inc"
+#include "Core/Utils.inc"
+#include "Core/Funcs.inc"

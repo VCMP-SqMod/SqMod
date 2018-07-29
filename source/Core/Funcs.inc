@@ -1,7 +1,4 @@
 // ------------------------------------------------------------------------------------------------
-#include "Core.hpp"
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -111,49 +108,49 @@ static LightObj & SqGetReloadPayload()
 }
 
 // ------------------------------------------------------------------------------------------------
-static Int32 GetState()
+static Int32 SqGetState()
 {
     return Core::Get().GetState();
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SetState(Int32 value)
+static void SqSetState(Int32 value)
 {
     return Core::Get().SetState(value);
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool GetAreasEnabled()
+static bool SqGetAreasEnabled()
 {
     return Core::Get().AreasEnabled();
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SetAreasEnabled(bool toggle)
+static void SqSetAreasEnabled(bool toggle)
 {
     Core::Get().AreasEnabled(toggle);
 }
 
 // ------------------------------------------------------------------------------------------------
-static CSStr GetOption(CSStr name)
+static CSStr SqGetOption(CSStr name)
 {
     return Core::Get().GetOption(name);
 }
 
 // ------------------------------------------------------------------------------------------------
-static CSStr GetOptionOr(CSStr name, CSStr value)
+static CSStr SqGetOptionOr(CSStr name, CSStr value)
 {
     return Core::Get().GetOption(name, value);
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SetOption(CSStr name, CSStr value)
+static void SqSetOption(CSStr name, CSStr value)
 {
     return Core::Get().SetOption(name, value);
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & GetBlip(Int32 id)
+static LightObj & SqGetBlip(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
@@ -165,7 +162,7 @@ static LightObj & GetBlip(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & GetCheckpoint(Int32 id)
+static LightObj & SqGetCheckpoint(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
@@ -177,7 +174,7 @@ static LightObj & GetCheckpoint(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & GetKeybind(Int32 id)
+static LightObj & SqGetKeybind(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
@@ -189,7 +186,7 @@ static LightObj & GetKeybind(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & GetObject(Int32 id)
+static LightObj & SqGetObject(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
@@ -201,7 +198,7 @@ static LightObj & GetObject(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & GetPickup(Int32 id)
+static LightObj & SqGetPickup(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
@@ -213,7 +210,7 @@ static LightObj & GetPickup(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & GetPlayer(Int32 id)
+static LightObj & SqGetPlayer(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
@@ -225,7 +222,7 @@ static LightObj & GetPlayer(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & GetVehicle(Int32 id)
+static LightObj & SqGetVehicle(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
@@ -237,7 +234,7 @@ static LightObj & GetVehicle(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelBlip(Int32 id, Int32 header, LightObj & payload)
+static bool SqDelBlip(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
@@ -249,7 +246,7 @@ static bool DelBlip(Int32 id, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelCheckpoint(Int32 id, Int32 header, LightObj & payload)
+static bool SqDelCheckpoint(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
@@ -261,7 +258,7 @@ static bool DelCheckpoint(Int32 id, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelKeybind(Int32 id, Int32 header, LightObj & payload)
+static bool SqDelKeybind(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
@@ -273,7 +270,7 @@ static bool DelKeybind(Int32 id, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelObject(Int32 id, Int32 header, LightObj & payload)
+static bool SqDelObject(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
@@ -285,7 +282,7 @@ static bool DelObject(Int32 id, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelPickup(Int32 id, Int32 header, LightObj & payload)
+static bool SqDelPickup(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
@@ -297,7 +294,7 @@ static bool DelPickup(Int32 id, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool DelVehicle(Int32 id, Int32 header, LightObj & payload)
+static bool SqDelVehicle(Int32 id, Int32 header, LightObj & payload)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
@@ -331,26 +328,26 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("SetReloadInfo"), &SqSetReloadInfo)
         .Func(_SC("GetReloadHeader"), &SqGetReloadHeader)
         .Func(_SC("GetReloadPayload"), &SqGetReloadPayload)
-        .Func(_SC("GetState"), &GetState)
-        .Func(_SC("SetState"), &SetState)
-        .Func(_SC("AreasEnabled"), &GetAreasEnabled)
-        .Func(_SC("SetAreasEnabled"), &SetAreasEnabled)
-        .Func(_SC("GetOption"), &GetOption)
-        .Func(_SC("GetOptionOr"), &GetOptionOr)
-        .Func(_SC("SetOption"), &SetOption)
-        .Func(_SC("GetBlip"), &GetBlip)
-        .Func(_SC("GetCheckpoint"), &GetCheckpoint)
-        .Func(_SC("GetKeybind"), &GetKeybind)
-        .Func(_SC("GetObject"), &GetObject)
-        .Func(_SC("GetPickup"), &GetPickup)
-        .Func(_SC("GetPlayer"), &GetPlayer)
-        .Func(_SC("GetVehicle"), &GetVehicle)
-        .Func(_SC("DestroyBlip"), &DelBlip)
-        .Func(_SC("DestroyCheckpoint"), &DelCheckpoint)
-        .Func(_SC("DestroyKeybind"), &DelKeybind)
-        .Func(_SC("DestroyObject"), &DelObject)
-        .Func(_SC("DestroyPickup"), &DelPickup)
-        .Func(_SC("DestroyVehicle"), &DelVehicle)
+        .Func(_SC("GetState"), &SqGetState)
+        .Func(_SC("SetState"), &SqSetState)
+        .Func(_SC("AreasEnabled"), &SqGetAreasEnabled)
+        .Func(_SC("SetAreasEnabled"), &SqSetAreasEnabled)
+        .Func(_SC("GetOption"), &SqGetOption)
+        .Func(_SC("GetOptionOr"), &SqGetOptionOr)
+        .Func(_SC("SetOption"), &SqSetOption)
+        .Func(_SC("GetBlip"), &SqGetBlip)
+        .Func(_SC("GetCheckpoint"), &SqGetCheckpoint)
+        .Func(_SC("GetKeybind"), &SqGetKeybind)
+        .Func(_SC("GetObject"), &SqGetObject)
+        .Func(_SC("GetPickup"), &SqGetPickup)
+        .Func(_SC("GetPlayer"), &SqGetPlayer)
+        .Func(_SC("GetVehicle"), &SqGetVehicle)
+        .Func(_SC("DestroyBlip"), &SqDelBlip)
+        .Func(_SC("DestroyCheckpoint"), &SqDelCheckpoint)
+        .Func(_SC("DestroyKeybind"), &SqDelKeybind)
+        .Func(_SC("DestroyObject"), &SqDelObject)
+        .Func(_SC("DestroyPickup"), &SqDelPickup)
+        .Func(_SC("DestroyVehicle"), &SqDelVehicle)
         .Func(_SC("OnPreLoad"), &SqGetPreLoadEvent)
         .Func(_SC("OnPostLoad"), &SqGetPostLoadEvent)
         .Func(_SC("OnUnload"), &SqGetUnloadEvent)

@@ -1,18 +1,4 @@
 // ------------------------------------------------------------------------------------------------
-#include "Core.hpp"
-#include "Signal.hpp"
-#include "Logger.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include "Entity/Blip.hpp"
-#include "Entity/Checkpoint.hpp"
-#include "Entity/Keybind.hpp"
-#include "Entity/Object.hpp"
-#include "Entity/Pickup.hpp"
-#include "Entity/Player.hpp"
-#include "Entity/Vehicle.hpp"
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // --------------------------------------------------------------------------------------------

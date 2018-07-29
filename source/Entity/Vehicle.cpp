@@ -5,8 +5,8 @@
 #include "Base/Vector2.hpp"
 #include "Base/Vector3.hpp"
 #include "Core.hpp"
-#include "Areas.hpp"
-#include "Tasks.hpp"
+#include "Misc/Areas.hpp"
+#include "Misc/Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {

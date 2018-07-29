@@ -6,8 +6,8 @@
 #include "Base/Vector3.hpp"
 #include "Library/Utils/Buffer.hpp"
 #include "Core.hpp"
-#include "Areas.hpp"
-#include "Tasks.hpp"
+#include "Misc/Areas.hpp"
+#include "Misc/Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstring>

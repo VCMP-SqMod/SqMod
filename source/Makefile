@@ -43,7 +43,6 @@ PP_OBJECTS= "$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdaux.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/external/Hash/sha3.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/shared/Base/Buffer.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/shared/Base/Plugin.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/Areas.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Base/AABB.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Base/Algo.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Base/Circle.$(SQ_OEXT)" \
@@ -57,14 +56,7 @@ PP_OBJECTS= "$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdaux.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Base/Vector2i.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Base/Vector3.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Base/Vector4.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/Command.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/Constants.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Core.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/CoreEntity.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/CoreEvents.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/CoreFuncs.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/CoreInst.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/CoreUtils.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Entity/Blip.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Entity/Checkpoint.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Entity/Keybind.$(SQ_OEXT)" \
@@ -72,7 +64,6 @@ PP_OBJECTS= "$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdaux.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Entity/Pickup.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Entity/Player.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Entity/Vehicle.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/Exports.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/Chrono.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/Chrono/Date.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/Chrono/Datetime.$(SQ_OEXT)" \
@@ -97,17 +88,21 @@ PP_OBJECTS= "$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdaux.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/Utils/Buffer.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Logger.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Main.$(SQ_OEXT)" \
+			"$(SQ_OBJDIR)/source/Misc/Areas.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Misc/Broadcast.$(SQ_OEXT)" \
+			"$(SQ_OBJDIR)/source/Misc/Command.$(SQ_OEXT)" \
+			"$(SQ_OBJDIR)/source/Misc/Constants.$(SQ_OEXT)" \
+			"$(SQ_OBJDIR)/source/Misc/Exports.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Misc/Functions.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Misc/Model.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Misc/Player.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Misc/Register.$(SQ_OEXT)" \
+			"$(SQ_OBJDIR)/source/Misc/Routine.$(SQ_OEXT)" \
+			"$(SQ_OBJDIR)/source/Misc/Signal.$(SQ_OEXT)" \
+			"$(SQ_OBJDIR)/source/Misc/Tasks.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Misc/Vehicle.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Misc/Weapon.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/Register.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/Routine.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/Signal.$(SQ_OEXT)" \
-			"$(SQ_OBJDIR)/source/Tasks.$(SQ_OEXT)"
+			"$(SQ_OBJDIR)/source/Register.$(SQ_OEXT)"
 
 .PHONY := default
 
@@ -147,7 +142,6 @@ build:
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/Hash/sha3.cpp" -o "$(SQ_OBJDIR)/external/Hash/sha3.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SHRDIR)/Base/Buffer.cpp" -o "$(SQ_OBJDIR)/shared/Base/Buffer.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SHRDIR)/Base/Plugin.cpp" -o "$(SQ_OBJDIR)/shared/Base/Plugin.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Areas.cpp" -o "$(SQ_OBJDIR)/source/Areas.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Base/AABB.cpp" -o "$(SQ_OBJDIR)/source/Base/AABB.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Base/Algo.cpp" -o "$(SQ_OBJDIR)/source/Base/Algo.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Base/Circle.cpp" -o "$(SQ_OBJDIR)/source/Base/Circle.$(SQ_OEXT)"
@@ -161,14 +155,7 @@ build:
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Base/Vector2i.cpp" -o "$(SQ_OBJDIR)/source/Base/Vector2i.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Base/Vector3.cpp" -o "$(SQ_OBJDIR)/source/Base/Vector3.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Base/Vector4.cpp" -o "$(SQ_OBJDIR)/source/Base/Vector4.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Command.cpp" -o "$(SQ_OBJDIR)/source/Command.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Constants.cpp" -o "$(SQ_OBJDIR)/source/Constants.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Core.cpp" -o "$(SQ_OBJDIR)/source/Core.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/CoreEntity.cpp" -o "$(SQ_OBJDIR)/source/CoreEntity.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/CoreEvents.cpp" -o "$(SQ_OBJDIR)/source/CoreEvents.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/CoreFuncs.cpp" -o "$(SQ_OBJDIR)/source/CoreFuncs.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/CoreInst.cpp" -o "$(SQ_OBJDIR)/source/CoreInst.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/CoreUtils.cpp" -o "$(SQ_OBJDIR)/source/CoreUtils.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Entity/Blip.cpp" -o "$(SQ_OBJDIR)/source/Entity/Blip.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Entity/Checkpoint.cpp" -o "$(SQ_OBJDIR)/source/Entity/Checkpoint.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Entity/Keybind.cpp" -o "$(SQ_OBJDIR)/source/Entity/Keybind.$(SQ_OEXT)"
@@ -176,7 +163,6 @@ build:
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Entity/Pickup.cpp" -o "$(SQ_OBJDIR)/source/Entity/Pickup.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Entity/Player.cpp" -o "$(SQ_OBJDIR)/source/Entity/Player.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Entity/Vehicle.cpp" -o "$(SQ_OBJDIR)/source/Entity/Vehicle.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Exports.cpp" -o "$(SQ_OBJDIR)/source/Exports.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/Chrono.cpp" -o "$(SQ_OBJDIR)/source/Library/Chrono.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/Chrono/Date.cpp" -o "$(SQ_OBJDIR)/source/Library/Chrono/Date.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/Chrono/Datetime.cpp" -o "$(SQ_OBJDIR)/source/Library/Chrono/Datetime.$(SQ_OEXT)"
@@ -201,17 +187,21 @@ build:
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/Utils/Buffer.cpp" -o "$(SQ_OBJDIR)/source/Library/Utils/Buffer.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Logger.cpp" -o "$(SQ_OBJDIR)/source/Logger.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Main.cpp" -o "$(SQ_OBJDIR)/source/Main.$(SQ_OEXT)"
+	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Areas.cpp" -o "$(SQ_OBJDIR)/source/Misc/Areas.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Broadcast.cpp" -o "$(SQ_OBJDIR)/source/Misc/Broadcast.$(SQ_OEXT)"
+	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Command.cpp" -o "$(SQ_OBJDIR)/source/Misc/Command.$(SQ_OEXT)"
+	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Constants.cpp" -o "$(SQ_OBJDIR)/source/Misc/Constants.$(SQ_OEXT)"
+	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Exports.cpp" -o "$(SQ_OBJDIR)/source/Misc/Exports.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Functions.cpp" -o "$(SQ_OBJDIR)/source/Misc/Functions.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Model.cpp" -o "$(SQ_OBJDIR)/source/Misc/Model.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Player.cpp" -o "$(SQ_OBJDIR)/source/Misc/Player.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Register.cpp" -o "$(SQ_OBJDIR)/source/Misc/Register.$(SQ_OEXT)"
+	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Routine.cpp" -o "$(SQ_OBJDIR)/source/Misc/Routine.$(SQ_OEXT)"
+	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Signal.cpp" -o "$(SQ_OBJDIR)/source/Misc/Signal.$(SQ_OEXT)"
+	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Tasks.cpp" -o "$(SQ_OBJDIR)/source/Misc/Tasks.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Vehicle.cpp" -o "$(SQ_OBJDIR)/source/Misc/Vehicle.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Misc/Weapon.cpp" -o "$(SQ_OBJDIR)/source/Misc/Weapon.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Register.cpp" -o "$(SQ_OBJDIR)/source/Register.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Routine.cpp" -o "$(SQ_OBJDIR)/source/Routine.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Signal.cpp" -o "$(SQ_OBJDIR)/source/Signal.$(SQ_OEXT)"
-	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Tasks.cpp" -o "$(SQ_OBJDIR)/source/Tasks.$(SQ_OEXT)"
 
 link:
 	$(SQ_PP_LINKER_DYNAMIC) $(SQ_DYNAMIC_LINKER_OPTIONS) -L"$(SQ_LIBDIR)" $(C_OBJECTS) $(PP_OBJECTS) -o "$(SQ_OUTPUT)" $(SQ_DYNAMIC_LINKER_OPTIONS_)
