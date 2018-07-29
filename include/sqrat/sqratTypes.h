@@ -46,27 +46,6 @@
 
 namespace Sqrat {
 
-/// @cond DEV
-
-// copied from http://www.experts-exchange.com/Programming/Languages/CPP/A_223-Determing-if-a-C-type-is-convertable-to-another-at-compile-time.html
-template <typename T1, typename T2>
-struct is_convertible
-{
-private:
-    struct True_ { char x[2]; };
-    struct False_ { };
-
-    static True_ helper(T2 const &);
-    static False_ helper(...);
-
-    static T1* dummy;
-
-public:
-    static bool const YES = (
-        sizeof(True_) == sizeof(is_convertible::helper(*dummy))
-    );
-};
-
 template <typename T, bool b>
 struct popAsInt
 {
@@ -171,20 +150,20 @@ struct Var {
         if (ptr != NULL) {
             value = *ptr;
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-        } else if (is_convertible<T, SQInteger>::YES) { /* value is likely of integral type like enums */
+        } else if (std::is_convertible<T, SQInteger>::value) { /* value is likely of integral type like enums */
             SQCLEAR(vm); // clear the previous error
-            value = popAsInt<T, is_convertible<T, SQInteger>::YES>(vm, idx).value;
+            value = popAsInt<T, std::is_convertible<T, SQInteger>::value>(vm, idx).value;
 #endif
         } else {
             // initialize value to avoid warnings
-            value = popAsInt<T, is_convertible<T, SQInteger>::YES>(vm, idx).value;
+            value = popAsInt<T, std::is_convertible<T, SQInteger>::value>(vm, idx).value;
         }
         SQCATCH(vm) {
 #if defined (SCRAT_USE_EXCEPTIONS)
             SQUNUSED(e); // avoid "unreferenced local variable" warning
 #endif
-            if (is_convertible<T, SQInteger>::YES) { /* value is likely of integral type like enums */
-                value = popAsInt<T, is_convertible<T, SQInteger>::YES>(vm, idx).value;
+            if (std::is_convertible<T, SQInteger>::value) { /* value is likely of integral type like enums */
+                value = popAsInt<T, std::is_convertible<T, SQInteger>::value>(vm, idx).value;
             } else {
                 SQRETHROW(vm);
             }
@@ -202,7 +181,7 @@ struct Var {
         if (ClassType<T>::hasClassData(vm))
             ClassType<T>::PushInstanceCopy(vm, value);
         else /* try integral type */
-            pushAsInt<T, is_convertible<T, SQInteger>::YES>().push(vm, value);
+            pushAsInt<T, std::is_convertible<T, SQInteger>::value>().push(vm, value);
     }
 
 private:
@@ -258,7 +237,7 @@ struct Var<T&> {
         if (ClassType<T>::hasClassData(vm))
             ClassType<T>::PushInstance(vm, &value);
         else /* try integral type */
-            pushAsInt<T, is_convertible<T, SQInteger>::YES>().push(vm, value);
+            pushAsInt<T, std::is_convertible<T, SQInteger>::value>().push(vm, value);
     }
 
 private:
@@ -1092,7 +1071,6 @@ SCRAT_MAKE_NONREFERENCABLE(signed __int64)
 SCRAT_MAKE_NONREFERENCABLE(std::string)
 #endif
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pushes a value on to a given VM's stack
 ///
@@ -1111,7 +1089,6 @@ template<class T>
 inline void PushVar(HSQUIRRELVM vm, T* value) {
     Var<T*>::push(vm, value);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pushes a value on to a given VM's stack
@@ -1132,6 +1109,22 @@ inline void PushVar(HSQUIRRELVM vm, const T& value) {
     Var<T>::push(vm, value);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Pushes a pack of values on to a given VM's stack
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T>
+inline void PushVars(HSQUIRRELVM vm, T value) {
+    PushVar(vm, value);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Pushes a pack of values on to a given VM's stack
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T, class... Ts>
+inline void PushVars(HSQUIRRELVM vm, T value, Ts &&... tail) {
+    PushVar(vm, value);
+    PushVars(vm, std::forward<Ts>(tail)...);
+}
 
 /// @cond DEV
 template<class T, bool b>
