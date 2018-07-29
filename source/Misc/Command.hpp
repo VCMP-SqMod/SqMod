@@ -409,7 +409,7 @@ protected:
         // Attempt to forward the error to that callback
         try
         {
-            m_OnFail.Execute< Int32, CSStr, T >(type, msg, data);
+            m_OnFail.Execute(type, msg, data);
         }
         catch (const Sqrat::Exception & e)
         {
