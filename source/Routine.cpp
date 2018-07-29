@@ -231,6 +231,25 @@ SQInteger Routine::Create(HSQUIRRELVM vm)
     return 1;
 }
 
+// ------------------------------------------------------------------------------------------------
+bool Routine::IsWithTag(const StackStrF & tag)
+{
+    // Is the specified tag valid?
+    if (tag.mPtr != nullptr)
+    {
+        // Iterate routine list
+        for (const auto & r : s_Instances)
+        {
+            if (!r.mInst.IsNull() && r.mTag.compare(tag.mPtr) == 0)
+            {
+                return true; // Yup, we're doing this
+            }
+        }
+    }
+    // Unable to find such routine
+    return false;
+}
+
 /* ------------------------------------------------------------------------------------------------
  * Forward the call to process routines.
 */
@@ -282,6 +301,7 @@ void Register_Routine(HSQUIRRELVM vm)
     // Global functions
     RootTable(vm).SquirrelFunc(_SC("SqRoutine"), &Routine::Create);
     RootTable(vm).FmtFunc(_SC("SqFindRoutineByTag"), &Routine::FindByTag);
+    RootTable(vm).FmtFunc(_SC("SqIsRoutineWithTag"), &Routine::IsWithTag);
 }
 
 } // Namespace:: SqMod

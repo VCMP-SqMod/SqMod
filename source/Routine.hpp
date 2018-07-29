@@ -287,9 +287,10 @@ public:
     */
     static const LightObj & FindByTag(const StackStrF & tag)
     {
+        // Is the specified tag valid?
         if (!tag.mPtr)
         {
-            STHROWF("Invalid entity tag");
+            STHROWF("Invalid routine tag");
         }
         // Iterate routine list
         for (const auto & r : s_Instances)
@@ -304,7 +305,10 @@ public:
         // Should not reach this point but if it did, we have to return something
         return s_Instances[SQMOD_MAX_ROUTINES].mInst; // Intentional Buffer overflow!
     }
-
+    /* --------------------------------------------------------------------------------------------
+     * Check if a routine with a certain tag exists.
+    */
+    static bool IsWithTag(const StackStrF & tag);
     /* --------------------------------------------------------------------------------------------
      * Process all active routines and update elapsed time.
     */
