@@ -1000,25 +1000,28 @@ public:
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Used to get and push StackStrF types to and from the stack (StackStrF is always a reference)
+/// Used to get and push StackStrF instances to and from the stack as references (StackStrF should not be a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<StackStrF &> {
+struct Var<StackStrF> {
 
     StackStrF value; ///< The actual value of get operations
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Attempts to get the value off the stack at idx as a string
+    /// Attempts to get the value off the stack at idx as an StackStrF
     ///
     /// \param vm  Target VM
     /// \param idx Index trying to be read
     ///
+    /// \remarks
+    /// This function MUST have its Error handled if it occurred.
+    ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Var(HSQUIRRELVM vm, SQInteger idx) : value(vm, idx, false) {
+    Var(HSQUIRRELVM vm, SQInteger idx, bool fmt = false) : value(vm, idx, fmt) {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Called by Sqrat::PushVar to put a string on the stack
+    /// Called by Sqrat::PushVar to put an StackStrF on the stack
     ///
     /// \param vm    Target VM
     /// \param value Value to push on to the VM's stack
@@ -1034,10 +1037,16 @@ struct Var<StackStrF &> {
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Used to get and push StackStrF types to and from the stack (StackStrF is always a reference)
+/// Used to get and push StackStrF instances to and from the stack as references (StackStrF should not be a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<const StackStrF &> : Var<StackStrF &> {Var(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF &>(vm, idx) {}};
+struct Var<StackStrF&> : Var<StackStrF> {Var(HSQUIRRELVM vm, SQInteger idx, bool fmt = false) : Var<StackStrF>(vm, idx, fmt) {}};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Used to get and push StackStrF instances to and from the stack as references (StackStrF should not be a reference)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<>
+struct Var<const StackStrF&> : Var<StackStrF> {Var(HSQUIRRELVM vm, SQInteger idx, bool fmt = false) : Var<StackStrF>(vm, idx, fmt) {}};
 
 // Non-referencable type definitions
 template<class T> struct is_referencable {static const bool value = true;};
@@ -1177,10 +1186,12 @@ template<>
 struct ArgPop<> {
     ArgPop(HSQUIRRELVM /*vm*/, SQInteger /*idx*/)
     { }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f();
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f();
     }
 };
@@ -1191,13 +1202,19 @@ struct ArgPop<> {
 template<class T1>
 struct ArgPop<T1> {
     Var<T1> V1;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
-        : V1(vm, idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
+        : V1(vm, idx, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T1> & Last() { return V1; }
+    const Var<T1> & Last() const { return V1; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value);
     }
 };
@@ -1209,14 +1226,20 @@ struct ArgPop<T1,T2> : public ArgPop<T1> {
     using Base::V1;
     // Implement ours
     Var<T2> V2;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1>(vm, idx)
-        , V2(vm, idx+1)
+        , V2(vm, idx+1, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T2> & Last() { return V2; }
+    const Var<T2> & Last() const { return V2; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value);
     }
 };
@@ -1229,14 +1252,20 @@ struct ArgPop<T1,T2,T3> : public ArgPop<T1,T2> {
     using Base::V2;
     // Implement ours
     Var<T3> V3;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2>(vm, idx)
-        , V3(vm, idx+2)
+        , V3(vm, idx+2, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T3> & Last() { return V3; }
+    const Var<T3> & Last() const { return V3; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value);
     }
 };
@@ -1250,14 +1279,20 @@ struct ArgPop<T1,T2,T3,T4> : public ArgPop<T1,T2,T3> {
     using Base::V3;
     // Implement ours
     Var<T4> V4;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3>(vm, idx)
-        , V4(vm, idx+3)
+        , V4(vm, idx+3, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T4> & Last() { return V4; }
+    const Var<T4> & Last() const { return V4; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value);
     }
 };
@@ -1272,14 +1307,20 @@ struct ArgPop<T1,T2,T3,T4,T5> : public ArgPop<T1,T2,T3,T4> {
     using Base::V4;
     // Implement ours
     Var<T5> V5;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4>(vm, idx)
-        , V5(vm, idx+4)
+        , V5(vm, idx+4, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T5> & Last() { return V5; }
+    const Var<T5> & Last() const { return V5; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value);
     }
 };
@@ -1295,14 +1336,20 @@ struct ArgPop<T1,T2,T3,T4,T5,T6> : public ArgPop<T1,T2,T3,T4,T5> {
     using Base::V5;
     // Implement ours
     Var<T6> V6;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4,T5>(vm, idx)
-        , V6(vm, idx+5)
+        , V6(vm, idx+5, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T6> & Last() { return V6; }
+    const Var<T6> & Last() const { return V6; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value);
     }
 };
@@ -1319,14 +1366,20 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7> : public ArgPop<T1,T2,T3,T4,T5,T6> {
     using Base::V6;
     // Implement ours
     Var<T7> V7;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4,T5,T6>(vm, idx)
-        , V7(vm, idx+6)
+        , V7(vm, idx+6, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T7> & Last() { return V7; }
+    const Var<T7> & Last() const { return V7; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value);
     }
 };
@@ -1344,14 +1397,20 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8> : public ArgPop<T1,T2,T3,T4,T5,T6,T7> {
     using Base::V7;
     // Implement ours
     Var<T8> V8;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7>(vm, idx)
-        , V8(vm, idx+7)
+        , V8(vm, idx+7, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T8> & Last() { return V8; }
+    const Var<T8> & Last() const { return V8; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value);
     }
 };
@@ -1370,14 +1429,20 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9> : public ArgPop<T1,T2,T3,T4,T5,T6,T7,T
     using Base::V8;
     // Implement ours
     Var<T9> V9;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8>(vm, idx)
-        , V9(vm, idx+8)
+        , V9(vm, idx+8, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T9> & Last() { return V9; }
+    const Var<T9> & Last() const { return V9; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value);
     }
 };
@@ -1397,14 +1462,20 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> : public ArgPop<T1,T2,T3,T4,T5,T6,
     using Base::V9;
     // Implement ours
     Var<T10> V10;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9>(vm, idx)
-        , V10(vm, idx+9)
+        , V10(vm, idx+9, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T10> & Last() { return V10; }
+    const Var<T10> & Last() const { return V10; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value);
     }
 };
@@ -1425,14 +1496,20 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> : public ArgPop<T1,T2,T3,T4,T5
     using Base::V10;
     // Implement ours
     Var<T11> V11;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>(vm, idx)
-        , V11(vm, idx+10)
+        , V11(vm, idx+10, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T11> & Last() { return V11; }
+    const Var<T11> & Last() const { return V11; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value);
     }
 };
@@ -1454,14 +1531,20 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> : public ArgPop<T1,T2,T3,T
     using Base::V11;
     // Implement ours
     Var<T12> V12;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>(vm, idx)
-        , V12(vm, idx+11)
+        , V12(vm, idx+11, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T12> & Last() { return V12; }
+    const Var<T12> & Last() const { return V12; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value);
     }
 };
@@ -1484,14 +1567,20 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> : public ArgPop<T1,T2,
     using Base::V12;
     // Implement ours
     Var<T13> V13;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>(vm, idx)
-        , V13(vm, idx+12)
+        , V13(vm, idx+12, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T13> & Last() { return V13; }
+    const Var<T13> & Last() const { return V13; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value);
     }
 };
@@ -1515,14 +1604,20 @@ struct ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> : public ArgPop<T1
     using Base::V13;
     // Implement ours
     Var<T14> V14;
-    ArgPop(HSQUIRRELVM vm, SQInteger idx)
+    // Base constructor. Can also pass extra parameters to the last popped argument.
+    template<class... A> ArgPop(HSQUIRRELVM vm, SQInteger idx, A&&... a)
         : ArgPop<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>(vm, idx)
-        , V14(vm, idx+13)
+        , V14(vm, idx+13, a...)
     { }
+    // Retrieve the last popped variable
+    Var<T14> & Last() { return V14; }
+    const Var<T14> & Last() const { return V14; }
+    // Forward the arguments to a functor that doesn't return anything
     template<class F> void Exec(F f) {
         f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value,V14.value);
     }
-    template<class R, class F> R Eval(F f) {
+    // Forward the arguments to a functor that returns a value
+    template<class R,class F> R Eval(F f) {
         return f(V1.value,V2.value,V3.value,V4.value,V5.value,V6.value,V7.value,V8.value,V9.value,V10.value,V11.value,V12.value,V13.value,V14.value);
     }
 };
