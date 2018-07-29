@@ -700,7 +700,7 @@ void Session::ForwardEvent(Function & listener, CCStr event, CCStr origin, CCStr
     // Attempt top execute the callback with the obtained values
     try
     {
-        listener.Execute< CSStr, CSStr, Array & >(event, origin, parameters);
+        listener.Execute(event, origin, parameters);
     }
     catch (const Sqrat::Exception & e)
     {
@@ -744,7 +744,7 @@ void Session::ForwardEvent(Function & listener, Uint32 event,
     // Attempt top execute the callback with the obtained values
     try
     {
-        listener.Execute< Uint32, CSStr, Array & >(event, origin, parameters);
+        listener.Execute(event, origin, parameters);
     }
     catch (const Sqrat::Exception & e)
     {
@@ -1040,17 +1040,17 @@ static SQInteger FormattedIrcMessageCmd(HSQUIRRELVM vm, SendIrcMessageFunc send_
     }
 
     // Attempt to retrieve the target from the stack as a string
-    StackStrF target(vm, 2, false);
+    StackStrF target(vm, 2);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(target.mRes))
+    if (SQ_FAILED(target.Proc(false)))
     {
         return target.mRes; // Propagate the error!
     }
 
     // Attempt to retrieve the value from the stack as a string
-    StackStrF message(vm, 3, true);
+    StackStrF message(vm, 3);
     // Have we failed to retrieve the string?
-    if (SQ_FAILED(message.mRes))
+    if (SQ_FAILED(message.Proc(true)))
     {
         return message.mRes; // Propagate the error!
     }
