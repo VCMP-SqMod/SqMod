@@ -132,9 +132,9 @@ SQInteger LookupResult::GetValue(HSQUIRRELVM vm)
     // Extract each argument as a string
     for (SQInteger i = 2; i <= top; ++i)
     {
-        arglist.emplace_back(vm, i, false);
+        arglist.emplace_back(vm, i);
         // Did we fail to extract the argument value?
-        if (SQ_FAILED(arglist.back().mRes))
+        if (SQ_FAILED(arglist.back().Proc(false)))
         {
             return arglist.back().mRes; // Propagate the error
         }
