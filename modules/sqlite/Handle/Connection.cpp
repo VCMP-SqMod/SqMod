@@ -118,7 +118,7 @@ Int32 ConnHnd::Flush(Uint32 num, Object & env, Function & func)
             try
             {
                 // Ask the callback whether the query processing should end here
-                SharedPtr< bool > ret = callback.Evaluate< bool, Int32, const String & >(mStatus, *itr);
+                SharedPtr< bool > ret = callback.Evaluate< bool >(mStatus, *itr);
                 // Should we break here?
                 if (!!ret && (*ret == false))
                 {

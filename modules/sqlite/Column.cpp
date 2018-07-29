@@ -186,9 +186,9 @@ void Column::SetIndex(const Object & column)
         case OT_STRING:
         {
             // Obtain the object from the stack as a string
-            const StackStrF val(vm, -1, false);
+            StackStrF val(vm, -1);
             // Validate the result
-            if (SQ_FAILED(val.mRes))
+            if (SQ_FAILED(val.Proc(false)))
             {
                 STHROWF("%s", LastErrorString(vm).c_str());
             }
@@ -211,9 +211,9 @@ void Column::SetIndex(const Object & column)
         case OT_INSTANCE:
         {
             // Obtain the object from the stack as a string
-            const StackStrF val(vm, -1, false);
+            StackStrF val(vm, -1);
             // Validate the result
-            if (SQ_FAILED(val.mRes))
+            if (SQ_FAILED(val.Proc(false)))
             {
                 STHROWF("%s", LastErrorString(vm).c_str());
             }
