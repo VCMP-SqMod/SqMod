@@ -399,9 +399,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 4, true);
+        StackStrF fmt(vm, 4);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -483,9 +483,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 7, true);
+        StackStrF fmt(vm, 7);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -585,9 +585,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 10, true);
+        StackStrF fmt(vm, 10);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -623,9 +623,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 11, true);
+        StackStrF fmt(vm, 11);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -1267,9 +1267,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 4, true);
+        StackStrF fmt(vm, 4);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -1293,9 +1293,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 5, true);
+        StackStrF fmt(vm, 5);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -1321,9 +1321,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 6, true);
+        StackStrF fmt(vm, 6);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -1351,7 +1351,7 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 7, true);
+        StackStrF fmt(vm, 7);
         // Validate the format
         if (SQ_FAILED(fmt.mRes)) {
             return fmt.mRes;
@@ -1383,7 +1383,7 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 8, true);
+        StackStrF fmt(vm, 8);
         // Validate the format
         if (SQ_FAILED(fmt.mRes)) {
             return fmt.mRes;
@@ -1417,9 +1417,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 9, true);
+        StackStrF fmt(vm, 9);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -1453,9 +1453,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 10, true);
+        StackStrF fmt(vm, 10);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
@@ -1491,9 +1491,9 @@ public:
             return sq_throwerror(vm, SQWHAT_NOEXCEPT(vm));
         }
 
-        const StackStrF fmt(vm, 11, true);
+        StackStrF fmt(vm, 11);
         // Validate the format
-        if (SQ_FAILED(fmt.mRes)) {
+        if (SQ_FAILED(fmt.Proc(true))) {
             return fmt.mRes;
         }
 
