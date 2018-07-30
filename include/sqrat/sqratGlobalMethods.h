@@ -46,18 +46,15 @@ namespace Sqrat {
 //
 template <class R> struct SqGlobalProxy {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
-        ArgPop<A...> a(vm, idx);
-        if (SQ_FAILED(a.Proc(sq_gettop(vm) == idx - 1 + static_cast< SQInteger >(sizeof...(A))))) {
-            return a.ProcRes();
-        }
-        a.Call(vm, [](HSQUIRRELVM vm, A... a) {
+        ArgFwd<A...> a{SQ_OK};
+        a.Call(vm, idx, [](HSQUIRRELVM vm, A... a) {
             typedef R(*M)(A...);
             M* method;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), nullptr);
             R ret = (*method)(a...);
             PushVar(vm, ret);
         });
-        return 1;
+        return SQ_FAILED(a.mRes) ? a.mRes : 1;
     }
 };
 
@@ -67,18 +64,15 @@ template <class R> struct SqGlobalProxy {
 
 template <class R> struct SqGlobalProxy<R&> {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
-        ArgPop<A...> a(vm, idx);
-        if (SQ_FAILED(a.Proc(sq_gettop(vm) == idx - 1 + static_cast< SQInteger >(sizeof...(A))))) {
-            return a.ProcRes();
-        }
-        a.Call(vm, [](HSQUIRRELVM vm, A... a) {
+        ArgFwd<A...> a{SQ_OK};
+        a.Call(vm, idx, [](HSQUIRRELVM vm, A... a) {
             typedef R&(*M)(A...);
             M* method;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), nullptr);
             R& ret = (*method)(a...);
             PushVarR(vm, ret);
         });
-        return 1;
+        return SQ_FAILED(a.mRes) ? a.mRes : 1;
     }
 };
 
@@ -88,27 +82,24 @@ template <class R> struct SqGlobalProxy<R&> {
 
 template <> struct SqGlobalProxy<void> {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
-        ArgPop<A...> a(vm, idx);
-        if (SQ_FAILED(a.Proc(sq_gettop(vm) == idx - 1 + static_cast< SQInteger >(sizeof...(A))))) {
-            return a.ProcRes();
-        }
-        a.Call(vm, [](HSQUIRRELVM vm, A... a) {
+        ArgFwd<A...> a{SQ_OK};
+        a.Call(vm, idx, [](HSQUIRRELVM vm, A... a) {
             typedef void(*M)(A...);
             M* method;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), nullptr);
             (*method)(a...);
         });
-        return 0;
+        return SQ_FAILED(a.mRes) ? a.mRes : 0;
     }
 };
 
 template<bool> struct SqGlobalParamCheck {
-    static inline bool Invalid(SQInteger top, SQInteger count) {
+    static inline bool Invalid(SQInteger top, SQInteger count) noexcept {
         return top != count;
     }
 };
 template<> struct SqGlobalParamCheck<true> {
-    static inline bool Invalid(SQInteger top, SQInteger count) {
+    static inline bool Invalid(SQInteger top, SQInteger count) noexcept {
         return top < (count - 1);
     }
 };
@@ -122,7 +113,7 @@ template <class R> struct SqGlobal {
         return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
-                SqGlobalParamCheck< ArgPop<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
+                SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
 #endif
@@ -130,6 +121,8 @@ template <class R> struct SqGlobal {
                 return SqGlobalProxy<R>::template Run<A...>(vm, startIdx);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
+            } catch (...) {
+                return sq_throwerror(vm, _SC("unknown exception occured"));
             }
             SQ_UNREACHABLE
         };
@@ -146,7 +139,7 @@ template <class R> struct SqGlobal<R&> {
         return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
-                SqGlobalParamCheck< ArgPop<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
+                SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
 #endif
@@ -154,6 +147,8 @@ template <class R> struct SqGlobal<R&> {
                 return SqGlobalProxy<R&>::template Run<A...>(vm, startIdx);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
+            } catch (...) {
+                return sq_throwerror(vm, _SC("unknown exception occured"));
             }
             SQ_UNREACHABLE
         };
@@ -170,7 +165,7 @@ template <> struct SqGlobal<void> {
         return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
-                SqGlobalParamCheck< ArgPop<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
+                SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
 #endif
@@ -178,6 +173,8 @@ template <> struct SqGlobal<void> {
                 return SqGlobalProxy<void>::Run<A...>(vm, startIdx);
             } catch (const Exception& e) {
                 return sq_throwerror(vm, e.what());
+            } catch (...) {
+                return sq_throwerror(vm, _SC("unknown exception occured"));
             }
             SQ_UNREACHABLE
         };
