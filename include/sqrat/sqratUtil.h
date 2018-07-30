@@ -1593,7 +1593,7 @@ struct StackStrF
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     StackStrF(HSQUIRRELVM vm, SQInteger idx)
         : mPtr(nullptr)
-        , mLen(-1)
+        , mLen(SQ_ERROR)
         , mRes(SQ_OK)
         , mObj()
         , mVM(vm)
@@ -1659,6 +1659,7 @@ struct StackStrF
             // Since this is a dummy then avoid making it look like a failure
             mPtr = _SC("");
             mLen = 0;
+            mRes = SQ_OK;
             // We're not supposed to proceed with this!
             return mRes;
         }
@@ -1668,6 +1669,14 @@ struct StackStrF
         if (top <= (mIdx - 1))
         {
             mRes = sq_throwerror(mVM, "Missing string or value");
+        }
+        // If null was specified then treat it as a dummy
+        else if (sq_gettype(mVM, mIdx) == OT_NULL)
+        {
+            // Default to an empty string and ignore formatting even if possible
+            mPtr = _SC("");
+            mLen = 0;
+            mRes = SQ_OK;
         }
         // Do we have enough values to call the format function and are we allowed to?
         else if (fmt && (top - 1) >= mIdx)

@@ -47,7 +47,7 @@ namespace Sqrat {
 template <class R> struct SqGlobalProxy {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
         ArgPop<A...> a(vm, idx);
-        if (SQ_FAILED(a.Proc())) {
+        if (SQ_FAILED(a.Proc(sq_gettop(vm) == idx - 1 + static_cast< SQInteger >(sizeof...(A))))) {
             return a.ProcRes();
         }
         a.Call(vm, [](HSQUIRRELVM vm, A... a) {
@@ -68,7 +68,7 @@ template <class R> struct SqGlobalProxy {
 template <class R> struct SqGlobalProxy<R&> {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
         ArgPop<A...> a(vm, idx);
-        if (SQ_FAILED(a.Proc())) {
+        if (SQ_FAILED(a.Proc(sq_gettop(vm) == idx - 1 + static_cast< SQInteger >(sizeof...(A))))) {
             return a.ProcRes();
         }
         a.Call(vm, [](HSQUIRRELVM vm, A... a) {
@@ -89,7 +89,7 @@ template <class R> struct SqGlobalProxy<R&> {
 template <> struct SqGlobalProxy<void> {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
         ArgPop<A...> a(vm, idx);
-        if (SQ_FAILED(a.Proc())) {
+        if (SQ_FAILED(a.Proc(sq_gettop(vm) == idx - 1 + static_cast< SQInteger >(sizeof...(A))))) {
             return a.ProcRes();
         }
         a.Call(vm, [](HSQUIRRELVM vm, A... a) {
@@ -109,7 +109,7 @@ template<bool> struct SqGlobalParamCheck {
 };
 template<> struct SqGlobalParamCheck<true> {
     static inline bool Invalid(SQInteger top, SQInteger count) {
-        return top < count;
+        return top < (count - 1);
     }
 };
 
@@ -145,7 +145,7 @@ template <class R> struct SqGlobal<R&> {
     template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
         return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-            if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) &&
+            if (!SQRAT_CONST_CONDITION(overloaded) &&
                 SqGlobalParamCheck< ArgPop<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
@@ -169,7 +169,7 @@ template <> struct SqGlobal<void> {
     template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
         return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-            if (!SQRAT_CONST_CONDITION(overloaded) && sq_gettop(vm) &&
+            if (!SQRAT_CONST_CONDITION(overloaded) &&
                 SqGlobalParamCheck< ArgPop<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
