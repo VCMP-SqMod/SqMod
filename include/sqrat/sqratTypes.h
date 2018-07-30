@@ -1227,7 +1227,7 @@ struct ArgFwd<T1> {
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a1.value, sq_gettop(vm) < idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a1.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value);
     }
@@ -1241,9 +1241,9 @@ struct ArgFwd<T1,T2> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a2.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a2.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value);
     }
@@ -1257,10 +1257,10 @@ struct ArgFwd<T1,T2,T3> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a3.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a3.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value);
     }
@@ -1275,11 +1275,11 @@ struct ArgFwd<T1,T2,T3,T4> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a4.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a4.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value);
     }
@@ -1293,12 +1293,12 @@ struct ArgFwd<T1,T2,T3,T4,T5> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a5.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a5.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value);
     }
@@ -1312,13 +1312,13 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        Var<T6> a6(vm, idx+5);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a6.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx++);
+        Var<T6> a6(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a6.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value);
     }
@@ -1332,14 +1332,14 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        Var<T6> a6(vm, idx+5);
-        Var<T7> a7(vm, idx+6);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a7.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx++);
+        Var<T6> a6(vm, idx++);
+        Var<T7> a7(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a7.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value);
     }
@@ -1353,15 +1353,15 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        Var<T6> a6(vm, idx+5);
-        Var<T7> a7(vm, idx+6);
-        Var<T8> a8(vm, idx+7);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a8.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx++);
+        Var<T6> a6(vm, idx++);
+        Var<T7> a7(vm, idx++);
+        Var<T8> a8(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a8.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value);
     }
@@ -1375,16 +1375,16 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        Var<T6> a6(vm, idx+5);
-        Var<T7> a7(vm, idx+6);
-        Var<T8> a8(vm, idx+7);
-        Var<T9> a9(vm, idx+8);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a9.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx++);
+        Var<T6> a6(vm, idx++);
+        Var<T7> a7(vm, idx++);
+        Var<T8> a8(vm, idx++);
+        Var<T9> a9(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a9.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value);
     }
@@ -1398,17 +1398,17 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        Var<T6> a6(vm, idx+5);
-        Var<T7> a7(vm, idx+6);
-        Var<T8> a8(vm, idx+7);
-        Var<T9> a9(vm, idx+8);
-        Var<T10> a10(vm, idx+9);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a10.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx++);
+        Var<T6> a6(vm, idx++);
+        Var<T7> a7(vm, idx++);
+        Var<T8> a8(vm, idx++);
+        Var<T9> a9(vm, idx++);
+        Var<T10> a10(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a10.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value);
     }
@@ -1422,18 +1422,18 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        Var<T6> a6(vm, idx+5);
-        Var<T7> a7(vm, idx+6);
-        Var<T8> a8(vm, idx+7);
-        Var<T9> a9(vm, idx+8);
-        Var<T10> a10(vm, idx+9);
-        Var<T11> a11(vm, idx+10);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a11.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx++);
+        Var<T6> a6(vm, idx++);
+        Var<T7> a7(vm, idx++);
+        Var<T8> a8(vm, idx++);
+        Var<T9> a9(vm, idx++);
+        Var<T10> a10(vm, idx++);
+        Var<T11> a11(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a11.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value);
     }
@@ -1447,19 +1447,19 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        Var<T6> a6(vm, idx+5);
-        Var<T7> a7(vm, idx+6);
-        Var<T8> a8(vm, idx+7);
-        Var<T9> a9(vm, idx+8);
-        Var<T10> a10(vm, idx+9);
-        Var<T11> a11(vm, idx+10);
-        Var<T12> a12(vm, idx+11);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a12.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx++);
+        Var<T6> a6(vm, idx++);
+        Var<T7> a7(vm, idx++);
+        Var<T8> a8(vm, idx++);
+        Var<T9> a9(vm, idx++);
+        Var<T10> a10(vm, idx++);
+        Var<T11> a11(vm, idx++);
+        Var<T12> a12(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a12.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value);
     }
@@ -1473,20 +1473,20 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        Var<T6> a6(vm, idx+5);
-        Var<T7> a7(vm, idx+6);
-        Var<T8> a8(vm, idx+7);
-        Var<T9> a9(vm, idx+8);
-        Var<T10> a10(vm, idx+9);
-        Var<T11> a11(vm, idx+10);
-        Var<T12> a12(vm, idx+11);
-        Var<T13> a13(vm, idx+12);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a13.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx++);
+        Var<T6> a6(vm, idx++);
+        Var<T7> a7(vm, idx++);
+        Var<T8> a8(vm, idx++);
+        Var<T9> a9(vm, idx++);
+        Var<T10> a10(vm, idx++);
+        Var<T11> a11(vm, idx++);
+        Var<T12> a12(vm, idx++);
+        Var<T13> a13(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a13.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value,a13.value);
     }
@@ -1500,21 +1500,21 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> {
     SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        Var<T2> a2(vm, idx+1);
-        Var<T3> a3(vm, idx+2);
-        Var<T4> a4(vm, idx+3);
-        Var<T5> a5(vm, idx+4);
-        Var<T6> a6(vm, idx+5);
-        Var<T7> a7(vm, idx+6);
-        Var<T8> a8(vm, idx+7);
-        Var<T9> a9(vm, idx+8);
-        Var<T10> a10(vm, idx+9);
-        Var<T11> a11(vm, idx+10);
-        Var<T12> a12(vm, idx+11);
-        Var<T13> a13(vm, idx+12);
-        Var<T14> a14(vm, idx+13);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a14.value, sq_gettop(vm) < idx);
+        Var<T1> a1(vm, idx++);
+        Var<T2> a2(vm, idx++);
+        Var<T3> a3(vm, idx++);
+        Var<T4> a4(vm, idx++);
+        Var<T5> a5(vm, idx++);
+        Var<T6> a6(vm, idx++);
+        Var<T7> a7(vm, idx++);
+        Var<T8> a8(vm, idx++);
+        Var<T9> a9(vm, idx++);
+        Var<T10> a10(vm, idx++);
+        Var<T11> a11(vm, idx++);
+        Var<T12> a12(vm, idx++);
+        Var<T13> a13(vm, idx++);
+        Var<T14> a14(vm, idx);
+        mRes = ArgFwdFmt<HASFMT>::Proc(a14.value, sq_gettop(vm) <= idx);
         if (SQ_SUCCEEDED(mRes))
             f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value,a13.value,a14.value);
     }
