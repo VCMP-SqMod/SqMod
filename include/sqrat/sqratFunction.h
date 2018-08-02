@@ -40,39 +40,36 @@
 namespace Sqrat {
 
 // Represents a function in Squirrel
-class Function  {
+struct Function  {
 
     friend class TableBase;
     friend class Table;
     friend class ArrayBase;
     friend struct Var<Function>;
 
-private:
+    HSQOBJECT mEnv, mObj;
 
-    HSQOBJECT env, obj;
-
-public:
     // Default constructor (null)
     Function() noexcept {
-        sq_resetobject(&env);
-        sq_resetobject(&obj);
+        sq_resetobject(&mEnv);
+        sq_resetobject(&mObj);
     }
     // Copy constructor
-    Function(const Function& sf) noexcept : env(sf.env), obj(sf.obj) {
-        sq_addref(DefaultVM::Get_(), &env);
-        sq_addref(DefaultVM::Get_(), &obj);
+    Function(const Function& sf) noexcept : mEnv(sf.mEnv), mObj(sf.mObj) {
+        sq_addref(DefaultVM::Get_(), &mEnv);
+        sq_addref(DefaultVM::Get_(), &mObj);
     }
     // Move constructor
-    Function(Function&& sf) noexcept : env(sf.env), obj(sf.obj) {
+    Function(Function&& sf) noexcept : mEnv(sf.mEnv), mObj(sf.mObj) {
         sq_resetobject(&sf.GetEnv());
         sq_resetobject(&sf.GetFunc());
     }
     // Constructs a Function from a slot in an Object
-    Function(const Object& e, const SQChar* slot) : env(e.GetObject()) {
-        sq_addref(DefaultVM::Get_(), &env);
+    Function(const Object& e, const SQChar* slot) : mEnv(e.GetObject()) {
+        sq_addref(DefaultVM::Get_(), &mEnv);
         Object so = e.GetSlot(slot);
-        obj = so.GetObject();
-        sq_addref(DefaultVM::Get_(), &obj);
+        mObj = so.GetObject();
+        sq_addref(DefaultVM::Get_(), &mObj);
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         SQObjectType value_type = so.GetType();
         if (value_type != OT_CLOSURE && value_type != OT_NATIVECLOSURE) {
@@ -84,10 +81,10 @@ public:
     // Constructs a Function from a value off the stack at the specified index
     // Assumes the Function environment is at index 1.
     Function(HSQUIRRELVM vm, SQInteger idx) {
-        sq_getstackobj(vm, 1, &env);
-        sq_getstackobj(vm, idx, &obj);
-        sq_addref(vm, &env);
-        sq_addref(vm, &obj);
+        sq_getstackobj(vm, 1, &mEnv);
+        sq_getstackobj(vm, idx, &mObj);
+        sq_addref(vm, &mEnv);
+        sq_addref(vm, &mObj);
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         SQObjectType value_type = sq_gettype(vm, idx);
         if (value_type != OT_CLOSURE && value_type != OT_NATIVECLOSURE) {
@@ -96,9 +93,9 @@ public:
 #endif
     }
     // Constructs a Function from two Squirrel objects (one is the environment object and the other is the function object)
-    Function(HSQUIRRELVM vm, HSQOBJECT e, HSQOBJECT o) noexcept : env(e), obj(o) {
-        sq_addref(vm, &env);
-        sq_addref(vm, &obj);
+    Function(HSQUIRRELVM vm, HSQOBJECT e, HSQOBJECT o) noexcept : mEnv(e), mObj(o) {
+        sq_addref(vm, &mEnv);
+        sq_addref(vm, &mObj);
     }
     // Destructor
     ~Function() {
@@ -107,54 +104,54 @@ public:
     // Copy Assignment operator
     Function& operator=(const Function& sf) noexcept {
         Release();
-        env = sf.env;
-        obj = sf.obj;
+        mEnv = sf.mEnv;
+        mObj = sf.mObj;
         if (!sf.IsNull()) {
-            sq_addref(DefaultVM::Get_(), &env);
-            sq_addref(DefaultVM::Get_(), &obj);
+            sq_addref(DefaultVM::Get_(), &mEnv);
+            sq_addref(DefaultVM::Get_(), &mObj);
         }
         return *this;
     }
     // Move Assignment operator
     Function& operator=(Function&& sf) noexcept {
         Release();
-        env = sf.env;
-        obj = sf.obj;
+        mEnv = sf.mEnv;
+        mObj = sf.mObj;
         sq_resetobject(&sf.GetEnv());
         sq_resetobject(&sf.GetFunc());
         return *this;
     }
     // Checks whether the Function is null
     bool IsNull() const noexcept {
-        return sq_isnull(obj);
+        return sq_isnull(mObj);
     }
     // Gets the Squirrel environment object for this Function (copy)
     HSQOBJECT GetEnv() const noexcept {
-        return env;
+        return mEnv;
     }
     // Gets the Squirrel environment object for this Function (reference)
     HSQOBJECT& GetEnv() noexcept {
-        return env;
+        return mEnv;
     }
     // Gets the Squirrel function object for this Function (copy)
     HSQOBJECT GetFunc() const noexcept {
-        return obj;
+        return mObj;
     }
     // Gets the Squirrel function object for this Function (reference)
     HSQOBJECT& GetFunc() noexcept {
-        return obj;
+        return mObj;
     }
     // Gets the Squirrel VM for this Function
-    HSQUIRRELVM & GetVM() const noexcept {
+    HSQUIRRELVM GetVM() const noexcept {
         return DefaultVM::Get_();
     }
     // Sets the Function to null (removing its references to underlying Squirrel objects)
     void Release() noexcept {
         if(!IsNull()) {
-            sq_release(DefaultVM::Get_(), &env);
-            sq_release(DefaultVM::Get_(), &obj);
-            sq_resetobject(&env);
-            sq_resetobject(&obj);
+            sq_release(DefaultVM::Get_(), &mEnv);
+            sq_release(DefaultVM::Get_(), &mObj);
+            sq_resetobject(&mEnv);
+            sq_resetobject(&mObj);
         }
     }
     // Sets the Function to null (removing its references to underlying Squirrel objects)
@@ -162,12 +159,12 @@ public:
     // Workaround for some weird squirrel behavior that generates an assert in debug mode.
     void ReleaseGently() noexcept {
         if(!IsNull()) {
-            sq_release(DefaultVM::Get_(), &env);
-            if (sq_getrefcount(DefaultVM::Get_(), &obj) > 1) {
-                sq_release(DefaultVM::Get_(), &obj);
+            sq_release(DefaultVM::Get_(), &mEnv);
+            if (sq_getrefcount(DefaultVM::Get_(), &mObj) > 1) {
+                sq_release(DefaultVM::Get_(), &mObj);
             }
-            sq_resetobject(&env);
-            sq_resetobject(&obj);
+            sq_resetobject(&mEnv);
+            sq_resetobject(&mObj);
         }
     }
     // Runs the Function and returns its value as a SharedPtr
@@ -176,8 +173,8 @@ public:
         HSQUIRRELVM vm = DefaultVM::Get_();
         SQInteger top = sq_gettop(vm);
         // Push the environment followed by the function
-        sq_pushobject(vm, obj);
-        sq_pushobject(vm, env);
+        sq_pushobject(vm, mObj);
+        sq_pushobject(vm, mEnv);
         // Validate the funtion parameter count
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         SQUnsignedInteger nparams;
@@ -215,8 +212,8 @@ public:
         HSQUIRRELVM vm = DefaultVM::Get_();
         SQInteger top = sq_gettop(vm);
         // Push the environment followed by the function
-        sq_pushobject(vm, obj);
-        sq_pushobject(vm, env);
+        sq_pushobject(vm, mObj);
+        sq_pushobject(vm, mEnv);
         // Validate the funtion parameter count
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         SQUnsignedInteger nparams;
