@@ -664,7 +664,7 @@ Int32 GetAutomobileID(const StackStrF & name)
                     // [Vic]e Squad Cheetah
                     if (c == 'a') return SQMOD_VEHICLE_VICECHEE;
                     // [Vir]go
-                    if (c == 'o') return SQMOD_VEHICLE_VIRGO;
+                    if (c == 'r') return SQMOD_VEHICLE_VIRGO;
                     // Default to unknwon
                     else return SQMOD_UNKNOWN;
                 // [Vo]odoo
