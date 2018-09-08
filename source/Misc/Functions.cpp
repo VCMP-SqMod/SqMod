@@ -627,6 +627,15 @@ void PlaySoundEx(Int32 world, Int32 sound, Float32 x, Float32 y, Float32 z)
 }
 
 // ------------------------------------------------------------------------------------------------
+void PlaySoundForWorld(Int32 world, Int32 sound)
+{
+    if (_Func->PlaySound(world, sound, NAN, NAN, NAN) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Argument value out of bounds");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void HideMapObject(Int32 model, const Vector3 & pos)
 {
     _Func->HideMapObject(model,

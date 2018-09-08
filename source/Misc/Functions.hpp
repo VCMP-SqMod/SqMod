@@ -319,6 +319,11 @@ void PlaySound(Int32 world, Int32 sound, const Vector3 & pos);
 void PlaySoundEx(Int32 world, Int32 sound, Float32 x, Float32 y, Float32 z);
 
 /* ------------------------------------------------------------------------------------------------
+ * Play a game sound to a specific world.
+*/
+void PlaySoundForWorld(Int32 world, Int32 sound);
+
+/* ------------------------------------------------------------------------------------------------
  * Make a map object invisible.
 */
 void HideMapObject(Int32 model, const Vector3 & pos);
