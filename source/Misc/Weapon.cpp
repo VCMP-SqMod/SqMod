@@ -288,6 +288,8 @@ Int32 GetWeaponID(const StackStrF & name)
             else if (b == 't') return SQMOD_WEAPON_STUBBY;
             // [Su]icide
             else if (b == 'u') return SQMOD_WEAPON_SUICIDE;
+	    // Pump action [Sh]otgun
+	    else if (b == 'h') return SQMOD_WEAPON_SHOTGUN;
             // Default to unknwon
             else return SQMOD_UNKNOWN;
         // [T]ear Gas
