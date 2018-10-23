@@ -890,7 +890,14 @@ public:
     */
     Int32 Run(Object & invoker, const StackStrF & command)
     {
-        return GetValid()->Run(Guard(m_Controller, invoker), command.mPtr);
+        if ((SQ_FAILED(command.Proc())))
+        {
+            return command.mRes;
+        }
+        else
+        {
+            return GetValid()->Run(Guard(m_Controller, invoker), command.mPtr);
+        }
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -923,7 +930,11 @@ public:
     const Object & FindByName(const StackStrF & name)
     {
         // Validate the specified name
-        if (name.mLen <= 0)
+        if ((SQ_FAILED(command.Proc())))
+        {
+            STHROWF("Unable to extract a valid command name");
+        }
+        else if (name.mLen <= 0)
         {
             STHROWF("Invalid or empty command name");
         }
@@ -1204,7 +1215,7 @@ public:
     */
     Listener(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc)
         : m_Controller()
-        , m_Name(ValidateName(name.mPtr), name.mLen)
+        , m_Name()
         , m_ArgSpec()
         , m_ArgTags()
         , m_MinArgc(0)
@@ -1223,6 +1234,13 @@ public:
         , m_Prev(nullptr)
         , m_Next(s_Head)
     {
+        // Extract the given name
+        if ((SQ_FAILED(name.Proc())))
+        {
+            STHROWF("Unable to extract a valid listener name");
+        }
+        // Validate the specified name and assign it
+        m_Name.assign(ValidateName(name.mPtr), name.mLen);
         // Initialize the specifiers to default values
         for (Uint8 n = 0; n < SQMOD_MAX_CMD_ARGS; ++n)
         {
@@ -1418,6 +1436,11 @@ public:
     */
     void SetName(const StackStrF & name)
     {
+        // Extract the given name
+        if ((SQ_FAILED(name.Proc())))
+        {
+            STHROWF("Unable to extract a valid listener name");
+        }
         // Validate the specified name
         ValidateName(name.mPtr);
         // Is this command already attached to a name?
@@ -1466,6 +1489,11 @@ public:
     */
     void SetSpec(const StackStrF & spec)
     {
+        // Get the string
+        if ((SQ_FAILED(spec.Proc())))
+        {
+            STHROWF("Unable to extract a valid specifier string");
+        }
         // Attempt to process the specified string
         ProcSpec(spec.mPtr);
         // Assign the specifier, if any
@@ -1545,7 +1573,11 @@ public:
     */
     void SetHelp(const StackStrF & help)
     {
-        if (help.mLen > 0)
+        if ((SQ_FAILED(spec.Proc())))
+        {
+            STHROWF("Unable to extract a valid help string");
+        }
+        else if (help.mLen > 0)
         {
             m_Help.assign(help.mPtr, help.mLen);
         }
@@ -1568,7 +1600,11 @@ public:
     */
     void SetInfo(const StackStrF & info)
     {
-        if (info.mLen > 0)
+        if ((SQ_FAILED(spec.Proc())))
+        {
+            STHROWF("Unable to extract a valid information string");
+        }
+        else if (info.mLen > 0)
         {
             m_Info.assign(info.mPtr, info.mLen);
         }
@@ -1837,6 +1873,10 @@ public:
         if (arg >= SQMOD_MAX_CMD_ARGS)
         {
             STHROWF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+        }
+        else if ((SQ_FAILED(spec.Proc())))
+        {
+            STHROWF("Unable to extract a valid argument name");
         }
         // The string type doesn't appreciate null values
         else if (name.mLen > 0)
