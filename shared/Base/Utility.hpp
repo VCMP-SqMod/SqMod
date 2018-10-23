@@ -109,6 +109,11 @@ SQRESULT SqThrowErrorF(HSQUIRRELVM vm, CCStr str, ...);
 bool SToB(CSStr str);
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve a reference to a dummy StackStrF instance.
+*/
+StackStrF & DummyStackStrF();
+
+/* ------------------------------------------------------------------------------------------------
  * Retrieve a reference to a null script object.
 */
 Object & NullObject();
