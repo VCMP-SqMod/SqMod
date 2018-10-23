@@ -1556,7 +1556,7 @@ struct StackStrF
         , mLen(0)
         , mRes(SQ_OK)
         , mObj()
-        , mVM(DefaultVM::Get())
+        , mVM(nullptr)
         , mIdx(-1)
     {
         sq_resetobject(&mObj); // Reset the converted value object
@@ -1570,7 +1570,7 @@ struct StackStrF
         , mLen(N)
         , mRes(SQ_OK)
         , mObj()
-        , mVM(DefaultVM::Get())
+        , mVM(nullptr)
         , mIdx(-1)
     {
         sq_resetobject(&mObj); // Reset the converted value object
@@ -1639,6 +1639,11 @@ struct StackStrF
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     SQRESULT Proc(bool fmt = false, bool dummy = false)
     {
+        // If there's no virtual machine, just ignore the request
+        if (mVM == nullptr)
+        {
+            return SQ_OK;
+        }
         // Reset the converted value object
         sq_resetobject(&mObj);
         // is this a dummy request?
