@@ -94,12 +94,12 @@ template <> struct SqGlobalProxy<void> {
 };
 
 template<bool> struct SqGlobalParamCheck {
-    static inline bool Invalid(SQInteger top, SQInteger count) noexcept {
+    static inline bool Invalid(SQInteger top, SQInteger count) {
         return top != count;
     }
 };
 template<> struct SqGlobalParamCheck<true> {
-    static inline bool Invalid(SQInteger top, SQInteger count) noexcept {
+    static inline bool Invalid(SQInteger top, SQInteger count) {
         return top < (count - 1);
     }
 };
@@ -109,8 +109,8 @@ template<> struct SqGlobalParamCheck<true> {
 //
 template <class R> struct SqGlobal {
     // Function proxy
-    template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
-        return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
+    template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() {
+        return +[](HSQUIRRELVM vm) -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
                 SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
@@ -135,8 +135,8 @@ template <class R> struct SqGlobal {
 
 template <class R> struct SqGlobal<R&> {
     // Function proxy
-    template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
-        return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
+    template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() {
+        return +[](HSQUIRRELVM vm) -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
                 SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
@@ -161,8 +161,8 @@ template <class R> struct SqGlobal<R&> {
 
 template <> struct SqGlobal<void> {
     // Function proxy
-    template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() noexcept {
-        return +[](HSQUIRRELVM vm) noexcept -> SQInteger {
+    template <SQInteger startIdx, bool overloaded, class... A> static SQFUNCTION GetProxy() {
+        return +[](HSQUIRRELVM vm) -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
                 SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), startIdx + sizeof...(A))) {
@@ -182,22 +182,22 @@ template <> struct SqGlobal<void> {
 };
 
 // Global Function Resolver
-template <class R,class... A> SQFUNCTION SqGlobalFunc(R (* /*method*/)(A...)) noexcept {
+template <class R,class... A> SQFUNCTION SqGlobalFunc(R (* /*method*/)(A...)) {
     return SqGlobal<R>::template GetProxy<2, false, A...>();
 }
 
 // Global Function Resolver
-template <class R,class... A> SQFUNCTION SqGlobalFunc(R& (* /*method*/)(A...)) noexcept {
+template <class R,class... A> SQFUNCTION SqGlobalFunc(R& (* /*method*/)(A...)) {
     return SqGlobal<R&>::template GetProxy<2, false, A...>();
 }
 
 // Member Global Function Resolver
-template <class R,class T,class... A> SQFUNCTION SqMemberGlobalFunc(R (* /*method*/)(T, A...)) noexcept {
+template <class R,class T,class... A> SQFUNCTION SqMemberGlobalFunc(R (* /*method*/)(T, A...)) {
     return SqGlobal<R>::template GetProxy<1, false, T, A...>();
 }
 
 // Member Global Function Resolver
-template <class R,class T,class... A> SQFUNCTION SqMemberGlobalFunc(R& (* /*method*/)(T, A...)) noexcept {
+template <class R,class T,class... A> SQFUNCTION SqMemberGlobalFunc(R& (* /*method*/)(T, A...)) {
     return SqGlobal<R&>::template GetProxy<1, false, T, A...>();
 }
 

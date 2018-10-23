@@ -50,17 +50,17 @@ struct Function  {
     HSQOBJECT mEnv, mObj;
 
     // Default constructor (null)
-    Function() noexcept {
+    Function() {
         sq_resetobject(&mEnv);
         sq_resetobject(&mObj);
     }
     // Copy constructor
-    Function(const Function& sf) noexcept : mEnv(sf.mEnv), mObj(sf.mObj) {
+    Function(const Function& sf) : mEnv(sf.mEnv), mObj(sf.mObj) {
         sq_addref(DefaultVM::Get_(), &mEnv);
         sq_addref(DefaultVM::Get_(), &mObj);
     }
     // Move constructor
-    Function(Function&& sf) noexcept : mEnv(sf.mEnv), mObj(sf.mObj) {
+    Function(Function&& sf) : mEnv(sf.mEnv), mObj(sf.mObj) {
         sq_resetobject(&sf.GetEnv());
         sq_resetobject(&sf.GetFunc());
     }
@@ -93,7 +93,7 @@ struct Function  {
 #endif
     }
     // Constructs a Function from two Squirrel objects (one is the environment object and the other is the function object)
-    Function(HSQUIRRELVM vm, HSQOBJECT e, HSQOBJECT o) noexcept : mEnv(e), mObj(o) {
+    Function(HSQUIRRELVM vm, HSQOBJECT e, HSQOBJECT o) : mEnv(e), mObj(o) {
         sq_addref(vm, &mEnv);
         sq_addref(vm, &mObj);
     }
@@ -102,7 +102,7 @@ struct Function  {
         Release();
     }
     // Copy Assignment operator
-    Function& operator=(const Function& sf) noexcept {
+    Function& operator=(const Function& sf) {
         Release();
         mEnv = sf.mEnv;
         mObj = sf.mObj;
@@ -113,7 +113,7 @@ struct Function  {
         return *this;
     }
     // Move Assignment operator
-    Function& operator=(Function&& sf) noexcept {
+    Function& operator=(Function&& sf) {
         Release();
         mEnv = sf.mEnv;
         mObj = sf.mObj;
@@ -122,31 +122,31 @@ struct Function  {
         return *this;
     }
     // Checks whether the Function is null
-    bool IsNull() const noexcept {
+    bool IsNull() const {
         return sq_isnull(mObj);
     }
     // Gets the Squirrel environment object for this Function (copy)
-    HSQOBJECT GetEnv() const noexcept {
+    HSQOBJECT GetEnv() const {
         return mEnv;
     }
     // Gets the Squirrel environment object for this Function (reference)
-    HSQOBJECT& GetEnv() noexcept {
+    HSQOBJECT& GetEnv() {
         return mEnv;
     }
     // Gets the Squirrel function object for this Function (copy)
-    HSQOBJECT GetFunc() const noexcept {
+    HSQOBJECT GetFunc() const {
         return mObj;
     }
     // Gets the Squirrel function object for this Function (reference)
-    HSQOBJECT& GetFunc() noexcept {
+    HSQOBJECT& GetFunc() {
         return mObj;
     }
     // Gets the Squirrel VM for this Function
-    HSQUIRRELVM GetVM() const noexcept {
+    HSQUIRRELVM GetVM() const {
         return DefaultVM::Get_();
     }
     // Sets the Function to null (removing its references to underlying Squirrel objects)
-    void Release() noexcept {
+    void Release() {
         if(!IsNull()) {
             sq_release(DefaultVM::Get_(), &mEnv);
             sq_release(DefaultVM::Get_(), &mObj);
@@ -157,7 +157,7 @@ struct Function  {
     // Sets the Function to null (removing its references to underlying Squirrel objects)
     // This doesn't call release if the reference count is 1.
     // Workaround for some weird squirrel behavior that generates an assert in debug mode.
-    void ReleaseGently() noexcept {
+    void ReleaseGently() {
         if(!IsNull()) {
             sq_release(DefaultVM::Get_(), &mEnv);
             if (sq_getrefcount(DefaultVM::Get_(), &mObj) > 1) {
@@ -256,7 +256,7 @@ template<> struct Var<Function> {
     Var(HSQUIRRELVM vm, SQInteger idx) : value(vm, idx) {
     }
     // Called by Sqrat::PushVar to put a Function on the stack
-    static void push(HSQUIRRELVM vm, const Function& value) noexcept {
+    static void push(HSQUIRRELVM vm, const Function& value) {
         sq_pushobject(vm, value.GetFunc());
     }
 };

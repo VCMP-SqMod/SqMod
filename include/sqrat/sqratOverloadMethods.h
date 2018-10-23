@@ -152,42 +152,42 @@ public:
 };
 
 // Global Overloaded Function Resolver
-template <class R,class... A> SQFUNCTION SqGlobalOverloadedFunc(R (* /*method*/)(A...)) noexcept {
+template <class R,class... A> SQFUNCTION SqGlobalOverloadedFunc(R (* /*method*/)(A...)) {
     return SqGlobal<R>::template GetProxy<2, true, A...>();
 }
 
 // Global Overloaded Function Resolver
-template <class R,class... A> SQFUNCTION SqGlobalOverloadedFunc(R& (* /*method*/)(A...)) noexcept {
+template <class R,class... A> SQFUNCTION SqGlobalOverloadedFunc(R& (* /*method*/)(A...)) {
     return SqGlobal<R&>::template GetProxy<2, true, A...>();
 }
 
 // Member Global Overloaded Function Resolver
-template <class R,class T,class... A> SQFUNCTION SqMemberGlobalOverloadedFunc(R (* /*method*/)(T, A...)) noexcept {
+template <class R,class T,class... A> SQFUNCTION SqMemberGlobalOverloadedFunc(R (* /*method*/)(T, A...)) {
     return SqGlobal<R>::template GetProxy<1, true, T, A...>();
 }
 
 // Member Global Overloaded Function Resolver
-template <class R,class T,class... A> SQFUNCTION SqMemberGlobalOverloadedFunc(R& (* /*method*/)(T, A...)) noexcept {
+template <class R,class T,class... A> SQFUNCTION SqMemberGlobalOverloadedFunc(R& (* /*method*/)(T, A...)) {
     return SqGlobal<R&>::template GetProxy<1, true, T, A...>();
 }
 
 // Member Overloaded Function Resolver
-template <class C, class R,class... A> SQFUNCTION SqMemberOverloadedFunc(R (C::* /*method*/)(A...)) noexcept {
+template <class C, class R,class... A> SQFUNCTION SqMemberOverloadedFunc(R (C::* /*method*/)(A...)) {
     return SqMember<C,R>::template GetProxy<true, A...>();
 }
 
 // Member Overloaded Function Resolver
-template <class C, class R,class... A> SQFUNCTION SqMemberOverloadedFunc(R (C::* /*method*/)(A...) const) noexcept {
+template <class C, class R,class... A> SQFUNCTION SqMemberOverloadedFunc(R (C::* /*method*/)(A...) const) {
     return SqMember<C,R>::template GetProxyC<true, A...>();
 }
 
 // Member Overloaded Function Resolver
-template <class C, class R,class... A> SQFUNCTION SqMemberOverloadedFunc(R& (C::* /*method*/)(A...)) noexcept {
+template <class C, class R,class... A> SQFUNCTION SqMemberOverloadedFunc(R& (C::* /*method*/)(A...)) {
     return SqMember<C,R&>::template GetProxy<true, A...>();
 }
 
 // Member Overloaded Function Resolver
-template <class C, class R,class... A> SQFUNCTION SqMemberOverloadedFunc(R& (C::* /*method*/)(A...) const) noexcept {
+template <class C, class R,class... A> SQFUNCTION SqMemberOverloadedFunc(R& (C::* /*method*/)(A...) const) {
     return SqMember<C,R&>::template GetProxyC<true, A...>();
 }
 

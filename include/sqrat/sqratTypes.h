@@ -1187,12 +1187,12 @@ template<> struct ArgFwdHasFmt<const StackStrF&> { static constexpr bool value =
 /// Helper used to process formatted arguments when necessary.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<bool> struct ArgFwdFmt {
-    template<class T> static inline SQInteger Proc(T &, bool) noexcept { return SQ_OK; }
-    template<class T> static inline SQInteger Get(T &) noexcept { return SQ_OK; }
+    template<class T> static inline SQInteger Proc(T &, bool) { return SQ_OK; }
+    template<class T> static inline SQInteger Get(T &) { return SQ_OK; }
 };
 template<> struct ArgFwdFmt<true> {
-    static inline SQInteger Proc(StackStrF & s, bool dummy = false) noexcept { return s.Proc(true, dummy); }
-    static inline SQInteger Get(StackStrF & s) noexcept { return s.mRes; }
+    static inline SQInteger Proc(StackStrF & s, bool dummy = false) { return s.Proc(true, dummy); }
+    static inline SQInteger Get(StackStrF & s) { return s.mRes; }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
