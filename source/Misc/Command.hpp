@@ -888,7 +888,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Run a command under a specific invoker.
     */
-    Int32 Run(Object & invoker, const StackStrF & command)
+    Int32 Run(Object & invoker, StackStrF & command)
     {
         if ((SQ_FAILED(command.Proc())))
         {
@@ -927,10 +927,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Locate and retrieve a command listener by name.
     */
-    const Object & FindByName(const StackStrF & name)
+    const Object & FindByName(StackStrF & name)
     {
         // Validate the specified name
-        if ((SQ_FAILED(command.Proc())))
+        if ((SQ_FAILED(name.Proc())))
         {
             STHROWF("Unable to extract a valid command name");
         }
@@ -1057,15 +1057,15 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(const StackStrF & name)
+    Object Create(StackStrF & name)
     {
-        return Create(name, StackStrF(), NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
+        return Create(name, DummyStackStrF(), NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(const StackStrF & name, const StackStrF & spec)
+    Object Create(StackStrF & name, StackStrF & spec)
     {
         return Create(name, spec, NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
     }
@@ -1073,7 +1073,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags)
+    Object Create(StackStrF & name, StackStrF & spec, Array & tags)
     {
         return Create(name, spec, tags, 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
     }
@@ -1081,7 +1081,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(const StackStrF & name, const StackStrF & spec, Uint8 min, Uint8 max)
+    Object Create(StackStrF & name, StackStrF & spec, Uint8 min, Uint8 max)
     {
         return Create(name, spec, NullArray(), min, max, -1, false, false);
     }
@@ -1089,7 +1089,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max)
+    Object Create(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max)
     {
         return Create(name, spec, tags, min, max, -1, false, false);
     }
@@ -1097,7 +1097,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
+    Object Create(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
     {
         return Create(name, spec, tags, min, max, auth, auth >= 0, false);
     }
@@ -1105,7 +1105,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
+    Object Create(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
     {
         return Create(name, spec, tags, min, max, auth, prot, false);
     }
@@ -1113,7 +1113,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc);
+    Object Create(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc);
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -1150,8 +1150,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(const StackStrF & name)
-        : Listener(name, _SC(""), NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false)
+    Listener(StackStrF & name)
+        : Listener(name, DummyStackStrF(), NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false)
     {
         /* ... */
     }
@@ -1159,7 +1159,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(const StackStrF & name, const StackStrF & spec)
+    Listener(StackStrF & name, StackStrF & spec)
         : Listener(name, spec, NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false)
     {
         /* ... */
@@ -1168,7 +1168,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(const StackStrF & name, const StackStrF & spec, Array & tags)
+    Listener(StackStrF & name, StackStrF & spec, Array & tags)
         : Listener(name, spec, tags, 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false)
     {
         /* ... */
@@ -1177,7 +1177,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(const StackStrF & name, const StackStrF & spec, Uint8 min, Uint8 max)
+    Listener(StackStrF & name, StackStrF & spec, Uint8 min, Uint8 max)
         : Listener(name, spec, NullArray(), min, max, -1, false, false)
     {
         /* ... */
@@ -1186,7 +1186,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max)
+    Listener(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max)
         : Listener(name, spec, tags, min, max, -1, false, false)
     {
         /* ... */
@@ -1195,7 +1195,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
+    Listener(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
         : Listener(name, spec, tags, min, max, auth, auth >= 0, false)
     {
         /* ... */
@@ -1204,7 +1204,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
+    Listener(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
         : Listener(name, spec, tags, min, max, auth, prot, false)
     {
         /* ... */
@@ -1213,7 +1213,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Listener(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc)
+    Listener(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc)
         : m_Controller()
         , m_Name()
         , m_ArgSpec()
@@ -1434,7 +1434,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the name that triggers this command listener instance.
     */
-    void SetName(const StackStrF & name)
+    void SetName(StackStrF & name)
     {
         // Extract the given name
         if ((SQ_FAILED(name.Proc())))
@@ -1487,7 +1487,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the argument specification string.
     */
-    void SetSpec(const StackStrF & spec)
+    void SetSpec(StackStrF & spec)
     {
         // Get the string
         if ((SQ_FAILED(spec.Proc())))
@@ -1571,9 +1571,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the help message associated with this command listener instance.
     */
-    void SetHelp(const StackStrF & help)
+    void SetHelp(StackStrF & help)
     {
-        if ((SQ_FAILED(spec.Proc())))
+        if ((SQ_FAILED(help.Proc())))
         {
             STHROWF("Unable to extract a valid help string");
         }
@@ -1598,9 +1598,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the informational message associated with this command listener instance.
     */
-    void SetInfo(const StackStrF & info)
+    void SetInfo(StackStrF & info)
     {
-        if ((SQ_FAILED(spec.Proc())))
+        if ((SQ_FAILED(info.Proc())))
         {
             STHROWF("Unable to extract a valid information string");
         }
@@ -1867,14 +1867,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the tag of a certain argument.
     */
-    void SetArgTag(Uint32 arg, const StackStrF & name)
+    void SetArgTag(Uint32 arg, StackStrF & name)
     {
         // Perform a range check on the specified argument index
         if (arg >= SQMOD_MAX_CMD_ARGS)
         {
             STHROWF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
         }
-        else if ((SQ_FAILED(spec.Proc())))
+        else if ((SQ_FAILED(name.Proc())))
         {
             STHROWF("Unable to extract a valid argument name");
         }

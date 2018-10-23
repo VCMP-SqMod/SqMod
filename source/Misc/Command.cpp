@@ -148,7 +148,7 @@ Object & Controller::Attach(Object && obj, Listener * ptr)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Manager::Create(const StackStrF & name, const StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc)
+Object Manager::Create(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot, bool assoc)
 {
     // Is there a controller to store the listener?
     if (!m_Controller)
@@ -1051,21 +1051,21 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("GetTable"), &Manager::GetCommandsTable)
         .Func(_SC("Foreach"), &Manager::ForeachCommand)
         // Member Overloads
-        .Overload< Object (Manager::*)(const StackStrF &) >
+        .Overload< Object (Manager::*)(StackStrF &) >
             (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &) >
+        .Overload< Object (Manager::*)(StackStrF &, StackStrF &) >
             (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &) >
+        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &) >
             (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Uint8, Uint8) >
+        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Uint8, Uint8) >
             (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &, Uint8, Uint8) >
+        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &, Uint8, Uint8) >
             (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger) >
+        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &, Uint8, Uint8, SQInteger) >
             (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger, bool) >
+        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &, Uint8, Uint8, SQInteger, bool) >
             (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger, bool, bool) >
+        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &, Uint8, Uint8, SQInteger, bool, bool) >
             (_SC("Create"), &Manager::Create)
     );
 
@@ -1073,13 +1073,13 @@ void Register(HSQUIRRELVM vm)
         Class< Listener, NoCopy< Listener > >(vm, ListenerTypename::Str)
         // Constructors
         .FmtCtor()
-        .FmtCtor< const StackStrF & >()
-        .Ctor< const StackStrF &, const StackStrF &, Array & >()
-        .Ctor< const StackStrF &, const StackStrF &, Uint8, Uint8 >()
-        .Ctor< const StackStrF &, const StackStrF &, Array &, Uint8, Uint8 >()
-        .Ctor< const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger >()
-        .Ctor< const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger, bool >()
-        .Ctor< const StackStrF &, const StackStrF &, Array &, Uint8, Uint8, SQInteger, bool, bool >()
+        .FmtCtor< StackStrF & >()
+        .Ctor< StackStrF &, StackStrF &, Array & >()
+        .Ctor< StackStrF &, StackStrF &, Uint8, Uint8 >()
+        .Ctor< StackStrF &, StackStrF &, Array &, Uint8, Uint8 >()
+        .Ctor< StackStrF &, StackStrF &, Array &, Uint8, Uint8, SQInteger >()
+        .Ctor< StackStrF &, StackStrF &, Array &, Uint8, Uint8, SQInteger, bool >()
+        .Ctor< StackStrF &, StackStrF &, Array &, Uint8, Uint8, SQInteger, bool, bool >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &ListenerTypename::Fn)
         .Func(_SC("_tostring"), &Listener::ToString)
