@@ -1580,7 +1580,7 @@ struct StackStrF
     /// Base constructor.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     StackStrF(HSQUIRRELVM vm, SQInteger idx)
-        : mPtr(nullptr)
+        : mPtr(_SC(""))
         , mLen(SQ_ERROR)
         , mRes(SQ_OK)
         , mObj()
@@ -1605,7 +1605,7 @@ struct StackStrF
         , mVM(o.mVM)
         , mIdx(o.mIdx)
     {
-        o.mPtr = nullptr;
+        o.mPtr = _SC("");
         o.mLen = 0;
         o.mRes = SQ_OK;
         o.mVM = nullptr;
@@ -1618,9 +1618,9 @@ struct StackStrF
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ~StackStrF()
     {
-        if (mVM && !sq_isnull(mObj))
+        if (!sq_isnull(mObj))
         {
-            sq_release(mVM, &mObj);
+            sq_release(mVM ? mVM : DefaultVM::Get(), &mObj);
         }
     }
 
@@ -1633,6 +1633,23 @@ struct StackStrF
     /// Move assignment operator. (disabled)
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     StackStrF & operator = (StackStrF && o) = delete;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Release any object references.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void Release()
+    {
+        if (!sq_isnull(mObj))
+        {
+            sq_release(mVM ? mVM : DefaultVM::Get(), &mObj);
+        }
+        mPtr = _SC("");
+        mLen = 0;
+        mRes = SQ_OK;
+        mVM = nullptr;
+        mIdx = -1;
+        sq_resetobject(&mObj);
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Actual implementation.
