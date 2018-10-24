@@ -999,6 +999,7 @@ public:
 };
 #endif
 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Used to get and push StackStrF instances to and from the stack as references (StackStrF should not be a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1018,6 +1019,26 @@ struct Var<StackStrF> {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Var(HSQUIRRELVM vm, SQInteger idx) : value(vm, idx) {
+        if (SQ_FAILED(value.Proc())) {
+            ErrorToException(vm);
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Attempts to get the value off the stack at idx as an StackStrF
+    ///
+    /// \param vm  Target VM
+    /// \param idx Index trying to be read
+    /// \param idx Whether to mimmic a format function
+    ///
+    /// \remarks
+    /// This function MUST have its Error handled if it occurred.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Var(HSQUIRRELVM vm, SQInteger idx, bool fmt) : value(vm, idx) {
+        if (SQ_FAILED(value.Proc(fmt))) {
+            ErrorToException(vm);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1040,13 +1061,19 @@ struct Var<StackStrF> {
 /// Used to get and push StackStrF instances to and from the stack as references (StackStrF should not be a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<StackStrF&> : Var<StackStrF> {Var(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF>(vm, idx) {}};
+struct Var<StackStrF&> : Var<StackStrF> {
+    Var(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF>(vm, idx) {}
+    Var(HSQUIRRELVM vm, SQInteger idx, bool fmt) : Var<StackStrF>(vm, idx, fmt) {}
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Used to get and push StackStrF instances to and from the stack as references (StackStrF should not be a reference)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<const StackStrF&> : Var<StackStrF> {Var(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF>(vm, idx) {}};
+struct Var<const StackStrF&> : Var<StackStrF> {
+    Var(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF>(vm, idx) {}
+    Var(HSQUIRRELVM vm, SQInteger idx, bool fmt) : Var<StackStrF>(vm, idx, fmt) {}
+};
 
 // Non-referencable type definitions
 template<class T> struct is_referencable {static const bool value = true;};
@@ -1186,13 +1213,11 @@ template<> struct ArgFwdHasFmt<const StackStrF&> { static constexpr bool value =
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Helper used to process formatted arguments when necessary.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<bool> struct ArgFwdFmt {
-    template<class T> static inline SQInteger Proc(T &, bool) { return SQ_OK; }
-    template<class T> static inline SQInteger Get(T &) { return SQ_OK; }
+template<class T, bool> struct ArgFwdFmtVar : Var<T> {
+    ArgFwdFmtVar(HSQUIRRELVM vm, SQInteger idx) : Var<T>(vm, idx) {}
 };
-template<> struct ArgFwdFmt<true> {
-    static inline SQInteger Proc(StackStrF & s, bool dummy = false) { return s.Proc(true, dummy); }
-    static inline SQInteger Get(StackStrF & s) { return s.mRes; }
+template<class T> struct ArgFwdFmtVar<T, true> : Var<T> {
+    ArgFwdFmtVar(HSQUIRRELVM vm, SQInteger idx) : Var<T>(vm, idx, true) {}
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1207,8 +1232,6 @@ template<>
 struct ArgFwd<> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = false;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger /*idx*/, F f) {
         f(vm);
@@ -1222,14 +1245,10 @@ template<class T1>
 struct ArgFwd<T1> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T1>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        Var<T1> a1(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a1.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value);
+        ArgFwdFmtVar<T1, HASFMT> a1(vm, idx);
+        f(vm,a1.value);
     }
 };
 
@@ -1237,15 +1256,11 @@ template<class T1,class T2>
 struct ArgFwd<T1,T2> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T2>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
-        Var<T2> a2(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a2.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value);
+        ArgFwdFmtVar<T2, HASFMT> a2(vm, idx);
+        f(vm,a1.value,a2.value);
     }
 };
 
@@ -1253,16 +1268,12 @@ template<class T1,class T2,class T3>
 struct ArgFwd<T1,T2,T3> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T3>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
         Var<T2> a2(vm, idx++);
-        Var<T3> a3(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a3.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value);
+        ArgFwdFmtVar<T3, HASFMT> a3(vm, idx);
+        f(vm,a1.value,a2.value,a3.value);
     }
 };
 
@@ -1271,17 +1282,13 @@ template<class T1,class T2,class T3,class T4>
 struct ArgFwd<T1,T2,T3,T4> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T4>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
         Var<T2> a2(vm, idx++);
         Var<T3> a3(vm, idx++);
-        Var<T4> a4(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a4.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value);
+        ArgFwdFmtVar<T4, HASFMT> a4(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value);
     }
 };
 
@@ -1289,18 +1296,14 @@ template<class T1,class T2,class T3,class T4,class T5>
 struct ArgFwd<T1,T2,T3,T4,T5> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T5>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
         Var<T2> a2(vm, idx++);
         Var<T3> a3(vm, idx++);
         Var<T4> a4(vm, idx++);
-        Var<T5> a5(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a5.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value);
+        ArgFwdFmtVar<T5, HASFMT> a5(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value);
     }
 };
 
@@ -1308,8 +1311,6 @@ template<class T1,class T2,class T3,class T4,class T5,class T6>
 struct ArgFwd<T1,T2,T3,T4,T5,T6> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T6>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1317,10 +1318,8 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6> {
         Var<T3> a3(vm, idx++);
         Var<T4> a4(vm, idx++);
         Var<T5> a5(vm, idx++);
-        Var<T6> a6(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a6.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value);
+        ArgFwdFmtVar<T6, HASFMT> a6(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value);
     }
 };
 
@@ -1328,8 +1327,6 @@ template<class T1,class T2,class T3,class T4,class T5,class T6,class T7>
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T7>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1338,10 +1335,8 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7> {
         Var<T4> a4(vm, idx++);
         Var<T5> a5(vm, idx++);
         Var<T6> a6(vm, idx++);
-        Var<T7> a7(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a7.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value);
+        ArgFwdFmtVar<T7, HASFMT> a7(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value);
     }
 };
 
@@ -1349,8 +1344,6 @@ template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T8>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1360,10 +1353,8 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8> {
         Var<T5> a5(vm, idx++);
         Var<T6> a6(vm, idx++);
         Var<T7> a7(vm, idx++);
-        Var<T8> a8(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a8.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value);
+        ArgFwdFmtVar<T8, HASFMT> a8(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value);
     }
 };
 
@@ -1371,8 +1362,6 @@ template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T9>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1383,10 +1372,8 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9> {
         Var<T6> a6(vm, idx++);
         Var<T7> a7(vm, idx++);
         Var<T8> a8(vm, idx++);
-        Var<T9> a9(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a9.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value);
+        ArgFwdFmtVar<T9, HASFMT> a9(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value);
     }
 };
 
@@ -1394,8 +1381,6 @@ template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T10>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1407,10 +1392,8 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
         Var<T7> a7(vm, idx++);
         Var<T8> a8(vm, idx++);
         Var<T9> a9(vm, idx++);
-        Var<T10> a10(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a10.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value);
+        ArgFwdFmtVar<T10, HASFMT> a10(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value);
     }
 };
 
@@ -1418,8 +1401,6 @@ template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T11>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1432,10 +1413,8 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
         Var<T8> a8(vm, idx++);
         Var<T9> a9(vm, idx++);
         Var<T10> a10(vm, idx++);
-        Var<T11> a11(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a11.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value);
+        ArgFwdFmtVar<T11, HASFMT> a11(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value);
     }
 };
 
@@ -1443,8 +1422,6 @@ template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T12>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1458,10 +1435,8 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
         Var<T9> a9(vm, idx++);
         Var<T10> a10(vm, idx++);
         Var<T11> a11(vm, idx++);
-        Var<T12> a12(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a12.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value);
+        ArgFwdFmtVar<T12, HASFMT> a12(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value);
     }
 };
 
@@ -1469,8 +1444,6 @@ template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T13>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1485,10 +1458,8 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
         Var<T10> a10(vm, idx++);
         Var<T11> a11(vm, idx++);
         Var<T12> a12(vm, idx++);
-        Var<T13> a13(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a13.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value,a13.value);
+        ArgFwdFmtVar<T13, HASFMT> a13(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value,a13.value);
     }
 };
 
@@ -1496,8 +1467,6 @@ template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> {
     // Used to tell whether the last template parameter is a StackStrF type
     static constexpr bool HASFMT = ArgFwdHasFmt<T14>::value;
-    // Where Squirrel result codes can be stored
-    SQInteger mRes;
     // Forward the arguments to a function object
     template<class F> inline void Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1513,10 +1482,8 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> {
         Var<T11> a11(vm, idx++);
         Var<T12> a12(vm, idx++);
         Var<T13> a13(vm, idx++);
-        Var<T14> a14(vm, idx);
-        mRes = ArgFwdFmt<HASFMT>::Proc(a14.value, sq_gettop(vm) <= idx);
-        if (SQ_SUCCEEDED(mRes))
-            f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value,a13.value,a14.value);
+        ArgFwdFmtVar<T14, HASFMT> a14(vm, idx);
+        f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value,a13.value,a14.value);
     }
 };
 

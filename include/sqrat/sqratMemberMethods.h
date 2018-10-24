@@ -46,7 +46,7 @@ namespace Sqrat {
 //
 template <class C,class R> struct SqMemberProxy {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm) {
-        ArgFwd<A...> a{SQ_OK};
+        ArgFwd<A...> a;
         a.Call(vm, 2, [](HSQUIRRELVM vm, A... a) {
             typedef R(C::*M)(A...);
             C* inst = Var<C*>(vm, 1).value;
@@ -56,10 +56,10 @@ template <class C,class R> struct SqMemberProxy {
             R ret = (inst->*method)(a...);
             PushVar(vm, ret);
         });
-        return SQ_FAILED(a.mRes) ? a.mRes : 1;
+        return 1;
     }
     template <class... A> static SQInteger RunC(HSQUIRRELVM vm) {
-        ArgFwd<A...> a{SQ_OK};
+        ArgFwd<A...> a;
         a.Call(vm, 2, [](HSQUIRRELVM vm, A... a) {
             typedef R(C::*M)(A...) const;
             C* inst = Var<C*>(vm, 1).value;
@@ -69,7 +69,7 @@ template <class C,class R> struct SqMemberProxy {
             R ret = (inst->*method)(a...);
             PushVar(vm, ret);
         });
-        return SQ_FAILED(a.mRes) ? a.mRes : 1;
+        return 1;
     }
 };
 
@@ -79,7 +79,7 @@ template <class C,class R> struct SqMemberProxy {
 
 template <class C, class R> struct SqMemberProxy<C,R&> {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm) {
-        ArgFwd<A...> a{SQ_OK};
+        ArgFwd<A...> a;
         a.Call(vm, 2, [](HSQUIRRELVM vm, A... a) {
             typedef R&(C::*M)(A...);
             C* inst = Var<C*>(vm, 1).value;
@@ -89,10 +89,10 @@ template <class C, class R> struct SqMemberProxy<C,R&> {
             R& ret = (inst->*method)(a...);
             PushVarR(vm, ret);
         });
-        return SQ_FAILED(a.mRes) ? a.mRes : 1;
+        return 1;
     }
     template <class... A> static SQInteger RunC(HSQUIRRELVM vm) {
-        ArgFwd<A...> a{SQ_OK};
+        ArgFwd<A...> a;
         a.Call(vm, 2, [](HSQUIRRELVM vm, A... a) {
             typedef R&(C::*M)(A...) const;
             C* inst = Var<C*>(vm, 1).value;
@@ -102,7 +102,7 @@ template <class C, class R> struct SqMemberProxy<C,R&> {
             R& ret = (inst->*method)(a...);
             PushVarR(vm, ret);
         });
-        return SQ_FAILED(a.mRes) ? a.mRes : 1;
+        return 1;
     }
 };
 
@@ -112,7 +112,7 @@ template <class C, class R> struct SqMemberProxy<C,R&> {
 
 template <class C> struct SqMemberProxy<C, void> {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm) {
-        ArgFwd<A...> a{SQ_OK};
+        ArgFwd<A...> a;
         a.Call(vm, 2, [](HSQUIRRELVM vm, A... a) {
             typedef void(C::*M)(A...);
             C* inst = Var<C*>(vm, 1).value;
@@ -121,10 +121,10 @@ template <class C> struct SqMemberProxy<C, void> {
             M method = *methodPtr;
             (inst->*method)(a...);
         });
-        return SQ_FAILED(a.mRes) ? a.mRes : 0;
+        return 0;
     }
     template <class... A> static SQInteger RunC(HSQUIRRELVM vm) {
-        ArgFwd<A...> a{SQ_OK};
+        ArgFwd<A...> a;
         a.Call(vm, 2, [](HSQUIRRELVM vm, A... a) {
             typedef void(C::*M)(A...) const;
             C* inst = Var<C*>(vm, 1).value;
@@ -133,7 +133,7 @@ template <class C> struct SqMemberProxy<C, void> {
             M method = *methodPtr;
             (inst->*method)(a...);
         });
-        return SQ_FAILED(a.mRes) ? a.mRes : 0;
+        return 0;
     }
 };
 

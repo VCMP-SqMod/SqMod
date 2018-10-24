@@ -406,6 +406,15 @@ public:
     /// Constructs an exception
     ///
     /// \param msg A nice error message
+    /// \param len Length of the message
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Exception(const SQChar * msg, SQInteger len) : message(msg, len > 0 ? len : 0) {}
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructs an exception
+    ///
+    /// \param msg A nice error message
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     explicit Exception(string && msg) : message(msg) {}
@@ -1503,7 +1512,7 @@ struct StackGuard
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ~StackGuard()
     {
-		Restore();
+        Restore();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1520,15 +1529,15 @@ struct StackGuard
     /// Restore the stack to what was known to be.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void Restore() const
-	{
-		// Retrieve the new stack top
-		const SQInteger top = sq_gettop(m_VM);
-		// Did the stack size change?
+    {
+        // Retrieve the new stack top
+        const SQInteger top = sq_gettop(m_VM);
+        // Did the stack size change?
         if (top > m_Top)
-		{
-			sq_pop(m_VM, top - m_Top); // Trim the stack
-		}
-	}
+        {
+            sq_pop(m_VM, top - m_Top); // Trim the stack
+        }
+    }
 
 private:
 
@@ -1654,25 +1663,20 @@ struct StackStrF
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Actual implementation.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SQRESULT Proc(bool fmt = false, bool dummy = false)
+    SQRESULT Proc(bool fmt = false)
     {
         // If there's no virtual machine, just ignore the request
         if (mVM == nullptr)
         {
             return SQ_OK;
         }
+        // Release the converted value object
+        else if (!sq_isnull(mObj))
+        {
+            sq_release(mVM, &mObj);
+        }
         // Reset the converted value object
         sq_resetobject(&mObj);
-        // is this a dummy request?
-        if (dummy)
-        {
-            // Since this is a dummy then avoid making it look like a failure
-            mPtr = _SC("");
-            mLen = 0;
-            mRes = SQ_OK;
-            // We're not supposed to proceed with this!
-            return mRes;
-        }
         // Grab the top of the stack
         const SQInteger top = sq_gettop(mVM);
         // Was the string or value specified?
@@ -1754,6 +1758,36 @@ struct StackStrF
         return mRes;
     }
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Throws the current error in a given VM as a program exception.
+///
+/// \param vm   Target VM
+/// \param keep Whether to clear the error from the VM
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static void ErrorToException(HSQUIRRELVM vm, bool keep = false) {
+    // Get the error object on the stack
+    sq_getlasterror(vm);
+    // See if there's an actual error
+    if (sq_gettype(vm, -1) == OT_NULL) {
+        sq_poptop(vm); // Pop the object from the stack
+        return; // Done here!
+    }
+    StackStrF s(vm, -1);
+    // Attempt to the the object as a string
+    if (SQ_FAILED(s.Proc(false))) {
+        sq_poptop(vm); // Pop the object from the stack
+        throw ::Sqrat::Exception(_SC("Unidentifiable script object used as error."));
+    }
+    sq_poptop(vm); // Pop the object from the stack
+    // Should the error be kept in the VM?
+    if (!keep) {
+        sq_reseterror(vm);
+    }
+    // Throw the error message
+    throw ::Sqrat::Exception(s.mPtr, s.mLen);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// RAII approach to make sure an instance is deleted regardless of what exceptions are thrown.
