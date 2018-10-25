@@ -1029,7 +1029,7 @@ struct Var<StackStrF> {
     ///
     /// \param vm  Target VM
     /// \param idx Index trying to be read
-    /// \param idx Whether to mimmic a format function
+    /// \param fmt Whether to mimmic a format function
     ///
     /// \remarks
     /// This function MUST have its Error handled if it occurred.
@@ -1037,6 +1037,26 @@ struct Var<StackStrF> {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Var(HSQUIRRELVM vm, SQInteger idx, bool fmt) : value(vm, idx) {
         if (SQ_FAILED(value.Proc(fmt))) {
+            ErrorToException(vm);
+        }
+    }
+    // Quick and dirty way to subtract the function pointer from the stack top as to not confuse formatted functions
+    enum DropFuncPtrOverload { DropFuncPtr };
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Attempts to get the value off the stack at idx as an StackStrF
+    ///
+    /// \param vm  Target VM
+    /// \param idx Index trying to be read
+    /// \param fmt Whether to mimmic a format function
+    /// \param top Number of slots to ignore from the stack top
+    ///
+    /// \remarks
+    /// This function MUST have its Error handled if it occurred.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Var(HSQUIRRELVM vm, SQInteger idx, bool fmt, DropFuncPtrOverload /*fpsub*/) : value(vm, idx) {
+        if (SQ_FAILED(value.Proc(fmt, sq_gettop(vm) - 1))) {
             ErrorToException(vm);
         }
     }
@@ -1064,6 +1084,8 @@ template<>
 struct Var<StackStrF&> : Var<StackStrF> {
     Var(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF>(vm, idx) {}
     Var(HSQUIRRELVM vm, SQInteger idx, bool fmt) : Var<StackStrF>(vm, idx, fmt) {}
+    Var(HSQUIRRELVM vm, SQInteger idx, bool fmt, Var<StackStrF>::DropFuncPtrOverload /*fpsub*/)
+        : Var<StackStrF>(vm, idx, fmt, Var<StackStrF>::DropFuncPtr) {}
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1073,6 +1095,8 @@ template<>
 struct Var<const StackStrF&> : Var<StackStrF> {
     Var(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF>(vm, idx) {}
     Var(HSQUIRRELVM vm, SQInteger idx, bool fmt) : Var<StackStrF>(vm, idx, fmt) {}
+    Var(HSQUIRRELVM vm, SQInteger idx, bool fmt, Var<StackStrF>::DropFuncPtrOverload /*fpsub*/)
+        : Var<StackStrF>(vm, idx, fmt, Var<StackStrF>::DropFuncPtr) {}
 };
 
 // Non-referencable type definitions
@@ -1217,7 +1241,7 @@ template<class T, bool> struct ArgFwdFmtVar : Var<T> {
     ArgFwdFmtVar(HSQUIRRELVM vm, SQInteger idx) : Var<T>(vm, idx) {}
 };
 template<class T> struct ArgFwdFmtVar<T, true> : Var<T> {
-    ArgFwdFmtVar(HSQUIRRELVM vm, SQInteger idx) : Var<T>(vm, idx, true) {}
+    ArgFwdFmtVar(HSQUIRRELVM vm, SQInteger idx) : Var<T>(vm, idx, true, Var<T>::DropFuncPtr) {}
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

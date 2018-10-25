@@ -1545,6 +1545,15 @@ private:
     SQInteger   m_Top; ///< The top of the stack when this instance was created.
 };
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper function to transform a negative index into a positive index.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+inline SQInteger IndexAbs(SQInteger top, SQInteger idx)
+{
+    return (idx <= -1) ? (top + idx + 1) : idx;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Helper structure for retrieving a value from the stack as a string or a formatted string.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1663,7 +1672,7 @@ struct StackStrF
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Actual implementation.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SQRESULT Proc(bool fmt = false)
+    SQRESULT Proc(bool fmt = false, SQInteger top = -1)
     {
         // If there's no virtual machine, just ignore the request
         if (mVM == nullptr)
@@ -1677,8 +1686,13 @@ struct StackStrF
         }
         // Reset the converted value object
         sq_resetobject(&mObj);
-        // Grab the top of the stack
-        const SQInteger top = sq_gettop(mVM);
+        // Grab the top of the stack, if necessary
+        if (top < 0)
+        {
+            top = sq_gettop(mVM);
+        }
+        // Make the stack index absolute
+        mIdx = IndexAbs(top, mIdx);
         // Was the string or value specified?
         if (top <= (mIdx - 1))
         {
@@ -1766,7 +1780,7 @@ struct StackStrF
 /// \param keep Whether to clear the error from the VM
 ///
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static void ErrorToException(HSQUIRRELVM vm, bool keep = false) {
+inline void ErrorToException(HSQUIRRELVM vm, bool keep = false) {
     // Get the error object on the stack
     sq_getlasterror(vm);
     // See if there's an actual error
