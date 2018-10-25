@@ -177,8 +177,8 @@ struct Function  {
         sq_pushobject(vm, mEnv);
         // Validate the funtion parameter count
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-        SQUnsignedInteger nparams;
-        SQUnsignedInteger nfreevars;
+        SQInteger nparams;
+        SQInteger nfreevars;
         if (SQ_SUCCEEDED(sq_getclosureinfo(vm, -2, &nparams, &nfreevars)) && (nparams != ARGC)) {
             sq_pop(vm, 2);
             SQTHROW(vm, _SC("wrong number of parameters"));
@@ -216,8 +216,8 @@ struct Function  {
         sq_pushobject(vm, mEnv);
         // Validate the funtion parameter count
 #if !defined (SCRAT_NO_ERROR_CHECKING)
-        SQUnsignedInteger nparams;
-        SQUnsignedInteger nfreevars;
+        SQInteger nparams;
+        SQInteger nfreevars;
         if (SQ_SUCCEEDED(sq_getclosureinfo(vm, -2, &nparams, &nfreevars)) && (nparams != ARGC)) {
             sq_pop(vm, 2);
             SQTHROW(vm, _SC("wrong number of parameters"));

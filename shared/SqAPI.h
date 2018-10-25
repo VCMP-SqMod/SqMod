@@ -112,7 +112,7 @@ extern "C" {
     typedef SQRELEASEHOOK (*SqLibAPI_getreleasehook)(HSQUIRRELVM v,SQInteger idx);
     typedef SQChar* (*SqLibAPI_getscratchpad)(HSQUIRRELVM v,SQInteger minsize);
     typedef SQRESULT (*SqLibAPI_getfunctioninfo)(HSQUIRRELVM v,SQInteger level,SQFunctionInfo *fi);
-    typedef SQRESULT (*SqLibAPI_getclosureinfo)(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger *nparams,SQUnsignedInteger *nfreevars);
+    typedef SQRESULT (*SqLibAPI_getclosureinfo)(HSQUIRRELVM v,SQInteger idx,SQInteger *nparams,SQInteger *nfreevars);
     typedef SQRESULT (*SqLibAPI_getclosurename)(HSQUIRRELVM v,SQInteger idx);
     typedef SQRESULT (*SqLibAPI_setnativeclosurename)(HSQUIRRELVM v,SQInteger idx,const SQChar *name);
     typedef SQRESULT (*SqLibAPI_setinstanceup)(HSQUIRRELVM v, SQInteger idx, SQUserPointer p);
