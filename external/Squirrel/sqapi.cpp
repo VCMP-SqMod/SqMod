@@ -424,6 +424,17 @@ SQRESULT sq_setnativeclosurename(HSQUIRRELVM v,SQInteger idx,const SQChar *name)
     }
     return sq_throwerror(v,_SC("the object is not a nativeclosure"));
 }
+SQRESULT sq_getnativeclosurepointer(HSQUIRRELVM v,SQInteger idx,SQFUNCTION *f)
+{
+    SQObject o = stack_get(v, idx);
+    if(sq_type(o) == OT_NATIVECLOSURE)
+    {
+        SQNativeClosure *c = _nativeclosure(o);
+        if (f) *f = c->_function;
+        return SQ_OK;
+    }
+    return sq_throwerror(v,_SC("the object is not a native closure"));
+}
 
 SQRESULT sq_setparamscheck(HSQUIRRELVM v,SQInteger nparamscheck,const SQChar *typemask)
 {
@@ -1321,9 +1332,10 @@ SQRESULT sq_getcallee(HSQUIRRELVM v)
     return sq_throwerror(v,_SC("no closure in the calls stack"));
 }
 
-const SQChar *sq_getfreevariable(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger nval)
+static const SQChar *sq_getfreevariable_(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger nval, bool pop=false)
 {
-    SQObjectPtr &self=stack_get(v,idx);
+    SQObjectPtr self=stack_get(v,idx);
+    if (pop) v->Pop();
     const SQChar *name = NULL;
     switch(sq_type(self))
     {
@@ -1335,19 +1347,27 @@ const SQChar *sq_getfreevariable(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger n
             SQOuterVar &ov = fp->_outervalues[nval];
             name = _stringval(ov._name);
         }
-                    }
-        break;
+    } break;
     case OT_NATIVECLOSURE:{
         SQNativeClosure *clo = _nativeclosure(self);
         if(clo->_noutervalues > nval) {
             v->Push(clo->_outervalues[nval]);
             name = _SC("@NATIVE");
         }
-                          }
-        break;
+    } break;
     default: break; //shutup compiler
     }
     return name;
+}
+
+const SQChar *sq_getfreevariable(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger nval)
+{
+    return sq_getfreevariable_(v,idx,nval,false);
+}
+
+const SQChar *sq_getonefreevariable(HSQUIRRELVM v,SQUnsignedInteger nval)
+{
+    return sq_getfreevariable_(v,-1,nval,true);
 }
 
 SQRESULT sq_setfreevariable(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger nval)
