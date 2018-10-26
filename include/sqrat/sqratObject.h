@@ -556,24 +556,35 @@ protected:
 
     // Bind a function and it's associated Squirrel closure to the object
     inline void BindOverload(const SQChar* name, void* method, size_t methodSize, SQFUNCTION func, SQFUNCTION overload, int argCount, bool staticVar = false) {
-        string overloadName = SqOverloadName::Get(name, argCount);
+        string overloadName;
+        overloadName.reserve(15);
+        SqOverloadName::Get(name, argCount, overloadName);
 
         sq_pushobject(vm, GetObject());
 
         // Bind overload handler
         sq_pushstring(vm, name, -1);
-        sq_pushstring(vm, name, -1); // function name is passed as a free variable
+        // function name is passed as a free variable
+        //sq_pushstring(vm, name, -1);
+        sq_push(vm, -1); // <- Let's cheat(?) by pushing the same object
         sq_newclosure(vm, overload, 1);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, name);
+        // Include it into the object
         sq_newslot(vm, -3, staticVar);
 
         // Bind overloaded function
-        sq_pushstring(vm, overloadName.c_str(), -1);
+        sq_pushstring(vm, overloadName.c_str(), static_cast<SQInteger>(overloadName.size()));
+        // Push the native closure pointer as a free variable
         SQUserPointer methodPtr = sq_newuserdata(vm, static_cast<SQUnsignedInteger>(methodSize));
         memcpy(methodPtr, method, methodSize);
         sq_newclosure(vm, func, 1);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, overloadName.c_str());
+        // Include it into the object
         sq_newslot(vm, -3, staticVar);
 
-        sq_pop(vm,1); // pop table
+        sq_pop(vm,1); // pop object
     }
 
     // Set the value of a variable on the object. Changes to values set this way are not reciprocated

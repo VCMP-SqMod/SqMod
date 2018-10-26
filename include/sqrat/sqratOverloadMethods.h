@@ -51,14 +51,76 @@ namespace Sqrat {
 class SqOverloadName {
 public:
 
-    static string Get(const SQChar* name, int args) {
-        std::basic_stringstream<SQChar> overloadName;
-        overloadName << _SC("__overload_") << name << args;
+    static void Get(const SQChar* name, int args, string & out) {
+        SQChar buf[16] = {'_', 'o'};
+        itoa(args, &buf[2], 10);
+        out.append(buf);
+        out.push_back('_');
+        out.append(name);
+    }
 
-        return overloadName.str();
+    static string Get(const SQChar* name, int args) {
+        string out;
+        out.reserve(15);
+        Get(name, args, out);
+        return out;
     }
 };
 
+
+//
+// Don't include the overloaded call forwarder into the templated class
+//  to avoid duplicating code that doesn't need to be specialized.
+//
+inline SQInteger OverloadExecutionForwarder(HSQUIRRELVM vm) {
+    // Get the argument count
+    const int argCount = static_cast<int>(sq_gettop(vm) - 2);
+    // Subtract environment and base name in free variable^
+    const SQChar* funcName;
+    SQInteger funcNameSize;
+    // Get the un-mangled function name (free variable)
+    sq_getstringandsize(vm, -1, &funcName, &funcNameSize);
+    // Generate the overload mangled name
+    string overloadName;
+    overloadName.reserve(funcNameSize+5);
+    SqOverloadName::Get(funcName, argCount, overloadName);
+    // Pop the un-mangled closure name from the stack so we can replace it later
+    sq_poptop(vm); // `funcName` becomes invalid after this
+    // Push the overload mangled name on the stack
+    sq_pushstring(vm, overloadName.c_str(), static_cast<SQInteger>(overloadName.size()));
+    // Lookup the proper overload and get it on the stack
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+    if (SQ_FAILED(sq_get(vm, 1))) {
+        sq_pushnull(vm); // Push something to take the place of the free variable
+        return sq_throwerror(vm, _SC("wrong number of parameters"));
+    }
+#else
+    sq_get(vm, 1);
+#endif
+    SQFUNCTION f = nullptr;
+    // Get the native closure pointer that we must invoke
+    SQRESULT res = sq_getnativeclosurepointer(vm, -1, &f);
+    if (SQ_FAILED(res)) return res;
+    // Make sure a native closure pointer is available
+    if (!f) {
+        return sq_throwerror(vm, _SC("unable to acquire the proper overload closure"));
+    }
+    // Attempt to get the free variable containing the native closure pointer on the stack
+    const SQChar *name = sq_getonefreevariable(vm, 0);
+    // This is simply a hack to implement a direct call and gain some performance
+    // Since both closures expect a free variable we simply replace the free variable
+    //  containing closure name with the free variable containing the closure pointer
+
+    // Perform a direct call and store the result
+    res = f(vm);
+    // If there was a free variable and the closure on the stack was native
+    // Then we must push something to take the place of the free variable
+    if (name && name[0] == '@') {
+        sq_pushnull(vm);
+    }
+    // Return the result back to the caller
+    return res;
+}
 
 //
 // Squirrel Overload Functions
@@ -69,39 +131,7 @@ class SqOverload {
 public:
 
     static SQInteger Func(HSQUIRRELVM vm) {
-        // Get the arg count
-        int argCount = sq_gettop(vm) - 2;
-
-        const SQChar* funcName;
-        sq_getstring(vm, -1, &funcName); // get the function name (free variable)
-
-        string overloadName = SqOverloadName::Get(funcName, argCount);
-
-        sq_pushstring(vm, overloadName.c_str(), static_cast<SQInteger>(overloadName.size()));
-
-#if !defined (SCRAT_NO_ERROR_CHECKING)
-        if (SQ_FAILED(sq_get(vm, 1))) { // Lookup the proper overload
-            return sq_throwerror(vm, _SC("wrong number of parameters"));
-        }
-#else
-        sq_get(vm, 1);
-#endif
-
-        // Push the args again
-        for (int i = 1; i <= argCount + 1; ++i) {
-            sq_push(vm, i);
-        }
-
-#if !defined (SCRAT_NO_ERROR_CHECKING)
-        SQRESULT result = sq_call(vm, argCount + 1, true, ErrorHandling::IsEnabled());
-        if (SQ_FAILED(result)) {
-            return sq_throwerror(vm, LastErrorString(vm).c_str());
-        }
-#else
-        sq_call(vm, argCount + 1, true, ErrorHandling::IsEnabled());
-#endif
-
-        return 1;
+        return OverloadExecutionForwarder(vm);
     }
 };
 
@@ -115,39 +145,7 @@ class SqOverload<void> {
 public:
 
     static SQInteger Func(HSQUIRRELVM vm) {
-        // Get the arg count
-        int argCount = sq_gettop(vm) - 2;
-
-        const SQChar* funcName;
-        sq_getstring(vm, -1, &funcName); // get the function name (free variable)
-
-        string overloadName = SqOverloadName::Get(funcName, argCount);
-
-        sq_pushstring(vm, overloadName.c_str(), -1);
-
-#if !defined (SCRAT_NO_ERROR_CHECKING)
-        if (SQ_FAILED(sq_get(vm, 1))) { // Lookup the proper overload
-            return sq_throwerror(vm, _SC("wrong number of parameters"));
-        }
-#else
-        sq_get(vm, 1);
-#endif
-
-        // Push the args again
-        for (int i = 1; i <= argCount + 1; ++i) {
-            sq_push(vm, i);
-        }
-
-#if !defined (SCRAT_NO_ERROR_CHECKING)
-        SQRESULT result = sq_call(vm, argCount + 1, false, ErrorHandling::IsEnabled());
-        if (SQ_FAILED(result)) {
-            return sq_throwerror(vm, LastErrorString(vm).c_str());
-        }
-#else
-        sq_call(vm, argCount + 1, false, ErrorHandling::IsEnabled());
-#endif
-
-        return 0;
+        return OverloadExecutionForwarder(vm);
     }
 };
 
