@@ -77,7 +77,7 @@ public:
 
         string overloadName = SqOverloadName::Get(funcName, argCount);
 
-        sq_pushstring(vm, overloadName.c_str(), -1);
+        sq_pushstring(vm, overloadName.c_str(), static_cast<SQInteger>(overloadName.size()));
 
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         if (SQ_FAILED(sq_get(vm, 1))) { // Lookup the proper overload
