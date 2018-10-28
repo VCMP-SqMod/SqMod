@@ -73,8 +73,9 @@ public:
 //  to avoid duplicating code that doesn't need to be specialized.
 //
 inline SQInteger OverloadExecutionForwarder(HSQUIRRELVM vm) {
+    const SQInteger top = sq_gettop(vm);
     // Get the argument count
-    const int argCount = static_cast<int>(sq_gettop(vm) - 2);
+    const int argCount = static_cast<int>(top - 2);
     // Subtract environment and base name in free variable^
     const SQChar* funcName;
     SQInteger funcNameSize;
@@ -91,7 +92,7 @@ inline SQInteger OverloadExecutionForwarder(HSQUIRRELVM vm) {
     // Lookup the proper overload and get it on the stack
 #if !defined (SCRAT_NO_ERROR_CHECKING)
     if (SQ_FAILED(sq_get(vm, 1))) {
-        sq_pushnull(vm); // Push something to take the place of the free variable
+        sq_settop(vm, top); // keep the stack size intact
         return sq_throwerror(vm, _SC("wrong number of parameters"));
     }
 #else
@@ -100,9 +101,10 @@ inline SQInteger OverloadExecutionForwarder(HSQUIRRELVM vm) {
     SQFUNCTION f = nullptr;
     // Get the native closure pointer that we must invoke
     SQRESULT res = sq_getnativeclosurepointer(vm, -1, &f);
-    if (SQ_FAILED(res)) return res;
+    if (SQ_FAILED(res)) {
+        return res;
     // Make sure a native closure pointer is available
-    if (!f) {
+    } else if (!f) {
         return sq_throwerror(vm, _SC("unable to acquire the proper overload closure"));
     }
     // Attempt to get the free variable containing the native closure pointer on the stack
@@ -110,16 +112,9 @@ inline SQInteger OverloadExecutionForwarder(HSQUIRRELVM vm) {
     // This is simply a hack to implement a direct call and gain some performance
     // Since both closures expect a free variable we simply replace the free variable
     //  containing closure name with the free variable containing the closure pointer
-
-    // Perform a direct call and store the result
-    res = f(vm);
-    // If there was a free variable and the closure on the stack was native
-    // Then we must push something to take the place of the free variable
-    if (name && name[0] == '@') {
-        sq_pushnull(vm);
-    }
-    // Return the result back to the caller
-    return res;
+    sq_settop(vm, top); // keep the stack size intact before invoking the overload
+    // Perform a direct call and return the result back to the caller
+    return f(vm);
 }
 
 //
