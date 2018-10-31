@@ -781,39 +781,6 @@ public:
     Class& Ctor(const SQChar *name = 0) {
         return BindConstructor(A::template iNew<P...>, sizeof...(P), name);
     }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Binds a constructor with 1 argument (there can only be one constructor of this many arguments for a given name)
-    ///
-    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
-    ///
-    /// \return The Class itself so the call can be chained
-    ///
-    /// \remarks
-    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
-    ///
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Class& FmtCtor(const SQChar *name = 0) {
-        return BindConstructor(A::iFmtNew, 1, name);
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Binds a constructor with 2 or more arguments (there can only be one constructor of this many arguments for a given name)
-    ///
-    /// \param name Name of the constructor as it will appear in Squirrel (default value creates a traditional constructor)
-    ///
-    /// \tparam P Type of arguments of the constructor (must be defined explicitly)
-    ///
-    /// \return The Class itself so the call can be chained
-    ///
-    /// \remarks
-    /// The last parameter is implicitly of StackStrF type and is automatically included into the parameter count.
-    ///
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    template<class... P>
-    Class& FmtCtor(const SQChar *name = 0) {
-        return BindConstructor(A::template iFmtNew<P...>, sizeof...(P)+1, name);
-    }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
