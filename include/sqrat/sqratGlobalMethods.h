@@ -46,8 +46,7 @@ namespace Sqrat {
 //
 template <class R> struct SqGlobalProxy {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
-        ArgFwd<A...> a;
-        a.Call(vm, idx, [](HSQUIRRELVM vm, A... a) {
+        ArgFwd<A...>{}.Call(vm, idx, [](HSQUIRRELVM vm, A... a) {
             typedef R(*M)(A...);
             M* method;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), nullptr);
@@ -64,8 +63,7 @@ template <class R> struct SqGlobalProxy {
 
 template <class R> struct SqGlobalProxy<R&> {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
-        ArgFwd<A...> a;
-        a.Call(vm, idx, [](HSQUIRRELVM vm, A... a) {
+        ArgFwd<A...>{}.Call(vm, idx, [](HSQUIRRELVM vm, A... a) {
             typedef R&(*M)(A...);
             M* method;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), nullptr);
@@ -82,8 +80,7 @@ template <class R> struct SqGlobalProxy<R&> {
 
 template <> struct SqGlobalProxy<void> {
     template <class... A> static SQInteger Run(HSQUIRRELVM vm, SQInteger idx) {
-        ArgFwd<A...> a;
-        a.Call(vm, idx, [](HSQUIRRELVM vm, A... a) {
+        ArgFwd<A...>{}.Call(vm, idx, [](HSQUIRRELVM vm, A... a) {
             typedef void(*M)(A...);
             M* method;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&method), nullptr);
