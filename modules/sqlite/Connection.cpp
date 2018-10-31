@@ -346,9 +346,9 @@ void Register_Connection(Table & sqlns)
         Class< Connection >(sqlns.GetVM(), Typename::Str)
         // Constructors
         .Ctor()
-        .FmtCtor()
+        .Ctor< const StackStrF & >()
         .Ctor< const StackStrF &, Int32 >()
-        .FmtCtor< const StackStrF &, Int32 >()
+        .Ctor< const StackStrF &, Int32, const StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Connection::ToString)

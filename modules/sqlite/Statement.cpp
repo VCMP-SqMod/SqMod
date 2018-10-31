@@ -425,7 +425,7 @@ void Register_Statement(Table & sqlns)
         // Constructors
         .Ctor()
         .Ctor< const Statement & >()
-        .FmtCtor< const Connection & >()
+        .Ctor< const Connection &, const StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Statement::ToString)
