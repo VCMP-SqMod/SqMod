@@ -293,6 +293,7 @@ SqLibAPI_getfunctioninfo                    SqLib_getfunctioninfo               
 SqLibAPI_getclosureinfo                     SqLib_getclosureinfo                        = NULL;
 SqLibAPI_getclosurename                     SqLib_getclosurename                        = NULL;
 SqLibAPI_setnativeclosurename               SqLib_setnativeclosurename                  = NULL;
+SqLibAPI_getnativeclosurepointer            SqLib_getnativeclosurepointer               = NULL;
 SqLibAPI_setinstanceup                      SqLib_setinstanceup                         = NULL;
 SqLibAPI_getinstanceup                      SqLib_getinstanceup                         = NULL;
 SqLibAPI_setclassudsize                     SqLib_setclassudsize                        = NULL;
@@ -342,6 +343,7 @@ SqLibAPI_resume                             SqLib_resume                        
 SqLibAPI_getlocal                           SqLib_getlocal                              = NULL;
 SqLibAPI_getcallee                          SqLib_getcallee                             = NULL;
 SqLibAPI_getfreevariable                    SqLib_getfreevariable                       = NULL;
+SqLibAPI_getonefreevariable                 SqLib_getonefreevariable                       = NULL;
 SqLibAPI_throwerror                         SqLib_throwerror                            = NULL;
 SqLibAPI_throwobject                        SqLib_throwobject                           = NULL;
 SqLibAPI_reseterror                         SqLib_reseterror                            = NULL;
@@ -485,6 +487,7 @@ uint8_t sqlib_api_expand(HSQLIBAPI sqlibapi)
     SqLib_getclosureinfo                        = sqlibapi->getclosureinfo;
     SqLib_getclosurename                        = sqlibapi->getclosurename;
     SqLib_setnativeclosurename                  = sqlibapi->setnativeclosurename;
+    SqLib_getnativeclosurepointer               = sqlibapi->getnativeclosurepointer;
     SqLib_setinstanceup                         = sqlibapi->setinstanceup;
     SqLib_getinstanceup                         = sqlibapi->getinstanceup;
     SqLib_setclassudsize                        = sqlibapi->setclassudsize;
@@ -534,6 +537,7 @@ uint8_t sqlib_api_expand(HSQLIBAPI sqlibapi)
     SqLib_getlocal                              = sqlibapi->getlocal;
     SqLib_getcallee                             = sqlibapi->getcallee;
     SqLib_getfreevariable                       = sqlibapi->getfreevariable;
+    SqLib_getonefreevariable                    = sqlibapi->getonefreevariable;
     SqLib_throwerror                            = sqlibapi->throwerror;
     SqLib_throwobject                           = sqlibapi->throwobject;
     SqLib_reseterror                            = sqlibapi->reseterror;
@@ -676,6 +680,7 @@ void sqlib_api_collapse()
     SqLib_getclosureinfo                        = NULL;
     SqLib_getclosurename                        = NULL;
     SqLib_setnativeclosurename                  = NULL;
+    SqLib_getnativeclosurepointer               = NULL;
     SqLib_setinstanceup                         = NULL;
     SqLib_getinstanceup                         = NULL;
     SqLib_setclassudsize                        = NULL;
@@ -725,6 +730,7 @@ void sqlib_api_collapse()
     SqLib_getlocal                              = NULL;
     SqLib_getcallee                             = NULL;
     SqLib_getfreevariable                       = NULL;
+    SqLib_getonefreevariable                    = NULL;
     SqLib_throwerror                            = NULL;
     SqLib_throwobject                           = NULL;
     SqLib_reseterror                            = NULL;

@@ -802,6 +802,7 @@ static int32_t SqExport_PopulateSquirrelAPI(HSQLIBAPI api, size_t size)
     api->getclosureinfo                 = sq_getclosureinfo;
     api->getclosurename                 = sq_getclosurename;
     api->setnativeclosurename           = sq_setnativeclosurename;
+    api->getnativeclosurepointer        = sq_getnativeclosurepointer;
     api->setinstanceup                  = sq_setinstanceup;
     api->getinstanceup                  = sq_getinstanceup;
     api->setclassudsize                 = sq_setclassudsize;
@@ -851,6 +852,7 @@ static int32_t SqExport_PopulateSquirrelAPI(HSQLIBAPI api, size_t size)
     api->getlocal                       = sq_getlocal;
     api->getcallee                      = sq_getcallee;
     api->getfreevariable                = sq_getfreevariable;
+    api->getonefreevariable             = sq_getonefreevariable;
     api->throwerror                     = sq_throwerror;
     api->throwobject                    = sq_throwobject;
     api->reseterror                     = sq_reseterror;

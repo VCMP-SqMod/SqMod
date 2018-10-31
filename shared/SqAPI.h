@@ -115,6 +115,7 @@ extern "C" {
     typedef SQRESULT (*SqLibAPI_getclosureinfo)(HSQUIRRELVM v,SQInteger idx,SQInteger *nparams,SQInteger *nfreevars);
     typedef SQRESULT (*SqLibAPI_getclosurename)(HSQUIRRELVM v,SQInteger idx);
     typedef SQRESULT (*SqLibAPI_setnativeclosurename)(HSQUIRRELVM v,SQInteger idx,const SQChar *name);
+    typedef SQRESULT (*SqLibAPI_getnativeclosurepointer)(HSQUIRRELVM v,SQInteger idx,SQFUNCTION *f);
     typedef SQRESULT (*SqLibAPI_setinstanceup)(HSQUIRRELVM v, SQInteger idx, SQUserPointer p);
     typedef SQRESULT (*SqLibAPI_getinstanceup)(HSQUIRRELVM v, SQInteger idx, SQUserPointer *p,SQUserPointer typetag);
     typedef SQRESULT (*SqLibAPI_setclassudsize)(HSQUIRRELVM v, SQInteger idx, SQInteger udsize);
@@ -164,6 +165,7 @@ extern "C" {
     typedef const SQChar* (*SqLibAPI_getlocal)(HSQUIRRELVM v,SQUnsignedInteger level,SQUnsignedInteger idx);
     typedef SQRESULT (*SqLibAPI_getcallee)(HSQUIRRELVM v);
     typedef const SQChar* (*SqLibAPI_getfreevariable)(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger nval);
+    typedef const SQChar* (*SqLibAPI_getonefreevariable)(HSQUIRRELVM v,SQUnsignedInteger nval);
     typedef SQRESULT (*SqLibAPI_throwerror)(HSQUIRRELVM v,const SQChar *err);
     typedef SQRESULT (*SqLibAPI_throwobject)(HSQUIRRELVM v);
     typedef void (*SqLibAPI_reseterror)(HSQUIRRELVM v);
@@ -304,6 +306,7 @@ extern "C" {
         SqLibAPI_getclosureinfo                     getclosureinfo;
         SqLibAPI_getclosurename                     getclosurename;
         SqLibAPI_setnativeclosurename               setnativeclosurename;
+        SqLibAPI_getnativeclosurepointer            getnativeclosurepointer;
         SqLibAPI_setinstanceup                      setinstanceup;
         SqLibAPI_getinstanceup                      getinstanceup;
         SqLibAPI_setclassudsize                     setclassudsize;
@@ -353,6 +356,7 @@ extern "C" {
         SqLibAPI_getlocal                           getlocal;
         SqLibAPI_getcallee                          getcallee;
         SqLibAPI_getfreevariable                    getfreevariable;
+        SqLibAPI_getonefreevariable                 getonefreevariable;
         SqLibAPI_throwerror                         throwerror;
         SqLibAPI_throwobject                        throwobject;
         SqLibAPI_reseterror                         reseterror;
@@ -489,6 +493,7 @@ extern "C" {
     extern SqLibAPI_getclosureinfo                  SqLib_getclosureinfo;
     extern SqLibAPI_getclosurename                  SqLib_getclosurename;
     extern SqLibAPI_setnativeclosurename            SqLib_setnativeclosurename;
+    extern SqLibAPI_getnativeclosurepointer         SqLib_getnativeclosurepointer;
     extern SqLibAPI_setinstanceup                   SqLib_setinstanceup;
     extern SqLibAPI_getinstanceup                   SqLib_getinstanceup;
     extern SqLibAPI_setclassudsize                  SqLib_setclassudsize;
@@ -538,6 +543,7 @@ extern "C" {
     extern SqLibAPI_getlocal                        SqLib_getlocal;
     extern SqLibAPI_getcallee                       SqLib_getcallee;
     extern SqLibAPI_getfreevariable                 SqLib_getfreevariable;
+    extern SqLibAPI_getonefreevariable              SqLib_getonefreevariable;
     extern SqLibAPI_throwerror                      SqLib_throwerror;
     extern SqLibAPI_throwobject                     SqLib_throwobject;
     extern SqLibAPI_reseterror                      SqLib_reseterror;
@@ -670,6 +676,7 @@ extern "C" {
     #define sq_getclosureinfo                       SqLib_getclosureinfo
     #define sq_getclosurename                       SqLib_getclosurename
     #define sq_setnativeclosurename                 SqLib_setnativeclosurename
+    #define sq_getnativeclosurepointer              SqLib_getnativeclosurepointer
     #define sq_setinstanceup                        SqLib_setinstanceup
     #define sq_getinstanceup                        SqLib_getinstanceup
     #define sq_setclassudsize                       SqLib_setclassudsize
@@ -719,6 +726,7 @@ extern "C" {
     #define sq_getlocal                             SqLib_getlocal
     #define sq_getcallee                            SqLib_getcallee
     #define sq_getfreevariable                      SqLib_getfreevariable
+    #define sq_getonefreevariable                   SqLib_getonefreevariable
     #define sq_throwerror                           SqLib_throwerror
     #define sq_throwobject                          SqLib_throwobject
     #define sq_reseterror                           SqLib_reseterror
