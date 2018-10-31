@@ -28,10 +28,8 @@
 #if !defined(_SCRAT_TYPES_H_)
 #define _SCRAT_TYPES_H_
 
-#ifdef SQUNICODE
 #include <cstdlib>
 #include <cstring>
-#endif
 
 #ifdef SQMOD_PLUGIN_API
     #include <SqAPI.h>
