@@ -34,7 +34,6 @@
     #include <squirrel.h>
 #endif // SQMOD_PLUGIN_API
 
-#include <sstream>
 #include "sqratTypes.h"
 #include "sqratUtil.h"
 #include "sqratGlobalMethods.h"
@@ -108,7 +107,7 @@ inline SQInteger OverloadExecutionForwarder(HSQUIRRELVM vm) {
         return sq_throwerror(vm, _SC("unable to acquire the proper overload closure"));
     }
     // Attempt to get the free variable containing the native closure pointer on the stack
-    const SQChar *name = sq_getonefreevariable(vm, 0);
+    sq_getonefreevariable(vm, 0);
     // This is simply a hack to implement a direct call and gain some performance
     // Since both closures expect a free variable we simply replace the free variable
     //  containing closure name with the free variable containing the closure pointer
