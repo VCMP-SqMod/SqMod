@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------------------------
-#include "Command.hpp"
+#include "Misc/Command.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -161,7 +161,7 @@ Object Manager::Create(StackStrF & name, StackStrF & spec, Array & tags, Uint8 m
     // Create the command listener
     {
         // Create a new instance of this class and make sure it can't get leaked due to exceptions
-        AutoDelete< Listener > ad(new Listener(name, spec, tags, min, max, auth, prot, assoc));
+        DeleteGuard< Listener > ad(new Listener(name, spec, tags, min, max, auth, prot, assoc));
         // Transform the instance into a script object
         obj = Object(ad.Get());
         // Validate the obtained script object

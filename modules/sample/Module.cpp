@@ -58,11 +58,11 @@ static bool OnSquirrelLoad()
         return false;
     }
     // Prevent common null objects from using dead virtual machines
-    NullObject().Release();
-    NullTable().Release();
-    NullArray().Release();
-    NullLightObj().Release();
-    NullFunction().ReleaseGently();
+    NullObject() = Object();
+    NullTable() = Table();
+    NullArray() = Array();
+    NullLightObj() = LightObj();
+    NullFunction() = Function();
     // Register the module API
     if (RegisterAPI(DefaultVM::Get()))
     {
@@ -86,6 +86,7 @@ static void OnSquirrelTerminate()
     NullObject().Release();
     NullTable().Release();
     NullArray().Release();
+    NullLightObj().Release();
     NullFunction().ReleaseGently();
     // Release script resources...
 }
@@ -177,13 +178,13 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * functions, PluginCall
 {
     using namespace SqMod;
     // Output plug-in header
-    std::puts("");
+    puts("");
     OutputMessage("--------------------------------------------------------------------");
     OutputMessage("Plug-in: %s", SQSAMPLE_NAME);
     OutputMessage("Author: %s", SQSAMPLE_AUTHOR);
     OutputMessage("Legal: %s", SQSAMPLE_COPYRIGHT);
     OutputMessage("--------------------------------------------------------------------");
-    std::puts("");
+    puts("");
     // Make sure that the module was loaded after the host plug-in
     if (!CheckModuleOrder(functions, info->pluginId, SQSAMPLE_NAME))
     {
@@ -206,7 +207,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * functions, PluginCall
     // Notify that the plug-in was successfully loaded
     OutputMessage("Successfully loaded %s", SQSAMPLE_NAME);
     // Dummy spacing
-    std::puts("");
+    puts("");
     // Done!
     return SQMOD_SUCCESS;
 }

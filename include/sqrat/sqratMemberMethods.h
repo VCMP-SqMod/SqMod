@@ -52,7 +52,7 @@ template <class C,class R> struct SqMemberProxy {
             M* methodPtr;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
-            R ret = (inst->*method)(a...);
+            R ret = (inst->*method)(std::forward< A >(a)...);
             PushVar(vm, ret);
         });
         return 1;
@@ -64,7 +64,7 @@ template <class C,class R> struct SqMemberProxy {
             M* methodPtr;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
-            R ret = (inst->*method)(a...);
+            R ret = (inst->*method)(std::forward< A >(a)...);
             PushVar(vm, ret);
         });
         return 1;
@@ -83,7 +83,7 @@ template <class C, class R> struct SqMemberProxy<C,R&> {
             M* methodPtr;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
-            R& ret = (inst->*method)(a...);
+            R& ret = (inst->*method)(std::forward< A >(a)...);
             PushVarR(vm, ret);
         });
         return 1;
@@ -95,7 +95,7 @@ template <class C, class R> struct SqMemberProxy<C,R&> {
             M* methodPtr;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
-            R& ret = (inst->*method)(a...);
+            R& ret = (inst->*method)(std::forward< A >(a)...);
             PushVarR(vm, ret);
         });
         return 1;
@@ -114,7 +114,7 @@ template <class C> struct SqMemberProxy<C, void> {
             M* methodPtr;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
-            (inst->*method)(a...);
+            (inst->*method)(std::forward< A >(a)...);
         });
         return 0;
     }
@@ -125,7 +125,7 @@ template <class C> struct SqMemberProxy<C, void> {
             M* methodPtr;
             sq_getuserdata(vm, -1, reinterpret_cast<SQUserPointer*>(&methodPtr), nullptr);
             M method = *methodPtr;
-            (inst->*method)(a...);
+            (inst->*method)(std::forward< A >(a)...);
         });
         return 0;
     }

@@ -1555,6 +1555,68 @@ inline SQInteger IndexAbs(SQInteger top, SQInteger idx)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hashing utilities.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef const uint8_t * FnvHashData;
+
+static constexpr uint32_t FnvHashSeed32    = 2166136261u;
+static constexpr uint32_t FnvHashPrime32   = 16777619u;
+// Hash a single byte.
+inline uint32_t Fnv1a32(uint8_t byte, uint32_t hash = FnvHashSeed32)
+{
+    return (byte ^ hash) * FnvHashPrime32;
+}
+// Hash an array of bytes. 32-bit variant.
+inline uint32_t FnvHash32(FnvHashData data, size_t size, uint32_t hash = FnvHashSeed32)
+{
+    assert(data);
+    while (size--)
+    {
+        hash = Fnv1a32(*(data++), hash);
+    }
+    return hash;
+}
+static constexpr uint64_t FnvHashSeed64    = 14695981039346656037llu;
+static constexpr uint64_t FnvHashPrime64   = 1099511628211llu;
+// Hash a single byte.
+inline uint64_t Fnv1a64(uint8_t byte, uint64_t hash = FnvHashSeed64)
+{
+    return (byte ^ hash) * FnvHashPrime64;
+}
+// Hash an array of bytes. 64-bit variant.
+inline uint64_t FnvHash64(FnvHashData data, size_t size, uint64_t hash = FnvHashSeed64)
+{
+    assert(data);
+    while (size--)
+    {
+        hash = Fnv1a64(*(data++), hash);
+    }
+    return hash;
+}
+#ifdef _SQ64
+    static constexpr size_t FnvHashSeed    = FnvHashSeed64;
+    static constexpr size_t FnvHashPrime   = FnvHashPrime64;
+#else
+    static constexpr size_t FnvHashSeed    = FnvHashSeed32;
+    static constexpr size_t FnvHashPrime   = FnvHashPrime32;
+#endif // _SQ64
+// Hash a single byte.
+inline size_t Fnv1a(uint8_t byte, size_t hash = FnvHashSeed)
+{
+    return (byte ^ hash) * FnvHashPrime;
+}
+
+// Hash an array of bytes.
+inline size_t FnvHash(const uint8_t * data, size_t size, size_t hash = FnvHashSeed) {
+    assert(data);
+    while (size--)
+    {
+        hash = Fnv1a(*(data++), hash);
+    }
+    return hash;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Helper structure for retrieving a value from the stack as a string or a formatted string.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct StackStrF
@@ -1648,9 +1710,35 @@ struct StackStrF
     StackStrF & operator = (const StackStrF & o) = delete;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Move assignment operator. (disabled)
+    /// Move assignment operator.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    StackStrF & operator = (StackStrF && o) = delete;
+    StackStrF & operator = (StackStrF && o)
+    {
+        if (this != &o)
+        {
+            // Release
+            if (!sq_isnull(mObj))
+            {
+                sq_release(mVM ? mVM : DefaultVM::Get(), &mObj);
+                sq_resetobject(&mObj);
+            }
+            // Replicate
+            mPtr = o.mPtr;
+            mLen = o.mLen;
+            mRes = o.mRes;
+            mObj = o.mObj;
+            mVM = o.mVM;
+            mIdx = o.mIdx;
+            // Own
+            o.mPtr = _SC("");
+            o.mLen = 0;
+            o.mRes = SQ_OK;
+            o.mVM = nullptr;
+            o.mIdx = -1;
+            sq_resetobject(&o.mObj);
+        }
+        return *this;
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Release any object references.
@@ -1771,6 +1859,35 @@ struct StackStrF
         }
         return mRes;
     }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Compute the hash of the managed string using the FNV-1a algorithm.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    size_t ToHash() const
+    {
+        return mLen ? FnvHash(reinterpret_cast< FnvHashData >(mPtr), static_cast< size_t >(mLen) * sizeof(SQChar)) : FnvHashSeed;
+    }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Compute the string hash and cache it into the mRes member.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void CacheHash()
+    {
+        mRes = static_cast< SQInteger >(ToHash());
+    }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Retrieve the cached string hash.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    size_t GetHash() const
+    {
+        return static_cast< size_t >(mRes);
+    }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Compute the hash of the managed string, cashe it then retrieve it.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    size_t HashIt()
+    {
+        CacheHash();
+        return GetHash();
+    }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1818,7 +1935,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Default constructor.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    DeleteGuard(T * ptr)
+    explicit DeleteGuard(T * ptr)
         : m_Ptr(ptr)
     {
         /* ... */
@@ -1830,9 +1947,13 @@ public:
     DeleteGuard(const DeleteGuard & o) = delete;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Move constructor. (disabled)
+    /// Move constructor.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    DeleteGuard(DeleteGuard && o) = delete;
+    DeleteGuard(DeleteGuard && o)
+        : m_Ptr(o.m_Ptr)
+    {
+        o.m_Ptr = nullptr;
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Destructor.
@@ -1877,6 +1998,16 @@ public:
     void Release()
     {
         m_Ptr = nullptr;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Retrieve and release the managed instance.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    T * Grab()
+    {
+        T * ptr = m_Ptr;
+        m_Ptr = nullptr;
+        return ptr;
     }
 };
 

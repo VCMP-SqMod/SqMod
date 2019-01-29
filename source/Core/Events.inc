@@ -1422,7 +1422,7 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
         // Remember the current stack size
         const StackGuard sg;
         // Create a protected instance of a buffer wrapper
-        AutoDelete< SqBuffer > ad(new SqBuffer(std::move(b)));
+        DeleteGuard< SqBuffer > ad(new SqBuffer(std::move(b)));
         // Transform the pointer into a script object
         PushVar< SqBuffer * >(DefaultVM::Get(), ad.Get());
         // The script took over the instance now
