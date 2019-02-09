@@ -66,7 +66,7 @@ endif
 
 ifdef DEBUG
 	SQ_DEBUG_POSTFIX = -d
-else
+endif
 
 export SQ_INCDIR=$(SQ_BASEDIR)/include
 export SQ_SHRDIR=$(SQ_BASEDIR)/shared
