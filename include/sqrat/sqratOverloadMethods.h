@@ -52,7 +52,7 @@ public:
 
     static void Get(const SQChar* name, int args, string & out) {
         SQChar buf[16] = {'_', 'o'};
-        itoa(args, &buf[2], 10);
+        I32ToA_(args, &buf[2]);
         out.append(buf);
         out.push_back('_');
         out.append(name);

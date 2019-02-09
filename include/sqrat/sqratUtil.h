@@ -2120,6 +2120,186 @@ template<class T> struct is_reference                                           
 template<class T> struct is_reference<T&>                                            {static constexpr bool value = true;};
 /// @endcond
 
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 2 chars at a time, little endian only, unaligned 2 byte writes
+static constexpr uint16_t S100s[] = {
+//  '00',   '10',   '20',   '30',   '40',   '50',   '60',   '70',   '80',   '90',
+    0x3030, 0x3130, 0x3230, 0x3330, 0x3430, 0x3530, 0x3630, 0x3730, 0x3830, 0x3930,
+//  '01',   '11',   '21',   '31',   '41',   '51',   '61',   '71',   '81',   '91',
+    0x3031, 0x3131, 0x3231, 0x3331, 0x3431, 0x3531, 0x3631, 0x3731, 0x3831, 0x3931,
+//  '02',   '12',   '22',   '32',   '42',   '52',   '62',   '72',   '82',   '92',
+    0x3032, 0x3132, 0x3232, 0x3332, 0x3432, 0x3532, 0x3632, 0x3732, 0x3832, 0x3932,
+//  '03',   '13',   '23',   '33',   '43',   '53',   '63',   '73',   '83',   '93',
+    0x3033, 0x3133, 0x3233, 0x3333, 0x3433, 0x3533, 0x3633, 0x3733, 0x3833, 0x3933,
+//  '04',   '14',   '24',   '34',   '44',   '54',   '64',   '74',   '84',   '94',
+    0x3034, 0x3134, 0x3234, 0x3334, 0x3434, 0x3534, 0x3634, 0x3734, 0x3834, 0x3934,
+//  '05',   '15',   '25',   '35',   '45',   '55',   '65',   '75',   '85',   '95',
+    0x3035, 0x3135, 0x3235, 0x3335, 0x3435, 0x3535, 0x3635, 0x3735, 0x3835, 0x3935,
+//  '06',   '16',   '26',   '36',   '46',   '56',   '66',   '76',   '86',   '96',
+    0x3036, 0x3136, 0x3236, 0x3336, 0x3436, 0x3536, 0x3636, 0x3736, 0x3836, 0x3936,
+//  '07',   '17',   '27',   '37',   '47',   '57',   '67',   '77',   '87',   '97',
+    0x3037, 0x3137, 0x3237, 0x3337, 0x3437, 0x3537, 0x3637, 0x3737, 0x3837, 0x3937,
+//  '08',   '18',   '28',   '38',   '48',   '58',   '68',   '78',   '88',   '98',
+    0x3038, 0x3138, 0x3238, 0x3338, 0x3438, 0x3538, 0x3638, 0x3738, 0x3838, 0x3938,
+//  '09',   '19',   '29',   '39',   '49',   '59',   '69',   '79',   '89',   '99',
+    0x3039, 0x3139, 0x3239, 0x3339, 0x3439, 0x3539, 0x3639, 0x3739, 0x3839, 0x3939,
+};
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define A(N) t = (1ULL << (32 + N / 5 * N * 53 / 16)) / static_cast< uint32_t >(1e##N) + 1 - N / 9, t *= u, t >>= N / 5 * N * 53 / 16, t += N / 5 * 4
+
+// --------------------------------------------------------------------------------------------------------------------
+#define W(N, I) *reinterpret_cast< uint16_t * >(&b[N]) = S100s[I]
+#define Q(N) b[N] = static_cast< char >((10ULL * static_cast< uint32_t >(t)) >> 32) + '0'
+#define D(N) W(N, t >> 32)
+#define E t = 100ULL * static_cast< uint32_t >(t)
+
+// --------------------------------------------------------------------------------------------------------------------
+#define L0 b[0] = static_cast< char >(u) + '0'
+#define L1 W(0, u)
+#define L2 A(1), D(0), Q(2)
+#define L3 A(2), D(0), E, D(2)
+#define L4 A(3), D(0), E, D(2), Q(4)
+#define L5 A(4), D(0), E, D(2), E, D(4)
+#define L6 A(5), D(0), E, D(2), E, D(4), Q(6)
+#define L7 A(6), D(0), E, D(2), E, D(4), E, D(6)
+#define L8 A(7), D(0), E, D(2), E, D(4), E, D(6), Q(8)
+#define L9 A(8), D(0), E, D(2), E, D(4), E, D(6), E, D(8)
+
+// --------------------------------------------------------------------------------------------------------------------
+#define LN(N) (L##N, b += N + 1, l += N + 1)
+#define LZ(N) (L##N, l += N + 1)
+#define LG(F) (u<100 ? u<10 ? F(0) : F(1) : u<1000000U ? u<10000 ? u<1000 ? F(2) : F(3) : u<100000 ? F(4) : F(5) : u<100000000 ? u<10000000 ? F(6) : F(7) : u<1000000000 ? F(8) : F(9))
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Convert a 32-bit binary unsigned integral value to its ASCII string representation.
+/// Returns the number of characters written to the given memory buffer.
+inline unsigned U32ToA(uint32_t u, char * b) noexcept
+{
+    uint32_t l = 0;
+    uint64_t t;
+    (void)LG(LZ);
+    return l;
+}
+/// Convert the given value into the given buffer, including the null character.
+inline unsigned U32ToA_(uint32_t n, char * b) noexcept
+{
+    // Reuse the function the omits the null character and store the result
+    unsigned l = U32ToA(n, b);
+    // Append the null character and return the previously stored result
+    return b[l] = '\0', l;
+}
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Convert a 32-bit binary signed integral value to its ASCII string representation.
+/// Returns the number of characters written to the given memory buffer.
+inline unsigned I32ToA(int32_t n, char * b) noexcept
+{
+    // Transform negative signed integers into positive unsigned integers and write the '-' symbol
+    uint32_t v = n < 0 ? *(b++) = '-', 0 - static_cast< uint32_t >(n) : n;
+    // Append the null character and return the previously stored result
+    return U32ToA(v, b);
+}
+/// Convert the given value into the given buffer, including the null character.
+inline unsigned I32ToA_(int32_t n, char * b) noexcept
+{
+    // Reuse the function the omits the null character and store the result
+    unsigned l = I32ToA(n, b);
+    // Append the null character and return the previously stored result
+    return b[l] = '\0', l;
+}
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Convert a 64-bit binary unsigned integral value to its ASCII string representation.
+/// Returns the number of characters written to the given memory buffer.
+inline unsigned U64ToA(uint64_t n, char * b) noexcept
+{
+    // https://github.com/jeaiii/itoa
+
+    uint32_t u, l = 0;
+    uint64_t t;
+
+    if (static_cast< uint32_t >(n >> 32) == 0)
+    {
+        u = static_cast< uint32_t >(n), (void)LG(LZ);
+        return l;
+    }
+
+    uint64_t a = n / 100000000LLU;
+
+    if (static_cast< uint32_t >(a >> 32) == 0)
+    {
+        u = static_cast< uint32_t >(a);
+        LG(LN);
+    }
+    else
+    {
+        u = static_cast< uint32_t >(a / 100000000LLU);
+        LG(LN);
+        u = a % 100000000LLU;
+        LN(7);
+    }
+
+    u = n % 100000000LLU;
+    LZ(7);
+
+    return l;
+}
+/// Convert the given value into the given buffer, including the null character.
+inline unsigned U64ToA_(uint64_t n, char * b) noexcept
+{
+    // Reuse the function the omits the null character and store the result
+    unsigned l = U64ToA(n, b);
+    // Append the null character and return the previously stored result
+    return b[l] = '\0', l;
+}
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Convert a 64-bit binary signed integral value to its ASCII string representation.
+/// Returns the number of characters written to the given memory buffer.
+inline unsigned I64ToA(int64_t v, char * b) noexcept
+{
+        // Transform negative signed integers into positive unsigned integers and write the '-' symbol
+        uint64_t n = v < 0 ? *(b++) = '-', 0 - static_cast< uint64_t >(v) : v;
+        // Forward the call to the actual implementation and return the result
+        return U64ToA(n, b);
+}
+/// Convert the given value into the given buffer, including the null character.
+inline unsigned I64ToA_(int64_t n, char * b) noexcept
+{
+    // Reuse the function the omits the null character and store the result
+    unsigned l = I64ToA(n, b);
+    // Append the null character and return the previously stored result
+    return b[l] = '\0', l;
+}
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#undef A
+
+// --------------------------------------------------------------------------------------------------------------------
+#undef W
+#undef Q
+#undef D
+#undef E
+
+// --------------------------------------------------------------------------------------------------------------------
+#undef L0
+#undef L1
+#undef L2
+#undef L3
+#undef L4
+#undef L5
+#undef L6
+#undef L7
+#undef L8
+#undef L9
+
+// --------------------------------------------------------------------------------------------------------------------
+#undef LN
+#undef LZ
+#undef LG
+
 }
 
 #endif
