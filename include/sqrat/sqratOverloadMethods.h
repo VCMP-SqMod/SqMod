@@ -52,8 +52,8 @@ public:
 
     static void Get(const SQChar* name, int args, string & out) {
         SQChar buf[16] = {'_', 'o'};
-        I32ToA_(args, &buf[2]);
-        out.append(buf);
+        unsigned l = I32ToA(args, &buf[2]);
+        out.append(buf, l);
         out.push_back('_');
         out.append(name);
     }
