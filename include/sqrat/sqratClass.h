@@ -717,37 +717,43 @@ protected:
     }
 
     // constructor binding
-    Class& BindConstructor(SQFUNCTION method, SQInteger nParams, const SQChar *name = 0) {
-        SQFUNCTION overload = SqOverloadFunc(method);
+    Class& BindConstructor(SQFUNCTION constructor, SQInteger nParams, const SQChar *name = 0) {
+        SQFUNCTION overload = &OverloadConstructionForwarder;
+        // Decide whether to bind to a class or the root table
         bool alternative_global = false;
         if (name == 0)
             name = _SC("constructor");
         else alternative_global = true;
-        string overloadName = SqOverloadName::Get(name, nParams);
-
+        // Generate the overload mangled name
+        string overloadName;
+        overloadName.reserve(15);
+        SqOverloadName::Get(name, nParams, overloadName);
+        // Should we push a class object?
         if (!alternative_global )
-        {
-            // push the class
             sq_pushobject(vm, ClassType<C>::getClassData(vm)->classObj);
-        }
-        else
-        {
-            // the containing environment is the root table??
-            sq_pushroottable(vm);
-        }
+        // The containing environment is the root table??
+        else sq_pushroottable(vm);
 
         // Bind overload handler
         sq_pushstring(vm, name, -1);
-        sq_pushstring(vm, name, -1); // function name is passed as a free variable
+        // function name is passed as a free variable
+        //sq_pushstring(vm, name, -1);
+        sq_push(vm, -1); // <- Let's cheat(?) by pushing the same object
         sq_newclosure(vm, overload, 1);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, name);
+        // Include it into the object
         sq_newslot(vm, -3, false);
-
-        // Bind overloaded allocator function
-        sq_pushstring(vm, overloadName.c_str(), -1);
-        sq_newclosure(vm, method, 0);
-        sq_setparamscheck(vm,nParams + 1,NULL);
+        // Bind overloaded function
+        sq_pushstring(vm, overloadName.c_str(), static_cast<SQInteger>(overloadName.size()));
+        sq_newclosure(vm, constructor, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, overloadName.c_str());
+        // Include it into the object
         sq_newslot(vm, -3, false);
+        // pop object/environment
         sq_pop(vm, 1);
+
         return *this;
     }
 

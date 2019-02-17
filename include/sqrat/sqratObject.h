@@ -559,7 +559,7 @@ protected:
         string overloadName;
         overloadName.reserve(15);
         SqOverloadName::Get(name, argCount, overloadName);
-
+        // Push object/environment
         sq_pushobject(vm, GetObject());
 
         // Bind overload handler
@@ -583,8 +583,8 @@ protected:
         sq_setnativeclosurename(vm, -1, overloadName.c_str());
         // Include it into the object
         sq_newslot(vm, -3, staticVar);
-
-        sq_pop(vm,1); // pop object
+        // pop object/environment
+        sq_pop(vm, 1);
     }
 
     // Set the value of a variable on the object. Changes to values set this way are not reciprocated
