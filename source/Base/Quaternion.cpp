@@ -431,7 +431,7 @@ void Quaternion::SetVector4(const Vector4 & v)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Quaternion::SetStr(SQChar delim, const StackStrF & values)
+void Quaternion::SetStr(SQChar delim, StackStrF & values)
 {
     SetQuaternion(Quaternion::GetEx(delim, values));
 }
@@ -714,13 +714,13 @@ Quaternion Quaternion::NlerpEx(const Quaternion & quat, Value t, bool shortest_p
 }
 
 // ------------------------------------------------------------------------------------------------
-const Quaternion & Quaternion::Get(const StackStrF & str)
+const Quaternion & Quaternion::Get(StackStrF & str)
 {
     return Quaternion::GetEx(Quaternion::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Quaternion & Quaternion::GetEx(SQChar delim, const StackStrF & str)
+const Quaternion & Quaternion::GetEx(SQChar delim, StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");

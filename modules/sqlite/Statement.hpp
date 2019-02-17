@@ -98,7 +98,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const ConnRef & connection, const StackStrF & query)
+    Statement(const ConnRef & connection, StackStrF & query)
         : m_Handle(new StmtHnd(connection))
     {
         SQMOD_GET_VALID(*this)->Create(query.mPtr, query.mLen);
@@ -107,7 +107,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const Connection & connection, const StackStrF & query);
+    Statement(const Connection & connection, StackStrF & query);
 
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
@@ -314,7 +314,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the parameter index associated with the specified name.
     */
-    Int32 GetParameterIndex(const StackStrF & name) const
+    Int32 GetParameterIndex(StackStrF & name) const
     {
         return sqlite3_bind_parameter_index(SQMOD_GET_VALID(*this)->mPtr, name.mPtr);
     }
@@ -367,7 +367,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the column index associated with the specified name.
     */
-    Int32 GetColumnIndex(const StackStrF & name) const
+    Int32 GetColumnIndex(StackStrF & name) const
     {
         return SQMOD_GET_VALID(*this)->GetColumnIndex(name.mPtr, name.mLen);
     }
@@ -594,7 +594,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a string value at the specified parameter index.
     */
-    Statement & SetString(const Object & param, const StackStrF & value)
+    Statement & SetString(const Object & param, StackStrF & value)
     {
         Parameter(SQMOD_GET_CREATED(*this), param).SetString(value);
         // Allow chaining of operations

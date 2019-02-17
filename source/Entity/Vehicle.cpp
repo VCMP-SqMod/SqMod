@@ -57,7 +57,7 @@ const String & CVehicle::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetTag(const StackStrF & tag)
+void CVehicle::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
@@ -70,7 +70,7 @@ void CVehicle::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CVehicle & CVehicle::ApplyTag(const StackStrF & tag)
+CVehicle & CVehicle::ApplyTag(StackStrF & tag)
 {
     SetTag(tag);
     return *this;

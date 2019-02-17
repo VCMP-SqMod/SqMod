@@ -459,7 +459,7 @@ void Parameter::SetFloat64(SQFloat value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetString(const StackStrF & value)
+void Parameter::SetString(StackStrF & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value

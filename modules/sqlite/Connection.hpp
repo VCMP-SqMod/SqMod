@@ -79,7 +79,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(const StackStrF & name)
+    Connection(StackStrF & name)
         : m_Handle(new ConnHnd())
     {
         SQMOD_GET_VALID(*this)->Create(name.mPtr, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr);
@@ -88,7 +88,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(const StackStrF & name, Int32 flags)
+    Connection(StackStrF & name, Int32 flags)
         : m_Handle(new ConnHnd())
     {
         SQMOD_GET_VALID(*this)->Create(name.mPtr, flags, nullptr);
@@ -97,7 +97,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(const StackStrF & name, Int32 flags, const StackStrF & vfs)
+    Connection(StackStrF & name, Int32 flags, StackStrF & vfs)
         : m_Handle(new ConnHnd())
     {
         SQMOD_GET_VALID(*this)->Create(name.mPtr, flags, vfs.mPtr);
@@ -279,32 +279,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(const StackStrF & name);
+    void Open(StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(const StackStrF & name, Int32 flags);
+    void Open(StackStrF & name, Int32 flags);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    void Open(const StackStrF & name, Int32 flags, const StackStrF & vfs);
+    void Open(StackStrF & name, Int32 flags, StackStrF & vfs);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to execute the specified query.
     */
-    Int32 Exec(const StackStrF & str);
+    Int32 Exec(StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to queue the specified query.
     */
-    void Queue(const StackStrF & str);
+    void Queue(StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to create a statement from the specified query.
     */
-    Object Query(const StackStrF & str) const;
+    Object Query(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the database connection was opened in read-only mode.
@@ -314,7 +314,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Shortcut to test if a table exists.
     */
-    bool TableExists(const StackStrF & name) const;
+    bool TableExists(StackStrF & name) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the database connection is or is not in auto-commit mode.

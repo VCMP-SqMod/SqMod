@@ -376,7 +376,7 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(SQChar delim, const StackStrF & values);
+    void SetStr(SQChar delim, StackStrF & values);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized and positioned sphere.
@@ -414,12 +414,12 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Sphere type from a string.
     */
-    static const Sphere & Get(const StackStrF & str);
+    static const Sphere & Get(StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Sphere type from a string.
     */
-    static const Sphere & GetEx(SQChar delim, const StackStrF & str);
+    static const Sphere & GetEx(SQChar delim, StackStrF & str);
 };
 
 } // Namespace:: SqMod

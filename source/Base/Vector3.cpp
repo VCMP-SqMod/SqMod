@@ -415,7 +415,7 @@ void Vector3::SetQuaternionEx(Value qx, Value qy, Value qz, Value qw)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::SetStr(SQChar delim, const StackStrF & values)
+void Vector3::SetStr(SQChar delim, StackStrF & values)
 {
     SetVector3(Vector3::GetEx(delim, values));
 }
@@ -629,13 +629,13 @@ void Vector3::CenterRotateYZBy(Value degrees, const Vector3 & center)
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & Vector3::Get(const StackStrF & str)
+const Vector3 & Vector3::Get(StackStrF & str)
 {
     return Vector3::GetEx(Vector3::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector3 & Vector3::GetEx(SQChar delim, const StackStrF & str)
+const Vector3 & Vector3::GetEx(SQChar delim, StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f ");

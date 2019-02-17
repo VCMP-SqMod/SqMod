@@ -416,7 +416,7 @@ void Vector4::SetQuaternionEx(Value nx, Value ny, Value nz, Value nw)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector4::SetStr(SQChar delim, const StackStrF & values)
+void Vector4::SetStr(SQChar delim, StackStrF & values)
 {
     SetVector4(Vector4::GetEx(delim, values));
 }
@@ -465,13 +465,13 @@ Vector4 Vector4::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector4 & Vector4::Get(const StackStrF & str)
+const Vector4 & Vector4::Get(StackStrF & str)
 {
     return Vector4::GetEx(Vector4::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector4 & Vector4::GetEx(SQChar delim, const StackStrF & str)
+const Vector4 & Vector4::GetEx(SQChar delim, StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");

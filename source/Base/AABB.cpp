@@ -307,7 +307,7 @@ CSStr AABB::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void AABB::SetStr(SQChar delim, const StackStrF & values)
+void AABB::SetStr(SQChar delim, StackStrF & values)
 {
     DefineAABB(AABB::GetEx(delim, values));
 }
@@ -734,13 +734,13 @@ Int32 AABB::IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const
 }
 
 // ------------------------------------------------------------------------------------------------
-const AABB & AABB::Get(const StackStrF & str)
+const AABB & AABB::Get(StackStrF & str)
 {
     return AABB::GetEx(AABB::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const AABB & AABB::GetEx(SQChar delim, const StackStrF & str)
+const AABB & AABB::GetEx(SQChar delim, StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f , %f , %f , %f ");

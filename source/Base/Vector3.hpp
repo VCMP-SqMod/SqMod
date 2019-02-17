@@ -336,7 +336,7 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(SQChar delim, const StackStrF & values);
+    void SetStr(SQChar delim, StackStrF & values);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
@@ -493,12 +493,12 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.
     */
-    static const Vector3 & Get(const StackStrF & str);
+    static const Vector3 & Get(StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.
     */
-    static const Vector3 & GetEx(SQChar delim, const StackStrF & str);
+    static const Vector3 & GetEx(SQChar delim, StackStrF & str);
 
 };
 

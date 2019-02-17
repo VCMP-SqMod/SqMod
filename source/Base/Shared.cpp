@@ -324,7 +324,7 @@ const Color3 & GetRandomColor()
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 GetColor(const StackStrF & name)
+Color3 GetColor(StackStrF & name)
 {
     return name.mLen <= 0 ? Color3() : GetColorStr(name.mPtr);
 }

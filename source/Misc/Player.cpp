@@ -102,7 +102,7 @@ CCStr GetSkinName(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetSkinName(Uint32 id, const StackStrF & name)
+void SetSkinName(Uint32 id, StackStrF & name)
 {
     if (id <= 159)
     {
@@ -111,7 +111,7 @@ void SetSkinName(Uint32 id, const StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetSkinID(const StackStrF & name)
+Int32 GetSkinID(StackStrF & name)
 {
     // Clone the string into an editable version
     String str(name.mPtr, name.mLen);

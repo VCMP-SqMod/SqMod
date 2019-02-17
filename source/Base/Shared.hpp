@@ -231,7 +231,7 @@ Color3 GetColorStr(CSStr name);
 /* ------------------------------------------------------------------------------------------------
  * Attempt to identify the color in the specified name and return it.
 */
-Color3 GetColor(const StackStrF & name);
+Color3 GetColor(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Throw the last system error as an exception.

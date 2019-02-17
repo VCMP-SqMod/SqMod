@@ -52,7 +52,7 @@ const String & CKeybind::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CKeybind::SetTag(const StackStrF & tag)
+void CKeybind::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
@@ -65,7 +65,7 @@ void CKeybind::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CKeybind & CKeybind::ApplyTag(const StackStrF & tag)
+CKeybind & CKeybind::ApplyTag(StackStrF & tag)
 {
     SetTag(tag);
     return *this;

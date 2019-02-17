@@ -101,7 +101,7 @@ Object GetMemoryHighwaterMark(bool reset)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr EscapeString(const StackStrF & str)
+CSStr EscapeString(StackStrF & str)
 {
     // Is there even a string to escape?
     if (str.mLen <= 0)
@@ -115,7 +115,7 @@ CSStr EscapeString(const StackStrF & str)
 }
 
 // ------------------------------------------------------------------------------------------------
-CCStr EscapeStringEx(SQChar spec, const StackStrF & str)
+CCStr EscapeStringEx(SQChar spec, StackStrF & str)
 {
     // Utility that allows changing the format specifier temporarily
     static SQChar fs[] = _SC("%q");

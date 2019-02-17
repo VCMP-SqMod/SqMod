@@ -16,7 +16,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqLeftStr(SQChar f, Uint32 w, const StackStrF & s)
+static LightObj SqLeftStr(SQChar f, Uint32 w, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -46,7 +46,7 @@ static LightObj SqLeftStr(SQChar f, Uint32 w, const StackStrF & s)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqLeftOffsetStr(SQChar f, Uint32 w, Uint32 o, const StackStrF & s)
+static LightObj SqLeftOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -90,7 +90,7 @@ static LightObj SqLeftOffsetStr(SQChar f, Uint32 w, Uint32 o, const StackStrF & 
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqRightStr(SQChar f, Uint32 w, const StackStrF & s)
+static LightObj SqRightStr(SQChar f, Uint32 w, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -129,7 +129,7 @@ static LightObj SqRightStr(SQChar f, Uint32 w, const StackStrF & s)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqRightOffsetStr(SQChar f, Uint32 w, Uint32 o, const StackStrF & s)
+static LightObj SqRightOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -173,7 +173,7 @@ static LightObj SqRightOffsetStr(SQChar f, Uint32 w, Uint32 o, const StackStrF &
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqCenterStr(SQChar f, Uint32 w, const StackStrF & s)
+static LightObj SqCenterStr(SQChar f, Uint32 w, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -261,7 +261,7 @@ CSStr StrJustAlphaNum(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqJustAlphaNum(const StackStrF & s)
+static LightObj SqJustAlphaNum(StackStrF & s)
 {
     const Buffer b(StrJustAlphaNumImpl(s.mPtr, s.mLen));
     // Obtain the initial stack size
@@ -323,7 +323,7 @@ CSStr StrToLowercase(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqToLowercase(const StackStrF & s)
+static LightObj SqToLowercase(StackStrF & s)
 {
     const Buffer b(StrToLowercaseImpl(s.mPtr, s.mLen));
     // Obtain the initial stack size
@@ -385,7 +385,7 @@ CSStr StrToUppercase(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqToUppercase(const StackStrF & s)
+static LightObj SqToUppercase(StackStrF & s)
 {
     const Buffer b(StrToUppercaseImpl(s.mPtr, s.mLen));
     // Obtain the initial stack size
@@ -399,7 +399,7 @@ static LightObj SqToUppercase(const StackStrF & s)
 /* ------------------------------------------------------------------------------------------------
  * Checks if all the characters in the specified string are of the specified class or not.
 */
-template < int (*Fn)(int) > static bool SqAllChars(const StackStrF & s)
+template < int (*Fn)(int) > static bool SqAllChars(StackStrF & s)
 {
     // See if we actually have something to search for
     if (!s.mLen)
@@ -424,7 +424,7 @@ template < int (*Fn)(int) > static bool SqAllChars(const StackStrF & s)
 /* ------------------------------------------------------------------------------------------------
  * Find the position of the first character that matches the specified class.
 */
-template < int (*Fn)(int), bool Neg > static LightObj SqFirstChar(const StackStrF & s)
+template < int (*Fn)(int), bool Neg > static LightObj SqFirstChar(StackStrF & s)
 {
     // See if we actually have something to search for
     if (s.mLen)
@@ -452,7 +452,7 @@ template < int (*Fn)(int), bool Neg > static LightObj SqFirstChar(const StackStr
 /* ------------------------------------------------------------------------------------------------
  * Find the position of the last character that matches the specified class.
 */
-template < int (*Fn)(int), bool Neg > static LightObj SqLastChar(const StackStrF & s)
+template < int (*Fn)(int), bool Neg > static LightObj SqLastChar(StackStrF & s)
 {
     // See if we actually have something to search for
     if (s.mLen)

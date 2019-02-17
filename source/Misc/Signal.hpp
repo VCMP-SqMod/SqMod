@@ -706,17 +706,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create a new signal with the specified name.
     */
-    static LightObj Create(const StackStrF & name);
+    static LightObj Create(StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Remove the signal with the specified name.
     */
-    static void Remove(const StackStrF & name);
+    static void Remove(StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the signal with the specified name.
     */
-    static const LightObj & Fetch(const StackStrF & name);
+    static const LightObj & Fetch(StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Emit a signal from the module.

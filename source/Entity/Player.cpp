@@ -84,7 +84,7 @@ const String & CPlayer::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetTag(const StackStrF & tag)
+void CPlayer::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
@@ -97,7 +97,7 @@ void CPlayer::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CPlayer & CPlayer::ApplyTag(const StackStrF & tag)
+CPlayer & CPlayer::ApplyTag(StackStrF & tag)
 {
     SetTag(tag);
     return *this;
@@ -314,7 +314,7 @@ CSStr CPlayer::GetName() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetName(const StackStrF & name) const
+void CPlayer::SetName(StackStrF & name) const
 {
     // Validate the managed identifier
     Validate();
@@ -1378,8 +1378,8 @@ void CPlayer::Unspectate() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::Redirect(const StackStrF & ip, Uint32 port, const StackStrF & nick,
-                        const StackStrF & server_pass, const StackStrF & user_pass)
+void CPlayer::Redirect(StackStrF & ip, Uint32 port, StackStrF & nick,
+                        StackStrF & server_pass, StackStrF & user_pass)
 {
     // Validate the managed identifier
     Validate();
@@ -1565,7 +1565,7 @@ const String & CPlayer::GetMessagePrefix(Uint32 index) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetMessagePrefix(Uint32 index, const StackStrF & prefix)
+void CPlayer::SetMessagePrefix(Uint32 index, StackStrF & prefix)
 {
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
@@ -1742,7 +1742,7 @@ void CPlayer::StreamFloat(SQFloat val)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::StreamString(const StackStrF & val)
+void CPlayer::StreamString(StackStrF & val)
 {
     // Validate the managed identifier
     Validate();
@@ -1756,7 +1756,7 @@ void CPlayer::StreamString(const StackStrF & val)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::StreamRawString(const StackStrF & val)
+void CPlayer::StreamRawString(StackStrF & val)
 {
     // Validate the managed identifier
     Validate();

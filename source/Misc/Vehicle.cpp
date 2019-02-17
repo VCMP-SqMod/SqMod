@@ -102,7 +102,7 @@ String GetAutomobileName(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetAutomobileName(Uint32 id, const StackStrF & name)
+void SetAutomobileName(Uint32 id, StackStrF & name)
 {
     if (id > 129 && id < 237)
     {
@@ -119,7 +119,7 @@ void SetAutomobileName(Uint32 id, const StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetAutomobileID(const StackStrF & name)
+Int32 GetAutomobileID(StackStrF & name)
 {
     // Clone the string into an editable version
     String str(name.mPtr, name.mLen);

@@ -341,7 +341,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a string value at the referenced parameter index.
     */
-    void SetString(const StackStrF & value);
+    void SetString(StackStrF & value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a string value at the referenced parameter index.

@@ -97,7 +97,7 @@ const ConnRef & Connection::GetCreated() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Open(const StackStrF & name)
+void Connection::Open(StackStrF & name)
 {
     // Should we create a connection handle?
     if (!m_Handle)
@@ -114,7 +114,7 @@ void Connection::Open(const StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Open(const StackStrF & name, Int32 flags)
+void Connection::Open(StackStrF & name, Int32 flags)
 {
     // Should we create a connection handle?
     if (!m_Handle)
@@ -131,7 +131,7 @@ void Connection::Open(const StackStrF & name, Int32 flags)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Open(const StackStrF & name, Int32 flags, const StackStrF & vfs)
+void Connection::Open(StackStrF & name, Int32 flags, StackStrF & vfs)
 {
     // Should we create a connection handle?
     if (!m_Handle)
@@ -148,7 +148,7 @@ void Connection::Open(const StackStrF & name, Int32 flags, const StackStrF & vfs
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::Exec(const StackStrF & str)
+Int32 Connection::Exec(StackStrF & str)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to execute the specified query
@@ -163,7 +163,7 @@ Int32 Connection::Exec(const StackStrF & str)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Connection::Query(const StackStrF & str) const
+Object Connection::Query(StackStrF & str) const
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Return the requested information
@@ -171,7 +171,7 @@ Object Connection::Query(const StackStrF & str) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Queue(const StackStrF & str)
+void Connection::Queue(StackStrF & str)
 {
     SQMOD_VALIDATE(*this);
     // Is there a query to commit?
@@ -198,10 +198,11 @@ bool Connection::IsReadOnly() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Connection::TableExists(const StackStrF & name) const
+bool Connection::TableExists(StackStrF & name) const
 {
+    StackStrF query("SELECT count(*) FROM [sqlite_master] WHERE [type]='table' AND [name]=?");
     // Prepare a statement to inspect the master table
-    Statement stmt(SQMOD_GET_CREATED(*this), "SELECT count(*) FROM [sqlite_master] WHERE [type]='table' AND [name]=?");
+    Statement stmt(SQMOD_GET_CREATED(*this), query);
     // Could the statement be created?
     if (stmt.IsValid())
     {
@@ -346,9 +347,9 @@ void Register_Connection(Table & sqlns)
         Class< Connection >(sqlns.GetVM(), Typename::Str)
         // Constructors
         .Ctor()
-        .Ctor< const StackStrF & >()
-        .Ctor< const StackStrF &, Int32 >()
-        .Ctor< const StackStrF &, Int32, const StackStrF & >()
+        .Ctor< StackStrF & >()
+        .Ctor< StackStrF &, Int32 >()
+        .Ctor< StackStrF &, Int32, StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Connection::ToString)
@@ -387,9 +388,9 @@ void Register_Connection(Table & sqlns)
         .Func(_SC("ClearQueue"), &Connection::ClearQueue)
         .Func(_SC("PopQueue"), &Connection::PopQueue)
         // Member Overloads
-        .Overload< void (Connection::*)(const StackStrF &) >(_SC("Open"), &Connection::Open)
-        .Overload< void (Connection::*)(const StackStrF &, Int32) >(_SC("Open"), &Connection::Open)
-        .Overload< void (Connection::*)(const StackStrF &, Int32, const StackStrF &) >(_SC("Open"), &Connection::Open)
+        .Overload< void (Connection::*)(StackStrF &) >(_SC("Open"), &Connection::Open)
+        .Overload< void (Connection::*)(StackStrF &, Int32) >(_SC("Open"), &Connection::Open)
+        .Overload< void (Connection::*)(StackStrF &, Int32, StackStrF &) >(_SC("Open"), &Connection::Open)
         .Overload< Int32 (Connection::*)(Int32) >(_SC("GetInfo"), &Connection::GetInfo)
         .Overload< Int32 (Connection::*)(Int32, bool) >(_SC("GetInfo"), &Connection::GetInfo)
         .Overload< Int32 (Connection::*)(Int32, bool, bool) >(_SC("GetInfo"), &Connection::GetInfo)

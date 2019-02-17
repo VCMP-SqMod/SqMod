@@ -232,7 +232,7 @@ SQInteger Routine::Create(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Routine::IsWithTag(const StackStrF & tag)
+bool Routine::IsWithTag(StackStrF & tag)
 {
     // Is the specified tag valid?
     if (tag.mPtr != nullptr)

@@ -203,12 +203,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    void SetTag(const StackStrF & tag);
+    void SetTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    CPlayer & ApplyTag(const StackStrF & tag);
+    CPlayer & ApplyTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
@@ -298,7 +298,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the nick name of the managed player entity.
     */
-    void SetName(const StackStrF & name) const;
+    void SetName(StackStrF & name) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current state of the managed player entity.
@@ -743,8 +743,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.
     */
-    void Redirect(const StackStrF & ip, Uint32 port, const StackStrF & nick,
-                    const StackStrF & server_pass, const StackStrF & user_pass);
+    void Redirect(StackStrF & ip, Uint32 port, StackStrF & nick,
+                    StackStrF & server_pass, StackStrF & user_pass);
 
     /* --------------------------------------------------------------------------------------------
      * Request a list of the modules loaded into the client session.
@@ -814,7 +814,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the message prefix at the specified index for the managed player entity.
     */
-    void SetMessagePrefix(Uint32 index, const StackStrF & prefix);
+    void SetMessagePrefix(Uint32 index, StackStrF & prefix);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked position changes for the managed player entity.
@@ -909,12 +909,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Write a string to the stream buffer.
     */
-    void StreamString(const StackStrF & val);
+    void StreamString(StackStrF & val);
 
     /* --------------------------------------------------------------------------------------------
      * Write a raw string to the stream buffer.
     */
-    void StreamRawString(const StackStrF & val);
+    void StreamRawString(StackStrF & val);
 
     /* --------------------------------------------------------------------------------------------
      * Send the data in the stream buffer to the client.

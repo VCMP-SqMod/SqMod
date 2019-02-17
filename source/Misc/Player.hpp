@@ -15,12 +15,12 @@ CCStr GetSkinName(Uint32 id);
 /* ------------------------------------------------------------------------------------------------
  * Modify the name associated with a skin model identifier.
 */
-void SetSkinName(Uint32 id, const StackStrF & name);
+void SetSkinName(Uint32 id, StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert a vehicle model name to a skin model identifier.
 */
-Int32 GetSkinID(const StackStrF & name);
+Int32 GetSkinID(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * See whether the specified skin model identifier is valid.

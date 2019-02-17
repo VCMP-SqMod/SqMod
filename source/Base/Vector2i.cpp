@@ -479,7 +479,7 @@ void Vector2i::SetVector2(const Vector2 & v)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2i::SetStr(SQChar delim, const StackStrF & values)
+void Vector2i::SetStr(SQChar delim, StackStrF & values)
 {
     SetVector2i(Vector2i::GetEx(delim, values));
 }
@@ -522,13 +522,13 @@ Vector2i Vector2i::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector2i & Vector2i::Get(const StackStrF & str)
+const Vector2i & Vector2i::Get(StackStrF & str)
 {
     return Vector2i::GetEx(Vector2i::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Vector2i & Vector2i::GetEx(SQChar delim, const StackStrF & str)
+const Vector2i & Vector2i::GetEx(SQChar delim, StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %d , %d ");

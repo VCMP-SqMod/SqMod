@@ -139,12 +139,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    void SetTag(const StackStrF & tag);
+    void SetTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    CVehicle & ApplyTag(const StackStrF & tag);
+    CVehicle & ApplyTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.

@@ -61,7 +61,7 @@ const String & CObject::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetTag(const StackStrF & tag)
+void CObject::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
@@ -74,7 +74,7 @@ void CObject::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CObject & CObject::ApplyTag(const StackStrF & tag)
+CObject & CObject::ApplyTag(StackStrF & tag)
 {
     SetTag(tag);
     return *this;

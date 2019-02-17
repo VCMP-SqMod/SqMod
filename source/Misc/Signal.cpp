@@ -1528,7 +1528,7 @@ LightObj Signal::CreateFree()
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj Signal::Create(const StackStrF & name)
+LightObj Signal::Create(StackStrF & name)
 {
     // Validate the signal name
     if (name.mLen <= 0)
@@ -1564,7 +1564,7 @@ LightObj Signal::Create(const StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Signal::Remove(const StackStrF & name)
+void Signal::Remove(StackStrF & name)
 {
     // Validate the signal name
     if (name.mLen <= 0)
@@ -1598,7 +1598,7 @@ void Signal::Remove(const StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-const LightObj & Signal::Fetch(const StackStrF & name)
+const LightObj & Signal::Fetch(StackStrF & name)
 {
     // Validate the signal name
     if (name.mLen <= 0)

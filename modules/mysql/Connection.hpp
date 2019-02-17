@@ -414,7 +414,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Escape unwanted characters from a given string.
     */
-    LightObj EscapeString(const StackStrF & str);
+    LightObj EscapeString(StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to execute the specified query.

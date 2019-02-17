@@ -429,12 +429,12 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
-    void SetStr(SQChar delim, const StackStrF & name);
+    void SetStr(SQChar delim, StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Set the values from the identified color.
     */
-    void SetName(const StackStrF & name);
+    void SetName(StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Get the component values packed inside an integer value.
@@ -502,12 +502,12 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Color4 type from a string.
     */
-    static const Color4 & Get(const StackStrF & str);
+    static const Color4 & Get(StackStrF & str);
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Color4 type from a string.
     */
-    static const Color4 & GetEx(SQChar delim, const StackStrF & str);
+    static const Color4 & GetEx(SQChar delim, StackStrF & str);
 };
 
 } // Namespace:: SqMod

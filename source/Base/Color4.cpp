@@ -559,13 +559,13 @@ void Color4::SetColor4Ex(Value nr, Value ng, Value nb, Value na)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetStr(SQChar delim, const StackStrF & values)
+void Color4::SetStr(SQChar delim, StackStrF & values)
 {
     SetColor4(Color4::GetEx(delim, values));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetName(const StackStrF & name)
+void Color4::SetName(StackStrF & name)
 {
     SetColor3(GetColor(name));
 }
@@ -667,13 +667,13 @@ void Color4::Inverse()
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color4 & Color4::Get(const StackStrF & str)
+const Color4 & Color4::Get(StackStrF & str)
 {
     return Color4::GetEx(Color4::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Color4 & Color4::GetEx(SQChar delim, const StackStrF & str)
+const Color4 & Color4::GetEx(SQChar delim, StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %u , %u , %u , %u ");

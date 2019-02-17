@@ -152,12 +152,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    void SetTag(const StackStrF & tag);
+    void SetTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    CObject & ApplyTag(const StackStrF & tag);
+    CObject & ApplyTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.

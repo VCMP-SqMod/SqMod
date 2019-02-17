@@ -160,7 +160,7 @@ void Statement::ValidateRow() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-Statement::Statement(const Connection & connection, const StackStrF & query)
+Statement::Statement(const Connection & connection, StackStrF & query)
     : m_Handle(new StmtHnd(connection.GetHandle()))
 {
     SQMOD_GET_VALID(*this)->Create(query.mPtr, query.mLen);
@@ -425,7 +425,7 @@ void Register_Statement(Table & sqlns)
         // Constructors
         .Ctor()
         .Ctor< const Statement & >()
-        .Ctor< const Connection &, const StackStrF & >()
+        .Ctor< const Connection &, StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Statement::ToString)

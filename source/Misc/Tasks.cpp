@@ -451,7 +451,7 @@ SQInteger Tasks::Exists(Int32 id, Int32 type, HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-const Tasks::Task & Tasks::FindByTag(Int32 id, Int32 type, const StackStrF & tag)
+const Tasks::Task & Tasks::FindByTag(Int32 id, Int32 type, StackStrF & tag)
 {
     // Attempt to find the requested task
     for (const auto & t : s_Tasks)

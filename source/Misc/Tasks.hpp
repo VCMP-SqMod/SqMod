@@ -148,7 +148,7 @@ private:
         /* ----------------------------------------------------------------------------------------
          * Modify the associated user tag.
         */
-        void SetTag(const StackStrF & tag)
+        void SetTag(StackStrF & tag)
         {
             mTag.assign(tag.mPtr, ClampMin(tag.mLen, 0));
         }
@@ -358,7 +358,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Cleanup all tasks associated with the specified entity.
     */
-    static const Task & FindByTag(Int32 id, Int32 type, const StackStrF & tag);
+    static const Task & FindByTag(Int32 id, Int32 type, StackStrF & tag);
 
 public:
 

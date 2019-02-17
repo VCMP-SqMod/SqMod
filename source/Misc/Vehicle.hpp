@@ -15,12 +15,12 @@ String GetAutomobileName(Uint32 id);
 /* ------------------------------------------------------------------------------------------------
  * Modify the name associated with a vehicle model identifier.
 */
-void SetAutomobileName(Uint32 id, const StackStrF & name);
+void SetAutomobileName(Uint32 id, StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert a vehicle model name to a vehicle model identifier.
 */
-Int32 GetAutomobileID(const StackStrF & name);
+Int32 GetAutomobileID(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * See whether the specified vehicle model identifier is valid.

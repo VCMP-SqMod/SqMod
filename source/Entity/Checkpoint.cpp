@@ -55,7 +55,7 @@ const String & CCheckpoint::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetTag(const StackStrF & tag)
+void CCheckpoint::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
@@ -68,7 +68,7 @@ void CCheckpoint::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CCheckpoint & CCheckpoint::ApplyTag(const StackStrF & tag)
+CCheckpoint & CCheckpoint::ApplyTag(StackStrF & tag)
 {
     SetTag(tag);
     return *this;

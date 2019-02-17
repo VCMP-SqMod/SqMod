@@ -74,7 +74,7 @@ struct Area
     /* --------------------------------------------------------------------------------------------
      * Named constructor.
     */
-    Area(const StackStrF & name)
+    Area(StackStrF & name)
         : Area(16, name)
     {
         //...
@@ -82,7 +82,7 @@ struct Area
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Area(SQInteger sz, const StackStrF & name)
+    Area(SQInteger sz, StackStrF & name)
         : mL(DEF_L), mB(DEF_B), mR(DEF_R), mT(DEF_T), mPoints(), mID(0), mCells()
         , mName(name.mPtr, name.mLen <= 0 ? 0 : name.mLen)
 
@@ -97,7 +97,7 @@ struct Area
      * Vector2 constructor.
     */
     Area(const Vector2 & a, const Vector2 & b, const Vector2 & c)
-        : Area(a.x, a.y, b.x, b.y, c.x, c.y, 16, StackStrF())
+        : Area(a.x, a.y, b.x, b.y, c.x, c.y, 16, StackStrF::Dummy())
     {
         //...
     }
@@ -105,7 +105,7 @@ struct Area
     /* --------------------------------------------------------------------------------------------
      * Vector2 constructor with name.
     */
-    Area(const Vector2 & a, const Vector2 & b, const Vector2 & c, const StackStrF & name)
+    Area(const Vector2 & a, const Vector2 & b, const Vector2 & c, StackStrF & name)
         : Area(a.x, a.y, b.x, b.y, c.x, c.y, 16, name)
     {
         //...
@@ -114,7 +114,7 @@ struct Area
     /* --------------------------------------------------------------------------------------------
      * Vector2 constructor with name and memory to reserve.
     */
-    Area(const Vector2 & a, const Vector2 & b, const Vector2 & c, SQInteger sz, const StackStrF & name)
+    Area(const Vector2 & a, const Vector2 & b, const Vector2 & c, SQInteger sz, StackStrF & name)
         : Area(a.x, a.y, b.x, b.y, c.x, c.y, sz, name)
     {
         //...
@@ -124,7 +124,7 @@ struct Area
      * Extended constructor.
     */
     Area(float ax, float ay, float bx, float by, float cx, float cy)
-        : Area(ax, ay, bx, by, cx, cy, 16, StackStrF())
+        : Area(ax, ay, bx, by, cx, cy, 16, StackStrF::Dummy())
     {
         //...
     }
@@ -132,7 +132,7 @@ struct Area
     /* --------------------------------------------------------------------------------------------
      * Extended constructor with name.
     */
-    Area(float ax, float ay, float bx, float by, float cx, float cy, const StackStrF & name)
+    Area(float ax, float ay, float bx, float by, float cx, float cy, StackStrF & name)
         : Area(ax, ay, bx, by, cx, cy, 16, name)
     {
         //...
@@ -141,7 +141,7 @@ struct Area
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Area(float ax, float ay, float bx, float by, float cx, float cy, SQInteger sz, const StackStrF & name)
+    Area(float ax, float ay, float bx, float by, float cx, float cy, SQInteger sz, StackStrF & name)
         : mL(DEF_L), mB(DEF_B), mR(DEF_R), mT(DEF_T), mPoints(), mID(0), mCells()
         , mName(name.mPtr, name.mLen <= 0 ? 0 : name.mLen)
     {
@@ -219,7 +219,7 @@ struct Area
     /* --------------------------------------------------------------------------------------------
      * Modify the name of this area.
     */
-    void SetName(const StackStrF & name)
+    void SetName(StackStrF & name)
     {
         if (name.mLen <= 0)
         {
@@ -235,7 +235,7 @@ struct Area
     /* --------------------------------------------------------------------------------------------
      * Modify the name of this area. (allows chaining function calls)
     */
-    Area & ApplyName(const StackStrF & name)
+    Area & ApplyName(StackStrF & name)
     {
         SetName(name);
         return *this;

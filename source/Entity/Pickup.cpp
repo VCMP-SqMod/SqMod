@@ -54,7 +54,7 @@ const String & CPickup::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPickup::SetTag(const StackStrF & tag)
+void CPickup::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
@@ -67,7 +67,7 @@ void CPickup::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CPickup & CPickup::ApplyTag(const StackStrF & tag)
+CPickup & CPickup::ApplyTag(StackStrF & tag)
 {
     SetTag(tag);
     return *this;

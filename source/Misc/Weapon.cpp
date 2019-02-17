@@ -81,7 +81,7 @@ CCStr GetWeaponName(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetWeaponName(Uint32 id, const StackStrF & name)
+void SetWeaponName(Uint32 id, StackStrF & name)
 {
 	// Can we consider this a custom weapon ID?
 	if (IsCustomWeapon(id))
@@ -109,7 +109,7 @@ void ClearCustomWeaponNamePool()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetWeaponID(const StackStrF & name)
+Int32 GetWeaponID(StackStrF & name)
 {
     // Clone the string into an editable version
     String str(name.mPtr, name.mLen);

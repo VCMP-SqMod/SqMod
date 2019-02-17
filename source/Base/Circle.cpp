@@ -409,7 +409,7 @@ void Circle::SetPositionEx(Value nx, Value ny)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::SetStr(SQChar delim, const StackStrF & values)
+void Circle::SetStr(SQChar delim, StackStrF & values)
 {
     SetCircle(Circle::GetEx(delim, values));
 }
@@ -468,13 +468,13 @@ Circle Circle::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Circle & Circle::Get(const StackStrF & str)
+const Circle & Circle::Get(StackStrF & str)
 {
     return Circle::GetEx(Circle::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Circle & Circle::GetEx(SQChar delim, const StackStrF & str)
+const Circle & Circle::GetEx(SQChar delim, StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f ");

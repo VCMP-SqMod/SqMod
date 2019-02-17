@@ -108,7 +108,7 @@ CSStr GetKeyCodeName(Uint8 keycode)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetKeyCodeName(Uint8 keycode, const StackStrF & name)
+void SetKeyCodeName(Uint8 keycode, StackStrF & name)
 {
     CS_Keycode_Names[keycode].assign(name.mPtr);
 }
@@ -162,13 +162,13 @@ Table GetPluginInfo(Int32 plugin_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 FindPlugin(const StackStrF & name)
+Int32 FindPlugin(StackStrF & name)
 {
     return _Func->FindPlugin(name.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SendPluginCommand(Uint32 identifier, const StackStrF & payload)
+void SendPluginCommand(Uint32 identifier, StackStrF & payload)
 {
     _Func->SendPluginCommand(identifier, payload.mPtr);
 }
@@ -180,7 +180,7 @@ const ULongInt & GetTime()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SendLogMessage(const StackStrF & msg)
+void SendLogMessage(StackStrF & msg)
 {
     if (_Func->LogMessage("%s", msg.mPtr) == vcmpErrorTooLargeInput)
     {
@@ -276,7 +276,7 @@ CSStr GetServerName()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetServerName(const StackStrF & name)
+void SetServerName(StackStrF & name)
 {
     _Func->SetServerName(name.mPtr);
 }
@@ -303,7 +303,7 @@ CSStr GetServerPassword()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetServerPassword(const StackStrF & passwd)
+void SetServerPassword(StackStrF & passwd)
 {
     _Func->SetServerPassword(passwd.mPtr);
 }
@@ -330,13 +330,13 @@ CSStr GetGameModeText()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetGameModeText(const StackStrF & text)
+void SetGameModeText(StackStrF & text)
 {
     _Func->SetGameModeText(text.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CreateRadioStream(bool listed, const StackStrF & name, const StackStrF & url)
+void CreateRadioStream(bool listed, StackStrF & name, StackStrF & url)
 {
     if (_Func->AddRadioStream(-1, name.mPtr, url.mPtr, listed) == vcmpErrorArgumentOutOfBounds)
     {
@@ -345,7 +345,7 @@ void CreateRadioStream(bool listed, const StackStrF & name, const StackStrF & ur
 }
 
 // ------------------------------------------------------------------------------------------------
-void CreateRadioStreamEx(Int32 id, bool listed, const StackStrF & name, const StackStrF & url)
+void CreateRadioStreamEx(Int32 id, bool listed, StackStrF & name, StackStrF & url)
 {
     if (_Func->AddRadioStream(id, name.mPtr, url.mPtr, listed) == vcmpErrorArgumentOutOfBounds)
     {
@@ -774,25 +774,25 @@ void SetSpawnCameraLookAtEx(Float32 x, Float32 y, Float32 z)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BanIP(const StackStrF & addr)
+void BanIP(StackStrF & addr)
 {
     _Func->BanIP(const_cast< SStr >(addr.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
-bool UnbanIP(const StackStrF & addr)
+bool UnbanIP(StackStrF & addr)
 {
     return _Func->UnbanIP(const_cast< SStr >(addr.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsIPBanned(const StackStrF & addr)
+bool IsIPBanned(StackStrF & addr)
 {
     return _Func->IsIPBanned(const_cast< SStr >(addr.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetPlayerIdFromName(const StackStrF & name)
+Int32 GetPlayerIdFromName(StackStrF & name)
 {
     return _Func->GetPlayerIdFromName(name.mPtr);
 }

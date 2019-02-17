@@ -52,7 +52,7 @@ const String & CBlip::GetTag() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CBlip::SetTag(const StackStrF & tag)
+void CBlip::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
@@ -65,7 +65,7 @@ void CBlip::SetTag(const StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-CBlip & CBlip::ApplyTag(const StackStrF & tag)
+CBlip & CBlip::ApplyTag(StackStrF & tag)
 {
     SetTag(tag);
     return *this;

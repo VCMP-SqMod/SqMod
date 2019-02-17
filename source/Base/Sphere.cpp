@@ -409,7 +409,7 @@ void Sphere::SetPositionEx(Value nx, Value ny, Value nz)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::SetStr(SQChar delim, const StackStrF & values)
+void Sphere::SetStr(SQChar delim, StackStrF & values)
 {
     SetSphere(Sphere::GetEx(delim, values));
 }
@@ -468,13 +468,13 @@ Sphere Sphere::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const Sphere & Sphere::Get(const StackStrF & str)
+const Sphere & Sphere::Get(StackStrF & str)
 {
     return Sphere::GetEx(Sphere::Delim, str);
 }
 
 // ------------------------------------------------------------------------------------------------
-const Sphere & Sphere::GetEx(SQChar delim, const StackStrF & str)
+const Sphere & Sphere::GetEx(SQChar delim, StackStrF & str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %f , %f , %f , %f ");

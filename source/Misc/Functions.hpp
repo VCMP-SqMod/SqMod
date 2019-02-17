@@ -15,7 +15,7 @@ CSStr GetKeyCodeName(Uint8 keycode);
 /* ------------------------------------------------------------------------------------------------
  * Modify the name of a certain key-code.
 */
-void SetKeyCodeName(Uint8 keycode, const StackStrF & name);
+void SetKeyCodeName(Uint8 keycode, StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server version.
@@ -40,12 +40,12 @@ Table GetPluginInfo(Int32 plugin_id);
 /* ------------------------------------------------------------------------------------------------
  * Attempt to find a plug-in identifier by it's name.
 */
-Int32 FindPlugin(const StackStrF & name);
+Int32 FindPlugin(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Send a custom command to the loaded plug-ins.
 */
-void SendPluginCommand(Uint32 identifier, const StackStrF & payload);
+void SendPluginCommand(Uint32 identifier, StackStrF & payload);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server time.
@@ -55,7 +55,7 @@ const ULongInt & GetTime();
 /* ------------------------------------------------------------------------------------------------
  * Send a log message to the server.
 */
-void SendLogMessage(const StackStrF & msg);
+void SendLogMessage(StackStrF & msg);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the last error that occurred on the server.
@@ -115,7 +115,7 @@ CSStr GetServerName();
 /* ------------------------------------------------------------------------------------------------
  * Modify the server name.
 */
-void SetServerName(const StackStrF & name);
+void SetServerName(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server password.
@@ -125,7 +125,7 @@ CSStr GetServerPassword();
 /* ------------------------------------------------------------------------------------------------
  * Modify the server password.
 */
-void SetServerPassword(const StackStrF & passwd);
+void SetServerPassword(StackStrF & passwd);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game-mode text.
@@ -135,17 +135,17 @@ CSStr GetGameModeText();
 /* ------------------------------------------------------------------------------------------------
  * Modify the game-mode text.
 */
-void SetGameModeText(const StackStrF & text);
+void SetGameModeText(StackStrF & text);
 
 /* ------------------------------------------------------------------------------------------------
  * Create a radio stream.
 */
-void CreateRadioStream(bool listed, const StackStrF & name, const StackStrF & url);
+void CreateRadioStream(bool listed, StackStrF & name, StackStrF & url);
 
 /* ------------------------------------------------------------------------------------------------
  * Create a radio stream.
 */
-void CreateRadioStreamEx(Int32 id, bool listed, const StackStrF & name, const StackStrF & url);
+void CreateRadioStreamEx(Int32 id, bool listed, StackStrF & name, StackStrF & url);
 
 /* ------------------------------------------------------------------------------------------------
  * Remove a radio stream.
@@ -427,22 +427,22 @@ void SetSpawnCameraLookAtEx(Float32 x, Float32 y, Float32 z);
 /* ------------------------------------------------------------------------------------------------
  * Ban an IP address from the server.
 */
-void BanIP(const StackStrF & addr);
+void BanIP(StackStrF & addr);
 
 /* ------------------------------------------------------------------------------------------------
  * Unban an IP address from the server.
 */
-bool UnbanIP(const StackStrF & addr);
+bool UnbanIP(StackStrF & addr);
 
 /* ------------------------------------------------------------------------------------------------
  * See if an IP address is banned from the server.
 */
-bool IsIPBanned(const StackStrF & addr);
+bool IsIPBanned(StackStrF & addr);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the identifier of the player with the specified name.
 */
-Int32 GetPlayerIdFromName(const StackStrF & name);
+Int32 GetPlayerIdFromName(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * See if a player with the specified identifier is connected.

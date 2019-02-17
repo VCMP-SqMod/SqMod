@@ -350,7 +350,7 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj Connection::EscapeString(const StackStrF & str)
+LightObj Connection::EscapeString(StackStrF & str)
 {
     // Is there even a string to escape?
     if (str.mLen <= 0)

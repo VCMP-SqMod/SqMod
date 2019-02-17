@@ -285,7 +285,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of used routine slots.
     */
-    static const LightObj & FindByTag(const StackStrF & tag)
+    static const LightObj & FindByTag(StackStrF & tag)
     {
         // Is the specified tag valid?
         if (!tag.mPtr)
@@ -308,7 +308,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check if a routine with a certain tag exists.
     */
-    static bool IsWithTag(const StackStrF & tag);
+    static bool IsWithTag(StackStrF & tag);
     /* --------------------------------------------------------------------------------------------
      * Process all active routines and update elapsed time.
     */
@@ -384,7 +384,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
-    void SetTag(const StackStrF & tag)
+    void SetTag(StackStrF & tag)
     {
         GetValid().mTag.assign(tag.mPtr, ClampMin(tag.mLen, 0));
     }

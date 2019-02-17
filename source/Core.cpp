@@ -51,6 +51,8 @@ extern void TerminateTasks();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
+extern void MgInitialize();
+extern void MgTerminate();
 
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(CSStr path);
@@ -372,6 +374,9 @@ bool Core::Initialize()
     InitializeRoutines();
     InitializeTasks();
 
+    // Initialize the Mongoose library
+    //MgInitialize();
+
     // Initialization successful
     return true;
 }
@@ -534,6 +539,8 @@ void Core::Terminate(bool shutdown)
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(SQMOD_RELEASED_CMD, "");
     }
+    // Terminate the Mongoose manager
+    //MgTerminate();
 
     OutputMessage("Squirrel plug-in was successfully terminated");
 }
