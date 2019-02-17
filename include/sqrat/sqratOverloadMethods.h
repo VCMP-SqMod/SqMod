@@ -53,7 +53,7 @@ public:
     static void Get(const SQChar* name, int args, string & out) {
         SQChar buf[16] = {'_', 'o'};
         unsigned l = I32ToA(args, &buf[2]);
-        out.append(buf, l);
+        out.append(buf, l+2);
         out.push_back('_');
         out.append(name);
     }
@@ -114,6 +114,56 @@ inline SQInteger OverloadExecutionForwarder(HSQUIRRELVM vm) {
     sq_settop(vm, top); // keep the stack size intact before invoking the overload
     // Perform a direct call and return the result back to the caller
     return f(vm);
+}
+
+//
+// Don't include the overloaded call forwarder into the templated class
+//  to avoid duplicating code that doesn't need to be specialized.
+//
+inline SQInteger OverloadConstructionForwarder(HSQUIRRELVM vm) {
+    const SQInteger top = sq_gettop(vm);
+    // Get the argument count
+    const int argCount = static_cast<int>(top - 2);
+    // Subtract environment and base name in free variable^
+    const SQChar* funcName;
+    SQInteger funcNameSize;
+    // Get the un-mangled function name (free variable)
+    sq_getstringandsize(vm, -1, &funcName, &funcNameSize);
+    // Generate the overload mangled name
+    string overloadName;
+    overloadName.reserve(funcNameSize+5);
+    SqOverloadName::Get(funcName, argCount, overloadName);
+    // Push the overload mangled name on the stack
+    sq_pushstring(vm, overloadName.c_str(), static_cast<SQInteger>(overloadName.size()));
+    // Lookup the proper overload and get it on the stack
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+    if (SQ_FAILED(sq_get(vm, 1))) {
+        sq_settop(vm, top); // keep the stack size intact
+        return sq_throwerror(vm, _SC("wrong number of parameters"));
+    }
+#else
+    sq_get(vm, 1);
+#endif
+    SQFUNCTION f = nullptr;
+    // Get the native closure pointer that we must invoke
+    SQRESULT res = sq_getnativeclosurepointer(vm, -1, &f);
+    if (SQ_FAILED(res)) {
+        return res;
+    // Make sure a native closure pointer is available
+    } else if (!f) {
+        return sq_throwerror(vm, _SC("unable to acquire the proper overload closure"));
+    }
+    // Restore the stack size by removing the overload closure object
+    sq_poptop(vm);
+    // Pop the un-mangled closure name from the stack
+    // The constructor doesn't expect any free variables
+    //sq_poptop(vm); // `funcName` becomes invalid after this
+    // Perform a direct call and store the result
+    SQRESULT r = f(vm);
+    // Keep the stack size intact before leaving
+    sq_settop(vm, top);
+    // Return the result back to the caller
+    return r;
 }
 
 //
@@ -192,6 +242,11 @@ inline SQFUNCTION SqOverloadFunc(R (* /*method*/)) {
     return &SqOverload<R>::Func;
 }
 
+template <class R, class... A>
+inline SQFUNCTION SqOverloadFunc(R (* /*method*/)(A...)) {
+    return &SqOverload<R>::Func;
+}
+
 template <class C, class R>
 inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)) {
     return &SqOverload<R>::Func;
@@ -202,73 +257,13 @@ inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)() const ) {
     return &SqOverload<R>::Func;
 }
 
-template <class C, class R, class A1>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1) const ) {
+template <class C, class R, class... A>
+inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A...) ) {
     return &SqOverload<R>::Func;
 }
 
-template <class C, class R, class A1, class A2>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, A9) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10, class A11>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10, class A11, class A12>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10, class A11, class A12, class A13>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13) const ) {
-    return &SqOverload<R>::Func;
-}
-
-template <class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10, class A11, class A12, class A13, class A14>
-inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14) const ) {
+template <class C, class R, class... A>
+inline SQFUNCTION SqOverloadFunc(R (C::* /*method*/)(A...) const ) {
     return &SqOverload<R>::Func;
 }
 
