@@ -641,8 +641,14 @@ bool SQVM::CLASS_OP(SQObjectPtr &target,SQInteger baseclass,SQInteger attributes
 
 bool SQVM::IsEqual(const SQObjectPtr &o1,const SQObjectPtr &o2,bool &res)
 {
-    if(sq_type(o1) == sq_type(o2)) {
-        res = (_rawval(o1) == _rawval(o2));
+	SQObjectType t1 = sq_type(o1), t2 = sq_type(o2);
+    if(t1 == t2) {
+		if (t1 == OT_FLOAT) {
+			res = (_float(o1) == _float(o2));
+		}
+		else {
+			res = (_rawval(o1) == _rawval(o2));
+		}
     }
     else {
         if(sq_isnumeric(o1) && sq_isnumeric(o2)) {
@@ -1000,8 +1006,9 @@ exception_restore:
             case _OP_YIELD:{
                 if(ci->_generator) {
                     if(sarg1 != MAX_FUNC_STACKSIZE) temp_reg = STK(arg1);
+					if (_openouters) CloseOuters(&_stack._vals[_stackbase]);
                     _GUARD(ci->_generator->Yield(this,arg2));
-                    traps -= ci->_etraps;
+					traps -= ci->_etraps;
                     if(sarg1 != MAX_FUNC_STACKSIZE) _Swap(STK(arg1),temp_reg);//STK(arg1) = temp_reg;
                 }
                 else { Raise_Error(_SC("trying to yield a '%s',only genenerator can be yielded"), GetTypeName(ci->_generator)); SQ_THROW();}

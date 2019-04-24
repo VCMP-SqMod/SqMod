@@ -31,11 +31,10 @@
 #ifdef SQMOD_PLUGIN_API
     #include <SqAPI.h>
 #else
-    #include <squirrel.h>
+    #include <squirrelex.h>
 #endif // SQMOD_PLUGIN_API
 
 #include <typeinfo>
-#include <squirrel.h>
 
 #include "sqratObject.h"
 #include "sqratClassType.h"
@@ -718,7 +717,6 @@ protected:
 
     // constructor binding
     Class& BindConstructor(SQFUNCTION constructor, SQInteger nParams, const SQChar *name = 0) {
-        SQFUNCTION overload = &OverloadConstructionForwarder;
         // Decide whether to bind to a class or the root table
         bool alternative_global = false;
         if (name == 0)
@@ -734,12 +732,12 @@ protected:
         // The containing environment is the root table??
         else sq_pushroottable(vm);
 
-        // Bind overload handler
+        // Bind overload handler name
         sq_pushstring(vm, name, -1);
         // function name is passed as a free variable
         //sq_pushstring(vm, name, -1);
         sq_push(vm, -1); // <- Let's cheat(?) by pushing the same object
-        sq_newclosure(vm, overload, 1);
+        sq_newclosure(vm, &OverloadConstructionForwarder, 1);
         // Set the closure name (for debug purposes)
         sq_setnativeclosurename(vm, -1, name);
         // Include it into the object

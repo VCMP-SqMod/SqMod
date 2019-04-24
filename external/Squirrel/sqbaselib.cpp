@@ -499,6 +499,30 @@ static SQInteger table_filter(HSQUIRRELVM v)
     return 1;
 }
 
+#define TABLE_TO_ARRAY_FUNC(_funcname_,_valname_) static SQInteger _funcname_(HSQUIRRELVM v) \
+{ \
+	SQObject &o = stack_get(v, 1); \
+	SQTable *t = _table(o); \
+	SQObjectPtr itr, key, val; \
+	SQObjectPtr _null; \
+	SQInteger nitr, n = 0; \
+	SQInteger nitems = t->CountUsed(); \
+	SQArray *a = SQArray::Create(_ss(v), nitems); \
+	a->Resize(nitems, _null); \
+	if (nitems) { \
+		while ((nitr = t->Next(false, itr, key, val)) != -1) { \
+			itr = (SQInteger)nitr; \
+			a->Set(n, _valname_); \
+			n++; \
+		} \
+	} \
+	v->Push(a); \
+	return 1; \
+}
+
+TABLE_TO_ARRAY_FUNC(table_keys, key)
+TABLE_TO_ARRAY_FUNC(table_values, val)
+
 
 const SQRegFunction SQSharedState::_table_default_delegate_funcz[]={
     {_SC("len"),default_delegate_len,1, _SC("t")},
@@ -512,6 +536,8 @@ const SQRegFunction SQSharedState::_table_default_delegate_funcz[]={
     {_SC("setdelegate"),table_setdelegate,2, _SC(".t|o")},
     {_SC("getdelegate"),table_getdelegate,1, _SC(".")},
     {_SC("filter"),table_filter,2, _SC("tc")},
+	{_SC("keys"),table_keys,1, _SC("t") },
+	{_SC("values"),table_values,1, _SC("t") },
     {NULL,(SQFUNCTION)0,0,NULL}
 };
 
@@ -596,16 +622,36 @@ static SQInteger array_resize(HSQUIRRELVM v)
 static SQInteger __map_array(SQArray *dest,SQArray *src,HSQUIRRELVM v) {
     SQObjectPtr temp;
     SQInteger size = src->Size();
+    SQObject &closure = stack_get(v, 2);
+    v->Push(closure);
+
+    SQInteger nArgs=0;
+    if(sq_type(closure) == OT_CLOSURE) {
+        nArgs = _closure(closure)->_function->_nparameters;
+    }
+    else if (sq_type(closure) == OT_NATIVECLOSURE) {
+        SQInteger nParamsCheck = _nativeclosure(closure)->_nparamscheck;
+        if (nParamsCheck > 0)
+            nArgs = nParamsCheck;
+        else // push all params when there is no check or only minimal count set
+            nArgs = 4;
+    }
+
     for(SQInteger n = 0; n < size; n++) {
         src->Get(n,temp);
         v->Push(src);
         v->Push(temp);
-        if(SQ_FAILED(sq_call(v,2,SQTrue,SQFalse))) {
+        if (nArgs >= 3)
+            v->Push(SQObjectPtr(n));
+        if (nArgs >= 4)
+            v->Push(src);
+        if(SQ_FAILED(sq_call(v,nArgs,SQTrue,SQFalse))) {
             return SQ_ERROR;
         }
         dest->Set(n,v->GetUp(-1));
         v->Pop();
     }
+    v->Pop();
     return 0;
 }
 
@@ -634,14 +680,21 @@ static SQInteger array_reduce(HSQUIRRELVM v)
     SQObject &o = stack_get(v,1);
     SQArray *a = _array(o);
     SQInteger size = a->Size();
-    if(size == 0) {
-        return 0;
-    }
     SQObjectPtr res;
-    a->Get(0,res);
-    if(size > 1) {
+    SQInteger iterStart;
+    if (sq_gettop(v)>2) {
+        res = stack_get(v,3);
+        iterStart = 0;
+    } else if (size==0) {
+        return 0;
+    } else {
+        a->Get(0,res);
+        iterStart = 1;
+    }
+    if (size > iterStart) {
         SQObjectPtr other;
-        for(SQInteger n = 1; n < size; n++) {
+        v->Push(stack_get(v,2));
+        for (SQInteger n = iterStart; n < size; n++) {
             a->Get(n,other);
             v->Push(o);
             v->Push(res);
@@ -652,6 +705,7 @@ static SQInteger array_reduce(HSQUIRRELVM v)
             res = v->GetUp(-1);
             v->Pop();
         }
+        v->Pop();
     }
     v->Push(res);
     return 1;
@@ -837,7 +891,7 @@ const SQRegFunction SQSharedState::_array_default_delegate_funcz[]={
     {_SC("clear"),obj_clear,1, _SC(".")},
     {_SC("map"),array_map,2, _SC("ac")},
     {_SC("apply"),array_apply,2, _SC("ac")},
-    {_SC("reduce"),array_reduce,2, _SC("ac")},
+    {_SC("reduce"),array_reduce,-2, _SC("ac.")},
     {_SC("filter"),array_filter,2, _SC("ac")},
     {_SC("find"),array_find,2, _SC("a.")},
     {NULL,(SQFUNCTION)0,0,NULL}

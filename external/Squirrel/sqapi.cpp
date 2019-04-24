@@ -424,17 +424,6 @@ SQRESULT sq_setnativeclosurename(HSQUIRRELVM v,SQInteger idx,const SQChar *name)
     }
     return sq_throwerror(v,_SC("the object is not a nativeclosure"));
 }
-SQRESULT sq_getnativeclosurepointer(HSQUIRRELVM v,SQInteger idx,SQFUNCTION *f)
-{
-    SQObject o = stack_get(v, idx);
-    if(sq_type(o) == OT_NATIVECLOSURE)
-    {
-        SQNativeClosure *c = _nativeclosure(o);
-        if (f) *f = c->_function;
-        return SQ_OK;
-    }
-    return sq_throwerror(v,_SC("the object is not a native closure"));
-}
 
 SQRESULT sq_setparamscheck(HSQUIRRELVM v,SQInteger nparamscheck,const SQChar *typemask)
 {

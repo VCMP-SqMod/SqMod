@@ -59,7 +59,7 @@
 #ifdef SQMOD_PLUGIN_API
     #include <SqAPI.h>
 #else
-    #include <squirrel.h>
+    #include <squirrelex.h>
 #endif // SQMOD_PLUGIN_API
 
 #include "sqrat/sqratTable.h"

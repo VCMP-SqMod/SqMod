@@ -190,6 +190,7 @@
 		<Unit filename="../external/Squirrel/Lib/sqstdstring.cpp" />
 		<Unit filename="../external/Squirrel/Lib/sqstdsystem.cpp" />
 		<Unit filename="../external/Squirrel/sqapi.cpp" />
+		<Unit filename="../external/Squirrel/sqapiex.cpp" />
 		<Unit filename="../external/Squirrel/sqarray.h" />
 		<Unit filename="../external/Squirrel/sqbaselib.cpp" />
 		<Unit filename="../external/Squirrel/sqclass.cpp" />
@@ -221,6 +222,7 @@
 			<code_completion />
 			<envvars />
 			<debugger />
+			<fortran_project />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
