@@ -771,6 +771,7 @@ static int32_t SqExport_PopulateSquirrelAPI(HSQLIBAPI api, size_t size)
     api->setclosureroot                 = sq_setclosureroot;
     api->getclosureroot                 = sq_getclosureroot;
     api->pushstring                     = sq_pushstring;
+    api->pushstringf                    = sq_pushstringf;
     api->pushfloat                      = sq_pushfloat;
     api->pushinteger                    = sq_pushinteger;
     api->pushbool                       = sq_pushbool;
@@ -854,6 +855,7 @@ static int32_t SqExport_PopulateSquirrelAPI(HSQLIBAPI api, size_t size)
     api->getfreevariable                = sq_getfreevariable;
     api->getonefreevariable             = sq_getonefreevariable;
     api->throwerror                     = sq_throwerror;
+    api->throwerrorf                    = sq_throwerrorf;
     api->throwobject                    = sq_throwobject;
     api->reseterror                     = sq_reseterror;
     api->getlasterror                   = sq_getlasterror;

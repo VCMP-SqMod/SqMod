@@ -84,6 +84,7 @@ extern "C" {
     typedef SQRESULT (*SqLibAPI_setclosureroot)(HSQUIRRELVM v,SQInteger idx);
     typedef SQRESULT (*SqLibAPI_getclosureroot)(HSQUIRRELVM v,SQInteger idx);
     typedef void (*SqLibAPI_pushstring)(HSQUIRRELVM v,const SQChar *s,SQInteger len);
+    typedef void (*SqLibAPI_pushstringf)(HSQUIRRELVM v,const SQChar *s,...);
     typedef void (*SqLibAPI_pushfloat)(HSQUIRRELVM v,SQFloat f);
     typedef void (*SqLibAPI_pushinteger)(HSQUIRRELVM v,SQInteger n);
     typedef void (*SqLibAPI_pushbool)(HSQUIRRELVM v,SQBool b);
@@ -167,6 +168,7 @@ extern "C" {
     typedef const SQChar* (*SqLibAPI_getfreevariable)(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger nval);
     typedef const SQChar* (*SqLibAPI_getonefreevariable)(HSQUIRRELVM v,SQUnsignedInteger nval);
     typedef SQRESULT (*SqLibAPI_throwerror)(HSQUIRRELVM v,const SQChar *err);
+    typedef SQRESULT (*SqLibAPI_throwerrorf)(HSQUIRRELVM v,const SQChar *err,...);
     typedef SQRESULT (*SqLibAPI_throwobject)(HSQUIRRELVM v);
     typedef void (*SqLibAPI_reseterror)(HSQUIRRELVM v);
     typedef void (*SqLibAPI_getlasterror)(HSQUIRRELVM v);
@@ -275,6 +277,7 @@ extern "C" {
         SqLibAPI_setclosureroot                     setclosureroot;
         SqLibAPI_getclosureroot                     getclosureroot;
         SqLibAPI_pushstring                         pushstring;
+        SqLibAPI_pushstringf                        pushstringf;
         SqLibAPI_pushfloat                          pushfloat;
         SqLibAPI_pushinteger                        pushinteger;
         SqLibAPI_pushbool                           pushbool;
@@ -358,6 +361,7 @@ extern "C" {
         SqLibAPI_getfreevariable                    getfreevariable;
         SqLibAPI_getonefreevariable                 getonefreevariable;
         SqLibAPI_throwerror                         throwerror;
+        SqLibAPI_throwerrorf                        throwerrorf;
         SqLibAPI_throwobject                        throwobject;
         SqLibAPI_reseterror                         reseterror;
         SqLibAPI_getlasterror                       getlasterror;
@@ -462,6 +466,7 @@ extern "C" {
     extern SqLibAPI_setclosureroot                  SqLib_setclosureroot;
     extern SqLibAPI_getclosureroot                  SqLib_getclosureroot;
     extern SqLibAPI_pushstring                      SqLib_pushstring;
+    extern SqLibAPI_pushstringf                     SqLib_pushstringf;
     extern SqLibAPI_pushfloat                       SqLib_pushfloat;
     extern SqLibAPI_pushinteger                     SqLib_pushinteger;
     extern SqLibAPI_pushbool                        SqLib_pushbool;
@@ -545,6 +550,7 @@ extern "C" {
     extern SqLibAPI_getfreevariable                 SqLib_getfreevariable;
     extern SqLibAPI_getonefreevariable              SqLib_getonefreevariable;
     extern SqLibAPI_throwerror                      SqLib_throwerror;
+    extern SqLibAPI_throwerrorf                     SqLib_throwerrorf;
     extern SqLibAPI_throwobject                     SqLib_throwobject;
     extern SqLibAPI_reseterror                      SqLib_reseterror;
     extern SqLibAPI_getlasterror                    SqLib_getlasterror;
@@ -645,6 +651,7 @@ extern "C" {
     #define sq_setclosureroot                       SqLib_setclosureroot
     #define sq_getclosureroot                       SqLib_getclosureroot
     #define sq_pushstring                           SqLib_pushstring
+    #define sq_pushstringf                          SqLib_pushstringf
     #define sq_pushfloat                            SqLib_pushfloat
     #define sq_pushinteger                          SqLib_pushinteger
     #define sq_pushbool                             SqLib_pushbool
@@ -728,6 +735,7 @@ extern "C" {
     #define sq_getfreevariable                      SqLib_getfreevariable
     #define sq_getonefreevariable                   SqLib_getonefreevariable
     #define sq_throwerror                           SqLib_throwerror
+    #define sq_throwerrorf                          SqLib_throwerrorf
     #define sq_throwobject                          SqLib_throwobject
     #define sq_reseterror                           SqLib_reseterror
     #define sq_getlasterror                         SqLib_getlasterror

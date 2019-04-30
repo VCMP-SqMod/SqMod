@@ -36,7 +36,7 @@ begin:
     return SQ_ERROR;
 }
 
-void sqstd_pushstringf(HSQUIRRELVM v,const SQChar *s,...)
+void sq_pushstringf(HSQUIRRELVM v,const SQChar *s,...)
 {
     SQInteger n=256;
     va_list args;

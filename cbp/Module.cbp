@@ -21,6 +21,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
+					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw32-d" />
 				</Linker>
 				<ExtraCommands>
@@ -43,6 +44,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m32" />
+					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw32" />
 				</Linker>
 				<ExtraCommands>
@@ -65,6 +67,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
+					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw64-d" />
 				</Linker>
 				<ExtraCommands>
@@ -88,6 +91,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
+					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw64" />
 				</Linker>
 				<ExtraCommands>
@@ -205,6 +209,7 @@
 				<Linker>
 					<Add option="-m32" />
 					<Add option="-static" />
+					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw32-d" />
 				</Linker>
 				<ExtraCommands>
@@ -231,6 +236,7 @@
 					<Add option="-s" />
 					<Add option="-m32" />
 					<Add option="-static" />
+					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw32" />
 				</Linker>
 				<ExtraCommands>
@@ -257,6 +263,7 @@
 				<Linker>
 					<Add option="-m64" />
 					<Add option="-static" />
+					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw64-d" />
 				</Linker>
 				<ExtraCommands>
@@ -284,6 +291,7 @@
 					<Add option="-s" />
 					<Add option="-m64" />
 					<Add option="-static" />
+					<Add library="Ws2_32" />
 					<Add directory="../lib/mingw64" />
 				</Linker>
 				<ExtraCommands>
@@ -552,6 +560,8 @@
 		<Unit filename="../source/Misc/Model.hpp" />
 		<Unit filename="../source/Misc/Player.cpp" />
 		<Unit filename="../source/Misc/Player.hpp" />
+		<Unit filename="../source/Misc/Privileges.cpp" />
+		<Unit filename="../source/Misc/Privileges.hpp" />
 		<Unit filename="../source/Misc/Register.cpp" />
 		<Unit filename="../source/Misc/Routine.cpp" />
 		<Unit filename="../source/Misc/Routine.hpp" />
@@ -570,6 +580,7 @@
 			<envvars />
 			<debugger />
 			<lib_finder disable_auto="1" />
+			<fortran_project />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

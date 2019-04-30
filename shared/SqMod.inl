@@ -262,6 +262,7 @@ SqLibAPI_bindenv                            SqLib_bindenv                       
 SqLibAPI_setclosureroot                     SqLib_setclosureroot                        = NULL;
 SqLibAPI_getclosureroot                     SqLib_getclosureroot                        = NULL;
 SqLibAPI_pushstring                         SqLib_pushstring                            = NULL;
+SqLibAPI_pushstringf                        SqLib_pushstringf                           = NULL;
 SqLibAPI_pushfloat                          SqLib_pushfloat                             = NULL;
 SqLibAPI_pushinteger                        SqLib_pushinteger                           = NULL;
 SqLibAPI_pushbool                           SqLib_pushbool                              = NULL;
@@ -343,8 +344,9 @@ SqLibAPI_resume                             SqLib_resume                        
 SqLibAPI_getlocal                           SqLib_getlocal                              = NULL;
 SqLibAPI_getcallee                          SqLib_getcallee                             = NULL;
 SqLibAPI_getfreevariable                    SqLib_getfreevariable                       = NULL;
-SqLibAPI_getonefreevariable                 SqLib_getonefreevariable                       = NULL;
+SqLibAPI_getonefreevariable                 SqLib_getonefreevariable                    = NULL;
 SqLibAPI_throwerror                         SqLib_throwerror                            = NULL;
+SqLibAPI_throwerrorf                        SqLib_throwerrorf                           = NULL;
 SqLibAPI_throwobject                        SqLib_throwobject                           = NULL;
 SqLibAPI_reseterror                         SqLib_reseterror                            = NULL;
 SqLibAPI_getlasterror                       SqLib_getlasterror                          = NULL;
@@ -456,6 +458,7 @@ uint8_t sqlib_api_expand(HSQLIBAPI sqlibapi)
     SqLib_setclosureroot                        = sqlibapi->setclosureroot;
     SqLib_getclosureroot                        = sqlibapi->getclosureroot;
     SqLib_pushstring                            = sqlibapi->pushstring;
+    SqLib_pushstringf                           = sqlibapi->pushstringf;
     SqLib_pushfloat                             = sqlibapi->pushfloat;
     SqLib_pushinteger                           = sqlibapi->pushinteger;
     SqLib_pushbool                              = sqlibapi->pushbool;
@@ -539,6 +542,7 @@ uint8_t sqlib_api_expand(HSQLIBAPI sqlibapi)
     SqLib_getfreevariable                       = sqlibapi->getfreevariable;
     SqLib_getonefreevariable                    = sqlibapi->getonefreevariable;
     SqLib_throwerror                            = sqlibapi->throwerror;
+    SqLib_throwerrorf                           = sqlibapi->throwerrorf;
     SqLib_throwobject                           = sqlibapi->throwobject;
     SqLib_reseterror                            = sqlibapi->reseterror;
     SqLib_getlasterror                          = sqlibapi->getlasterror;
@@ -649,6 +653,7 @@ void sqlib_api_collapse()
     SqLib_setclosureroot                        = NULL;
     SqLib_getclosureroot                        = NULL;
     SqLib_pushstring                            = NULL;
+    SqLib_pushstringf                           = NULL;
     SqLib_pushfloat                             = NULL;
     SqLib_pushinteger                           = NULL;
     SqLib_pushbool                              = NULL;
@@ -732,6 +737,7 @@ void sqlib_api_collapse()
     SqLib_getfreevariable                       = NULL;
     SqLib_getonefreevariable                    = NULL;
     SqLib_throwerror                            = NULL;
+    SqLib_throwerrorf                           = NULL;
     SqLib_throwobject                           = NULL;
     SqLib_reseterror                            = NULL;
     SqLib_getlasterror                          = NULL;
