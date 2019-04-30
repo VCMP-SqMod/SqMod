@@ -139,7 +139,7 @@ inline SQInteger OverloadConstructionForwarder(HSQUIRRELVM vm) {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
     if (SQ_FAILED(sq_get(vm, 1))) {
         sq_settop(vm, top); // keep the stack size intact
-        return sq_throwerror(vm, _SC("wrong number of parameters"));
+        return sq_throwerrorf(vm, _SC("wrong number of parameters. no such constructor overload: `%s`"), overloadName.data());
     }
 #else
     sq_get(vm, 1);
