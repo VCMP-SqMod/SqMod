@@ -10,6 +10,9 @@
 #include <string>
 
 // ------------------------------------------------------------------------------------------------
+#include <sqrat/sqratFunction.h>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -80,10 +83,14 @@ private:
     // --------------------------------------------------------------------------------------------
     bool        m_ConsoleTime; // Whether console messages should be timestamped.
     bool        m_LogFileTime; // Whether log file messages should be timestamped.
+    bool        m_CyclicLock; // Prevent the script callback from entering a loop.
 
     // --------------------------------------------------------------------------------------------
     std::FILE*  m_File; // Handle to the file where the logs should be saved.
     std::string m_Filename; // The name of the file where the logs are saved.
+
+    // --------------------------------------------------------------------------------------------
+	Function m_LogCb[7]; //Callback to receive debug information instead of console.
 
 protected:
 
@@ -116,6 +123,11 @@ public:
      * Terminate the logging utility.
     */
     void Terminate();
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the script associated resources.
+    */
+    void Release();
 
     /* --------------------------------------------------------------------------------------------
      * Enable or disable console message time stamping.
@@ -261,6 +273,11 @@ public:
     void SetLogFilename(CCStr filename);
 
     /* --------------------------------------------------------------------------------------------
+     * Bind a script callback to a log level.
+    */
+    void BindCb(Uint8 level, Object & env, Function & func);
+
+    /* --------------------------------------------------------------------------------------------
      * Send a log message.
     */
     void Send(Uint8 level, bool sub, CCStr fmt, va_list args);
@@ -280,6 +297,12 @@ public:
     */
     void Debug(CCStr fmt, va_list args);
 
+private:
+
+    /* --------------------------------------------------------------------------------------------
+     * Forward the log message to a callback.
+    */
+    SQBool ProcessCb(Uint8 level, bool sub);
 };
 
 /* ------------------------------------------------------------------------------------------------

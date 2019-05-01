@@ -532,6 +532,8 @@ void Core::Terminate(bool shutdown)
         cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine is closing");
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(SQMOD_CLOSING_CMD, "");
+        // Release any callbacks from the logger
+        Logger::Get().Release();
         // Attempt to close the VM
         sq_close(sq_vm);
 

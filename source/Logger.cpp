@@ -99,6 +99,24 @@ static inline CCStr GetLevelTag(Uint8 level)
     }
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Identify the message prefix.
+*/
+static inline Uint8 GetLevelIdx(Uint8 level)
+{
+    switch (level)
+    {
+        case LOGL_DBG:  return 0;
+        case LOGL_USR:  return 1;
+        case LOGL_SCS:  return 2;
+        case LOGL_INF:  return 3;
+        case LOGL_WRN:  return 4;
+        case LOGL_ERR:  return 5;
+        case LOGL_FTL:  return 6;
+        default:        return 0xFF;
+    }
+}
+
 #ifndef SQMOD_OS_WINDOWS
 
 /* ------------------------------------------------------------------------------------------------
@@ -196,8 +214,10 @@ Logger::Logger()
     , m_LogFileLevels(~LOGL_DBG)
     , m_ConsoleTime(false)
     , m_LogFileTime(true)
+    , m_CyclicLock(false)
     , m_File(nullptr)
     , m_Filename()
+    , m_LogCb{}
 {
     /* ... */
 }
@@ -258,6 +278,38 @@ void Logger::SetLogFilename(CCStr filename)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Logger::BindCb(Uint8 level, Object & env, Function & func)
+{
+    // Get the index of this log level
+    const Uint8 idx = GetLevelIdx(level);
+    // Is the log level valid?
+    if (idx > 6)
+    {
+        STHROWF("Out of range log level index: %d > 4", int(idx));
+    }
+    // Obtain the function instance called for this log level
+    Function & cb = m_LogCb[idx];
+    // Is the specified callback function null?
+    if (func.IsNull())
+    {
+        cb.ReleaseGently(); // Then release the current callback
+    }
+    // Does this function need a custom environment?
+    else if (env.IsNull())
+    {
+        // Use the root table instead
+        RootTable root(DefaultVM::Get_());
+        // Bind the root table with the function
+        cb = Function(env.GetVM(), root, func.GetFunc());
+    }
+    // Assign the specified environment and function
+    else
+    {
+        cb = Function(env.GetVM(), env, func.GetFunc());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void Logger::Initialize(CCStr filename)
 {
     // Close the logging file
@@ -276,8 +328,70 @@ void Logger::Terminate()
 }
 
 // ------------------------------------------------------------------------------------------------
+void Logger::Release()
+{
+    for (Uint8 i = 0; i < 7; ++i)
+    {
+        m_LogCb[i].ReleaseGently();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+SQBool Logger::ProcessCb(Uint8 level, bool sub)
+{
+    // Get the index of this log level
+    const Uint8 idx = GetLevelIdx(level);
+    // Is the log level valid and is there a callback associated?
+    if (idx > 6 || m_LogCb[idx].IsNull())
+    {
+        return SQFalse;
+    }
+    // Grab the associated function
+    Function & fn = m_LogCb[idx];
+    // Grab the default VM
+    HSQUIRRELVM vm = DefaultVM::Get_();
+    // Gram the top of the stack
+    SQInteger top = sq_gettop(vm);
+    // Push the function followed by the environment
+    sq_pushobject(vm, fn.GetFunc());
+    sq_pushobject(vm, fn.GetEnv());
+    // Push the log message
+    sq_pushstring(vm, m_Buffer.Get< SQChar >(), -1);
+    // Specify whether this is a sub message
+    sq_pushbool(vm, static_cast< SQBool >(sub));
+    // Make the function call and store the result
+    SQRESULT res = sq_call(vm, 3, true, ErrorHandling::IsEnabled());
+    // Default to non greedy callback
+    SQBool ret = SQFalse;
+    // Did the function succeeded and is the returned value not null?
+    if (SQ_SUCCEEDED(res) && sq_gettype(vm, -1) != OT_NULL) {
+        // Obtain the returned value
+        sq_tobool(vm, -1, &ret);
+    }
+    // Pop the callback object and return value from the stack
+    sq_settop(vm, top);
+    // Return the outcome of this callback
+    return ret;
+}
+
+// ------------------------------------------------------------------------------------------------
 void Logger::Proccess(Uint8 level, bool sub)
 {
+    // Is there a cyclic lock on the logger?
+    if (!m_CyclicLock)
+    {
+        // Lock the logger to prevent a cyclic dependency
+        m_CyclicLock = true;
+        // Attempt to process the script callback first
+        const bool greedy = ProcessCb(level, sub);
+        // Unlock the logger after the callback was invoked
+        m_CyclicLock = false;
+        // Is the callback for this level greedy?
+        if (greedy)
+        {
+            return;
+        }
+    }
     // Obtain the time-stamp if necessary
     CCStr tms = (m_ConsoleTime || m_LogFileTime) ? GetTimeStampStr() : nullptr;
     // Are we allowed to send this message level to console?
@@ -552,6 +666,12 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+template < Uint8 L > static void BindLogCallback(Object & env, Function & func)
+{
+    Logger::Get().BindCb(L, env, func);
+}
+
+// ------------------------------------------------------------------------------------------------
 static void SqLogClose()
 {
     Logger::Get().Close();
@@ -678,6 +798,13 @@ void Register_Log(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("SWrn"), &LogBasicMessage< LOGL_WRN, true >)
         .SquirrelFunc(_SC("SErr"), &LogBasicMessage< LOGL_ERR, true >)
         .SquirrelFunc(_SC("SFtl"), &LogBasicMessage< LOGL_FTL, true >)
+        .Func(_SC("BindDbg"), &BindLogCallback< LOGL_DBG >)
+        .Func(_SC("BindUsr"), &BindLogCallback< LOGL_USR >)
+        .Func(_SC("BindScs"), &BindLogCallback< LOGL_SCS >)
+        .Func(_SC("BindInf"), &BindLogCallback< LOGL_INF >)
+        .Func(_SC("BindWrn"), &BindLogCallback< LOGL_WRN >)
+        .Func(_SC("BindErr"), &BindLogCallback< LOGL_ERR >)
+        .Func(_SC("BindFtl"), &BindLogCallback< LOGL_FTL >)
         .Func(_SC("Close"), &SqLogClose)
         .Func(_SC("Initialize"), &SqLogInitialize)
         .Func(_SC("ToggleConsoleTime"), &SqLogToggleConsoleTime)
