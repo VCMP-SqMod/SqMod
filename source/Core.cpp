@@ -832,16 +832,16 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
     {
         return SQ_OK; // No error to display!
     }
-    // Temporary variable for the thrown error
-    CSStr err_msg = nullptr;
-    // Attempt to obtain the thrown value as a string
-    if (SQ_SUCCEEDED(sq_getstring(vm, 2, &err_msg)))
+    // Attempt to generate the string value
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.Proc(false)))
     {
-        Logger::Get().Debug(_SC("%s"), err_msg);
+        Logger::Get().Debug(_SC("Unknown runtime error has occurred"));
     }
     else
     {
-        Logger::Get().Debug(_SC("Unknown runtime error has occurred"));
+        Logger::Get().Debug(_SC("%s"), val.mPtr);
     }
     // We handled the error
     return SQ_OK;
