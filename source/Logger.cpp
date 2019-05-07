@@ -100,7 +100,7 @@ static inline CCStr GetLevelTag(Uint8 level)
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Identify the message prefix.
+ * Logging level to callback index.
 */
 static inline Uint8 GetLevelIdx(Uint8 level)
 {

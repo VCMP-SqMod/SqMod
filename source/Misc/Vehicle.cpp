@@ -477,7 +477,7 @@ Int32 GetAutomobileID(StackStrF & name)
                 // [Ph]oenix
                 case 'h': return SQMOD_VEHICLE_PHOENIX;
                 // [Pi]zza Boy
-                case 'i':
+                case 'i': return SQMOD_VEHICLE_PIZZABOY;
                 // [Po]lice
                 // [Po]lice Maverick
                 // [Po]ny
