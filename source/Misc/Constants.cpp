@@ -1127,7 +1127,7 @@ static const EnumElement g_AsciiEnum[] = {
 // ------------------------------------------------------------------------------------------------
 static const EnumElements g_EnumList[] = {
     {_SC("SqMod"),              g_SqMod},
-    {_SC("SqArchitectre"),      g_ArchitectureEnum},
+    {_SC("SqArchitecture"),     g_ArchitectureEnum},
     {_SC("SqPlatform"),         g_PlatformEnum},
     {_SC("SqEvent"),            g_EventEnum},
     {_SC("SqCreate"),           g_CreateEnum},
