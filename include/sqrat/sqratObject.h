@@ -530,27 +530,39 @@ protected:
 
     // Bind a function and it's associated Squirrel closure to the object
     inline void BindFunc(const SQChar* name, void* method, size_t methodSize, SQFUNCTION func, bool staticVar = false) {
+        // Push object/environment
         sq_pushobject(vm, GetObject());
+        // Push name where the closure will be stored
         sq_pushstring(vm, name, -1);
-
+        // Push the native closure pointer as a free variable
         SQUserPointer methodPtr = sq_newuserdata(vm, static_cast<SQUnsignedInteger>(methodSize));
         memcpy(methodPtr, method, methodSize);
-
+        // Create the native closure
         sq_newclosure(vm, func, 1);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, name);
+        // Include it into the object
         sq_newslot(vm, -3, staticVar);
-        sq_pop(vm,1); // pop table
+        // pop object/environment
+        sq_pop(vm,1);
     }
 
-    inline void BindFunc(const SQInteger index, void* method, size_t methodSize, SQFUNCTION func, bool staticVar = false) {
+    inline void BindFunc(const SQInteger index, void* method, size_t methodSize, SQFUNCTION func, bool staticVar = false, const SQChar* name = nullptr) {
+        // Push object/environment
         sq_pushobject(vm, GetObject());
+        // Push index where the closure will be stored
         sq_pushinteger(vm, index);
-
+        // Push the native closure pointer as a free variable
         SQUserPointer methodPtr = sq_newuserdata(vm, static_cast<SQUnsignedInteger>(methodSize));
         memcpy(methodPtr, method, methodSize);
-
+        // Create the native closure
         sq_newclosure(vm, func, 1);
+        // Set the closure name (for debug purposes)
+        if (name) sq_setnativeclosurename(vm, -1, name);
+        // Include it into the object
         sq_newslot(vm, -3, staticVar);
-        sq_pop(vm,1); // pop table
+        // pop object/environment
+        sq_pop(vm,1);
     }
 
 

@@ -178,6 +178,8 @@ public:
         sq_pushobject(vm, GetObject());
         sq_pushstring(vm, name, -1);
         sq_newclosure(vm, func, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, name);
         sq_newslot(vm, -3, false);
         sq_pop(vm,1); // pop table
         return *this;

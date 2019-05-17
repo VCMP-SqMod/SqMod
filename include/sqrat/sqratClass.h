@@ -558,6 +558,8 @@ public:
         sq_pushobject(vm, ClassType<C>::getClassData(vm)->classObj);
         sq_pushstring(vm, name, -1);
         sq_newclosure(vm, func, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, name);
         sq_newslot(vm, -3, false);
         sq_pop(vm, 1); // pop table
 
@@ -644,6 +646,8 @@ protected:
         // add the default constructor
         sq_pushstring(vm, _SC("constructor"), -1);
         sq_newclosure(vm, &A::New, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("constructor"));
         sq_newslot(vm, -3, false);
 
         // add the set table (static)
@@ -668,27 +672,37 @@ protected:
         sq_pushstring(vm, _SC("_set"), -1);
         sq_pushobject(vm, setTable); // Push the set table as a free variable
         sq_newclosure(vm, &sqVarSet, 1);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("_set"));
         sq_newslot(vm, -3, false);
 
         // override _get
         sq_pushstring(vm, _SC("_get"), -1);
         sq_pushobject(vm, getTable); // Push the get table as a free variable
         sq_newclosure(vm, &sqVarGet, 1);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("_get"));
         sq_newslot(vm, -3, false);
 
         // add weakref (apparently not provided by default)
         sq_pushstring(vm, _SC("weakref"), -1);
         sq_newclosure(vm, &Class::ClassWeakref, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("weakref"));
         sq_newslot(vm, -3, false);
 
         // add _typeof
         sq_pushstring(vm, _SC("_typeof"), -1);
         sq_newclosure(vm, &Class::ClassTypeof, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("_typeof"));
         sq_newslot(vm, -3, false);
 
         // add _cloned
         sq_pushstring(vm, _SC("_cloned"), -1);
         sq_newclosure(vm, &Class::ClassCloned, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("_cloned"));
         sq_newslot(vm, -3, false);
 
         // pop the class
@@ -707,6 +721,8 @@ protected:
 
         // Create the accessor function
         sq_newclosure(vm, func, 1);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, name);
 
         // Add the accessor to the table
         sq_newslot(vm, -3, false);
@@ -892,6 +908,8 @@ protected:
         // add the default constructor
         sq_pushstring(vm, _SC("constructor"), -1);
         sq_newclosure(vm, &A::New, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("constructor"));
         sq_newslot(vm, -3, false);
 
         // clone the base classes set table (static)
@@ -920,27 +938,37 @@ protected:
         sq_pushstring(vm, _SC("_set"), -1);
         sq_pushobject(vm, setTable); // Push the set table as a free variable
         sq_newclosure(vm, sqVarSet, 1);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("_set"));
         sq_newslot(vm, -3, false);
 
         // override _get
         sq_pushstring(vm, _SC("_get"), -1);
         sq_pushobject(vm, getTable); // Push the get table as a free variable
         sq_newclosure(vm, sqVarGet, 1);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("_get"));
         sq_newslot(vm, -3, false);
 
         // add weakref (apparently not provided by default)
         sq_pushstring(vm, _SC("weakref"), -1);
         sq_newclosure(vm, &Class<C, A>::ClassWeakref, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("weakref"));
         sq_newslot(vm, -3, false);
 
         // add _typeof
         sq_pushstring(vm, _SC("_typeof"), -1);
         sq_newclosure(vm, &Class<C, A>::ClassTypeof, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("_typeof"));
         sq_newslot(vm, -3, false);
 
         // add _cloned
         sq_pushstring(vm, _SC("_cloned"), -1);
         sq_newclosure(vm, &Class<C, A>::ClassCloned, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, _SC("_cloned"));
         sq_newslot(vm, -3, false);
 
         // pop the class

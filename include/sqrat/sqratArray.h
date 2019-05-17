@@ -156,10 +156,12 @@ public:
     /// \return The Array itself so the call can be chained
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ArrayBase& SquirrelFunc(const SQInteger index, SQFUNCTION func) {
+    ArrayBase& SquirrelFunc(const SQInteger index, SQFUNCTION func, const SQChar* name = nullptr) {
         sq_pushobject(vm, GetObject());
         sq_pushinteger(vm, index);
         sq_newclosure(vm, func, 0);
+        // Set the closure name (for debug purposes)
+        if (name) sq_setnativeclosurename(vm, -1, name);
         sq_set(vm, -3);
         sq_pop(vm,1); // pop array
         return *this;
@@ -215,8 +217,8 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class F>
-    ArrayBase& Func(const SQInteger index, F method) {
-        BindFunc(index, &method, sizeof(method), SqGlobalFunc(method));
+    ArrayBase& Func(const SQInteger index, F method, const SQChar* name = nullptr) {
+        BindFunc(index, &method, sizeof(method), SqGlobalFunc(method), name);
         return *this;
     }
 
