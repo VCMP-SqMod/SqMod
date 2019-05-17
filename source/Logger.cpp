@@ -215,6 +215,7 @@ Logger::Logger()
     , m_ConsoleTime(false)
     , m_LogFileTime(true)
     , m_CyclicLock(false)
+    , m_StringTruncate(32)
     , m_File(nullptr)
     , m_Filename()
     , m_LogCb{}
@@ -502,6 +503,7 @@ void Logger::Debug(CCStr fmt, va_list args)
     SQInteger i_, seq = 0;
     SQFloat f_;
     SQUserPointer p_;
+    StackStrF ssf_;
     // Begin the local variables information
     ret = m_Buffer.WriteF(0, "Locals:\n[\n");
     // Process each stack level
@@ -515,60 +517,116 @@ void Logger::Debug(CCStr fmt, va_list args)
             switch(sq_gettype(vm, -1))
             {
                 case OT_NULL:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] NULL [%s] : ...\n", level, name);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] NULL [%s]\n", level, name);
                     break;
                 case OT_INTEGER:
                     sq_getinteger(vm, -1, &i_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] INTEGER [%s] : %d\n", level, name, i_);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] INTEGER [%s] with value: " _PRINT_INT_FMT "\n", level, name, i_);
                     break;
                 case OT_FLOAT:
                     sq_getfloat(vm, -1, &f_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] FLOAT [%s] : %f\n", level, name, f_);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] FLOAT [%s] with value: %f\n", level, name, f_);
                     break;
                 case OT_USERPOINTER:
                     sq_getuserpointer(vm, -1, &p_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] USERPOINTER [%s] : %p\n", level, name, p_);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] USERPOINTER [%s] pointing at: %p\n", level, name, p_);
                     break;
                 case OT_STRING:
-                    sq_getstring(vm, -1, &s_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] STRING [%s] : %s\n", level, name, s_);
+                    sq_getstringandsize(vm, -1, &s_, &i_);
+                    if (i_ > 0) {
+                        ret += m_Buffer.WriteF(ret, "=> [%d] STRING [%s] of " _PRINT_INT_FMT " characters: %.*s\n", level, name, i_, m_StringTruncate, s_);
+                    } else {
+                        ret += m_Buffer.WriteF(ret, "=> [%d] STRING [%s] empty\n", level, name);
+                    }
                     break;
                 case OT_TABLE:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] TABLE [%s] : ...\n", level, name);
+                    i_ = sq_getsize(vm, -1);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] TABLE [%s] with " _PRINT_INT_FMT " elements\n", level, name, i_);
                     break;
                 case OT_ARRAY:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] ARRAY [%s] : ...\n", level, name);
+                    i_ = sq_getsize(vm, -1);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] ARRAY [%s] with " _PRINT_INT_FMT " elements\n", level, name, i_);
                     break;
                 case OT_CLOSURE:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] CLOSURE [%s] : ...\n", level, name);
+                    s_ = _SC("@anonymous");
+                    if (SQ_SUCCEEDED(sq_getclosurename(vm, -1))) {
+                        if (sq_gettype(vm, -1) != OT_NULL && SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                            s_ = ssf_.mPtr;
+                        }
+                        sq_poptop(vm);
+                    }
+                    ret += m_Buffer.WriteF(ret, "=> [%d] CLOSURE [%s] with name: %s\n", level, name, s_);
                     break;
                 case OT_NATIVECLOSURE:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] NATIVECLOSURE [%s] : ...\n", level, name);
+                    s_ = _SC("@unknown");
+                    if (SQ_SUCCEEDED(sq_getclosurename(vm, -1))) {
+                        if (sq_gettype(vm, -1) != OT_NULL && SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                            s_ = ssf_.mPtr;
+                        }
+                        sq_poptop(vm);
+                    }
+                    ret += m_Buffer.WriteF(ret, "=> [%d] NATIVECLOSURE [%s] with name: %s\n", level, name, s_);
                     break;
                 case OT_GENERATOR:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] GENERATOR [%s] : ...\n", level, name);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] GENERATOR [%s]\n", level, name);
                     break;
                 case OT_USERDATA:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] USERDATA [%s] : ...\n", level, name);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] USERDATA [%s]\n", level, name);
                     break;
                 case OT_THREAD:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] THREAD [%s] : ...\n", level, name);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] THREAD [%s]\n", level, name);
                     break;
                 case OT_CLASS:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] CLASS [%s] : ...\n", level, name);
+                    // Brute force our way into getting the name of this class without blowing up
+                    s_ = _SC("@unknown");
+                    // Create a dummy, non-constructed instance and hope `_typeof` doesn't rely on member variables
+                    if (SQ_SUCCEEDED(sq_createinstance(vm, -1))) {
+                        // Attempt a `_typeof` on that instance
+                        if (SQ_SUCCEEDED(sq_typeof(vm, -1))) {
+                            if (SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                                s_ = ssf_.mPtr;
+                            }
+                            // Pop the name object
+                            sq_poptop(vm);
+                        }                        
+                        // Pop the dummy instance
+                        sq_poptop(vm);
+                    }
+                    ret += m_Buffer.WriteF(ret, "=> [%d] CLASS [%s] of type: %s\n", level, name, s_);
                     break;
                 case OT_INSTANCE:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] INSTANCE [%s] : ...\n", level, name);
+                    s_ = _SC("@unknown");
+                    if (SQ_SUCCEEDED(sq_typeof(vm, -1))) {
+                        if (SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                            s_ = ssf_.mPtr;
+                        }
+                        sq_poptop(vm);
+                    }
+                    ret += m_Buffer.WriteF(ret, "=> [%d] INSTANCE [%s] of type: %s\n", level, name, s_);
                     break;
                 case OT_WEAKREF:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] WEAKREF [%s] : ...\n", level, name);
+                    s_ = _SC("@unknown");
+                    // Attempt to grab the value pointed by the weak reference
+                    if (SQ_SUCCEEDED(sq_getweakrefval(vm, -1))) {
+                        // Attempt a `_typeof` on that instance
+                        if (SQ_SUCCEEDED(sq_typeof(vm, -1))) {
+                            if (SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                                s_ = ssf_.mPtr;
+                            }
+                            // Pop the name object
+                            sq_poptop(vm);
+                        }                        
+                        // Pop the referenced value
+                        sq_poptop(vm);
+                    }
+                    ret += m_Buffer.WriteF(ret, "=> [%d] WEAKREF [%s] of type: %s\n", level, name, s_);
                     break;
                 case OT_BOOL:
                     sq_getinteger(vm, -1, &i_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] BOOL [%s] : %s\n", level, name, i_ ? _SC("true") : _SC("false"));
+                    ret += m_Buffer.WriteF(ret, "=> [%d] BOOL [%s] with value: %s\n", level, name, i_ ? _SC("true") : _SC("false"));
                     break;
                 default:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] UNKNOWN [%s] : ...\n", level, name);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] UNKNOWN [%s]\n", level, name);
                 break;
             }
             sq_pop(vm, 1);
@@ -779,6 +837,18 @@ static void SqLogSetLogFilename(CSStr filename)
     Logger::Get().SetLogFilename(filename);
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqLogGetStringTruncate()
+{
+    return static_cast< SQInteger >(Logger::Get().GetStringTruncate());
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqLogSetStringTruncate(SQInteger nc)
+{
+    Logger::Get().SetStringTruncate(ConvTo< Uint32 >::From(nc));
+}
+
 // ================================================================================================
 void Register_Log(HSQUIRRELVM vm)
 {
@@ -823,6 +893,8 @@ void Register_Log(HSQUIRRELVM vm)
         .Func(_SC("ToggleLogFileLevel"), &SqLogToggleLogFileLevel)
         .Func(_SC("GetLogFilename"), &SqLogGetLogFilename)
         .Func(_SC("SetLogFilename"), &SqLogSetLogFilename)
+        .Func(_SC("GetStringTruncate"), &SqLogGetStringTruncate)
+        .Func(_SC("SetStringTruncate"), &SqLogSetStringTruncate)
     );
 }
 

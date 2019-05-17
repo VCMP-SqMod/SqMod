@@ -86,6 +86,9 @@ private:
     bool        m_CyclicLock; // Prevent the script callback from entering a loop.
 
     // --------------------------------------------------------------------------------------------
+    Uint32      m_StringTruncate; // The length at which to trincate strings in debug.
+
+    // --------------------------------------------------------------------------------------------
     std::FILE*  m_File; // Handle to the file where the logs should be saved.
     std::string m_Filename; // The name of the file where the logs are saved.
 
@@ -257,6 +260,22 @@ public:
         {
             DisableLogFileLevel(level);
         }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of characters that strings will be truncated in debug output.
+    */
+    Uint32 GetStringTruncate() const
+    {
+        return m_StringTruncate;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of characters that strings will be truncated in debug output.
+    */
+    void SetStringTruncate(Uint32 nc)
+    {
+        m_StringTruncate = nc;
     }
 
     /* --------------------------------------------------------------------------------------------

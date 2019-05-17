@@ -1661,7 +1661,7 @@ struct StackStrF
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     StackStrF(HSQUIRRELVM vm, SQInteger idx)
         : mPtr(_SC(""))
-        , mLen(SQ_ERROR)
+        , mLen(0)
         , mRes(SQ_OK)
         , mObj()
         , mVM(vm)
@@ -1741,9 +1741,9 @@ struct StackStrF
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Release any object references.
+    /// Release any object references and assign a new target if necessary, then return self for chaining.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    void Release()
+    StackStrF & Release(HSQUIRRELVM vm = nullptr,  SQInteger idx = -1)
     {
         if (!sq_isnull(mObj))
         {
@@ -1752,9 +1752,10 @@ struct StackStrF
         mPtr = _SC("");
         mLen = 0;
         mRes = SQ_OK;
-        mVM = nullptr;
-        mIdx = -1;
+        mVM = vm;
+        mIdx = idx;
         sq_resetobject(&mObj);
+        return *this;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
