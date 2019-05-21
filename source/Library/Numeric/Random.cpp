@@ -83,6 +83,29 @@ SizeT GenerateSeed()
 }
 
 // ------------------------------------------------------------------------------------------------
+SizeT GenerateSeed2()
+{
+    struct {
+        std::clock_t    c;
+        std::time_t     t;
+#ifdef SQMOD_OS_WINDOWS
+        int             p;
+#else
+        pid_t           p;
+#endif
+    } data;
+    data.c = std::clock();
+    data.t = std::time(nullptr);
+#ifdef SQMOD_OS_WINDOWS
+    data.p = _getpid();
+#else
+    data.p = getpid();
+#endif
+    // Mangle and return result
+    return FnvHash(reinterpret_cast< const uint8_t * >(&data), sizeof(data));
+}
+
+// ------------------------------------------------------------------------------------------------
 void ReseedRandom()
 {
     RG32_MT19937.reset(new std::mt19937(GenerateSeed()));
@@ -382,6 +405,7 @@ void Register_Random(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(_SC("SqRand"), Table(vm)
         .Func(_SC("GenSeed"), &GenerateSeed)
+        .Func(_SC("GenSeed2"), &GenerateSeed2)
         .Overload< void (*)(void) >(_SC("Reseed"), &ReseedRandom)
         .Overload< void (*)(Uint32) >(_SC("Reseed"), &ReseedRandom)
         .Overload< void (*)(void) >(_SC("Reseed32"), &ReseedRandom32)
