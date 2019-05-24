@@ -287,6 +287,15 @@ typedef std::basic_string< SQChar > String;
 #endif
 
 /* ------------------------------------------------------------------------------------------------
+ * ATTRIBUTES
+*/
+#if defined(__GNUC__) && __GNUC__ >= 7
+ #define SQ_FALL_THROUGH __attribute__ ((fallthrough))
+#else
+ #define SQ_FALL_THROUGH ((void)0)
+#endif // __GNUC__ >= 7
+
+/* ------------------------------------------------------------------------------------------------
  * LOGGING LOCATION
 */
 

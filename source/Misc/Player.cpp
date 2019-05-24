@@ -161,6 +161,7 @@ Int32 GetSkinID(StackStrF & name)
         // [B]um guy (#1|A)/(#2|B)/(#3|C)
         // [B]um lady (#1|A)/(#2|B)/(#2|C)/(#3|D)/(#4|E)
         // [B]usiness man (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)
+        // fall through
         case 'b':
             // [Be]ach [g]uy (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)/(#7|G)/(#8|H)
             if (b == 'e' && (c == 'g' || (len > 5 && str[5] == 'g')))
@@ -257,6 +258,7 @@ Int32 GetSkinID(StackStrF & name)
         // [C]op, [C]ortez
         // [C]riminal (#1|A)/(#2|B)
         // [C]uban (#1|A)/(#2|B)
+        // fall through
         case 'c':
             // [Ca]m, [Ca]m (Robber), [Ca]ndy Suxx
             if (b == 'a')
@@ -328,6 +330,7 @@ Int32 GetSkinID(StackStrF & name)
             else if (b == 'u' && (d == '2' || d == 'b')) return SQMOD_SKIN_CUBAN_B;
         // [D]BP security (#1|A)/(#2|B)
         // [D]iaz guy (#1|A)/(#2|B)
+        // fall through
         case 'd':
             switch (b)
             {
@@ -337,6 +340,7 @@ Int32 GetSkinID(StackStrF & name)
                     if (d == '1' || d == 'a') return SQMOD_SKIN_DBP_SECURITY_A;
                     else if (d == '2' || d == 'b') return SQMOD_SKIN_DBP_SECURITY_B;
                 // [Di]a[z] [g]uy (#1|A)/(#2|B)
+                // fall through
                 case 'i':
                 case 'z':
                 case 'g':
@@ -344,6 +348,7 @@ Int32 GetSkinID(StackStrF & name)
                     else if (d == '2' || d == 'b') return SQMOD_SKIN_DIAZ_GUY_B;
             }
         // [F]BI, [F]ireman, [F]ood lady, [F]rench guy
+        // fall through
         case 'f':
             switch (b)
             {
@@ -412,6 +417,7 @@ Int32 GetSkinID(StackStrF & name)
                 return SQMOD_SKIN_GYM_LADY;
         // [H]atian (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)
         // [H]ilary, [H]ilary (Robber), [H]ood lady
+        // fall through
         case 'h':
             // [H]atian (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)
             if (b == 'a')
@@ -437,6 +443,7 @@ Int32 GetSkinID(StackStrF & name)
             // [Ho]od [l]ady
             if (b && (b == 'o' || b == 'l')) return SQMOD_SKIN_HOOD_LADY;
         // [K]en Rosenburg
+        // fall through
         case 'k':
             return SQMOD_SKIN_KEN_ROSENBURG;
         // [L]ance (#1|A)/(#1|B)
@@ -472,6 +479,7 @@ Int32 GetSkinID(StackStrF & name)
                 }
             }
         // [M]ercades
+        // fall through
         case 'm':
             if (d == 'b') return SQMOD_SKIN_MERCADES_B;
             else return SQMOD_SKIN_MERCADES_A;
@@ -483,6 +491,7 @@ Int32 GetSkinID(StackStrF & name)
         // [P]imp, [P]izzaman
         // [P]rostitute (#1|A)/(#2|B)/(#2|C)/(#2|D)/(#3|D)/(#4|D)
         // [P]unk (#1|A)/(#2|B)/(#3|C)
+        // fall through
         case 'p':
             // [Pa]ramedic
             if (b == 'a') return SQMOD_SKIN_PARAMEDIC;
@@ -533,6 +542,7 @@ Int32 GetSkinID(StackStrF & name)
                 }
             }
         // [R]ich guy, [R]ockstar guy
+        // fall through
         case 'r':
             // [Ri]ch guy
             if (b == 'i') return SQMOD_SKIN_RICH_GUY;
@@ -549,6 +559,7 @@ Int32 GetSkinID(StackStrF & name)
         // [S]tore clerk
         // [S]tripper (#1|A)/(#2|B)/(#3|C)
         // [S]wat
+        // fall through
         case 's':
             // [Sa]ilor (#1|A)/(#2|B)/(#3|C)
             if (b == 'a')
@@ -668,6 +679,7 @@ Int32 GetSkinID(StackStrF & name)
         // [T]ommy Vercetti
         // [T]ourist (#1|A)/(#2|B)
         // [T]ranny
+        // fall through
         case 't':
             switch (b)
             {
@@ -698,6 +710,7 @@ Int32 GetSkinID(StackStrF & name)
                     if (c == 'm') return SQMOD_SKIN_TOMMY_VERCETTI;
                     else if (c == 'u' && (d == '1' || d == 'a')) return SQMOD_SKIN_TOURIST_A;
                     else if (c == 'u' && (d == '2' || d == 'b')) return SQMOD_SKIN_TOURIST_B;
+                // fall through
                 case 'r': return SQMOD_SKIN_TRANNY;
             }
         // [U]ndercover cop (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)

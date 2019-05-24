@@ -1417,6 +1417,7 @@ void ImportModuleAPI(PluginFuncs * vcapi, CCStr mod)
     switch (plugin_exports->PopulateModuleAPI(&sqmodapi, sizeof(SQMODAPI)))
     {
         case -1:    STHROWF("%s: Incompatible module API structure", mod);
+        // fall through
         case 0:     STHROWF("%s: Invalid pointer to module API structure", mod);
     }
 
@@ -1426,6 +1427,7 @@ void ImportModuleAPI(PluginFuncs * vcapi, CCStr mod)
     switch (plugin_exports->PopulateSquirrelAPI(&sqlibapi, sizeof(SQLIBAPI)))
     {
         case -1:    STHROWF("%s: Incompatible squirrel API structure", mod);
+        // fall through
         case 0:     STHROWF("%s: Invalid pointer to squirrel API structure", mod);
     }
 

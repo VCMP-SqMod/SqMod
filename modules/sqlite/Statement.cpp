@@ -236,9 +236,13 @@ Int32 Statement::Exec()
     {
         // We don't expect any rows to be returned in this case!
         case SQLITE_ROW:    STHROWF("Results were found");
+        // fall through
         case SQLITE_BUSY:   STHROWF("Database was busy");
+        // fall through
         case SQLITE_ERROR:  STHROWF("Runtime error occurred");
+        // fall through
         case SQLITE_MISUSE: STHROWF("Statement misuse");
+        // fall through
         default:            STHROWF("Unknown failure [%s]", m_Handle->ErrStr());
     }
     // Operation failed (shouldn't reach this point!)
@@ -277,8 +281,11 @@ bool Statement::Step()
     switch (m_Handle->mStatus)
     {
         case SQLITE_BUSY:   STHROWF("Database was busy");
+        // fall through
         case SQLITE_ERROR:  STHROWF("Runtime error occurred");
+        // fall through
         case SQLITE_MISUSE: STHROWF("Statement misuse");
+        // fall through
         default:            STHROWF("Unknown failure [%s]", m_Handle->ErrStr());
     }
     // Operation failed (shouldn't reach this point!)
