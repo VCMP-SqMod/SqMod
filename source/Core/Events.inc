@@ -1278,6 +1278,118 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Core::EmitCheckpointStream(int32_t player_id, int32_t entity_id, bool is_deleted)
+{
+    CheckpointInst & _checkpoint = m_Checkpoints.at(entity_id);
+    PlayerInst & _client = m_Players.at(player_id);
+    (*_checkpoint.mOnStream.first)(_client.mObj, is_deleted);
+    (*_client.mOnEntityStream.first)(_checkpoint.mObj, static_cast< Int32 >(vcmpEntityPoolCheckPoint), is_deleted);
+    (*mOnCheckpointStream.first)(_client.mObj, _checkpoint.mObj, is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _checkpoint.mObj, static_cast< Int32 >(vcmpEntityPoolCheckPoint), is_deleted);
+}
+// ------------------------------------------------------------------------------------------------
+void Core::EmitObjectStream(int32_t player_id, int32_t entity_id, bool is_deleted)
+{
+    ObjectInst & _object = m_Objects.at(entity_id);
+    PlayerInst & _client = m_Players.at(player_id);
+    (*_object.mOnStream.first)(_client.mObj, is_deleted);
+    (*_client.mOnEntityStream.first)(_object.mObj, static_cast< Int32 >(vcmpEntityPoolObject), is_deleted);
+    (*mOnObjectStream.first)(_client.mObj, _object.mObj, is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _object.mObj, static_cast< Int32 >(vcmpEntityPoolObject), is_deleted);
+}
+// ------------------------------------------------------------------------------------------------
+void Core::EmitPickupStream(int32_t player_id, int32_t entity_id, bool is_deleted)
+{
+    PickupInst & _pickup = m_Pickups.at(entity_id);
+    PlayerInst & _client = m_Players.at(player_id);
+    (*_pickup.mOnStream.first)(_client.mObj, is_deleted);
+    (*_client.mOnEntityStream.first)(_pickup.mObj, static_cast< Int32 >(vcmpEntityPoolPickup), is_deleted);
+    (*mOnPickupStream.first)(_client.mObj, _pickup.mObj, is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _pickup.mObj, static_cast< Int32 >(vcmpEntityPoolPickup), is_deleted);
+}
+// ------------------------------------------------------------------------------------------------
+void Core::EmitVehicleStream(int32_t player_id, int32_t entity_id, bool is_deleted)
+{
+    VehicleInst & _vehicle = m_Vehicles.at(entity_id);
+    PlayerInst & _client = m_Players.at(player_id);
+    (*_vehicle.mOnStream.first)(_client.mObj, is_deleted);
+    (*_client.mOnEntityStream.first)(_vehicle.mObj, static_cast< Int32 >(vcmpEntityPoolVehicle), is_deleted);
+    (*mOnVehicleStream.first)(_client.mObj, _vehicle.mObj, is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _vehicle.mObj, static_cast< Int32 >(vcmpEntityPoolVehicle), is_deleted);
+}
+// ------------------------------------------------------------------------------------------------
+void Core::EmitPlayerStream(int32_t player_id, int32_t entity_id, bool is_deleted)
+{
+    PlayerInst & _player = m_Players.at(entity_id);
+    PlayerInst & _client = m_Players.at(player_id);
+    (*_player.mOnStream.first)(_client.mObj, is_deleted);
+    (*_client.mOnEntityStream.first)(_player.mObj, static_cast< Int32 >(vcmpEntityPoolPlayer), is_deleted);
+    (*mOnPlayerStream.first)(_client.mObj, _player.mObj, is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _player.mObj, static_cast< Int32 >(vcmpEntityPoolPlayer), is_deleted);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityPool entity_type, bool is_deleted)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(player_id, SQMOD_PLAYER_POOL))
+    {
+        STHROWF("Cannot notify player with invalid identifier about streaming: %d", player_id);
+    }
+    // See what type of entity changed
+    switch (entity_type)
+    {
+        case vcmpEntityPoolVehicle: {
+            // Make sure that the specified entity identifier is valid
+            if (INVALID_ENTITYEX(entity_id, SQMOD_VEHICLE_POOL))
+            {
+                STHROWF("Cannot stream vehicle with invalid identifier: %d", entity_id);
+            }
+            // Forward the event to the dedicated handler
+            EmitVehicleStream(player_id, entity_id, is_deleted);
+        } break;
+        case vcmpEntityPoolObject: {
+            // Make sure that the specified entity identifier is valid
+            if (INVALID_ENTITYEX(entity_id, SQMOD_OBJECT_POOL))
+            {
+                STHROWF("Cannot stream object with invalid identifier: %d", entity_id);
+            }
+            // Forward the event to the dedicated handler
+            EmitObjectStream(player_id, entity_id, is_deleted);
+        } break;
+        case vcmpEntityPoolPickup: {
+            // Make sure that the specified entity identifier is valid
+            if (INVALID_ENTITYEX(entity_id, SQMOD_PICKUP_POOL))
+            {
+                STHROWF("Cannot stream pickup with invalid identifier: %d", entity_id);
+            }
+            // Forward the event to the dedicated handler
+            EmitPickupStream(player_id, entity_id, is_deleted);
+        } break;
+        case vcmpEntityPoolPlayer: {
+            // Make sure that the specified entity identifier is valid
+            if (INVALID_ENTITYEX(entity_id, SQMOD_PLAYER_POOL))
+            {
+                STHROWF("Cannot stream player with invalid identifier: %d", entity_id);
+            }
+            // Forward the event to the dedicated handler
+            EmitPlayerStream(player_id, entity_id, is_deleted);
+        } break;
+        case vcmpEntityPoolCheckPoint: {
+            // Make sure that the specified entity identifier is valid
+            if (INVALID_ENTITYEX(entity_id, SQMOD_CHECKPOINT_POOL))
+            {
+                STHROWF("Cannot stream checkpoint with invalid identifier: %d", entity_id);
+            }
+            // Forward the event to the dedicated handler
+            EmitCheckpointStream(player_id, entity_id, is_deleted);
+        } break;
+        default:
+            LogErr("Unknown change in entity streaming: client %d > type %d > entity %d", player_id, entity_type, entity_id);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
 {
     // Make sure that the specified entity identifier is valid

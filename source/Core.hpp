@@ -194,6 +194,7 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+        SignalPair      mOnStream;
 
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnEntered;
@@ -264,6 +265,7 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+        SignalPair      mOnStream;
 
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnKeyPress;
@@ -326,6 +328,7 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+        SignalPair      mOnStream;
 
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnShot;
@@ -391,6 +394,7 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+        SignalPair      mOnStream;
 
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnRespawn;
@@ -484,6 +488,7 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+        SignalPair      mOnStream;
 
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnRequestClass;
@@ -541,6 +546,7 @@ protected:
         SignalPair      mOnCheckpointEntered;
         SignalPair      mOnCheckpointExited;
         SignalPair      mOnClientScriptData;
+        SignalPair      mOnEntityStream;
         SignalPair      mOnUpdate;
         SignalPair      mOnHealth;
         SignalPair      mOnArmour;
@@ -631,6 +637,7 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+        SignalPair      mOnStream;
 
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnEmbarking;
@@ -1229,6 +1236,16 @@ public:
     void EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_deleted);
 
     /* --------------------------------------------------------------------------------------------
+     * Entity streaming changes events.
+    */
+    void EmitCheckpointStream(int32_t player_id, int32_t entity_id, bool is_deleted);
+    void EmitObjectStream(int32_t player_id, int32_t entity_id, bool is_deleted);
+    void EmitPickupStream(int32_t player_id, int32_t entity_id, bool is_deleted);
+    void EmitVehicleStream(int32_t player_id, int32_t entity_id, bool is_deleted);
+    void EmitPlayerStream(int32_t player_id, int32_t entity_id, bool is_deleted);
+    void EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityPool entity_type, bool is_deleted);
+
+    /* --------------------------------------------------------------------------------------------
      * Entity update events.
     */
     void EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type);
@@ -1273,6 +1290,11 @@ public:
     SignalPair  mOnPickupCustom;
     SignalPair  mOnPlayerCustom;
     SignalPair  mOnVehicleCustom;
+    SignalPair  mOnCheckpointStream;
+    SignalPair  mOnObjectStream;
+    SignalPair  mOnPickupStream;
+    SignalPair  mOnPlayerStream;
+    SignalPair  mOnVehicleStream;
     SignalPair  mOnServerStartup;
     SignalPair  mOnServerShutdown;
     SignalPair  mOnServerFrame;
@@ -1346,6 +1368,7 @@ public:
     SignalPair  mOnCheckpointRadius;
     SignalPair  mOnEntityPool;
     SignalPair  mOnClientScriptData;
+    SignalPair  mOnPlayerStreamChange;
     SignalPair  mOnPlayerUpdate;
     SignalPair  mOnVehicleUpdate;
     SignalPair  mOnPlayerHealth;
@@ -1379,6 +1402,7 @@ public:
     SignalPair  mOnVehicleHandlingRule;
     SignalPair  mOnVehicleEnterArea;
     SignalPair  mOnVehicleLeaveArea;
+    SignalPair  mOnEntityStream;
     SignalPair  mOnServerOption;
     SignalPair  mOnScriptReload;
     SignalPair  mOnScriptLoaded;

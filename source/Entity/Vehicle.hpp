@@ -623,6 +623,26 @@ public:
     bool Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Set whether the target player will see an objective arrow over a vehicle.
+    */
+    void SetPlayer3DArrow(CPlayer & target, bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the target player sees an objective arrow over a vehicle.
+    */
+    bool GetPlayer3DArrow(CPlayer & target) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the target player will see an objective arrow over a vehicle.
+    */
+    void SetPlayer3DArrowID(SQInteger id, bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the target player sees an objective arrow over a vehicle.
+    */
+    bool GetPlayer3DArrowID(SQInteger id) const;
+
+    /* --------------------------------------------------------------------------------------------
      * See whether the managed vehicle entity collides with user defined areas.
     */
     bool GetCollideAreas() const;

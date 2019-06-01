@@ -417,6 +417,7 @@ void Core::CheckpointInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+    InitSignalPair(mOnStream, mEvents, "Stream");
     InitSignalPair(mOnEntered, mEvents, "Entered");
     InitSignalPair(mOnExited, mEvents, "Exited");
     InitSignalPair(mOnWorld, mEvents, "World");
@@ -428,6 +429,7 @@ void Core::CheckpointInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+    ResetSignalPair(mOnStream);
     ResetSignalPair(mOnEntered);
     ResetSignalPair(mOnExited);
     ResetSignalPair(mOnWorld);
@@ -452,6 +454,7 @@ void Core::KeybindInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+    InitSignalPair(mOnStream, mEvents, "Stream");
     InitSignalPair(mOnKeyPress, mEvents, "KeyPress");
     InitSignalPair(mOnKeyRelease, mEvents, "KeyRelease");
 }
@@ -483,6 +486,7 @@ void Core::ObjectInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+    InitSignalPair(mOnStream, mEvents, "Stream");
     InitSignalPair(mOnShot, mEvents, "Shot");
     InitSignalPair(mOnTouched, mEvents, "Touched");
     InitSignalPair(mOnWorld, mEvents, "World");
@@ -495,6 +499,7 @@ void Core::ObjectInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+    ResetSignalPair(mOnStream);
     ResetSignalPair(mOnShot);
     ResetSignalPair(mOnTouched);
     ResetSignalPair(mOnWorld);
@@ -520,6 +525,7 @@ void Core::PickupInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+    InitSignalPair(mOnStream, mEvents, "Stream");
     InitSignalPair(mOnRespawn, mEvents, "Respawn");
     InitSignalPair(mOnClaimed, mEvents, "Claimed");
     InitSignalPair(mOnCollected, mEvents, "Collected");
@@ -535,6 +541,7 @@ void Core::PickupInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+    ResetSignalPair(mOnStream);
     ResetSignalPair(mOnRespawn);
     ResetSignalPair(mOnClaimed);
     ResetSignalPair(mOnCollected);
@@ -563,6 +570,7 @@ void Core::PlayerInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+    InitSignalPair(mOnStream, mEvents, "Stream");
     InitSignalPair(mOnRequestClass, mEvents, "RequestClass");
     InitSignalPair(mOnRequestSpawn, mEvents, "RequestSpawn");
     InitSignalPair(mOnSpawn, mEvents, "Spawn");
@@ -618,6 +626,7 @@ void Core::PlayerInst::InitEvents()
     InitSignalPair(mOnCheckpointEntered, mEvents, "CheckpointEntered");
     InitSignalPair(mOnCheckpointExited, mEvents, "CheckpointExited");
     InitSignalPair(mOnClientScriptData, mEvents, "ClientScriptData");
+    InitSignalPair(mOnEntityStream, mEvents, "EntityStream");
     InitSignalPair(mOnUpdate, mEvents, "Update");
     InitSignalPair(mOnHealth, mEvents, "Health");
     InitSignalPair(mOnArmour, mEvents, "Armour");
@@ -643,6 +652,7 @@ void Core::PlayerInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+    ResetSignalPair(mOnStream);
     ResetSignalPair(mOnRequestClass);
     ResetSignalPair(mOnRequestSpawn);
     ResetSignalPair(mOnSpawn);
@@ -698,6 +708,7 @@ void Core::PlayerInst::DropEvents()
     ResetSignalPair(mOnCheckpointEntered);
     ResetSignalPair(mOnCheckpointExited);
     ResetSignalPair(mOnClientScriptData);
+    ResetSignalPair(mOnEntityStream);
     ResetSignalPair(mOnUpdate);
     ResetSignalPair(mOnHealth);
     ResetSignalPair(mOnArmour);
@@ -736,6 +747,7 @@ void Core::VehicleInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+    InitSignalPair(mOnStream, mEvents, "Stream");
     InitSignalPair(mOnEmbarking, mEvents, "Embarking");
     InitSignalPair(mOnEmbarked, mEvents, "Embarked");
     InitSignalPair(mOnDisembark, mEvents, "Disembark");
@@ -763,6 +775,7 @@ void Core::VehicleInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+    ResetSignalPair(mOnStream);
     ResetSignalPair(mOnEmbarking);
     ResetSignalPair(mOnEmbarked);
     ResetSignalPair(mOnDisembark);

@@ -241,6 +241,15 @@ CSStr CPlayer::GetUID2() const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CPlayer::Kill() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->KillPlayer(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
 void CPlayer::Kick() const
 {
     // Validate the managed identifier
@@ -1378,6 +1387,59 @@ void CPlayer::Unspectate() const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CPlayer::SetPlayer3DArrow(CPlayer & target, bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    _Func->SetPlayer3DArrowForPlayer(m_ID, target.GetID(), toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::GetPlayer3DArrow(CPlayer & target) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    return _Func->GetPlayer3DArrowForPlayer(m_ID, target.GetID());
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetPlayer3DArrowID(SQInteger id, bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    _Func->SetPlayer3DArrowForPlayer(m_ID, id, toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::GetPlayer3DArrowID(SQInteger id) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    return _Func->GetPlayer3DArrowForPlayer(m_ID, id);
+}
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::InterpolateCameraLookAt(const Vector3 & pos, Uint32 ms) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    return _Func->InterpolateCameraLookAt(m_ID, pos.x, pos.y, pos.z, ms) != vcmpErrorRequestDenied;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::InterpolateCameraLookAtEx(Float32 x, Float32 y, Float32 z, Uint32 ms) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    return _Func->InterpolateCameraLookAt(m_ID, x, y, z, ms) != vcmpErrorRequestDenied;
+}
+
+// ------------------------------------------------------------------------------------------------
 void CPlayer::Redirect(StackStrF & ip, Uint32 port, StackStrF & nick,
                         StackStrF & server_pass, StackStrF & user_pass)
 {
@@ -1407,6 +1469,42 @@ void CPlayer::PlaySound(Int32 sound_id) const
     Validate();
     // Perform the requested operation
     _Func->PlaySound(_Func->GetPlayerUniqueWorld(m_ID), sound_id, NAN, NAN, NAN);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetDrunkHandling(SQInteger level) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerDrunkHandling(m_ID, static_cast< Uint32 >(level));
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::GetDrunkHandling() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    return _Func->GetPlayerDrunkHandling(m_ID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetDrunkVisuals(SQInteger level) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    _Func->SetPlayerDrunkVisuals(m_ID, static_cast< Uint8 >(level));
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::GetDrunkVisuals() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    return _Func->GetPlayerDrunkVisuals(m_ID);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2673,6 +2771,8 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Away"), &CPlayer::IsAway)
         .Prop(_SC("Spec"), &CPlayer::GetSpectator, &CPlayer::SetSpectator)
         .Prop(_SC("SpecID"), &CPlayer::GetSpectatorID, &CPlayer::SetSpectatorID)
+        .Prop(_SC("DrunkHandling"), &CPlayer::GetDrunkHandling, &CPlayer::SetDrunkHandling)
+        .Prop(_SC("DrunkVisuals"), &CPlayer::GetDrunkVisuals, &CPlayer::SetDrunkVisuals)
         .Prop(_SC("CollideAreas"), &CPlayer::GetCollideAreas, &CPlayer::SetCollideAreas)
         .Prop(_SC("Authority"), &CPlayer::GetAuthority, &CPlayer::SetAuthority)
         .Prop(_SC("TrackPosition"), &CPlayer::GetTrackPosition, &CPlayer::SetTrackPosition)
@@ -2693,6 +2793,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Blue"), &CPlayer::GetColorB, &CPlayer::SetColorB)
         // Member Methods
         .Func(_SC("StreamedFor"), &CPlayer::IsStreamedFor)
+        .Func(_SC("Kill"), &CPlayer::Kill)
         .Func(_SC("Kick"), &CPlayer::Kick)
         .Func(_SC("Ban"), &CPlayer::Ban)
         .Func(_SC("KickBecause"), &CPlayer::KickBecause)
@@ -2722,6 +2823,12 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Spectating"), &CPlayer::GetSpectator)
         .Func(_SC("Unspectate"), &CPlayer::Unspectate)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
+        .Func(_SC("SetPlayer3DArrow"), &CPlayer::SetPlayer3DArrow)
+        .Func(_SC("GetPlayer3DArrow"), &CPlayer::GetPlayer3DArrow)
+        .Func(_SC("SetPlayer3DArrowID"), &CPlayer::SetPlayer3DArrowID)
+        .Func(_SC("GetPlayer3DArrowID"), &CPlayer::GetPlayer3DArrowID)
+        .Func(_SC("InterpolateCameraLookAt"), &CPlayer::InterpolateCameraLookAt)
+        .Func(_SC("InterpolateCameraLookAtEx"), &CPlayer::InterpolateCameraLookAtEx)
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("GetModuleList"), &CPlayer::GetModuleList)
         .Func(_SC("PlaySound"), &CPlayer::PlaySound)

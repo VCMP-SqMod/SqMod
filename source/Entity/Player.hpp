@@ -266,6 +266,11 @@ public:
     CSStr GetUID2() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Set player's health to 0 and reset the death reason.
+    */
+    void Kill() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Kick the managed player entity from the server.
     */
     void Kick() const;
@@ -741,6 +746,36 @@ public:
     void Unspectate() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Set whether the target player will see an objective arrow over a player.
+    */
+    void SetPlayer3DArrow(CPlayer & target, bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the target player sees an objective arrow over a player.
+    */
+    bool GetPlayer3DArrow(CPlayer & target) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the target player will see an objective arrow over a player.
+    */
+    void SetPlayer3DArrowID(SQInteger id, bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the target player sees an objective arrow over a player.
+    */
+    bool GetPlayer3DArrowID(SQInteger id) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Smoothly pivots the camera angle.
+    */
+    bool InterpolateCameraLookAt(const Vector3 & pos, Uint32 ms) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Smoothly pivots the camera angle.
+    */
+    bool InterpolateCameraLookAtEx(Float32 x, Float32 y, Float32 z, Uint32 ms) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.
     */
     void Redirect(StackStrF & ip, Uint32 port, StackStrF & nick,
@@ -755,6 +790,26 @@ public:
      * Retrieve the authority level of the managed player entity.
     */
     void PlaySound(Int32 sound_id) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set how delayed a player's turn handling is when in a vehicle.
+    */
+    void SetDrunkHandling(SQInteger level) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve how delayed a player's turn handling is when in a vehicle.
+    */
+    SQInteger GetDrunkHandling() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set how intense the drunk blur overlay is for a player.
+    */
+    void SetDrunkVisuals(SQInteger level) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve how intense the drunk blur overlay is for a player.
+    */
+    SQInteger GetDrunkVisuals() const;
 
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.

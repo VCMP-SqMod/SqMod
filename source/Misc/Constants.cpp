@@ -245,6 +245,7 @@ static const EnumElement g_EntityPoolEnum[] = {
     {_SC("Object"),       vcmpEntityPoolObject},
     {_SC("Pickup"),       vcmpEntityPoolPickup},
     {_SC("Radio"),        vcmpEntityPoolRadio},
+    {_SC("Player"),       vcmpEntityPoolPlayer},
     {_SC("Blip"),         vcmpEntityPoolBlip},
     {_SC("Checkpoint"),   vcmpEntityPoolCheckPoint},
     {_SC("Max"),          vcmpEntityPoolCheckPoint}
@@ -330,7 +331,8 @@ static const EnumElement g_ServerOptionEnum[] = {
     {_SC("WallGlitch"),               vcmpServerOptionWallGlitch},
     {_SC("DisableBackfaceCulling"),   vcmpServerOptionDisableBackfaceCulling},
     {_SC("DisableHeliBladeDamage"),   vcmpServerOptionDisableHeliBladeDamage},
-    {_SC("Max"),                      vcmpServerOptionDisableHeliBladeDamage}
+    {_SC("DisableCrouch "),           vcmpServerOptionDisableCrouch},
+    {_SC("Max"),                      vcmpServerOptionDisableCrouch}
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -345,8 +347,8 @@ static const EnumElement g_PlayerOptionEnum[] = {
     {_SC("CanAttack"),        vcmpPlayerOptionCanAttack},
     {_SC("HasMarker"),        vcmpPlayerOptionHasMarker},
     {_SC("ChatTagsEnabled"),  vcmpPlayerOptionChatTagsEnabled},
-    {_SC("DrunkEffects"),     vcmpPlayerOptionDrunkEffects},
-    {_SC("Max"),              vcmpPlayerOptionDrunkEffects}
+    {_SC("DrunkEffects"),     vcmpPlayerOptionBleeding},
+    {_SC("Max"),              vcmpPlayerOptionBleeding}
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -358,6 +360,9 @@ static const EnumElement g_VehicleOptionEnum[] = {
     {_SC("RadioLocked"),      vcmpVehicleOptionRadioLocked},
     {_SC("Ghost"),            vcmpVehicleOptionGhost},
     {_SC("Siren"),            vcmpVehicleOptionSiren},
+    {_SC("SingleUse "),       vcmpVehicleOptionSingleUse},
+    {_SC("EngineDisabled "),  vcmpVehicleOptionEngineDisabled},
+    {_SC("BootOpen "),        vcmpVehicleOptionBootOpen},
     {_SC("Max"),              vcmpVehicleOptionSiren}
 };
 

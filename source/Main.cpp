@@ -868,6 +868,19 @@ static void OnEntityPoolChange(vcmpEntityPool entity_type, int32_t entity_id, ui
 }
 
 // ------------------------------------------------------------------------------------------------
+static void OnEntityStreamingChange(int32_t player_id, int32_t entity_id, vcmpEntityPool entity_type, uint8_t is_deleted)
+{
+    // Attempt to forward the event
+    try
+    {
+        Core::Get().EmitEntityStreaming(player_id, entity_id, entity_type, is_deleted);
+    }
+    SQMOD_CATCH_EVENT_EXCEPTION(OnEntityStreamingChange)
+    // See if a reload was requested
+    SQMOD_RELOAD_CHECK(false)
+}
+
+// ------------------------------------------------------------------------------------------------
 static void OnServerPerformanceReport(size_t /*entry_count*/, CCStr * /*descriptions*/, uint64_t * /*times*/)
 {
     // Ignored for now...
@@ -973,6 +986,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     _Clbk->OnEntityPoolChange           = OnEntityPoolChange;
     _Clbk->OnServerPerformanceReport    = OnServerPerformanceReport;
     _Clbk->OnPlayerModuleList           = OnPlayerModuleList;
+    _Clbk->OnEntityStreamingChange      = OnEntityStreamingChange;
     // Attempt to initialize the plug-in exports
     InitExports();
     // Dummy spacing

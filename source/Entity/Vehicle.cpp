@@ -1149,6 +1149,42 @@ bool CVehicle::Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) co
 }
 
 // ------------------------------------------------------------------------------------------------
+void CVehicle::SetPlayer3DArrow(CPlayer & target, bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    _Func->SetVehicle3DArrowForPlayer(m_ID, target.GetID(), toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CVehicle::GetPlayer3DArrow(CPlayer & target) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    return _Func->GetVehicle3DArrowForPlayer(m_ID, target.GetID());
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetPlayer3DArrowID(SQInteger id, bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    _Func->SetVehicle3DArrowForPlayer(m_ID, id, toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CVehicle::GetPlayer3DArrowID(SQInteger id) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Spectate the given target
+    return _Func->GetVehicle3DArrowForPlayer(m_ID, id);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CVehicle::GetCollideAreas() const
 {
     // Validate the managed identifier
@@ -2038,6 +2074,10 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Func(_SC("SetHandlingRule"), &CVehicle::SetHandlingRule)
         .Func(_SC("ResetHandlingRule"), &CVehicle::ResetHandlingRule)
         .Func(_SC("ResetHandlings"), &CVehicle::ResetHandlings)
+        .Func(_SC("SetPlayer3DArrow"), &CVehicle::SetPlayer3DArrow)
+        .Func(_SC("GetPlayer3DArrow"), &CVehicle::GetPlayer3DArrow)
+        .Func(_SC("SetPlayer3DArrowID"), &CVehicle::SetPlayer3DArrowID)
+        .Func(_SC("GetPlayer3DArrowID"), &CVehicle::GetPlayer3DArrowID)
         .Func(_SC("AreasCollide"), &CVehicle::SetAreasCollide)
         // Member Overloads
         .Overload< void (CVehicle::*)(const Vector3 &, bool) const >
