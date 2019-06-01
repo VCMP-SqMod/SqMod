@@ -295,6 +295,12 @@ void Register_Routine(HSQUIRRELVM vm)
         .Prop(_SC("Arguments"), &Routine::GetArguments)
         // Member Methods
         .FmtFunc(_SC("SetTag"), &Routine::SetTag)
+        .Func(_SC("SetData"), &Routine::ApplyData)
+        .Func(_SC("SetInterval"), &Routine::ApplyInterval)
+        .Func(_SC("SetIterations"), &Routine::ApplyIterations)
+        .Func(_SC("SetSuspended"), &Routine::ApplySuspended)
+        .Func(_SC("SetQuiet"), &Routine::AppplyQuiet)
+        .Func(_SC("SetEndure"), &Routine::ApplyEndure)
         .Func(_SC("Terminate"), &Routine::Terminate)
         .Func(_SC("GetArgument"), &Routine::GetArgument)
     );

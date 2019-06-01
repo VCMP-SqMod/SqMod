@@ -444,6 +444,15 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Modify the arbitrary user data object.
+    */
+    Routine & ApplyData(const LightObj & data)
+    {
+        SetData(data);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the execution interval.
     */
     SQInteger GetInterval() const
@@ -457,6 +466,15 @@ public:
     void SetInterval(SQInteger itr)
     {
         GetValid().mInterval = ClampMin(ConvTo< Interval >::From(itr), static_cast< Interval >(0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the execution interval.
+    */
+    Routine & ApplyInterval(SQInteger itr)
+    {
+        SetInterval(itr);
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -476,6 +494,15 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Modify the number of iterations.
+    */
+    Routine & ApplyIterations(SQInteger itr)
+    {
+        SetIterations(itr);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * See whether the routine is suspended.
     */
     bool GetSuspended() const
@@ -489,6 +516,15 @@ public:
     void SetSuspended(bool toggle)
     {
         GetValid().mSuspended = toggle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the routine should be suspended.
+    */
+    Routine & ApplySuspended(bool toggle)
+    {
+        SetSuspended(toggle);
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -508,6 +544,15 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Set whether the routine should be quiet.
+    */
+    Routine & AppplyQuiet(bool toggle)
+    {
+        SetQuiet(toggle);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * See whether the routine endures.
     */
     bool GetEndure() const
@@ -521,6 +566,15 @@ public:
     void SetEndure(bool toggle)
     {
         GetValid().mEndure = toggle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the routine should endure.
+    */
+    Routine & ApplyEndure(bool toggle)
+    {
+        SetEndure(toggle);
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
