@@ -227,9 +227,9 @@ void Core::EmitServerShutdown()
 // ------------------------------------------------------------------------------------------------
 void Core::EmitServerFrame(Float32 elapsed_time)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ServerFrame(%f)", elapsed_time)
+    //SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ServerFrame(%f)", elapsed_time)
     (*mOnServerFrame.first)(elapsed_time);
-    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ServerFrame")
+    //SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ServerFrame")
 }
 
 // ------------------------------------------------------------------------------------------------
