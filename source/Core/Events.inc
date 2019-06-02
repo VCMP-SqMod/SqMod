@@ -1313,7 +1313,7 @@ void Core::EmitScriptLoaded()
 // ------------------------------------------------------------------------------------------------
 void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_deleted)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::EntityPool(%d, %d, %d)", entity_type, entity_id, is_deleted)
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::EntityPool(%d, %d, %d)", static_cast<Int32>(entity_type), entity_id, is_deleted)
     // See what type of change happened in the entity pool
     switch (entity_type)
     {
@@ -1412,7 +1412,7 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
             }
         break;
         default:
-            LogErr("Unknown change in the entity pool: type %d > entity %d", entity_type, entity_id);
+            LogErr("Unknown change in the entity pool: type %d > entity %d", static_cast<Int32>(entity_type), entity_id);
     }
     // Finally, forward the event to the script
     (*mOnEntityPool.first)(static_cast< Int32 >(entity_type), entity_id, is_deleted);
@@ -1422,7 +1422,7 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerUpdate(%d, %d, %d)", player_id, update_type)
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerUpdate(%d, %d, %d)", player_id, static_cast<Int32>(update_type))
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(player_id, SQMOD_PLAYER_POOL))
     {
@@ -1607,7 +1607,7 @@ void Core::EmitVehicleStream(int32_t player_id, int32_t entity_id, bool is_delet
 // ------------------------------------------------------------------------------------------------
 void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityPool entity_type, bool is_deleted)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::EntityStreaming(%d, %d, %d, %d)", player_id, entity_id, entity_type, is_deleted)
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::EntityStreaming(%d, %d, %d, %d)", player_id, entity_id, static_cast<Int32>(entity_type), is_deleted)
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(player_id, SQMOD_PLAYER_POOL))
     {
@@ -1670,7 +1670,7 @@ void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityP
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleUpdate(%d, %d)", vehicle_id, update_type)
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleUpdate(%d, %d)", vehicle_id, static_cast<Int32>(update_type))
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(vehicle_id, SQMOD_VEHICLE_POOL))
     {
