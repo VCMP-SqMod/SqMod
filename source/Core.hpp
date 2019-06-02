@@ -265,7 +265,6 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
-        SignalPair      mOnStream;
 
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnKeyPress;

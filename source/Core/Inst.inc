@@ -454,7 +454,6 @@ void Core::KeybindInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
-    InitSignalPair(mOnStream, mEvents, "Stream");
     InitSignalPair(mOnKeyPress, mEvents, "KeyPress");
     InitSignalPair(mOnKeyRelease, mEvents, "KeyRelease");
 }
