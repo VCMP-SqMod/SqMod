@@ -94,16 +94,17 @@ static uint8_t OnServerInitialise(void)
         if (Core::Get().Execute())
         {
             Core::Get().EmitServerStartup();
+            SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerInitialise")
             // Add a notification to let the user know the plug-in was loaded
             OutputMessage("The Squirrel plug-in was loaded successfully");
         }
         else
         {
+            SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerInitialise")
             OutputError("Unable to load the plug-in resources properly");
             // Failed to initialize
             return SQMOD_FAILURE;
         }
-        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerInitialise")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnServerInitialise)
     // See if a reload was requested
