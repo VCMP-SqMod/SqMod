@@ -1313,9 +1313,9 @@ void Core::EmitScriptReload(Int32 header, LightObj & payload)
 // ------------------------------------------------------------------------------------------------
 void Core::EmitScriptLoaded()
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ScriptReload()")
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ScriptLoaded()")
     (*mOnScriptLoaded.first)();
-    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ScriptReload")
+    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ScriptLoaded")
 }
 
 // ------------------------------------------------------------------------------------------------
