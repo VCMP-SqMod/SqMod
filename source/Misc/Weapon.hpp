@@ -8,6 +8,11 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve the slot associated with a weapon identifier.
+*/
+Uint32 GetWeaponSlot(Uint32 id);
+
+/* ------------------------------------------------------------------------------------------------
  * Retrieve the name associated with a weapon identifier.
 */
 CSStr GetWeaponName(Uint32 id);
