@@ -521,7 +521,7 @@ void Logger::Debug(CCStr fmt, va_list args)
                     break;
                 case OT_INTEGER:
                     sq_getinteger(vm, -1, &i_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] INTEGER [%s] with value: " _PRINT_INT_FMT "\n", level, name, i_);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] INTEGER [%s] with value: %" PRINT_INT_FMT "\n", level, name, i_);
                     break;
                 case OT_FLOAT:
                     sq_getfloat(vm, -1, &f_);
@@ -534,18 +534,18 @@ void Logger::Debug(CCStr fmt, va_list args)
                 case OT_STRING:
                     sq_getstringandsize(vm, -1, &s_, &i_);
                     if (i_ > 0) {
-                        ret += m_Buffer.WriteF(ret, "=> [%d] STRING [%s] of " _PRINT_INT_FMT " characters: %.*s\n", level, name, i_, m_StringTruncate, s_);
+                        ret += m_Buffer.WriteF(ret, "=> [%d] STRING [%s] of %" PRINT_INT_FMT " characters: %.*s\n", level, name, i_, m_StringTruncate, s_);
                     } else {
                         ret += m_Buffer.WriteF(ret, "=> [%d] STRING [%s] empty\n", level, name);
                     }
                     break;
                 case OT_TABLE:
                     i_ = sq_getsize(vm, -1);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] TABLE [%s] with " _PRINT_INT_FMT " elements\n", level, name, i_);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] TABLE [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
                     break;
                 case OT_ARRAY:
                     i_ = sq_getsize(vm, -1);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] ARRAY [%s] with " _PRINT_INT_FMT " elements\n", level, name, i_);
+                    ret += m_Buffer.WriteF(ret, "=> [%d] ARRAY [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
                     break;
                 case OT_CLOSURE:
                     s_ = _SC("@anonymous");
@@ -588,7 +588,7 @@ void Logger::Debug(CCStr fmt, va_list args)
                             }
                             // Pop the name object
                             sq_poptop(vm);
-                        }                        
+                        }
                         // Pop the dummy instance
                         sq_poptop(vm);
                     }
@@ -615,7 +615,7 @@ void Logger::Debug(CCStr fmt, va_list args)
                             }
                             // Pop the name object
                             sq_poptop(vm);
-                        }                        
+                        }
                         // Pop the referenced value
                         sq_poptop(vm);
                     }

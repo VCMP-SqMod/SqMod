@@ -47,49 +47,49 @@ typedef std::pair< Signal *, LightObj > SignalPair;
  * Forward declarations of the logging functions to avoid including the logger everywhere.
  * Primary logging functions.
 */
-extern void LogDbg(CCStr fmt, ...);
-extern void LogUsr(CCStr fmt, ...);
-extern void LogScs(CCStr fmt, ...);
-extern void LogInf(CCStr fmt, ...);
-extern void LogWrn(CCStr fmt, ...);
-extern void LogErr(CCStr fmt, ...);
-extern void LogFtl(CCStr fmt, ...);
+extern void LogDbg(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogUsr(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogScs(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogInf(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogWrn(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogErr(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogFtl(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
 
 /* ------------------------------------------------------------------------------------------------
  * Forward declarations of the logging functions to avoid including the logger everywhere.
  * Secondary logging functions.
 */
-extern void LogSDbg(CCStr fmt, ...);
-extern void LogSUsr(CCStr fmt, ...);
-extern void LogSScs(CCStr fmt, ...);
-extern void LogSInf(CCStr fmt, ...);
-extern void LogSWrn(CCStr fmt, ...);
-extern void LogSErr(CCStr fmt, ...);
-extern void LogSFtl(CCStr fmt, ...);
+extern void LogSDbg(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogSUsr(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogSScs(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogSInf(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogSWrn(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogSErr(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
+extern void LogSFtl(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
 
 /* ------------------------------------------------------------------------------------------------
  * Forward declarations of the logging functions to avoid including the logger everywhere.
  * Primary conditional logging functions.
 */
-extern bool cLogDbg(bool exp, CCStr fmt, ...);
-extern bool cLogUsr(bool exp, CCStr fmt, ...);
-extern bool cLogScs(bool exp, CCStr fmt, ...);
-extern bool cLogInf(bool exp, CCStr fmt, ...);
-extern bool cLogWrn(bool exp, CCStr fmt, ...);
-extern bool cLogErr(bool exp, CCStr fmt, ...);
-extern bool cLogFtl(bool exp, CCStr fmt, ...);
+extern bool cLogDbg(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogUsr(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogScs(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogInf(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogWrn(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogErr(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogFtl(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
 
 /* ------------------------------------------------------------------------------------------------
  * Forward declarations of the logging functions to avoid including the logger everywhere.
  * Secondary conditional logging functions.
 */
-extern bool cLogSDbg(bool exp, CCStr fmt, ...);
-extern bool cLogSUsr(bool exp, CCStr fmt, ...);
-extern bool cLogSScs(bool exp, CCStr fmt, ...);
-extern bool cLogSInf(bool exp, CCStr fmt, ...);
-extern bool cLogSWrn(bool exp, CCStr fmt, ...);
-extern bool cLogSErr(bool exp, CCStr fmt, ...);
-extern bool cLogSFtl(bool exp, CCStr fmt, ...);
+extern bool cLogSDbg(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogSUsr(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogSScs(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogSInf(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogSWrn(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogSErr(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
+extern bool cLogSFtl(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);
 
 /* ------------------------------------------------------------------------------------------------
  * Get a persistent AABB instance with the given values.
