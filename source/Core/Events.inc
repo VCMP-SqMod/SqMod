@@ -1097,18 +1097,12 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
         break;
         case vcmpEntityPoolRadio:
             // @TODO Implement...
-        break;
-        case vcmpEntityPoolCheckPoint:
-            // Do we even have this checkpoint that we're trying to delete?
-            if (is_deleted && VALID_ENTITY(m_Checkpoints[entity_id].mID))
-            {
-                DeallocCheckpoint(entity_id, false, SQMOD_DESTROY_POOL, NullLightObj());
-            }
-            // Do we already have this checkpoint that we're trying to create?
-            else if (INVALID_ENTITY(m_Checkpoints[entity_id].mID))
-            {
-                AllocCheckpoint(entity_id, false, SQMOD_CREATE_POOL, NullLightObj());
-            }
+        //break;
+        case vcmpEntityPoolPlayer:
+            // @TODO Implement...
+        //break;
+        case vcmpEntityReserved1:
+            // @TODO Implement...
         break;
         case vcmpEntityPoolBlip:
             // Do we even have this blip that we're trying to delete?
@@ -1147,8 +1141,20 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
                 AllocBlip(entity_id, false, SQMOD_CREATE_POOL, NullLightObj());
             }
         break;
+        case vcmpEntityPoolCheckPoint:
+            // Do we even have this checkpoint that we're trying to delete?
+            if (is_deleted && VALID_ENTITY(m_Checkpoints[entity_id].mID))
+            {
+                DeallocCheckpoint(entity_id, false, SQMOD_DESTROY_POOL, NullLightObj());
+            }
+            // Do we already have this checkpoint that we're trying to create?
+            else if (INVALID_ENTITY(m_Checkpoints[entity_id].mID))
+            {
+                AllocCheckpoint(entity_id, false, SQMOD_CREATE_POOL, NullLightObj());
+            }
+        break;
         default:
-            LogErr("Unknown change in the entity pool of type: %d", entity_type);
+            LogErr("Unknown change in the entity pool: type %d > entity %d", entity_type, entity_id);
     }
     // Finally, forward the event to the script
     (*mOnEntityPool.first)(static_cast< Int32 >(entity_type), entity_id, is_deleted);
