@@ -236,7 +236,7 @@ void Core::EmitServerFrame(Float32 elapsed_time)
 void Core::EmitPluginCommand(Uint32 command_identifier, CCStr message)
 {
 #if defined(_DEBUG) || defined(SQMOD_ENABLE_SV_EV_TRACEBACK)
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PluginCommand(0x%08x, %s)", command_identifier, message)
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PluginCommand(0x%08X, '%s')", command_identifier, message)
     // Ignored for now...
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PluginCommand")
 #else
