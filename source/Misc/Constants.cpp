@@ -331,7 +331,7 @@ static const EnumElement g_ServerOptionEnum[] = {
     {_SC("WallGlitch"),               vcmpServerOptionWallGlitch},
     {_SC("DisableBackfaceCulling"),   vcmpServerOptionDisableBackfaceCulling},
     {_SC("DisableHeliBladeDamage"),   vcmpServerOptionDisableHeliBladeDamage},
-    {_SC("DisableCrouch "),           vcmpServerOptionDisableCrouch},
+    {_SC("DisableCrouch"),           vcmpServerOptionDisableCrouch},
     {_SC("Max"),                      vcmpServerOptionDisableCrouch}
 };
 
@@ -360,16 +360,16 @@ static const EnumElement g_VehicleOptionEnum[] = {
     {_SC("RadioLocked"),      vcmpVehicleOptionRadioLocked},
     {_SC("Ghost"),            vcmpVehicleOptionGhost},
     {_SC("Siren"),            vcmpVehicleOptionSiren},
-    {_SC("SingleUse "),       vcmpVehicleOptionSingleUse},
-    {_SC("EngineDisabled "),  vcmpVehicleOptionEngineDisabled},
-    {_SC("BootOpen "),        vcmpVehicleOptionBootOpen},
+    {_SC("SingleUse"),       vcmpVehicleOptionSingleUse},
+    {_SC("EngineDisabled"),  vcmpVehicleOptionEngineDisabled},
+    {_SC("BootOpen"),        vcmpVehicleOptionBootOpen},
     {_SC("Max"),              vcmpVehicleOptionSiren}
 };
 
 // ------------------------------------------------------------------------------------------------
 static const EnumElement g_PickupOptionEnum[] = {
     {_SC("Unknown"),          SQMOD_UNKNOWN},
-    {_SC("SingleUse "),       vcmpPickupOptionSingleUse},
+    {_SC("SingleUse"),       vcmpPickupOptionSingleUse},
     {_SC("Max"),              vcmpPickupOptionSingleUse}
 };
 
