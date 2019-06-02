@@ -556,6 +556,21 @@ enum EntityType
 #endif // _DEBUG
 
 /* ------------------------------------------------------------------------------------------------
+ * EVENT TRACEBACK
+*/
+#if defined(_DEBUG) || defined(SQMOD_ENABLE_SV_EV_TRACEBACK)
+    #define SQMOD_SV_EV_TRACEBACK(m, ...) LogDbg(m, ##__VA_ARGS__)
+#else
+    #define SQMOD_SV_EV_TRACEBACK(m, ...) /*ignored...*/
+#endif // _DEBUG
+
+#if defined(_DEBUG) || defined(SQMOD_ENABLE_CO_EV_TRACEBACK)
+    #define SQMOD_CO_EV_TRACEBACK(m, ...) LogSDbg(m, ##__VA_ARGS__)
+#else
+    #define SQMOD_CO_EV_TRACEBACK(m, ...) /*ignored...*/
+#endif // _DEBUG
+
+/* ------------------------------------------------------------------------------------------------
  * VARIOUS DEFINES
 */
 
