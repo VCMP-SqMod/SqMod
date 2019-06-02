@@ -972,9 +972,9 @@ static void OnEntityStreamingChange(int32_t player_id, int32_t entity_id, vcmpEn
 // ------------------------------------------------------------------------------------------------
 static void OnServerPerformanceReport(size_t /*entry_count*/, CCStr * /*descriptions*/, uint64_t * /*times*/)
 {
-    SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerPerformanceReport")
+    //SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerPerformanceReport")
     // Ignored for now...
-    SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerPerformanceReport")
+    //SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerPerformanceReport")
 }
 
 } // Namespace:: SqMod
