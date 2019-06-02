@@ -1430,7 +1430,7 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerUpdate(%d, %d, %d)", player_id, static_cast<Int32>(update_type))
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerUpdate(%d, %d)", player_id, static_cast<Int32>(update_type))
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(player_id, SQMOD_PLAYER_POOL))
     {
@@ -1557,6 +1557,7 @@ void Core::EmitCheckpointStream(int32_t player_id, int32_t entity_id, bool is_de
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CheckpointStream(%d, %d, %d)", player_id, entity_id, is_deleted)
     CheckpointInst & _checkpoint = m_Checkpoints.at(entity_id);
+    if (_checkpoint.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_checkpoint.mOnStream.first)(_client.mObj, is_deleted);
     (*_client.mOnEntityStream.first)(_checkpoint.mObj, static_cast< Int32 >(vcmpEntityPoolCheckPoint), is_deleted);
@@ -1569,6 +1570,7 @@ void Core::EmitObjectStream(int32_t player_id, int32_t entity_id, bool is_delete
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ObjectStream(%d, %d, %d)", player_id, entity_id, is_deleted)
     ObjectInst & _object = m_Objects.at(entity_id);
+    if (_object.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_object.mOnStream.first)(_client.mObj, is_deleted);
     (*_client.mOnEntityStream.first)(_object.mObj, static_cast< Int32 >(vcmpEntityPoolObject), is_deleted);
@@ -1581,6 +1583,7 @@ void Core::EmitPickupStream(int32_t player_id, int32_t entity_id, bool is_delete
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupStream(%d, %d, %d)", player_id, entity_id, is_deleted)
     PickupInst & _pickup = m_Pickups.at(entity_id);
+    if (_pickup.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_pickup.mOnStream.first)(_client.mObj, is_deleted);
     (*_client.mOnEntityStream.first)(_pickup.mObj, static_cast< Int32 >(vcmpEntityPoolPickup), is_deleted);
@@ -1593,6 +1596,7 @@ void Core::EmitPlayerStream(int32_t player_id, int32_t entity_id, bool is_delete
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerStream(%d, %d, %d)", player_id, entity_id, is_deleted)
     PlayerInst & _player = m_Players.at(entity_id);
+    if (_player.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_player.mOnStream.first)(_client.mObj, is_deleted);
     (*_client.mOnEntityStream.first)(_player.mObj, static_cast< Int32 >(vcmpEntityPoolPlayer), is_deleted);
@@ -1605,6 +1609,7 @@ void Core::EmitVehicleStream(int32_t player_id, int32_t entity_id, bool is_delet
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleStream(%d, %d, %d)", player_id, entity_id, is_deleted)
     VehicleInst & _vehicle = m_Vehicles.at(entity_id);
+    if (_vehicle.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_vehicle.mOnStream.first)(_client.mObj, is_deleted);
     (*_client.mOnEntityStream.first)(_vehicle.mObj, static_cast< Int32 >(vcmpEntityPoolVehicle), is_deleted);
