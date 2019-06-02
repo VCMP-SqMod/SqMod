@@ -486,6 +486,11 @@
 		<Unit filename="../source/Base/Vector4.hpp" />
 		<Unit filename="../source/Core.cpp" />
 		<Unit filename="../source/Core.hpp" />
+		<Unit filename="../source/Core/Entity.inc" />
+		<Unit filename="../source/Core/Events.inc" />
+		<Unit filename="../source/Core/Funcs.inc" />
+		<Unit filename="../source/Core/Inst.inc" />
+		<Unit filename="../source/Core/Utils.inc" />
 		<Unit filename="../source/Entity/Blip.cpp" />
 		<Unit filename="../source/Entity/Blip.hpp" />
 		<Unit filename="../source/Entity/Checkpoint.cpp" />
