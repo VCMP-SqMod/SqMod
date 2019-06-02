@@ -192,9 +192,9 @@ static void OnServerFrame(float elapsed_time)
     // Attempt to forward the event
     try
     {
-        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerFrame")
+        //SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerFrame")
         Core::Get().EmitServerFrame(elapsed_time);
-        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerFrame")
+        //SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerFrame")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnServerFrame)
     // Process routines and tasks, if any
