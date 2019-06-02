@@ -59,6 +59,57 @@ static inline bool IsCustomWeapon(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
+Uint32 GetWeaponSlot(Uint32 id)
+{
+	switch(id) {
+        case 0:
+		case 1:
+			return 0;
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+			return 1;
+		case 12:
+		case 13:
+		case 14:
+		case 15:
+			return 2;
+		case 17:
+		case 18:
+			return 3;
+		case 19:
+		case 20:
+		case 21:
+			return 4;
+		case 22:
+		case 23:
+		case 24:
+		case 25:
+			return 5;
+		case 26:
+		case 27:
+			return 6;
+		case 28:
+		case 29:
+			return 8;
+		case 30:
+		case 31:
+		case 32:
+		case 33:
+			return 7;
+		default:
+            return 255;
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
 CCStr GetWeaponName(Uint32 id)
 {
 	// Can we consider this a custom weapon ID?
