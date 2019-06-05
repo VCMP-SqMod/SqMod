@@ -265,7 +265,6 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
-        SignalPair      mOnStream;
 
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnKeyPress;
@@ -1241,8 +1240,8 @@ public:
     void EmitCheckpointStream(int32_t player_id, int32_t entity_id, bool is_deleted);
     void EmitObjectStream(int32_t player_id, int32_t entity_id, bool is_deleted);
     void EmitPickupStream(int32_t player_id, int32_t entity_id, bool is_deleted);
-    void EmitVehicleStream(int32_t player_id, int32_t entity_id, bool is_deleted);
     void EmitPlayerStream(int32_t player_id, int32_t entity_id, bool is_deleted);
+    void EmitVehicleStream(int32_t player_id, int32_t entity_id, bool is_deleted);
     void EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityPool entity_type, bool is_deleted);
 
     /* --------------------------------------------------------------------------------------------

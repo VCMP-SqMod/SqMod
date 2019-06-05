@@ -350,7 +350,7 @@ bool Core::Initialize()
     // Are there any options to read?
     if (conf.GetAllKeys("Options", options) || options.size() > 0)
     {
-        cLogDbg(m_Verbosity >= 1, "Found (%u) options in the configuration file", options.size());
+        cLogDbg(m_Verbosity >= 1, "Found (%" PRINT_SZ_FMT ") options in the configuration file", options.size());
         // Process all the specified keys under the [Options] section
         for (const auto & option : options)
         {
@@ -423,7 +423,7 @@ bool Core::Execute()
             return false; // One of the scripts failed to execute
         }
 
-        cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts. Pending scripts %u", levels, m_PendingScripts.size());
+        cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts. Pending scripts %" PRINT_SZ_FMT, levels, m_PendingScripts.size());
     }
 
     // Create the null entity instances
@@ -852,7 +852,7 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInteger line, SQInteger column)
 {
-    LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %d\n=>Column: %d\n]", desc, src, line, column);
+    LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_INT_FMT "\n=>Column: " PRINT_INT_FMT "\n]", desc, src, line, column);
 }
 
 } // Namespace:: SqMod

@@ -87,17 +87,20 @@ static uint8_t OnServerInitialise(void)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerInitialise")
         // Signal outside plug-ins to do fetch our proxies
         _Func->SendPluginCommand(SQMOD_INITIALIZE_CMD, "%d", SQMOD_API_VER);
         // Attempt to load the module core
         if (Core::Get().Execute())
         {
             Core::Get().EmitServerStartup();
+            SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerInitialise")
             // Add a notification to let the user know the plug-in was loaded
             OutputMessage("The Squirrel plug-in was loaded successfully");
         }
         else
         {
+            SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerInitialise")
             OutputError("Unable to load the plug-in resources properly");
             // Failed to initialize
             return SQMOD_FAILURE;
@@ -117,50 +120,7 @@ struct CallbackUnbinder
 {
     ~CallbackUnbinder()
     {
-        _Clbk->OnServerInitialise           = nullptr;
-        _Clbk->OnServerShutdown             = nullptr;
-        _Clbk->OnServerFrame                = nullptr;
-        _Clbk->OnPluginCommand              = nullptr;
-        _Clbk->OnIncomingConnection         = nullptr;
-        _Clbk->OnClientScriptData           = nullptr;
-        _Clbk->OnPlayerConnect              = nullptr;
-        _Clbk->OnPlayerDisconnect           = nullptr;
-        _Clbk->OnPlayerRequestClass         = nullptr;
-        _Clbk->OnPlayerRequestSpawn         = nullptr;
-        _Clbk->OnPlayerSpawn                = nullptr;
-        _Clbk->OnPlayerDeath                = nullptr;
-        _Clbk->OnPlayerUpdate               = nullptr;
-        _Clbk->OnPlayerRequestEnterVehicle  = nullptr;
-        _Clbk->OnPlayerEnterVehicle         = nullptr;
-        _Clbk->OnPlayerExitVehicle          = nullptr;
-        _Clbk->OnPlayerNameChange           = nullptr;
-        _Clbk->OnPlayerStateChange          = nullptr;
-        _Clbk->OnPlayerActionChange         = nullptr;
-        _Clbk->OnPlayerOnFireChange         = nullptr;
-        _Clbk->OnPlayerCrouchChange         = nullptr;
-        _Clbk->OnPlayerGameKeysChange       = nullptr;
-        _Clbk->OnPlayerBeginTyping          = nullptr;
-        _Clbk->OnPlayerEndTyping            = nullptr;
-        _Clbk->OnPlayerAwayChange           = nullptr;
-        _Clbk->OnPlayerMessage              = nullptr;
-        _Clbk->OnPlayerCommand              = nullptr;
-        _Clbk->OnPlayerPrivateMessage       = nullptr;
-        _Clbk->OnPlayerKeyBindDown          = nullptr;
-        _Clbk->OnPlayerKeyBindUp            = nullptr;
-        _Clbk->OnPlayerSpectate             = nullptr;
-        _Clbk->OnPlayerCrashReport          = nullptr;
-        _Clbk->OnVehicleUpdate              = nullptr;
-        _Clbk->OnVehicleExplode             = nullptr;
-        _Clbk->OnVehicleRespawn             = nullptr;
-        _Clbk->OnObjectShot                 = nullptr;
-        _Clbk->OnObjectTouched              = nullptr;
-        _Clbk->OnPickupPickAttempt          = nullptr;
-        _Clbk->OnPickupPicked               = nullptr;
-        _Clbk->OnPickupRespawn              = nullptr;
-        _Clbk->OnCheckpointEntered          = nullptr;
-        _Clbk->OnCheckpointExited           = nullptr;
-        _Clbk->OnEntityPoolChange           = nullptr;
-        _Clbk->OnServerPerformanceReport    = nullptr;
+        memset(_Clbk, 0, sizeof(PluginCallbacks));
     }
 };
 
@@ -172,10 +132,12 @@ static void OnServerShutdown(void)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerShutdown")
         // Tell the script that the server is shutting down
         Core::Get().EmitServerShutdown();
         // Deallocate and release everything obtained at startup
         Core::Get().Terminate(true);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerShutdown")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnServerShutdown)
     // See if a reload was requested (quite useless here but why not)
@@ -188,8 +150,9 @@ static void OnServerFrame(float elapsed_time)
     // Attempt to forward the event
     try
     {
-        // Now forward the event
+        //SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerFrame")
         Core::Get().EmitServerFrame(elapsed_time);
+        //SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerFrame")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnServerFrame)
     // Process routines and tasks, if any
@@ -207,7 +170,9 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPluginCommand")
         Core::Get().EmitPluginCommand(command_identifier, message);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPluginCommand")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPluginCommand)
     // See if a reload was requested
@@ -225,7 +190,9 @@ static uint8_t OnIncomingConnection(CStr player_name, size_t name_buffer_size,
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnIncomingConnection")
         Core::Get().EmitIncomingConnection(player_name, name_buffer_size, user_password, ip_address);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnIncomingConnection")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnIncomingConnection)
     // See if a reload was requested
@@ -240,7 +207,9 @@ static void OnClientScriptData(int32_t player_id, const uint8_t * data, size_t s
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnClientScriptData")
         Core::Get().EmitClientScriptData(player_id, data, size);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnClientScriptData")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnClientScriptData)
     // See if a reload was requested
@@ -253,7 +222,9 @@ static void OnPlayerConnect(int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerConnect")
         Core::Get().ConnectPlayer(player_id, SQMOD_CREATE_AUTOMATIC, NullLightObj());
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerConnect")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerConnect)
     // See if a reload was requested
@@ -266,6 +237,7 @@ static void OnPlayerDisconnect(int32_t player_id, vcmpDisconnectReason reason)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerDisconnect")
         if (reason == vcmpDisconnectReasonKick)
         {
             Core::Get().DisconnectPlayer(player_id, Core::Get().GetPlayer(player_id).mKickBanHeader,
@@ -275,6 +247,7 @@ static void OnPlayerDisconnect(int32_t player_id, vcmpDisconnectReason reason)
         {
             Core::Get().DisconnectPlayer(player_id, reason, NullLightObj());
         }
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerDisconnect")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerDisconnect)
     // See if a reload was requested
@@ -289,7 +262,9 @@ static uint8_t OnPlayerRequestClass(int32_t player_id, int32_t offset)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerRequestClass")
         Core::Get().EmitPlayerRequestClass(player_id, offset);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerRequestClass")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerRequestClass)
     // See if a reload was requested
@@ -306,7 +281,9 @@ static uint8_t OnPlayerRequestSpawn(int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerRequestSpawn")
         Core::Get().EmitPlayerRequestSpawn(player_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerRequestSpawn")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerRequestSpawn)
     // See if a reload was requested
@@ -321,7 +298,9 @@ static void OnPlayerSpawn(int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerSpawn")
         Core::Get().EmitPlayerSpawn(player_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerSpawn")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerSpawn)
     // See if a reload was requested
@@ -334,6 +313,7 @@ static void OnPlayerDeath(int32_t player_id, int32_t killer_id, int32_t reason, 
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerDeath")
         if (_Func->IsPlayerConnected(killer_id))
         {
             const int32_t pt = _Func->GetPlayerTeam(player_id), kt = _Func->GetPlayerTeam(killer_id);
@@ -344,6 +324,7 @@ static void OnPlayerDeath(int32_t player_id, int32_t killer_id, int32_t reason, 
         {
             Core::Get().EmitPlayerWasted(player_id, reason);
         }
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerDeath")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerDeath)
     // See if a reload was requested
@@ -356,7 +337,9 @@ static void OnPlayerUpdate(int32_t player_id, vcmpPlayerUpdate update_type)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerUpdate")
         Core::Get().EmitPlayerUpdate(player_id, update_type);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerUpdate")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerUpdate)
     // See if a reload was requested
@@ -371,7 +354,9 @@ static uint8_t OnPlayerRequestEnterVehicle(int32_t player_id, int32_t vehicle_id
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerRequestEnterVehicle")
         Core::Get().EmitPlayerEmbarking(player_id, vehicle_id, slot_index);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerRequestEnterVehicle")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerRequestEnterVehicle)
     // See if a reload was requested
@@ -386,7 +371,9 @@ static void OnPlayerEnterVehicle(int32_t player_id, int32_t vehicle_id, int32_t 
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerEnterVehicle")
         Core::Get().EmitPlayerEmbarked(player_id, vehicle_id, slot_index);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerEnterVehicle")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerEnterVehicle)
     // See if a reload was requested
@@ -399,7 +386,9 @@ static void OnPlayerExitVehicle(int32_t player_id, int32_t vehicle_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerExitVehicle")
         Core::Get().EmitPlayerDisembark(player_id, vehicle_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerExitVehicle")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerExitVehicle)
     // See if a reload was requested
@@ -412,7 +401,9 @@ static void OnPlayerNameChange(int32_t player_id, CCStr old_name, CCStr new_name
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerNameChange")
         Core::Get().EmitPlayerRename(player_id, old_name, new_name);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerNameChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerNameChange)
     // See if a reload was requested
@@ -425,6 +416,7 @@ static void OnPlayerStateChange(int32_t player_id, vcmpPlayerState old_state, vc
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerStateChange")
         Core::Get().EmitPlayerState(player_id, old_state, new_state);
         // Identify the current state and trigger the listeners specific to that
         switch (new_state)
@@ -458,6 +450,7 @@ static void OnPlayerStateChange(int32_t player_id, vcmpPlayerState old_state, vc
             break;
             default: LogErr("Unknown player state change: %d", static_cast< Int32 >(new_state));
         }
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerStateChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerStateChange)
     // See if a reload was requested
@@ -470,6 +463,7 @@ static void OnPlayerActionChange(int32_t player_id, int32_t old_action, int32_t 
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerActionChange")
         Core::Get().EmitPlayerAction(player_id, old_action, new_action);
         // Identify the current action and trigger the listeners specific to that
         switch (new_action)
@@ -514,6 +508,7 @@ static void OnPlayerActionChange(int32_t player_id, int32_t old_action, int32_t 
                 Core::Get().EmitActionDisembarking(player_id, old_action);
             break;
         }
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerActionChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerActionChange)
     // See if a reload was requested
@@ -526,7 +521,9 @@ static void OnPlayerOnFireChange(int32_t player_id, uint8_t is_on_fire)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerOnFireChange")
         Core::Get().EmitPlayerBurning(player_id, is_on_fire);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerOnFireChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerOnFireChange)
     // See if a reload was requested
@@ -539,7 +536,9 @@ static void OnPlayerCrouchChange(int32_t player_id, uint8_t is_crouching)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerCrouchChange")
         Core::Get().EmitPlayerCrouching(player_id, is_crouching);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerCrouchChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerCrouchChange)
     // See if a reload was requested
@@ -552,7 +551,9 @@ static void OnPlayerGameKeysChange(int32_t player_id, uint32_t old_keys, uint32_
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerGameKeysChange")
         Core::Get().EmitPlayerGameKeys(player_id, old_keys, new_keys);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerGameKeysChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerGameKeysChange)
     // See if a reload was requested
@@ -565,7 +566,9 @@ static void OnPlayerBeginTyping(int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerBeginTyping")
         Core::Get().EmitPlayerStartTyping(player_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerBeginTyping")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerBeginTyping)
     // See if a reload was requested
@@ -578,7 +581,9 @@ static void OnPlayerEndTyping(int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerEndTyping")
         Core::Get().EmitPlayerStopTyping(player_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerEndTyping")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(PlayerEndTyping)
     // See if a reload was requested
@@ -591,7 +596,9 @@ static void OnPlayerAwayChange(int32_t player_id, uint8_t is_away)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerAwayChange")
         Core::Get().EmitPlayerAway(player_id, is_away);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerAwayChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerAwayChange)
     // See if a reload was requested
@@ -606,7 +613,9 @@ static uint8_t OnPlayerMessage(int32_t player_id, CCStr message)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerMessage")
         Core::Get().EmitPlayerMessage(player_id, message);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerMessage")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerMessage)
     // See if a reload was requested
@@ -623,7 +632,9 @@ static uint8_t OnPlayerCommand(int32_t player_id, CCStr message)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerCommand")
         Core::Get().EmitPlayerCommand(player_id, message);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerCommand")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerCommand)
     // See if a reload was requested
@@ -640,7 +651,9 @@ static uint8_t OnPlayerPrivateMessage(int32_t player_id, int32_t target_player_i
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerPrivateMessage")
         Core::Get().EmitPlayerPrivateMessage(player_id, target_player_id, message);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerPrivateMessage")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerPrivateMessage)
     // See if a reload was requested
@@ -655,7 +668,9 @@ static void OnPlayerKeyBindDown(int32_t player_id, int32_t bind_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerKeyBindDown")
         Core::Get().EmitPlayerKeyPress(player_id, bind_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerKeyBindDown")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerKeyBindDown)
     // See if a reload was requested
@@ -668,7 +683,9 @@ static void OnPlayerKeyBindUp(int32_t player_id, int32_t bind_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerKeyBindUp")
         Core::Get().EmitPlayerKeyRelease(player_id, bind_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerKeyBindUp")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerKeyBindUp)
     // See if a reload was requested
@@ -681,6 +698,7 @@ static void OnPlayerSpectate(int32_t player_id, int32_t target_player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerSpectate")
         if (target_player_id < 0)
         {
             Core::Get().EmitPlayerUnspectate(player_id);
@@ -689,6 +707,7 @@ static void OnPlayerSpectate(int32_t player_id, int32_t target_player_id)
         {
             Core::Get().EmitPlayerSpectate(player_id, target_player_id);
         }
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerSpectate")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerSpectate)
     // See if a reload was requested
@@ -701,7 +720,9 @@ static void OnPlayerCrashReport(int32_t player_id, CCStr report)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerCrashReport")
         Core::Get().EmitPlayerCrashreport(player_id, report);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerCrashReport")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerCrashReport)
     // See if a reload was requested
@@ -713,7 +734,9 @@ static void OnPlayerModuleList(int32_t player_id, const char * list)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerModuleList")
         Core::Get().EmitPlayerModuleList(player_id, list);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerModuleList")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerModuleList)
     // See if a reload was requested
@@ -726,7 +749,9 @@ static void OnVehicleUpdate(int32_t vehicle_id, vcmpVehicleUpdate update_type)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnVehicleUpdate")
         Core::Get().EmitVehicleUpdate(vehicle_id, update_type);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnVehicleUpdate")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnVehicleUpdate)
     // See if a reload was requested
@@ -739,7 +764,9 @@ static void OnVehicleExplode(int32_t vehicle_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnVehicleExplode")
         Core::Get().EmitVehicleExplode(vehicle_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnVehicleExplode")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnVehicleExplode)
     // See if a reload was requested
@@ -752,7 +779,9 @@ static void OnVehicleRespawn(int32_t vehicle_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnVehicleRespawn")
         Core::Get().EmitVehicleRespawn(vehicle_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnVehicleRespawn")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnVehicleRespawn)
     // See if a reload was requested
@@ -765,7 +794,9 @@ static void OnObjectShot(int32_t object_id, int32_t player_id, int32_t weapon_id
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnObjectShot")
         Core::Get().EmitObjectShot(object_id, player_id, weapon_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnObjectShot")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnObjectShot)
     // See if a reload was requested
@@ -778,7 +809,9 @@ static void OnObjectTouched(int32_t object_id, int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnObjectTouched")
         Core::Get().EmitObjectTouched(object_id, player_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnObjectTouched")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnObjectTouched)
     // See if a reload was requested
@@ -793,7 +826,9 @@ static uint8_t OnPickupPickAttempt(int32_t pickup_id, int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPickupPickAttempt")
         Core::Get().EmitPickupClaimed(pickup_id, player_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPickupPickAttempt")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPickupPickAttempt)
     // See if a reload was requested
@@ -808,7 +843,9 @@ static void OnPickupPicked(int32_t pickup_id, int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPickupPicked")
         Core::Get().EmitPickupCollected(pickup_id, player_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPickupPicked")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPickupPicked)
     // See if a reload was requested
@@ -821,7 +858,9 @@ static void OnPickupRespawn(int32_t pickup_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPickupRespawn")
         Core::Get().EmitPickupRespawn(pickup_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPickupRespawn")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPickupRespawn)
     // See if a reload was requested
@@ -834,7 +873,9 @@ static void OnCheckpointEntered(int32_t checkpoint_id, int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnCheckpointEntered")
         Core::Get().EmitCheckpointEntered(checkpoint_id, player_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnCheckpointEntered")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnCheckpointEntered)
     // See if a reload was requested
@@ -847,7 +888,9 @@ static void OnCheckpointExited(int32_t checkpoint_id, int32_t player_id)
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnCheckpointExited")
         Core::Get().EmitCheckpointExited(checkpoint_id, player_id);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnCheckpointExited")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnCheckpointExited)
     // See if a reload was requested
@@ -860,7 +903,9 @@ static void OnEntityPoolChange(vcmpEntityPool entity_type, int32_t entity_id, ui
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnEntityPoolChange")
         Core::Get().EmitEntityPool(entity_type, entity_id, is_deleted);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnEntityPoolChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnEntityPoolChange)
     // See if a reload was requested
@@ -873,7 +918,9 @@ static void OnEntityStreamingChange(int32_t player_id, int32_t entity_id, vcmpEn
     // Attempt to forward the event
     try
     {
+        SQMOD_SV_EV_TRACEBACK("[TRACE<] OnEntityStreamingChange")
         Core::Get().EmitEntityStreaming(player_id, entity_id, entity_type, is_deleted);
+        SQMOD_SV_EV_TRACEBACK("[TRACE>] OnEntityStreamingChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnEntityStreamingChange)
     // See if a reload was requested
@@ -883,7 +930,9 @@ static void OnEntityStreamingChange(int32_t player_id, int32_t entity_id, vcmpEn
 // ------------------------------------------------------------------------------------------------
 static void OnServerPerformanceReport(size_t /*entry_count*/, CCStr * /*descriptions*/, uint64_t * /*times*/)
 {
+    //SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerPerformanceReport")
     // Ignored for now...
+    //SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerPerformanceReport")
 }
 
 } // Namespace:: SqMod

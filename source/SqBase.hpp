@@ -6,6 +6,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <cstddef>
+#include <cstdint>
 #include <cassert>
 #include <string>
 
@@ -57,7 +58,7 @@
         #else
             #define SQMOD_OS_32
             #define SQMOD_OS_LINUX32
-             #define SQMOD_ARCHITECTURE 1
+            #define SQMOD_ARCHITECTURE 1
             #define SQMOD_PLATFORM 2
         #endif
     #endif
@@ -68,12 +69,12 @@
         #if __x86_64__ || __ppc64__
             #define SQMOD_OS_64
             #define SQMOD_OS_MACOS64
-              #define SQMOD_ARCHITECTURE 2
+            #define SQMOD_ARCHITECTURE 2
             #define SQMOD_PLATFORM 3
         #else
             #define SQMOD_OS_32
             #define SQMOD_OS_MACOS32
-              #define SQMOD_ARCHITECTURE 1
+            #define SQMOD_ARCHITECTURE 1
             #define SQMOD_PLATFORM 3
         #endif
     #endif
@@ -84,12 +85,12 @@
         #if __x86_64__ || __ppc64__
             #define SQMOD_OS_64
             #define SQMOD_OS_UNIX64
-               #define SQMOD_ARCHITECTURE 2
+            #define SQMOD_ARCHITECTURE 2
             #define SQMOD_PLATFORM 4
         #else
             #define SQMOD_OS_32
             #define SQMOD_OS_UNIX32
-               #define SQMOD_ARCHITECTURE 1
+            #define SQMOD_ARCHITECTURE 1
             #define SQMOD_PLATFORM 4
         #endif
     #endif
@@ -452,6 +453,21 @@ enum EntityType
 } // Namespace:: SqMod
 
 /* ------------------------------------------------------------------------------------------------
+ * FORMAT ATTRIBUTE
+*/
+#define SQMOD_FORMAT_ATTR(mode, index, first) __attribute__ ((format(mode, index, first)))
+
+#ifdef _SQ64
+    #define PRINT_SZ_FMT "llu"
+    #define PRINT_INT_FMT "lld"
+    #define PRINT_UINT_FMT "llu"
+#else
+    #define PRINT_SZ_FMT "u"
+    #define PRINT_INT_FMT "d"
+    #define PRINT_UINT_FMT "u"
+#endif
+
+/* ------------------------------------------------------------------------------------------------
  * HELPERS
 */
 #define SQMOD_CONCAT_(a,b) a##b
@@ -553,6 +569,21 @@ enum EntityType
     #define STHROW(e, m, ...) throw e(m, ##__VA_ARGS__)
     #define STHROWF(m, ...) SqThrowF(m, ##__VA_ARGS__)
     #define STHROWLASTF(m, ...) SqThrowLastF(m, ##__VA_ARGS__)
+#endif // _DEBUG
+
+/* ------------------------------------------------------------------------------------------------
+ * EVENT TRACEBACK
+*/
+#if defined(_DEBUG) || defined(SQMOD_ENABLE_SV_EV_TRACEBACK)
+    #define SQMOD_SV_EV_TRACEBACK(m, ...) LogDbg(m, ##__VA_ARGS__);
+#else
+    #define SQMOD_SV_EV_TRACEBACK(m, ...) /*ignored...*/
+#endif // _DEBUG
+
+#if defined(_DEBUG) || defined(SQMOD_ENABLE_CO_EV_TRACEBACK)
+    #define SQMOD_CO_EV_TRACEBACK(m, ...) LogSDbg(m, ##__VA_ARGS__);
+#else
+    #define SQMOD_CO_EV_TRACEBACK(m, ...) /*ignored...*/
 #endif // _DEBUG
 
 /* ------------------------------------------------------------------------------------------------
