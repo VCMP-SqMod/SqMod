@@ -852,7 +852,7 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInteger line, SQInteger column)
 {
-    LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_INT_FMT "\n=>Column: " PRINT_INT_FMT "\n]", desc, src, line, column);
+    LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_INT_FMT "\n=>Column: %" PRINT_INT_FMT "\n]", desc, src, line, column);
 }
 
 } // Namespace:: SqMod
