@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Logger.hpp"
+#include "Core.hpp"
 #include "Base/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -473,10 +474,28 @@ void Logger::Debug(CCStr fmt, va_list args)
     // Obtain information about the current stack level
     if (SQ_SUCCEEDED(sq_stackinfos(vm, 1, &si)))
     {
-        m_Buffer.WriteF(ret, "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n]"
-                , si.source ? si.source : _SC("unknown")
-                , si.line
-                , si.funcname ? si.funcname : _SC("unknown"));
+        // Whether we should fall back to normal message
+        bool fall_back = true;
+        // Should (can) we include a snippet of code in the traceback?
+        if (Core::Get().IsDebugging() && si.source && (si.line > 0)) {
+            // Grab the associated line of code
+            String code = Core::Get().FetchCodeLine(si.source, si.line-1, true);
+            // Valid line of code?
+            if (!code.empty())
+            {
+                m_Buffer.WriteF(ret, "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n=>Code: %s\n]"
+                        , si.source, si.line, si.funcname ? si.funcname : _SC("unknown"), code.c_str());
+                fall_back = false; // No need to fall back to normal message!
+            }
+        }
+        // Should the regular message be shown instead?
+        if (fall_back)
+        {
+            m_Buffer.WriteF(ret, "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n]"
+                    , si.source ? si.source : _SC("unknown")
+                    , si.line
+                    , si.funcname ? si.funcname : _SC("unknown"));
+        }
     }
     else
     {

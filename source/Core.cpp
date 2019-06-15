@@ -214,6 +214,8 @@ bool Core::Initialize()
         return false;
     }
 
+    // See if debugging options should be enabled
+    m_Debugging = conf.GetBoolValue("Squirrel", "Debugging", m_Debugging);
     // Configure the empty initialization
     m_EmptyInit = conf.GetBoolValue("Squirrel", "EmptyInit", false);
     // Configure the verbosity level
@@ -272,8 +274,6 @@ bool Core::Initialize()
     DefaultVM::Set(m_VM);
     // Configure error handling
     ErrorHandling::Enable(conf.GetBoolValue("Squirrel", "ErrorHandling", true));
-    // See if debugging options should be enabled
-    m_Debugging = conf.GetBoolValue("Squirrel", "Debugging", m_Debugging);
 
     // Prevent common null objects from using dead virtual machines
     NullArray() = Array();
@@ -749,6 +749,20 @@ void Core::SetIncomingName(CSStr name)
 }
 
 // ------------------------------------------------------------------------------------------------
+String Core::FetchCodeLine(CSStr src, SQInteger line, bool trim)
+{
+    // Find the script we're looking for
+    Scripts::iterator script = FindScript(src);
+    // Do we have a valid script and line?
+    if ((script == m_Scripts.end()) || !(script->mInfo) || (script->mLine.size() < line))
+    {
+        return String{}; // No such script!
+    }
+    // Fetch the line of code
+    return script->FetchLine(line, trim);
+}
+
+// ------------------------------------------------------------------------------------------------
 bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
 {
     Scripts::iterator itr_state = itr;
@@ -886,28 +900,17 @@ void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInt
 // ------------------------------------------------------------------------------------------------
 bool Core::CompilerErrorHandlerEx(CSStr desc, CSStr src, SQInteger line, SQInteger column)
 {
-    // Find the script we're looking for
-    Scripts::iterator script = FindScript(src);
-    // Found anything?
-    if (script == m_Scripts.end())
-    {
-        return false; // No such script!
-    }
-    // Have debug information?
-    else if (!(script->mInfo))
-    {
-        return false; // Nothing to show!
-    }
-    // Is this line outside the range that we have?
-    else if (script->mLine.size() < line)
-    {
-        return false; // No such line!
-    }
     // Grab the associated line of code
-    String code = script->FetchLine(line, true);
-    // Display the error message with the code included
-    LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_SZ_FMT "\n=>Column: %" PRINT_INT_FMT "\n=>Code: %s\n]", desc, src, ++line, column, code.c_str());
-    // We displayed the information
+    String code = FetchCodeLine(src, line, true);
+    // Valid line of code?
+    if (!code.empty())
+    {
+        // Display the error message with the code included
+        LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_SZ_FMT "\n=>Column: %" PRINT_INT_FMT "\n=>Code: %s\n]", desc, src, ++line, column, code.c_str());
+        // We displayed the information
+        return true;
+    }
+    // No code to show. Fall back to normal message
     return true;
 }
 

@@ -958,12 +958,17 @@ public:
     void SetIncomingName(CSStr name);
 
     /* --------------------------------------------------------------------------------------------
-     * retrieve the name for the currently assigned incoming connection..
+     * Retrieve the name for the currently assigned incoming connection.
     */
     CSStr GetIncomingName()
     {
         return (!m_IncomingNameBuffer) ? _SC("") : m_IncomingNameBuffer;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieves a line of code from a certain source.
+    */
+    String FetchCodeLine(CSStr src, SQInteger line, bool trim = true);
 
 protected:
 
