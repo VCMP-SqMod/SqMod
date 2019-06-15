@@ -174,4 +174,25 @@ ScriptSrc::ScriptSrc(HSQUIRRELVM vm, String && path, bool delay, bool info)
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+String ScriptSrc::FetchLine(size_t line, bool trim) const
+{
+    // Do we have such line?
+    if (line > mLine.size())
+    {
+        return String(); // Nope!
+    }
+    // Grab it's range in the file
+    Line::const_reference l =  mLine.at(line);
+    // Grab the code from that line
+    String code = mData.substr(l.first, l.second - l.first);
+    // Trim whitespace from the beginning of the code code
+    if (trim)
+    {
+        code.erase(0, code.find_first_not_of(" \t\n\r\f\v"));
+    }
+    // Return the resulting string
+    return code;
+}
+
 } // Namespace::  SqMod

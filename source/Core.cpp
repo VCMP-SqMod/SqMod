@@ -903,12 +903,8 @@ bool Core::CompilerErrorHandlerEx(CSStr desc, CSStr src, SQInteger line, SQInteg
     {
         return false; // No such line!
     }
-    // Grab the line we're looking for
-    ScriptSrc::Line::iterator itr = script->mLine.begin() + line;
-    // Grab the code from that line
-    String code = script->mData.substr(itr->first, itr->second - itr->first);
-    // Trim whitespace from the beginning of the code code
-    code.erase(0, code.find_first_not_of(" \t\n\r\f\v"));
+    // Grab the associated line of code
+    String code = script->FetchLine(line, true);
     // Display the error message with the code included
     LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_SZ_FMT "\n=>Column: %" PRINT_INT_FMT "\n=>Code: %s\n]", desc, src, ++line, column, code.c_str());
     // We displayed the information

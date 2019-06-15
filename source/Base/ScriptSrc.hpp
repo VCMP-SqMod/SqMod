@@ -71,6 +71,10 @@ public:
     */
     ScriptSrc & operator = (ScriptSrc && o) = default;
 
+    /* --------------------------------------------------------------------------------------------
+     * Fetches a line from the code. Can also triim whitespace at the beginning.
+    */
+    String FetchLine(size_t line, bool trim = true) const;
 };
 
 
