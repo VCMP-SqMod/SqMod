@@ -22,7 +22,7 @@ class ScriptSrc
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef std::vector< Uint32 > Line;
+    typedef std::vector< std::pair< Uint32, Uint32 > > Line;
 
     // --------------------------------------------------------------------------------------------
     Script      mExec; // Reference to the script object.

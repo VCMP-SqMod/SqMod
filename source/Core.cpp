@@ -51,8 +51,6 @@ extern void TerminateTasks();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
-extern void MgInitialize();
-extern void MgTerminate();
 
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(CSStr path);
@@ -275,7 +273,7 @@ bool Core::Initialize()
     // Configure error handling
     ErrorHandling::Enable(conf.GetBoolValue("Squirrel", "ErrorHandling", true));
     // See if debugging options should be enabled
-    m_Debugging = conf.GetBoolValue("Squirrel", "Debugging", false);
+    m_Debugging = conf.GetBoolValue("Squirrel", "Debugging", m_Debugging);
 
     // Prevent common null objects from using dead virtual machines
     NullArray() = Array();
@@ -373,9 +371,6 @@ bool Core::Initialize()
     // Initialize routines and tasks
     InitializeRoutines();
     InitializeTasks();
-
-    // Initialize the Mongoose library
-    //MgInitialize();
 
     // Initialization successful
     return true;
@@ -541,8 +536,6 @@ void Core::Terminate(bool shutdown)
         // Tell modules to do their monkey business
         _Func->SendPluginCommand(SQMOD_RELEASED_CMD, "");
     }
-    // Terminate the Mongoose manager
-    //MgTerminate();
 
     OutputMessage("Squirrel plug-in was successfully terminated");
 }
@@ -592,6 +585,38 @@ CSStr Core::GetOption(CSStr name, CSStr value) const
 void Core::SetOption(CSStr name, CSStr value)
 {
     m_Options[name] = value;
+}
+
+// ------------------------------------------------------------------------------------------------
+Core::Scripts::iterator Core::FindScript(const CSStr src)
+{
+    // Iterate over loaded scripts
+    for (Scripts::iterator itr = m_Scripts.begin(); itr != m_Scripts.end(); ++itr)
+    {
+        // Is this script the source we're looking for?
+        if (itr->mPath.compare(0, String::npos, src) == 0)
+        {
+            return itr;
+        }
+    }
+    // Not found!
+    return m_Scripts.end();
+}
+
+// ------------------------------------------------------------------------------------------------
+Core::Scripts::iterator Core::FindPendingScript(const CSStr src)
+{
+    // Iterate over loaded scripts
+    for (Scripts::iterator itr = m_PendingScripts.begin(); itr != m_PendingScripts.end(); ++itr)
+    {
+        // Is this script the source we're looking for?
+        if (itr->mPath.compare(0, String::npos, src) == 0)
+        {
+            return itr;
+        }
+    }
+    // Not found!
+    return m_PendingScripts.end();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -852,7 +877,42 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInteger line, SQInteger column)
 {
-    LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_INT_FMT "\n=>Column: %" PRINT_INT_FMT "\n]", desc, src, line, column);
+    // Should we include code in output? (we count lines from 0, squirrel counts from 1)
+    if ((line <= 0) || !Core::Get().IsDebugging() || !Core::Get().CompilerErrorHandlerEx(desc, src, --line, column)) {
+        LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_INT_FMT "\n=>Column: %" PRINT_INT_FMT "\n]", desc, src, line, column);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::CompilerErrorHandlerEx(CSStr desc, CSStr src, SQInteger line, SQInteger column)
+{
+    // Find the script we're looking for
+    Scripts::iterator script = FindScript(src);
+    // Found anything?
+    if (script == m_Scripts.end())
+    {
+        return false; // No such script!
+    }
+    // Have debug information?
+    else if (!(script->mInfo))
+    {
+        return false; // Nothing to show!
+    }
+    // Is this line outside the range that we have?
+    else if (script->mLine.size() < line)
+    {
+        return false; // No such line!
+    }
+    // Grab the line we're looking for
+    ScriptSrc::Line::iterator itr = script->mLine.begin() + line;
+    // Grab the code from that line
+    String code = script->mData.substr(itr->first, itr->second - itr->first);
+    // Trim whitespace from the beginning of the code code
+    code.erase(0, code.find_first_not_of(" \t\n\r\f\v"));
+    // Display the error message with the code included
+    LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_SZ_FMT "\n=>Column: %" PRINT_INT_FMT "\n=>Code: %s\n]", desc, src, ++line, column, code.c_str());
+    // We displayed the information
+    return true;
 }
 
 } // Namespace:: SqMod

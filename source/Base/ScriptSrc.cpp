@@ -87,43 +87,51 @@ void ScriptSrc::Process()
     FileHandle fp(mPath.c_str());
     // First 2 bytes of the file will tell if this is a compiled script
     std::uint16_t tag;
-    // Read the first 2 bytes of the file and determine the file type
-    if (std::fread(&tag, 1, 2, fp) != 2 || tag == SQ_BYTECODE_STREAM_TAG)
-    {
-        return; // Probably an empty file or compiled script
-    }
     // Go to the end of the file
     std::fseek(fp, 0, SEEK_END);
     // Calculate buffer size from beginning to current position
     const LongI length = std::ftell(fp);
     // Go back to the beginning
     std::fseek(fp, 0, SEEK_SET);
+    // Read the first 2 bytes of the file and determine the file type
+    if ((length >= 2) && (std::fread(&tag, 1, 2, fp) != 2 || tag == SQ_BYTECODE_STREAM_TAG))
+    {
+        return; // Probably an empty file or compiled script
+    }
     // Allocate enough space to hold the file data
     mData.resize(length, 0);
     // Read the file contents into allocated data
     std::fread(&mData[0], 1, length, fp);
     // Where the last line ended
-    unsigned line = 0;
+    size_t line_start = 0, line_end = 0;
     // Process the file data and locate new lines
     for (String::const_iterator itr = mData.cbegin(); itr != mData.cend();)
     {
         // Is this a Unix style line ending?
         if (*itr == '\n')
         {
+            // Extract the line length
+            line_end = std::distance(mData.cbegin(), itr);
             // Store the beginning of the line
-            mLine.push_back(line);
+            mLine.emplace_back(line_start, line_end);
             // Advance to the next line
-            line = std::distance(mData.cbegin(), ++itr);
+            line_start = line_end+1;
+            // The line end character was not included
+            ++itr;
         }
         // Is this a Windows style line ending?
         else if (*itr == '\r')
         {
             if (*(++itr) == '\n')
             {
+                // Extract the line length
+                line_end = std::distance(mData.cbegin(), itr)-1;
                 // Store the beginning of the line
-                mLine.push_back(line);
+                mLine.emplace_back(line_start, line_end);
                 // Advance to the next line
-                line = std::distance(mData.cbegin(), ++itr);
+                line_start = line_end+2;
+                // The line end character was not included
+                ++itr;
             }
         }
         else
@@ -132,9 +140,9 @@ void ScriptSrc::Process()
         }
     }
     // Should we add the last line as well?
-    if (line)
+    if (mData.size() - line_start > 0)
     {
-        mLine.push_back(line);
+        mLine.emplace_back(line_start, mData.size());
     }
     // Specify that this script contains line information
     mInfo = true;

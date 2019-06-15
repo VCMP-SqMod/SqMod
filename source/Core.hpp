@@ -832,6 +832,32 @@ public:
     void SetOption(CSStr name, CSStr value);
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the script source associated with a certain path in the scripts list.
+    */
+    Scripts::iterator FindScript(const CSStr src);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the script source associated with a certain path in the pending scripts list.
+    */
+    Scripts::iterator FindPendingScript(const CSStr src);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the scripts list. Should not be modified directly! Information purposes only.
+    */
+    Scripts & GetScripts()
+    {
+        return m_Scripts;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the pending scripts list. Should not be modified directly! Information purposes only.
+    */
+    Scripts & GetPendingScripts()
+    {
+        return m_PendingScripts;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the virtual machine.
     */
     HSQUIRRELVM GetVM() const
@@ -958,6 +984,7 @@ protected:
     static SQInteger RuntimeErrorHandler(HSQUIRRELVM vm);
     static void CompilerErrorHandler(HSQUIRRELVM vm, CSStr desc, CSStr src,
                                         SQInteger line, SQInteger column);
+    bool CompilerErrorHandlerEx(CSStr desc, CSStr src, SQInteger line, SQInteger column);
 
     /* --------------------------------------------------------------------------------------------
      * Entity scanners.
