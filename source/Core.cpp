@@ -902,11 +902,26 @@ bool Core::CompilerErrorHandlerEx(CSStr desc, CSStr src, SQInteger line, SQInteg
 {
     // Grab the associated line of code
     String code = FetchCodeLine(src, line, true);
+    // Contains an arrow pointing at the exact column
+    String point;
+    // Do we have a valid column?
+    if (column >= 0)
+    {
+        // The `=>Code: ` is included as white space
+        point.resize(8, ' ');
+        // The line towards the arrow
+        point.resize(column+7, '-');
+        // Append the actual arrow
+        point.push_back('^');
+        // Include the new line here
+        point.push_back('\n');
+    }
     // Valid line of code?
     if (!code.empty())
     {
         // Display the error message with the code included
-        LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_SZ_FMT "\n=>Column: %" PRINT_INT_FMT "\n=>Code: %s\n]", desc, src, ++line, column, code.c_str());
+        LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_SZ_FMT "\n=>Column: %" PRINT_INT_FMT "\n=>Code: %s\n%s]",
+            desc, src, ++line, column, code.c_str(), point.c_str());
         // We displayed the information
         return true;
     }
