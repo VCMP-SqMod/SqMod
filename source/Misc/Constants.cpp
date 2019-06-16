@@ -49,8 +49,15 @@ static const EnumElement g_SqMod[] = {
     {_SC("Infinity"),     INFINITY},
     {_SC("Inf"),          INFINITY},
     {_SC("Nan"),          NAN},
-    {_SC("MaxTasks"),     SQMOD_MAX_TASKS},
-    {_SC("MaxRoutines"),  SQMOD_MAX_ROUTINES}
+    {_SC("MaxTasks"),       SQMOD_MAX_TASKS},
+    {_SC("MaxRoutines"),    SQMOD_MAX_ROUTINES},
+    {_SC("MaxBlips"),       SQMOD_BLIP_POOL},
+    {_SC("MaxCheckpoints"), SQMOD_CHECKPOINT_POOL},
+    {_SC("MaxKeybinds"),    SQMOD_KEYBIND_POOL},
+    {_SC("MaxObjects"),     SQMOD_OBJECT_POOL},
+    {_SC("MaxPickups"),     SQMOD_PICKUP_POOL},
+    {_SC("MaxPlayers"),     SQMOD_PLAYER_POOL},
+    {_SC("MaxVehicles"),    SQMOD_VEHICLE_POOL}
 };
 
 // ------------------------------------------------------------------------------------------------
