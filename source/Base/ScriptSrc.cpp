@@ -100,6 +100,8 @@ void ScriptSrc::Process()
     }
     // Allocate enough space to hold the file data
     mData.resize(length, 0);
+    // Go back to the beginning
+    std::fseek(fp, 0, SEEK_SET);
     // Read the file contents into allocated data
     std::fread(&mData[0], 1, length, fp);
     // Where the last line ended
