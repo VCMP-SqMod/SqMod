@@ -473,6 +473,15 @@ enum EntityType
 #define SQMOD_CONCAT_(a,b) a##b
 #define SQMOD_CONCAT(a,b) SQMOD_CONCAT_(a,b)
 
+// ------------------------------------------------------------------------------------------------
+#ifdef _WIN32
+   #define sqmod_stricmp(a,b) stricmp(a,b)
+   #define sqmod_strnicmp(a,b,n) strnicmp(a,b,n)
+#else
+   #define sqmod_stricmp(a,b) strcasecmp(a,b)
+   #define sqmod_strnicmp(a,b,n) strncasecmp(a,b,n)
+#endif
+
 /* ------------------------------------------------------------------------------------------------
  * OS SPECIFFIC OPTIONS
 */

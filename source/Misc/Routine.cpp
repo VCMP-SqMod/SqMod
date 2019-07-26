@@ -108,8 +108,34 @@ SQInteger Routine::Create(HSQUIRRELVM vm)
     SQRESULT res = SQ_OK;
     // Prepare an object for the environment
     HSQOBJECT env;
+    // Get the type of the environment object
+    const SQObjectType etype = sq_gettype(vm, 2);
+    // Whether to default to the root table
+    bool use_root = etype == OT_NULL;
+    // Is the specified environment a boolean (true) value?
+    if (etype == OT_STRING)
+    {
+        // Attempt to generate the string value
+        StackStrF val(vm, 2);
+        // Have we failed to retrieve the string?
+        if (SQ_FAILED(val.Proc()))
+        {
+            return val.mRes; // Propagate the error!
+        }
+        // If the string is empty or "root" then we use the root table
+        else if (!val.mLen || sqmod_stricmp(val.mPtr, "root") == 0)
+        {
+            use_root = true;
+        }
+        // If the string is "self" then we leave it null and default to self
+        else if (sqmod_stricmp(val.mPtr, "self") == 0)
+        {
+            sq_resetobject(&env); // Make sure environment is null
+            use_root = false; // Just in case
+        }
+    }
     // Is the specified environment a null value?
-    if (sq_gettype(vm, 2) == OT_NULL)
+    if (use_root)
     {
         // Preserve the stack state
         const StackGuard sg(vm);
@@ -118,7 +144,8 @@ SQInteger Routine::Create(HSQUIRRELVM vm)
         // Attempt to retrieve the table object
         res = sq_getstackobj(vm, -1, &env);
     }
-    else
+    // Should we treat it as a valid environment object?
+    else if (etype != OT_STRING)
     {
         sq_getstackobj(vm, 2, &env); // Just retrieve the specified environment
     }
@@ -250,6 +277,26 @@ bool Routine::IsWithTag(StackStrF & tag)
     return false;
 }
 
+// ------------------------------------------------------------------------------------------------
+bool Routine::TerminateWithTag(StackStrF & tag)
+{
+    // Is the specified tag valid?
+    if (tag.mPtr != nullptr)
+    {
+        // Iterate routine list
+        for (auto & r : s_Instances)
+        {
+            if (!r.mInst.IsNull() && r.mTag.compare(tag.mPtr) == 0)
+            {
+                r.Terminate(); // Yup, we're doing this
+                return true; // A routine was terminated
+            }
+        }
+    }
+    // Unable to find such routine
+    return false;
+}
+
 /* ------------------------------------------------------------------------------------------------
  * Forward the call to process routines.
 */
@@ -294,7 +341,7 @@ void Register_Routine(HSQUIRRELVM vm)
         .Prop(_SC("Endure"), &Routine::GetEndure, &Routine::SetEndure)
         .Prop(_SC("Arguments"), &Routine::GetArguments)
         // Member Methods
-        .FmtFunc(_SC("SetTag"), &Routine::SetTag)
+        .FmtFunc(_SC("SetTag"), &Routine::ApplyTag)
         .Func(_SC("SetData"), &Routine::ApplyData)
         .Func(_SC("SetInterval"), &Routine::ApplyInterval)
         .Func(_SC("SetIterations"), &Routine::ApplyIterations)
@@ -303,11 +350,13 @@ void Register_Routine(HSQUIRRELVM vm)
         .Func(_SC("SetEndure"), &Routine::ApplyEndure)
         .Func(_SC("Terminate"), &Routine::Terminate)
         .Func(_SC("GetArgument"), &Routine::GetArgument)
+        .Func(_SC("DropEnv"), &Routine::DropEnv)
     );
     // Global functions
     RootTable(vm).SquirrelFunc(_SC("SqRoutine"), &Routine::Create);
     RootTable(vm).FmtFunc(_SC("SqFindRoutineByTag"), &Routine::FindByTag);
     RootTable(vm).FmtFunc(_SC("SqIsRoutineWithTag"), &Routine::IsWithTag);
+    RootTable(vm).FmtFunc(_SC("SqTerminateRoutineWithTag"), &Routine::TerminateWithTag);
 }
 
 } // Namespace:: SqMod

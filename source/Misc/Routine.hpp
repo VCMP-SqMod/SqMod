@@ -97,10 +97,19 @@ private:
         void Init(HSQOBJECT & env, HSQOBJECT & func, HSQOBJECT & inst, Interval intrv, Iterator itr)
         {
             // Initialize the callback objects
-            mEnv = LightObj(env);
-            mFunc = LightObj(func);
+            if (!sq_isnull(env))
+            {
+                mEnv = LightObj(env);
+            }
+            if (!sq_isnull(func))
+            {
+                mFunc = LightObj(func);
+            }
             // Associate with the routine instance
-            mInst = LightObj(inst);
+            if (!sq_isnull(inst))
+            {
+                mInst = LightObj(inst);
+            }
             // Initialize the routine options
             mIterations = itr;
             mInterval = intrv;
@@ -138,7 +147,14 @@ private:
                 // Push the function on the stack
                 sq_pushobject(vm, mFunc);
                 // Push the environment on the stack
-                sq_pushobject(vm, mEnv);
+                if (!mEnv.IsNull())
+                {
+                    sq_pushobject(vm, mEnv); // Push object
+                }
+                else
+                {
+                    sq_pushobject(vm, mInst); // Push self
+                }
                 // Push function parameters, if any
                 for (Uint32 n = 0; n < mArgc; ++n)
                 {
@@ -310,6 +326,10 @@ public:
     */
     static bool IsWithTag(StackStrF & tag);
     /* --------------------------------------------------------------------------------------------
+     * Check if a routine with a certain tag exists.
+    */
+    static bool TerminateWithTag(StackStrF & tag);
+    /* --------------------------------------------------------------------------------------------
      * Process all active routines and update elapsed time.
     */
     static void Process();
@@ -387,6 +407,15 @@ public:
     void SetTag(StackStrF & tag)
     {
         GetValid().mTag.assign(tag.mPtr, ClampMin(tag.mLen, 0));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    Routine & ApplyTag(StackStrF & tag)
+    {
+        SetTag(tag);
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -599,6 +628,14 @@ public:
         }
         // Return the requested argument
         return GetValid().mArgv[idx];
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release the environment object and default to self.
+    */
+    void DropEnv()
+    {
+        GetValid().mEnv.Release();
     }
 };
 

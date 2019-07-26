@@ -16,15 +16,6 @@
 namespace SqMod {
 namespace Algo {
 
-// ------------------------------------------------------------------------------------------------
-#ifdef _WIN32
-   #define sqmod_stricmp(a,b) stricmp(a,b)
-   #define sqmod_strnicmp(a,b,n) strnicmp(a,b,n)
-#else
-   #define sqmod_stricmp(a,b) strcasecmp(a,b)
-   #define sqmod_strnicmp(a,b,n) strncasecmp(a,b,n)
-#endif
-
 /* ------------------------------------------------------------------------------------------------
  * Returns a pointer to the first occurrence of 'needle' in 'haystack'.
 */
