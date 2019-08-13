@@ -4,7 +4,7 @@
 *.so
 
 # Directories
-/bin/
+/bin/*
 /lib/
 /obj/
 /sandbox/*.*
@@ -20,4 +20,6 @@
 # Leftovers
 *.[Oo]bj
 *.[Pp]ch
-bin/bootstrap.nut
+
+# Exclude
+!/bin/demo
