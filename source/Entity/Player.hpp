@@ -328,7 +328,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve network statistics related to the managed player entity.
     */
-    Float64 GetNetworkStatistics(Int32 option_id) const;
+    SQFloat GetNetworkStatisticsF(Int32 option_id) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve network statistics related to the managed player entity.
+    */
+    SQInteger GetNetworkStatisticsI(Int32 option_id) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed player entity exists.

@@ -402,12 +402,25 @@ void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj &
 }
 
 // ------------------------------------------------------------------------------------------------
-Float64 CPlayer::GetNetworkStatistics(Int32 option_id) const
+SQFloat CPlayer::GetNetworkStatisticsF(Int32 option_id) const
 {
     // Validate the managed identifier
     Validate();
-    // Return the requested information
-    return _Func->GetNetworkStatistics(m_ID, static_cast< vcmpNetworkStatisticsOption  >(option_id));
+    // Retrieve the requested information
+    double value = _Func->GetNetworkStatistics(m_ID, static_cast< vcmpNetworkStatisticsOption  >(option_id));
+    // Return it in the proper type
+    return static_cast< SQFloat >(value);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger CPlayer::GetNetworkStatisticsI(Int32 option_id) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Retrieve the requested information
+    double value = _Func->GetNetworkStatistics(m_ID, static_cast< vcmpNetworkStatisticsOption  >(option_id));
+    // Return it in the proper type
+    return static_cast< SQInteger >(value);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2811,6 +2824,8 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("GetOption"), &CPlayer::GetOption)
         .Func(_SC("SetOption"), &CPlayer::SetOption)
         .Func(_SC("SetOptionEx"), &CPlayer::SetOptionEx)
+        .Func(_SC("GetNetworkStatisticsF"), &CPlayer::GetNetworkStatisticsF)
+        .Func(_SC("GetNetworkStatisticsI"), &CPlayer::GetNetworkStatisticsI)
         .Func(_SC("WorldCompatible"), &CPlayer::IsWorldCompatible)
         .Func(_SC("SetColor"), &CPlayer::SetColorEx)
         .Func(_SC("SetColour"), &CPlayer::SetColorEx)
