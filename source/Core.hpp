@@ -1399,7 +1399,6 @@ public:
     SignalPair  mOnCheckpointRadius;
     SignalPair  mOnEntityPool;
     SignalPair  mOnClientScriptData;
-    SignalPair  mOnPlayerStreamChange;
     SignalPair  mOnPlayerUpdate;
     SignalPair  mOnVehicleUpdate;
     SignalPair  mOnPlayerHealth;
