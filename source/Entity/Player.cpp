@@ -402,6 +402,15 @@ void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj &
 }
 
 // ------------------------------------------------------------------------------------------------
+Float64 CPlayer::GetNetworkStatistics(Int32 option_id) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return _Func->GetNetworkStatistics(m_ID, static_cast< vcmpNetworkStatisticsOption  >(option_id));
+}
+
+// ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetWorld() const
 {
     // Validate the managed identifier

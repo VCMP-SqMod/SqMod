@@ -326,6 +326,11 @@ public:
     void SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve network statistics related to the managed player entity.
+    */
+    Float64 GetNetworkStatistics(Int32 option_id) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed player entity exists.
     */
     Int32 GetWorld() const;
