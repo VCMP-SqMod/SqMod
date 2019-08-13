@@ -31,6 +31,7 @@
 #include <exception>
 #include <stdexcept>
 #include <algorithm>
+#include <filesystem>
 
 // ------------------------------------------------------------------------------------------------
 #ifdef GetObject
@@ -97,6 +98,23 @@ public:
         {
             return Core::Get().LoadScript(val, false);
         }
+        else if (std::strcmp(key, "CompileDir") == 0 || std::strcmp(key, "ExecuteDir") == 0) // Directories
+        {
+            namespace fs = std::filesystem;
+            if (!fs::exists(val))
+            {
+                LogErr("Cannot load script with empty or invalid path: %s", val);
+                return true; // Move to the next element since an invalid directory was given
+            }
+
+            for (auto & p : fs::recursive_directory_iterator(val))
+            {
+                if (p.path().extension() == ".nut") {
+                    Core::Get().LoadScript(p.path().string().c_str(), std::strcmp(key, "CompileDir") == 0 ? true : false);
+                }
+            }
+        }
+
         // Move to the next element!
         return true;
     }
