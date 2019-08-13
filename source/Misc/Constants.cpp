@@ -262,7 +262,6 @@ static const EnumElement g_EntityPoolEnum[] = {
 static const EnumElement g_PlayerUpdateEnum[] = {
     {_SC("Unknown"),        SQMOD_UNKNOWN},
     {_SC("Normal"),         vcmpPlayerUpdateNormal},
-    {_SC("Aiming"),         vcmpPlayerUpdateAiming},
     {_SC("Driver"),         vcmpPlayerUpdateDriver},
     {_SC("Passenger"),      vcmpPlayerUpdatePassenger},
     {_SC("Max"),            vcmpPlayerUpdatePassenger}
@@ -370,6 +369,7 @@ static const EnumElement g_VehicleOptionEnum[] = {
     {_SC("SingleUse"),          vcmpVehicleOptionSingleUse},
     {_SC("EngineDisabled"),     vcmpVehicleOptionEngineDisabled},
     {_SC("BootOpen"),           vcmpVehicleOptionBootOpen},
+    {_SC("BonnetOpen"),         vcmpVehicleOptionBonnetOpen},
     {_SC("Max"),                vcmpVehicleOptionBootOpen}
 };
 
@@ -378,6 +378,29 @@ static const EnumElement g_PickupOptionEnum[] = {
     {_SC("Unknown"),            SQMOD_UNKNOWN},
     {_SC("SingleUse"),          vcmpPickupOptionSingleUse},
     {_SC("Max"),                vcmpPickupOptionSingleUse}
+};
+
+// ------------------------------------------------------------------------------------------------
+static const EnumElement g_NetworkStatisticsOptionEnum[] = {
+    {_SC("Unknown"),                    SQMOD_UNKNOWN},
+    {_SC("DataSentPerSecond"),          vcmpNetworkStatisticsOptionDataSentPerSecond},
+    {_SC("DataResentPerSecond"),        vcmpNetworkStatisticsOptionDataResentPerSecond},
+    {_SC("DataReceivedPerSecond"),      vcmpNetworkStatisticsOptionDataReceivedPerSecond},
+    {_SC("DataDiscardedPerSecond"),     vcmpNetworkStatisticsOptionDataDiscardedPerSecond},
+    {_SC("AllBytesSentPerSecond"),      vcmpNetworkStatisticsOptionAllBytesSentPerSecond},
+    {_SC("AllBytesReceivedPerSecond"),  vcmpNetworkStatisticsOptionAllBytesReceivedPerSecond},
+    {_SC("DataSentTotal"),              vcmpNetworkStatisticsOptionDataSentTotal},
+    {_SC("DataResentTotal"),            vcmpNetworkStatisticsOptionDataResentTotal},
+    {_SC("DataReceivedTotal"),          vcmpNetworkStatisticsOptionDataReceivedTotal},
+    {_SC("DataDiscardedTotal"),         vcmpNetworkStatisticsOptionDataDiscardedTotal},
+    {_SC("AllBytesSentTotal"),          vcmpNetworkStatisticsOptionAllBytesSentTotal},
+    {_SC("AllBytesReceivedTotal"),      vcmpNetworkStatisticsOptionAllBytesReceivedTotal},
+    {_SC("MessagesWaiting"),            vcmpNetworkStatisticsOptionMessagesWaiting},
+    {_SC("MessagesResending"),          vcmpNetworkStatisticsOptionMessagesResending},
+    {_SC("BytesResending"),             vcmpNetworkStatisticsOptionBytesResending},
+    {_SC("PacketLossPerSecond"),        vcmpNetworkStatisticsOptionPacketLossPerSecond},
+    {_SC("PacketLossTotal"),            vcmpNetworkStatisticsOptionPacketLossTotal},
+    {_SC("Max"),                        vcmpNetworkStatisticsOptionPacketLossTotal}
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -1190,32 +1213,33 @@ static const EnumElement g_AsciiEnum[] = {
 
 // ------------------------------------------------------------------------------------------------
 static const EnumElements g_EnumList[] = {
-    {_SC("SqMod"),                  g_SqMod},
-    {_SC("SqArchitecture"),         g_ArchitectureEnum},
-    {_SC("SqPlatform"),             g_PlatformEnum},
-    {_SC("SqEvent"),                g_EventEnum},
-    {_SC("SqCreate"),               g_CreateEnum},
-    {_SC("SqDestroy"),              g_DestroyEnum},
-    {_SC("SqServerError"),          g_ServerErrorEnum},
-    {_SC("SqEntityPool"),           g_EntityPoolEnum},
-    {_SC("SqPlayerUpdate"),         g_PlayerUpdateEnum},
-    {_SC("SqVehicleUpdate"),        g_VehicleUpdateEnum},
-    {_SC("SqPlayerVehicle"),        g_PlayerVehicleEnum},
-    {_SC("SqVehicleSync"),          g_VehicleSyncEnum},
-    {_SC("SqPartReason"),           g_PartReasonEnum},
-    {_SC("SqServerOption"),         g_ServerOptionEnum},
-    {_SC("SqPlayerOption"),         g_PlayerOptionEnum},
-    {_SC("SqVehicleOption"),        g_VehicleOptionEnum},
-    {_SC("SqPickupOption"),         g_PickupOptionEnum},
-    {_SC("SqBodyPart"),             g_BodyPartEnum},
-    {_SC("SqPlayerState"),          g_PlayerStateEnum},
-    {_SC("SqPlayerAction"),         g_PlayerActionEnum},
-    {_SC("SqWeather"),              g_WeatherEnum},
-    {_SC("SqWep"),                  g_WeaponEnum},
-    {_SC("SqVeh"),                  g_VehicleEnum},
-    {_SC("SqSkin"),                 g_SkinEnum},
-    {_SC("SqKeyCode"),              g_KeyCodeEnum},
-    {_SC("SqASCII"),                g_AsciiEnum}
+    {_SC("SqMod"),                      g_SqMod},
+    {_SC("SqArchitecture"),             g_ArchitectureEnum},
+    {_SC("SqPlatform"),                 g_PlatformEnum},
+    {_SC("SqEvent"),                    g_EventEnum},
+    {_SC("SqCreate"),                   g_CreateEnum},
+    {_SC("SqDestroy"),                  g_DestroyEnum},
+    {_SC("SqServerError"),              g_ServerErrorEnum},
+    {_SC("SqEntityPool"),               g_EntityPoolEnum},
+    {_SC("SqPlayerUpdate"),             g_PlayerUpdateEnum},
+    {_SC("SqVehicleUpdate"),            g_VehicleUpdateEnum},
+    {_SC("SqPlayerVehicle"),            g_PlayerVehicleEnum},
+    {_SC("SqVehicleSync"),              g_VehicleSyncEnum},
+    {_SC("SqPartReason"),               g_PartReasonEnum},
+    {_SC("SqServerOption"),             g_ServerOptionEnum},
+    {_SC("SqPlayerOption"),             g_PlayerOptionEnum},
+    {_SC("SqVehicleOption"),            g_VehicleOptionEnum},
+    {_SC("SqPickupOption"),             g_PickupOptionEnum},
+    {_SC("NetworkStatisticsOption"),    g_NetworkStatisticsOptionEnum},
+    {_SC("SqBodyPart"),                 g_BodyPartEnum},
+    {_SC("SqPlayerState"),              g_PlayerStateEnum},
+    {_SC("SqPlayerAction"),             g_PlayerActionEnum},
+    {_SC("SqWeather"),                  g_WeatherEnum},
+    {_SC("SqWep"),                      g_WeaponEnum},
+    {_SC("SqVeh"),                      g_VehicleEnum},
+    {_SC("SqSkin"),                     g_SkinEnum},
+    {_SC("SqKeyCode"),                  g_KeyCodeEnum},
+    {_SC("SqASCII"),                    g_AsciiEnum}
 };
 
 // ------------------------------------------------------------------------------------------------

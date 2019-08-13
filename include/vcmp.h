@@ -103,7 +103,7 @@ typedef enum {
 
 typedef enum {
 	vcmpPlayerUpdateNormal = 0,
-	vcmpPlayerUpdateAiming = 1,
+	vcmpPlayerUpdateAimingDeprecated = 1,
 	vcmpPlayerUpdateDriver = 2,
 	vcmpPlayerUpdatePassenger = 3,
 	forceSizeVcmpPlayerUpdate = INT32_MAX
@@ -187,6 +187,7 @@ typedef enum {
 	vcmpVehicleOptionSingleUse = 6,
 	vcmpVehicleOptionEngineDisabled = 7,
 	vcmpVehicleOptionBootOpen = 8,
+	vcmpVehicleOptionBonnetOpen = 9,
 	forceSizeVcmpVehicleOption = INT32_MAX
 } vcmpVehicleOption;
 
@@ -194,6 +195,31 @@ typedef enum {
 	vcmpPickupOptionSingleUse = 0,
 	forceSizeVcmpPickupOption = INT32_MAX
 } vcmpPickupOption;
+
+typedef enum {
+	vcmpNetworkStatisticsOptionDataSentPerSecond = 0,
+	vcmpNetworkStatisticsOptionDataResentPerSecond = 1,
+	vcmpNetworkStatisticsOptionDataReceivedPerSecond = 2,
+	vcmpNetworkStatisticsOptionDataDiscardedPerSecond = 3,
+	vcmpNetworkStatisticsOptionAllBytesSentPerSecond = 4,
+	vcmpNetworkStatisticsOptionAllBytesReceivedPerSecond = 5,
+
+	vcmpNetworkStatisticsOptionDataSentTotal = 6,
+	vcmpNetworkStatisticsOptionDataResentTotal = 7,
+	vcmpNetworkStatisticsOptionDataReceivedTotal = 8,
+	vcmpNetworkStatisticsOptionDataDiscardedTotal = 9,
+	vcmpNetworkStatisticsOptionAllBytesSentTotal = 10,
+	vcmpNetworkStatisticsOptionAllBytesReceivedTotal = 11,
+
+	vcmpNetworkStatisticsOptionMessagesWaiting = 12,
+	vcmpNetworkStatisticsOptionMessagesResending = 13,
+	vcmpNetworkStatisticsOptionBytesResending = 14,
+
+	vcmpNetworkStatisticsOptionPacketLossPerSecond = 15,
+	vcmpNetworkStatisticsOptionPacketLossTotal = 16,
+
+	forceSizeVcmpNetworkStatisticsOption = INT32_MAX
+} vcmpNetworkStatisticsOption;
 
 typedef struct {
 	uint32_t structSize;
@@ -212,7 +238,7 @@ typedef struct {
 	uint32_t (*GetNumberOfPlugins) (void);
 	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument */
 	vcmpError (*GetPluginInfo) (int32_t pluginId, PluginInfo* pluginInfo);
-	/* -1 == vcmpEntityNone */
+	/* Return value of -1 indicates vcmpErrorNoSuchEntity */
 	int32_t (*FindPlugin) (const char* pluginName);
 	/* GetLastError: vcmpErrorNoSuchEntity */
 	const void** (*GetPluginExports) (int32_t pluginId, size_t* exportCount);
@@ -352,7 +378,7 @@ typedef struct {
 	 * Key binds
 	 */
 
-	/* -1 == vcmpEntityNone */
+	/* Return value of -1 indicates vcmpErrorNoSuchEntity */
 	int32_t (*GetKeyBindUnusedSlot) (void);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError (*GetKeyBindData) (int32_t bindId, uint8_t* isCalledOnReleaseOut, int32_t* keyOneOut, int32_t* keyTwoOut, int32_t* keyThreeOut);
@@ -425,7 +451,7 @@ typedef struct {
 	 * Player access and basic info
 	 */
 
-	/* -1 == vcmpEntityNone */
+	/* Return value of -1 indicates vcmpErrorNoSuchEntity */
 	int32_t (*GetPlayerIdFromName) (const char* name);
 	/* success */
 	uint8_t (*IsPlayerConnected) (int32_t playerId);
@@ -920,25 +946,28 @@ typedef struct {
 	vcmpError (*KillPlayer) (int32_t playerId);
 
 	/* vcmpErrorNoSuchEntity */
-	vcmpError (*SetVehicle3DArrowForPlayer) (int32_t nVehicleId, int32_t nTargetPlayerId, uint8_t bEnabled);
+	vcmpError (*SetVehicle3DArrowForPlayer) (int32_t vehicleId, int32_t targetPlayerId, uint8_t isEnabled);
 	/* GetLastError: vcmpErrorNoSuchEntity */
-	uint8_t (*GetVehicle3DArrowForPlayer) (int32_t nVehicleId, int32_t nTargetPlayerId);
+	uint8_t (*GetVehicle3DArrowForPlayer) (int32_t vehicleId, int32_t targetPlayerId);
 	/* vcmpErrorNoSuchEntity */
-	vcmpError (*SetPlayer3DArrowForPlayer) (int32_t nPlayerId, int32_t nTargetPlayerId, uint8_t bEnabled);
+	vcmpError (*SetPlayer3DArrowForPlayer) (int32_t playerId, int32_t targetPlayerId, uint8_t isEnabled);
 	/* GetLastError: vcmpErrorNoSuchEntity */
-	uint8_t (*GetPlayer3DArrowForPlayer) (int32_t nPlayerId, int32_t nTargetPlayerId);
+	uint8_t (*GetPlayer3DArrowForPlayer) (int32_t playerId, int32_t targetPlayerId);
 
 	/* vcmpErrorNoSuchEntity */
-	vcmpError (*SetPlayerDrunkHandling) (int32_t nPlayerId, uint32_t dwDrunkLevel);
+	vcmpError (*SetPlayerDrunkHandling) (int32_t playerId, uint32_t drunkLevel);
 	/* GetLastError: vcmpErrorNoSuchEntity */
-	uint32_t (*GetPlayerDrunkHandling) (int32_t nPlayerId);
+	uint32_t (*GetPlayerDrunkHandling) (int32_t playerId);
 	/* vcmpErrorNoSuchEntity */
-	vcmpError (*SetPlayerDrunkVisuals) (int32_t nPlayerId, uint8_t byteDrunkLevel);
+	vcmpError (*SetPlayerDrunkVisuals) (int32_t playerId, uint8_t drunkLevel);
 	/* GetLastError: vcmpErrorNoSuchEntity */
-	uint8_t (*GetPlayerDrunkVisuals) (int32_t nPlayerId);
+	uint8_t (*GetPlayerDrunkVisuals) (int32_t playerId);
 
 	/* vcmpErrorNoSuchEntity, vcmpErrorRequestDenied */
-	vcmpError (*InterpolateCameraLookAt) (int32_t playerId, float lookX, float lookY, float lookZ, uint32_t dwInterpTimeMS);
+	vcmpError (*InterpolateCameraLookAt) (int32_t playerId, float lookX, float lookY, float lookZ, uint32_t interpTimeMS);
+
+	/* GetLastError: vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	double (*GetNetworkStatistics) (int32_t playerId, vcmpNetworkStatisticsOption option);
 
 } PluginFuncs;
 
