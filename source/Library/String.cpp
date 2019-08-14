@@ -824,6 +824,28 @@ static SQInteger StdPrintF(HSQUIRRELVM vm)
     return 0;
 }
 
+// ------------------------------------------------------------------------------------------------
+static String StrCharacterSwap(SQInteger a, SQInteger b, StackStrF & val)
+{
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.Proc(true)))
+    {
+        STHROWLASTF("Invalid string");
+    }
+    // Is the string empty?
+    else if (!val.mLen)
+    {
+        return String();
+    }
+    // Turn it into a string that we can edit
+    String str(val.mPtr, val.mLen);
+    // Replace all occurences of the specified character
+    std::replace(str.begin(), str.end(),
+                    static_cast< String::value_type >(a), static_cast< String::value_type >(b));
+    // Return the new string
+    return str;
+}
+
 // ================================================================================================
 void Register_String(HSQUIRRELVM vm)
 {
@@ -839,6 +861,7 @@ void Register_String(HSQUIRRELVM vm)
     .FmtFunc(_SC("RightEx"), &SqRightOffsetStr)
     .FmtFunc(_SC("ToLower"), &SqToLowercase)
     .FmtFunc(_SC("ToUpper"), &SqToUppercase)
+    .FmtFunc(_SC("CharSwap"), &StrCharacterSwap)
     .FmtFunc(_SC("Lowercase"), &SqToLowercase)
     .FmtFunc(_SC("Uppercase"), &SqToUppercase)
     .FmtFunc(_SC("JustAlnum"), &SqJustAlphaNum)
