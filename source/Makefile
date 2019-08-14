@@ -82,6 +82,7 @@ PP_OBJECTS= "$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdaux.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/Numeric/Random.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/String.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/System.$(SQ_OEXT)" \
+			"$(SQ_OBJDIR)/source/Library/System/Dir.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/System/Environment.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/System/Path.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/source/Library/Utils.$(SQ_OEXT)" \
@@ -181,6 +182,7 @@ build:
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/Numeric/Random.cpp" -o "$(SQ_OBJDIR)/source/Library/Numeric/Random.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/String.cpp" -o "$(SQ_OBJDIR)/source/Library/String.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/System.cpp" -o "$(SQ_OBJDIR)/source/Library/System.$(SQ_OEXT)"
+	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/System/Dir.cpp" -o "$(SQ_OBJDIR)/source/Library/System/Dir.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/System/Environment.cpp" -o "$(SQ_OBJDIR)/source/Library/System/Environment.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/System/Path.cpp" -o "$(SQ_OBJDIR)/source/Library/System/Path.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Library/Utils.cpp" -o "$(SQ_OBJDIR)/source/Library/Utils.$(SQ_OEXT)"

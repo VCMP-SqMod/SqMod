@@ -14,9 +14,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+extern void Register_SysDir(HSQUIRRELVM vm);
 extern void Register_SysEnv(HSQUIRRELVM vm);
 extern void Register_SysPath(HSQUIRRELVM vm);
-
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqSysExec(HSQUIRRELVM vm)
 {
@@ -99,6 +99,7 @@ static SQInteger SqSysExec(HSQUIRRELVM vm)
 // ================================================================================================
 void Register_System(HSQUIRRELVM vm)
 {
+    Register_SysDir(vm);
     Register_SysEnv(vm);
     Register_SysPath(vm);
 

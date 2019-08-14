@@ -541,6 +541,8 @@
 		<Unit filename="../source/Library/String.hpp" />
 		<Unit filename="../source/Library/System.cpp" />
 		<Unit filename="../source/Library/System.hpp" />
+		<Unit filename="../source/Library/System/Dir.cpp" />
+		<Unit filename="../source/Library/System/Dir.hpp" />
 		<Unit filename="../source/Library/System/Environment.cpp" />
 		<Unit filename="../source/Library/System/Environment.hpp" />
 		<Unit filename="../source/Library/System/Path.cpp" />
