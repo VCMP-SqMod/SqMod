@@ -751,6 +751,11 @@ public:
      * Creates a path in dynamic format from a string.
     */
     static SysPath MakeDynamic(CSStr path);
+
+    /* --------------------------------------------------------------------------------------------
+     * Makes sure all separators from a path are the same.
+    */
+    static String NormalizePath(SQInteger s, StackStrF & val);
 };
 
 } // Namespace:: SqMod

@@ -1711,6 +1711,32 @@ SysPath SysPath::MakeDynamic(CSStr path)
     return SysPath(path, Style::Dynamic);
 }
 
+// ------------------------------------------------------------------------------------------------
+String SysPath::NormalizePath(SQInteger s, StackStrF & val)
+{
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.Proc(true)))
+    {
+        STHROWLASTF("Invalid string");
+    }
+    // Is the string empty?
+    else if (!val.mLen)
+    {
+        return String();
+    }
+    // Turn it into a string that we can edit
+    String str(val.mPtr, val.mLen);
+    // Replace all occurences of the specified character
+    for (String::reference c : str)
+    {
+        if (c == '/' || c == '\\')
+        {
+            c = static_cast< String::value_type >(s);
+        }
+    }
+    // Return the new string
+    return str;
+}
 // ================================================================================================
 void Register_SysPath(HSQUIRRELVM vm)
 {
@@ -1794,6 +1820,7 @@ void Register_SysPath(HSQUIRRELVM vm)
         .StaticFunc(_SC("Native"), &SysPath::MakeNative)
         .StaticFunc(_SC("Guess"), &SysPath::MakeGuess)
         .StaticFunc(_SC("Dynamic"), &SysPath::MakeDynamic)
+        .StaticFmtFunc(_SC("Normalize"), &SysPath::NormalizePath)
         // Static Overloads
         .StaticOverload< SysPath (*)(CSStr) >(_SC("ForDir"), &SysPath::ForDirectory)
         .StaticOverload< SysPath (*)(CSStr, Int32) >(_SC("ForDir"), &SysPath::ForDirectory)
