@@ -180,9 +180,11 @@ struct Function  {
     // If `idx1` is null, it defaults to root table
     // If `idx1` is an object, it will be used as the environment
     // If `idx1` is actually a function/closure then `idx2` is ignored
-    void Assign(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2) {
+    bool Assign(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2) {
         // Release current callback, if any
         Release();
+        // Tells if the current environment was used
+        bool cenv = false;
         // Retrieve the environment type
         const SQObjectType ty1 = sq_gettype(vm, idx1);
         // Should we use the root table as the environment?
@@ -194,6 +196,7 @@ struct Function  {
         } else if (ty1 & (_RT_CLOSURE | _RT_NATIVECLOSURE)) {
             sq_getstackobj(vm, 1, &mEnv); // `this` as environment
             idx2 = idx1; // There is no explicit environment given
+            cenv = true;
         // Is there a specific environment?
         } else if (ty1 & (_RT_TABLE | _RT_CLASS | _RT_INSTANCE)) {
             sq_getstackobj(vm, idx1, &mEnv); // Grab the given environment
@@ -201,7 +204,7 @@ struct Function  {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             SQTHROW(vm, FormatTypeError(vm, idx1, _SC("object")));
 #else
-            return;
+            return cenv;
 #endif
         }
         // Retrieve the callback type
@@ -218,6 +221,8 @@ struct Function  {
             SQTHROW(vm, FormatTypeError(vm, idx2, _SC("closure")));
 #endif
         }
+        // Return whether current environment was used
+        return cenv;
     }
     // Runs the Function and returns its value as a SharedPtr
     template<class R, class... Args> SharedPtr<R> Evaluate(Args &&... args) {
