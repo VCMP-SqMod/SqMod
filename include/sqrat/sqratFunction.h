@@ -92,6 +92,14 @@ struct Function  {
         }
 #endif
     }
+    // Constructs a Function from a value off the stack at the specified index pointed by `idx2`
+    // Assumes the Function environment is at index pointed by `idx1`
+    // If `idx1` is null, it defaults to root table
+    // If `idx1` is an object, it will be used as the environment
+    // If `idx1` is actually a function/closure then `idx2` is ignored
+    Function(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2) : Function() {
+        Assign(vm, idx1, idx2);
+    }
     // Constructs a Function from two Squirrel objects (one is the environment object and the other is the function object)
     Function(HSQUIRRELVM vm, HSQOBJECT e, HSQOBJECT o) : mEnv(e), mObj(o) {
         sq_addref(vm, &mEnv);
@@ -165,6 +173,50 @@ struct Function  {
             }
             sq_resetobject(&mEnv);
             sq_resetobject(&mObj);
+        }
+    }
+    // Assigns a Function from a value off the stack at the specified index pointed by `idx2`
+    // Assumes the Function environment is at index pointed by `idx1`
+    // If `idx1` is null, it defaults to root table
+    // If `idx1` is an object, it will be used as the environment
+    // If `idx1` is actually a function/closure then `idx2` is ignored
+    void Assign(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2) {
+        // Release current callback, if any
+        Release();
+        // Retrieve the environment type
+        const SQObjectType ty1 = sq_gettype(vm, idx1);
+        // Should we use the root table as the environment?
+        if (ty1 == OT_NULL) {
+            sq_pushroottable(vm); // Push it on the stack
+            sq_getstackobj(vm, -1, &mEnv); // Grab it
+            sq_poptop(vm); // Clean up the stack
+        // Should we use current environment?
+        } else if (ty1 & (_RT_CLOSURE | _RT_NATIVECLOSURE)) {
+            sq_getstackobj(vm, 1, &mEnv); // `this` as environment
+            idx2 = idx1; // There is no explicit environment given
+        // Is there a specific environment?
+        } else if (ty1 & (_RT_TABLE | _RT_CLASS | _RT_INSTANCE)) {
+            sq_getstackobj(vm, idx1, &mEnv); // Grab the given environment
+        } else {
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+            SQTHROW(vm, FormatTypeError(vm, idx1, _SC("object")));
+#else
+            return;
+#endif
+        }
+        // Retrieve the callback type
+        const SQObjectType ty2 = sq_gettype(vm, idx2);
+        // Is the callback is valid?
+        if (ty2 & (_RT_CLOSURE | _RT_NATIVECLOSURE)) {
+            sq_getstackobj(vm, idx2, &mObj);
+            // Reference the environment and function
+            sq_addref(vm, &mEnv);
+            sq_addref(vm, &mObj);
+        } else {
+            sq_resetobject(&mEnv); // Discard obtained environment
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+            SQTHROW(vm, FormatTypeError(vm, idx2, _SC("closure")));
+#endif
         }
     }
     // Runs the Function and returns its value as a SharedPtr
