@@ -479,6 +479,18 @@ Uint16 GetFallTimer();
 */
 void SetFallTimer(Uint16 rate);
 
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve network statistics related to the server.
+*/
+SQFloat GetNetworkStatisticsF(Int32 option_id);
+
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve network statistics related to the server.
+*/
+SQInteger GetNetworkStatisticsI(Int32 option_id);
+
+
+
 } // Namespace:: SqMod
 
 #endif // _MISC_FUNCTIONS_HPP_

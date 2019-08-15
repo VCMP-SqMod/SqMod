@@ -121,7 +121,9 @@ void Register_Misc(HSQUIRRELVM vm)
     .Func(_SC("GetDistrictName"), &GetDistrictName)
     .Func(_SC("GetDistrictNameEx"), &GetDistrictNameEx)
     .Func(_SC("GetFallTimer"), &GetFallTimer)
-    .Func(_SC("SetFallTimer"), &SetFallTimer);
+    .Func(_SC("SetFallTimer"), &SetFallTimer)
+    .Func(_SC("GetNetworkStatisticsF"), &GetNetworkStatisticsF)
+    .Func(_SC("GetNetworkStatisticsI"), &GetNetworkStatisticsI);
 
     RootTable(vm).Bind(_SC("SqServer"), srvns);
 

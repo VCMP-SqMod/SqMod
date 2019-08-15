@@ -851,4 +851,22 @@ void SetFallTimer(Uint16 rate)
     _Func->SetFallTimer(rate);
 }
 
+// ------------------------------------------------------------------------------------------------
+SQFloat GetNetworkStatisticsF(Int32 option_id)
+{
+    // Retrieve the requested information
+    double value = _Func->GetNetworkStatistics(-1, static_cast< vcmpNetworkStatisticsOption  >(option_id));
+    // Return it in the proper type
+    return static_cast< SQFloat >(value);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger GetNetworkStatisticsI(Int32 option_id)
+{
+    // Retrieve the requested information
+    double value = _Func->GetNetworkStatistics(-1, static_cast< vcmpNetworkStatisticsOption  >(option_id));
+    // Return it in the proper type
+    return static_cast< SQInteger >(value);
+}
+
 } // Namespace:: SqMod
