@@ -348,7 +348,8 @@ bool Core::Initialize()
     // Are there any options to read?
     if (conf.GetAllKeys("Options", options) || options.size() > 0)
     {
-        cLogDbg(m_Verbosity >= 1, "Found (%" PRINT_SZ_FMT ") options in the configuration file", static_cast< size_t >(options.size()));
+        cLogDbg(m_Verbosity >= 1, "Found (%" PRINT_SZ_FMT ") options in the configuration file",
+                    static_cast< SQUnsignedInteger >(options.size()));
         // Process all the specified keys under the [Options] section
         for (const auto & option : options)
         {
@@ -419,7 +420,7 @@ bool Core::Execute()
         }
 
         cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts. Pending scripts %" PRINT_SZ_FMT,
-                    levels, static_cast< size_t >(m_PendingScripts.size()));
+                    levels, static_cast< SQUnsignedInteger >(m_PendingScripts.size()));
     }
 
     // Create the null entity instances
