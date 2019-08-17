@@ -410,8 +410,8 @@
 		<Compiler>
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add option="-std=c99" />
 			<Add option="-std=c++14" />
+			<Add option="-std=c99" />
 			<Add option="-DSQMOD_PLUGIN_API" />
 			<Add option="-DSCRAT_USE_EXCEPTIONS" />
 			<Add option="-DSCRAT_USE_CXX11_OPTIMIZATIONS" />
@@ -421,6 +421,10 @@
 			<Add directory="../config/common" />
 			<Add directory="../external/MaxmindDB" />
 		</Compiler>
+		<Unit filename="../external/MaxmindDB/data-pool.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../external/MaxmindDB/data-pool.h" />
 		<Unit filename="../external/MaxmindDB/maxminddb.c">
 			<Option compilerVar="CC" />
 			<Option compiler="gcc" use="1" buildCommand="$compiler -Wno-unused-parameter -Wno-sign-compare $options $includes -c $file -o $object" />
@@ -445,7 +449,7 @@
 		<Unit filename="../modules/mmdb/SearchNode.cpp" />
 		<Unit filename="../modules/mmdb/SearchNode.hpp" />
 		<Unit filename="../modules/mmdb/SockAddr.cpp" />
-		<Unit filename="../modules/mmdb/Sockaddr.hpp" />
+		<Unit filename="../modules/mmdb/SockAddr.hpp" />
 		<Unit filename="../shared/Base/Buffer.cpp" />
 		<Unit filename="../shared/Base/Buffer.hpp" />
 		<Unit filename="../shared/Base/Module.cpp" />
@@ -456,6 +460,7 @@
 			<envvars />
 			<debugger />
 			<lib_finder disable_auto="1" />
+			<fortran_project />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
