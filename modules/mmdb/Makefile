@@ -11,7 +11,8 @@ ifeq ($(SQ_PLAT),win)
 	SQ_DYNAMIC_LINKER_OPTIONS_ += -lWs2_32
 endif
 
-C_OBJECTS= "$(SQ_OBJDIR)/external/MaxmindDB/maxminddb.$(SQ_OEXT)"
+C_OBJECTS= "$(SQ_OBJDIR)/external/MaxmindDB/maxminddb.$(SQ_OEXT)" \
+		   "$(SQ_OBJDIR)/external/MaxmindDB/data-pool.$(SQ_OEXT)"
 
 PP_OBJECTS= "$(SQ_OBJDIR)/modules/mmdb/Common.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/modules/mmdb/Database.$(SQ_OEXT)" \
@@ -32,6 +33,7 @@ PP_OBJECTS= "$(SQ_OBJDIR)/modules/mmdb/Common.$(SQ_OEXT)" \
 
 build:
 	$(SQ_C_COMPILER) $(SQ_C_OPTIONS) -std=c99 -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/MaxmindDB/maxminddb.c" -o "$(SQ_OBJDIR)/external/MaxmindDB/maxminddb.$(SQ_OEXT)"
+	$(SQ_C_COMPILER) $(SQ_C_OPTIONS) -std=c99 -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/MaxmindDB/data-pool.c" -o "$(SQ_OBJDIR)/external/MaxmindDB/data-pool.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Common.cpp" -o "$(SQ_OBJDIR)/modules/mmdb/Common.$(SQ_OEXT)"  
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Database.cpp" -o "$(SQ_OBJDIR)/modules/mmdb/Database.$(SQ_OEXT)"  
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) $(SQ_PP_OPTIONS) $(SQ_DEFINES) $(SQ_INCLUDES) -c "$(SQ_SRCDIR)/Description.cpp" -o "$(SQ_OBJDIR)/modules/mmdb/Description.$(SQ_OEXT)"  
