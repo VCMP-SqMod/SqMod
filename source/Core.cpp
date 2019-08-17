@@ -348,7 +348,7 @@ bool Core::Initialize()
     // Are there any options to read?
     if (conf.GetAllKeys("Options", options) || options.size() > 0)
     {
-        cLogDbg(m_Verbosity >= 1, "Found (%" PRINT_SZ_FMT ") options in the configuration file", options.size());
+        cLogDbg(m_Verbosity >= 1, "Found (%" PRINT_SZ_FMT ") options in the configuration file", static_cast< size_t >(options.size()));
         // Process all the specified keys under the [Options] section
         for (const auto & option : options)
         {
@@ -418,7 +418,8 @@ bool Core::Execute()
             return false; // One of the scripts failed to execute
         }
 
-        cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts. Pending scripts %" PRINT_SZ_FMT, levels, m_PendingScripts.size());
+        cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts. Pending scripts %" PRINT_SZ_FMT,
+                    levels, static_cast< size_t >(m_PendingScripts.size()));
     }
 
     // Create the null entity instances
@@ -754,7 +755,7 @@ String Core::FetchCodeLine(CSStr src, SQInteger line, bool trim)
     // Find the script we're looking for
     Scripts::iterator script = FindScript(src);
     // Do we have a valid script and line?
-    if ((script == m_Scripts.end()) || !(script->mInfo) || (script->mLine.size() < line))
+    if ((script == m_Scripts.end()) || !(script->mInfo) || (static_cast< SQInteger >(script->mLine.size()) < line))
     {
         return String{}; // No such script!
     }
