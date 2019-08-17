@@ -1962,7 +1962,8 @@ LOCAL void free_descriptions_metadata(MMDB_s *mmdb)
 
 const char *MMDB_lib_version(void)
 {
-    return PACKAGE_VERSION;
+    //return PACKAGE_VERSION;
+    return "1.3.2"; // Quick and dirty patch
 }
 
 int MMDB_dump_entry_data_list(FILE *const stream,
