@@ -22,6 +22,7 @@ PP_OBJECTS= "$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdaux.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdstring.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdsystem.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/external/Squirrel/sqapi.$(SQ_OEXT)" \
+			"$(SQ_OBJDIR)/external/Squirrel/sqapiex.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/external/Squirrel/sqbaselib.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/external/Squirrel/sqclass.$(SQ_OEXT)" \
 			"$(SQ_OBJDIR)/external/Squirrel/sqcompiler.$(SQ_OEXT)" \
@@ -122,6 +123,7 @@ build:
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_PP_OPTIONS) -fno-exceptions -fno-rtti -fno-strict-aliasing $(SQ_DEFINES) -DGARBAGE_COLLECTOR $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/Squirrel/Lib/sqstdstring.cpp" -o "$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdstring.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_PP_OPTIONS) -fno-exceptions -fno-rtti -fno-strict-aliasing $(SQ_DEFINES) -DGARBAGE_COLLECTOR $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/Squirrel/Lib/sqstdsystem.cpp" -o "$(SQ_OBJDIR)/external/Squirrel/Lib/sqstdsystem.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_PP_OPTIONS) -fno-exceptions -fno-rtti -fno-strict-aliasing $(SQ_DEFINES) -DGARBAGE_COLLECTOR $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/Squirrel/sqapi.cpp" -o "$(SQ_OBJDIR)/external/Squirrel/sqapi.$(SQ_OEXT)"
+	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_PP_OPTIONS) -fno-exceptions -fno-rtti -fno-strict-aliasing $(SQ_DEFINES) -DGARBAGE_COLLECTOR $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/Squirrel/sqapiex.cpp" -o "$(SQ_OBJDIR)/external/Squirrel/sqapiex.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_PP_OPTIONS) -fno-exceptions -fno-rtti -fno-strict-aliasing $(SQ_DEFINES) -DGARBAGE_COLLECTOR $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/Squirrel/sqbaselib.cpp" -o "$(SQ_OBJDIR)/external/Squirrel/sqbaselib.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_PP_OPTIONS) -fno-exceptions -fno-rtti -fno-strict-aliasing $(SQ_DEFINES) -DGARBAGE_COLLECTOR $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/Squirrel/sqclass.cpp" -o "$(SQ_OBJDIR)/external/Squirrel/sqclass.$(SQ_OEXT)"
 	$(SQ_PP_COMPILER) $(SQ_C_OPTIONS) -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter $(SQ_PP_OPTIONS) -fno-exceptions -fno-rtti -fno-strict-aliasing $(SQ_DEFINES) -DGARBAGE_COLLECTOR $(SQ_INCLUDES) -c "$(SQ_EXTDIR)/Squirrel/sqcompiler.cpp" -o "$(SQ_OBJDIR)/external/Squirrel/sqcompiler.$(SQ_OEXT)"
