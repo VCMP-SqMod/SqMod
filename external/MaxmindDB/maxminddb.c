@@ -1,6 +1,5 @@
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include <maxminddb_config.h>
+
 #include "data-pool.h"
 #include "maxminddb.h"
 #include "maxminddb-compat-util.h"
@@ -1962,8 +1961,7 @@ LOCAL void free_descriptions_metadata(MMDB_s *mmdb)
 
 const char *MMDB_lib_version(void)
 {
-    //return PACKAGE_VERSION;
-    return "1.3.2"; // Quick and dirty patch
+    return PACKAGE_VERSION;
 }
 
 int MMDB_dump_entry_data_list(FILE *const stream,
