@@ -1519,6 +1519,25 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> {
     }
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Used to wrap calling a static member function as a raw function by providing the actual instance before the VM.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < class T, SQInteger (*Fn)(T &, HSQUIRRELVM) > inline SQInteger SqRawMemberFnWrap(HSQUIRRELVM vm)
+{
+    // The wrapped instance
+    T * inst = nullptr;
+    // Attempt to extract the argument values
+    try
+    {
+        inst = Var< T * >(vm, 1).value;
+    }
+    catch (const Sqrat::Exception & e)
+    {
+        return sq_throwerror(vm, e.what());
+    }
+    // Forward the call (assume the instance is valid!)
+    return Fn(*inst, vm);
+}
 
 }
 
