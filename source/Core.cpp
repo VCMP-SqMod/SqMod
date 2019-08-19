@@ -380,6 +380,15 @@ bool Core::Initialize()
 // ------------------------------------------------------------------------------------------------
 bool Core::Execute()
 {
+    // Create the null entity instances
+    m_NullBlip = LightObj(new CBlip(-1));
+    m_NullCheckpoint = LightObj(new CCheckpoint(-1));
+    m_NullKeybind = LightObj(new CKeybind(-1));
+    m_NullObject = LightObj(new CObject(-1));
+    m_NullPickup = LightObj(new CPickup(-1));
+    m_NullPlayer = LightObj(new CPlayer(-1));
+    m_NullVehicle = LightObj(new CVehicle(-1));
+
     // Are there any scripts to execute?
     if (m_PendingScripts.empty())
     {
@@ -422,15 +431,6 @@ bool Core::Execute()
         cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts. Pending scripts %" PRINT_SZ_FMT,
                     levels, static_cast< SQUnsignedInteger >(m_PendingScripts.size()));
     }
-
-    // Create the null entity instances
-    m_NullBlip = LightObj(new CBlip(-1));
-    m_NullCheckpoint = LightObj(new CCheckpoint(-1));
-    m_NullKeybind = LightObj(new CKeybind(-1));
-    m_NullObject = LightObj(new CObject(-1));
-    m_NullPickup = LightObj(new CPickup(-1));
-    m_NullPlayer = LightObj(new CPlayer(-1));
-    m_NullVehicle = LightObj(new CVehicle(-1));
 
     m_LockPreLoadSignal = true;
     // Trigger callbacks that must initialize stuff before the loaded event is triggered
