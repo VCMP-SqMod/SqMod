@@ -180,7 +180,7 @@ struct Function  {
     // If `idx1` is null, it defaults to root table
     // If `idx1` is an object, it will be used as the environment
     // If `idx1` is actually a function/closure then `idx2` is ignored
-    bool Assign(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2) {
+    bool Assign(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2, bool bind_null=false) {
         // Release current callback, if any
         Release();
         // Tells if the current environment was used
@@ -209,8 +209,12 @@ struct Function  {
         }
         // Retrieve the callback type
         const SQObjectType ty2 = sq_gettype(vm, idx2);
+        // Can we bind null?
+        if (bind_null && ty2 == OT_NULL) {
+            sq_resetobject(&mEnv); // Drop the environment, if any
+            return cenv; // Just stop knowing this is what we want
         // Is the callback is valid?
-        if (ty2 & (_RT_CLOSURE | _RT_NATIVECLOSURE)) {
+        } else if (ty2 & (_RT_CLOSURE | _RT_NATIVECLOSURE)) {
             sq_getstackobj(vm, idx2, &mObj);
             // Reference the environment and function
             sq_addref(vm, &mEnv);
