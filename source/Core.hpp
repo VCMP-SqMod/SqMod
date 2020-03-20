@@ -194,8 +194,9 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+#if SQMOD_SDK_LEAST(2, 1)
         SignalPair      mOnStream;
-
+#endif
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnEntered;
         SignalPair      mOnExited;
@@ -327,8 +328,9 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+#if SQMOD_SDK_LEAST(2, 1)
         SignalPair      mOnStream;
-
+#endif
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnShot;
         SignalPair      mOnTouched;
@@ -393,8 +395,9 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+#if SQMOD_SDK_LEAST(2, 1)
         SignalPair      mOnStream;
-
+#endif
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnRespawn;
         SignalPair      mOnClaimed;
@@ -487,8 +490,9 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+#if SQMOD_SDK_LEAST(2, 1)
         SignalPair      mOnStream;
-
+#endif
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnRequestClass;
         SignalPair      mOnRequestSpawn;
@@ -545,7 +549,9 @@ protected:
         SignalPair      mOnCheckpointEntered;
         SignalPair      mOnCheckpointExited;
         SignalPair      mOnClientScriptData;
+#if SQMOD_SDK_LEAST(2, 1)
         SignalPair      mOnEntityStream;
+#endif
         SignalPair      mOnUpdate;
         SignalPair      mOnHealth;
         SignalPair      mOnArmour;
@@ -636,8 +642,9 @@ protected:
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnDestroyed;
         SignalPair      mOnCustom;
+#if SQMOD_SDK_LEAST(2, 1)
         SignalPair      mOnStream;
-
+#endif
         // ----------------------------------------------------------------------------------------
         SignalPair      mOnEmbarking;
         SignalPair      mOnEmbarked;
@@ -1265,7 +1272,7 @@ public:
      * Entity pool changes events.
     */
     void EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_deleted);
-
+#if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Entity streaming changes events.
     */
@@ -1275,7 +1282,7 @@ public:
     void EmitPlayerStream(int32_t player_id, int32_t entity_id, bool is_deleted);
     void EmitVehicleStream(int32_t player_id, int32_t entity_id, bool is_deleted);
     void EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityPool entity_type, bool is_deleted);
-
+#endif
     /* --------------------------------------------------------------------------------------------
      * Entity update events.
     */
@@ -1321,11 +1328,13 @@ public:
     SignalPair  mOnPickupCustom;
     SignalPair  mOnPlayerCustom;
     SignalPair  mOnVehicleCustom;
+#if SQMOD_SDK_LEAST(2, 1)
     SignalPair  mOnCheckpointStream;
     SignalPair  mOnObjectStream;
     SignalPair  mOnPickupStream;
     SignalPair  mOnPlayerStream;
     SignalPair  mOnVehicleStream;
+#endif
     SignalPair  mOnServerStartup;
     SignalPair  mOnServerShutdown;
     SignalPair  mOnServerFrame;
@@ -1432,7 +1441,9 @@ public:
     SignalPair  mOnVehicleHandlingRule;
     SignalPair  mOnVehicleEnterArea;
     SignalPair  mOnVehicleLeaveArea;
+#if SQMOD_SDK_LEAST(2, 1)
     SignalPair  mOnEntityStream;
+#endif
     SignalPair  mOnServerOption;
     SignalPair  mOnScriptReload;
     SignalPair  mOnScriptLoaded;

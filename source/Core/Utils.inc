@@ -75,11 +75,13 @@ void Core::InitEvents()
     InitSignalPair(mOnPickupCustom, m_Events, "PickupCustom");
     InitSignalPair(mOnPlayerCustom, m_Events, "PlayerCustom");
     InitSignalPair(mOnVehicleCustom, m_Events, "VehicleCustom");
+#if SQMOD_SDK_LEAST(2, 1)
     InitSignalPair(mOnCheckpointStream, m_Events, "CheckpointStream");
     InitSignalPair(mOnObjectStream, m_Events, "ObjectStream");
     InitSignalPair(mOnPickupStream, m_Events, "PickupStream");
     InitSignalPair(mOnPlayerStream, m_Events, "PlayerStream");
     InitSignalPair(mOnVehicleStream, m_Events, "VehicleStream");
+#endif
     InitSignalPair(mOnServerStartup, m_Events, "ServerStartup");
     InitSignalPair(mOnServerShutdown, m_Events, "ServerShutdown");
     InitSignalPair(mOnServerFrame, m_Events, "ServerFrame");
@@ -186,7 +188,9 @@ void Core::InitEvents()
     InitSignalPair(mOnVehicleHandlingRule, m_Events, "VehicleHandlingRule");
     InitSignalPair(mOnVehicleEnterArea, m_Events, "VehicleEnterArea");
     InitSignalPair(mOnVehicleLeaveArea, m_Events, "VehicleLeaveArea");
+#if SQMOD_SDK_LEAST(2, 1)
     InitSignalPair(mOnEntityStream, m_Events, "EntityStream");
+#endif
     InitSignalPair(mOnServerOption, m_Events, "ServerOption");
     InitSignalPair(mOnScriptReload, m_Events, "ScriptReload");
     InitSignalPair(mOnScriptLoaded, m_Events, "ScriptLoaded");
@@ -216,11 +220,13 @@ void Core::DropEvents()
     ResetSignalPair(mOnPickupCustom);
     ResetSignalPair(mOnPlayerCustom);
     ResetSignalPair(mOnVehicleCustom);
+#if SQMOD_SDK_LEAST(2, 1)
     ResetSignalPair(mOnCheckpointStream);
     ResetSignalPair(mOnObjectStream);
     ResetSignalPair(mOnPickupStream);
     ResetSignalPair(mOnPlayerStream);
     ResetSignalPair(mOnVehicleStream);
+#endif
     ResetSignalPair(mOnServerStartup);
     ResetSignalPair(mOnServerShutdown);
     ResetSignalPair(mOnServerFrame);
@@ -327,7 +333,9 @@ void Core::DropEvents()
     ResetSignalPair(mOnVehicleHandlingRule);
     ResetSignalPair(mOnVehicleEnterArea);
     ResetSignalPair(mOnVehicleLeaveArea);
+#if SQMOD_SDK_LEAST(2, 1)
     ResetSignalPair(mOnEntityStream);
+#endif
     ResetSignalPair(mOnServerOption);
     ResetSignalPair(mOnScriptReload);
     ResetSignalPair(mOnScriptLoaded);

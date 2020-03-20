@@ -850,7 +850,7 @@ void SetFallTimer(Uint16 rate)
 {
     _Func->SetFallTimer(rate);
 }
-
+#if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
 SQFloat GetNetworkStatisticsF(Int32 option_id)
 {
@@ -868,5 +868,5 @@ SQInteger GetNetworkStatisticsI(Int32 option_id)
     // Return it in the proper type
     return static_cast< SQInteger >(value);
 }
-
+#endif
 } // Namespace:: SqMod

@@ -252,7 +252,9 @@ static const EnumElement g_EntityPoolEnum[] = {
     {_SC("Object"),         vcmpEntityPoolObject},
     {_SC("Pickup"),         vcmpEntityPoolPickup},
     {_SC("Radio"),          vcmpEntityPoolRadio},
+#if SQMOD_SDK_LEAST(2, 1)
     {_SC("Player"),         vcmpEntityPoolPlayer},
+#endif
     {_SC("Blip"),           vcmpEntityPoolBlip},
     {_SC("Checkpoint"),     vcmpEntityPoolCheckPoint},
     {_SC("Max"),            vcmpEntityPoolCheckPoint}
@@ -262,6 +264,9 @@ static const EnumElement g_EntityPoolEnum[] = {
 static const EnumElement g_PlayerUpdateEnum[] = {
     {_SC("Unknown"),        SQMOD_UNKNOWN},
     {_SC("Normal"),         vcmpPlayerUpdateNormal},
+#if SQMOD_SDK_PRIOR(2, 1)
+    {_SC("Aiming"),         vcmpPlayerUpdateAiming},
+#endif
     {_SC("Driver"),         vcmpPlayerUpdateDriver},
     {_SC("Passenger"),      vcmpPlayerUpdatePassenger},
     {_SC("Max"),            vcmpPlayerUpdatePassenger}
@@ -337,8 +342,12 @@ static const EnumElement g_ServerOptionEnum[] = {
     {_SC("WallGlitch"),                 vcmpServerOptionWallGlitch},
     {_SC("DisableBackfaceCulling"),     vcmpServerOptionDisableBackfaceCulling},
     {_SC("DisableHeliBladeDamage"),     vcmpServerOptionDisableHeliBladeDamage},
+#if SQMOD_SDK_LEAST(2, 1)
     {_SC("DisableCrouch"),              vcmpServerOptionDisableCrouch},
     {_SC("Max"),                        vcmpServerOptionDisableCrouch}
+#else
+    {_SC("Max"),                        vcmpServerOptionDisableHeliBladeDamage}
+#endif
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -353,8 +362,13 @@ static const EnumElement g_PlayerOptionEnum[] = {
     {_SC("CanAttack"),          vcmpPlayerOptionCanAttack},
     {_SC("HasMarker"),          vcmpPlayerOptionHasMarker},
     {_SC("ChatTagsEnabled"),    vcmpPlayerOptionChatTagsEnabled},
+#if SQMOD_SDK_LEAST(2, 1)
     {_SC("DrunkEffects"),       vcmpPlayerOptionBleeding},
     {_SC("Max"),                vcmpPlayerOptionBleeding}
+#else
+    {_SC("DrunkEffects"),       vcmpPlayerOptionDrunkEffects},
+    {_SC("Max"),                vcmpPlayerOptionDrunkEffects}
+#endif
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -367,10 +381,14 @@ static const EnumElement g_VehicleOptionEnum[] = {
     {_SC("Ghost"),              vcmpVehicleOptionGhost},
     {_SC("Siren"),              vcmpVehicleOptionSiren},
     {_SC("SingleUse"),          vcmpVehicleOptionSingleUse},
+#if SQMOD_SDK_LEAST(2, 1)
     {_SC("EngineDisabled"),     vcmpVehicleOptionEngineDisabled},
     {_SC("BootOpen"),           vcmpVehicleOptionBootOpen},
     {_SC("BonnetOpen"),         vcmpVehicleOptionBonnetOpen},
-    {_SC("Max"),                vcmpVehicleOptionBootOpen}
+    {_SC("Max"),                vcmpVehicleOptionBonnetOpen}
+#else
+    {_SC("Max"),                vcmpVehicleOptionSingleUse}
+#endif
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -381,6 +399,7 @@ static const EnumElement g_PickupOptionEnum[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
+#if SQMOD_SDK_LEAST(2, 1)
 static const EnumElement g_NetworkStatisticsOptionEnum[] = {
     {_SC("Unknown"),                    SQMOD_UNKNOWN},
     {_SC("DataSentPerSecond"),          vcmpNetworkStatisticsOptionDataSentPerSecond},
@@ -402,7 +421,7 @@ static const EnumElement g_NetworkStatisticsOptionEnum[] = {
     {_SC("PacketLossTotal"),            vcmpNetworkStatisticsOptionPacketLossTotal},
     {_SC("Max"),                        vcmpNetworkStatisticsOptionPacketLossTotal}
 };
-
+#endif
 // ------------------------------------------------------------------------------------------------
 static const EnumElement g_BodyPartEnum[] = {
     {_SC("Unknown"),        SQMOD_UNKNOWN},
@@ -1230,7 +1249,9 @@ static const EnumElements g_EnumList[] = {
     {_SC("SqPlayerOption"),             g_PlayerOptionEnum},
     {_SC("SqVehicleOption"),            g_VehicleOptionEnum},
     {_SC("SqPickupOption"),             g_PickupOptionEnum},
+#if SQMOD_SDK_LEAST(2, 1)
     {_SC("NetworkStatisticsOption"),    g_NetworkStatisticsOptionEnum},
+#endif
     {_SC("SqBodyPart"),                 g_BodyPartEnum},
     {_SC("SqPlayerState"),              g_PlayerStateEnum},
     {_SC("SqPlayerAction"),             g_PlayerActionEnum},

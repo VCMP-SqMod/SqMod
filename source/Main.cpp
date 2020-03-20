@@ -913,6 +913,7 @@ static void OnEntityPoolChange(vcmpEntityPool entity_type, int32_t entity_id, ui
 }
 
 // ------------------------------------------------------------------------------------------------
+#if SQMOD_SDK_LEAST(2, 1)
 static void OnEntityStreamingChange(int32_t player_id, int32_t entity_id, vcmpEntityPool entity_type, uint8_t is_deleted)
 {
     // Attempt to forward the event
@@ -926,7 +927,7 @@ static void OnEntityStreamingChange(int32_t player_id, int32_t entity_id, vcmpEn
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(false)
 }
-
+#endif
 // ------------------------------------------------------------------------------------------------
 static void OnServerPerformanceReport(size_t /*entry_count*/, CCStr * /*descriptions*/, uint64_t * /*times*/)
 {
@@ -1035,7 +1036,9 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     _Clbk->OnEntityPoolChange           = OnEntityPoolChange;
     _Clbk->OnServerPerformanceReport    = OnServerPerformanceReport;
     _Clbk->OnPlayerModuleList           = OnPlayerModuleList;
+#if SQMOD_SDK_LEAST(2, 1)
     _Clbk->OnEntityStreamingChange      = OnEntityStreamingChange;
+#endif
     // Attempt to initialize the plug-in exports
     InitExports();
     // Dummy spacing

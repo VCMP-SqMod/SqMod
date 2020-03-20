@@ -417,7 +417,9 @@ void Core::CheckpointInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+#if SQMOD_SDK_LEAST(2, 1)
     InitSignalPair(mOnStream, mEvents, "Stream");
+#endif
     InitSignalPair(mOnEntered, mEvents, "Entered");
     InitSignalPair(mOnExited, mEvents, "Exited");
     InitSignalPair(mOnWorld, mEvents, "World");
@@ -429,7 +431,9 @@ void Core::CheckpointInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+#if SQMOD_SDK_LEAST(2, 1)
     ResetSignalPair(mOnStream);
+#endif
     ResetSignalPair(mOnEntered);
     ResetSignalPair(mOnExited);
     ResetSignalPair(mOnWorld);
@@ -485,7 +489,9 @@ void Core::ObjectInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+#if SQMOD_SDK_LEAST(2, 1)
     InitSignalPair(mOnStream, mEvents, "Stream");
+#endif
     InitSignalPair(mOnShot, mEvents, "Shot");
     InitSignalPair(mOnTouched, mEvents, "Touched");
     InitSignalPair(mOnWorld, mEvents, "World");
@@ -498,7 +504,9 @@ void Core::ObjectInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+#if SQMOD_SDK_LEAST(2, 1)
     ResetSignalPair(mOnStream);
+#endif
     ResetSignalPair(mOnShot);
     ResetSignalPair(mOnTouched);
     ResetSignalPair(mOnWorld);
@@ -524,7 +532,9 @@ void Core::PickupInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+#if SQMOD_SDK_LEAST(2, 1)
     InitSignalPair(mOnStream, mEvents, "Stream");
+#endif
     InitSignalPair(mOnRespawn, mEvents, "Respawn");
     InitSignalPair(mOnClaimed, mEvents, "Claimed");
     InitSignalPair(mOnCollected, mEvents, "Collected");
@@ -540,7 +550,9 @@ void Core::PickupInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+#if SQMOD_SDK_LEAST(2, 1)
     ResetSignalPair(mOnStream);
+#endif
     ResetSignalPair(mOnRespawn);
     ResetSignalPair(mOnClaimed);
     ResetSignalPair(mOnCollected);
@@ -569,7 +581,9 @@ void Core::PlayerInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+#if SQMOD_SDK_LEAST(2, 1)
     InitSignalPair(mOnStream, mEvents, "Stream");
+#endif
     InitSignalPair(mOnRequestClass, mEvents, "RequestClass");
     InitSignalPair(mOnRequestSpawn, mEvents, "RequestSpawn");
     InitSignalPair(mOnSpawn, mEvents, "Spawn");
@@ -625,7 +639,9 @@ void Core::PlayerInst::InitEvents()
     InitSignalPair(mOnCheckpointEntered, mEvents, "CheckpointEntered");
     InitSignalPair(mOnCheckpointExited, mEvents, "CheckpointExited");
     InitSignalPair(mOnClientScriptData, mEvents, "ClientScriptData");
+#if SQMOD_SDK_LEAST(2, 1)
     InitSignalPair(mOnEntityStream, mEvents, "EntityStream");
+#endif
     InitSignalPair(mOnUpdate, mEvents, "Update");
     InitSignalPair(mOnHealth, mEvents, "Health");
     InitSignalPair(mOnArmour, mEvents, "Armour");
@@ -651,7 +667,9 @@ void Core::PlayerInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+#if SQMOD_SDK_LEAST(2, 1)
     ResetSignalPair(mOnStream);
+#endif
     ResetSignalPair(mOnRequestClass);
     ResetSignalPair(mOnRequestSpawn);
     ResetSignalPair(mOnSpawn);
@@ -707,7 +725,9 @@ void Core::PlayerInst::DropEvents()
     ResetSignalPair(mOnCheckpointEntered);
     ResetSignalPair(mOnCheckpointExited);
     ResetSignalPair(mOnClientScriptData);
+#if SQMOD_SDK_LEAST(2, 1)
     ResetSignalPair(mOnEntityStream);
+#endif
     ResetSignalPair(mOnUpdate);
     ResetSignalPair(mOnHealth);
     ResetSignalPair(mOnArmour);
@@ -746,7 +766,9 @@ void Core::VehicleInst::InitEvents()
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
+#if SQMOD_SDK_LEAST(2, 1)
     InitSignalPair(mOnStream, mEvents, "Stream");
+#endif
     InitSignalPair(mOnEmbarking, mEvents, "Embarking");
     InitSignalPair(mOnEmbarked, mEvents, "Embarked");
     InitSignalPair(mOnDisembark, mEvents, "Disembark");
@@ -774,7 +796,9 @@ void Core::VehicleInst::DropEvents()
 {
     ResetSignalPair(mOnDestroyed);
     ResetSignalPair(mOnCustom);
+#if SQMOD_SDK_LEAST(2, 1)
     ResetSignalPair(mOnStream);
+#endif
     ResetSignalPair(mOnEmbarking);
     ResetSignalPair(mOnEmbarked);
     ResetSignalPair(mOnDisembark);

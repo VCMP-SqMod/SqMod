@@ -264,12 +264,12 @@ public:
      * Retrieve the unique user identifier version 2 of the managed player entity.
     */
     CSStr GetUID2() const;
-
+#if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Set player's health to 0 and reset the death reason.
     */
     void Kill() const;
-
+#endif
     /* --------------------------------------------------------------------------------------------
      * Kick the managed player entity from the server.
     */
@@ -324,7 +324,7 @@ public:
      * Modify the current option value of the managed player entity.
     */
     void SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
-
+#if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Retrieve network statistics related to the managed player entity.
     */
@@ -334,7 +334,7 @@ public:
      * Retrieve network statistics related to the managed player entity.
     */
     SQInteger GetNetworkStatisticsI(Int32 option_id) const;
-
+#endif
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed player entity exists.
     */
@@ -754,7 +754,7 @@ public:
      * Set the managed player entity to spectate no one.
     */
     void Unspectate() const;
-
+#if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Set whether the target player will see an objective arrow over a player.
     */
@@ -784,7 +784,7 @@ public:
      * Smoothly pivots the camera angle.
     */
     bool InterpolateCameraLookAtEx(Float32 x, Float32 y, Float32 z, Uint32 ms) const;
-
+#endif
     /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.
     */
@@ -800,7 +800,7 @@ public:
      * Retrieve the authority level of the managed player entity.
     */
     void PlaySound(Int32 sound_id) const;
-
+#if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Set how delayed a player's turn handling is when in a vehicle.
     */
@@ -820,7 +820,7 @@ public:
      * Retrieve how intense the drunk blur overlay is for a player.
     */
     SQInteger GetDrunkVisuals() const;
-
+#endif
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */

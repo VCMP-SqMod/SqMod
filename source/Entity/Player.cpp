@@ -239,7 +239,7 @@ CSStr CPlayer::GetUID2() const
     // Return the requested information
     return s_Buffer;
 }
-
+#if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
 void CPlayer::Kill() const
 {
@@ -248,7 +248,7 @@ void CPlayer::Kill() const
     // Perform the requested operation
     _Func->KillPlayer(m_ID);
 }
-
+#endif
 // ------------------------------------------------------------------------------------------------
 void CPlayer::Kick() const
 {
@@ -400,7 +400,7 @@ void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj &
         Core::Get().EmitPlayerOption(m_ID, option_id, current, header, payload);
     }
 }
-
+#if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
 SQFloat CPlayer::GetNetworkStatisticsF(Int32 option_id) const
 {
@@ -422,7 +422,7 @@ SQInteger CPlayer::GetNetworkStatisticsI(Int32 option_id) const
     // Return it in the proper type
     return static_cast< SQInteger >(value);
 }
-
+#endif
 // ------------------------------------------------------------------------------------------------
 Int32 CPlayer::GetWorld() const
 {
@@ -1407,7 +1407,7 @@ void CPlayer::Unspectate() const
     // Spectate the given target
     _Func->SetPlayerSpectateTarget(m_ID, -1);
 }
-
+#if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
 void CPlayer::SetPlayer3DArrow(CPlayer & target, bool toggle) const
 {
@@ -1460,7 +1460,7 @@ bool CPlayer::InterpolateCameraLookAtEx(Float32 x, Float32 y, Float32 z, Uint32 
     // Perform the requested operation
     return _Func->InterpolateCameraLookAt(m_ID, x, y, z, ms) != vcmpErrorRequestDenied;
 }
-
+#endif
 // ------------------------------------------------------------------------------------------------
 void CPlayer::Redirect(StackStrF & ip, Uint32 port, StackStrF & nick,
                         StackStrF & server_pass, StackStrF & user_pass)
@@ -1492,7 +1492,7 @@ void CPlayer::PlaySound(Int32 sound_id) const
     // Perform the requested operation
     _Func->PlaySound(_Func->GetPlayerUniqueWorld(m_ID), sound_id, NAN, NAN, NAN);
 }
-
+#if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
 void CPlayer::SetDrunkHandling(SQInteger level) const
 {
@@ -1528,7 +1528,7 @@ SQInteger CPlayer::GetDrunkVisuals() const
     // Perform the requested operation
     return _Func->GetPlayerDrunkVisuals(m_ID);
 }
-
+#endif
 // ------------------------------------------------------------------------------------------------
 LightObj & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius) const
@@ -2793,8 +2793,10 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Away"), &CPlayer::IsAway)
         .Prop(_SC("Spec"), &CPlayer::GetSpectator, &CPlayer::SetSpectator)
         .Prop(_SC("SpecID"), &CPlayer::GetSpectatorID, &CPlayer::SetSpectatorID)
+#if SQMOD_SDK_LEAST(2, 1)
         .Prop(_SC("DrunkHandling"), &CPlayer::GetDrunkHandling, &CPlayer::SetDrunkHandling)
         .Prop(_SC("DrunkVisuals"), &CPlayer::GetDrunkVisuals, &CPlayer::SetDrunkVisuals)
+#endif
         .Prop(_SC("CollideAreas"), &CPlayer::GetCollideAreas, &CPlayer::SetCollideAreas)
         .Prop(_SC("Authority"), &CPlayer::GetAuthority, &CPlayer::SetAuthority)
         .Prop(_SC("TrackPosition"), &CPlayer::GetTrackPosition, &CPlayer::SetTrackPosition)
@@ -2815,7 +2817,9 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Blue"), &CPlayer::GetColorB, &CPlayer::SetColorB)
         // Member Methods
         .Func(_SC("StreamedFor"), &CPlayer::IsStreamedFor)
+#if SQMOD_SDK_LEAST(2, 1)
         .Func(_SC("Kill"), &CPlayer::Kill)
+#endif
         .Func(_SC("Kick"), &CPlayer::Kick)
         .Func(_SC("Ban"), &CPlayer::Ban)
         .Func(_SC("KickBecause"), &CPlayer::KickBecause)
@@ -2824,8 +2828,10 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("GetOption"), &CPlayer::GetOption)
         .Func(_SC("SetOption"), &CPlayer::SetOption)
         .Func(_SC("SetOptionEx"), &CPlayer::SetOptionEx)
+#if SQMOD_SDK_LEAST(2, 1)
         .Func(_SC("GetNetworkStatisticsF"), &CPlayer::GetNetworkStatisticsF)
         .Func(_SC("GetNetworkStatisticsI"), &CPlayer::GetNetworkStatisticsI)
+#endif
         .Func(_SC("WorldCompatible"), &CPlayer::IsWorldCompatible)
         .Func(_SC("SetColor"), &CPlayer::SetColorEx)
         .Func(_SC("SetColour"), &CPlayer::SetColorEx)
@@ -2847,12 +2853,14 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Spectating"), &CPlayer::GetSpectator)
         .Func(_SC("Unspectate"), &CPlayer::Unspectate)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
+#if SQMOD_SDK_LEAST(2, 1)
         .Func(_SC("SetPlayer3DArrow"), &CPlayer::SetPlayer3DArrow)
         .Func(_SC("GetPlayer3DArrow"), &CPlayer::GetPlayer3DArrow)
         .Func(_SC("SetPlayer3DArrowID"), &CPlayer::SetPlayer3DArrowID)
         .Func(_SC("GetPlayer3DArrowID"), &CPlayer::GetPlayer3DArrowID)
         .Func(_SC("InterpolateCameraLookAt"), &CPlayer::InterpolateCameraLookAt)
         .Func(_SC("InterpolateCameraLookAtEx"), &CPlayer::InterpolateCameraLookAtEx)
+#endif
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("GetModuleList"), &CPlayer::GetModuleList)
         .Func(_SC("PlaySound"), &CPlayer::PlaySound)

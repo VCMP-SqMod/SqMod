@@ -1364,12 +1364,14 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
         case vcmpEntityPoolRadio:
             // @TODO Implement...
         //break;
+#if SQMOD_SDK_LEAST(2, 1)
         case vcmpEntityPoolPlayer:
             // @TODO Implement...
         //break;
         case vcmpEntityReserved1:
             // @TODO Implement...
         break;
+#endif
         case vcmpEntityPoolBlip:
             // Do we even have this blip that we're trying to delete?
             if (is_deleted && VALID_ENTITY(m_Blips[entity_id].mID))
@@ -1551,7 +1553,7 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
     (*mOnPlayerUpdate.first)(inst.mObj, static_cast< Int32 >(update_type));
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerUpdate")
 }
-
+#if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
 void Core::EmitCheckpointStream(int32_t player_id, int32_t entity_id, bool is_deleted)
 {
@@ -1679,7 +1681,7 @@ void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityP
     }
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::EntityStreaming")
 }
-
+#endif
 // ------------------------------------------------------------------------------------------------
 void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
 {

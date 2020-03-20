@@ -122,6 +122,13 @@
 #define SQMOD_VERSION_PATCH 1
 
 /* ------------------------------------------------------------------------------------------------
+ * VCMP SDK VERSION CHECK.
+*/
+#define SQMOD_SDK_MATCH(MJR, MNR) ((PLUGIN_API_MAJOR == MJR) && (PLUGIN_API_MINOR == MNR))
+#define SQMOD_SDK_LEAST(MJR, MNR) ((PLUGIN_API_MAJOR >= MJR) && (PLUGIN_API_MINOR >= MNR))
+#define SQMOD_SDK_PRIOR(MJR, MNR) ((PLUGIN_API_MAJOR < MJR) && (PLUGIN_API_MINOR < MNR))
+
+/* ------------------------------------------------------------------------------------------------
  * SQUIRREL FORWARD DECLARATIONS
 */
 

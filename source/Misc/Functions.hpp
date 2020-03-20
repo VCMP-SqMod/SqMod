@@ -478,7 +478,7 @@ Uint16 GetFallTimer();
  * Modify the fall timer rate.
 */
 void SetFallTimer(Uint16 rate);
-
+#if SQMOD_SDK_LEAST(2, 1)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve network statistics related to the server.
 */
@@ -488,7 +488,7 @@ SQFloat GetNetworkStatisticsF(Int32 option_id);
  * Retrieve network statistics related to the server.
 */
 SQInteger GetNetworkStatisticsI(Int32 option_id);
-
+#endif
 
 
 } // Namespace:: SqMod

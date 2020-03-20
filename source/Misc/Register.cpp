@@ -122,8 +122,11 @@ void Register_Misc(HSQUIRRELVM vm)
     .Func(_SC("GetDistrictNameEx"), &GetDistrictNameEx)
     .Func(_SC("GetFallTimer"), &GetFallTimer)
     .Func(_SC("SetFallTimer"), &SetFallTimer)
+#if SQMOD_SDK_LEAST(2, 1)
     .Func(_SC("GetNetworkStatisticsF"), &GetNetworkStatisticsF)
-    .Func(_SC("GetNetworkStatisticsI"), &GetNetworkStatisticsI);
+    .Func(_SC("GetNetworkStatisticsI"), &GetNetworkStatisticsI)
+#endif
+    ; // Uggly? I know. But does the job.
 
     RootTable(vm).Bind(_SC("SqServer"), srvns);
 
