@@ -1,12 +1,301 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/XML.hpp"
-#include "Library/XML/Attribute.hpp"
-#include "Library/XML/Text.hpp"
-#include "Library/XML/Node.hpp"
-#include "Library/XML/Document.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
+
+// ------------------------------------------------------------------------------------------------
+void DocumentRef::Validate() const
+{
+    if (!m_Ptr)
+    {
+        STHROWF("Invalid XML document reference");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger XmlParseResult::Typename(HSQUIRRELVM vm)
+{
+    static const SQChar name[] = _SC("SqXmlParseResult");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+void XmlParseResult::Validate() const
+{
+    // Is the documen handle valid?
+    if (!m_Doc)
+    {
+        STHROWF("Invalid XML document reference");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void XmlParseResult::Check() const
+{
+    if (m_Result.status != status_ok)
+    {
+        STHROWF("XML parse error [%s]", m_Result.description());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger XmlDocument::Typename(HSQUIRRELVM vm)
+{
+    static const SQChar name[] = _SC("SqXmlDocument");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+void XmlDocument::CanLoad() const
+{
+    // Is the document even valid?
+    m_Doc.Validate();
+    // Are there any other references?
+    if (m_Doc.Count() > 1)
+    {
+        // To load new values now, would mean to cause undefined behavior in existing references
+        STHROWF("Loading is disabled while document is referenced");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlNode XmlDocument::GetNode() const
+{
+    // Validate the document handle
+    m_Doc.Validate();
+    // Return the requested information
+    return XmlNode(m_Doc, m_Doc->document_element());
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger XmlNode::Typename(HSQUIRRELVM vm)
+{
+    static const SQChar name[] = _SC("SqXmlNode");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::GetFirstAttr() const
+{
+    return XmlAttribute(m_Doc, m_Node.first_attribute());
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::GetLastAttr() const
+{
+    return XmlAttribute(m_Doc, m_Node.last_attribute());
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlText XmlNode::GetText() const
+{
+    return XmlText(m_Doc, m_Node.text());
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::GetAttribute(CSStr name) const
+{
+    return XmlAttribute(m_Doc, m_Node.attribute(name));
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::AttributeFrom(CSStr name, XmlAttribute & attr) const
+{
+    return XmlAttribute(m_Doc, m_Node.attribute(name, attr.m_Attr));
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::AppendAttr(CSStr name)
+{
+    return XmlAttribute(m_Doc, m_Node.append_attribute(name));
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::PrependAttr(CSStr name)
+{
+    return XmlAttribute(m_Doc, m_Node.prepend_attribute(name));
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::InsertAttrAfter(CSStr name, const XmlAttribute & attr)
+{
+    return XmlAttribute(m_Doc, m_Node.insert_attribute_after(name, attr.m_Attr));
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::InsertAttrBefore(CSStr name, const XmlAttribute & attr)
+{
+    return XmlAttribute(m_Doc, m_Node.insert_attribute_before(name, attr.m_Attr));
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::AppendAttrCopy(const XmlAttribute & proto)
+{
+    return XmlAttribute(m_Doc, m_Node.append_copy(proto.m_Attr));
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::PrependAttrCopy(const XmlAttribute & proto)
+{
+    return XmlAttribute(m_Doc, m_Node.prepend_copy(proto.m_Attr));
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::InsertAttrCopyAfter(const XmlAttribute & proto, const XmlAttribute & attr)
+{
+    return XmlAttribute(m_Doc, m_Node.insert_copy_after(proto.m_Attr, attr.m_Attr));
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlAttribute XmlNode::InsertAttrCopyBefore(const XmlAttribute & proto, const XmlAttribute & attr)
+{
+    return XmlAttribute(m_Doc, m_Node.insert_copy_before(proto.m_Attr, attr.m_Attr));
+}
+
+// ------------------------------------------------------------------------------------------------
+bool XmlNode::RemoveAttrInst(const XmlAttribute & attr)
+{
+    return m_Node.remove_attribute(attr.m_Attr);
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger XmlAttribute::Typename(HSQUIRRELVM vm)
+{
+    static const SQChar name[] = _SC("SqXmlAttribute");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj XmlAttribute::AsLong(const SLongInt & def) const
+{
+    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Attr.as_llong(def.GetNum()));
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj XmlAttribute::AsUlong(const ULongInt & def) const
+{
+    return LightObj(SqTypeIdentity< ULongInt >{}, SqVM(), m_Attr.as_ullong(def.GetNum()));
+}
+
+// ------------------------------------------------------------------------------------------------
+bool XmlAttribute::ApplyLong(const SLongInt & value)
+{
+    return m_Attr.set_value(value.GetNum());
+}
+
+// ------------------------------------------------------------------------------------------------
+bool XmlAttribute::ApplyUlong(const ULongInt & value)
+{
+    return m_Attr.set_value(value.GetNum());
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj XmlAttribute::GetLong() const
+{
+    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Attr.as_llong());
+}
+
+// ------------------------------------------------------------------------------------------------
+void XmlAttribute::SetLong(const SLongInt & value)
+{
+    m_Attr = value.GetNum();
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj XmlAttribute::GetUlong() const
+{
+    return LightObj(SqTypeIdentity< ULongInt >{}, SqVM(), m_Attr.as_ullong());
+}
+
+// ------------------------------------------------------------------------------------------------
+void XmlAttribute::SetUlong(const ULongInt & value)
+{
+    m_Attr = value.GetNum();
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger XmlText::Typename(HSQUIRRELVM vm)
+{
+    static const SQChar name[] = _SC("SqXmlText");
+    sq_pushstring(vm, name, sizeof(name));
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+Int32 XmlText::Cmp(const XmlText & o)
+{
+    if (strcmp(m_Text.get(), o.m_Text.get()) == 0)
+    {
+        return 0;
+    }
+    else if (strlen(m_Text.get()) > strlen(o.m_Text.get()))
+    {
+        return 1;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj XmlText::AsLong(const SLongInt & def) const
+{
+    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Text.as_llong(def.GetNum()));
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj XmlText::AsUlong(const ULongInt & def) const
+{
+    return LightObj(SqTypeIdentity< ULongInt >{}, SqVM(), m_Text.as_ullong(def.GetNum()));
+}
+
+// ------------------------------------------------------------------------------------------------
+bool XmlText::ApplyLong(const SLongInt & value)
+{
+    return m_Text.set(value.GetNum());
+}
+
+// ------------------------------------------------------------------------------------------------
+bool XmlText::ApplyUlong(const ULongInt & value)
+{
+    return m_Text.set(value.GetNum());
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj XmlText::GetLong() const
+{
+    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Text.as_llong());
+}
+
+// ------------------------------------------------------------------------------------------------
+void XmlText::SetLong(const SLongInt & value)
+{
+    m_Text = value.GetNum();
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj XmlText::GetUlong() const
+{
+    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Text.as_ullong());
+}
+
+// ------------------------------------------------------------------------------------------------
+void XmlText::SetUlong(const ULongInt & value)
+{
+    m_Text = value.GetNum();
+}
+
+// ------------------------------------------------------------------------------------------------
+XmlNode XmlText::GetData() const
+{
+    return XmlNode(m_Doc, m_Text.data());
+}
 
 // ================================================================================================
 void Register_XML(HSQUIRRELVM vm)

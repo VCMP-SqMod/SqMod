@@ -62,11 +62,6 @@ add_library(SqModule MODULE
 	Library/Utils.cpp Library/Utils.hpp
 	Library/Utils/Buffer.cpp Library/Utils/Buffer.hpp
 	Library/XML.cpp Library/XML.hpp
-	Library/XML/Attribute.cpp Library/XML/Attribute.hpp
-	Library/XML/Common.cpp Library/XML/Common.hpp
-	Library/XML/Document.cpp Library/XML/Document.hpp
-	Library/XML/Node.cpp Library/XML/Node.hpp
-	Library/XML/Text.cpp Library/XML/Text.hpp
 	Misc/Broadcast.cpp
 	Misc/Constants.cpp
 	Misc/Exports.cpp
