@@ -41,4 +41,4 @@ add_subdirectory(sqrat)
 # Include SDK library
 add_subdirectory(sdk)
 # Include Module library
-add_subdirectory(source)
+add_subdirectory(module)

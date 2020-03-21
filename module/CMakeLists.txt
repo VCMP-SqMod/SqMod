@@ -71,7 +71,7 @@ add_library(SqModule MODULE
 # Link to base libraries
 target_link_libraries(SqModule VCMP Squirrel Sqrat SqSDK)
 # Link to third-party libraries
-target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir)
+target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite)
 #
 if(FORCE_32BIT_BIN)
 	set_target_properties(SqModule PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
