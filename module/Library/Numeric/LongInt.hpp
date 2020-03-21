@@ -1275,6 +1275,16 @@ inline Int32 LongInt< Int64 >::Cmp(const LongInt< Uint64 > & o) const
 typedef LongInt< Int64 > SLongInt;
 typedef LongInt< Uint64 > ULongInt;
 
+/* ------------------------------------------------------------------------------------------------
+ * Attempt to pop the value at the specified index on the stack as a signed long integer.
+*/
+Int64 PopStackSLong(HSQUIRRELVM vm, SQInteger idx);
+
+/* ------------------------------------------------------------------------------------------------
+ * Attempt to pop the value at the specified index on the stack as an unsigned long integer.
+*/
+Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx);
+
 } // Namespace:: SqMod
 
 #endif // _LIBRARY_NUMERIC_LONGINT_HPP_

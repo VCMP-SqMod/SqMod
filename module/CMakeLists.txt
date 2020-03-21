@@ -45,6 +45,15 @@ add_library(SqModule MODULE
 	Library/Numeric/LongInt.cpp Library/Numeric/LongInt.hpp
 	Library/Numeric/Math.cpp Library/Numeric/Math.hpp
 	Library/Numeric/Random.cpp Library/Numeric/Random.hpp
+	Library/SQLite.cpp Library/SQLite.hpp
+	Library/SQLite/Constants.cpp
+	Library/SQLite/Column.cpp Library/SQLite/Column.hpp
+	Library/SQLite/Common.cpp Library/SQLite/Common.hpp
+	Library/SQLite/Connection.cpp Library/SQLite/Connection.hpp
+	Library/SQLite/Handle.cpp Library/SQLite/Handle.hpp
+	Library/SQLite/Parameter.cpp Library/SQLite/Parameter.hpp
+	Library/SQLite/Statement.cpp Library/SQLite/Statement.hpp
+	Library/SQLite/Transaction.cpp Library/SQLite/Transaction.hpp
 	Library/String.cpp Library/String.hpp
 	Library/System.cpp Library/System.hpp
 	Library/System/Dir.cpp Library/System/Dir.hpp

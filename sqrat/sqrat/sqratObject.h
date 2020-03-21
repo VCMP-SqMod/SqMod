@@ -34,7 +34,7 @@
     #include <squirrelex.h>
 #endif // SQMOD_PLUGIN_API
 
-#include <string.h>
+#include <cstring>
 
 #include "sqratAllocator.h"
 #include "sqratTypes.h"

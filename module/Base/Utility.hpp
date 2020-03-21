@@ -1,14 +1,8 @@
-#ifndef _BASE_UTILITY_HPP_
-#define _BASE_UTILITY_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
-#ifdef SQMOD_PLUGIN_API
-    #include <ModBase.hpp>
-    #include <SqMod.h>
-#else
-    #include <SqBase.hpp>
-    #include <vcmp.h>
-#endif // SQMOD_PLUGIN_API
+#include <SqBase.hpp>
+#include <vcmp.h>
 
 // ------------------------------------------------------------------------------------------------
 #include <cmath>
@@ -1487,36 +1481,4 @@ SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx);
 */
 SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx);
 
-/* ------------------------------------------------------------------------------------------------
- * Attempt to pop the value at the specified index on the stack as a signed long integer.
-*/
-Int64 PopStackSLong(HSQUIRRELVM vm, SQInteger idx);
-
-/* ------------------------------------------------------------------------------------------------
- * Attempt to pop the value at the specified index on the stack as an unsigned long integer.
-*/
-Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx);
-
-// ------------------------------------------------------------------------------------------------
-#ifdef SQMOD_PLUGIN_API
-
-/* ------------------------------------------------------------------------------------------------
- * Validate the module API to make sure we don't run into issues.
-*/
-bool CheckModuleAPIVer(CCStr ver, CCStr mod);
-
-/* ------------------------------------------------------------------------------------------------
- * Make sure that the module was loaded after the host plug-in.
-*/
-bool CheckModuleOrder(PluginFuncs * vcapi, Uint32 mod_id, CCStr mod);
-
-/* ------------------------------------------------------------------------------------------------
- * Used by the modules to import the API from the host plug-in.
-*/
-void ImportModuleAPI(PluginFuncs * vcapi, CCStr mod);
-
-#endif // SQMOD_PLUGIN_API
-
 } // Namespace:: SqMod
-
-#endif // _BASE_UTILITY_HPP_

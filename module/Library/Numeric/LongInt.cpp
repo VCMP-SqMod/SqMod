@@ -116,6 +116,144 @@ void LongInt< Uint64 >::Random(Type m, Type n)
     m_Data = GetRandomUint64(m, n);
 }
 
+// ------------------------------------------------------------------------------------------------
+Int64 PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
+{
+    // Identify which type must be extracted
+    switch (sq_gettype(vm, idx))
+    {
+        case OT_INTEGER:
+        {
+            SQInteger val;
+            sq_getinteger(vm, idx, &val);
+            return static_cast< Int64 >(val);
+        } break;
+        case OT_FLOAT:
+        {
+            SQFloat val;
+            sq_getfloat(vm, idx, &val);
+            return ConvTo< Int64 >::From(val);
+        } break;
+        case OT_BOOL:
+        {
+            SQBool val;
+            sq_getbool(vm, idx, &val);
+            return static_cast< Int64 >(val);
+        } break;
+        case OT_STRING:
+        {
+            CSStr val = nullptr;
+            // Attempt to retrieve and convert the string
+            if (SQ_SUCCEEDED(sq_getstring(vm, idx, &val)) && val != nullptr && *val != '\0')
+            {
+                return std::strtoll(val, nullptr, 10);
+            }
+        } break;
+        case OT_ARRAY:
+        case OT_TABLE:
+        case OT_CLASS:
+        case OT_USERDATA:
+        {
+            return static_cast< Int64 >(sq_getsize(vm, idx));
+        } break;
+        case OT_INSTANCE:
+        {
+            // Attempt to treat the value as a signed long instance
+            try
+            {
+                return Var< const SLongInt & >(vm, idx).value.GetNum();
+            }
+            catch (...)
+            {
+                // Just ignore it...
+            }
+            // Attempt to treat the value as a unsigned long instance
+            try
+            {
+                return ConvTo< Int64 >::From(Var< const ULongInt & >(vm, idx).value.GetNum());
+            }
+            catch (...)
+            {
+                // Just ignore it...
+            }
+            // Attempt to get the size of the instance as a fall back
+            return static_cast< Int64 >(sq_getsize(vm, idx));
+        } break;
+        default: break;
+    }
+    // Default to 0
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx)
+{
+    // Identify which type must be extracted
+    switch (sq_gettype(vm, idx))
+    {
+        case OT_INTEGER:
+        {
+            SQInteger val;
+            sq_getinteger(vm, idx, &val);
+            return ConvTo< Uint64 >::From(val);
+        } break;
+        case OT_FLOAT:
+        {
+            SQFloat val;
+            sq_getfloat(vm, idx, &val);
+            return ConvTo< Uint64 >::From(val);
+        } break;
+        case OT_BOOL:
+        {
+            SQBool val;
+            sq_getbool(vm, idx, &val);
+            return ConvTo< Uint64 >::From(val);
+        } break;
+        case OT_STRING:
+        {
+            CSStr val = nullptr;
+            // Attempt to retrieve and convert the string
+            if (SQ_SUCCEEDED(sq_getstring(vm, idx, &val)) && val != nullptr && *val != '\0')
+            {
+                return std::strtoull(val, nullptr, 10);
+            }
+        } break;
+        case OT_ARRAY:
+        case OT_TABLE:
+        case OT_CLASS:
+        case OT_USERDATA:
+        {
+            return ConvTo< Uint64 >::From(sq_getsize(vm, idx));
+        } break;
+        case OT_INSTANCE:
+        {
+            // Attempt to treat the value as a signed long instance
+            try
+            {
+                return ConvTo< Uint64 >::From(Var< const SLongInt & >(vm, idx).value.GetNum());
+            }
+            catch (...)
+            {
+                // Just ignore it...
+            }
+            // Attempt to treat the value as a unsigned long instance
+            try
+            {
+                return Var< const ULongInt & >(vm, idx).value.GetNum();
+            }
+            catch (...)
+            {
+                // Just ignore it...
+            }
+            // Attempt to get the size of the instance as a fall back
+            return ConvTo< Uint64 >::From(sq_getsize(vm, idx));
+        } break;
+        default: break;
+    }
+    // Default to 0
+    return 0;
+}
+
 // ================================================================================================
 void Register_LongInt(HSQUIRRELVM vm)
 {
