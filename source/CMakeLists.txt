@@ -5,8 +5,10 @@ add_library(SquirrelModule MODULE
 	Register.cpp
 	Core.cpp Core.hpp
 	Logger.cpp Logger.hpp
+	Base/DynArg.hpp
 	Base/AABB.cpp Base/AABB.hpp
 	Base/Algo.cpp Base/Algo.hpp
+	Base/Buffer.cpp Base/Buffer.hpp
 	Base/Circle.cpp Base/Circle.hpp
 	Base/Color3.cpp Base/Color3.hpp
 	Base/Color4.cpp Base/Color4.hpp
@@ -14,6 +16,7 @@ add_library(SquirrelModule MODULE
 	Base/ScriptSrc.cpp Base/ScriptSrc.hpp
 	Base/Shared.cpp Base/Shared.hpp
 	Base/Sphere.cpp Base/Sphere.hpp
+	Base/Utility.cpp Base/Utility.hpp
 	Base/Vector2.cpp Base/Vector2.hpp
 	Base/Vector2i.cpp Base/Vector2i.hpp
 	Base/Vector3.cpp Base/Vector3.hpp
@@ -52,6 +55,7 @@ add_library(SquirrelModule MODULE
 	Misc/Constants.cpp
 	Misc/Exports.cpp
 	Misc/Register.cpp
+	Misc/Algo.cpp Misc/Algo.hpp
 	Misc/Areas.cpp Misc/Areas.hpp
 	Misc/Command.cpp Misc/Command.hpp
 	Misc/Functions.cpp Misc/Functions.hpp
