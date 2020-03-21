@@ -1,5 +1,4 @@
-#ifndef _BASE_DYNARG_HPP_
-#define _BASE_DYNARG_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -805,5 +804,3 @@ template < typename T > struct SqDynArgModFn
 };
 
 } // Namespace:: SqMod
-
-#endif // _BASE_DYNARG_HPP_

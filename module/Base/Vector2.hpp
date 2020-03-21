@@ -1,5 +1,4 @@
-#ifndef _BASE_VECTOR2_HPP_
-#define _BASE_VECTOR2_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -356,5 +355,3 @@ struct Vector2
 };
 
 } // Namespace:: SqMod
-
-#endif // _BASE_VECTOR2_HPP_

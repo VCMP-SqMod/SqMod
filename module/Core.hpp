@@ -1,5 +1,5 @@
-#ifndef _CORE_HPP_
-#define _CORE_HPP_
+#pragma once
+
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -1519,5 +1519,3 @@ protected:
 };
 
 } // Namespace:: SqMod
-
-#endif // _CORE_HPP_

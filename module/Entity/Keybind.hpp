@@ -1,5 +1,4 @@
-#ifndef _ENTITY_KEYBIND_HPP_
-#define _ENTITY_KEYBIND_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -189,5 +188,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _ENTITY_KEYBIND_HPP_

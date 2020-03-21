@@ -1,5 +1,4 @@
-#ifndef _MISC_MODEL_HPP_
-#define _MISC_MODEL_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -28,5 +27,3 @@ bool IsModelWeapon(Int32 id);
 bool IsModelActuallyWeapon(Int32 id);
 
 } // Namespace:: SqMod
-
-#endif // _MISC_MODEL_HPP_

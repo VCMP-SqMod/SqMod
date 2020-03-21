@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_CRYPT_HASH_HPP_
-#define _LIBRARY_CRYPT_HASH_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -98,5 +97,3 @@ private:
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_CRYPT_HASH_HPP_

@@ -1,5 +1,4 @@
-#ifndef _BASE_CIRCLE_HPP_
-#define _BASE_CIRCLE_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -424,5 +423,3 @@ struct Circle
 };
 
 } // Namespace:: SqMod
-
-#endif // _BASE_CIRCLE_HPP_

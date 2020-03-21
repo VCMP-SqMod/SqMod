@@ -1,5 +1,4 @@
-#ifndef _MISC_WEAPON_HPP_
-#define _MISC_WEAPON_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -58,5 +57,3 @@ Int32 WeaponToModel(Int32 id);
 bool IsWeaponNatural(Int32 id);
 
 } // Namespace:: SqMod
-
-#endif // _MISC_WEAPON_HPP_

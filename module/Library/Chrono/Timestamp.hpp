@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_CHRONO_TIMESTAMP_HPP_
-#define _LIBRARY_CHRONO_TIMESTAMP_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono.hpp"
@@ -343,5 +342,3 @@ private:
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_CHRONO_TIMESTAMP_HPP_

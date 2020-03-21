@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_IO_INI_HPP_
-#define _LIBRARY_IO_INI_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -977,5 +976,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_IO_INI_HPP_

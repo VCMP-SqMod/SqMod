@@ -1,5 +1,4 @@
-#ifndef _ENTITY_PLAYER_HPP_
-#define _ENTITY_PLAYER_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -1088,5 +1087,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _ENTITY_PLAYER_HPP_

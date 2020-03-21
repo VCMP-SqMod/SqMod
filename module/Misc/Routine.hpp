@@ -1,5 +1,4 @@
-#ifndef _ROUTINE_HPP_
-#define _ROUTINE_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -640,5 +639,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _ROUTINE_HPP_

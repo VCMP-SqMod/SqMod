@@ -1,5 +1,4 @@
-#ifndef _ENTITY_OBJECT_HPP_
-#define _ENTITY_OBJECT_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -507,5 +506,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _ENTITY_OBJECT_HPP_

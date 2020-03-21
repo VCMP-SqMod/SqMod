@@ -1,5 +1,4 @@
-#ifndef _BASE_SHARED_HPP_
-#define _BASE_SHARED_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Utility.hpp"
@@ -255,5 +254,3 @@ template < typename T > inline void SqSetDelimiter(SQInteger c)
 }
 
 } // Namespace:: SqMod
-
-#endif // _BASE_SHARED_HPP_

@@ -1,5 +1,4 @@
-#ifndef _MISC_VEHICLE_HPP_
-#define _MISC_VEHICLE_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -28,5 +27,3 @@ Int32 GetAutomobileID(StackStrF & name);
 bool IsAutomobileValid(Int32 id);
 
 } // Namespace:: SqMod
-
-#endif // _MISC_VEHICLE_HPP_

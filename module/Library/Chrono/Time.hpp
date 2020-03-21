@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_CHRONO_TIME_HPP_
-#define _LIBRARY_CHRONO_TIME_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono.hpp"
@@ -358,5 +357,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_CHRONO_TIME_HPP_

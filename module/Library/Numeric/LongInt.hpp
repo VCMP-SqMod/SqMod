@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_NUMERIC_LONGINT_HPP_
-#define _LIBRARY_NUMERIC_LONGINT_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -1286,5 +1285,3 @@ Int64 PopStackSLong(HSQUIRRELVM vm, SQInteger idx);
 Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx);
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_NUMERIC_LONGINT_HPP_

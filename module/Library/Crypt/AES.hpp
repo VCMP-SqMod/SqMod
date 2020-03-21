@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_CRYPT_AES_HPP_
-#define _LIBRARY_CRYPT_AES_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -101,5 +100,3 @@ private:
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_CRYPT_AES_HPP_

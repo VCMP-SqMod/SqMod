@@ -1,5 +1,4 @@
-#ifndef _MISC_FUNCTIONS_HPP_
-#define _MISC_FUNCTIONS_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -490,7 +489,4 @@ SQFloat GetNetworkStatisticsF(Int32 option_id);
 SQInteger GetNetworkStatisticsI(Int32 option_id);
 #endif
 
-
 } // Namespace:: SqMod
-
-#endif // _MISC_FUNCTIONS_HPP_

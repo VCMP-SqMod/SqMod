@@ -1,5 +1,4 @@
-#ifndef _BASE_BUFFER_HPP_
-#define _BASE_BUFFER_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include <cmath>
@@ -1022,5 +1021,3 @@ private:
 };
 
 } // Namespace:: SqMod
-
-#endif // _BASE_BUFFER_HPP_

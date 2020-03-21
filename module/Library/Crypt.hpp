@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_CRYPT_HPP_
-#define _LIBRARY_CRYPT_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -10,5 +9,3 @@ namespace SqMod {
 
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_CRYPT_HPP_

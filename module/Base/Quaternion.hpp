@@ -1,5 +1,4 @@
-#ifndef _BASE_QUATERNION_HPP_
-#define _BASE_QUATERNION_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -452,5 +451,3 @@ struct Quaternion
 };
 
 } // Namespace:: SqMod
-
-#endif // _BASE_QUATERNION_HPP_

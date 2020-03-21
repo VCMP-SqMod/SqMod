@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_STRING_HPP_
-#define _LIBRARY_STRING_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -26,5 +25,3 @@ CSStr StrToUppercase(CSStr str);
 Buffer StrToUppercaseB(CSStr str);
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_STRING_HPP_

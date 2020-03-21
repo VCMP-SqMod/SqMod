@@ -1,5 +1,4 @@
-#ifndef _ENTITY_CHECKPOINT_HPP_
-#define _ENTITY_CHECKPOINT_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -328,5 +327,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _ENTITY_CHECKPOINT_HPP_

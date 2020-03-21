@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_CHRONO_HPP_
-#define _LIBRARY_CHRONO_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -112,5 +111,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_CHRONO_HPP_

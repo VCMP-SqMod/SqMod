@@ -1,5 +1,4 @@
-#ifndef _BASE_SCRIPTSRC_HPP_
-#define _BASE_SCRIPTSRC_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Utility.hpp"
@@ -79,5 +78,3 @@ public:
 
 
 } // Namespace:: SqMod
-
-#endif // _BASE_SCRIPTSRC_HPP_

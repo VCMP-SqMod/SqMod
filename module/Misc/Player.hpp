@@ -1,5 +1,4 @@
-#ifndef _MISC_PLAYER_HPP_
-#define _MISC_PLAYER_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -28,5 +27,3 @@ Int32 GetSkinID(StackStrF & name);
 bool IsSkinValid(Int32 id);
 
 } // Namespace:: SqMod
-
-#endif // _MISC_PLAYER_HPP_

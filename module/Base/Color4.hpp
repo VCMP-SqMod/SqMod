@@ -1,5 +1,4 @@
-#ifndef _BASE_COLOR4_HPP_
-#define _BASE_COLOR4_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -511,5 +510,3 @@ struct Color4
 };
 
 } // Namespace:: SqMod
-
-#endif // _BASE_COLOR4_HPP_

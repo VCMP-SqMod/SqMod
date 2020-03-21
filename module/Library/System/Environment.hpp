@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_SYSENV_HPP_
-#define _LIBRARY_SYSENV_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -312,5 +311,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_SYSENV_HPP_

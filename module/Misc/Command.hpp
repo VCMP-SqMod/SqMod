@@ -1,5 +1,4 @@
-#ifndef _COMMAND_HPP_
-#define _COMMAND_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -2039,5 +2038,3 @@ private:
 
 } // Namespace:: Cmd
 } // Namespace:: SqMod
-
-#endif // _COMMAND_HPP_

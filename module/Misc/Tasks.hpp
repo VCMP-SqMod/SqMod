@@ -1,5 +1,4 @@
-#ifndef _TASKS_HPP_
-#define _TASKS_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -523,5 +522,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _TASKS_HPP_

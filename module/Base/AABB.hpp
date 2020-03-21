@@ -1,5 +1,4 @@
-#ifndef _BASE_AABB_HPP_
-#define _BASE_AABB_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Vector3.hpp"
@@ -479,5 +478,3 @@ struct AABB
 };
 
 } // Namespace:: SqMod
-
-#endif // _BASE_AABB_HPP_

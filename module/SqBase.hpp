@@ -1,5 +1,4 @@
-#ifndef _SQBASE_HPP_
-#define _SQBASE_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include <sqconfig.h>
@@ -1432,5 +1431,3 @@ enum EntityType
 #define SQMOD_ASCII_TILDE                   126
 #define SQMOD_ASCII_UNDEFINED               127
 #define SQMOD_ASCII_MAX                     127
-
-#endif // _SQBASE_HPP_

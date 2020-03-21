@@ -1,5 +1,4 @@
-#ifndef _LOGGER_HPP_
-#define _LOGGER_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -340,5 +339,3 @@ void OutputMessage(CCStr msg, ...);
 void OutputError(CCStr msg, ...);
 
 } // Namespace:: SqMod
-
-#endif // _LOGGER_HPP_

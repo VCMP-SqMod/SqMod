@@ -1,5 +1,4 @@
-#ifndef _BASE_ALGO_HPP_
-#define _BASE_ALGO_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
@@ -1645,5 +1644,3 @@ public:
 
 } // Namespace:: Algo
 } // Namespace:: SqMod
-
-#endif // _BASE_ALGO_HPP_

@@ -1,5 +1,4 @@
-#ifndef _SIGNAL_HPP_
-#define _SIGNAL_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -763,5 +762,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _SIGNAL_HPP_

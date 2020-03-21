@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_NUMERIC_RANDOM_HPP_
-#define _LIBRARY_NUMERIC_RANDOM_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -160,5 +159,3 @@ template <> struct RandomVal< bool >
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_NUMERIC_RANDOM_HPP_

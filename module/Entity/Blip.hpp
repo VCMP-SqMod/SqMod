@@ -1,5 +1,4 @@
-#ifndef _ENTITY_BLIP_HPP_
-#define _ENTITY_BLIP_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -229,5 +228,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _ENTITY_BLIP_HPP_

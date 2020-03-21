@@ -1,5 +1,4 @@
-#ifndef _ENTITY_PICKUP_HPP_
-#define _ENTITY_PICKUP_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -306,5 +305,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _ENTITY_PICKUP_HPP_

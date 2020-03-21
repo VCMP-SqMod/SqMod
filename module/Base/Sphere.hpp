@@ -1,5 +1,4 @@
-#ifndef _BASE_SPHERE_HPP_
-#define _BASE_SPHERE_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -423,5 +422,3 @@ struct Sphere
 };
 
 } // Namespace:: SqMod
-
-#endif // _BASE_SPHERE_HPP_

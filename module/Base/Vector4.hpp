@@ -1,5 +1,4 @@
-#ifndef _BASE_VECTOR4_HPP_
-#define _BASE_VECTOR4_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
@@ -377,5 +376,3 @@ struct Vector4
 };
 
 } // Namespace:: SqMod
-
-#endif // _BASE_VECTOR4_HPP_

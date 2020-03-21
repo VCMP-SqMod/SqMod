@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_UTILS_BUFFER_HPP_
-#define _LIBRARY_UTILS_BUFFER_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -833,5 +832,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_UTILS_BUFFER_HPP_

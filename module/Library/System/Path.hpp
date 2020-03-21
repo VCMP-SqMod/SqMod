@@ -1,5 +1,4 @@
-#ifndef _LIBRARY_SYSPATH_HPP_
-#define _LIBRARY_SYSPATH_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -759,5 +758,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _LIBRARY_SYSPATH_HPP_

@@ -1,5 +1,4 @@
-#ifndef _ENTITY_VEHICLE_HPP_
-#define _ENTITY_VEHICLE_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -924,5 +923,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _ENTITY_VEHICLE_HPP_

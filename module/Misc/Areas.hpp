@@ -1,5 +1,4 @@
-#ifndef _AREAS_HPP_
-#define _AREAS_HPP_
+#pragma once
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
@@ -712,5 +711,3 @@ public:
 };
 
 } // Namespace:: SqMod
-
-#endif // _AREAS_HPP_
