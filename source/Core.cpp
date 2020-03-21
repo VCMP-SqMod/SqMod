@@ -380,15 +380,6 @@ bool Core::Initialize()
 // ------------------------------------------------------------------------------------------------
 bool Core::Execute()
 {
-    // Create the null entity instances
-    m_NullBlip = LightObj(new CBlip(-1));
-    m_NullCheckpoint = LightObj(new CCheckpoint(-1));
-    m_NullKeybind = LightObj(new CKeybind(-1));
-    m_NullObject = LightObj(new CObject(-1));
-    m_NullPickup = LightObj(new CPickup(-1));
-    m_NullPlayer = LightObj(new CPlayer(-1));
-    m_NullVehicle = LightObj(new CVehicle(-1));
-
     // Are there any scripts to execute?
     if (m_PendingScripts.empty())
     {
@@ -431,6 +422,8 @@ bool Core::Execute()
         cLogDbg(m_Verbosity >= 2, "Completed execution of stage (%u) scripts. Pending scripts %" PRINT_SZ_FMT,
                     levels, static_cast< SQUnsignedInteger >(m_PendingScripts.size()));
     }
+    // Force enable null entities if not already enabled by script
+    EnableNullEntities();
 
     m_LockPreLoadSignal = true;
     // Trigger callbacks that must initialize stuff before the loaded event is triggered
@@ -567,6 +560,19 @@ bool Core::Reload()
     m_ReloadHeader = -1;
     // Attempt to initialize the central core and load resources
     return (Initialize() && Execute());
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::EnableNullEntities()
+{
+    // Create the null entity instances
+    if (m_NullBlip.IsNull()) m_NullBlip = LightObj(new CBlip(-1));
+    if (m_NullCheckpoint.IsNull()) m_NullBlip = LightObj(new CCheckpoint(-1));
+    if (m_NullKeybind.IsNull()) m_NullBlip = LightObj(new CKeybind(-1));
+    if (m_NullObject.IsNull()) m_NullBlip = LightObj(new CObject(-1));
+    if (m_NullPickup.IsNull()) m_NullBlip = LightObj(new CPickup(-1));
+    if (m_NullPlayer.IsNull()) m_NullBlip = LightObj(new CPlayer(-1));
+    if (m_NullVehicle.IsNull()) m_NullBlip = LightObj(new CVehicle(-1));
 }
 
 // ------------------------------------------------------------------------------------------------

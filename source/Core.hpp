@@ -768,6 +768,11 @@ public:
     bool Reload();
 
     /* --------------------------------------------------------------------------------------------
+     * Create the null instances of entity classes. Thus, locking them from further changes.
+    */
+    void EnableNullEntities();
+
+    /* --------------------------------------------------------------------------------------------
      * Modify the current plug-in state.
     */
     void SetState(Int32 val)
