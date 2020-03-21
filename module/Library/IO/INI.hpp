@@ -171,10 +171,10 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Manages a reference counted INI document instance.
 */
-class DocumentRef
+class IniDocumentRef
 {
     // --------------------------------------------------------------------------------------------
-    friend class Document;
+    friend class IniDocument;
 
 public:
 
@@ -231,7 +231,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    DocumentRef(bool utf8, bool multikey, bool multiline)
+    IniDocumentRef(bool utf8, bool multikey, bool multiline)
         : m_Ptr(new Type(utf8, multikey, multiline)), m_Ref(new Counter(1))
     {
         /* ... */
@@ -242,7 +242,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null).
     */
-    DocumentRef()
+    IniDocumentRef()
         : m_Ptr(NULL), m_Ref(NULL)
     {
         /* ... */
@@ -251,7 +251,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    DocumentRef(const DocumentRef & o)
+    IniDocumentRef(const IniDocumentRef & o)
         : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
 
     {
@@ -261,7 +261,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    DocumentRef(DocumentRef && o)
+    IniDocumentRef(IniDocumentRef && o)
         : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
 
     {
@@ -272,7 +272,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DocumentRef()
+    ~IniDocumentRef()
     {
         Drop();
     }
@@ -280,7 +280,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    DocumentRef & operator = (const DocumentRef & o)
+    IniDocumentRef & operator = (const IniDocumentRef & o)
     {
         if (m_Ptr != o.m_Ptr)
         {
@@ -295,7 +295,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    DocumentRef & operator = (DocumentRef && o)
+    IniDocumentRef & operator = (IniDocumentRef && o)
     {
         if (m_Ptr != o.m_Ptr)
         {
@@ -310,7 +310,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two document instances.
     */
-    bool operator == (const DocumentRef & o) const
+    bool operator == (const IniDocumentRef & o) const
     {
         return (m_Ptr == o.m_Ptr);
     }
@@ -318,7 +318,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Perform an inequality comparison between two document instances.
     */
-    bool operator != (const DocumentRef & o) const
+    bool operator != (const IniDocumentRef & o) const
     {
         return (m_Ptr != o.m_Ptr);
     }
@@ -395,15 +395,15 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Class that can access and iterate a series of entries in the INI document.
 */
-class Entries
+class IniEntries
 {
     // --------------------------------------------------------------------------------------------
-    friend class Document;
+    friend class IniDocument;
 
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef DocumentRef::Type::TNamesDepend     Container;
+    typedef IniDocumentRef::Type::TNamesDepend     Container;
 
     // --------------------------------------------------------------------------------------------
     typedef Container::iterator                 Iterator;
@@ -411,7 +411,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Entries(const DocumentRef & ini, Container & list)
+    IniEntries(const IniDocumentRef & ini, Container & list)
         : m_Doc(ini), m_List(), m_Elem()
     {
         m_List.swap(list);
@@ -421,7 +421,7 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef     m_Doc; // The document that contains the elements.
+    IniDocumentRef     m_Doc; // The document that contains the elements.
     Container       m_List; // The list of elements to iterate.
     Iterator        m_Elem; // The currently processed element.
 
@@ -430,7 +430,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor. (null)
     */
-    Entries()
+    IniEntries()
         : m_Doc(), m_List(), m_Elem(m_List.end())
     {
         /* ... */
@@ -439,7 +439,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Entries(const Entries & o)
+    IniEntries(const IniEntries & o)
         : m_Doc(o.m_Doc), m_List(o.m_List), m_Elem()
     {
         Reset();
@@ -448,7 +448,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~Entries()
+    ~IniEntries()
     {
         /* ... */
     }
@@ -456,7 +456,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Entries & operator = (const Entries & o)
+    IniEntries & operator = (const IniEntries & o)
     {
         m_Doc = o.m_Doc;
         m_List = o.m_List;
@@ -467,7 +467,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Entries & o) const;
+    Int32 Cmp(const IniEntries & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
@@ -551,7 +551,7 @@ public:
     {
         if (!m_List.empty())
         {
-            m_List.sort(DocumentRef::Type::Entry::KeyOrder());
+            m_List.sort(IniDocumentRef::Type::Entry::KeyOrder());
         }
     }
 
@@ -562,7 +562,7 @@ public:
     {
         if (!m_List.empty())
         {
-            m_List.sort(DocumentRef::Type::Entry::KeyOrder());
+            m_List.sort(IniDocumentRef::Type::Entry::KeyOrder());
         }
     }
 
@@ -573,7 +573,7 @@ public:
     {
         if (!m_List.empty())
         {
-            m_List.sort(DocumentRef::Type::Entry::LoadOrder());
+            m_List.sort(IniDocumentRef::Type::Entry::LoadOrder());
         }
     }
 
@@ -596,34 +596,34 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Class that can read/write and alter the contents of INI files.
 */
-class Document
+class IniDocument
 {
 protected:
 
     // --------------------------------------------------------------------------------------------
-    typedef DocumentRef::Type::TNamesDepend Container;
+    typedef IniDocumentRef::Type::TNamesDepend Container;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    Document(const Document & o);
+    IniDocument(const IniDocument & o);
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    Document & operator = (const Document & o);
+    IniDocument & operator = (const IniDocument & o);
 
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef     m_Doc; // The main INI document instance.
+    IniDocumentRef     m_Doc; // The main INI document instance.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Document()
+    IniDocument()
         : m_Doc(false, false, true)
     {
         /* ... */
@@ -632,7 +632,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Document(bool utf8)
+    IniDocument(bool utf8)
         : m_Doc(utf8, false, true)
     {
         /* ... */
@@ -641,7 +641,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Document(bool utf8, bool multikey)
+    IniDocument(bool utf8, bool multikey)
         : m_Doc(utf8, multikey, true)
     {
         /* ... */
@@ -650,7 +650,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Document(bool utf8, bool multikey, bool multiline)
+    IniDocument(bool utf8, bool multikey, bool multiline)
         : m_Doc(utf8, multikey, multiline)
     {
         /* ... */
@@ -659,7 +659,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~Document()
+    ~IniDocument()
     {
         /* ... */
     }
@@ -667,7 +667,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Document & o) const;
+    Int32 Cmp(const IniDocument & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
@@ -812,17 +812,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve all section names.
     */
-    Entries GetAllSections() const;
+    IniEntries GetAllSections() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve all unique key names in a section.
     */
-    Entries GetAllKeys(CSStr section) const;
+    IniEntries GetAllKeys(CSStr section) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve all values for a specific key.
     */
-    Entries GetAllValues(CSStr section, CSStr key) const;
+    IniEntries GetAllValues(CSStr section, CSStr key) const;
 
     /* --------------------------------------------------------------------------------------------
      * Query the number of keys in a specific section.

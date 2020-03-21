@@ -202,7 +202,10 @@ class WeakPtr;
 
 /// @endcond
 
-// Helper class that defines a VM that can be used as a fallback VM in case no other one is given to a piece of code
+/// Provides the member typedef `type` that names T (i.e., the identity transformation).
+template< class T > struct SqTypeIdentity { using type = T; };
+
+/// Helper class that defines a VM that can be used as a fallback VM in case no other one is given to a piece of code
 class DefaultVM {
 private:
     static HSQUIRRELVM& StaticVM() {
@@ -223,6 +226,9 @@ public:
         StaticVM() = vm;
     }
 };
+
+/// Alias for DefaultVM::Get()
+inline HSQUIRRELVM SqVM() noexcept { return DefaultVM::Get(); }
 
 #if !defined (SCRAT_NO_ERROR_CHECKING) && !defined (SCRAT_USE_EXCEPTIONS)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
