@@ -1,4 +1,4 @@
-# 
+# Create the Squirrel module
 add_library(SquirrelModule MODULE
 	SqBase.hpp
 	Main.cpp

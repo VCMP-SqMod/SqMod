@@ -55,7 +55,7 @@ if (GCC OR MINGW)
 		-Wno-unused-but-set-variable
 	)
 endif()
-# Configure macro options
+# Configure build options
 target_compile_definitions(Squirrel PRIVATE GARBAGE_COLLECTOR=1)
 # Library includes
 target_include_directories(Squirrel PRIVATE ${CMAKE_CURRENT_LIST_DIR})
