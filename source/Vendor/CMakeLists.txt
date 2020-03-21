@@ -1,0 +1,6 @@
+add_subdirectory(SimpleIni)
+add_subdirectory(AES256)
+add_subdirectory(B64)
+add_subdirectory(Hash)
+add_subdirectory(TinyDir)
+add_subdirectory(Whirlpool)

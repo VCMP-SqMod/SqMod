@@ -32,10 +32,13 @@ endif()
 if (UNIX)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
+# Include VCMP library
+add_subdirectory(vcmp)
 # Include Squirrel library
 add_subdirectory(squirrel)
 # Include Squat library
 add_subdirectory(sqrat)
-# Global include directories
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# Include SDK library
+add_subdirectory(sdk)
+# Include Module library
+add_subdirectory(source)

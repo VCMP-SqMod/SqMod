@@ -7,8 +7,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	#target_compile_options(Sqrat PRIVATE -w
 	#)
 endif()
-# Configure build options
-target_compile_definitions(Sqrat INTERFACE GARBAGE_COLLECTOR=1)
 # Library includes
 target_include_directories(Sqrat INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(Sqrat INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)

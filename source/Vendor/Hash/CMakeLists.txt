@@ -13,5 +13,7 @@ add_library(HashLib STATIC
 # Configure include folders
 target_include_directories(HashLib PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(HashLib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
-# Configure build options
-target_compile_definitions(HashLib PRIVATE )
+# Make sure headers are available on MinGW
+if (MINGW)
+	target_include_directories(HashLib PRIVATE ${CMAKE_CURRENT_LIST_DIR}/mingwinc)
+endif(MINGW)

@@ -1,5 +1,7 @@
+# Include third-party libraries
+add_subdirectory(Vendor)
 # Create the Squirrel module
-add_library(SquirrelModule MODULE
+add_library(SqModule MODULE
 	SqBase.hpp
 	Main.cpp
 	Register.cpp
@@ -7,7 +9,6 @@ add_library(SquirrelModule MODULE
 	Logger.cpp Logger.hpp
 	Base/DynArg.hpp
 	Base/AABB.cpp Base/AABB.hpp
-	Base/Algo.cpp Base/Algo.hpp
 	Base/Buffer.cpp Base/Buffer.hpp
 	Base/Circle.cpp Base/Circle.hpp
 	Base/Color3.cpp Base/Color3.hpp
@@ -67,33 +68,37 @@ add_library(SquirrelModule MODULE
 	Misc/Vehicle.cpp Misc/Vehicle.hpp
 	Misc/Weapon.cpp Misc/Weapon.hpp
 )
+# Link to base libraries
+target_link_libraries(SqModule VCMP Squirrel Sqrat SqSDK)
+# Link to third-party libraries
+target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir)
 #
 if(FORCE_32BIT_BIN)
-	set_target_properties(SquirrelModule PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+	set_target_properties(SqModule PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	target_compile_definitions(SquirrelModule PRIVATE _SQ64)
+	target_compile_definitions(SqModule PRIVATE _SQ64)
 endif()
 
-set_target_properties(SquirrelModule PROPERTIES PREFIX "")
+set_target_properties(SqModule PROPERTIES PREFIX "")
 
 if(WIN32)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT FORCE_32BIT_BIN)
-		set_target_properties(SquirrelModule PROPERTIES OUTPUT_NAME "mod_squirrel_64")
+		set_target_properties(SqModule PROPERTIES OUTPUT_NAME "mod_squirrel_64")
 	else()
-		set_target_properties(SquirrelModule PROPERTIES OUTPUT_NAME "mod_squirrel_32")
+		set_target_properties(SqModule PROPERTIES OUTPUT_NAME "mod_squirrel_32")
 	endif()
-else()
+else(WIN32)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT FORCE_32BIT_BIN)
-		set_target_properties(SquirrelModule PROPERTIES OUTPUT_NAME "mod_squirrel_64")
+		set_target_properties(SqModule PROPERTIES OUTPUT_NAME "mod_squirrel_64")
 	else()
-		set_target_properties(SquirrelModule PROPERTIES OUTPUT_NAME "mod_squirrel_32")
+		set_target_properties(SqModule PROPERTIES OUTPUT_NAME "mod_squirrel_32")
 	endif()
-endif(32)
+endif(WIN32)
 
-target_include_directories(SquirrelModule PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 
 if(WIN32)
-  target_link_libraries(SquirrelModule wsock32 ws2_32)
+  target_link_libraries(SqModule wsock32 ws2_32)
 endif()
