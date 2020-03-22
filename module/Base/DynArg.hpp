@@ -398,7 +398,10 @@ template < typename F, typename U, typename... Ts > SQInteger SqDynArgFwd(HSQUIR
         return sq_throwerror(vm, "Unknown error occurred during comparison");
     }
     // We shouldn't really reach this point but something must be returned
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
     return sq_throwerror(vm, "Operation encountered unknown behavior");
+#pragma clang diagnostic pop
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -413,7 +416,7 @@ template < typename T > struct SqDynArgCmpFn
     /* --------------------------------------------------------------------------------------------
      * Base constructor. (required)
     */
-    SqDynArgCmpFn(HSQUIRRELVM vm)
+    explicit SqDynArgCmpFn(HSQUIRRELVM vm)
         : mVM(vm), mVar(vm, 1)
     {
         /* ... */
@@ -422,7 +425,7 @@ template < typename T > struct SqDynArgCmpFn
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean. (required)
     */
-    operator bool () const
+    operator bool () const // NOLINT(hicpp-explicit-conversions,google-explicit-constructor)
     {
         return (mVar.value != nullptr);
     }
@@ -480,7 +483,7 @@ template < typename T > struct SqDynArgAddFn
     /* --------------------------------------------------------------------------------------------
      * Base constructor. (required)
     */
-    SqDynArgAddFn(HSQUIRRELVM vm)
+    explicit SqDynArgAddFn(HSQUIRRELVM vm)
         : mVM(vm), mVar(vm, 1)
     {
         /* ... */
@@ -489,7 +492,7 @@ template < typename T > struct SqDynArgAddFn
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean. (required)
     */
-    operator bool () const
+    operator bool () const // NOLINT(hicpp-explicit-conversions,google-explicit-constructor)
     {
         return (mVar.value != nullptr);
     }
@@ -547,7 +550,7 @@ template < typename T > struct SqDynArgSubFn
     /* --------------------------------------------------------------------------------------------
      * Base constructor. (required)
     */
-    SqDynArgSubFn(HSQUIRRELVM vm)
+    explicit SqDynArgSubFn(HSQUIRRELVM vm)
         : mVM(vm), mVar(vm, 1)
     {
         /* ... */
@@ -556,7 +559,7 @@ template < typename T > struct SqDynArgSubFn
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean. (required)
     */
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return (mVar.value != nullptr);
     }
@@ -614,7 +617,7 @@ template < typename T > struct SqDynArgMulFn
     /* --------------------------------------------------------------------------------------------
      * Base constructor. (required)
     */
-    SqDynArgMulFn(HSQUIRRELVM vm)
+    explicit SqDynArgMulFn(HSQUIRRELVM vm)
         : mVM(vm), mVar(vm, 1)
     {
         /* ... */
@@ -623,7 +626,7 @@ template < typename T > struct SqDynArgMulFn
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean. (required)
     */
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return (mVar.value != nullptr);
     }
@@ -681,7 +684,7 @@ template < typename T > struct SqDynArgDivFn
     /* --------------------------------------------------------------------------------------------
      * Base constructor. (required)
     */
-    SqDynArgDivFn(HSQUIRRELVM vm)
+    explicit SqDynArgDivFn(HSQUIRRELVM vm)
         : mVM(vm), mVar(vm, 1)
     {
         /* ... */
@@ -690,7 +693,7 @@ template < typename T > struct SqDynArgDivFn
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean. (required)
     */
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return (mVar.value != nullptr);
     }
@@ -748,7 +751,7 @@ template < typename T > struct SqDynArgModFn
     /* --------------------------------------------------------------------------------------------
      * Base constructor. (required)
     */
-    SqDynArgModFn(HSQUIRRELVM vm)
+    explicit SqDynArgModFn(HSQUIRRELVM vm)
         : mVM(vm), mVar(vm, 1)
     {
         /* ... */
@@ -757,7 +760,7 @@ template < typename T > struct SqDynArgModFn
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean. (required)
     */
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return (mVar.value != nullptr);
     }

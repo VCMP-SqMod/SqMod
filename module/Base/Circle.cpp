@@ -22,28 +22,28 @@ const Circle Circle::MAX = Circle(std::numeric_limits< Circle::Value >::max());
 SQChar Circle::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Circle::Circle()
+Circle::Circle() noexcept
     : pos(0.0, 0.0), rad(0.0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle::Circle(Value rv)
+Circle::Circle(Value rv) noexcept
     : pos(0.0, 0.0), rad(rv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle::Circle(const Vector2 & pv, Value rv)
+Circle::Circle(const Vector2 & pv, Value rv) noexcept
     : pos(pv), rad(rv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle::Circle(Value xv, Value yv, Value rv)
+Circle::Circle(Value xv, Value yv, Value rv) noexcept
     : pos(xv, yv), rad(rv)
 {
     /* ... */
@@ -191,7 +191,7 @@ Circle & Circle::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle Circle::operator ++ (int)
+Circle Circle::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     Circle state(*this);
     ++pos;
@@ -200,7 +200,7 @@ Circle Circle::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle Circle::operator -- (int)
+Circle Circle::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     Circle state(*this);
     --pos;
@@ -211,103 +211,103 @@ Circle Circle::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator + (const Circle & c) const
 {
-    return Circle(pos + c.pos, rad + c.rad);
+    return {pos + c.pos, rad + c.rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator - (const Circle & c) const
 {
-    return Circle(pos - c.pos, rad - c.rad);
+    return {pos - c.pos, rad - c.rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator * (const Circle & c) const
 {
-    return Circle(pos * c.pos, rad * c.rad);
+    return {pos * c.pos, rad * c.rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator / (const Circle & c) const
 {
-    return Circle(pos / c.pos, rad / c.rad);
+    return {pos / c.pos, rad / c.rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator % (const Circle & c) const
 {
-    return Circle(pos % c.pos, std::fmod(rad, c.rad));
+    return {pos % c.pos, std::fmod(rad, c.rad)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator + (Value r) const
 {
-    return Circle(rad + r);
+    return {rad + r};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator - (Value r) const
 {
-    return Circle(rad - r);
+    return {rad - r};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator * (Value r) const
 {
-    return Circle(rad * r);
+    return {rad * r};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator / (Value r) const
 {
-    return Circle(rad / r);
+    return {rad / r};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator % (Value r) const
 {
-    return Circle(std::fmod(rad, r));
+    return {std::fmod(rad, r)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator + (const Vector2 & p) const
 {
-    return Circle(pos + p, rad);
+    return {pos + p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator - (const Vector2 & p) const
 {
-    return Circle(pos - p, rad);
+    return {pos - p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator * (const Vector2 & p) const
 {
-    return Circle(pos * p, rad);
+    return {pos * p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator / (const Vector2 & p) const
 {
-    return Circle(pos / p, rad);
+    return {pos / p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator % (const Vector2 & p) const
 {
-    return Circle(pos % p, rad);
+    return {pos % p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator + () const
 {
-    return Circle(pos.Abs(), std::fabs(rad));
+    return {pos.Abs(), std::fabs(rad)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Circle Circle::operator - () const
 {
-    return Circle(-pos, -rad);
+    return {-pos, -rad};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -464,7 +464,7 @@ void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin
 // ------------------------------------------------------------------------------------------------
 Circle Circle::Abs() const
 {
-    return Circle(pos.Abs(), std::fabs(rad));
+    return {pos.Abs(), std::fabs(rad)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -495,48 +495,11 @@ const Circle & Circle::GetEx(SQChar delim, StackStrF & str)
     return circle;
 }
 
-// ------------------------------------------------------------------------------------------------
-const Circle & GetCircle()
-{
-    static Circle circle;
-    circle.Clear();
-    return circle;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Circle & GetCircle(Float32 rv)
-{
-    static Circle circle;
-    circle.SetRadius(rv);
-    return circle;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Circle & GetCircle(const Vector2 & pv, Float32 rv)
-{
-    static Circle circle;
-    circle.SetValues(pv, rv);
-    return circle;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Circle & GetCircle(Float32 xv, Float32 yv, Float32 rv)
-{
-    static Circle circle;
-    circle.SetCircleEx(xv, yv, rv);
-    return circle;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Circle & GetCircle(const Circle & o)
-{
-    static Circle circle;
-    circle.SetCircle(o);
-    return circle;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Circle(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef Circle::Value Val;
 

@@ -22,7 +22,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    FileHandle(CSStr path)
+    explicit FileHandle(CSStr path)
         : mFile(std::fopen(path, "rb"))
     {
         if (!mFile)
@@ -65,7 +65,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the managed file handle.
     */
-    operator std::FILE * ()
+    operator std::FILE * () // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return mFile;
     }
@@ -73,7 +73,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the managed file handle.
     */
-    operator std::FILE * () const
+    operator std::FILE * () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return mFile;
     }
@@ -99,11 +99,11 @@ void ScriptSrc::Process()
         return; // Probably an empty file or compiled script
     }
     // Allocate enough space to hold the file data
-    mData.resize(length, 0);
+    mData.resize(static_cast< size_t >(length), 0);
     // Go back to the beginning
     std::fseek(fp, 0, SEEK_SET);
     // Read the file contents into allocated data
-    std::fread(&mData[0], 1, length, fp);
+    std::fread(&mData[0], 1, static_cast< size_t >(length), fp);
     // Where the last line ended
     size_t line_start = 0, line_end = 0;
     // Process the file data and locate new lines
@@ -113,7 +113,7 @@ void ScriptSrc::Process()
         if (*itr == '\n')
         {
             // Extract the line length
-            line_end = std::distance(mData.cbegin(), itr);
+            line_end = static_cast< size_t >(std::distance(mData.cbegin(), itr));
             // Store the beginning of the line
             mLine.emplace_back(line_start, line_end);
             // Advance to the next line
@@ -127,7 +127,7 @@ void ScriptSrc::Process()
             if (*(++itr) == '\n')
             {
                 // Extract the line length
-                line_end = std::distance(mData.cbegin(), itr)-1;
+                line_end = static_cast< size_t >(std::distance(mData.cbegin(), itr) - 1);
                 // Store the beginning of the line
                 mLine.emplace_back(line_start, line_end);
                 // Advance to the next line

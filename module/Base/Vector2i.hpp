@@ -36,27 +36,27 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Vector2i();
+    Vector2i() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
     */
-    explicit Vector2i(Value sv);
+    explicit Vector2i(Value sv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the specified component values.
     */
-    Vector2i(Value xv, Value yv);
+    Vector2i(Value xv, Value yv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Vector2i(const Vector2i & o) = default;
+    Vector2i(const Vector2i & o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Vector2i(Vector2i && o) = default;
+    Vector2i(Vector2i && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -196,12 +196,12 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    Vector2i operator ++ (int);
+    Vector2i operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Vector2i operator -- (int);
+    Vector2i operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.

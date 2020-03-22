@@ -22,28 +22,28 @@ const Sphere Sphere::MAX = Sphere(std::numeric_limits< Sphere::Value >::max());
 SQChar Sphere::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Sphere::Sphere()
+Sphere::Sphere() noexcept
     : pos(0.0), rad(0.0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere::Sphere(Value rv)
+Sphere::Sphere(Value rv) noexcept
     : pos(0.0), rad(rv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere::Sphere(const Vector3 & pv, Value rv)
+Sphere::Sphere(const Vector3 & pv, Value rv) noexcept
     : pos(pv), rad(rv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere::Sphere(Value xv, Value yv, Value zv, Value rv)
+Sphere::Sphere(Value xv, Value yv, Value zv, Value rv) noexcept
     : pos(xv, yv, zv), rad(rv)
 {
     /* ... */
@@ -191,7 +191,7 @@ Sphere & Sphere::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere Sphere::operator ++ (int)
+Sphere Sphere::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     Sphere state(*this);
     ++pos;
@@ -200,7 +200,7 @@ Sphere Sphere::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere Sphere::operator -- (int)
+Sphere Sphere::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     Sphere state(*this);
     --pos;
@@ -211,103 +211,103 @@ Sphere Sphere::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator + (const Sphere & s) const
 {
-    return Sphere(pos + s.pos, rad + s.rad);
+    return {pos + s.pos, rad + s.rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator - (const Sphere & s) const
 {
-    return Sphere(pos - s.pos, rad - s.rad);
+    return {pos - s.pos, rad - s.rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator * (const Sphere & s) const
 {
-    return Sphere(pos * s.pos, rad * s.rad);
+    return {pos * s.pos, rad * s.rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator / (const Sphere & s) const
 {
-    return Sphere(pos / s.pos, rad / s.rad);
+    return {pos / s.pos, rad / s.rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator % (const Sphere & s) const
 {
-    return Sphere(pos % s.pos, std::fmod(rad, s.rad));
+    return {pos % s.pos, std::fmod(rad, s.rad)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator + (Value r) const
 {
-    return Sphere(rad + r);
+    return {rad + r};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator - (Value r) const
 {
-    return Sphere(rad - r);
+    return {rad - r};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator * (Value r) const
 {
-    return Sphere(rad * r);
+    return {rad * r};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator / (Value r) const
 {
-    return Sphere(rad / r);
+    return {rad / r};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator % (Value r) const
 {
-    return Sphere(std::fmod(rad, r));
+    return {std::fmod(rad, r)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator + (const Vector3 & p) const
 {
-    return Sphere(pos + p, rad);
+    return {pos + p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator - (const Vector3 & p) const
 {
-    return Sphere(pos - p, rad);
+    return {pos - p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator * (const Vector3 & p) const
 {
-    return Sphere(pos * p, rad);
+    return {pos * p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator / (const Vector3 & p) const
 {
-    return Sphere(pos / p, rad);
+    return {pos / p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator % (const Vector3 & p) const
 {
-    return Sphere(pos % p, rad);
+    return {pos % p, rad};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator + () const
 {
-    return Sphere(pos.Abs(), std::fabs(rad));
+    return {pos.Abs(), std::fabs(rad)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator - () const
 {
-    return Sphere(-pos, -rad);
+    return {-pos, -rad};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -464,7 +464,7 @@ void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::Abs() const
 {
-    return Sphere(pos.Abs(), std::fabs(rad));
+    return {pos.Abs(), std::fabs(rad)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -496,48 +496,11 @@ const Sphere & Sphere::GetEx(SQChar delim, StackStrF & str)
     return sphere;
 }
 
-// ------------------------------------------------------------------------------------------------
-const Sphere & GetSphere()
-{
-    static Sphere sphere;
-    sphere.Clear();
-    return sphere;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Sphere & GetSphere(Float32 rv)
-{
-    static Sphere sphere;
-    sphere.SetRadius(rv);
-    return sphere;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Sphere & GetSphere(const Vector3 & pv, Float32 rv)
-{
-    static Sphere sphere;
-    sphere.SetValues(pv, rv);
-    return sphere;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Sphere & GetSphere(Float32 xv, Float32 yv, Float32 zv, Float32 rv)
-{
-    static Sphere sphere;
-    sphere.SetSphereEx(xv, yv, zv, rv);
-    return sphere;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Sphere & GetSphere(const Sphere & o)
-{
-    static Sphere sphere;
-    sphere.SetSphere(o);
-    return sphere;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Sphere(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef Sphere::Value Val;
 

@@ -17,11 +17,11 @@ namespace SqMod {
 inline unsigned int NextPow2(unsigned int num)
 {
     --num;
-    num |= num >> 1;
-    num |= num >> 2;
-    num |= num >> 4;
-    num |= num >> 8;
-    num |= num >> 16;
+    num |= num >> 1u;
+    num |= num >> 2u;
+    num |= num >> 4u;
+    num |= num >> 8u;
+    num |= num >> 16u;
     return ++num;
 }
 
@@ -41,10 +41,10 @@ void ThrowMemExcept(const char * msg, ...)
     // Check for formatting errors
     if (ret < 0)
     {
-        throw Sqrat::Exception(_SC("Unknown memory error"));
+        throw Sqrat::Exception(_SC("Unknown memory error")); // NOLINT(hicpp-exception-baseclass,cert-err60-cpp)
     }
     // Throw the actual exception
-    throw Sqrat::Exception(buffer);
+    throw Sqrat::Exception(buffer); // NOLINT(hicpp-exception-baseclass,cert-err60-cpp)
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ void ThrowMemExcept(const char * msg, ...)
 static Buffer::Pointer AllocMem(Buffer::SzType size)
 {
     // Attempt to allocate memory directly
-    Buffer::Pointer ptr = reinterpret_cast< Buffer::Pointer >(std::malloc(size));
+    auto ptr = reinterpret_cast< Buffer::Pointer >(std::malloc(size));
     // Validate the allocated memory
     if (!ptr)
     {
@@ -103,7 +103,7 @@ private:
         /* ----------------------------------------------------------------------------------------
          * Base constructor.
         */
-        Node(Node * next)
+        explicit Node(Node * next)
             : mCap(0)
             , mPtr(nullptr)
             , mNext(next)
@@ -403,7 +403,7 @@ Buffer::~Buffer()
 }
 
 // ------------------------------------------------------------------------------------------------
-Buffer & Buffer::operator = (const Buffer & o)
+Buffer & Buffer::operator = (const Buffer & o) // NOLINT(cert-oop54-cpp)
 {
     if (m_Ptr != o.m_Ptr)
     {

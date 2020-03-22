@@ -36,27 +36,27 @@ struct Vector2
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Vector2();
+    Vector2() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
     */
-    explicit Vector2(Value sv);
+    explicit Vector2(Value sv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the specified component values.
     */
-    Vector2(Value xv, Value yv);
+    Vector2(Value xv, Value yv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Vector2(const Vector2 & o) = default;
+    Vector2(const Vector2 & o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Vector2(Vector2 && o) = default;
+    Vector2(Vector2 && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -77,11 +77,6 @@ struct Vector2
      * Scalar value assignment operator.
     */
     Vector2 & operator = (Value s);
-
-    /* --------------------------------------------------------------------------------------------
-     * String assignment operator.
-    */
-    Vector2 & operator = (CSStr values);
 
     /* --------------------------------------------------------------------------------------------
      * Integral two-dimensional vector assignment.
@@ -151,12 +146,12 @@ struct Vector2
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    Vector2 operator ++ (int);
+    Vector2 operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Vector2 operator -- (int);
+    Vector2 operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.

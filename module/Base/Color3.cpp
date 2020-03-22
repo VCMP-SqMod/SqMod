@@ -23,28 +23,28 @@ const Color3 Color3::MAX = Color3(std::numeric_limits< Color3::Value >::max());
 SQChar Color3::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Color3::Color3()
+Color3::Color3() noexcept
     : r(0), g(0), b(0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3::Color3(Value sv)
+Color3::Color3(Value sv) noexcept
     : r(sv), g(sv), b(sv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3::Color3(Value rv, Value gv, Value bv)
+Color3::Color3(Value rv, Value gv, Value bv) noexcept
     : r(rv), g(gv), b(bv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3::Color3(Value rv, Value gv, Value bv, Value /*av*/)
+Color3::Color3(Value rv, Value gv, Value bv, Value /*av*/) noexcept
     : r(rv), g(gv), b(bv)
 {
     /* ... */
@@ -267,7 +267,7 @@ Color3 & Color3::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 Color3::operator ++ (int)
+Color3 Color3::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     Color3 state(*this);
     ++r;
@@ -277,7 +277,7 @@ Color3 Color3::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 Color3::operator -- (int)
+Color3 Color3::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     Color3 state(*this);
     --r;
@@ -289,139 +289,139 @@ Color3 Color3::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator + (const Color3 & c) const
 {
-    return Color3(r + c.r, g + c.g, b + c.b);
+    return {static_cast<Value>(r + c.r), static_cast<Value>(g + c.g), static_cast<Value>(b + c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator - (const Color3 & c) const
 {
-    return Color3(r - c.r, g - c.g, b - c.b);
+    return {static_cast<Value>(r - c.r), static_cast<Value>(g - c.g), static_cast<Value>(b - c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator * (const Color3 & c) const
 {
-    return Color3(r * c.r, g * c.g, b * c.b);
+    return {static_cast<Value>(r * c.r), static_cast<Value>(g * c.g), static_cast<Value>(b * c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator / (const Color3 & c) const
 {
-    return Color3(r / c.r, g / c.g, b / c.b);
+    return {static_cast<Value>(r / c.r), static_cast<Value>(g / c.g), static_cast<Value>(b / c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator % (const Color3 & c) const
 {
-    return Color3(r % c.r, g % c.g, b % c.b);
+    return {static_cast<Value>(r % c.r), static_cast<Value>(g % c.g), static_cast<Value>(b % c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator & (const Color3 & c) const
 {
-    return Color3(r & c.r, g & c.g, b & c.b);
+    return {static_cast<Value>(r & c.r), static_cast<Value>(g & c.g), static_cast<Value>(b & c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator | (const Color3 & c) const
 {
-    return Color3(r | c.r, g | c.g, b | c.b);
+    return {static_cast<Value>(r | c.r), static_cast<Value>(g | c.g), static_cast<Value>(b | c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator ^ (const Color3 & c) const
 {
-    return Color3(r ^ c.r, g ^ c.g, b ^ c.b);
+    return {static_cast<Value>(r ^ c.r), static_cast<Value>(g ^ c.g), static_cast<Value>(b ^ c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator << (const Color3 & c) const
 {
-    return Color3(r << c.r, g << c.g, b << c.b);
+    return {static_cast<Value>(r << c.r), static_cast<Value>(g << c.g), static_cast<Value>(b << c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator >> (const Color3 & c) const
 {
-    return Color3(r >> c.r, g >> c.g, b >> c.b);
+    return {static_cast<Value>(r >> c.r), static_cast<Value>(g >> c.g), static_cast<Value>(b >> c.b)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator + (Value s) const
 {
-    return Color3(r + s, g + s, b + s);
+    return {static_cast<Value>(r + s), static_cast<Value>(g + s), static_cast<Value>(b + s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator - (Value s) const
 {
-    return Color3(r - s, g - s, b - s);
+    return {static_cast<Value>(r - s), static_cast<Value>(g - s), static_cast<Value>(b - s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator * (Value s) const
 {
-    return Color3(r * s, g * s, b * s);
+    return {static_cast<Value>(r * s), static_cast<Value>(g * s), static_cast<Value>(b * s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator / (Value s) const
 {
-    return Color3(r / s, g / s, b / s);
+    return {static_cast<Value>(r / s), static_cast<Value>(g / s), static_cast<Value>(b / s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator % (Value s) const
 {
-    return Color3(r % s, g % s, b % s);
+    return {static_cast<Value>(r % s), static_cast<Value>(g % s), static_cast<Value>(b % s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator & (Value s) const
 {
-    return Color3(r & s, g & s, b & s);
+    return {static_cast<Value>(r & s), static_cast<Value>(g & s), static_cast<Value>(b & s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator | (Value s) const
 {
-    return Color3(r | s, g | s, b | s);
+    return {static_cast<Value>(r | s), static_cast<Value>(g | s), static_cast<Value>(b | s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator ^ (Value s) const
 {
-    return Color3(r ^ s, g ^ s, b ^ s);
+    return {static_cast<Value>(r ^ s), static_cast<Value>(g ^ s), static_cast<Value>(b ^ s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator << (Value s) const
 {
-    return Color3(r << s, g << s, b << s);
+    return {static_cast<Value>(r << s), static_cast<Value>(g << s), static_cast<Value>(b << s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator >> (Value s) const
 {
-    return Color3(r >> s, g >> s, b >> s);
+    return {static_cast<Value>(r >> s), static_cast<Value>(g >> s), static_cast<Value>(b >> s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator + () const
 {
-    return Color3(r, g, b);
+    return {r, g, b};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator - () const
 {
-    return Color3(0, 0, 0);
+    return {0, 0, 0};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color3 Color3::operator ~ () const
 {
-    return Color3(~r, ~g, ~b);
+    return {static_cast<Value>(~r), static_cast<Value>(~g), static_cast<Value>(~b)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -463,7 +463,7 @@ bool Color3::operator >= (const Color3 & c) const
 // ------------------------------------------------------------------------------------------------
 Color3::operator Color4 () const
 {
-    return Color4(r, g, b);
+    return {r, g, b};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -544,43 +544,43 @@ void Color3::SetName(StackStrF & name)
 // ------------------------------------------------------------------------------------------------
 Uint32 Color3::GetRGB() const
 {
-    return Uint32(r << 16 | g << 8 | b);
+    return Uint32(r << 16u | g << 8u | b); // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 void Color3::SetRGB(Uint32 p)
 {
-    r = static_cast< Value >((p >> 16) & 0xFF);
-    g = static_cast< Value >((p >> 8) & 0xFF);
-    b = static_cast< Value >((p) & 0xFF);
+    r = static_cast< Value >((p >> 16u) & 0xFFu);
+    g = static_cast< Value >((p >> 8u) & 0xFFu);
+    b = static_cast< Value >((p) & 0xFFu);
 }
 
 // ------------------------------------------------------------------------------------------------
 Uint32 Color3::GetRGBA() const
 {
-    return Uint32(r << 24 | g << 16 | b << 8 | 0x00);
+    return Uint32(r << 24u | g << 16u | b << 8u | 0u); // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 void Color3::SetRGBA(Uint32 p)
 {
-    r = static_cast< Value >((p >> 24) & 0xFF);
-    g = static_cast< Value >((p >> 16) & 0xFF);
-    b = static_cast< Value >((p >> 8) & 0xFF);
+    r = static_cast< Value >((p >> 24u) & 0xFFu);
+    g = static_cast< Value >((p >> 16u) & 0xFFu);
+    b = static_cast< Value >((p >> 8u) & 0xFFu);
 }
 
 // ------------------------------------------------------------------------------------------------
 Uint32 Color3::GetARGB() const
 {
-    return Uint32(0x00 << 24 | r << 16 | g << 8 | b);
+    return Uint32(0u << 24u | r << 16u | g << 8u | b); // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 void Color3::SetARGB(Uint32 p)
 {
-    r = static_cast< Value >((p >> 16) & 0xFF);
-    g = static_cast< Value >((p >> 8) & 0xFF);
-    b = static_cast< Value >((p) & 0xFF);
+    r = static_cast< Value >((p >> 16u) & 0xFFu);
+    g = static_cast< Value >((p >> 8u) & 0xFFu);
+    b = static_cast< Value >((p) & 0xFFu);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -668,40 +668,11 @@ const Color3 & Color3::GetEx(SQChar delim, StackStrF & str)
     return col;
 }
 
-// ------------------------------------------------------------------------------------------------
-const Color3 & GetColor3()
-{
-    static Color3 col;
-    col.Clear();
-    return col;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Color3 & GetColor3(Uint8 sv)
-{
-    static Color3 col;
-    col.SetScalar(sv);
-    return col;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Color3 & GetColor3(Uint8 rv, Uint8 gv, Uint8 bv)
-{
-    static Color3 col;
-    col.SetColor3Ex(rv, gv, bv);
-    return col;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Color3 & GetColor3(const Color3 & o)
-{
-    static Color3 col;
-    col.SetColor3(o);
-    return col;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Color3(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef Color3::Value Val;
 

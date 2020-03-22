@@ -23,28 +23,28 @@ const Color4 Color4::MAX = Color4(std::numeric_limits< Color4::Value >::max());
 SQChar Color4::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Color4::Color4()
+Color4::Color4() noexcept
     : r(0), g(0), b(0), a(0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4::Color4(Value sv)
+Color4::Color4(Value sv) noexcept
     : r(sv), g(sv), b(sv), a(0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4::Color4(Value rv, Value gv, Value bv)
+Color4::Color4(Value rv, Value gv, Value bv) noexcept
     : r(rv), g(gv), b(bv), a(0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4::Color4(Value rv, Value gv, Value bv, Value av)
+Color4::Color4(Value rv, Value gv, Value bv, Value av) noexcept
     : r(rv), g(gv), b(bv), a(av)
 {
     /* ... */
@@ -290,7 +290,7 @@ Color4 & Color4::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 Color4::operator ++ (int)
+Color4 Color4::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     Color4 state(*this);
     ++r;
@@ -301,7 +301,7 @@ Color4 Color4::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 Color4::operator -- (int)
+Color4 Color4::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     Color4 state(*this);
     --r;
@@ -314,139 +314,139 @@ Color4 Color4::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator + (const Color4 & c) const
 {
-    return Color4(r + c.r, g + c.g, b + c.b, a + c.a);
+    return {static_cast<Value>(r + c.r), static_cast<Value>(g + c.g), static_cast<Value>(b + c.b), static_cast<Value>(a + c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator - (const Color4 & c) const
 {
-    return Color4(r - c.r, g - c.g, b - c.b, a - c.a);
+    return {static_cast<Value>(r - c.r), static_cast<Value>(g - c.g), static_cast<Value>(b - c.b), static_cast<Value>(a - c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator * (const Color4 & c) const
 {
-    return Color4(r * c.r, g * c.g, b * c.b, a * c.a);
+    return {static_cast<Value>(r * c.r), static_cast<Value>(g * c.g), static_cast<Value>(b * c.b), static_cast<Value>(a * c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator / (const Color4 & c) const
 {
-    return Color4(r / c.r, g / c.g, b / c.b, a / c.a);
+    return {static_cast<Value>(r / c.r), static_cast<Value>(g / c.g), static_cast<Value>(b / c.b), static_cast<Value>(a / c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator % (const Color4 & c) const
 {
-    return Color4(r % c.r, g % c.g, b % c.b, a % c.a);
+    return {static_cast<Value>(r % c.r), static_cast<Value>(g % c.g), static_cast<Value>(b % c.b), static_cast<Value>(a % c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator & (const Color4 & c) const
 {
-    return Color4(r & c.r, g & c.g, b & c.b, a & c.a);
+    return {static_cast<Value>(r & c.r), static_cast<Value>(g & c.g), static_cast<Value>(b & c.b), static_cast<Value>(a & c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator | (const Color4 & c) const
 {
-    return Color4(r | c.r, g | c.g, b | c.b, a | c.a);
+    return {static_cast<Value>(r | c.r), static_cast<Value>(g | c.g), static_cast<Value>(b | c.b), static_cast<Value>(a | c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator ^ (const Color4 & c) const
 {
-    return Color4(r ^ c.r, g ^ c.g, b ^ c.b, a ^ c.a);
+    return {static_cast<Value>(r ^ c.r), static_cast<Value>(g ^ c.g), static_cast<Value>(b ^ c.b), static_cast<Value>(a ^ c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator << (const Color4 & c) const
 {
-    return Color4(r << c.r, g << c.g, b << c.b, a << c.a);
+    return {static_cast<Value>(r << c.r), static_cast<Value>(g << c.g), static_cast<Value>(b << c.b), static_cast<Value>(a << c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator >> (const Color4 & c) const
 {
-    return Color4(r >> c.r, g >> c.g, b >> c.b, a >> c.a);
+    return {static_cast<Value>(r >> c.r), static_cast<Value>(g >> c.g), static_cast<Value>(b >> c.b), static_cast<Value>(a >> c.a)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator + (Value s) const
 {
-    return Color4(r + s, g + s, b + s, a + s);
+    return {static_cast<Value>(r + s), static_cast<Value>(g + s), static_cast<Value>(b + s), static_cast<Value>(a + s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator - (Value s) const
 {
-    return Color4(r - s, g - s, b - s, a - s);
+    return {static_cast<Value>(r - s), static_cast<Value>(g - s), static_cast<Value>(b - s), static_cast<Value>(a - s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator * (Value s) const
 {
-    return Color4(r * s, g * s, b * s, a * s);
+    return {static_cast<Value>(r * s), static_cast<Value>(g * s), static_cast<Value>(b * s), static_cast<Value>(a * s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator / (Value s) const
 {
-    return Color4(r / s, g / s, b / s, a / s);
+    return {static_cast<Value>(r / s), static_cast<Value>(g / s), static_cast<Value>(b / s), static_cast<Value>(a / s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator % (Value s) const
 {
-    return Color4(r % s, g % s, b % s, a % s);
+    return {static_cast<Value>(r % s), static_cast<Value>(g % s), static_cast<Value>(b % s), static_cast<Value>(a % s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator & (Value s) const
 {
-    return Color4(r & s, g & s, b & s, a & s);
+    return {static_cast<Value>(r & s), static_cast<Value>(g & s), static_cast<Value>(b & s), static_cast<Value>(a & s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator | (Value s) const
 {
-    return Color4(r | s, g | s, b | s, a | s);
+    return {static_cast<Value>(r | s), static_cast<Value>(g | s), static_cast<Value>(b | s), static_cast<Value>(a | s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator ^ (Value s) const
 {
-    return Color4(r ^ s, g ^ s, b ^ s, a ^ s);
+    return {static_cast<Value>(r ^ s), static_cast<Value>(g ^ s), static_cast<Value>(b ^ s), static_cast<Value>(a ^ s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator << (Value s) const
 {
-    return Color4(r << s, g << s, b << s, a << s);
+    return {static_cast<Value>(r << s), static_cast<Value>(g << s), static_cast<Value>(b << s), static_cast<Value>(a << s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator >> (Value s) const
 {
-    return Color4(r >> s, g >> s, b >> s, a >> s);
+    return {static_cast<Value>(r >> s), static_cast<Value>(g >> s), static_cast<Value>(b >> s), static_cast<Value>(a >> s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator + () const
 {
-    return Color4(r, g, b, a);
+    return {r, g, b, a};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator - () const
 {
-    return Color4(0, 0, 0, 0);
+    return {0, 0, 0, 0};
 }
 
 // ------------------------------------------------------------------------------------------------
 Color4 Color4::operator ~ () const
 {
-    return Color4(~r, ~g, ~b, ~a);
+    return {static_cast<Value>(~r), static_cast<Value>(~g), static_cast<Value>(~b), static_cast<Value>(~a)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -488,7 +488,7 @@ bool Color4::operator >= (const Color4 & c) const
 // ------------------------------------------------------------------------------------------------
 Color4::operator Color3 () const
 {
-    return Color3(r, g, b);
+    return {r, g, b};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -573,45 +573,45 @@ void Color4::SetName(StackStrF & name)
 // ------------------------------------------------------------------------------------------------
 Uint32 Color4::GetRGB() const
 {
-    return Uint32(r << 16 | g << 8 | b);
+    return Uint32(r << 16u | g << 8u | b); // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 void Color4::SetRGB(Uint32 p)
 {
-    r = static_cast< Value >((p >> 16) & 0xFF);
-    g = static_cast< Value >((p >> 8) & 0xFF);
-    b = static_cast< Value >((p) & 0xFF);
+    r = static_cast< Value >((p >> 16u) & 0xFFu);
+    g = static_cast< Value >((p >> 8u) & 0xFFu);
+    b = static_cast< Value >((p) & 0xFFu);
 }
 
 // ------------------------------------------------------------------------------------------------
 Uint32 Color4::GetRGBA() const
 {
-    return Uint32(r << 24 | g << 16 | b << 8 | a);
+    return Uint32(r << 24u | g << 16u | b << 8u | a); // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 void Color4::SetRGBA(Uint32 p)
 {
-    r = static_cast< Value >((p >> 24) & 0xFF);
-    g = static_cast< Value >((p >> 16) & 0xFF);
-    b = static_cast< Value >((p >> 8) & 0xFF);
-    a = static_cast< Value >((p) & 0xFF);
+    r = static_cast< Value >((p >> 24u) & 0xFFu);
+    g = static_cast< Value >((p >> 16u) & 0xFFu);
+    b = static_cast< Value >((p >> 8u) & 0xFFu);
+    a = static_cast< Value >((p) & 0xFFu);
 }
 
 // ------------------------------------------------------------------------------------------------
 Uint32 Color4::GetARGB() const
 {
-    return Uint32(a << 24 | r << 16 | g << 8 | b);
+    return Uint32(a << 24u | r << 16u | g << 8u | b); // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 void Color4::SetARGB(Uint32 p)
 {
-    a = static_cast< Value >((p >> 24) & 0xFF);
-    r = static_cast< Value >((p >> 16) & 0xFF);
-    g = static_cast< Value >((p >> 8) & 0xFF);
-    b = static_cast< Value >((p) & 0xFF);
+    a = static_cast< Value >((p >> 24u) & 0xFFu);
+    r = static_cast< Value >((p >> 16u) & 0xFFu);
+    g = static_cast< Value >((p >> 8u) & 0xFFu);
+    b = static_cast< Value >((p) & 0xFFu);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -705,48 +705,11 @@ const Color4 & Color4::GetEx(SQChar delim, StackStrF & str)
     return col;
 }
 
-// ------------------------------------------------------------------------------------------------
-const Color4 & GetColor4()
-{
-    static Color4 col;
-    col.Clear();
-    return col;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Color4 & GetColor4(Uint8 sv)
-{
-    static Color4 col;
-    col.SetScalar(sv);
-    return col;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Color4 & GetColor4(Uint8 rv, Uint8 gv, Uint8 bv)
-{
-    static Color4 col;
-    col.SetColor3Ex(rv, gv, bv);
-    return col;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Color4 & GetColor4(Uint8 rv, Uint8 gv, Uint8 bv, Uint8 av)
-{
-    static Color4 col;
-    col.SetColor4Ex(rv, gv, bv, av);
-    return col;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Color4 & GetColor4(const Color4 & o)
-{
-    static Color4 col;
-    col.SetColor4(o);
-    return col;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Color4(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef Color4::Value Val;
 

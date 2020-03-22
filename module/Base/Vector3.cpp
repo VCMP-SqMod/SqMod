@@ -34,21 +34,21 @@ const Vector3 Vector3::ONE(STOVAL(1.0),     STOVAL(1.0),    STOVAL(1.0));
 SQChar Vector3::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Vector3::Vector3()
+Vector3::Vector3() noexcept
     : x(0.0), y(0.0), z(0.0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3::Vector3(Value sv)
+Vector3::Vector3(Value sv) noexcept
     : x(sv), y(sv), z(sv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3::Vector3(Value xv, Value yv, Value zv)
+Vector3::Vector3(Value xv, Value yv, Value zv) noexcept
     : x(xv), y(yv), z(zv)
 {
     /* ... */
@@ -190,7 +190,7 @@ Vector3 & Vector3::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 Vector3::operator ++ (int)
+Vector3 Vector3::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     Vector3 state(*this);
     ++x;
@@ -200,7 +200,7 @@ Vector3 Vector3::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 Vector3::operator -- (int)
+Vector3 Vector3::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     Vector3 state(*this);
     --x;
@@ -212,73 +212,73 @@ Vector3 Vector3::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator + (const Vector3 & v) const
 {
-    return Vector3(x + v.x, y + v.y, z + v.z);
+    return {x + v.x, y + v.y, z + v.z};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator - (const Vector3 & v) const
 {
-    return Vector3(x - v.x, y - v.y, z - v.z);
+    return {x - v.x, y - v.y, z - v.z};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator * (const Vector3 & v) const
 {
-    return Vector3(x * v.x, y * v.y, z * v.z);
+    return {x * v.x, y * v.y, z * v.z};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator / (const Vector3 & v) const
 {
-    return Vector3(x / v.x, y / v.y, z / v.z);
+    return {x / v.x, y / v.y, z / v.z};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator % (const Vector3 & v) const
 {
-    return Vector3(std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z));
+    return {std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator + (Value s) const
 {
-    return Vector3(x + s, y + s, z + s);
+    return {x + s, y + s, z + s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator - (Value s) const
 {
-    return Vector3(x - s, y - s, z - s);
+    return {x - s, y - s, z - s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator * (Value s) const
 {
-    return Vector3(x * s, y * s, z * s);
+    return {x * s, y * s, z * s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator / (Value s) const
 {
-    return Vector3(x / s, y / s, z / s);
+    return {x / s, y / s, z / s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator % (Value s) const
 {
-    return Vector3(std::fmod(x, s), std::fmod(y, s), std::fmod(z, s));
+    return {std::fmod(x, s), std::fmod(y, s), std::fmod(z, s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator + () const
 {
-    return Vector3(std::fabs(x), std::fabs(y), std::fabs(z));
+    return {std::fabs(x), std::fabs(y), std::fabs(z)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator - () const
 {
-    return Vector3(-x, -y, -z);
+    return {-x, -y, -z};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -457,7 +457,7 @@ void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::Abs() const
 {
-    return Vector3(std::fabs(x), std::fabs(y), std::fabs(z));
+    return {std::fabs(x), std::fabs(y), std::fabs(z)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -538,7 +538,7 @@ Vector3::Value Vector3::AbsDotProduct(const Vector3 & vec) const
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::CrossProduct(const Vector3 & vec) const
 {
-    return Vector3((y * vec.z) - (z * vec.y), (z * vec.x) - (x * vec.z), (x * vec.y) - (y * vec.x));
+    return {(y * vec.z) - (z * vec.y), (z * vec.x) - (x * vec.z), (x * vec.y) - (y * vec.x)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -578,11 +578,11 @@ void Vector3::Interpolate(const Vector3 & a, const Vector3 & b, Value d)
 Vector3 Vector3::Interpolated(const Vector3 & vec, Value d) const
 {
     const Float64 inv = 1.0 - d;
-    return Vector3(
+    return {
         STOVAL((vec.x * inv) + (x * d)),
         STOVAL((vec.y * inv) + (y * d)),
         STOVAL((vec.z * inv) + (z * d))
-    );
+    };
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -656,40 +656,11 @@ const Vector3 & Vector3::GetEx(SQChar delim, StackStrF & str)
     return vec;
 }
 
-// ------------------------------------------------------------------------------------------------
-const Vector3 & GetVector3()
-{
-    static Vector3 vec;
-    vec.Clear();
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector3 & GetVector3(Float32 sv)
-{
-    static Vector3 vec;
-    vec.SetScalar(sv);
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector3 & GetVector3(Float32 xv, Float32 yv, Float32 zv)
-{
-    static Vector3 vec;
-    vec.SetVector3Ex(xv, yv, zv);
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector3 & GetVector3(const Vector3 & o)
-{
-    static Vector3 vec;
-    vec.SetVector3(o);
-    return vec;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Vector3(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef Vector3::Value Val;
 

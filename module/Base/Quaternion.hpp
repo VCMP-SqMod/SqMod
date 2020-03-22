@@ -37,32 +37,32 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Quaternion();
+    Quaternion() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct from scalar value.
     */
-    explicit Quaternion(Value sv);
+    explicit Quaternion(Value sv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct from Euler angles (in degrees.)
     */
-    Quaternion(Value xv, Value yv, Value zv);
+    Quaternion(Value xv, Value yv, Value zv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct from individual values.
     */
-    Quaternion(Value xv, Value yv, Value zv, Value wv);
+    Quaternion(Value xv, Value yv, Value zv, Value wv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Quaternion(const Quaternion & o) = default;
+    Quaternion(const Quaternion & o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Quaternion(Quaternion && o) = default;
+    Quaternion(Quaternion && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -157,12 +157,12 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    Quaternion operator ++ (int);
+    Quaternion operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Quaternion operator -- (int);
+    Quaternion operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.

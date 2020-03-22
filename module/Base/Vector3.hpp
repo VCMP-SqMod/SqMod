@@ -43,27 +43,27 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Vector3();
+    Vector3() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
     */
-    explicit Vector3(Value sv);
+    explicit Vector3(Value sv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the specified component values.
     */
-    Vector3(Value xv, Value yv, Value zv);
+    Vector3(Value xv, Value yv, Value zv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Vector3(const Vector3 & o) = default;
+    Vector3(const Vector3 & o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Vector3(Vector3 && o) = default;
+    Vector3(Vector3 && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -158,12 +158,12 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    Vector3 operator ++ (int);
+    Vector3 operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Vector3 operator -- (int);
+    Vector3 operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.

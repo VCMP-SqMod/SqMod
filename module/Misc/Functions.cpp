@@ -6,6 +6,7 @@
 #include "Base/Vector3.hpp"
 #include "Entity/Player.hpp"
 #include "Core.hpp"
+#include "Library/Numeric/LongInt.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {

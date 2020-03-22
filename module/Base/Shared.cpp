@@ -3,15 +3,12 @@
 #include "Base/Buffer.hpp"
 #include "Base/Color3.hpp"
 #include "Library/Numeric/Random.hpp"
-#include "Library/Numeric/LongInt.hpp"
 #include "Library/String.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cerrno>
-#include <cstdio>
 #include <cstring>
 #include <cstdarg>
-#include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
@@ -165,49 +162,6 @@ static const Color3 SQ_Color_List[] =
     Color3(255, 255, 0),
     Color3(154, 205, 50)
 };
-
-// ------------------------------------------------------------------------------------------------
-const SLongInt & GetSLongInt()
-{
-    static SLongInt l;
-    l.SetNum(0);
-    return l;
-}
-
-const SLongInt & GetSLongInt(Int64 n)
-{
-    static SLongInt l;
-    l.SetNum(n);
-    return l;
-}
-
-const SLongInt & GetSLongInt(CSStr s)
-{
-    static SLongInt l;
-    l = s;
-    return l;
-}
-
-const ULongInt & GetULongInt()
-{
-    static ULongInt l;
-    l.SetNum(0);
-    return l;
-}
-
-const ULongInt & GetULongInt(Uint64 n)
-{
-    static ULongInt l;
-    l.SetNum(n);
-    return l;
-}
-
-const ULongInt & GetULongInt(CSStr s)
-{
-    static ULongInt l;
-    l = s;
-    return l;
-}
 
 // ------------------------------------------------------------------------------------------------
 bool NameFilterCheck(CSStr filter, CSStr name)
@@ -371,22 +325,22 @@ Color3 GetColorStr(CSStr name)
             switch (b)
             {
                 // [Al]iceBlue
-                case 'l': return Color3(240, 248, 255);
+                case 'l': return {240, 248, 255};
                 // [Aq]ua[m]arine
-                case 'm': return Color3(127, 255, 212);
+                case 'm': return {127, 255, 212};
                 // [An]tiqueWhite
-                case 'n': return Color3(250, 235, 215);
+                case 'n': return {250, 235, 215};
                 // [Aq]ua
                 // [Aq]uamarine
                 case 'q':
                     // [Aq]u[a]
-                    if (d == 'a') return Color3(0, 255, 255);
+                    if (d == 'a') return {0, 255, 255};
                     // [Aq]ua[m]arin[e]
-                    else if (d == 'e' || (len > 4 && str[4] == 'm')) return Color3(127, 255, 212);
+                    else if (d == 'e' || (len > 4 && str[4] == 'm')) return {127, 255, 212};
                     // Default to blank
                     else return Color3::NIL;
                 // [Az]ure
-                case 'z': return Color3(240, 255, 255);
+                case 'z': return {240, 255, 255};
                 // Default to blank
                 default: return Color3::NIL;
             }
@@ -402,32 +356,32 @@ Color3 GetColorStr(CSStr name)
             switch (b)
             {
                 // [B]lanched[A]lmond
-                case 'a': return Color3(255, 235, 205);
+                case 'a': return {255, 235, 205};
                 // [Be]ige
-                case 'e': return Color3(245, 245, 220);
+                case 'e': return {245, 245, 220};
                 // [Bi]sque
-                case 'i': return Color3(255, 228, 196);
+                case 'i': return {255, 228, 196};
                 // [Bl]ack
                 // [Bl]anchedAlmond
                 // [Bl]ue
                 // [Bl]ueViolet
                 case 'l':
                     // [Bl]a[ck]
-                    if (d == 'k' || d == 'c') return Color3(0, 0, 0);
+                    if (d == 'k' || d == 'c') return {0, 0, 0};
                     // [Bl]anched[A]lmon[d]
-                    else if (d == 'd' || (len > 8 && str[8] == 'a')) return Color3(255, 235, 205);
+                    else if (d == 'd' || (len > 8 && str[8] == 'a')) return {255, 235, 205};
                     // [Bl]u[e]
-                    else if (d == 'e') return Color3(0, 0, 255);
+                    else if (d == 'e') return {0, 0, 255};
                     // [Bl]ue[V]iole[t]
-                    else if (d == 't' || (len > 4 && str[4] == 'v')) return Color3(138, 43, 226);
+                    else if (d == 't' || (len > 4 && str[4] == 'v')) return {138, 43, 226};
                     // Default to blank
                     else return Color3::NIL;
                 // [Br]own
-                case 'r': return Color3(165, 42, 42);
+                case 'r': return {165, 42, 42};
                 // [Bu]rlyWood
-                case 'u': return Color3(222, 184, 135);
+                case 'u': return {222, 184, 135};
                 // [B]lue[V]iolet
-                case 'v': return Color3(138, 43, 226);
+                case 'v': return {138, 43, 226};
                 // Default to blank
                 default: return Color3::NIL;
             }
@@ -443,14 +397,14 @@ Color3 GetColorStr(CSStr name)
             switch (b)
             {
                 // [Ca]detBlue
-                case 'a': return Color3(95, 158, 160);
+                case 'a': return {95, 158, 160};
                 // [Ch]artreuse
                 // [Ch]ocolate
                 case 'h':
                     // [Ch]artreuse
-                    if (c == 'a') return Color3(127, 255, 0);
+                    if (c == 'a') return {127, 255, 0};
                     // [Ch]ocolate
-                    else if (c == 'o') return Color3(210, 105, 30);
+                    else if (c == 'o') return {210, 105, 30};
                     // Default to blank
                     else return Color3::NIL;
                 // [Co]ral
@@ -458,17 +412,17 @@ Color3 GetColorStr(CSStr name)
                 // [Co]rnsilk
                 case 'o':
                     // [Co]ra[l]
-                    if (d == 'l') return Color3(255, 127, 80);
+                    if (d == 'l') return {255, 127, 80};
                     // [Co]rnflower[B]lu[e]
-                    else if (d == 'e' || (len > 10 && str[10] == 'b')) return Color3(100, 149, 237);
+                    else if (d == 'e' || (len > 10 && str[10] == 'b')) return {100, 149, 237};
                     // [Co]rnsil[k]
-                    else if (d == 'k') return Color3(255, 248, 220);
+                    else if (d == 'k') return {255, 248, 220};
                     // Default to blank
                     else return Color3::NIL;
                 // [Cr]imson
-                case 'r': return Color3(220, 20, 60);
+                case 'r': return {220, 20, 60};
                 // [Cy]an
-                case 'y': return Color3(0, 255, 255);
+                case 'y': return {0, 255, 255};
                 // Default to blank
                 default: return Color3::NIL;
             }
@@ -495,13 +449,13 @@ Color3 GetColorStr(CSStr name)
         // [D]odgerBlue
         case 'd':
             // [Di]mGray
-            if (b == 'i' || b == 'g') return Color3(105, 105, 105);
+            if (b == 'i' || b == 'g') return {105, 105, 105};
             // [Do]dgerBlue
-            else if (b == 'o' || b == 'b') return Color3(30, 144, 255);
+            else if (b == 'o' || b == 'b') return {30, 144, 255};
             // [De]ep[P]in[k]
-            else if (b == 'e' && (d == 'k' || (len > 4 && str[4] == 'p'))) return Color3(255, 20, 147);
+            else if (b == 'e' && (d == 'k' || (len > 4 && str[4] == 'p'))) return {255, 20, 147};
             // [De]ep[S]kyBlu[e]
-            else if (b == 'e' && (d == 'e' || (len > 4 && str[4] == 's'))) return Color3(0, 191, 255);
+            else if (b == 'e' && (d == 'e' || (len > 4 && str[4] == 's'))) return {0, 191, 255};
             // [Da]rkBlue
             // [Da]rkCyan
             // [Da]rkGoldenRod
@@ -521,39 +475,39 @@ Color3 GetColorStr(CSStr name)
             // [Da]rkViolet
             else if (b == 'a') {
                 // [Da]rk[B]lue
-                if (c == 'b' || (len > 4 && str[4] == 'b')) return Color3(0, 0, 139);
+                if (c == 'b' || (len > 4 && str[4] == 'b')) return {0, 0, 139};
                 // [Da]rk[C]yan
-                else if (c == 'c' || (len > 4 && str[4] == 'c')) return Color3(0, 139, 139);
+                else if (c == 'c' || (len > 4 && str[4] == 'c')) return {0, 139, 139};
                 // [Da]rk[Go]ldenRo[d]
-                else if ((len > 4 && str[4] == 'g') && (d == 'd' || d == 'o')) return Color3(184, 134, 11);
+                else if ((len > 4 && str[4] == 'g') && (d == 'd' || d == 'o')) return {184, 134, 11};
                 // [Da]rk[G]r[ay]
-                else if ((len > 4 && str[4] == 'g') && (d == 'y' || d == 'a')) return Color3(169, 169, 169);
+                else if ((len > 4 && str[4] == 'g') && (d == 'y' || d == 'a')) return {169, 169, 169};
                 // [Da]rk[G]r[een]
-                else if ((len > 4 && str[4] == 'g') && (d == 'n' || d == 'e')) return Color3(0, 100, 0);
+                else if ((len > 4 && str[4] == 'g') && (d == 'n' || d == 'e')) return {0, 100, 0};
                 // [Da]rk[K]hak[i]
-                else if (d == 'i' || c == 'k' || (len > 4 && str[4] == 'k')) return Color3(189, 183, 107);
+                else if (d == 'i' || c == 'k' || (len > 4 && str[4] == 'k')) return {189, 183, 107};
                 // [Da]rk[M]agent[a]
-                else if (d == 'a' || c == 'm' || (len > 4 && str[4] == 'm')) return Color3(139, 0, 139);
+                else if (d == 'a' || c == 'm' || (len > 4 && str[4] == 'm')) return {139, 0, 139};
                 // [Da]rk[O]liveGr[een]
-                else if ((len > 4 && str[4] == 'o') && (d == 'n' || d == 'e')) return Color3(85, 107, 47);
+                else if ((len > 4 && str[4] == 'o') && (d == 'n' || d == 'e')) return {85, 107, 47};
                 // [Da]rk[O]r[a]ng[e]
-                else if ((len > 4 && str[4] == 'o') && (d == 'e' || d == 'a')) return Color3(255, 140, 0);
+                else if ((len > 4 && str[4] == 'o') && (d == 'e' || d == 'a')) return {255, 140, 0};
                 // [Da]rk[O]r[c]hi[d]
-                else if ((len > 4 && str[4] == 'o') && (d == 'd' || d == 'c')) return Color3(153, 50, 204);
+                else if ((len > 4 && str[4] == 'o') && (d == 'd' || d == 'c')) return {153, 50, 204};
                 // [Da]rk[R]ed
-                else if (len > 4 && str[4] == 'r') return Color3(139, 0, 0);
+                else if (len > 4 && str[4] == 'r') return {139, 0, 0};
                 // [Da]rk[Sa]lmon
-                else if (len > 5 && str[4] == 's' && str[5] == 'a') return Color3(233, 150, 122);
+                else if (len > 5 && str[4] == 's' && str[5] == 'a') return {233, 150, 122};
                 // [Da]rk[Se]aGreen
-                else if (len > 5 && str[4] == 's' && str[5] == 'e') return Color3(143, 188, 143);
+                else if (len > 5 && str[4] == 's' && str[5] == 'e') return {143, 188, 143};
                 // [Da]rk[S]lateBlu[e]
-                else if ((len > 4 && str[4] == 's') && (d == 'e' || d == 'b')) return Color3(72, 61, 139);
+                else if ((len > 4 && str[4] == 's') && (d == 'e' || d == 'b')) return {72, 61, 139};
                 // [Da]rk[S]lateGra[y]
-                else if ((len > 4 && str[4] == 's') && (d == 'y' || d == 'g')) return Color3(47, 79, 79);
+                else if ((len > 4 && str[4] == 's') && (d == 'y' || d == 'g')) return {47, 79, 79};
                 // [Da]rk[T]urquoise
-                else if (c == 't' || (len > 4 && str[4] == 't')) return Color3(0, 206, 209);
+                else if (c == 't' || (len > 4 && str[4] == 't')) return {0, 206, 209};
                 // [Da]rk[V]iolet
-                else if (c == 'v' || (len > 4 && str[4] == 'v')) return Color3(148, 0, 211);
+                else if (c == 'v' || (len > 4 && str[4] == 'v')) return {148, 0, 211};
                 // Default to blank
                 else return Color3::NIL;
             // Default to blank
@@ -567,15 +521,15 @@ Color3 GetColorStr(CSStr name)
             {
                 // [Fi]re[B]rick
                 case 'i':
-                case 'b': return Color3(178, 34, 34);
+                case 'b': return {178, 34, 34};
                 // [Fl]oral[W]hite
                 case 'l':
-                case 'w': return Color3(255, 250, 240);
+                case 'w': return {255, 250, 240};
                 // [Fo]rest[G]reen
                 case 'o':
-                case 'g': return Color3(34, 139, 34);
+                case 'g': return {34, 139, 34};
                 // [Fu]chsia
-                case 'u': return Color3(255, 0, 255);
+                case 'u': return {255, 0, 255};
                 // Default to blank
                 default: return Color3::NIL;
             }
@@ -588,28 +542,28 @@ Color3 GetColorStr(CSStr name)
         // [G]reenYellow
         case 'g':
             // [Ga]insboro
-            if (b == 'a') return Color3(220, 220, 220);
+            if (b == 'a') return {220, 220, 220};
             // [Gh]ost[W]hite
-            else if (b == 'h' || b == 'w') return Color3(248, 248, 255);
+            else if (b == 'h' || b == 'w') return {248, 248, 255};
             // [Go]ld[e]n[R]od
-            else if (len > 4 && (str[4] == 'e' || str[4] == 'r')) return Color3(218, 165, 32);
+            else if (len > 4 && (str[4] == 'e' || str[4] == 'r')) return {218, 165, 32};
             // [Go]l[d]
-            else if (b == 'o' && d == 'd') return Color3(255, 215, 0);
+            else if (b == 'o' && d == 'd') return {255, 215, 0};
             // [Gray]
-            else if (b == 'r' && (d == 'y' || d == 'a')) return Color3(128, 128, 128);
+            else if (b == 'r' && (d == 'y' || d == 'a')) return {128, 128, 128};
             // [Gr]een
-            else if (b == 'r' && d == 'n') return Color3(0, 128, 0);
+            else if (b == 'r' && d == 'n') return {0, 128, 0};
             // [Gr]eenYellow
-            else if (b == 'r' && (d == 'w' || (len > 5 && str[5] == 'y'))) return Color3(173, 255, 47);
+            else if (b == 'r' && (d == 'w' || (len > 5 && str[5] == 'y'))) return {173, 255, 47};
             // Default to blank
             else return Color3::NIL;
         // [H]oneyDew
         // [H]otPink
         case 'h':
             // [H]o[n]ey[D]e[w]
-            if (d == 'w' || c == 'n' || (len > 5 && str[5] == 'd')) return Color3(240, 255, 240);
+            if (d == 'w' || c == 'n' || (len > 5 && str[5] == 'd')) return {240, 255, 240};
             // [H]o[tP]in[k]
-            else if (d == 'k' || c == 't' || (len > 3 && str[3] == 'p')) return Color3(255, 105, 180);
+            else if (d == 'k' || c == 't' || (len > 3 && str[3] == 'p')) return {255, 105, 180};
             // Default to blank
             else return Color3::NIL;
         // [I]ndianRed
@@ -617,15 +571,15 @@ Color3 GetColorStr(CSStr name)
         // [I]vory
         case 'i':
             // [In]dian[R]e[d]
-            if (b == 'n' && (d == 'd' || d == 'r')) return Color3(205, 92, 92);
+            if (b == 'n' && (d == 'd' || d == 'r')) return {205, 92, 92};
             // [In]di[go]
-            else if (b == 'n' && (d == 'o' || d == 'g')) return Color3(75, 0, 130);
+            else if (b == 'n' && (d == 'o' || d == 'g')) return {75, 0, 130};
             // [I]vory
-            else if (b == 'v') return Color3(255, 255, 240);
+            else if (b == 'v') return {255, 255, 240};
             // Default to blank
             else return Color3::NIL;
         // [K]haki
-        case 'k': return Color3(240, 230, 140);
+        case 'k': return {240, 230, 140};
         // [L]avender
         // [L]avenderBlush
         // [L]awnGreen
@@ -648,19 +602,19 @@ Color3 GetColorStr(CSStr name)
         // [L]inen
         case 'l':
             // [La]vende[r]
-            if (b == 'a' && d == 'r') return Color3(230, 230, 250);
+            if (b == 'a' && d == 'r') return {230, 230, 250};
             // [La]vender[B]lus[h]
-            else if (b == 'a' && (d == 'h' || d == 'b')) return Color3(255, 240, 245);
+            else if (b == 'a' && (d == 'h' || d == 'b')) return {255, 240, 245};
             // [Law]n[G]ree[n]
-            else if (b == 'g' || (b == 'a' && (c == 'w' || d == 'n'))) return Color3(124, 252, 0);
+            else if (b == 'g' || (b == 'a' && (c == 'w' || d == 'n'))) return {124, 252, 0};
             // [Le]mon[C]hiffon
-            else if (b == 'e' || b == 'c') return Color3(255, 250, 205);
+            else if (b == 'e' || b == 'c') return {255, 250, 205};
             // [Li]me[G]reen
-            else if (b == 'g' || (b == 'i' && (len > 4 && str[4] == 'g'))) return Color3(50, 205, 50);
+            else if (b == 'g' || (b == 'i' && (len > 4 && str[4] == 'g'))) return {50, 205, 50};
             // [Lime]
-            else if (b == 'i' && c == 'm' && d == 'e') return Color3(0, 255, 0);
+            else if (b == 'i' && c == 'm' && d == 'e') return {0, 255, 0};
             // [Lin]e[n]
-            else if (b == 'i' && (c == 'n' || d == 'n')) return Color3(250, 240, 230);
+            else if (b == 'i' && (c == 'n' || d == 'n')) return {250, 240, 230};
             // [Li]ghtBlue
             // [Li]ghtCoral
             // [Li]ghtCyan
@@ -676,31 +630,31 @@ Color3 GetColorStr(CSStr name)
             // [Li]ghtYellow
             else if (b == 'i') {
                 // [Li]ght[B]lue
-                if (len > 5 && str[5] == 'b') return Color3(173, 216, 230);
+                if (len > 5 && str[5] == 'b') return {173, 216, 230};
                 // [Li]ght[Co]ra[l]
-                else if ((len > 5 && str[5] == 'c') && (d == 'l' || d == 'o')) return Color3(240, 128, 128);
+                else if ((len > 5 && str[5] == 'c') && (d == 'l' || d == 'o')) return {240, 128, 128};
                 // [Li]ght[Cy]a[n]
-                else if ((len > 5 && str[5] == 'c') && (d == 'n' || d == 'y')) return Color3(224, 255, 255);
+                else if ((len > 5 && str[5] == 'c') && (d == 'n' || d == 'y')) return {224, 255, 255};
                 // [Li]ght[Go]ldenRodYello[w]
-                else if ((len > 5 && str[5] == 'g') && (d == 'w' || d == 'o')) return Color3(250, 250, 210);
+                else if ((len > 5 && str[5] == 'g') && (d == 'w' || d == 'o')) return {250, 250, 210};
                 // [Li]ght[G]r[ay]
-                else if ((len > 5 && str[5] == 'g') && (d == 'y' || d == 'a')) return Color3(211, 211, 211);
+                else if ((len > 5 && str[5] == 'g') && (d == 'y' || d == 'a')) return {211, 211, 211};
                 // [Li]ght[G]r[een]
-                else if ((len > 5 && str[5] == 'g') && (d == 'n' || d == 'e')) return Color3(144, 238, 144);
+                else if ((len > 5 && str[5] == 'g') && (d == 'n' || d == 'e')) return {144, 238, 144};
                 // [Li]ght[P]ink
-                else if (len > 5 && str[5] == 'p') return Color3(255, 182, 193);
+                else if (len > 5 && str[5] == 'p') return {255, 182, 193};
                 // [Li]ght[Sa]lmon
-                else if (len > 6 && str[5] == 's' && str[5] == 'a') return Color3(255, 160, 122);
+                else if (len > 6 && str[5] == 's' && str[5] == 'a') return {255, 160, 122};
                 // [Li]ght[Se]aGreen
-                else if (len > 6 && str[5] == 's' && str[5] == 'e') return Color3(32, 178, 170);
+                else if (len > 6 && str[5] == 's' && str[5] == 'e') return {32, 178, 170};
                 // [Li]ght[Sk]yBlue
-                else if (len > 6 && str[5] == 's' && str[5] == 'k') return Color3(135, 206, 250);
+                else if (len > 6 && str[5] == 's' && str[5] == 'k') return {135, 206, 250};
                 // [Li]ght[Sl]ateGray
-                else if (len > 6 && str[5] == 's' && str[5] == 'l') return Color3(119, 136, 153);
+                else if (len > 6 && str[5] == 's' && str[5] == 'l') return {119, 136, 153};
                 // [Li]ght[St]eelBlue
-                else if (len > 6 && str[5] == 's' && str[5] == 't') return Color3(176, 196, 222);
+                else if (len > 6 && str[5] == 's' && str[5] == 't') return {176, 196, 222};
                 // [Li]ght[Y]ellow
-                else if (len > 5 && str[5] == 'y') return Color3(255, 255, 224);
+                else if (len > 5 && str[5] == 'y') return {255, 255, 224};
                 // Default to blank
                 else return Color3::NIL;
             // Default to blank
@@ -722,9 +676,9 @@ Color3 GetColorStr(CSStr name)
         // [M]occasin
         case 'm':
             // [Ma]genta
-            if (b == 'a' && (c == 'a' || d == 'a')) return Color3(255, 0, 255);
+            if (b == 'a' && (c == 'a' || d == 'a')) return {255, 0, 255};
             // [Ma]roon
-            else if (b == 'a' && (c == 'r' || d == 'n' || d == 'o')) return Color3(128, 0, 0);
+            else if (b == 'a' && (c == 'r' || d == 'n' || d == 'o')) return {128, 0, 0};
             // [Me]diumAquaMarine
             // [Me]diumBlue
             // [Me]diumOrchid
@@ -736,43 +690,43 @@ Color3 GetColorStr(CSStr name)
             // [Me]diumVioletRed
             else if (b == 'e') {
                 // [Me]dium[A]quaMarine
-                if (c == 'a' || (len > 6 && str[6] == 'a')) return Color3(102, 205, 170);
+                if (c == 'a' || (len > 6 && str[6] == 'a')) return {102, 205, 170};
                 // [Me]dium[B]lue
-                else if (c == 'b' || (len > 6 && str[6] == 'b')) return Color3(0, 0, 205);
+                else if (c == 'b' || (len > 6 && str[6] == 'b')) return {0, 0, 205};
                 // [Me]dium[O]rchid
-                else if (c == 'o' || (len > 6 && str[6] == 'o')) return Color3(186, 85, 211);
+                else if (c == 'o' || (len > 6 && str[6] == 'o')) return {186, 85, 211};
                 // [Me]dium[P]urple
-                else if (c == 'p' || (len > 6 && str[6] == 'p')) return Color3(147, 112, 219);
+                else if (c == 'p' || (len > 6 && str[6] == 'p')) return {147, 112, 219};
                 // [Me]dium[T]urquoise
-                else if (c == 't' || (len > 6 && str[6] == 't')) return Color3(72, 209, 204);
+                else if (c == 't' || (len > 6 && str[6] == 't')) return {72, 209, 204};
                 // [Me]dium[V]ioletRed
-                else if (c == 'v' || (len > 6 && str[6] == 'v')) return Color3(199, 21, 133);
+                else if (c == 'v' || (len > 6 && str[6] == 'v')) return {199, 21, 133};
                 // [Me]dium[Se]aGreen
-                else if (len > 7 && str[6] == 's' && str[7] == 'e') return Color3(60, 179, 113);
+                else if (len > 7 && str[6] == 's' && str[7] == 'e') return {60, 179, 113};
                 // [Me]dium[Sl]ateBlue
-                else if (len > 7 && str[6] == 's' && str[7] == 'l') return Color3(123, 104, 238);
+                else if (len > 7 && str[6] == 's' && str[7] == 'l') return {123, 104, 238};
                 // [Me]dium[Sp]ringGreen
-                else if (len > 7 && str[6] == 's' && str[7] == 'p') return Color3(0, 250, 154);
+                else if (len > 7 && str[6] == 's' && str[7] == 'p') return {0, 250, 154};
                 // Default to blank
                 else return Color3::NIL;
             }
             // [Mi]dnightBlue
-            else if (b == 'i' && c == 'd') return Color3(25, 25, 112);
+            else if (b == 'i' && c == 'd') return {25, 25, 112};
             // [Mi]ntCream
-            else if (b == 'i' && c == 'n') return Color3(245, 255, 250);
+            else if (b == 'i' && c == 'n') return {245, 255, 250};
             // [Mi]styRose
-            else if (b == 'i' && c == 's') return Color3(255, 228, 225);
+            else if (b == 'i' && c == 's') return {255, 228, 225};
             // [Mo]ccasin
-            else if (b == 'o') return Color3(255, 228, 181);
+            else if (b == 'o') return {255, 228, 181};
             // Default to blank
             else return Color3::NIL;
         // [N]avajoWhite
         // [N]avy
         case 'n':
             // [Na]vajo[W]hite
-            if (c == 'v' || c == 'w') return Color3(255, 222, 173);
+            if (c == 'v' || c == 'w') return {255, 222, 173};
             // [Na]v[y]
-            else if (c == 'a' || d == 'y') return Color3(0, 0, 128);
+            else if (c == 'a' || d == 'y') return {0, 0, 128};
             // Default to blank
             else return Color3::NIL;
         // [O]ldLace
@@ -783,17 +737,17 @@ Color3 GetColorStr(CSStr name)
         // [O]rchid
         case 'o':
             // [Old]Lace
-            if (b == 'l' && c == 'd') return Color3(253, 245, 230);
+            if (b == 'l' && c == 'd') return {253, 245, 230};
             // [Ol]ive[D]ra[b]
-            else if (b == 'l' && (d == 'b' || d == 'd')) return Color3(107, 142, 35);
+            else if (b == 'l' && (d == 'b' || d == 'd')) return {107, 142, 35};
             // [Ol]iv[e]
-            else if (b == 'l' && d == 'e') return Color3(128, 128, 0);
+            else if (b == 'l' && d == 'e') return {128, 128, 0};
             // [Or]ange[R]e[d]
-            else if (b == 'r' && (d == 'd' || d == 'r')) return Color3(255, 69, 0);
+            else if (b == 'r' && (d == 'd' || d == 'r')) return {255, 69, 0};
             // [Or]ang[e]
-            else if (b == 'r' && d == 'e') return Color3(255, 165, 0);
+            else if (b == 'r' && d == 'e') return {255, 165, 0};
             // [Orc]hid
-            else if (d == 'c') return Color3(218, 112, 214);
+            else if (d == 'c') return {218, 112, 214};
             // Default to blank
             else return Color3::NIL;
         // [P]aleGoldenRod
@@ -809,27 +763,27 @@ Color3 GetColorStr(CSStr name)
         // [P]urple
         case 'p':
             // [Pu]rple
-            if (b == 'u') return Color3(128, 0, 128);
+            if (b == 'u') return {128, 0, 128};
             // [Po]wderBlue
-            else if (b == 'o') return Color3(176, 224, 230);
+            else if (b == 'o') return {176, 224, 230};
             // [Pi]nk
-            else if (b == 'i') return Color3(255, 192, 203);
+            else if (b == 'i') return {255, 192, 203};
             // [Pl]um
-            else if (b == 'l') return Color3(221, 160, 221);
+            else if (b == 'l') return {221, 160, 221};
             // [Pea]chPuff
-            else if (b == 'e' && c == 'a') return Color3(255, 218, 185);
+            else if (b == 'e' && c == 'a') return {255, 218, 185};
             // [Per]u
-            else if (b == 'e' && c == 'r') return Color3(205, 133, 63);
+            else if (b == 'e' && c == 'r') return {205, 133, 63};
             // [Pa]payaWhip
-            else if (b == 'a' && c == 'p') return Color3(255, 239, 213);
+            else if (b == 'a' && c == 'p') return {255, 239, 213};
             // [Pa]le[Go]ldenRod
-            else if (b == 'a' && (len > 5 && str[4] == 'g' && str[5] == 'o')) return Color3(238, 232, 170);
+            else if (b == 'a' && (len > 5 && str[4] == 'g' && str[5] == 'o')) return {238, 232, 170};
             // [Pa]le[Gr]een
-            else if (b == 'a' && (len > 5 && str[4] == 'g' && str[5] == 'r')) return Color3(152, 251, 152);
+            else if (b == 'a' && (len > 5 && str[4] == 'g' && str[5] == 'r')) return {152, 251, 152};
             // [Pa]le[T]urquoise
-            else if (b == 'a' && (len > 4 && str[4] == 't')) return Color3(175, 238, 238);
+            else if (b == 'a' && (len > 4 && str[4] == 't')) return {175, 238, 238};
             // [Pa]le[V]ioletRed
-            else if (b == 'a' && (len > 4 && str[4] == 'v')) return Color3(219, 112, 147);
+            else if (b == 'a' && (len > 4 && str[4] == 'v')) return {219, 112, 147};
             // Default to blank
             else return Color3::NIL;
         // [R]ed
@@ -837,11 +791,11 @@ Color3 GetColorStr(CSStr name)
         // [R]oyalBlue
         case 'r':
             // [Re]d
-            if (b == 'e') return Color3(255, 0, 0);
+            if (b == 'e') return {255, 0, 0};
             // [Ros]yBrown
-            else if (b == 'o' && c == 's') return Color3(188, 143, 143);
+            else if (b == 'o' && c == 's') return {188, 143, 143};
             // [Roy]alBlue
-            else if (b == 'o' && c == 'y') return Color3(65, 105, 225);
+            else if (b == 'o' && c == 'y') return {65, 105, 225};
             // Default to blank
             else return Color3::NIL;
         // [S]addleBrown
@@ -859,31 +813,31 @@ Color3 GetColorStr(CSStr name)
         // [S]teelBlue
         case 's':
             // [Sad]dleBrown
-            if (b == 'a' && c == 'd') return Color3(139, 69, 19);
+            if (b == 'a' && c == 'd') return {139, 69, 19};
             // [Sal]mon
-            else if (b == 'a' && c == 'l') return Color3(250, 128, 114);
+            else if (b == 'a' && c == 'l') return {250, 128, 114};
             // [San]dyBrown
-            else if (b == 'a' && c == 'n') return Color3(244, 164, 96);
+            else if (b == 'a' && c == 'n') return {244, 164, 96};
             // [Se]a[G]reen
-            else if (b == 'e' && d == 'g') return Color3(46, 139, 87);
+            else if (b == 'e' && d == 'g') return {46, 139, 87};
             // [Se]a[S]hell
-            else if (b == 'e' && d == 's') return Color3(255, 245, 238);
+            else if (b == 'e' && d == 's') return {255, 245, 238};
             // [Sie]nna
-            else if (b == 'i' && c == 'e') return Color3(160, 82, 45);
+            else if (b == 'i' && c == 'e') return {160, 82, 45};
             // [Sil]ver
-            else if (b == 'i' && c == 'l') return Color3(192, 192, 192);
+            else if (b == 'i' && c == 'l') return {192, 192, 192};
             // [Sk]yBlue
-            else if (b == 'k') return Color3(135, 206, 235);
+            else if (b == 'k') return {135, 206, 235};
             // [Sl]ateBlue
-            else if (b == 'l' && (d == 'e' || (len > 5 && str[5] == 'b'))) return Color3(106, 90, 205);
+            else if (b == 'l' && (d == 'e' || (len > 5 && str[5] == 'b'))) return {106, 90, 205};
             // [Sl]ateGray
-            else if (b == 'l' && (d == 'y' || (len > 5 && str[5] == 'g'))) return Color3(112, 128, 144);
+            else if (b == 'l' && (d == 'y' || (len > 5 && str[5] == 'g'))) return {112, 128, 144};
             // [Sn]ow
-            else if (b == 'n') return Color3(255, 250, 250);
+            else if (b == 'n') return {255, 250, 250};
             // [Sp]ringGreen
-            else if (b == 'p') return Color3(0, 255, 127);
+            else if (b == 'p') return {0, 255, 127};
             // [St]eelBlue
-            else if (b == 't') return Color3(70, 130, 180);
+            else if (b == 't') return {70, 130, 180};
             // Default to blank
             else return Color3::NIL;
         // [T]an
@@ -895,39 +849,39 @@ Color3 GetColorStr(CSStr name)
             switch(b)
             {
                 // [Ta]n
-                case 'a': return Color3(210, 180, 140);
+                case 'a': return {210, 180, 140};
                 // [Te]al
-                case 'e': return Color3(0, 128, 128);
+                case 'e': return {0, 128, 128};
                 // [Th]istle
-                case 'h': return Color3(216, 191, 216);
+                case 'h': return {216, 191, 216};
                 // [To]mato
-                case 'o': return Color3(255, 99, 71);
+                case 'o': return {255, 99, 71};
                 // [Tu]rquoise
-                case 'u': return Color3(64, 224, 208);
+                case 'u': return {64, 224, 208};
                 // Default to blank
                 default: return Color3::NIL;
             }
         // [V]iolet
-        case 'v': return Color3(238, 130, 238);
+        case 'v': return {238, 130, 238};
         // [W]heat
         // [W]hite
         // [W]hiteSmoke
         case 'w':
             // [Wh]eat
-            if (b == 'h' && c == 'e') return Color3(245, 222, 179);
+            if (b == 'h' && c == 'e') return {245, 222, 179};
             // [Wh]ite[S]moke
-            else if (b == 'h' && (len > 5 && str[5] == 's')) return Color3(245, 245, 245);
+            else if (b == 'h' && (len > 5 && str[5] == 's')) return {245, 245, 245};
             // [Whi]te
-            else if (b == 'h' && c == 'i') return Color3(255, 255, 255);
+            else if (b == 'h' && c == 'i') return {255, 255, 255};
             // Default to blank
             else return Color3::NIL;
         // [Y]ellow
         // [Y]ellowGreen
         case 'y':
             // [Ye]llow[G]reen
-            if (b == 'e' && (len > 6 && str[6] == 'g')) return Color3(154, 205, 50);
+            if (b == 'e' && (len > 6 && str[6] == 'g')) return {154, 205, 50};
             // [Yel]low
-            else if (b == 'e' && c == 'l') return Color3(255, 255, 0);
+            else if (b == 'e' && c == 'l') return {255, 255, 0};
             // Default to blank
             else return Color3::NIL;
         // Default to blank
@@ -963,8 +917,8 @@ void SqThrowLastF(CSStr msg, ...)
     LPSTR msg_buff = nullptr;
     // Attempt to obtain the error message
     const std::size_t size = FormatMessageA(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr, error_num, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, // NOLINT(hicpp-signed-bitwise)
+        nullptr, error_num, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // NOLINT(hicpp-signed-bitwise)
         reinterpret_cast< LPSTR >(&msg_buff), 0, nullptr);
     // Copy the message buffer before freeing it
     std::string message(msg_buff, size);
@@ -981,7 +935,7 @@ void SqThrowLastF(CSStr msg, ...)
 static SQInteger SqPackRGB(SQInteger r, SQInteger g, SQInteger b)
 {
     return static_cast< Int32 >(SQMOD_PACK_RGB(
-            ConvTo< Uint8 >::From(r),
+            ConvTo< Uint8 >::From(r), // NOLINT(hicpp-signed-bitwise)
             ConvTo< Uint8 >::From(g),
             ConvTo< Uint8 >::From(b)
         ));
@@ -991,7 +945,7 @@ static SQInteger SqPackRGB(SQInteger r, SQInteger g, SQInteger b)
 static SQInteger SqPackRGBA(SQInteger r, SQInteger g, SQInteger b, SQInteger a)
 {
     return static_cast< Int32 >(SQMOD_PACK_RGBA(
-            ConvTo< Uint8 >::From(r),
+            ConvTo< Uint8 >::From(r), // NOLINT(hicpp-signed-bitwise)
             ConvTo< Uint8 >::From(g),
             ConvTo< Uint8 >::From(b),
             ConvTo< Uint8 >::From(a)
@@ -1002,7 +956,7 @@ static SQInteger SqPackRGBA(SQInteger r, SQInteger g, SQInteger b, SQInteger a)
 static SQInteger SqPackARGB(SQInteger r, SQInteger g, SQInteger b, SQInteger a)
 {
     return static_cast< Int32 >(SQMOD_PACK_ARGB(
-            ConvTo< Uint8 >::From(a),
+            ConvTo< Uint8 >::From(a), // NOLINT(hicpp-signed-bitwise)
             ConvTo< Uint8 >::From(r),
             ConvTo< Uint8 >::From(g),
             ConvTo< Uint8 >::From(b)
@@ -1038,7 +992,7 @@ static SQInteger SqNameFilterCheck(HSQUIRRELVM vm)
         return name.mRes; // Propagate the error!
     }
     // Make the comparison and push the result on the stack
-    sq_pushbool(vm, NameFilterCheck(filter.mPtr, name.mPtr));
+    sq_pushbool(vm, static_cast< SQBool >(NameFilterCheck(filter.mPtr, name.mPtr)));
     // Specify that we have a return value on the stack
     return 1;
 }
@@ -1072,7 +1026,7 @@ static SQInteger SqNameFilterCheckInsensitive(HSQUIRRELVM vm)
         return name.mRes; // Propagate the error!
     }
     // Make the comparison and push the result on the stack
-    sq_pushbool(vm, NameFilterCheckInsensitive(filter.mPtr, name.mPtr));
+    sq_pushbool(vm, static_cast< SQBool >(NameFilterCheckInsensitive(filter.mPtr, name.mPtr)));
     // Specify that we have a return value on the stack
     return 1;
 }

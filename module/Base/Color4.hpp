@@ -36,32 +36,32 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Color4();
+    Color4() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a color with all components with the same specified color.
     */
-    explicit Color4(Value sv);
+    explicit Color4(Value sv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct with individually specified red, green and blue colors.
     */
-    Color4(Value rv, Value gv, Value bv);
+    Color4(Value rv, Value gv, Value bv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct with individually specified red, green, blue and alpha colors.
     */
-    Color4(Value rv, Value gv, Value bv, Value av);
+    Color4(Value rv, Value gv, Value bv, Value av) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Color4(const Color4 & o) = default;
+    Color4(const Color4 & o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Color4(Color4 && o) = default;
+    Color4(Color4 && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -201,12 +201,12 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    Color4 operator ++ (int);
+    Color4 operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Color4 operator -- (int);
+    Color4 operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.
@@ -356,7 +356,7 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to opaque color.
     */
-    operator Color3 () const;
+    operator Color3 () const; // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.

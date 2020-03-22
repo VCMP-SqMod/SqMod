@@ -38,32 +38,32 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Circle();
+    Circle() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a circle at position 0,0 using the specified radius.
     */
-    explicit Circle(Value rv);
+    Circle(Value rv) noexcept; // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
 
     /* --------------------------------------------------------------------------------------------
      * Construct a circle at the specified position using the specified radius.
     */
-    Circle(const Vector2 & pv, Value rv);
+    Circle(const Vector2 & pv, Value rv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a circle at the specified position using the specified radius.
     */
-    Circle(Value xv, Value yv, Value rv);
+    Circle(Value xv, Value yv, Value rv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Circle(const Circle & o) = default;
+    Circle(const Circle & o)  noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Circle(Circle && o) = default;
+    Circle(Circle && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -178,12 +178,12 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    Circle operator ++ (int);
+    Circle operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Circle operator -- (int);
+    Circle operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.

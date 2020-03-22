@@ -58,7 +58,7 @@ static inline void OutputMessageImpl(CCStr msg, va_list args)
     SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN);
     std::printf("[SQMOD] ");
 
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
+    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY); // NOLINT(hicpp-signed-bitwise)
     std::vprintf(msg, args);
     std::puts("");
 
@@ -80,10 +80,10 @@ static inline void OutputErrorImpl(CCStr msg, va_list args)
 
     CONSOLE_SCREEN_BUFFER_INFO csb_before;
     GetConsoleScreenBufferInfo( hstdout, &csb_before);
-    SetConsoleTextAttribute(hstdout, FOREGROUND_RED | FOREGROUND_INTENSITY);
+    SetConsoleTextAttribute(hstdout, FOREGROUND_RED | FOREGROUND_INTENSITY); // NOLINT(hicpp-signed-bitwise)
     std::printf("[SQMOD] ");
 
-    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
+    SetConsoleTextAttribute(hstdout, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY); // NOLINT(hicpp-signed-bitwise)
     std::vprintf(msg, args);
     std::puts("");
 
@@ -150,7 +150,7 @@ void SqThrowF(CSStr str, ...)
     // Finalize the argument list
     va_end(args);
     // Throw the exception with the resulted message
-    throw Sqrat::Exception(g_Buffer);
+    throw Sqrat::Exception(g_Buffer); // NOLINT(hicpp-exception-baseclass,cert-err60-cpp)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -237,9 +237,9 @@ bool SToB(CSStr str)
     }
     // Add the null terminator
     buffer[i] = '\0';
-    // Compare the lowercase string and return the result
-    return (std::strcmp(buffer, "true") == 0 || std::strcmp(buffer, "yes") == 0 ||
-            std::strcmp(buffer, "on") == 0 || std::strcmp(buffer, "1") == 0) ? true : false;
+  // Compare the lowercase string and return the result
+  return std::strcmp(buffer, "true") == 0 || std::strcmp(buffer, "yes") == 0 ||
+         std::strcmp(buffer, "on") == 0 || std::strcmp(buffer, "1") == 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -587,12 +587,12 @@ CSStr ConvNum< bool >::ToStr(bool v)
 
 bool ConvNum< bool >::FromStr(CSStr s)
 {
-    return (std::strcmp(s, "true") == 0) ? true : false;
+    return std::strcmp(s, "true") == 0;
 }
 
 bool ConvNum< bool >::FromStr(CSStr s, Int32 /*base*/)
 {
-    return (std::strcmp(s, "true") == 0) ? true : false;
+    return std::strcmp(s, "true") == 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -640,7 +640,7 @@ String SqTypeName(HSQUIRRELVM vm, SQInteger idx)
         return _SC("unknown");
     }
     // Return the obtained string value
-    return String(val.mPtr, val.mLen);
+    return String(val.mPtr, static_cast< size_t >(val.mLen));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -681,19 +681,19 @@ SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx)
             SQInteger val;
             sq_getinteger(vm, idx, &val);
             return val;
-        } break;
+        }
         case OT_FLOAT:
         {
             SQFloat val;
             sq_getfloat(vm, idx, &val);
             return ConvTo< SQInteger >::From(val);
-        } break;
+        }
         case OT_BOOL:
         {
             SQBool val;
             sq_getbool(vm, idx, &val);
             return static_cast< SQInteger >(val);
-        } break;
+        }
         case OT_STRING:
         {
             CSStr val = nullptr;
@@ -701,15 +701,15 @@ SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx)
             if (SQ_SUCCEEDED(sq_getstring(vm, idx, &val)) && val != nullptr && *val != '\0')
             {
                 return ConvTo< SQInteger >::From(std::strtoll(val, nullptr, 10));
-            }
-        } break;
+            } else break;
+        }
         case OT_ARRAY:
         case OT_TABLE:
         case OT_CLASS:
         case OT_USERDATA:
         {
             return sq_getsize(vm, idx);
-        } break;
+        }
         case OT_INSTANCE:
         {
             // Attempt to treat the value as a signed long instance
@@ -732,7 +732,7 @@ SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx)
             }
             // Attempt to get the size of the instance as a fall back
             return sq_getsize(vm, idx);
-        } break;
+        }
         default: break;
     }
     // Default to 0
@@ -750,19 +750,19 @@ SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx)
             SQFloat val;
             sq_getfloat(vm, idx, &val);
             return val;
-        } break;
+        }
         case OT_INTEGER:
         {
             SQInteger val;
             sq_getinteger(vm, idx, &val);
             return ConvTo< SQFloat >::From(val);
-        } break;
+        }
         case OT_BOOL:
         {
             SQBool val;
             sq_getbool(vm, idx, &val);
             return ConvTo< SQFloat >::From(val);
-        } break;
+        }
         case OT_STRING:
         {
             CSStr val = nullptr;
@@ -774,15 +774,15 @@ SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx)
 #else
                 return std::strtof(val, nullptr);
 #endif // SQUSEDOUBLE
-            }
-        } break;
+            } else break;
+        }
         case OT_ARRAY:
         case OT_TABLE:
         case OT_CLASS:
         case OT_USERDATA:
         {
             return ConvTo< SQFloat >::From(sq_getsize(vm, idx));
-        } break;
+        }
         case OT_INSTANCE:
         {
             // Attempt to treat the value as a signed long instance
@@ -805,7 +805,7 @@ SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx)
             }
             // Attempt to get the size of the instance as a fall back
             return ConvTo< SQFloat >::From(sq_getsize(vm, idx));
-        } break;
+        }
         default: break;
     }
     // Default to 0

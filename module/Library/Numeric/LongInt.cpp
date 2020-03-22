@@ -254,6 +254,49 @@ Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx)
     return 0;
 }
 
+// ------------------------------------------------------------------------------------------------
+const SLongInt & GetSLongInt()
+{
+    static SLongInt l;
+    l.SetNum(0);
+    return l;
+}
+
+const SLongInt & GetSLongInt(Int64 n)
+{
+    static SLongInt l;
+    l.SetNum(n);
+    return l;
+}
+
+const SLongInt & GetSLongInt(CSStr s)
+{
+    static SLongInt l;
+    l = s;
+    return l;
+}
+
+const ULongInt & GetULongInt()
+{
+    static ULongInt l;
+    l.SetNum(0);
+    return l;
+}
+
+const ULongInt & GetULongInt(Uint64 n)
+{
+    static ULongInt l;
+    l.SetNum(n);
+    return l;
+}
+
+const ULongInt & GetULongInt(CSStr s)
+{
+    static ULongInt l;
+    l = s;
+    return l;
+}
+
 // ================================================================================================
 void Register_LongInt(HSQUIRRELVM vm)
 {

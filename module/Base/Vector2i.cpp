@@ -23,21 +23,21 @@ const Vector2i Vector2i::MAX = Vector2i(std::numeric_limits< Vector2i::Value >::
 SQChar Vector2i::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Vector2i::Vector2i()
+Vector2i::Vector2i() noexcept
     : x(0), y(0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2i::Vector2i(Value sv)
+Vector2i::Vector2i(Value sv) noexcept
     : x(sv), y(sv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2i::Vector2i(Value xv, Value yv)
+Vector2i::Vector2i(Value xv, Value yv) noexcept
     : x(xv), y(yv)
 {
     /* ... */
@@ -102,40 +102,40 @@ Vector2i & Vector2i::operator %= (const Vector2i & v)
 // ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator &= (const Vector2i & v)
 {
-    x &= v.x;
-    y &= v.y;
+    x &= v.x; // NOLINT(hicpp-signed-bitwise)
+    y &= v.y; // NOLINT(hicpp-signed-bitwise)
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator |= (const Vector2i & v)
 {
-    x |= v.x;
-    y |= v.y;
+    x |= v.x; // NOLINT(hicpp-signed-bitwise)
+    y |= v.y; // NOLINT(hicpp-signed-bitwise)
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator ^= (const Vector2i & v)
 {
-    x ^= v.x;
-    y ^= v.y;
+    x ^= v.x; // NOLINT(hicpp-signed-bitwise)
+    y ^= v.y; // NOLINT(hicpp-signed-bitwise)
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator <<= (const Vector2i & v)
 {
-    x <<= v.x;
-    y <<= v.y;
+    x <<= v.x; // NOLINT(hicpp-signed-bitwise)
+    y <<= v.y; // NOLINT(hicpp-signed-bitwise)
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator >>= (const Vector2i & v)
 {
-    x >>= v.x;
-    y >>= v.y;
+    x >>= v.x; // NOLINT(hicpp-signed-bitwise)
+    y >>= v.y; // NOLINT(hicpp-signed-bitwise)
     return *this;
 }
 
@@ -182,16 +182,16 @@ Vector2i & Vector2i::operator %= (Value s)
 // ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator &= (Value s)
 {
-    x &= s;
-    y &= s;
+    x &= s; // NOLINT(hicpp-signed-bitwise)
+    y &= s; // NOLINT(hicpp-signed-bitwise)
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator |= (Value s)
 {
-    x |= s;
-    y |= s;
+    x |= s; // NOLINT(hicpp-signed-bitwise)
+    y |= s; // NOLINT(hicpp-signed-bitwise)
     return *this;
 }
 
@@ -206,16 +206,16 @@ Vector2i & Vector2i::operator ^= (Value s)
 // ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator <<= (Value s)
 {
-    x <<= s;
-    y <<= s;
+    x <<= s; // NOLINT(hicpp-signed-bitwise)
+    y <<= s; // NOLINT(hicpp-signed-bitwise)
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i & Vector2i::operator >>= (Value s)
 {
-    x >>= s;
-    y >>= s;
+    x >>= s; // NOLINT(hicpp-signed-bitwise)
+    y >>= s; // NOLINT(hicpp-signed-bitwise)
     return *this;
 }
 
@@ -236,7 +236,7 @@ Vector2i & Vector2i::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2i Vector2i::operator ++ (int)
+Vector2i Vector2i::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     Vector2i state(*this);
     ++x;
@@ -245,7 +245,7 @@ Vector2i Vector2i::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2i Vector2i::operator -- (int)
+Vector2i Vector2i::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     Vector2i state(*this);
     --x;
@@ -256,139 +256,139 @@ Vector2i Vector2i::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator + (const Vector2i & v) const
 {
-    return Vector2i(x + v.x, y + v.y);
+    return {x + v.x, y + v.y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator - (const Vector2i & v) const
 {
-    return Vector2i(x - v.x, y - v.y);
+    return {x - v.x, y - v.y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator * (const Vector2i & v) const
 {
-    return Vector2i(x * v.x, y * v.y);
+    return {x * v.x, y * v.y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator / (const Vector2i & v) const
 {
-    return Vector2i(x / v.x, y / v.y);
+    return {x / v.x, y / v.y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator % (const Vector2i & v) const
 {
-    return Vector2i(x % v.x, y % v.y);
+    return {x % v.x, y % v.y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator & (const Vector2i & v) const
 {
-    return Vector2i(x & v.x, y & v.y);
+    return {x & v.x, y & v.y}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator | (const Vector2i & v) const
 {
-    return Vector2i(x | v.x, y | v.y);
+    return {x | v.x, y | v.y}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator ^ (const Vector2i & v) const
 {
-    return Vector2i(x ^ v.x, y ^ v.y);
+    return {x ^ v.x, y ^ v.y}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator << (const Vector2i & v) const
 {
-    return Vector2i(x << v.x, y << v.y);
+    return {x << v.x, y << v.y}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator >> (const Vector2i & v) const
 {
-    return Vector2i(x >> v.x, y >> v.y);
+    return {x >> v.x, y >> v.y}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator + (Value s) const
 {
-    return Vector2i(x + s, y + s);
+    return {x + s, y + s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator - (Value s) const
 {
-    return Vector2i(x - s, y - s);
+    return {x - s, y - s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator * (Value s) const
 {
-    return Vector2i(x * s, y * s);
+    return {x * s, y * s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator / (Value s) const
 {
-    return Vector2i(x / s, y / s);
+    return {x / s, y / s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator % (Value s) const
 {
-    return Vector2i(x % s, y % s);
+    return {x % s, y % s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator & (Value s) const
 {
-    return Vector2i(x & s, y & s);
+    return {x & s, y & s}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator | (Value s) const
 {
-    return Vector2i(x | s, y | s);
+    return {x | s, y | s}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator ^ (Value s) const
 {
-    return Vector2i(x ^ s, y ^ s);
+    return {x ^ s, y ^ s}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator << (Value s) const
 {
-    return Vector2i(x < s, y < s);
+    return {x << s, y << s}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator >> (Value s) const
 {
-    return Vector2i(x >> s, y >> s);
+    return {x >> s, y >> s}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator + () const
 {
-    return Vector2i(std::abs(x), std::abs(y));
+    return {std::abs(x), std::abs(y)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator - () const
 {
-    return Vector2i(-x, -y);
+    return {-x, -y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::operator ~ () const
 {
-    return Vector2i(~x, ~y);
+    return {~x, ~y}; // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -518,7 +518,7 @@ void Vector2i::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 // ------------------------------------------------------------------------------------------------
 Vector2i Vector2i::Abs() const
 {
-    return Vector2i(std::abs(x), std::abs(y));
+    return {std::abs(x), std::abs(y)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -548,40 +548,11 @@ const Vector2i & Vector2i::GetEx(SQChar delim, StackStrF & str)
     return vec;
 }
 
-// ------------------------------------------------------------------------------------------------
-const Vector2i & GetVector2i()
-{
-    static Vector2i vec;
-    vec.Clear();
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector2i & GetVector2i(Int32 sv)
-{
-    static Vector2i vec;
-    vec.SetScalar(sv);
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector2i & GetVector2i(Int32 xv, Int32 yv)
-{
-    static Vector2i vec;
-    vec.SetVector2iEx(xv, yv);
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector2i & GetVector2i(const Vector2i & o)
-{
-    static Vector2i vec;
-    vec.SetVector2i(o);
-    return vec;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Vector2i(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef Vector2i::Value Val;
 

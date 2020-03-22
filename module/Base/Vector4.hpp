@@ -36,32 +36,32 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Vector4();
+    Vector4() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
     */
-    explicit Vector4(Value sv);
+    explicit Vector4(Value sv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the specified component values.
     */
-    Vector4(Value xv, Value yv, Value zv);
+    Vector4(Value xv, Value yv, Value zv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the specified component values.
     */
-    Vector4(Value xv, Value yv, Value zv, Value wv);
+    Vector4(Value xv, Value yv, Value zv, Value wv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Vector4(const Vector4 & o) = default;
+    Vector4(const Vector4 & o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Vector4(Vector4 && o) = default;
+    Vector4(Vector4 && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -156,12 +156,12 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    Vector4 operator ++ (int);
+    Vector4 operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Vector4 operator -- (int);
+    Vector4 operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.

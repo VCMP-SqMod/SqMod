@@ -19,21 +19,21 @@ const AABB AABB::MAX = AABB(HUGE_VALF, -HUGE_VALF);
 SQChar AABB::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB()
+AABB::AABB() noexcept
     : min(HUGE_VALF), max(-HUGE_VALF)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(Value mins, Value maxs)
+AABB::AABB(Value mins, Value maxs) noexcept
     : min(mins), max(maxs)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(Value xv, Value yv, Value zv)
+AABB::AABB(Value xv, Value yv, Value zv) noexcept
     : min(xv, yv, zv)
     , max(xv, yv, zv)
 {
@@ -41,14 +41,14 @@ AABB::AABB(Value xv, Value yv, Value zv)
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax)
+AABB::AABB(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) noexcept
     : min(xmin, ymin, zmin), max(xmax, ymax, zmax)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB::AABB(const Vector3 & vmin, const Vector3 & vmax)
+AABB::AABB(const Vector3 & vmin, const Vector3 & vmax) noexcept
     : min(vmin), max(vmax)
 {
     /* ... */
@@ -158,7 +158,7 @@ AABB & AABB::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB AABB::operator ++ (int)
+AABB AABB::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     AABB state(*this);
     ++min;
@@ -167,7 +167,7 @@ AABB AABB::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB AABB::operator -- (int)
+AABB AABB::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     AABB state(*this);
     --min;
@@ -178,73 +178,73 @@ AABB AABB::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator + (const AABB & b) const
 {
-    return AABB(min + b.min, max + b.max);
+    return {min + b.min, max + b.max};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator - (const AABB & b) const
 {
-    return AABB(min - b.min, max - b.max);
+    return AABB{min - b.min, max - b.max};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator * (const AABB & b) const
 {
-    return AABB(min * b.min, max * b.max);
+    return AABB{min * b.min, max * b.max};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator / (const AABB & b) const
 {
-    return AABB(min / b.min, max / b.max);
+    return AABB{min / b.min, max / b.max};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator % (const AABB & b) const
 {
-    return AABB(min % b.min, max % b.max);
+    return AABB{min % b.min, max % b.max};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator + (Value s) const
 {
-    return AABB(min + s, max + s);
+    return AABB{min + s, max + s};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator - (Value s) const
 {
-    return AABB(min - s, max - s);
+    return AABB{min - s, max - s};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator * (Value s) const
 {
-    return AABB(min * s, max * s);
+    return AABB{min * s, max * s};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator / (Value s) const
 {
-    return AABB(min / s, max / s);
+    return AABB{min / s, max / s};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator % (Value s) const
 {
-    return AABB(min % s, max % s);
+    return AABB{min % s, max % s};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator + () const
 {
-    return AABB(min.Abs(), max.Abs());
+    return AABB{min.Abs(), max.Abs()};
 }
 
 // ------------------------------------------------------------------------------------------------
 AABB AABB::operator - () const
 {
-    return AABB(-min, -max);
+    return AABB{-min, -max};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -764,56 +764,11 @@ const AABB & AABB::GetEx(SQChar delim, StackStrF & str)
     return box;
 }
 
-// ------------------------------------------------------------------------------------------------
-const AABB & GetAABB()
-{
-    static AABB box;
-    box.Clear();
-    return box;
-}
-
-// ------------------------------------------------------------------------------------------------
-const AABB & GetAABB(Float32 mins, Float32 maxs)
-{
-    static AABB box;
-    box.DefineScalar(mins, maxs);
-    return box;
-}
-
-// ------------------------------------------------------------------------------------------------
-const AABB & GetAABB(Float32 xv, Float32 yv, Float32 zv)
-{
-    static AABB box;
-    box.DefineVector3Ex(xv, yv, zv);
-    return box;
-}
-
-// ------------------------------------------------------------------------------------------------
-const AABB & GetAABB(Float32 xmin, Float32 ymin, Float32 zmin, Float32 xmax, Float32 ymax, Float32 zmax)
-{
-    static AABB box;
-    box.DefineAllVector3Ex(xmin, ymin, zmin, xmax, ymax, zmax);
-    return box;
-}
-
-// ------------------------------------------------------------------------------------------------
-const AABB & GetAABB(const Vector3 & vmin, const Vector3 & vmax)
-{
-    static AABB box;
-    box.DefineAllVector3(vmin, vmax);
-    return box;
-}
-
-// ------------------------------------------------------------------------------------------------
-const AABB & GetAABB(const AABB & o)
-{
-    static AABB box;
-    box.DefineAABB(o);
-    return box;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_AABB(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef AABB::Value Val;
 

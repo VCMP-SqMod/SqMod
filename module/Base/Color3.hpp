@@ -36,32 +36,32 @@ struct Color3
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Color3();
+    Color3() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a color with all components with the same specified color.
     */
-    explicit Color3(Value sv);
+    explicit Color3(Value sv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct with individually specified red, green and blue colors.
     */
-    Color3(Value rv, Value gv, Value bv);
+    Color3(Value rv, Value gv, Value bv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct with individually specified red, green, blue and alpha colors.
     */
-    Color3(Value rv, Value gv, Value bv, Value av);
+    Color3(Value rv, Value gv, Value bv, Value av) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Color3(const Color3 & o) = default;
+    Color3(const Color3 & o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Color3(Color3 && o) = default;
+    Color3(Color3 && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -201,12 +201,12 @@ struct Color3
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    Color3 operator ++ (int);
+    Color3 operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Color3 operator -- (int);
+    Color3 operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.
@@ -356,7 +356,7 @@ struct Color3
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to transparent color.
     */
-    operator Color4 () const;
+    operator Color4 () const; // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.

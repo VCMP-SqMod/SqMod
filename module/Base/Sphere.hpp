@@ -38,32 +38,32 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Sphere();
+    Sphere() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a sphere at position 0,0,0 using the specified radius.
     */
-    explicit Sphere(Value rv);
+    Sphere(Value rv) noexcept; // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
 
     /* --------------------------------------------------------------------------------------------
      * Construct a sphere at the specified position using the specified radius.
     */
-    Sphere(const Vector3 & pv, Value rv);
+    Sphere(const Vector3 & pv, Value rv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a sphere at the specified position using the specified radius.
     */
-    Sphere(Value xv, Value yv, Value zv, Value rv);
+    Sphere(Value xv, Value yv, Value zv, Value rv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Sphere(const Sphere & o) = default;
+    Sphere(const Sphere & o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Sphere(Sphere && o) = default;
+    Sphere(Sphere && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -178,12 +178,12 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    Sphere operator ++ (int);
+    Sphere operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    Sphere operator -- (int);
+    Sphere operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.

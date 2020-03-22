@@ -28,28 +28,28 @@ const Quaternion Quaternion::IDENTITY(1.0, 0.0, 0.0, 0.0);
 SQChar Quaternion::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion()
+Quaternion::Quaternion() noexcept
     : x(0.0), y(0.0), z(0.0), w(0.0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion(Value sv)
+Quaternion::Quaternion(Value sv) noexcept
     : x(sv), y(sv), z(sv), w(sv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion(Value xv, Value yv, Value zv)
+Quaternion::Quaternion(Value xv, Value yv, Value zv) noexcept
     : x(xv), y(yv), z(zv), w(0.0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion(Value xv, Value yv, Value zv, Value wv)
+Quaternion::Quaternion(Value xv, Value yv, Value zv, Value wv) noexcept
     : x(xv), y(yv), z(zv), w(wv)
 {
     /* ... */
@@ -206,7 +206,7 @@ Quaternion & Quaternion::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::operator ++ (int)
+Quaternion Quaternion::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     Quaternion state(*this);
     ++x;
@@ -217,7 +217,7 @@ Quaternion Quaternion::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion Quaternion::operator -- (int)
+Quaternion Quaternion::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     Quaternion state(*this);
     --x;
@@ -230,73 +230,73 @@ Quaternion Quaternion::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator + (const Quaternion & q) const
 {
-    return Quaternion(x + q.x, y + q.y, z + q.z, w + q.w);
+    return {x + q.x, y + q.y, z + q.z, w + q.w};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator + (Value s) const
 {
-    return Quaternion(x + s, y + s, z + s, w + s);
+    return {x + s, y + s, z + s, w + s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator - (const Quaternion & q) const
 {
-    return Quaternion(x - q.x, y - q.y, z - q.z, w - q.w);
+    return {x - q.x, y - q.y, z - q.z, w - q.w};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator - (Value s) const
 {
-    return Quaternion(x - s, y - s, z - s, w - s);
+    return {x - s, y - s, z - s, w - s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator * (const Quaternion & q) const
 {
-    return Quaternion(x * q.x, y * q.y, z * q.z, w * q.w);
+    return {x * q.x, y * q.y, z * q.z, w * q.w};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator * (Value s) const
 {
-    return Quaternion(x * s, y * s, z * s, w * s);
+    return {x * s, y * s, z * s, w * s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator / (const Quaternion & q) const
 {
-    return Quaternion(x / q.x, y / q.y, z / q.z, w / q.w);
+    return {x / q.x, y / q.y, z / q.z, w / q.w};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator / (Value s) const
 {
-    return Quaternion(x / s, y / s, z / s, w / s);
+    return {x / s, y / s, z / s, w / s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator % (const Quaternion & q) const
 {
-    return Quaternion(std::fmod(x, q.x), std::fmod(y, q.y), std::fmod(z, q.z), std::fmod(w, q.w));
+    return {std::fmod(x, q.x), std::fmod(y, q.y), std::fmod(z, q.z), std::fmod(w, q.w)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator % (Value s) const
 {
-    return Quaternion(std::fmod(x, s), std::fmod(y, s), std::fmod(z, s), std::fmod(w, s));
+    return {std::fmod(x, s), std::fmod(y, s), std::fmod(z, s), std::fmod(w, s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator + () const
 {
-    return Quaternion(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
+    return {std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator - () const
 {
-    return Quaternion(-x, -y, -z, -w);
+    return {-x, -y, -z, -w};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -476,7 +476,7 @@ void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::Abs() const
 {
-    return Quaternion(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
+    return {std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -500,7 +500,7 @@ Quaternion::Value Quaternion::DotProduct(const Quaternion & quat) const
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::Conjugate() const
 {
-    return Quaternion(-x, -y, -z, w);;
+    return {-x, -y, -z, w};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -610,35 +610,35 @@ Vector3 Quaternion::ToEuler() const
 
     if (EpsEq(test, 1.0))
     {
-        return Vector3(
+        return {
             // bank = rotation about x-axis
             STOVAL(0.0),
             // attitude = rotation about y-axis
             STOVAL(SQMOD_PI64 / 2.0),
             // heading = rotation about z-axis
             STOVAL(-2.0 * std::atan2(x, w))
-        );
+        };
     }
     else if (EpsEq(test, -1.0))
     {
-        return Vector3(
+        return {
             // bank = rotation about x-axis
             STOVAL(0.0),
             // attitude = rotation about y-axis
             STOVAL(SQMOD_PI64 / -2.0),
             // heading = rotation about z-axis
             STOVAL(2.0 * std::atan2(x, w))
-        );
+        };
     }
 
-    return Vector3(
+    return {
         // bank = rotation about x-axis
         STOVAL(std::atan2(2.0 * ((y * z) + (x * w)), (-sqx - sqy + sqz + sqw))),
         // attitude = rotation about y-axis
         STOVAL(std::asin(Clamp(test, -1.0, 1.0))),
         // heading = rotation about z-axis
         STOVAL(std::atan2(2.0 * ((x * y) + (z * w)), (sqx - sqy - sqz + sqw)))
-    );
+    };
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -742,48 +742,11 @@ const Quaternion & Quaternion::GetEx(SQChar delim, StackStrF & str)
     return quat;
 }
 
-// ------------------------------------------------------------------------------------------------
-const Quaternion & GetQuaternion()
-{
-    static Quaternion quat;
-    quat.Clear();
-    return quat;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Quaternion & GetQuaternion(Float32 sv)
-{
-    static Quaternion quat;
-    quat.SetScalar(sv);
-    return quat;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Quaternion & GetQuaternion(Float32 xv, Float32 yv, Float32 zv)
-{
-    static Quaternion quat;
-    quat.SetVector3Ex(xv, yv, zv);
-    return quat;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Quaternion & GetQuaternion(Float32 xv, Float32 yv, Float32 zv, Float32 wv)
-{
-    static Quaternion quat;
-    quat.SetQuaternionEx(xv, yv, zv, wv);
-    return quat;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Quaternion & GetQuaternion(const Quaternion & o)
-{
-    static Quaternion quat;
-    quat.SetQuaternion(o);
-    return quat;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Quaternion(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef Quaternion::Value Val;
 

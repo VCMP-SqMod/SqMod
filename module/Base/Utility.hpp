@@ -143,11 +143,11 @@ String & NullString();
 inline Uint32 NextPow2(Uint32 num)
 {
     --num;
-    num |= num >> 1;
-    num |= num >> 2;
-    num |= num >> 4;
-    num |= num >> 8;
-    num |= num >> 16;
+    num |= num >> 1u;
+    num |= num >> 2u;
+    num |= num >> 4u;
+    num |= num >> 8u;
+    num |= num >> 16u;
     return ++num;
 }
 
@@ -194,33 +194,33 @@ template < > struct EpsCmp< float, float > {
  * Perform an equality comparison between two real values taking into account floating point issues.
 */
 template < > struct EpsCmp< double, double > {
-    static inline bool EQ(const double & a, const double & b) { return fabs(a - b) <= 0.000000001d; }
-    static inline bool LT(const double & a, const double & b) { return !EQ(a, b) && (a - b) < 0.000000001d; }
-    static inline bool GT(const double & a, const double & b) { return !EQ(a, b) && (a - b) > 0.000000001d; }
-    static inline bool LE(const double & a, const double & b) { return EQ(a, b) || (a - b) < 0.000000001d; }
-    static inline bool GE(const double & a, const double & b) { return EQ(a, b) || (a - b) > 0.000000001d; }
+    static inline bool EQ(const double & a, const double & b) { return fabs(a - b) <= 0.000000001; }
+    static inline bool LT(const double & a, const double & b) { return !EQ(a, b) && (a - b) < 0.000000001; }
+    static inline bool GT(const double & a, const double & b) { return !EQ(a, b) && (a - b) > 0.000000001; }
+    static inline bool LE(const double & a, const double & b) { return EQ(a, b) || (a - b) < 0.000000001; }
+    static inline bool GE(const double & a, const double & b) { return EQ(a, b) || (a - b) > 0.000000001; }
 };
 
 /* ------------------------------------------------------------------------------------------------
  * Perform an equality comparison between two real values taking into account floating point issues.
 */
 template < > struct EpsCmp< float, double > {
-    static inline bool EQ(const float & a, const double & b) { return fabs(static_cast< double >(a) - b) <= 0.000001d; }
-    static inline bool LT(const float & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) < 0.000001d; }
-    static inline bool GT(const float & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) > 0.000001d; }
-    static inline bool LE(const float & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) < 0.000001d; }
-    static inline bool GE(const float & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) > 0.000001d; }
+    static inline bool EQ(const float & a, const double & b) { return fabs(static_cast< double >(a) - b) <= 0.000001; }
+    static inline bool LT(const float & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) < 0.000001; }
+    static inline bool GT(const float & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) > 0.000001; }
+    static inline bool LE(const float & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) < 0.000001; }
+    static inline bool GE(const float & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) > 0.000001; }
 };
 
 /* ------------------------------------------------------------------------------------------------
  * Perform an equality comparison between two real values taking into account floating point issues.
 */
 template < > struct EpsCmp< double, float > {
-    static inline bool EQ(const double & a, const float & b) { return fabs(a - static_cast< double >(b)) <= 0.000001d; }
-    static inline bool LT(const double & a, const float & b) { return !EQ(a, b) && (a - static_cast< double >(b)) < 0.000001d; }
-    static inline bool GT(const double & a, const float & b) { return !EQ(a, b) && (a - static_cast< double >(b)) > 0.000001d; }
-    static inline bool LE(const double & a, const float & b) { return EQ(a, b) || (a - static_cast< double >(b)) < 0.000001d; }
-    static inline bool GE(const double & a, const float & b) { return EQ(a, b) || (a - static_cast< double >(b)) > 0.000001d; }
+    static inline bool EQ(const double & a, const float & b) { return fabs(a - static_cast< double >(b)) <= 0.000001; }
+    static inline bool LT(const double & a, const float & b) { return !EQ(a, b) && (a - static_cast< double >(b)) < 0.000001; }
+    static inline bool GT(const double & a, const float & b) { return !EQ(a, b) && (a - static_cast< double >(b)) > 0.000001; }
+    static inline bool LE(const double & a, const float & b) { return EQ(a, b) || (a - static_cast< double >(b)) < 0.000001; }
+    static inline bool GE(const double & a, const float & b) { return EQ(a, b) || (a - static_cast< double >(b)) > 0.000001; }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -249,22 +249,22 @@ template < typename T > struct EpsCmp< T, float > {
  * Perform an equality comparison between two real values taking into account floating point issues.
 */
 template < typename T > struct EpsCmp< double, T > {
-    static inline bool EQ(const double & a, const T & b) { return fabs(a - static_cast< double >(b)) <= 0.000000001d; }
-    static inline bool LT(const double & a, const T & b) { return !EQ(a, b) && (a - static_cast< double >(b)) < 0.000000001d; }
-    static inline bool GT(const double & a, const T & b) { return !EQ(a, b) && (a - static_cast< double >(b)) > 0.000000001d; }
-    static inline bool LE(const double & a, const T & b) { return EQ(a, b) || (a - static_cast< double >(b)) < 0.000000001d; }
-    static inline bool GE(const double & a, const T & b) { return EQ(a, b) || (a - static_cast< double >(b)) > 0.000000001d; }
+    static inline bool EQ(const double & a, const T & b) { return fabs(a - static_cast< double >(b)) <= 0.000000001; }
+    static inline bool LT(const double & a, const T & b) { return !EQ(a, b) && (a - static_cast< double >(b)) < 0.000000001; }
+    static inline bool GT(const double & a, const T & b) { return !EQ(a, b) && (a - static_cast< double >(b)) > 0.000000001; }
+    static inline bool LE(const double & a, const T & b) { return EQ(a, b) || (a - static_cast< double >(b)) < 0.000000001; }
+    static inline bool GE(const double & a, const T & b) { return EQ(a, b) || (a - static_cast< double >(b)) > 0.000000001; }
 };
 
 /* ------------------------------------------------------------------------------------------------
  * Perform an equality comparison between two real values taking into account floating point issues.
 */
 template < typename T > struct EpsCmp< T, double > {
-    static inline bool EQ(const T & a, const double & b) { return fabs(static_cast< double >(a) - b) <= 0.000000001d; }
-    static inline bool LT(const T & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) < 0.000000001d; }
-    static inline bool GT(const T & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) > 0.000000001d; }
-    static inline bool LE(const T & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) < 0.000000001d; }
-    static inline bool GE(const T & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) > 0.000000001d; }
+    static inline bool EQ(const T & a, const double & b) { return fabs(static_cast< double >(a) - b) <= 0.000000001; }
+    static inline bool LT(const T & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) < 0.000000001; }
+    static inline bool GT(const T & a, const double & b) { return !EQ(a, b) && (static_cast< double >(a) - b) > 0.000000001; }
+    static inline bool LE(const T & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) < 0.000000001; }
+    static inline bool GE(const T & a, const double & b) { return EQ(a, b) || (static_cast< double >(a) - b) > 0.000000001; }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -1281,7 +1281,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    IsCType(CTypeFn fn)
+    explicit IsCType(CTypeFn fn)
         : m_Fn(fn)
     {
         /* ... */
@@ -1314,7 +1314,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    IsNotCType(CTypeFn fn)
+    explicit IsNotCType(CTypeFn fn)
         : m_Fn(fn)
     {
         /* ... */

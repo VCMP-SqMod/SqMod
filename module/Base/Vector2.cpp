@@ -23,21 +23,21 @@ const Vector2 Vector2::MAX = Vector2(std::numeric_limits< Vector2::Value >::max(
 SQChar Vector2::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Vector2::Vector2()
+Vector2::Vector2() noexcept
     : x(0.0), y(0.0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2::Vector2(Value sv)
+Vector2::Vector2(Value sv) noexcept
     : x(sv), y(sv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2::Vector2(Value xv, Value yv)
+Vector2::Vector2(Value xv, Value yv) noexcept
     : x(xv), y(yv)
 {
     /* ... */
@@ -156,7 +156,7 @@ Vector2 & Vector2::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2 Vector2::operator ++ (int)
+Vector2 Vector2::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     Vector2 state(*this);
     ++x;
@@ -165,7 +165,7 @@ Vector2 Vector2::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2 Vector2::operator -- (int)
+Vector2 Vector2::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     Vector2 state(*this);
     --x;
@@ -176,73 +176,73 @@ Vector2 Vector2::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator + (const Vector2 & v) const
 {
-    return Vector2(x + v.x, y + v.y);
+    return {x + v.x, y + v.y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator - (const Vector2 & v) const
 {
-    return Vector2(x - v.x, y - v.y);
+    return {x - v.x, y - v.y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator * (const Vector2 & v) const
 {
-    return Vector2(x * v.x, y * v.y);
+    return {x * v.x, y * v.y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator / (const Vector2 & v) const
 {
-    return Vector2(x / v.x, y / v.y);
+    return {x / v.x, y / v.y};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator % (const Vector2 & v) const
 {
-    return Vector2(std::fmod(x, v.x), std::fmod(y, v.y));
+    return {std::fmod(x, v.x), std::fmod(y, v.y)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator + (Value s) const
 {
-    return Vector2(x + s, y + s);
+    return {x + s, y + s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator - (Value s) const
 {
-    return Vector2(x - s, y - s);
+    return {x - s, y - s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator * (Value s) const
 {
-    return Vector2(x * s, y * s);
+    return {x * s, y * s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator / (Value s) const
 {
-    return Vector2(x / s, y / s);
+    return {x / s, y / s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator % (Value s) const
 {
-    return Vector2(std::fmod(x, s), std::fmod(y, s));
+    return {std::fmod(x, s), std::fmod(y, s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator + () const
 {
-    return Vector2(std::fabs(x), std::fabs(y));
+    return {std::fabs(x), std::fabs(y)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator - () const
 {
-    return Vector2(-x, -y);
+    return {-x, -y};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -372,7 +372,7 @@ void Vector2::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::Abs() const
 {
-    return Vector2(std::fabs(x), std::fabs(y));
+    return {std::fabs(x), std::fabs(y)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -402,40 +402,11 @@ const Vector2 & Vector2::GetEx(SQChar delim, StackStrF & str)
     return vec;
 }
 
-// ------------------------------------------------------------------------------------------------
-const Vector2 & GetVector2()
-{
-    static Vector2 vec;
-    vec.Clear();
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector2 & GetVector2(Float32 sv)
-{
-    static Vector2 vec;
-    vec.SetScalar(sv);
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector2 & GetVector2(Float32 xv, Float32 yv)
-{
-    static Vector2 vec;
-    vec.SetVector2Ex(xv, yv);
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector2 & GetVector2(const Vector2 & o)
-{
-    static Vector2 vec;
-    vec.SetVector2(o);
-    return vec;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Vector2(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef Vector2::Value Val;
 

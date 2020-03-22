@@ -52,7 +52,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null).
     */
-    MemRef()
+    MemRef() noexcept
         : m_Ptr(s_Mem.m_Ptr)
         , m_Ref(s_Mem.m_Ref)
     {
@@ -62,7 +62,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    MemRef(const MemRef & o)
+    MemRef(const MemRef & o) noexcept
         : m_Ptr(o.m_Ptr)
         , m_Ref(o.m_Ref)
 
@@ -73,7 +73,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    MemRef(MemRef && o)
+    MemRef(MemRef && o) noexcept
         : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
 
     {
@@ -92,7 +92,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    MemRef & operator = (const MemRef & o)
+    MemRef & operator = (const MemRef & o) noexcept // NOLINT(bugprone-unhandled-self-assignment,cert-oop54-cpp)
     {
         if (m_Ptr != o.m_Ptr)
         {
@@ -107,7 +107,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    MemRef & operator = (MemRef && o)
+    MemRef & operator = (MemRef && o) noexcept
     {
         if (m_Ptr != o.m_Ptr)
         {
@@ -203,11 +203,11 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Construct and take ownership of the specified buffer.
     */
-    Buffer(Pointer & ptr, SzType & cap, SzType & cur, const MemRef & mem)
+    Buffer(Pointer & ptr, SzType & cap, SzType & cur, MemRef mem)
         : m_Ptr(ptr)
         , m_Cap(cap)
         , m_Cur(cur)
-        , m_Mem(mem)
+        , m_Mem(std::move(mem))
     {
         ptr = nullptr;
         cap = 0;
@@ -239,7 +239,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit size constructor.
     */
-    Buffer(SzType size)
+    explicit Buffer(SzType size)
         : m_Ptr(nullptr)
         , m_Cap(0)
         , m_Cur(0)
@@ -296,11 +296,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Buffer(Buffer && o)
+    Buffer(Buffer && o) noexcept
         : m_Ptr(o.m_Ptr)
         , m_Cap(o.m_Cap)
         , m_Cur(o.m_Cur)
-        , m_Mem(o.m_Mem)
+        , m_Mem(std::forward< MemRef >(o.m_Mem))
     {
         o.m_Ptr = nullptr;
     }
@@ -318,7 +318,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Buffer & operator = (Buffer && o)
+    Buffer & operator = (Buffer && o) noexcept
     {
         if (m_Ptr != o.m_Ptr)
         {
@@ -386,7 +386,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean.
     */
-    operator bool () const
+    explicit operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return (m_Ptr != nullptr);
     }

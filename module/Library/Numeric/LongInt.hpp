@@ -1284,4 +1284,14 @@ Int64 PopStackSLong(HSQUIRRELVM vm, SQInteger idx);
 */
 Uint64 PopStackULong(HSQUIRRELVM vm, SQInteger idx);
 
+/* ------------------------------------------------------------------------------------------------
+ * Get a persistent LongInt instance with the given values.
+*/
+const SLongInt & GetSLongInt();
+const SLongInt & GetSLongInt(Int64 n);
+const SLongInt & GetSLongInt(CSStr s);
+const ULongInt & GetULongInt();
+const ULongInt & GetULongInt(Uint64 n);
+const ULongInt & GetULongInt(CSStr s);
+
 } // Namespace:: SqMod

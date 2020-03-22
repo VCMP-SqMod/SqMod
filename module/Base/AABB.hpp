@@ -36,40 +36,40 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Construct with zero size.
     */
-    AABB();
+    AABB() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a an equally sized and perfectly shaped box from scalar values.
     */
-    explicit AABB(Value mins, Value maxs);
+    explicit AABB(Value mins, Value maxs) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a an equally sized but imperfectly shaped box from individual components of a
      * three-dimensional point.
     */
-    AABB(Value xv, Value yv, Value zv);
+    AABB(Value xv, Value yv, Value zv) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a an unequally sized and imperfectly shaped box from individual components of two
      * three-dimensional points.
     */
-    AABB(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax);
+    AABB(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a an unequally sized and imperfectly shaped box from two three-dimensional
      * vectors representing two three-dimensional points.
     */
-    AABB(const Vector3 & vmin, const Vector3 & vmax);
+    AABB(const Vector3 & vmin, const Vector3 & vmax) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    AABB(const AABB & o) = default;
+    AABB(const AABB & o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    AABB(AABB && o) = default;
+    AABB(AABB && o)  noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -154,12 +154,12 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Post-increment operator.
     */
-    AABB operator ++ (int);
+    AABB operator ++ (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Post-decrement operator.
     */
-    AABB operator -- (int);
+    AABB operator -- (int); // NOLINT(cert-dcl21-cpp)
 
     /* --------------------------------------------------------------------------------------------
      * Addition operator.
@@ -269,7 +269,7 @@ struct AABB
     */
     Int32 Cmp(SQInteger s) const
     {
-        const Value v = static_cast< Value >(s);
+        const auto v = static_cast< Value >(s);
         return Cmp(AABB(v, v, v, v, v, v));
     }
 
@@ -278,7 +278,7 @@ struct AABB
     */
     Int32 Cmp(bool s) const
     {
-        const Value v = static_cast< Value >(s);
+        const auto v = static_cast< Value >(s);
         return Cmp(AABB(v, v, v, v, v, v));
     }
 
@@ -287,7 +287,7 @@ struct AABB
     */
     Int32 Cmp(std::nullptr_t) const
     {
-        const Value v = static_cast< Value >(0);
+        const auto v = static_cast< Value >(0);
         return Cmp(AABB(v, v, v, v, v, v));
     }
 

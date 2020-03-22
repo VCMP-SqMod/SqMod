@@ -24,28 +24,28 @@ const Vector4 Vector4::MAX = Vector4(std::numeric_limits< Vector4::Value >::max(
 SQChar Vector4::Delim = ',';
 
 // ------------------------------------------------------------------------------------------------
-Vector4::Vector4()
+Vector4::Vector4() noexcept
     : x(0.0), y(0.0), z(0.0), w(0.0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4::Vector4(Value sv)
+Vector4::Vector4(Value sv) noexcept
     : x(sv), y(sv), z(sv), w(sv)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4::Vector4(Value xv, Value yv, Value zv)
+Vector4::Vector4(Value xv, Value yv, Value zv) noexcept
     : x(xv), y(yv), z(zv), w(0.0)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4::Vector4(Value xv, Value yv, Value zv, Value wv)
+Vector4::Vector4(Value xv, Value yv, Value zv, Value wv) noexcept
     : x(xv), y(yv), z(zv), w(wv)
 {
     /* ... */
@@ -201,7 +201,7 @@ Vector4 & Vector4::operator -- ()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 Vector4::operator ++ (int)
+Vector4 Vector4::operator ++ (int) // NOLINT(cert-dcl21-cpp)
 {
     Vector4 state(*this);
     ++x;
@@ -212,7 +212,7 @@ Vector4 Vector4::operator ++ (int)
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 Vector4::operator -- (int)
+Vector4 Vector4::operator -- (int) // NOLINT(cert-dcl21-cpp)
 {
     Vector4 state(*this);
     --x;
@@ -225,73 +225,73 @@ Vector4 Vector4::operator -- (int)
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator + (const Vector4 & v) const
 {
-    return Vector4(x + v.x, y + v.y, z + v.z, w + v.w);
+    return {x + v.x, y + v.y, z + v.z, w + v.w};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator - (const Vector4 & v) const
 {
-    return Vector4(x - v.x, y - v.y, z - v.z, w - v.w);
+    return {x - v.x, y - v.y, z - v.z, w - v.w};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator * (const Vector4 & v) const
 {
-    return Vector4(x * v.x, y * v.y, z * v.z, w * v.w);
+    return {x * v.x, y * v.y, z * v.z, w * v.w};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator / (const Vector4 & v) const
 {
-    return Vector4(x / v.x, y / v.y, z / v.z, w / v.w);
+    return {x / v.x, y / v.y, z / v.z, w / v.w};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator % (const Vector4 & v) const
 {
-    return Vector4(std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z), std::fmod(w, v.w));
+    return {std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z), std::fmod(w, v.w)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator + (Value s) const
 {
-    return Vector4(x + s, y + s, z + s, w + s);
+    return {x + s, y + s, z + s, w + s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator - (Value s) const
 {
-    return Vector4(x - s, y - s, z - s, w - s);
+    return {x - s, y - s, z - s, w - s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator * (Value s) const
 {
-    return Vector4(x * s, y * s, z * s, w * s);
+    return {x * s, y * s, z * s, w * s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator / (Value s) const
 {
-    return Vector4(x / s, y / s, z / s, w / s);
+    return {x / s, y / s, z / s, w / s};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator % (Value s) const
 {
-    return Vector4(std::fmod(x, s), std::fmod(y, s), std::fmod(z, s), std::fmod(w, s));
+    return {std::fmod(x, s), std::fmod(y, s), std::fmod(z, s), std::fmod(w, s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator + () const
 {
-    return Vector4(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
+    return {std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator - () const
 {
-    return Vector4(-x, -y, -z, -w);
+    return {-x, -y, -z, -w};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -461,7 +461,7 @@ void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::Abs() const
 {
-    return Vector4(std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w));
+    return {std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -493,48 +493,11 @@ const Vector4 & Vector4::GetEx(SQChar delim, StackStrF & str)
     return vec;
 }
 
-// ------------------------------------------------------------------------------------------------
-const Vector4 & GetVector4()
-{
-    static Vector4 vec;
-    vec.Clear();
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector4 & GetVector4(Float32 sv)
-{
-    static Vector4 vec;
-    vec.SetScalar(sv);
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector4 & GetVector4(Float32 xv, Float32 yv, Float32 zv)
-{
-    static Vector4 vec;
-    vec.SetVector3Ex(xv, yv, zv);
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector4 & GetVector4(Float32 xv, Float32 yv, Float32 zv, Float32 wv)
-{
-    static Vector4 vec;
-    vec.SetVector4Ex(xv, yv, zv, wv);
-    return vec;
-}
-
-// ------------------------------------------------------------------------------------------------
-const Vector4 & GetVector4(const Vector4 & o)
-{
-    static Vector4 vec;
-    vec.SetVector4(o);
-    return vec;
-}
-
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Vector4(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     typedef Vector4::Value Val;
 
