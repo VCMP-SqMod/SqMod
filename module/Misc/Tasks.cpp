@@ -4,12 +4,9 @@
 #include "Library/Chrono.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
 
 // ------------------------------------------------------------------------------------------------
-#include <utility>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -62,7 +59,7 @@ void Tasks::Task::Release()
     mIterations = 0;
     mInterval = 0;
     mEntity = -1;
-    mType = -1;
+    mType = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -85,7 +82,7 @@ Tasks::Interval Tasks::Task::Execute()
         sq_pushobject(vm, mArgv[n].mObj);
     }
     // Make the function call and store the result
-    const SQRESULT res = sq_call(vm, mArgc + 1, false, ErrorHandling::IsEnabled());
+    const SQRESULT res = sq_call(vm, mArgc + 1, static_cast< SQBool >(false), static_cast< SQBool >(ErrorHandling::IsEnabled()));
     // Pop the callback object from the stack
     sq_pop(vm, 1);
     // Validate the result
@@ -117,7 +114,7 @@ void Tasks::Process()
     // Get the current time-stamp
     s_Last = Chrono::GetCurrentSysTime();
     // Calculate the elapsed time
-    const Int32 delta = Int32((s_Last - s_Prev) / 1000L);
+    const auto delta = Int32((s_Last - s_Prev) / 1000L);
     // Process all active tasks
     for (Interval * itr = s_Intervals; itr != (s_Intervals + SQMOD_MAX_TASKS); ++itr)
     {
@@ -317,7 +314,7 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
     }
 
     // Alright, at this point we can initialize the slot
-    task.Init(func, inst, intrv, itr, id, type);
+    task.Init(func, inst, intrv, static_cast< Iterator >(itr), id, type);
     // Now initialize the timer
     s_Intervals[slot] = intrv;
     // Push the tag instance on the stack
@@ -445,7 +442,7 @@ SQInteger Tasks::Exists(Int32 id, Int32 type, HSQUIRRELVM vm)
         return res; // Propagate the error
     }
     // Push a boolean on whether this task was found
-    sq_pushbool(vm, pos >= 0);
+    sq_pushbool(vm, static_cast< SQBool >(pos >= 0));
     // Specify that we're returning a value
     return 1;
 }
@@ -456,7 +453,7 @@ const Tasks::Task & Tasks::FindByTag(Int32 id, Int32 type, StackStrF & tag)
     // Attempt to find the requested task
     for (const auto & t : s_Tasks)
     {
-        if (t.mEntity == id && t.mType == type && t.mTag.compare(tag.mPtr) == 0)
+        if (t.mEntity == id && t.mType == type && t.mTag == tag.mPtr)
         {
             return t; // Return this task instance
         }

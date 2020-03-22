@@ -73,7 +73,7 @@ struct Area
     /* --------------------------------------------------------------------------------------------
      * Named constructor.
     */
-    Area(StackStrF & name)
+    explicit Area(StackStrF & name)
         : Area(16, name)
     {
         //...
@@ -83,7 +83,7 @@ struct Area
     */
     Area(SQInteger sz, StackStrF & name)
         : mL(DEF_L), mB(DEF_B), mR(DEF_R), mT(DEF_T), mPoints(), mID(0), mCells()
-        , mName(name.mPtr, name.mLen <= 0 ? 0 : name.mLen)
+        , mName(name.mPtr, static_cast< size_t >(name.mLen <= 0 ? 0 : name.mLen))
 
     {
         // Should we reserve some space for points in advance?
@@ -142,7 +142,7 @@ struct Area
     */
     Area(float ax, float ay, float bx, float by, float cx, float cy, SQInteger sz, StackStrF & name)
         : mL(DEF_L), mB(DEF_B), mR(DEF_R), mT(DEF_T), mPoints(), mID(0), mCells()
-        , mName(name.mPtr, name.mLen <= 0 ? 0 : name.mLen)
+        , mName(name.mPtr, static_cast<size_t>(name.mLen <= 0 ? 0 : name.mLen))
     {
         // Should we reserve some space for points in advance?
         if (sz > 0)
@@ -168,14 +168,6 @@ struct Area
      * Move constructor. (disabled)
     */
     Area(Area && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~Area()
-    {
-        //...
-    }
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
@@ -278,7 +270,7 @@ struct Area
     */
     Vector2 GetCenter() const
     {
-        return Vector2((mL * 0.5f) + (mR * 0.5f), (mB * 0.5f) + (mT * 0.5f));
+        return {(mL * 0.5f) + (mR * 0.5f), (mB * 0.5f) + (mT * 0.5f)};
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -286,7 +278,7 @@ struct Area
     */
     Vector4 GetBoundingBox() const
     {
-        return Vector4(mL, mB, mR, mT);
+        return {mL, mB, mR, mT};
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -472,43 +464,13 @@ protected:
 */
 class AreaManager
 {
-private:
-
     // --------------------------------------------------------------------------------------------
     static AreaManager s_Inst; // Manager instance.
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    AreaManager(size_t sz = 16);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    AreaManager(const AreaManager & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor. (disabled)
-    */
-    AreaManager(AreaManager && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~AreaManager()
-    {
-        //...
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    AreaManager & operator = (const AreaManager & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator. (disabled)
-    */
-    AreaManager & operator = (AreaManager && o) = delete;
+    explicit AreaManager(size_t sz = 16) noexcept;
 
 protected:
 
@@ -521,7 +483,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Base constructor.
         */
-        CellGuard(AreaCell & cell)
+        explicit CellGuard(AreaCell & cell)
             : mCell(cell)
         {
             ++(cell.mLocks); // Place a lock on the cell to prevent iterator invalidation
@@ -580,20 +542,12 @@ protected:
         /* --------------------------------------------------------------------------------------------
          * Move constructor.
         */
-        QueueElement(QueueElement && o)
+        QueueElement(QueueElement && o) noexcept
             : mCell(o.mCell), mArea(o.mArea), mObj(std::move(o.mObj))
         {
             // Take ownership
             o.mCell = nullptr;
             o.mArea = nullptr;
-        }
-
-        /* --------------------------------------------------------------------------------------------
-         * Destructor.
-        */
-        ~QueueElement()
-        {
-            //...
         }
 
         /* --------------------------------------------------------------------------------------------
@@ -604,7 +558,7 @@ protected:
         /* --------------------------------------------------------------------------------------------
          * Move assignment operator.
         */
-        QueueElement & operator = (QueueElement && o)
+        QueueElement & operator = (QueueElement && o) noexcept
         {
             // Avoid self assignment
             if (this != &o)
@@ -646,6 +600,26 @@ private:
 public:
 
     /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    AreaManager(const AreaManager & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    AreaManager(AreaManager && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    AreaManager & operator = (const AreaManager & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    AreaManager & operator = (AreaManager && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the core instance.
     */
     static AreaManager & Get()
@@ -676,7 +650,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Clear all cell lists and release any script references.
     */
-    Vector2i LocateCell(float x, float y);
+    static Vector2i LocateCell(float x, float y);
 
     /* --------------------------------------------------------------------------------------------
      * Test a point to see whether it intersects with any areas

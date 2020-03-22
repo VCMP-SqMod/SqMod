@@ -9,7 +9,7 @@
 #include <functional>
 
 // ------------------------------------------------------------------------------------------------
-#define SQMOD_VALID_TAG_STR(t) if (!t) { STHROWF("The specified tag is invalid"); }
+#define SQMOD_VALID_TAG_STR(t) if (!(t)) { STHROWF("The specified tag is invalid"); }
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -20,7 +20,7 @@ namespace Algo {
 */
 inline CSStr sqmod_stristr(CSStr haystack, CSStr needle)
 {
-    for (const SQChar chr = std::tolower(*needle); *haystack != '\0'; ++haystack)
+    for (const auto chr = static_cast< const SQChar >(std::tolower(*needle)); *haystack != '\0'; ++haystack)
     {
         if (static_cast< SQChar >(std::tolower(*haystack)) != chr)
         {
@@ -241,7 +241,7 @@ void EachBegins(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, len, cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(len), cs) == 0) == neg)
             {
                 collect(*first);
             }
@@ -273,7 +273,7 @@ void EachBeginsWhile(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, len, cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(len), cs) == 0) == neg)
             {
                 if (!collect(*first))
                 {
@@ -311,7 +311,7 @@ void EachEnds(Iterator first, Iterator last,
         // Compare the tag
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), len, cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), static_cast< Uint32 >(len), cs) == 0) == neg)
             {
                 collect(*first);
             }
@@ -343,7 +343,7 @@ void EachEndsWhile(Iterator first, Iterator last,
         // Compare the tag
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), len, cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), static_cast< Uint32 >(len), cs) == 0) == neg)
             {
                 if (!collect(*first))
                 {
@@ -477,7 +477,7 @@ void FirstBegins(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, len, cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(len), cs) == 0) == neg)
             {
                 receive(*first);
                 break;
@@ -511,7 +511,7 @@ void FirstEnds(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), len, cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), static_cast< Uint32 >(len), cs) == 0) == neg)
             {
                 receive(*first);
                 break;
@@ -895,7 +895,7 @@ template < typename T > struct AppendElemFunc
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    AppendElemFunc(SQInteger idx = -2, HSQUIRRELVM vm = DefaultVM::Get())
+    explicit AppendElemFunc(SQInteger idx = -2, HSQUIRRELVM vm = DefaultVM::Get())
         : mIdx(idx), mVM(vm)
     {
         /* ... */
@@ -979,7 +979,7 @@ public:
         // Push the element instance on the stack
         sq_pushobject(vm, inst.mObj.mObj);
         // Make the function call and store the result
-        SQRESULT res = sq_call(vm, 2, true, ErrorHandling::IsEnabled());
+        SQRESULT res = sq_call(vm, 2, static_cast< SQBool >(true), static_cast< SQBool >(ErrorHandling::IsEnabled()));
         // Make sure the callback object and return value are popped from the stack
         const SqPopGuard pg(vm, 2);
         // Validate the result
@@ -1009,7 +1009,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the count value.
     */
-    operator Uint32 () const
+    operator Uint32 () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return mCount;
     }
@@ -1055,7 +1055,7 @@ public:
         // Push the iteration context on the stack
         sq_pushobject(vm, mData.mObj);
         // Make the function call and store the result
-        SQRESULT res = sq_call(vm, 3, true, ErrorHandling::IsEnabled());
+        SQRESULT res = sq_call(vm, 3, static_cast< SQBool >(true), static_cast< SQBool >(ErrorHandling::IsEnabled()));
         // Make sure the callback object and return value are popped from the stack
         const SqPopGuard pg(vm, 2);
         // Validate the result
@@ -1085,7 +1085,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the count value.
     */
-    operator Uint32 () const
+    operator Uint32 () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return mCount;
     }
@@ -1121,7 +1121,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the count value.
     */
-    operator Uint32 () const
+    operator Uint32 () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return mCount;
     }
@@ -1629,14 +1629,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag matches the specified filter.
     */
-    static inline Uint32 CountWhereTagMatches(bool neg, bool cs, CSStr tag)
+    static inline CountElem CountWhereTagMatches(bool neg, bool cs, CSStr tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter
         CountElem cnt;
         // Process each entity in the pool
         EachMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
-                        std::reference_wrapper< CountElem >(cnt), tag, !neg, cs);
+                    std::reference_wrapper< CountElem >(cnt), tag, !neg, static_cast< bool >(cs));
         // Return the count
         return cnt;
     }

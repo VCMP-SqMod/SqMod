@@ -45,7 +45,7 @@ private:
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        Task()
+        Task() noexcept
             : mHash(0)
             , mTag()
             , mSelf()
@@ -55,7 +55,7 @@ private:
             , mIterations(0)
             , mInterval(0)
             , mEntity(-1)
-            , mType(-1)
+            , mType(0)
             , mArgc(0)
             , mArgv()
         {
@@ -149,7 +149,7 @@ private:
         */
         void SetTag(StackStrF & tag)
         {
-            mTag.assign(tag.mPtr, ClampMin(tag.mLen, 0));
+            mTag.assign(tag.mPtr, static_cast< size_t  >(ClampMin(tag.mLen, 0)));
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -270,7 +270,19 @@ private:
     static Interval     s_Intervals[SQMOD_MAX_TASKS]; // List of intervals to be processed.
     static Task         s_Tasks[SQMOD_MAX_TASKS]; // List of tasks to be executed.
 
+public:
+
     /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    Tasks & operator = (const Tasks & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    Tasks & operator = (Tasks && o) = delete;
+
+  /* --------------------------------------------------------------------------------------------
      * Default constructor. (disabled)
     */
     Tasks() = delete;
@@ -289,18 +301,6 @@ private:
      * Destructor. (disabled)
     */
     ~Tasks() = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    Tasks & operator = (const Tasks & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator. (disabled)
-    */
-    Tasks & operator = (Tasks && o) = delete;
-
-public:
 
     /* --------------------------------------------------------------------------------------------
      * Process all active tasks and update elapsed time.
@@ -402,7 +402,10 @@ public:
                 STHROWF("Invalid entity instance");
             }
             // Validate the actual entity instance
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
             inst->Validate();
+#pragma clang diagnostic pop
         }
         catch (const Sqrat::Exception & e)
         {
@@ -430,7 +433,10 @@ public:
                 STHROWF("Invalid entity instance");
             }
             // Validate the actual entity instance
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
             inst->Validate();
+#pragma clang diagnostic pop
         }
         catch (const Sqrat::Exception & e)
         {
@@ -458,7 +464,10 @@ public:
                 STHROWF("Invalid entity instance");
             }
             // Validate the actual entity instance
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
             inst->Validate();
+#pragma clang diagnostic pop
         }
         catch (const Sqrat::Exception & e)
         {
@@ -491,7 +500,10 @@ public:
                 STHROWF("Invalid entity instance");
             }
             // Validate the actual entity instance
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
             inst->Validate();
+#pragma clang diagnostic pop
         }
         catch (const Sqrat::Exception & e)
         {

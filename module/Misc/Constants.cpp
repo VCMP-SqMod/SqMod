@@ -37,9 +37,9 @@ static const EnumElement g_SqMod[] = {
     {_SC("MinFloat32"),     std::numeric_limits< Float32 >::min()},
     {_SC("MaxFloat32"),     std::numeric_limits< Float32 >::max()},
     {_SC("FpNormal"),       FP_NORMAL},
-    {_SC("FpSubnormal"),    FP_SUBNORMAL},
+    {_SC("FpSubnormal"),    FP_SUBNORMAL}, // NOLINT(hicpp-signed-bitwise)
     {_SC("FpZero"),         FP_ZERO},
-    {_SC("FpInfinite"),     FP_INFINITE},
+    {_SC("FpInfinite"),     FP_INFINITE}, // NOLINT(hicpp-signed-bitwise)
     {_SC("FpNan"),          FP_NAN},
 #ifdef SQUSEDOUBLE
     {_SC("HugeVal"),        HUGE_VAL},

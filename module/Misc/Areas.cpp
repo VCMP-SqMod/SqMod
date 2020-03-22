@@ -13,6 +13,8 @@ SQMODE_DECL_TYPENAME(AreaTypename, _SC("SqArea"))
 // ------------------------------------------------------------------------------------------------
 AreaManager AreaManager::s_Inst;
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedValue"
 // ------------------------------------------------------------------------------------------------
 void Area::AddArray(const Sqrat::Array & a)
 {
@@ -45,6 +47,7 @@ void Area::AddArray(const Sqrat::Array & a)
         return true;
     });
 }
+#pragma clang diagnostic pop
 
 // ------------------------------------------------------------------------------------------------
 bool Area::Manage()
@@ -115,9 +118,9 @@ bool Area::IsInside(float x, float y) const
             const float dy = (b.y - a.y);
             float k;
 
-            if (fabs(dx) < 0.000001f)
+            if (fabsf(dx) < 0.000001f)
             {
-                k = 0xffffffff;
+                k = 0xffffffffu; // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
             }
             else
             {
@@ -138,7 +141,7 @@ bool Area::IsInside(float x, float y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-AreaManager::AreaManager(size_t sz)
+AreaManager::AreaManager(size_t sz) noexcept
     : m_Queue(), m_ProcList(), m_Grid{}
 {
     // Negative half grid size (left)
@@ -150,12 +153,11 @@ AreaManager::AreaManager(size_t sz)
     // Positive half grid size (top)
     int t = abs(l);
     // Initialize the grid cells
-    for (int y = 0; y < GRIDN; ++y)
+    for (auto & a : m_Grid)
     {
-        for (int x = 0; x < GRIDN; ++x)
+        for (auto & c : a)
         {
             // Grab a reference to the cell
-            AreaCell & c = m_Grid[y][x];
             // Configure the range of the cell
             c.mL = static_cast< float >(l);
             c.mB = static_cast< float >(b);
@@ -215,7 +217,7 @@ void AreaManager::Remove(AreaCell & c, Area & a)
     else
     {
         // Attempt to locate this area in the cell
-        AreaCell::Areas::iterator itr = std::find_if(c.mAreas.begin(), c.mAreas.end(),
+        auto itr = std::find_if(c.mAreas.begin(), c.mAreas.end(),
             [&a](AreaCell::Areas::reference p) -> bool {
                 return (p.first == &a);
         });
@@ -226,7 +228,7 @@ void AreaManager::Remove(AreaCell & c, Area & a)
         }
     }
     // Dissociate the area with this cell so it can be managed again (even while in the queue)
-    Area::Cells::iterator itr = std::find(a.mCells.begin(), a.mCells.end(), &c);
+    auto itr = std::find(a.mCells.begin(), a.mCells.end(), &c);
     // Was is associated?
     if (itr != a.mCells.end())
     {
@@ -238,7 +240,7 @@ void AreaManager::Remove(AreaCell & c, Area & a)
 void AreaManager::ProcQueue()
 {
     // Look for actions that can be completed
-    for (Queue::iterator itr = m_Queue.begin(); itr != m_Queue.end(); ++itr)
+    for (auto itr = m_Queue.begin(); itr != m_Queue.end(); ++itr)
     {
         // Was this cell unlocked in the meantime?
         if (itr->mCell->mLocks <= 0)
@@ -293,11 +295,10 @@ void AreaManager::InsertArea(Area & a, LightObj & obj)
         return; // Already managed or nothing to manage
     }
     // Go through each cell and check if the area touches it
-    for (int y = 0; y < GRIDN; ++y)
+    for (auto & y : m_Grid)
     {
-        for (int x = 0; x < GRIDN; ++x)
+        for (auto & c : y)
         {
-            AreaCell & c = m_Grid[y][x];
             // Does the bounding box of this cell intersect with the one of the area?
             if (a.mL <= c.mR && c.mL <= a.mR && a.mB <= c.mT && c.mB <= a.mT)
             {
@@ -330,7 +331,7 @@ Vector2i AreaManager::LocateCell(float x, float y)
     // Make sure the cell coordinates are within range
     if (xca > (GRIDH+1) || yca > (GRIDH+1))
     {
-        return Vector2i(NOCELL, NOCELL); // Out of our scanning area
+        return {NOCELL, NOCELL}; // Out of our scanning area
     }
     // Clamp the x coordinate if necessary
     if (xca >= (GRIDH))
@@ -343,7 +344,7 @@ Vector2i AreaManager::LocateCell(float x, float y)
         yc = xc < 0 ? -(GRIDH-1) : (GRIDH-1);
     }
     // Return the identified cell row and column
-    return Vector2i(GRIDH+xc, GRIDH-yc);
+    return {GRIDH+xc, GRIDH-yc};
 }
 
 // ------------------------------------------------------------------------------------------------

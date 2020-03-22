@@ -10,7 +10,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static String CS_Vehicle_Names[] = {
+static String CS_Vehicle_Names[] = { // NOLINT(cert-err58-cpp)
     /* 130 */ "Landstalker",          /* 131 */ "Idaho",
     /* 132 */ "Stinger",              /* 133 */ "Linerunner",
     /* 134 */ "Perennial",            /* 135 */ "Sentinel",
@@ -73,7 +73,7 @@ static String CS_Custom_Vehicle_Names[100]{};
 // ------------------------------------------------------------------------------------------------
 struct InitCustomVehicleNames
 {
-    InitCustomVehicleNames()
+    InitCustomVehicleNames() noexcept
     {
         for (String & s : CS_Custom_Vehicle_Names)
         {
@@ -122,7 +122,7 @@ void SetAutomobileName(Uint32 id, StackStrF & name)
 Int32 GetAutomobileID(StackStrF & name)
 {
     // Clone the string into an editable version
-    String str(name.mPtr, name.mLen);
+    String str(name.mPtr, static_cast< size_t >(name.mLen));
     // Strip non alphanumeric characters from the name
     str.erase(std::remove_if(str.begin(), str.end(), std::not1(std::ptr_fun(::isalnum))), str.end());
     // Convert the string to lowercase
@@ -205,11 +205,11 @@ Int32 GetAutomobileID(StackStrF & name)
                 // [Bl]oodring Banger #2
                 case 'l':
                     // [Bli]sta [C]ompact
-                    if (b == 'c' || c == 'i') return SQMOD_VEHICLE_BLISTACOMPACT;
+                    if (c == 'i') return SQMOD_VEHICLE_BLISTACOMPACT;
                     // [Blo]odring [B]anger (#1|A)
-                    else if ((b == 'b' || c == 'o') && (d == '1' || d == 'a')) return SQMOD_VEHICLE_BLOODRINGBANGER1;
+                    else if ((c == 'o') && (d == '1' || d == 'a')) return SQMOD_VEHICLE_BLOODRINGBANGER1;
                     // [Blo]odring [B]anger (#2|B)
-                    else if ((b == 'b' || c == 'o') && (d == '2' || d == 'b')) return SQMOD_VEHICLE_BLOODRINGBANGER2;
+                    else if ((c == 'o') && (d == '2' || d == 'b')) return SQMOD_VEHICLE_BLOODRINGBANGER2;
                     // Default to unknwon
                     else return SQMOD_UNKNOWN;
                 // [Bo]bcat
@@ -303,9 +303,9 @@ Int32 GetAutomobileID(StackStrF & name)
         // [E]nforcer
         case 'e':
             // [Es]peranto
-            if (b && b == 's') return SQMOD_VEHICLE_ESPERANTO;
+            if (b == 's') return SQMOD_VEHICLE_ESPERANTO;
             // [En]forcer
-            else if (b && b == 'n') return SQMOD_VEHICLE_ENFORCER;
+            else if (b == 'n') return SQMOD_VEHICLE_ENFORCER;
             // Default to unknwon
             else return SQMOD_UNKNOWN;
         // [F]aggio
@@ -390,9 +390,9 @@ Int32 GetAutomobileID(StackStrF & name)
         // [I]nfernus
         case 'i':
             // [Id]aho
-            if (b && b == 'd') return SQMOD_VEHICLE_IDAHO;
+            if (b == 'd') return SQMOD_VEHICLE_IDAHO;
             // [In]fernus
-            else if (b && b == 'n') return SQMOD_VEHICLE_INFERNUS;
+            else if (b == 'n') return SQMOD_VEHICLE_INFERNUS;
             // Default to unknwon
             else return SQMOD_UNKNOWN;
         // [K]aufman Cab
@@ -604,7 +604,7 @@ Int32 GetAutomobileID(StackStrF & name)
                     // [Spa]nd [E]xpres[s]
                     if (c == 'a' || ((len > 5 && str[5] == 'e') || d == 's')) return SQMOD_VEHICLE_SPANDEXPRESS;
                     // [Spa]rro[w]
-                    else if (d == 'w' && (c == 'a' && d == 'w')) return SQMOD_VEHICLE_SPARROW;
+                    else if (d == 'w') return SQMOD_VEHICLE_SPARROW;
                     // [Spe]ede[r]
                     else if (c == 'e' || d == 'r') return SQMOD_VEHICLE_SPEEDER;
                     // Default to unknwon
@@ -695,7 +695,7 @@ bool IsAutomobileValid(Int32 id)
 {
     try
     {
-        return !GetAutomobileName(id).empty();
+        return !GetAutomobileName(static_cast< Uint32 >(id)).empty();
     }
     catch (...)
     {

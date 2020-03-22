@@ -77,34 +77,34 @@ struct SQOuter;
 #define SQUIRREL_EOB 0
 #define SQ_BYTECODE_STREAM_TAG  0xFAFA
 
-#define SQOBJECT_REF_COUNTED    0x08000000
-#define SQOBJECT_NUMERIC        0x04000000
-#define SQOBJECT_DELEGABLE      0x02000000
-#define SQOBJECT_CANBEFALSE     0x01000000
+#define SQOBJECT_REF_COUNTED    0x08000000u
+#define SQOBJECT_NUMERIC        0x04000000u
+#define SQOBJECT_DELEGABLE      0x02000000u
+#define SQOBJECT_CANBEFALSE     0x01000000u
 
 #define SQ_MATCHTYPEMASKSTRING (-99999)
 
-#define _RT_MASK 0x00FFFFFF
+#define _RT_MASK 0x00FFFFFFu
 #define _RAW_TYPE(type) (type&_RT_MASK)
 
-#define _RT_NULL            0x00000001
-#define _RT_INTEGER         0x00000002
-#define _RT_FLOAT           0x00000004
-#define _RT_BOOL            0x00000008
-#define _RT_STRING          0x00000010
-#define _RT_TABLE           0x00000020
-#define _RT_ARRAY           0x00000040
-#define _RT_USERDATA        0x00000080
-#define _RT_CLOSURE         0x00000100
-#define _RT_NATIVECLOSURE   0x00000200
-#define _RT_GENERATOR       0x00000400
-#define _RT_USERPOINTER     0x00000800
-#define _RT_THREAD          0x00001000
-#define _RT_FUNCPROTO       0x00002000
-#define _RT_CLASS           0x00004000
-#define _RT_INSTANCE        0x00008000
-#define _RT_WEAKREF         0x00010000
-#define _RT_OUTER           0x00020000
+#define _RT_NULL            0x00000001u
+#define _RT_INTEGER         0x00000002u
+#define _RT_FLOAT           0x00000004u
+#define _RT_BOOL            0x00000008u
+#define _RT_STRING          0x00000010u
+#define _RT_TABLE           0x00000020u
+#define _RT_ARRAY           0x00000040u
+#define _RT_USERDATA        0x00000080u
+#define _RT_CLOSURE         0x00000100u
+#define _RT_NATIVECLOSURE   0x00000200u
+#define _RT_GENERATOR       0x00000400u
+#define _RT_USERPOINTER     0x00000800u
+#define _RT_THREAD          0x00001000u
+#define _RT_FUNCPROTO       0x00002000u
+#define _RT_CLASS           0x00004000u
+#define _RT_INSTANCE        0x00008000u
+#define _RT_WEAKREF         0x00010000u
+#define _RT_OUTER           0x00020000u
 
 typedef enum tagSQObjectType{
     OT_NULL =           (_RT_NULL|SQOBJECT_CANBEFALSE),

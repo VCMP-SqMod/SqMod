@@ -32,11 +32,6 @@ Uint32 GetCustomWeaponNamePoolSize();
 void ClearCustomWeaponNamePool();
 
 /* ------------------------------------------------------------------------------------------------
- * Modify the name associated with a weapon identifier.
-*/
-void SetWeaponName(Uint32 id, StackStrF & name);
-
-/* ------------------------------------------------------------------------------------------------
  * Convert a weapon name to a weapon identifier.
 */
 Int32 GetWeaponID(StackStrF & name);

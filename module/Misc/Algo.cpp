@@ -11,7 +11,7 @@
 #include "Entity/Vehicle.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#define SQMOD_VALID_NAME_STR(t) if (!t) { STHROWF("The specified name is invalid"); }
+#define SQMOD_VALID_NAME_STR(t) if (!(t)) { STHROWF("The specified name is invalid"); }
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -119,8 +119,8 @@ static const LightObj & Blip_FindBySprID(Int32 sprid)
         STHROWF("The specified sprite identifier is invalid: %d", sprid);
     }
     // Obtain the ends of the entity pool
-    Core::Blips::const_iterator itr = Core::Get().GetBlips().cbegin();
-    Core::Blips::const_iterator end = Core::Get().GetBlips().cend();
+    auto itr = Core::Get().GetBlips().cbegin();
+    auto end = Core::Get().GetBlips().cend();
     // Process each entity in the pool
     for (; itr != end; ++itr)
     {
@@ -467,7 +467,7 @@ static inline Uint32 Player_EachWhereNameMatchesData(bool neg, bool cs, CSStr na
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name matches or not the specified one.
 */
-static inline Uint32 Player_CountWhereNameEquals(bool neg, bool cs, CSStr name)
+static inline CountElemFunc <CPlayer> Player_CountWhereNameEquals(bool neg, bool cs, CSStr name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter

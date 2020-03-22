@@ -99,7 +99,7 @@ Uint32 GetServerFlags();
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the maximum number of clients allowed on the server.
 */
-Int32 GetMaxPlayers(void);
+Int32 GetMaxPlayers();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the maximum number of clients allowed on the server.
@@ -200,7 +200,7 @@ void SetWastedSettings(Uint32 dt, Uint32 ft, Float32 fis, Float32 fos,
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the current time-rate.
 */
-Uint32 GetTimeRate(void);
+Int32 GetTimeRate();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the current time-rate.
@@ -210,7 +210,7 @@ void SetTimeRate(Uint32 rate);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game hour.
 */
-Int32 GetHour(void);
+Int32 GetHour();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the game hour.
@@ -220,7 +220,7 @@ void SetHour(Int32 hour);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game minute.
 */
-Int32 GetMinute(void);
+Int32 GetMinute();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the game minute.
@@ -230,7 +230,7 @@ void SetMinute(Int32 minute);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the weather effects.
 */
-Int32 GetWeather(void);
+Int32 GetWeather();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the weather effects.
@@ -240,7 +240,7 @@ void SetWeather(Int32 weather);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game gravity.
 */
-Float32 GetGravity(void);
+Float32 GetGravity();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the game gravity.
@@ -250,7 +250,7 @@ void SetGravity(Float32 gravity);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game speed.
 */
-Float32 GetGameSpeed(void);
+Float32 GetGameSpeed();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the game speed.
@@ -260,7 +260,7 @@ void SetGameSpeed(Float32 speed);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the water level.
 */
-Float32 GetWaterLevel(void);
+Float32 GetWaterLevel();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the water level.
@@ -270,7 +270,7 @@ void SetWaterLevel(Float32 level);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the maximum flight altitude.
 */
-Float32 GetMaximumFlightAltitude(void);
+Float32 GetMaximumFlightAltitude();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the maximum flight altitude.
@@ -280,7 +280,7 @@ void SetMaximumFlightAltitude(Float32 height);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the kill command delay.
 */
-Int32 GetKillCommandDelay(void);
+Int32 GetKillCommandDelay();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the kill command delay.
@@ -290,7 +290,7 @@ void SetKillCommandDelay(Int32 delay);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the vehicles forced respawn height.
 */
-Float32 GetVehiclesForcedRespawnHeight(void);
+Float32 GetVehiclesForcedRespawnHeight();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the vehicles forced respawn height.
@@ -355,7 +355,7 @@ void ShowMapObjectRaw(Int32 model, Int16 x, Int16 y, Int16 z);
 /* ------------------------------------------------------------------------------------------------
  * Make all map objects visible again.
 */
-void ShowAllMapObjects(void);
+void ShowAllMapObjects();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve field data of a certain weapon.

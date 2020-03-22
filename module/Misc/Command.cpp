@@ -1,4 +1,7 @@
 // ------------------------------------------------------------------------------------------------
+#include <utility>
+
+
 #include "Misc/Command.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -16,8 +19,8 @@ SQMODE_DECL_TYPENAME(ManagerTypename, _SC("SqCmdManager"))
 SQMODE_DECL_TYPENAME(ListenerTypename, _SC("SqCmdListener"))
 
 // ------------------------------------------------------------------------------------------------
-Guard::Guard(const CtrRef & ctr, Object & invoker)
-    : mController(ctr)
+Guard::Guard(CtrRef ctr, Object & invoker)
+    : mController(std::move(ctr))
     , mPrevious(mController->m_Context)
     , mCurrent(new Context(invoker))
 {
@@ -31,8 +34,8 @@ Guard::~Guard()
 }
 
 // ------------------------------------------------------------------------------------------------
-Command::Command(std::size_t hash, const String & name, Listener * ptr, const CtrPtr & ctr)
-    : mHash(hash), mName(name), mPtr(ptr), mObj(ptr), mCtr(ctr)
+Command::Command(std::size_t hash, String name, Listener * ptr, CtrPtr  ctr)
+    : mHash(hash), mName(std::move(name)), mPtr(ptr), mObj(ptr), mCtr(std::move(ctr))
 {
     if (mPtr)
     {
@@ -40,18 +43,8 @@ Command::Command(std::size_t hash, const String & name, Listener * ptr, const Ct
     }
 }
 // ------------------------------------------------------------------------------------------------
-Command::Command(std::size_t hash, const String & name, const Object & obj, const CtrPtr & ctr)
-    : mHash(hash), mName(name), mPtr(obj.Cast< Listener * >()), mObj(obj), mCtr(ctr)
-{
-    if (mPtr)
-    {
-        mPtr->m_Controller = mCtr; // Create controller association
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-Command::Command(std::size_t hash, const String & name, Object && obj, const CtrPtr & ctr)
-    : mHash(hash), mName(name), mPtr(obj.Cast< Listener * >()), mObj(obj), mCtr(ctr)
+Command::Command(std::size_t hash, String name, const Object & obj, CtrPtr  ctr)
+    : mHash(hash), mName(std::move(name)), mPtr(obj.Cast< Listener * >()), mObj(obj), mCtr(std::move(ctr))
 {
     if (mPtr)
     {
@@ -60,8 +53,8 @@ Command::Command(std::size_t hash, const String & name, Object && obj, const Ctr
 }
 
 // ------------------------------------------------------------------------------------------------
-Command::Command(std::size_t hash, const String & name, Listener * ptr, const Object & obj, const CtrPtr & ctr)
-    : mHash(hash), mName(name), mPtr(ptr), mObj(obj), mCtr(ctr)
+Command::Command(std::size_t hash, String name, Object && obj, CtrPtr  ctr)
+    : mHash(hash), mName(std::move(name)), mPtr(obj.Cast< Listener * >()), mObj(obj), mCtr(std::move(ctr))
 {
     if (mPtr)
     {
@@ -70,8 +63,18 @@ Command::Command(std::size_t hash, const String & name, Listener * ptr, const Ob
 }
 
 // ------------------------------------------------------------------------------------------------
-Command::Command(std::size_t hash, const String & name, Listener * ptr, Object && obj, const CtrPtr & ctr)
-    : mHash(hash), mName(name), mPtr(ptr), mObj(obj), mCtr(ctr)
+Command::Command(std::size_t hash, String name, Listener * ptr, const Object & obj, CtrPtr  ctr) // NOLINT(modernize-pass-by-value)
+    : mHash(hash), mName(std::move(name)), mPtr(ptr), mObj(obj), mCtr(std::move(ctr))
+{
+    if (mPtr)
+    {
+        mPtr->m_Controller = mCtr; // Create controller association
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+Command::Command(std::size_t hash, String name, Listener * ptr, Object && obj, CtrPtr  ctr)
+    : mHash(hash), mName(std::move(name)), mPtr(ptr), mObj(obj), mCtr(std::move(ctr))
 {
     if (mPtr)
     {
@@ -382,7 +385,7 @@ Int32 Controller::Exec(Context & ctx)
         catch (const Sqrat::Exception & e)
         {
             // Let's store the exception message
-            ctx.mBuffer.Write(0, e.what(), e.Message().size());
+            ctx.mBuffer.Write(0, e.what(), static_cast< Buffer::SzType >(e.Message().size()));
             // Specify that the command execution failed
             failed = true;
         }
@@ -404,7 +407,7 @@ Int32 Controller::Exec(Context & ctx)
         catch (const Sqrat::Exception & e)
         {
             // Let's store the exception message
-            ctx.mBuffer.Write(0, e.what(), e.Message().size());
+            ctx.mBuffer.Write(0, e.what(), static_cast< Buffer::SzType >(e.Message().size()));
             // Specify that the command execution failed
             failed = true;
         }
@@ -480,7 +483,7 @@ bool Controller::Parse(Context & ctx)
     // Obtain the flags of the currently processed argument
     Uint8 arg_flags = ctx.mInstance->m_ArgSpec[ctx.mArgc];
     // Adjust the internal buffer if necessary (mostly never)
-    ctx.mBuffer.Adjust(ctx.mArgument.size());
+    ctx.mBuffer.Adjust(static_cast< Buffer::SzType >(ctx.mArgument.size()));
     // The iterator to the currently processed character
     String::const_iterator itr = ctx.mArgument.cbegin();
     // Previous and currently processed character
@@ -633,7 +636,7 @@ bool Controller::Parse(Context & ctx)
             // Obtain both ends of the argument string
             CCStr str = &(*itr), end = &(*pos);
             // Compute the argument string size
-            const Uint32 sz = std::distance(itr, pos);
+            const auto sz = static_cast< const Uint32 >(std::distance(itr, pos));
             // Update the main iterator position
             itr = pos;
             // Update the currently processed character
@@ -696,7 +699,7 @@ bool Controller::Parse(Context & ctx)
                 // Fill the temporary buffer with data from the internal buffer
                 for (; sptr < end; ++sptr, ++bptr)
                 {
-                    *bptr = std::tolower(*sptr);
+                    *bptr = static_cast< char >(std::tolower(*sptr));
                 }
                 // Terminate the copied string portion
                 *bptr = '\0';
@@ -706,7 +709,7 @@ bool Controller::Parse(Context & ctx)
                 if (std::strcmp(lc, "true") == 0 || std::strcmp(lc, "on") == 0)
                 {
                     // Transform it into a script object
-                    sq_pushbool(DefaultVM::Get(), true);
+                    sq_pushbool(DefaultVM::Get(), static_cast< SQBool >(true));
                     // We've identified the correct value type
                     identified = true;
                 }
@@ -714,7 +717,7 @@ bool Controller::Parse(Context & ctx)
                 else if (std::strcmp(lc, "false") == 0 || std::strcmp(lc, "off") == 0)
                 {
                     // Transform it into a script object
-                    sq_pushbool(DefaultVM::Get(), false);
+                    sq_pushbool(DefaultVM::Get(), static_cast< SQBool >(false));
                     // We've identified the correct value type
                     identified = true;
                 }
@@ -1012,7 +1015,7 @@ void Listener::ProcSpec(CSStr str)
         // Reset all argument specifiers if failed
         std::memset(m_ArgSpec, CMDARG_ANY, sizeof(m_ArgSpec));
         // Propagate the exception back to the caller
-        throw e;
+        throw e; // NOLINT(hicpp-exception-baseclass,cert-err60-cpp)
     }
     // Attempt to generate an informational message
     GenerateInfo(false);
@@ -1051,22 +1054,14 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("GetTable"), &Manager::GetCommandsTable)
         .Func(_SC("Foreach"), &Manager::ForeachCommand)
         // Member Overloads
-        .Overload< Object (Manager::*)(StackStrF &) >
-            (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(StackStrF &, StackStrF &) >
-            (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &) >
-            (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Uint8, Uint8) >
-            (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &, Uint8, Uint8) >
-            (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &, Uint8, Uint8, SQInteger) >
-            (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &, Uint8, Uint8, SQInteger, bool) >
-            (_SC("Create"), &Manager::Create)
-        .Overload< Object (Manager::*)(StackStrF &, StackStrF &, Array &, Uint8, Uint8, SQInteger, bool, bool) >
-            (_SC("Create"), &Manager::Create)
+        .Overload(_SC("Create"), &Manager::Create1)
+        .Overload(_SC("Create"), &Manager::Create2)
+        .Overload(_SC("Create"), &Manager::Create3)
+        .Overload(_SC("Create"), &Manager::Create4)
+        .Overload(_SC("Create"), &Manager::Create5)
+        .Overload(_SC("Create"), &Manager::Create6)
+        .Overload(_SC("Create"), &Manager::Create7)
+        .Overload(_SC("Create"), &Manager::Create)
     );
 
     cmdns.Bind(_SC("Listener"),

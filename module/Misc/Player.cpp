@@ -11,7 +11,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static String CS_Skin_Names[] = {
+static String CS_Skin_Names[] = { // NOLINT(cert-err58-cpp)
     /* 0   */ "Tommy Vercetti",           /* 1   */ "Cop",
     /* 2   */ "SWAT",                     /* 3   */ "FBI",
     /* 4   */ "Army",                     /* 5   */ "Paramedic",
@@ -114,7 +114,7 @@ void SetSkinName(Uint32 id, StackStrF & name)
 Int32 GetSkinID(StackStrF & name)
 {
     // Clone the string into an editable version
-    String str(name.mPtr, name.mLen);
+    String str(name.mPtr, static_cast< size_t >(name.mLen));
     // Strip non alphanumeric characters from the name
     str.erase(std::remove_if(str.begin(), str.end(), std::not1(std::ptr_fun(::isalnum))), str.end());
     // Convert the string to lowercase
@@ -154,6 +154,7 @@ Int32 GetSkinID(StackStrF & name)
                 case 'r':
                     if (c == 'a') return SQMOD_SKIN_ARABIC_GUY;
                     else if (c == 'm') return SQMOD_SKIN_ARMY;
+                default: break;
             }
         // [B]each guy (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)/(#7|G)/(#8|H)
         // [B]each lady (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)/(#7|G)
@@ -184,6 +185,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'g': return SQMOD_SKIN_BEACH_GUY_G;
                     case '8':
                     case 'h': return SQMOD_SKIN_BEACH_GUY_H;
+                    default: break;
                 }
             }
             // [Be]ach [l]ady (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)/(#7|G)
@@ -205,6 +207,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'f': return SQMOD_SKIN_BEACH_LADY_F;
                     case '7':
                     case 'g': return SQMOD_SKIN_BEACH_LADY_G;
+                    default: break;
                 }
             }
             // [Bi]ker (#1|A)/(#2|B)
@@ -248,6 +251,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'e': return SQMOD_SKIN_BUSINESS_MAN_E;
                     case '6':
                     case 'f': return SQMOD_SKIN_BUSINESS_MAN_F;
+                    default: break;
                 }
             }
         // [C]am, [C]am (Robber), [C]andy Suxx, [C]hef
@@ -315,6 +319,7 @@ Int32 GetSkinID(StackStrF & name)
                         case 'c': return SQMOD_SKIN_COOL_GUY_C;
                         case '4':
                         case 'd': return SQMOD_SKIN_COOL_GUY_D;
+                        default: break;
                     }
                 }
                 // [Cop]
@@ -346,6 +351,7 @@ Int32 GetSkinID(StackStrF & name)
                 case 'g':
                     if (d == '1' || d == 'a') return SQMOD_SKIN_DIAZ_GUY_A;
                     else if (d == '2' || d == 'b') return SQMOD_SKIN_DIAZ_GUY_B;
+                default: break;
             }
         // [F]BI, [F]ireman, [F]ood lady, [F]rench guy
         // fall through
@@ -363,6 +369,7 @@ Int32 GetSkinID(StackStrF & name)
                 // [Fr]ench [g]uy
                 case 'r':
                 case 'g': return SQMOD_SKIN_FRENCH_GUY;
+                default: break;
             }
         // [G]arbageman (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)
         // [G]olf guy (#1|A)/(#2|B)/(#3|C)
@@ -385,6 +392,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'd': return SQMOD_SKIN_GARBAGEMAN_D;
                     case '5':
                     case 'e': return SQMOD_SKIN_GARBAGEMAN_E;
+                    default: break;
                 }
             }
             // [Go]lf [g]uy (#1|A)/(#2|B)/(#3|C)
@@ -398,6 +406,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'b': return SQMOD_SKIN_GOLF_GUY_B;
                     case '3':
                     case 'c': return SQMOD_SKIN_GOLF_GUY_C;
+                    default: break;
                 }
             }
             // [Go]lf [l]ady
@@ -434,6 +443,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'd': return SQMOD_SKIN_HATIAN_D;
                     case '5':
                     case 'e': return SQMOD_SKIN_HATIAN_E;
+                    default: break;
                 }
             }
             // [Hi]lary ([R]obbe[r])
@@ -453,7 +463,7 @@ Int32 GetSkinID(StackStrF & name)
         case 'l':
             //[Lan]ce ([C]o[p])
             if ((b == 'a') && (c == 'n') && ((len > 5 && str[5] == 'c') || d == 'p'))
-                return SQMOD_SKIN_LANCE_COP;
+                return SQMOD_SKIN_LANCE_COP; // NOLINT(bugprone-branch-clone)
             else if (b && (b == 'c' ||  (b == 'a' && (c == 'n'))))
                 return SQMOD_SKIN_LANCE_COP;
             // [La]nce (#1|A)/(#1|B)
@@ -476,6 +486,7 @@ Int32 GetSkinID(StackStrF & name)
                     case '3':
                     case 'c': return SQMOD_SKIN_LOVE_FIST_C;
                     case 'd': return SQMOD_SKIN_LOVE_FIST_D;
+                    default: break;
                 }
             }
         // [M]ercades
@@ -526,6 +537,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'e': return SQMOD_SKIN_PROSTITUTE_E;
                     case '4':
                     case 'f': return SQMOD_SKIN_PROSTITUTE_F;
+                    default: break;
                 }
             }
             // [Pu]nk (#1|A)/(#2|B)/(#3|C)
@@ -539,6 +551,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'b': return SQMOD_SKIN_PUNK_B;
                     case '3':
                     case 'c': return SQMOD_SKIN_PUNK_C;
+                    default: break;
                 }
             }
         // [R]ich guy, [R]ockstar guy
@@ -572,6 +585,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'b': return SQMOD_SKIN_SAILOR_B;
                     case '3':
                     case 'c': return SQMOD_SKIN_SAILOR_C;
+                    default: break;
                 }
             }
             // [S]hark (#1|A)/(#2|B)
@@ -583,6 +597,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'a': return SQMOD_SKIN_SHARK_A;
                     case '2':
                     case 'b': return SQMOD_SKIN_SHARK_B;
+                    default: break;
                 }
             }
             // [S]hopper (#1|A)/(#2|B)
@@ -594,6 +609,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'a': return SQMOD_SKIN_SHOPPER_A;
                     case '2':
                     case 'b': return SQMOD_SKIN_SHOPPER_B;
+                    default: break;
                 }
             }
             // [Sk]ate [g]uy
@@ -605,7 +621,7 @@ Int32 GetSkinID(StackStrF & name)
             // [So]nny
             // [So]nny guy (#1|A)/(#2|B)/(#3|C)
             else if (b == 'o')
-            {
+            { // NOLINT(bugprone-branch-clone)
                 switch (d)
                 {
                     case '1':
@@ -614,6 +630,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'b': return SQMOD_SKIN_SONNY_GUY_B;
                     case '3':
                     case 'c': return SQMOD_SKIN_SONNY_GUY_C;
+                    default: break;
                 }
             }
             else if (b == 'g')
@@ -626,6 +643,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'b': return SQMOD_SKIN_SONNY_GUY_B;
                     case '3':
                     case 'c': return SQMOD_SKIN_SONNY_GUY_C;
+                    default: break;
                 }
             }
             // [Sp]andE[x] (#1|A)/(#2|B)
@@ -637,6 +655,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'a': return SQMOD_SKIN_SPANDEX_GUY_A;
                     case '2':
                     case 'b': return SQMOD_SKIN_SPANDEX_GUY_B;
+                    default: break;
                 }
             }
             // [Sp]anish [g]uy
@@ -655,6 +674,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'c': return SQMOD_SKIN_SPANISH_LADY_C;
                     case '4':
                     case 'd': return SQMOD_SKIN_SPANISH_LADY_D;
+                    default: break;
                 }
             }
             // [Sto]re clerk
@@ -670,6 +690,7 @@ Int32 GetSkinID(StackStrF & name)
                     case 'b': return SQMOD_SKIN_STRIPPER_B;
                     case '3':
                     case 'c': return SQMOD_SKIN_STRIPPER_C;
+                    default: break;
                 }
             }
             // [Sw]at
@@ -693,6 +714,7 @@ Int32 GetSkinID(StackStrF & name)
                         case 'b': return SQMOD_SKIN_TAXI_DRIVER_B;
                         case 'c': return SQMOD_SKIN_TAXI_DRIVER_C;
                         case 'd': return SQMOD_SKIN_TAXI_DRIVER_D;
+                        default: break;
                     }
                 // [Th]ug (#1|A)/(#2|B)
                 case 'h':
@@ -702,6 +724,7 @@ Int32 GetSkinID(StackStrF & name)
                         case 'a': return SQMOD_SKIN_THUG_A;
                         case '5':
                         case 'b': return SQMOD_SKIN_THUG_B;
+                        default: break;
                     }
                 // [To]mmy [V]ercetti
                 // [To]urist (#1|A)/(#2|B)
@@ -712,6 +735,7 @@ Int32 GetSkinID(StackStrF & name)
                     else if (c == 'u' && (d == '2' || d == 'b')) return SQMOD_SKIN_TOURIST_B;
                 // fall through
                 case 'r': return SQMOD_SKIN_TRANNY;
+                default: break;
             }
         // [U]ndercover cop (#1|A)/(#2|B)/(#3|C)/(#4|D)/(#5|E)/(#6|F)
         case 'u':
@@ -729,6 +753,7 @@ Int32 GetSkinID(StackStrF & name)
                 case 'e': return SQMOD_SKIN_UNDERCOVER_COP_E;
                 case '6':
                 case 'f': return SQMOD_SKIN_UNDERCOVER_COP_F;
+                default: break;
             }
         // [V]ercetti guy (#1|A)/(#2|B)
         case 'v':
@@ -738,6 +763,7 @@ Int32 GetSkinID(StackStrF & name)
                 case 'a': return SQMOD_SKIN_VERCETTI_GUY_A;
                 case '2':
                 case 'b': return SQMOD_SKIN_VERCETTI_GUY_B;
+                default: break;
             }
         // [W]aitress (#1|A)/(#2|B)
         case 'w':
@@ -747,6 +773,7 @@ Int32 GetSkinID(StackStrF & name)
                 case 'a': return SQMOD_SKIN_WAITRESS_A;
                 case '2':
                 case 'b': return SQMOD_SKIN_WAITRESS_B;
+                default: break;
             }
         // Default to unknown
         default: return SQMOD_UNKNOWN;
@@ -756,7 +783,7 @@ Int32 GetSkinID(StackStrF & name)
 // ------------------------------------------------------------------------------------------------
 bool IsSkinValid(Int32 id)
 {
-    CSStr name = GetSkinName(id);
+    CSStr name = GetSkinName(static_cast<Uint32>(id));
     return (name && *name != '\0');
 }
 

@@ -1,9 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
-#include "Base/Shared.hpp"
 #include "Base/Color3.hpp"
 #include "Base/Vector2.hpp"
-#include "Base/Vector3.hpp"
 #include "Entity/Player.hpp"
 #include "Library/Numeric/LongInt.hpp"
 

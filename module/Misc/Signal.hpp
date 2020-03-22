@@ -53,7 +53,7 @@ struct Signal
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Signal(String && name);
+    explicit Signal(String && name);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor (disabled).
@@ -183,7 +183,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Move constructor.
         */
-        Slot(Slot && o)
+        Slot(Slot && o) noexcept
             : mThisHash(o.mThisHash)
             , mFuncHash(o.mFuncHash)
             , mThisRef(o.mThisRef)
@@ -227,7 +227,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Move assignment operator.
         */
-        Slot & operator = (Slot && o)
+        Slot & operator = (Slot && o) noexcept
         {
             if (this != &o)
             {
@@ -665,6 +665,8 @@ protected:
     static SignalPool   s_Signals; // List of all created signals.
     static FreeSignals  s_FreeSignals; // List of signals without a name.
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "MemberFunctionCanBeStatic"
     /* --------------------------------------------------------------------------------------------
      * Specialization for when there are no arguments given.
     */
@@ -672,6 +674,7 @@ protected:
     {
         //...
     }
+#pragma clang diagnostic pop
 
     /* --------------------------------------------------------------------------------------------
      * Specialization for when there's only one argument given/remaining.
@@ -749,13 +752,13 @@ public:
             // Push the given parameters on the stack
             PushParameters(args...);
             // Make the function call and store the result
-            const SQRESULT res = sq_call(vm, 1 + sizeof...(Args), false, ErrorHandling::IsEnabled());
+            const SQRESULT res = sq_call(vm, 1 + sizeof...(Args), static_cast< SQBool >(false), static_cast< SQBool >(ErrorHandling::IsEnabled()));
             // Pop the callback object from the stack
             sq_pop(vm, 1);
             // Validate the result
             if (SQ_FAILED(res))
             {
-                SQTHROW(vm, LastErrorString(vm)); // Stop emitting signals
+                SQTHROW(vm, LastErrorString(vm)); // Stop emitting signals NOLINT(hicpp-exception-baseclass,cert-err60-cpp)
             }
         }
     }

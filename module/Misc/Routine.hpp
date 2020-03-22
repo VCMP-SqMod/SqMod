@@ -45,7 +45,7 @@ private:
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
         */
-        Instance()
+        Instance() noexcept
             : mEnv()
             , mFunc()
             , mInst()
@@ -160,7 +160,7 @@ private:
                     sq_pushobject(vm, mArgv[n].mObj);
                 }
                 // Make the function call and store the result
-                const SQRESULT res = sq_call(vm, mArgc + 1, false, !mQuiet);
+                const SQRESULT res = sq_call(vm, mArgc + 1, static_cast< SQBool >(false), static_cast< SQBool >(!mQuiet));
                 // Pop the callback object from the stack
                 sq_pop(vm, 1);
                 // Validate the result
@@ -235,11 +235,29 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Routine(Uint32 slot)
+    explicit Routine(Uint32 slot)
         : m_Slot(slot)
     {
         /* ... */
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Find an unoccupied routine slot.
+    */
+    static SQInteger FindUnused()
+    {
+        for (const auto & r : s_Instances)
+        {
+            if (r.mInst.IsNull())
+            {
+                return (&r - s_Instances); // Return the index of this element
+            }
+        }
+        // No available slot
+        return -1;
+    }
+
+public:
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -260,24 +278,6 @@ protected:
      * Move assignment operator. (disabled)
     */
     Routine & operator = (Routine && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Find an unoccupied routine slot.
-    */
-    static SQInteger FindUnused()
-    {
-        for (const auto & r : s_Instances)
-        {
-            if (r.mInst.IsNull())
-            {
-                return (&r - s_Instances); // Return the index of this element
-            }
-        }
-        // No available slot
-        return -1;
-    }
-
-public:
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of used routine slots.
@@ -310,7 +310,7 @@ public:
         // Iterate routine list
         for (const auto & r : s_Instances)
         {
-            if (!r.mInst.IsNull() && r.mTag.compare(tag.mPtr) == 0)
+            if (!r.mInst.IsNull() && r.mTag == tag.mPtr)
             {
                 return r.mInst; // Return this routine instance
             }
@@ -318,7 +318,10 @@ public:
         // Unable to find such routine
         STHROWF("Unable to find a routine with tag (%s)", tag.mPtr);
         // Should not reach this point but if it did, we have to return something
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warray-bounds"
         return s_Instances[SQMOD_MAX_ROUTINES].mInst; // Intentional Buffer overflow!
+#pragma clang diagnostic pop
     }
     /* --------------------------------------------------------------------------------------------
      * Check if a routine with a certain tag exists.
@@ -405,7 +408,7 @@ public:
     */
     void SetTag(StackStrF & tag)
     {
-        GetValid().mTag.assign(tag.mPtr, ClampMin(tag.mLen, 0));
+        GetValid().mTag.assign(tag.mPtr, static_cast< size_t >(ClampMin(tag.mLen, 0)));
     }
 
     /* --------------------------------------------------------------------------------------------

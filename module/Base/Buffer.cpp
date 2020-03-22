@@ -282,10 +282,13 @@ private:
         {
             ThrowMemExcept("Attempting to push invalid node");
         }
-        // Demote the current head node
-        node->mNext = s_Nodes;
-        // Promote as the head node
-        s_Nodes = node;
+        else
+        {
+            // Demote the current head node
+            node->mNext = s_Nodes;
+            // Promote as the head node
+            s_Nodes = node;
+        }
     }
 };
 

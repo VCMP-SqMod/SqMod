@@ -30,11 +30,12 @@ struct SignalWrapper
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    SignalWrapper(HSQUIRRELVM vm, bool extra = false)
+    explicit SignalWrapper(HSQUIRRELVM vm, bool extra = false)
         : mSignal(nullptr)
         , mSlot()
         , mVM(vm)
         , mRes(Initialize(vm, extra))
+        , mOne(false), mAppend(false)
     {
         //...
     }
@@ -236,7 +237,7 @@ template < class Slot > struct MatchThis
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    MatchThis(SQHash t)
+    explicit MatchThis(SQHash t)
         : mThisHash(t)
     {
         //...
@@ -262,7 +263,7 @@ template < class Slot > struct MatchFunc
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    MatchFunc(SQHash f)
+    explicit MatchFunc(SQHash f)
         : mFuncHash(f)
     {
         //...
@@ -612,10 +613,10 @@ bool Signal::AdjustSlots(SizeType capacity)
     // Calculate the next optimal size of the buffer
     while (size < capacity)
     {
-        size += (size + 1) >> 1;
+        size += (size + 1u) >> 1u;
     }
     // Attempt to allocate a memory buffer of the resulted size
-    Pointer slots = reinterpret_cast< Pointer >(new uint8_t[size * sizeof(Slot)]);
+    auto slots = reinterpret_cast< Pointer >(new uint8_t[size * sizeof(Slot)]);
     // See if the memory could be allocated
     if (slots == nullptr)
     {
@@ -626,7 +627,7 @@ bool Signal::AdjustSlots(SizeType capacity)
     // Are there any existing slots?
     if (m_Used)
     {
-        // Grab the range of slots to be transfered
+        // Grab the range of slots to be transferred
         Pointer src = m_Slots, end = (m_Slots + m_Used);
         // Transfer the existing slots
         while (src != end)
@@ -728,7 +729,7 @@ SQInteger Signal::Exists(SignalWrapper & w)
     const bool r = ExistsIf(MatchSlot< Slot >(w.mSlot.mThisHash, w.mSlot.mFuncHash),
                                     m_Slots, m_Slots + m_Used);
     // Push the resulted value on the stack
-    sq_pushbool(w.mVM, r);
+    sq_pushbool(w.mVM, static_cast< SQBool >(r));
     // Specify that we returned a value
     return 1;
 }
@@ -739,7 +740,7 @@ SQInteger Signal::ExistsThis(SignalWrapper & w)
     // Forward the call to the actual function
     const bool r = ExistsIf(MatchThis< Slot >(w.mSlot.mThisHash), m_Slots, m_Slots + m_Used);
     // Push the resulted value on the stack
-    sq_pushbool(w.mVM, r);
+    sq_pushbool(w.mVM, static_cast< SQBool >(r));
     // Specify that we returned a value
     return 1;
 }
@@ -750,7 +751,7 @@ SQInteger Signal::ExistsFunc(SignalWrapper & w)
     // Forward the call to the actual function
     const bool r = ExistsIf(MatchFunc< Slot >(w.mSlot.mFuncHash), m_Slots, m_Slots + m_Used);
     // Push the resulted value on the stack
-    sq_pushbool(w.mVM, r);
+    sq_pushbool(w.mVM, static_cast< SQBool >(r));
     // Specify that we returned a value
     return 1;
 }
@@ -1000,7 +1001,7 @@ SQInteger Signal::Emit(HSQUIRRELVM vm, SQInteger top)
             }
         }
         // Make the function call and store the result
-        res = sq_call(vm, top, false, ErrorHandling::IsEnabled());
+        res = sq_call(vm, top, static_cast< SQBool >(false), static_cast< SQBool >(ErrorHandling::IsEnabled()));
         // Pop the callback object from the stack
         sq_pop(vm, 1);
         // Validate the result
@@ -1083,7 +1084,7 @@ SQInteger Signal::Query(HSQUIRRELVM vm, SQInteger top)
             }
         }
         // Make the function call and store the result
-        res = sq_call(vm, top-2, true, ErrorHandling::IsEnabled());
+        res = sq_call(vm, top-2, static_cast< SQBool >(true), static_cast< SQBool >(ErrorHandling::IsEnabled()));
         // Validate the result
         if (SQ_FAILED(res))
         {
@@ -1098,7 +1099,7 @@ SQInteger Signal::Query(HSQUIRRELVM vm, SQInteger top)
         // Push the returned value
         sq_push(vm, -3);
         // Make the function call and store the result
-        res = sq_call(vm, 2, false, ErrorHandling::IsEnabled());
+        res = sq_call(vm, 2, static_cast< SQBool >(false), static_cast< SQBool >(ErrorHandling::IsEnabled()));
         // Pop the callback object, return value and collector from the stack
         sq_pop(vm, 3);
         // Validate the result
@@ -1149,7 +1150,7 @@ SQInteger Signal::Consume(HSQUIRRELVM vm, SQInteger top)
             }
         }
         // Make the function call and store the result
-        res = sq_call(vm, top, true, ErrorHandling::IsEnabled());
+        res = sq_call(vm, top, static_cast< SQBool >(true), static_cast< SQBool >(ErrorHandling::IsEnabled()));
         // Validate the result
         if (SQ_FAILED(res))
         {
@@ -1224,7 +1225,7 @@ SQInteger Signal::Approve(HSQUIRRELVM vm, SQInteger top)
             }
         }
         // Make the function call and store the result
-        res = sq_call(vm, top, true, ErrorHandling::IsEnabled());
+        res = sq_call(vm, top, static_cast< SQBool >(true), static_cast< SQBool >(ErrorHandling::IsEnabled()));
         // Validate the result
         if (SQ_FAILED(res))
         {
@@ -1297,7 +1298,7 @@ SQInteger Signal::Request(HSQUIRRELVM vm, SQInteger top)
             }
         }
         // Make the function call and store the result
-        res = sq_call(vm, top, true, ErrorHandling::IsEnabled());
+        res = sq_call(vm, top, static_cast< SQBool >(true), static_cast< SQBool >(ErrorHandling::IsEnabled()));
         // Validate the result
         if (SQ_FAILED(res))
         {
@@ -1328,7 +1329,7 @@ SQInteger Signal::SqEmit(HSQUIRRELVM vm)
 {
     const SQInteger top = sq_gettop(vm);
     // Contains the last received result
-    SQRESULT res = SQ_OK;
+    SQRESULT res;
     // Attempt to forward the call to the signal instance
     try
     {
@@ -1368,7 +1369,7 @@ SQInteger Signal::SqQuery(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing collector callback");
     }
     // Contains the last received result
-    SQRESULT res = SQ_OK;
+    SQRESULT res;
     // Attempt to forward the call to the signal instance
     try
     {
@@ -1398,7 +1399,7 @@ SQInteger Signal::SqConsume(HSQUIRRELVM vm)
 {
     const SQInteger top = sq_gettop(vm);
     // Contains the last received result
-    SQRESULT res = SQ_OK;
+    SQRESULT res;
     // Attempt to forward the call to the signal instance
     try
     {
@@ -1428,7 +1429,7 @@ SQInteger Signal::SqApprove(HSQUIRRELVM vm)
 {
     const SQInteger top = sq_gettop(vm);
     // Contains the last received result
-    SQRESULT res = SQ_OK;
+    SQRESULT res;
     // Attempt to forward the call to the signal instance
     try
     {
@@ -1458,7 +1459,7 @@ SQInteger Signal::SqRequest(HSQUIRRELVM vm)
 {
     const SQInteger top = sq_gettop(vm);
     // Contains the last received result
-    SQRESULT res = SQ_OK;
+    SQRESULT res;
     // Attempt to forward the call to the signal instance
     try
     {
@@ -1536,7 +1537,7 @@ LightObj Signal::Create(StackStrF & name)
         return CreateFree();
     }
     // Create a copy of the name
-    String sname(name.mPtr, name.mLen);
+    String sname(name.mPtr, static_cast< size_t >(name.mLen));
     // Compute the hash of the specified name
     const std::size_t hash = std::hash< String >{}(sname);
     // See if the signal already exists
@@ -1572,11 +1573,11 @@ void Signal::Remove(StackStrF & name)
         STHROWF("Signals without names cannot be removed manually");
     }
     // Create a copy of the name
-    const String sname(name.mPtr, name.mLen);
+    const String sname(name.mPtr, static_cast< size_t >(name.mLen));
     // Compute the hash of the specified name
     const std::size_t hash = std::hash< String >{}(sname);
     // Iterator to the existing signal, if any
-    SignalPool::const_iterator itr = s_Signals.cbegin();
+    auto itr = s_Signals.cbegin();
     // Search for a signal with this name
     for (; itr != s_Signals.cend(); ++itr)
     {
@@ -1606,7 +1607,7 @@ const LightObj & Signal::Fetch(StackStrF & name)
         STHROWF("Signals without names cannot be retrieved manually");
     }
     // Create a copy of the name
-    const String sname(name.mPtr, name.mLen);
+    const String sname(name.mPtr, static_cast< size_t >(name.mLen));
     // Compute the hash of the specified name
     const std::size_t hash = std::hash< String >{}(sname);
     // Search for a signal with this name

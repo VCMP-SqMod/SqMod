@@ -2,8 +2,6 @@
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <cmath>
-#include <cstdlib>
 #include <cstring>
 
 // ------------------------------------------------------------------------------------------------
@@ -25,7 +23,7 @@ static HSQUIRRELVM GetSquirrelVM()
 static SQRESULT SqModImpl_LoadScript(const SQChar * filepath, SQBool delay)
 {
     // Attempt to add the specified script to the load queue
-    if (Core::Get().LoadScript(filepath, delay))
+    if (Core::Get().LoadScript(filepath, static_cast< bool >(delay)))
     {
         return SQ_OK; // The script as added or already existed
     }

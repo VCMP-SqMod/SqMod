@@ -11,7 +11,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static String CS_Weapon_Names[] = {
+static String CS_Weapon_Names[] = { // NOLINT(cert-err58-cpp)
     /* 0  */ "Unarmed",                     /* 1  */ "Brass Knuckles",
     /* 2  */ "Screwdriver",                 /* 3  */ "Golf Club",
     /* 4  */ "Nightstick",                  /* 5  */ "Knife",
@@ -138,7 +138,7 @@ void SetWeaponName(Uint32 id, StackStrF & name)
 	if (IsCustomWeapon(id))
 	{
 		// Attempt to insert or update the name into the custom weapon table
-		CS_Custom_Weapon_Names[id] = String(name.mPtr, name.mLen);
+		CS_Custom_Weapon_Names[id] = String(name.mPtr, static_cast< size_t >(name.mLen));
 	}
 	else
 	{
@@ -163,7 +163,7 @@ void ClearCustomWeaponNamePool()
 Int32 GetWeaponID(StackStrF & name)
 {
     // Clone the string into an editable version
-    String str(name.mPtr, name.mLen);
+    String str(name.mPtr, static_cast< size_t >(name.mLen));
     // Strip non alphanumeric characters from the name
     str.erase(std::remove_if(str.begin(), str.end(), std::not1(std::ptr_fun(::isalnum))), str.end());
     // Convert the string to lowercase
@@ -340,7 +340,7 @@ Int32 GetWeaponID(StackStrF & name)
             // [Su]icide
             else if (b == 'u') return SQMOD_WEAPON_SUICIDE;
 	    // Pump action [Sh]otgun
-	    else if (b == 'h') return SQMOD_WEAPON_SHOTGUN;
+            else if (b == 'h') return SQMOD_WEAPON_SHOTGUN;
             // Default to unknwon
             else return SQMOD_UNKNOWN;
         // [T]ear Gas
@@ -371,7 +371,7 @@ Int32 GetWeaponID(StackStrF & name)
 // ------------------------------------------------------------------------------------------------
 bool IsWeaponValid(Int32 id)
 {
-    CSStr name = GetWeaponName(id);
+    CSStr name = GetWeaponName(static_cast< Uint32 >(id));
     return (name && *name != '\0');
 }
 

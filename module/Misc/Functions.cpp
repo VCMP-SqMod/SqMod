@@ -251,7 +251,7 @@ Int32 GetMaxPlayers(void)
 // ------------------------------------------------------------------------------------------------
 void SetMaxPlayers(Int32 max)
 {
-    _Func->SetMaxPlayers(max);
+    _Func->SetMaxPlayers(static_cast< uint32_t >(max));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -338,7 +338,7 @@ void SetGameModeText(StackStrF & text)
 // ------------------------------------------------------------------------------------------------
 void CreateRadioStream(bool listed, StackStrF & name, StackStrF & url)
 {
-    if (_Func->AddRadioStream(-1, name.mPtr, url.mPtr, listed) == vcmpErrorArgumentOutOfBounds)
+    if (_Func->AddRadioStream(-1, name.mPtr, url.mPtr, static_cast< uint8_t >(listed)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid radio stream identifier");
     }
@@ -347,7 +347,7 @@ void CreateRadioStream(bool listed, StackStrF & name, StackStrF & url)
 // ------------------------------------------------------------------------------------------------
 void CreateRadioStreamEx(Int32 id, bool listed, StackStrF & name, StackStrF & url)
 {
-    if (_Func->AddRadioStream(id, name.mPtr, url.mPtr, listed) == vcmpErrorArgumentOutOfBounds)
+    if (_Func->AddRadioStream(id, name.mPtr, url.mPtr, static_cast< uint8_t >(listed)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid radio stream identifier");
     }
@@ -386,7 +386,7 @@ bool GetServerOption(Int32 option_id)
 void SetServerOption(Int32 option_id, bool toggle)
 {
     if (_Func->SetServerOption(static_cast< vcmpServerOption >(option_id),
-                                toggle) == vcmpErrorArgumentOutOfBounds)
+                               static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Unknown option identifier: %d", option_id);
     }
@@ -400,7 +400,7 @@ void SetServerOption(Int32 option_id, bool toggle)
 void SetServerOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload)
 {
     if (_Func->SetServerOption(static_cast< vcmpServerOption >(option_id),
-                                toggle) == vcmpErrorArgumentOutOfBounds)
+                               static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Unknown option identifier: %d", option_id);
     }
@@ -469,7 +469,7 @@ void SetWastedSettings(Uint32 dt, Uint32 ft, Float32 fis, Float32 fos,
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetTimeRate(void)
+Int32 GetTimeRate(void)
 {
     return _Func->GetTimeRate();
 }
@@ -592,7 +592,7 @@ void SetVehiclesForcedRespawnHeight(Float32 height)
 void CreateExplosion(Int32 world, Int32 type, const Vector3 & pos, CPlayer & source, bool grounded)
 {
     if (_Func->CreateExplosion(world, type, pos.x, pos.y, pos.z,
-                                source.GetID(), grounded) == vcmpErrorArgumentOutOfBounds)
+                               source.GetID(), static_cast< uint8_t >(grounded)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Argument value out of bounds");
     }
@@ -602,7 +602,7 @@ void CreateExplosion(Int32 world, Int32 type, const Vector3 & pos, CPlayer & sou
 void CreateExplosionEx(Int32 world, Int32 type, Float32 x, Float32 y, Float32 z, CPlayer & source, bool grounded)
 {
     if (_Func->CreateExplosion(world, type, x, y, z,
-                                source.GetID(), grounded) == vcmpErrorArgumentOutOfBounds)
+                               source.GetID(), static_cast< uint8_t >(grounded)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Argument value out of bounds");
     }

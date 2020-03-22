@@ -70,49 +70,49 @@ struct EnumElement
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructors that can identify the type and perform the proper conversion.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    EnumElement(const SQChar * name, const SQChar * value)
+    EnumElement(const SQChar * name, const SQChar * value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mSTR(value), Type(SQET_STRING)
     { /* ... */ }
-    EnumElement(const SQChar * name, bool value)
+    EnumElement(const SQChar * name, bool value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mBOOL(value), Type(SQET_BOOL)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed char value)
+    EnumElement(const SQChar * name, signed char value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned char value)
+    EnumElement(const SQChar * name, unsigned char value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed short value)
+    EnumElement(const SQChar * name, signed short value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned short value)
+    EnumElement(const SQChar * name, unsigned short value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed int value)
+    EnumElement(const SQChar * name, signed int value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned int value)
+    EnumElement(const SQChar * name, unsigned int value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed long value)
+    EnumElement(const SQChar * name, signed long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned long value)
+    EnumElement(const SQChar * name, unsigned long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed long long value)
+    EnumElement(const SQChar * name, signed long long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned long long value)
+    EnumElement(const SQChar * name, unsigned long long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, float value)
+    EnumElement(const SQChar * name, float value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mREAL(static_cast< SQFloat >(value)), Type(SQET_REAL)
     { /* ... */ }
-    EnumElement(const SQChar * name, double value)
+    EnumElement(const SQChar * name, double value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mREAL(static_cast< SQFloat >(value)), Type(SQET_REAL)
     { /* ... */ }
-    template < typename T > EnumElement(const SQChar * name, T value)
+    template < typename T > EnumElement(const SQChar * name, T value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
 };
@@ -132,28 +132,28 @@ struct EnumElements
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructor that can identify the number of values at compile-time.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    template < size_t N > EnumElements(const EnumElement(&values)[N])
+    template < size_t N > explicit EnumElements(const EnumElement(&values)[N]) noexcept
         : EnumElements(nullptr, values, N)
     { /* ... */ }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructor that takes an explicit number of values at run-time.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    EnumElements(const EnumElement * values, unsigned int count)
+    EnumElements(const EnumElement * values, unsigned int count) noexcept
         : EnumElements(nullptr, values, count)
     { /* ... */ }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructor that can identify the number of values at compile-time.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    template < size_t N > EnumElements(const SQChar * name, const EnumElement(&values)[N])
+    template < size_t N > EnumElements(const SQChar * name, const EnumElement(&values)[N]) noexcept
         : EnumElements(name, values, N)
     { /* ... */ }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructor that takes an explicit number of values at run-time.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    EnumElements(const SQChar * name, const EnumElement * values, unsigned int count)
+    EnumElements(const SQChar * name, const EnumElement * values, unsigned int count) noexcept
         : Name(name), Values(values), Count(count)
     { /* ... */ }
 

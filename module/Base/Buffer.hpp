@@ -139,9 +139,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean for use in boolean operations.
     */
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
-        return m_Ptr;
+        return static_cast<bool>(m_Ptr);
     }
 
     /* --------------------------------------------------------------------------------------------

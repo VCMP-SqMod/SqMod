@@ -1,8 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
-#include "Base/Shared.hpp"
 #include "Base/Color3.hpp"
-#include "Base/Color4.hpp"
 #include "Entity/Player.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -26,7 +24,7 @@ static inline bool SqCanBeInteger(HSQUIRRELVM vm, Int32 idx)
 // ------------------------------------------------------------------------------------------------
 SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int32 & msgidx)
 {
-    const Int32 top = sq_gettop(vm);
+    const auto top = static_cast< Int32 >(sq_gettop(vm));
     // Is the color argument a Color3/Color4 instance?
     if (sq_gettype(vm, idx) == OT_INSTANCE)
     {
@@ -35,7 +33,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
         // Attempt to extract a Color3 value
         try
         {
-            color = (Var< Color3 >(vm, idx).value.GetRGBA() | 0xFF);
+            color = (Var< Color3 >(vm, idx).value.GetRGBA() | 0xFFu);
         }
         catch (...)
         {
@@ -78,7 +76,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
         color = SQMOD_PACK_RGBA(ConvTo< Uint8 >::From(PopStackInteger(vm, idx)),
                                 ConvTo< Uint8 >::From(PopStackInteger(vm, idx+1)),
                                 ConvTo< Uint8 >::From(PopStackInteger(vm, idx+2)),
-                                0xFF);
+                                0xFFu);
         // The message starts right after the color
         msgidx += 3;
     }
@@ -119,43 +117,44 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
             {
                 case 0:
                 {
-                    color = 0x000000FF;
+                    color = 0x000000FFu;
                 } break;
                 case 1:
                 {
-                    color <<= 28;
-                    color |= 0x00000FF;
+                    color <<= 28u;
+                    color |= 0x00000FFu;
                 } break;
                 case 2:
                 {
-                    color <<= 24;
-                    color |= 0x0000FF;
+                    color <<= 24u;
+                    color |= 0x0000FFu;
                 } break;
                 case 3:
                 {
-                    color <<= 20;
-                    color |= 0x000FF;
+                    color <<= 20u;
+                    color |= 0x000FFu;
                 } break;
                 case 4:
                 {
-                    color <<= 16;
-                    color |= 0x00FF;
+                    color <<= 16u;
+                    color |= 0x00FFu;
                 } break;
                 case 5:
                 {
-                    color <<= 12;
-                    color |= 0x0FF;
+                    color <<= 12u;
+                    color |= 0x0FFu;
                 } break;
                 case 6:
                 {
-                    color <<= 8;
-                    color |= 0xFF;
+                    color <<= 8u;
+                    color |= 0xFFu;
                 } break;
                 case 7:
                 {
-                    color <<= 4;
-                    color |= 0x0;
+                    color <<= 4u;
+                    color |= 0x0u;
                 } break;
+              default: break;
             }
         }
         // Are the first characters 0x so we can treat this as hex?
@@ -168,43 +167,44 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
             {
                 case 0:
                 {
-                    color = 0x000000FF;
+                    color = 0x000000FFu;
                 } break;
                 case 1:
                 {
-                    color <<= 28;
-                    color |= 0x00000FF;
+                    color <<= 28u;
+                    color |= 0x00000FFu;
                 } break;
                 case 2:
                 {
-                    color <<= 24;
-                    color |= 0x0000FF;
+                    color <<= 24u;
+                    color |= 0x0000FFu;
                 } break;
                 case 3:
                 {
-                    color <<= 20;
-                    color |= 0x000FF;
+                    color <<= 20u;
+                    color |= 0x000FFu;
                 } break;
                 case 4:
                 {
-                    color <<= 16;
-                    color |= 0x00FF;
+                    color <<= 16u;
+                    color |= 0x00FFu;
                 } break;
                 case 5:
                 {
-                    color <<= 12;
-                    color |= 0x0FF;
+                    color <<= 12u;
+                    color |= 0x0FFu;
                 } break;
                 case 6:
                 {
-                    color <<= 8;
-                    color |= 0xFF;
+                    color <<= 8u;
+                    color |= 0xFFu;
                 } break;
                 case 7:
                 {
-                    color <<= 4;
-                    color |= 0x0;
+                    color <<= 4u;
+                    color |= 0x0u;
                 } break;
+              default: break;
             }
         }
         else
@@ -212,7 +212,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
             // Attempt to treat the value as a color name
             try
             {
-                color = (::SqMod::GetColorStr(str).GetRGBA() | 0xFF);
+                color = (::SqMod::GetColorStr(str).GetRGBA() | 0xFFu);
             }
             catch (...)
             {
@@ -234,7 +234,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
 static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
 {
     // The function needs at least 2 arguments
-    const Int32 top = sq_gettop(vm);
+    const auto top = static_cast< Int32 >(sq_gettop(vm));
     // Was the message color specified?
     if (top <= 1)
     {
@@ -267,8 +267,8 @@ static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
     }
 
     // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
-    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
+    auto itr = Core::Get().GetPlayers().cbegin();
+    auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
     Uint32 count = 0;
     // Currently processed player
@@ -307,7 +307,7 @@ static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
+    const auto top = static_cast< Int32 >(sq_gettop(vm));
     // Was the index of the message prefix specified?
     if (top <= 1)
     {
@@ -346,10 +346,10 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
         return val.mRes; // Propagate the error!
     }
 
-    vcmpError result = vcmpErrorNone;
+    vcmpError result;
     // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
-    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
+    auto itr = Core::Get().GetPlayers().cbegin();
+    auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
     Uint32 count = 0;
     // Currently processed player
@@ -395,7 +395,7 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
+    const auto top = static_cast< Int32 >(sq_gettop(vm));
     // Was the index of the message prefix specified?
     if (top <= 1)
     {
@@ -451,10 +451,10 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
         return val.mRes; // Propagate the error!
     }
 
-    vcmpError result = vcmpErrorNone;
+    vcmpError result;
     // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
-    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
+    auto itr = Core::Get().GetPlayers().cbegin();
+    auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
     Uint32 count = 0;
     // Currently processed player
@@ -500,7 +500,7 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastMessage(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
+    const auto top = static_cast< Int32 >(sq_gettop(vm));
     // Was the message value specified?
     if (top <= 1)
     {
@@ -516,8 +516,8 @@ static SQInteger SqBroadcastMessage(HSQUIRRELVM vm)
     }
 
     // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
-    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
+    auto itr = Core::Get().GetPlayers().cbegin();
+    auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
     Uint32 count = 0;
     // Currently processed player
@@ -556,7 +556,7 @@ static SQInteger SqBroadcastMessage(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastAnnounce(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
+    const auto top = static_cast< Int32 >(sq_gettop(vm));
     // Was the announcement value specified?
     if (top <= 1)
     {
@@ -572,8 +572,8 @@ static SQInteger SqBroadcastAnnounce(HSQUIRRELVM vm)
     }
 
     // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
-    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
+    auto itr = Core::Get().GetPlayers().cbegin();
+    auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
     Uint32 count = 0;
     // Currently processed player
@@ -617,7 +617,7 @@ static SQInteger SqBroadcastAnnounce(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastAnnounceEx(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
+    const auto top = static_cast< Int32 >(sq_gettop(vm));
     // Was the announcement style specified?
     if (top <= 1)
     {
@@ -649,8 +649,8 @@ static SQInteger SqBroadcastAnnounceEx(HSQUIRRELVM vm)
     }
 
     // Obtain the ends of the entity pool
-    Core::Players::const_iterator itr = Core::Get().GetPlayers().cbegin();
-    Core::Players::const_iterator end = Core::Get().GetPlayers().cend();
+    auto itr = Core::Get().GetPlayers().cbegin();
+    auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
     Uint32 count = 0;
     // Currently processed player

@@ -3,12 +3,9 @@
 #include "Library/Chrono.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
 
 // ------------------------------------------------------------------------------------------------
-#include <utility>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -37,7 +34,7 @@ void Routine::Process()
     // Get the current time-stamp
     s_Last = Chrono::GetCurrentSysTime();
     // Calculate the elapsed time
-    const Int32 delta = Int32((s_Last - s_Prev) / 1000L);
+    const auto delta = Int32((s_Last - s_Prev) / 1000L);
     // Process all active routines
     for (Interval * itr = s_Intervals; itr != (s_Intervals + SQMOD_MAX_ROUTINES); ++itr)
     {
@@ -251,7 +248,7 @@ SQInteger Routine::Create(HSQUIRRELVM vm)
     }
 
     // Alright, at this point we can initialize the slot
-    inst.Init(env, func, obj, intrv, itr);
+    inst.Init(env, func, obj, intrv, static_cast< Iterator >(itr));
     // Now initialize the timer
     s_Intervals[slot] = intrv;
     // We have the created routine on the stack, so let's return it
@@ -267,7 +264,7 @@ bool Routine::IsWithTag(StackStrF & tag)
         // Iterate routine list
         for (const auto & r : s_Instances)
         {
-            if (!r.mInst.IsNull() && r.mTag.compare(tag.mPtr) == 0)
+            if (!r.mInst.IsNull() && r.mTag == tag.mPtr)
             {
                 return true; // Yup, we're doing this
             }
@@ -286,7 +283,7 @@ bool Routine::TerminateWithTag(StackStrF & tag)
         // Iterate routine list
         for (auto & r : s_Instances)
         {
-            if (!r.mInst.IsNull() && r.mTag.compare(tag.mPtr) == 0)
+            if (!r.mInst.IsNull() && r.mTag == tag.mPtr)
             {
                 r.Terminate(); // Yup, we're doing this
                 return true; // A routine was terminated

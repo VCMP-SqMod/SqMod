@@ -624,12 +624,12 @@ enum EntityType
  * COLOR PACKING
 */
 
-#define SQMOD_PACK_RGB(r, g, b) static_cast< Uint32 >(r << 16 | g << 8 | b)
-#define SQMOD_PACK_RGBA(r, g, b, a) static_cast< Uint32 >(r << 24 | g << 16 | b << 8 | a)
-#define SQMOD_PACK_ARGB(a, r, g, b) static_cast< Uint32 >(a << 24 | r << 16 | g << 8 | b)
+#define SQMOD_PACK_RGB(r, g, b) static_cast< Uint32 >(r << 16u | g << 8u | b)
+#define SQMOD_PACK_RGBA(r, g, b, a) static_cast< Uint32 >(r << 24u | g << 16u | b << 8u | a)
+#define SQMOD_PACK_ARGB(a, r, g, b) static_cast< Uint32 >(a << 24u | r << 16u | g << 8u | b)
 
-#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) static_cast< Uint32 >(r << 24 | g << 16 | b << 8 | 0)
-#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) static_cast< Uint32 >(0 << 24 | r << 16 | g << 8 | b)
+#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) static_cast< Uint32 >(r << 24u | g << 16u | b << 8u | 0u)
+#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) static_cast< Uint32 >(0u << 24u | r << 16u | g << 8u | b)
 
 /* ------------------------------------------------------------------------------------------------
  * GENERAL RESPONSES

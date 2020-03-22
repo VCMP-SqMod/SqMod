@@ -53,14 +53,14 @@ typedef std::vector< Controller * > Controllers; // List of active controllers.
 */
 enum CmdArgType
 {
-    CMDARG_ANY         = 0,
-    CMDARG_INTEGER     = (1 << 1),
-    CMDARG_FLOAT       = (1 << 2),
-    CMDARG_BOOLEAN     = (1 << 3),
-    CMDARG_STRING      = (1 << 4),
-    CMDARG_LOWER       = (1 << 5),
-    CMDARG_UPPER       = (1 << 6),
-    CMDARG_GREEDY      = (1 << 7)
+    CMDARG_ANY         = 0u,
+    CMDARG_INTEGER     = (1u << 1u),
+    CMDARG_FLOAT       = (1u << 2u),
+    CMDARG_BOOLEAN     = (1u << 3u),
+    CMDARG_STRING      = (1u << 4u),
+    CMDARG_LOWER       = (1u << 5u),
+    CMDARG_UPPER       = (1u << 6u),
+    CMDARG_GREEDY      = (1u << 7u)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ enum CmdArgType
 enum CmdError
 {
     // The command failed for unknown reasons
-    CMDERR_UNKNOWN = 0,
+    CMDERR_UNKNOWN = 0u,
     // The command failed to execute because there was nothing to execute
     CMDERR_EMPTY_COMMAND,
     // The command failed to execute because the command name was invalid after processing
@@ -115,7 +115,9 @@ inline CSStr ValidateName(CSStr name)
     // Create iterator to name start
     CSStr str = name;
     // Inspect name characters
-    while (*str != '\0')
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
+    while ('\0' != *str)
     {
         // Does it contain spaces?
         if (std::isspace(*str) != 0)
@@ -125,6 +127,7 @@ inline CSStr ValidateName(CSStr name)
         // Move to the next character
         ++str;
     }
+#pragma clang diagnostic pop
     // Return the name
     return name;
 }
@@ -170,7 +173,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Context(Object & invoker)
+    explicit Context(Object & invoker)
         : mBuffer(512)
         , mInvoker(invoker)
         , mCommand()
@@ -221,7 +224,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Guard(const CtrRef & ctr, Object & invoker);
+    Guard(CtrRef  ctr, Object & invoker);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
@@ -264,27 +267,27 @@ struct Command
     /* --------------------------------------------------------------------------------------------
      * Construct a command and the also create a script object from the specified listener.
     */
-    Command(std::size_t hash, const String & name, Listener * ptr, const CtrPtr & ctr);
+    Command(std::size_t hash, String name, Listener * ptr, CtrPtr  ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command and extract the listener from the specified script object.
     */
-    Command(std::size_t hash, const String & name, const Object & obj, const CtrPtr & ctr);
+    Command(std::size_t hash, String name, const Object & obj, CtrPtr  ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command and extract the listener from the specified script object.
     */
-    Command(std::size_t hash, const String & name, Object && obj, const CtrPtr & ctr);
+    Command(std::size_t hash, String name, Object && obj, CtrPtr  ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command with the given parameters.
     */
-    Command(std::size_t hash, const String & name, Listener * ptr, const Object & obj, const CtrPtr & ctr);
+    Command(std::size_t hash, String name, Listener * ptr, const Object & obj, CtrPtr  ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command with the given parameters.
     */
-    Command(std::size_t hash, const String & name, Listener * ptr, Object && obj, const CtrPtr & ctr);
+    Command(std::size_t hash, String name, Listener * ptr, Object && obj, CtrPtr  ctr);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
@@ -294,12 +297,12 @@ struct Command
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Command(Command && o)
+    Command(Command && o) noexcept
         : mHash(o.mHash)
-        , mName(std::move(o.mName))
+        , mName(std::forward< String >(o.mName))
         , mPtr(o.mPtr)
-        , mObj(o.mObj)
-        , mCtr(o.mCtr)
+        , mObj(std::forward< Object >(o.mObj))
+        , mCtr(std::forward< CtrPtr >(o.mCtr))
     {
         o.mPtr = nullptr;
     }
@@ -317,14 +320,14 @@ struct Command
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Command & operator = (Command && o)
+    Command & operator = (Command && o) noexcept
     {
         if (this != &o)
         {
             mHash = o.mHash;
-            mName = std::move(o.mName);
+            mName = std::forward< String >(o.mName);
             mPtr = o.mPtr;
-            mObj = o.mObj;
+            mObj = std::forward< Object >(o.mObj);
             mCtr = o.mCtr;
             o.mPtr = nullptr;
         }
@@ -363,7 +366,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Controller(Manager * mgr)
+    explicit Controller(Manager * mgr)
         : m_Commands()
         , m_Context()
         , m_OnFail()
@@ -372,26 +375,6 @@ protected:
     {
         s_Controllers.push_back(this);
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    Controller(const Controller & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor. (disabled)
-    */
-    Controller(Controller && o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    Controller & operator = (const Controller & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator. (disabled)
-    */
-    Controller & operator = (Controller && o) = delete;
 
 protected:
 
@@ -461,7 +444,7 @@ protected:
         // Obtain the unique identifier of the specified name
         const std::size_t hash = std::hash< String >()(name);
         // Iterator to the found command, if any
-        Commands::const_iterator itr = m_Commands.cbegin();
+        auto itr = m_Commands.cbegin();
         // Attempt to find the specified command
         for (; itr != m_Commands.cend(); ++itr)
         {
@@ -484,7 +467,7 @@ protected:
     void Detach(Listener * ptr)
     {
         // Iterator to the found command, if any
-        Commands::const_iterator itr = m_Commands.cbegin();
+        auto itr = m_Commands.cbegin();
         // Attempt to find the specified command
         for (; itr != m_Commands.cend(); ++itr)
         {
@@ -502,6 +485,26 @@ protected:
     }
 
 public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    Controller(const Controller & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    Controller(Controller && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    Controller & operator = (const Controller & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    Controller & operator = (Controller && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Terminate the all controllers by releasing their command listeners and callbacks.
@@ -891,7 +894,7 @@ public:
     {
         if ((SQ_FAILED(command.Proc())))
         {
-            return command.mRes;
+            return static_cast< Int32 >(command.mRes);
         }
         else
         {
@@ -938,7 +941,7 @@ public:
             STHROWF("Invalid or empty command name");
         }
         // Attempt to return the requested command
-        return GetValid()->FindByName(String(name.mPtr, name.mLen));
+        return GetValid()->FindByName(String(name.mPtr, static_cast< size_t >(name.mLen)));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1056,7 +1059,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(StackStrF & name)
+    Object Create1(StackStrF & name)
     {
         return Create(name, DummyStackStrF(), NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
     }
@@ -1064,7 +1067,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(StackStrF & name, StackStrF & spec)
+    Object Create2(StackStrF & name, StackStrF & spec)
     {
         return Create(name, spec, NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
     }
@@ -1072,7 +1075,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(StackStrF & name, StackStrF & spec, Array & tags)
+    Object Create3(StackStrF & name, StackStrF & spec, Array & tags)
     {
         return Create(name, spec, tags, 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false);
     }
@@ -1080,7 +1083,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(StackStrF & name, StackStrF & spec, Uint8 min, Uint8 max)
+    Object Create4(StackStrF & name, StackStrF & spec, Uint8 min, Uint8 max)
     {
         return Create(name, spec, NullArray(), min, max, -1, false, false);
     }
@@ -1088,7 +1091,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max)
+    Object Create5(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max)
     {
         return Create(name, spec, tags, min, max, -1, false, false);
     }
@@ -1096,7 +1099,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
+    Object Create6(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth)
     {
         return Create(name, spec, tags, min, max, auth, auth >= 0, false);
     }
@@ -1104,7 +1107,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create command instances and obtain the associated object.
     */
-    Object Create(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
+    Object Create7(StackStrF & name, StackStrF & spec, Array & tags, Uint8 min, Uint8 max, SQInteger auth, bool prot)
     {
         return Create(name, spec, tags, min, max, auth, prot, false);
     }
@@ -1149,7 +1152,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Convenience constructor.
     */
-    Listener(StackStrF & name)
+    explicit Listener(StackStrF & name)
         : Listener(name, DummyStackStrF(), NullArray(), 0, SQMOD_MAX_CMD_ARGS-1, -1, false, false)
     {
         /* ... */
@@ -1239,11 +1242,11 @@ public:
             STHROWF("Unable to extract a valid listener name");
         }
         // Validate the specified name and assign it
-        m_Name.assign(ValidateName(name.mPtr), name.mLen);
+        m_Name.assign(ValidateName(name.mPtr), static_cast< size_t >(name.mLen));
         // Initialize the specifiers to default values
-        for (Uint8 n = 0; n < SQMOD_MAX_CMD_ARGS; ++n)
+        for (unsigned char & n : m_ArgSpec)
         {
-            m_ArgSpec[n] = CMDARG_ANY;
+            n = CMDARG_ANY;
         }
         // Apply the specified argument rules/specifications
         SetSpec(spec); // guaranteed the value will not be modified!
@@ -1449,13 +1452,13 @@ public:
             // Detach from the current name if necessary
             ctr->Detach(this);
             // Now it's safe to assign the new name
-            m_Name.assign(name.mPtr, name.mLen);
+            m_Name.assign(name.mPtr, static_cast< size_t >(name.mLen));
             // We know the new name is valid
             ctr->Attach(NullObject(), this);
         }
         else
         {
-            m_Name.assign(name.mPtr, name.mLen); // Just assign the name
+            m_Name.assign(name.mPtr, static_cast< size_t >(name.mLen)); // Just assign the name
         }
     }
 
@@ -1498,7 +1501,7 @@ public:
         // Assign the specifier, if any
         if (spec.mLen > 0)
         {
-            m_Spec.assign(spec.mPtr, spec.mLen);
+            m_Spec.assign(spec.mPtr, static_cast< size_t >(spec.mLen));
         }
         else
         {
@@ -1530,9 +1533,9 @@ public:
         // Preliminary checks before even attempting anything
         if (tags.GetType() != OT_ARRAY || tags.IsNull())
         {
-            for (Uint8 n = 0; n < SQMOD_MAX_CMD_ARGS; ++n)
+            for (auto & m_ArgTag : m_ArgTags)
             {
-                m_ArgTags[n].clear();
+                m_ArgTag.clear();
             }
             // We're done here!
             return;
@@ -1542,9 +1545,9 @@ public:
         // If no tags were specified then clear current tags
         if (!max)
         {
-            for (Uint8 n = 0; n < SQMOD_MAX_CMD_ARGS; ++n)
+            for (auto & m_ArgTag : m_ArgTags)
             {
-                m_ArgTags[n].clear();
+                m_ArgTag.clear();
             }
         }
         // See if we're in range
@@ -1578,7 +1581,7 @@ public:
         }
         else if (help.mLen > 0)
         {
-            m_Help.assign(help.mPtr, help.mLen);
+            m_Help.assign(help.mPtr, static_cast< size_t >(help.mLen));
         }
         else
         {
@@ -1605,7 +1608,7 @@ public:
         }
         else if (info.mLen > 0)
         {
-            m_Info.assign(info.mPtr, info.mLen);
+            m_Info.assign(info.mPtr, static_cast< size_t >(info.mLen));
         }
         else
         {
@@ -1880,7 +1883,7 @@ public:
         // The string type doesn't appreciate null values
         else if (name.mLen > 0)
         {
-            m_ArgTags[arg].assign(name.mPtr, name.mLen);
+            m_ArgTags[arg].assign(name.mPtr, static_cast< size_t >(name.mLen));
         }
         // Clear previous name in this case
         else
@@ -1925,10 +1928,7 @@ public:
     bool AuthCheck(const Object & invoker)
     {
         // Do we need explicit authority verification?
-        if (!m_Protected)
-        {
-            return true; // Anyone can invoke this command
-        }
+        if (!m_Protected) { /* Anyone can invoke this command */ }
         // Was there a custom authority inspector specified?
         else if (!m_OnAuth.IsNull())
         {
