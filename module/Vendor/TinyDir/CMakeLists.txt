@@ -1,6 +1,5 @@
 # Create the TinyDir library
-add_library(TinyDir INTERFACE)
+add_library(TinyDir STATIC include/tinydir.h tinydir.c)
 # Library includes
-target_include_directories(TinyDir INTERFACE ${CMAKE_CURRENT_LIST_DIR})
-# Add it's sources
-target_sources(TinyDir INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/tinydir.h)
+target_include_directories(TinyDir PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(TinyDir PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
