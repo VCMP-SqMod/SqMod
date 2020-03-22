@@ -23,3 +23,6 @@
 
 # Exclude
 !/bin/demo
+
+# Hidden files and folders
+.*
