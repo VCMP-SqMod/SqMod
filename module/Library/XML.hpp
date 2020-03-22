@@ -21,11 +21,6 @@ class XmlNode;
 class XmlText;
 class XmlDocument;
 class XmlAttribute;
-class XPathNode;
-class XPathNodeSet;
-class XPathVariable;
-class XPathVariableSet;
-class XPathVariableQuery;
 class XmlParseResult;
 
 /* ------------------------------------------------------------------------------------------------
@@ -55,7 +50,13 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle and throw exception if invalid.
     */
-    void Validate() const;
+    void Validate() const
+    {
+        if (!m_Ptr)
+        {
+            STHROWF("Invalid XML document reference");
+        }
+    }
 
 private:
 
@@ -83,19 +84,9 @@ private:
         {
             delete m_Ptr;
             delete m_Ref;
-            m_Ptr = NULL;
-            m_Ref = NULL;
+            m_Ptr = nullptr;
+            m_Ref = nullptr;
         }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Base constructor.
-    */
-    DocumentRef(VoidP /* unused */)
-        : m_Ptr(new Type())
-        , m_Ref(new Counter(1))
-    {
-        /* ... */
     }
 
 public:
@@ -104,7 +95,17 @@ public:
      * Default constructor (null).
     */
     DocumentRef()
-        : m_Ptr(NULL), m_Ref(NULL)
+        : m_Ptr(nullptr), m_Ref(nullptr)
+    {
+        /* ... */
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    explicit DocumentRef(std::nullptr_t SQ_UNUSED_ARG(p)) //NOLINT (yes, I am using this constructor)
+            : m_Ptr(new Type())
+            , m_Ref(new Counter(1))
     {
         /* ... */
     }
@@ -122,11 +123,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    DocumentRef(DocumentRef && o)
+    DocumentRef(DocumentRef && o) noexcept
         : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
     {
-        o.m_Ptr = NULL;
-        o.m_Ref = NULL;
+        o.m_Ptr = nullptr;
+        o.m_Ref = nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -140,7 +141,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    DocumentRef & operator = (const DocumentRef & o)
+    DocumentRef & operator = (const DocumentRef & o) //NOLINT (yes, I am checking for self assignment!)
     {
         if (m_Ptr != o.m_Ptr)
         {
@@ -155,14 +156,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    DocumentRef & operator = (DocumentRef && o)
+    DocumentRef & operator = (DocumentRef && o) noexcept
     {
         if (m_Ptr != o.m_Ptr)
         {
             m_Ptr = o.m_Ptr;
             m_Ref = o.m_Ref;
-            o.m_Ptr = NULL;
-            o.m_Ref = NULL;
+            o.m_Ptr = nullptr;
+            o.m_Ref = nullptr;
         }
         return *this;
     }
@@ -186,7 +187,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean for use in boolean operations.
     */
-    operator bool () const
+    operator bool () const //NOLINT (intentionally implicit)
     {
         return m_Ptr;
     }
@@ -194,7 +195,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the managed instance pointer.
     */
-    operator Pointer ()
+    operator Pointer () //NOLINT (intentionally implicit)
     {
         return m_Ptr;
     }
@@ -202,7 +203,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the managed instance pointer.
     */
-    operator ConstPtr () const
+    operator ConstPtr () const //NOLINT (intentionally implicit)
     {
         return m_Ptr;
     }
@@ -210,7 +211,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the managed instance reference.
     */
-    operator Reference ()
+    operator Reference () //NOLINT (intentionally implicit)
     {
         assert(m_Ptr);
         return *m_Ptr;
@@ -219,7 +220,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the managed instance reference.
     */
-    operator ConstRef () const
+    operator ConstRef () const //NOLINT (intentionally implicit)
     {
         assert(m_Ptr);
         return *m_Ptr;
@@ -278,51 +279,37 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Validate the document reference and throw an error if invalid.
     */
-    void Validate() const;
+    void Validate() const
+    {
+        // Is the documen handle valid?
+        if (!m_Doc)
+        {
+            STHROWF("Invalid XML document reference");
+        }
+    }
 
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef m_Doc; /* The main xml document instance. */
-    Result      m_Result; /* The managed parse result. */
+    DocumentRef m_Doc{}; /* The main xml document instance. */
+    Result      m_Result{}; /* The managed parse result. */
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    XmlParseResult()
-        : m_Doc(), m_Result()
-    {
-        /* ... */
-    }
+    XmlParseResult() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    XmlParseResult(const XmlParseResult & o)
-        : m_Doc(o.m_Doc), m_Result(o.m_Result)
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~XmlParseResult()
-    {
-        /* ... */
-    }
+    XmlParseResult(const XmlParseResult & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    XmlParseResult & operator = (const XmlParseResult & o)
-    {
-        m_Doc = o.m_Doc;
-        m_Result = o.m_Result;
-        return *this;
-    }
+    XmlParseResult & operator = (const XmlParseResult & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
@@ -350,11 +337,6 @@ public:
     {
         return m_Result.description();
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid xml document.
@@ -415,7 +397,13 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check the parse result and throw the necessary errors.
     */
-    void Check() const;
+    void Check() const
+    {
+        if (m_Result.status != status_ok)
+        {
+            STHROWF("XML parse error [%s]", m_Result.description());
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -429,19 +417,19 @@ protected:
     typedef xml_document Type;
 
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    XmlDocument(const XmlDocument & o);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    XmlDocument & operator = (const XmlDocument & o);
-
-    /* --------------------------------------------------------------------------------------------
      * See if the document is allowed to overwrite its contents and throw an error if not.
     */
-    void CanLoad() const;
+    void CanLoad() const
+    {
+        // Is the document even valid?
+        m_Doc.Validate();
+        // Are there any other references?
+        if (m_Doc.Count() > 1)
+        {
+            // To load new values now, would mean to cause undefined behavior in existing references
+            STHROWF("Loading is disabled while document is referenced");
+        }
+    }
 
 private:
 
@@ -456,16 +444,18 @@ public:
     XmlDocument()
         : m_Doc(nullptr)
     {
-        /* ... */
+        /*...*/
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Destructor.
+     * Copy constructor. (disabled)
     */
-    ~XmlDocument()
-    {
-        /* ... */
-    }
+    XmlDocument(const XmlDocument & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    XmlDocument & operator = (const XmlDocument & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
@@ -484,7 +474,8 @@ public:
         {
             return 0;
         }
-        else if (*m_Doc == *o.m_Doc)
+
+        if (*m_Doc == *o.m_Doc)
         {
             return 0;
         }
@@ -511,11 +502,6 @@ public:
         // Default to an empty name
         return _SC("");
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid xml document.
@@ -679,8 +665,8 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    XmlNode(const DocumentRef doc, const Type & node)
-        : m_Doc(doc), m_Node(node)
+    XmlNode(DocumentRef doc, const Type & node)
+        : m_Doc(std::move(doc)), m_Node(node)
     {
         /* ... */
     }
@@ -688,46 +674,25 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef  m_Doc; // The main xml document instance.
-    Type         m_Node; // The managed document node.
+    DocumentRef  m_Doc{}; // The main xml document instance.
+    Type         m_Node{}; // The managed document node.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    XmlNode()
-        : m_Doc(), m_Node()
-    {
-        /* ... */
-    }
+    XmlNode() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    XmlNode(const XmlNode & o)
-        : m_Doc(o.m_Doc), m_Node(o.m_Node)
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~XmlNode()
-    {
-        /* ... */
-    }
+    XmlNode(const XmlNode & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    XmlNode & operator = (const XmlNode & o)
-    {
-        m_Doc = o.m_Doc;
-        m_Node = o.m_Node;
-        return *this;
-    }
+    XmlNode & operator = (const XmlNode & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
@@ -755,11 +720,6 @@ public:
     {
         return m_Node.value();
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid xml document.
@@ -1278,8 +1238,8 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    XmlAttribute(const DocumentRef doc, const Type & attr)
-        : m_Doc(doc), m_Attr(attr)
+    XmlAttribute(DocumentRef doc, const Type & attr)
+        : m_Doc(std::move(doc)), m_Attr(attr)
     {
         /* ... */
     }
@@ -1287,46 +1247,25 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef m_Doc; // The main xml document instance.
-    Type        m_Attr; // The managed node attribute.
+    DocumentRef m_Doc{}; // The main xml document instance.
+    Type        m_Attr{}; // The managed node attribute.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    XmlAttribute()
-        : m_Doc(), m_Attr()
-    {
-        /* ... */
-    }
+    XmlAttribute() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    XmlAttribute(const XmlAttribute & o)
-        : m_Doc(o.m_Doc), m_Attr(o.m_Attr)
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~XmlAttribute()
-    {
-        /* ... */
-    }
+    XmlAttribute(const XmlAttribute & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    XmlAttribute & operator = (const XmlAttribute & o)
-    {
-        m_Doc = o.m_Doc;
-        m_Attr = o.m_Attr;
-        return *this;
-    }
+    XmlAttribute & operator = (const XmlAttribute & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
@@ -1354,11 +1293,6 @@ public:
     {
         return m_Attr.value();
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid xml document.
@@ -1711,8 +1645,8 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    XmlText(const DocumentRef doc, const Type & text)
-        : m_Doc(doc), m_Text(text)
+    XmlText(DocumentRef doc, const Type & text)
+        : m_Doc(std::move(doc)), m_Text(text)
     {
         /* ... */
     }
@@ -1720,51 +1654,44 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef m_Doc; // The main xml document instance.
-    Type        m_Text; // The managed document node.
+    DocumentRef m_Doc{}; // The main xml document instance.
+    Type        m_Text{}; // The managed document node.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    XmlText()
-        : m_Doc(), m_Text()
-    {
-        /* ... */
-    }
+    XmlText() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    XmlText(const XmlText & o)
-        : m_Doc(o.m_Doc), m_Text(o.m_Text)
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~XmlText()
-    {
-        /* ... */
-    }
+    XmlText(const XmlText & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    XmlText & operator = (const XmlText & o)
-    {
-        m_Doc = o.m_Doc;
-        m_Text = o.m_Text;
-        return *this;
-    }
+    XmlText & operator = (const XmlText & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const XmlText & o);
+    Int32 Cmp(const XmlText & o)
+    {
+        if (strcmp(m_Text.get(), o.m_Text.get()) == 0)
+        {
+            return 0;
+        }
+        else if (strlen(m_Text.get()) > strlen(o.m_Text.get()))
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
@@ -1772,11 +1699,6 @@ public:
     {
         return m_Text.get();
     }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to retrieve the name from instances of this type.
-    */
-    static SQInteger Typename(HSQUIRRELVM vm);
 
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid xml document.

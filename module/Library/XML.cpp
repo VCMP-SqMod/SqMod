@@ -5,61 +5,11 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-void DocumentRef::Validate() const
-{
-    if (!m_Ptr)
-    {
-        STHROWF("Invalid XML document reference");
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger XmlParseResult::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqXmlParseResult");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
-void XmlParseResult::Validate() const
-{
-    // Is the documen handle valid?
-    if (!m_Doc)
-    {
-        STHROWF("Invalid XML document reference");
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void XmlParseResult::Check() const
-{
-    if (m_Result.status != status_ok)
-    {
-        STHROWF("XML parse error [%s]", m_Result.description());
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger XmlDocument::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqXmlDocument");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
-void XmlDocument::CanLoad() const
-{
-    // Is the document even valid?
-    m_Doc.Validate();
-    // Are there any other references?
-    if (m_Doc.Count() > 1)
-    {
-        // To load new values now, would mean to cause undefined behavior in existing references
-        STHROWF("Loading is disabled while document is referenced");
-    }
-}
+SQMODE_DECL_TYPENAME(XmlParseResultTypename, _SC("SqXmlParseResult"))
+SQMODE_DECL_TYPENAME(XmlDocumentTypename, _SC("SqXmlDocument"))
+SQMODE_DECL_TYPENAME(XmlNodeTypename, _SC("SqXmlNode"))
+SQMODE_DECL_TYPENAME(XmlAttributeTypename, _SC("SqXmlAttribute"))
+SQMODE_DECL_TYPENAME(XmlTextTypename, _SC("SqXmlText"))
 
 // ------------------------------------------------------------------------------------------------
 XmlNode XmlDocument::GetNode() const
@@ -68,14 +18,6 @@ XmlNode XmlDocument::GetNode() const
     m_Doc.Validate();
     // Return the requested information
     return XmlNode(m_Doc, m_Doc->document_element());
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger XmlNode::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqXmlNode");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -163,14 +105,6 @@ bool XmlNode::RemoveAttrInst(const XmlAttribute & attr)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger XmlAttribute::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqXmlAttribute");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
 LightObj XmlAttribute::AsLong(const SLongInt & def) const
 {
     return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Attr.as_llong(def.GetNum()));
@@ -216,31 +150,6 @@ LightObj XmlAttribute::GetUlong() const
 void XmlAttribute::SetUlong(const ULongInt & value)
 {
     m_Attr = value.GetNum();
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger XmlText::Typename(HSQUIRRELVM vm)
-{
-    static const SQChar name[] = _SC("SqXmlText");
-    sq_pushstring(vm, name, sizeof(name));
-    return 1;
-}
-
-// ------------------------------------------------------------------------------------------------
-Int32 XmlText::Cmp(const XmlText & o)
-{
-    if (strcmp(m_Text.get(), o.m_Text.get()) == 0)
-    {
-        return 0;
-    }
-    else if (strlen(m_Text.get()) > strlen(o.m_Text.get()))
-    {
-        return 1;
-    }
-    else
-    {
-        return -1;
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -302,13 +211,13 @@ void Register_XML(HSQUIRRELVM vm)
 {
     Table xmlns(vm);
 
-    xmlns.Bind(_SC("XmlParseResult"), Class< XmlParseResult >(vm, _SC("SqXmlParseResult"))
+    xmlns.Bind(_SC("XmlParseResult"), Class< XmlParseResult >(vm, XmlParseResultTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< const XmlParseResult & >()
         // Core Meta-methods
         .Func(_SC("_cmp"), &XmlParseResult::Cmp)
-        .SquirrelFunc(_SC("_typename"), &XmlParseResult::Typename)
+        .SquirrelFunc(_SC("_typename"), &XmlParseResultTypename::Fn)
         .Func(_SC("_tostring"), &XmlParseResult::ToString)
         // Properties
         .Prop(_SC("Valid"), &XmlParseResult::IsValid)
@@ -322,13 +231,13 @@ void Register_XML(HSQUIRRELVM vm)
         .Func(_SC("Check"), &XmlParseResult::Check)
     );
 
-    xmlns.Bind(_SC("XmlAttribute"), Class< XmlAttribute >(vm, _SC("SqXmlAttribute"))
+    xmlns.Bind(_SC("XmlAttribute"), Class< XmlAttribute >(vm, XmlAttributeTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< const XmlAttribute & >()
         // Core Meta-methods
         .Func(_SC("_cmp"), &XmlAttribute::Cmp)
-        .SquirrelFunc(_SC("_typename"), &XmlAttribute::Typename)
+        .SquirrelFunc(_SC("_typename"), &XmlAttributeTypename::Fn)
         .Func(_SC("_tostring"), &XmlAttribute::ToString)
         // Properties
         .Prop(_SC("Valid"), &XmlAttribute::IsValid)
@@ -367,13 +276,13 @@ void Register_XML(HSQUIRRELVM vm)
         .Func(_SC("SetBool"), &XmlAttribute::ApplyBool)
     );
 
-    xmlns.Bind(_SC("XmlText"), Class< XmlText >(vm, _SC("SqXmlText"))
+    xmlns.Bind(_SC("XmlText"), Class< XmlText >(vm, XmlTextTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< const XmlText & >()
         // Core Meta-methods
         .Func(_SC("_cmp"), &XmlText::Cmp)
-        .SquirrelFunc(_SC("_typename"), &XmlText::Typename)
+        .SquirrelFunc(_SC("_typename"), &XmlTextTypename::Fn)
         .Func(_SC("_tostring"), &XmlText::ToString)
         // Properties
         .Prop(_SC("Valid"), &XmlText::IsValid)
@@ -407,13 +316,13 @@ void Register_XML(HSQUIRRELVM vm)
         .Func(_SC("SetBool"), &XmlText::ApplyBool)
     );
 
-    xmlns.Bind(_SC("XmlNode"), Class< XmlNode >(vm, _SC("SqXmlNode"))
+    xmlns.Bind(_SC("XmlNode"), Class< XmlNode >(vm, XmlNodeTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< const XmlNode & >()
         // Core Meta-methods
         .Func(_SC("_cmp"), &XmlNode::Cmp)
-        .SquirrelFunc(_SC("_typename"), &XmlNode::Typename)
+        .SquirrelFunc(_SC("_typename"), &XmlNodeTypename::Fn)
         .Func(_SC("_tostring"), &XmlNode::ToString)
         // Properties
         .Prop(_SC("Valid"), &XmlNode::IsValid)
@@ -483,12 +392,12 @@ void Register_XML(HSQUIRRELVM vm)
         .Func(_SC("FindElemByPath"), &XmlNode::FindElemByPath)
     );
 
-    xmlns.Bind(_SC("XmlDocument"), Class< XmlDocument, NoCopy< XmlDocument > >(vm, _SC("SqXmlDocument"))
+    xmlns.Bind(_SC("XmlDocument"), Class< XmlDocument, NoCopy< XmlDocument > >(vm, XmlDocumentTypename::Str)
         // Constructors
         .Ctor()
         // Core Meta-methods
         .Func(_SC("_cmp"), &XmlDocument::Cmp)
-        .SquirrelFunc(_SC("_typename"), &XmlDocument::Typename)
+        .SquirrelFunc(_SC("_typename"), &XmlDocumentTypename::Fn)
         .Func(_SC("_tostring"), &XmlDocument::ToString)
         // Properties
         .Prop(_SC("Valid"), &XmlDocument::IsValid)
