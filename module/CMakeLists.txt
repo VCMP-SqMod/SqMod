@@ -41,6 +41,7 @@ add_library(SqModule MODULE
 	Library/IO.cpp Library/IO.hpp
 	Library/IO/File.cpp Library/IO/File.hpp
 	Library/IO/INI.cpp Library/IO/INI.hpp
+	Library/MMDB.cpp Library/MMDB.hpp
 	Library/MySQL.cpp Library/MySQL.hpp
 	Library/Numeric.cpp Library/Numeric.hpp
 	Library/Numeric/LongInt.cpp Library/Numeric/LongInt.hpp
@@ -74,7 +75,7 @@ add_library(SqModule MODULE
 # Link to base libraries
 target_link_libraries(SqModule VCMP Squirrel Sqrat SqSDK)
 # Link to third-party libraries
-target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite)
+target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB)
 # Link to mysql client library
 target_link_libraries(SqModule mariadbclient)
 #
